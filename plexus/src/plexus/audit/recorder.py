@@ -1,0 +1,85 @@
+"""``record_tool_call``: write a ToolCall node plus IN_STEP / CREATED / UPDATED edges.
+
+Backed by the named query ``audit/record_tool_call``.
+"""
+
+from __future__ import annotations
+
+import time
+import uuid
+from collections.abc import Iterable
+
+from plexus.graph.client import GraphClient
+
+MAX_LINKS = 200  # CREATED/UPDATED edges per call (bounded write)
+LINKABLE_LABELS = frozenset(
+    {
+        "Fact",
+        "Episode",
+        "Session",
+        "Entity",
+        "Scope",
+        "Task",
+        "Handoff",
+        "Artifact",
+        "Decision",
+        "Run",
+        "Agent",
+        "Procedure",
+    }
+)
+
+Ref = tuple[str, str]  # (label, id)
+
+
+def _links(refs: Iterable[Ref], rel: str, budget: int) -> list[dict[str, str]]:
+    out: list[dict[str, str]] = []
+    for label, node_id in refs:
+        if len(out) >= budget:
+            break
+        if label in LINKABLE_LABELS and node_id:
+            out.append({"id": str(node_id), "label": label, "rel": rel})
+    return out
+
+
+def record_tool_call(
+    client: GraphClient,
+    graph: str,
+    tool: str,
+    agent_id: str,
+    step_id: str | None,
+    query_name: str,
+    run_time_ms: float,
+    created_ids: Iterable[Ref] = (),
+    updated_ids: Iterable[Ref] = (),
+    *,
+    step: int | None = None,
+    now: int | None = None,
+) -> str:
+    """Record one tool call and return the ``ToolCall`` id.
+
+    ``created_ids`` / ``updated_ids`` are ``(label, id)`` pairs (the label picks an index-backed lookup; unknown
+    labels are dropped). At most :data:`MAX_LINKS` edges are written, CREATED first. ``step_id`` is a Lineage
+    ``Step`` id; if it matches no node there is simply no ``IN_STEP`` edge.
+    """
+    created = _links(created_ids, "C", MAX_LINKS)
+    updated = _links(updated_ids, "U", MAX_LINKS - len(created))
+    call_id = str(uuid.uuid4())
+    t = now if now is not None else time.time_ns() // 1_000_000
+    rows = client.rw(
+        graph,
+        "audit/record_tool_call",
+        {
+            "id": call_id,
+            "tool": tool,
+            "agent_id": agent_id,
+            "step_id": step_id or "",
+            "step": -1 if step is None else step,
+            "query_name": query_name,
+            "run_time_ms": float(run_time_ms),
+            "wrote": bool(created or updated),
+            "links": created + updated,
+            "now": t,
+        },
+    )
+    return rows[0]["id"]

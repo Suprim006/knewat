@@ -65,3 +65,9 @@ Other `//` comment lines in the header or body are free comments and are ignored
 | `relay/record_decision` | rw | Create `Decision` with `DECIDED`, `FOR`, and all-or-nothing `BASED_ON` facts (fact count compared in the same statement) | Decisions link to the exact facts they rest on; `why(decision)` walks `BASED_ON`. |
 | `relay/blocked_by_failure` | ro | Not-done tasks reachable by `(t)<-[:DEPENDS_ON*1..10]-(x)`, with shortest distance | Transitive dependency traversal. |
 | `relay/missing_refs` | ro | Which agent/task/fact/artifact ids exist (explains a rejected handoff or decision) | Diagnostic id lookups. |
+
+## Audit queries (`queries/audit/`)
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `audit/record_tool_call` | rw | Create a `ToolCall` (tool, agent, step, query name, server-side `run_time_ms`, `wrote`) with `IN_STEP` and `CREATED`/`UPDATED` edges to the nodes the tool touched (≤ 200, label+id index lookups, unknown ids get no edge) | The flow the View draws is these edges: each tool call points at the exact nodes it created or updated. Runs as the statement right after the tool's own write (deliberate deviation from "same statement": `run_time_ms` is only known after execution). |
