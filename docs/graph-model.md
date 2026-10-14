@@ -151,3 +151,18 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | `Handoff`, `Decision` | `created_at` | ordering |
 | `CLAIMED` edge | `reclaimed_from` (`''` when not a reclaim) | dead-agent recovery evidence |
 | `VERIFIED_BY` edge | `at` | audit |
+
+## Additions during P1-fix and P2 (graph model v1.2)
+
+| Where | Addition | Why |
+|---|---|---|
+| `Fact` | `value_tokens` | numeric/version tokens. A paraphrase counts as a duplicate only when they are identical (v1 ≠ v2, 8080 ≠ 8081) |
+| `Fact` | `forgotten_at`, `quarantined_at`, `prior_status` | Lineage forgetting and reversible quarantine |
+| `Decision` | `flagged`, `flag_reason` | flagged (not deleted) when a fact it is `BASED_ON` is forgotten |
+| `Task` | `seq` | FIFO tie-break for claims, by `create_tasks` input order |
+| `Task` | `reopened_by`, `reopened_at` | `reopen_task` for failed tasks |
+| `ToolCall` | `step` (-1 when none) | step number without a traversal |
+| `ASSERTED_BY` edge | `at` | when each agent asserted (also for duplicates) |
+| `VERIFIED_BY` edge | `independent` | self-verification is allowed but marked |
+| `(Artifact)-[:FOR]->(Task)` | new edge (the `task_id` property is kept) | the artifact links to its task in the graph |
+| Step attachment | a separate `link_step` statement right after the write | Lineage decision: atomicity of a provenance edge vs. editing every Engram/Relay query (see `docs/queries.md`) |
