@@ -11,6 +11,7 @@ import importlib
 import json
 import logging
 import os
+import threading
 import time
 from collections.abc import AsyncIterator, Callable
 from pathlib import Path
@@ -18,9 +19,11 @@ from typing import Any
 
 import anyio
 from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import Path as PathParam
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, StreamingResponse
 from redis.exceptions import RedisError, ResponseError
+from starlette.background import BackgroundTask
 
 from plexus.api import models as M
 from plexus.graph.client import GraphClient, Rows
@@ -37,6 +40,11 @@ FLOW_LIMIT_MAX = 1000
 STREAM_POLL_S = 0.5
 STREAM_LOOKBACK_MS = 2000  # re-read this much history each poll; ids already sent are skipped
 STREAM_KEEPALIVE_S = 15.0
+STREAM_POLL_MIN_MS = 200  # a client cannot drive more than ~5 database reads per second
+MAX_STREAMS = 20  # concurrent /stream connections (env PLEXUS_API_MAX_STREAMS); more get 429
+FLOW_CACHE_TTL_S = 0.15  # subscribers polling within this window share one view/flow read
+FLOW_CACHE_MAX = 256
+MAX_ID = 128
 INVENTORY_KEY_SAMPLE = 20_000
 
 
@@ -50,9 +58,45 @@ class ReadOnlyClient:
     def ro(self, graph: str, name: str, params: dict | None = None) -> Rows:
         return self._inner.ro(graph, name, params)
 
+    def ping(self) -> bool:
+        return self._inner.ping()
+
     def tenants(self) -> list[str]:
         graphs = self._inner.db.list_graphs()
         return sorted(g[len(TENANT_PREFIX) :] for g in graphs if g.startswith(TENANT_PREFIX))
+
+
+class StreamGate:
+    """Caps concurrent SSE connections; a slot is released exactly once however the stream ends."""
+
+    def __init__(self, limit: int):
+        self.limit = limit
+        self.active = 0
+        self._lock = threading.Lock()
+
+    def try_acquire(self) -> bool:
+        with self._lock:
+            if self.active >= self.limit:
+                return False
+            self.active += 1
+            return True
+
+    def release(self) -> None:
+        with self._lock:
+            self.active = max(self.active - 1, 0)
+
+
+class _Slot:
+    """One acquired stream slot; ``release`` is idempotent (generator end and response end both call it)."""
+
+    def __init__(self, gate: StreamGate):
+        self._gate = gate
+        self._done = False
+
+    def release(self) -> None:
+        if not self._done:
+            self._done = True
+            self._gate.release()
 
 
 def _cors_origins() -> list[str]:
@@ -82,8 +126,15 @@ def _event(row: dict[str, Any]) -> M.ToolCallEvent:
     )
 
 
-def create_app(client: GraphClient | None = None, results_path: str | None = None) -> FastAPI:
+def create_app(
+    client: GraphClient | None = None, results_path: str | None = None, max_streams: int | None = None
+) -> FastAPI:
     ro_client = ReadOnlyClient(client or GraphClient())
+    gate = StreamGate(
+        max_streams
+        if max_streams is not None
+        else int(os.environ.get("PLEXUS_API_MAX_STREAMS") or MAX_STREAMS)
+    )
     app = FastAPI(title="Plexus View API", version="0.1.0", description="Read-only API for plexus-view.")
     app.add_middleware(
         CORSMiddleware,
@@ -92,6 +143,7 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
         allow_headers=["*"],
     )
     app.state.ro = ro_client
+    app.state.streams = gate
 
     def graph_of(tenant: str) -> str:
         try:
@@ -115,9 +167,39 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
     def run_flow(tenant: str, after: int) -> list[M.ToolCallEvent]:
         return [_event(r) for r in run(tenant, "view/flow", {"after": after, "limit": FLOW_LIMIT_MAX})]
 
+    flow_cache: dict[tuple[str, int], tuple[float, list[M.ToolCallEvent]]] = {}
+    flow_locks: dict[tuple[str, int], threading.Lock] = {}
+
+    def flow_events(tenant: str, after: int) -> list[M.ToolCallEvent]:
+        """``run_flow`` shared between subscribers: polls of the same (tenant, after) within the TTL cost one read."""
+        key = (tenant, after)
+        hit = flow_cache.get(key)
+        if hit is not None and time.monotonic() - hit[0] < FLOW_CACHE_TTL_S:
+            return hit[1]
+        with flow_locks.setdefault(key, threading.Lock()):
+            hit = flow_cache.get(key)
+            if hit is not None and time.monotonic() - hit[0] < FLOW_CACHE_TTL_S:
+                return hit[1]
+            events = run_flow(tenant, after)
+            now = time.monotonic()
+            flow_cache[key] = (now, events)
+            if len(flow_cache) > FLOW_CACHE_MAX:  # drop expired entries (and their locks)
+                for k in [k for k, (t, _) in flow_cache.items() if now - t >= FLOW_CACHE_TTL_S]:
+                    flow_cache.pop(k, None)
+                    flow_locks.pop(k, None)
+            return events
+
+    app.state.flow_events = flow_events
+
     @app.get("/healthz", include_in_schema=False)
-    def healthz() -> dict[str, str]:
-        return {"status": "ok"}
+    def healthz(deep: int = 0) -> JSONResponse:
+        """Liveness (static). ``?deep=1`` also pings the database, so a compose healthcheck notices it is down."""
+        if deep:
+            try:
+                ro_client.ping()
+            except (RedisError, OSError):
+                return JSONResponse({"status": "unavailable"}, status_code=503)
+        return JSONResponse({"status": "ok"})
 
     # ------------------------------------------------------------------ files
     @app.get("/api/queries/{name:path}", response_model=M.QueryText)
@@ -185,9 +267,9 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
     @app.get("/api/{tenant}/graph", response_model=M.GraphResponse)
     def graph(
         tenant: str,
-        labels: str = Query("", description="Comma-separated node labels; empty = all."),
-        since: int = Query(0, ge=0, description="created_at >= since (epoch ms)."),
-        until: int = Query(OPEN, ge=0, description="created_at <= until (epoch ms)."),
+        labels: str = Query("", max_length=2000, description="Comma-separated node labels; empty = all."),
+        since: int = Query(0, ge=0, le=OPEN, description="created_at >= since (epoch ms)."),
+        until: int = Query(OPEN, ge=0, le=OPEN, description="created_at <= until (epoch ms)."),
         limit: int = Query(GRAPH_LIMIT_DEFAULT, ge=1, le=GRAPH_LIMIT_MAX),
     ):
         wanted = [x.strip() for x in labels.split(",") if x.strip()]
@@ -211,7 +293,7 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
     @app.get("/api/{tenant}/flow", response_model=M.FlowResponse)
     def flow(
         tenant: str,
-        after: int = Query(0, ge=0, description="Only tool calls with at > after (epoch ms)."),
+        after: int = Query(0, ge=0, le=OPEN, description="Only tool calls with at > after (epoch ms)."),
         limit: int = Query(200, ge=1, le=FLOW_LIMIT_MAX),
     ):
         events = [_event(r) for r in run(tenant, "view/flow", {"after": after, "limit": limit})]
@@ -221,9 +303,18 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
     async def stream(
         request: Request,
         tenant: str,
-        after: int | None = Query(None, ge=0, description="Start after this `at`; default: now (live only)."),
-        max_events: int | None = Query(None, ge=1, description="Close after this many events (tests/tools)."),
-        poll_ms: int = Query(int(STREAM_POLL_S * 1000), ge=20, le=10_000),
+        after: int | None = Query(
+            None, ge=0, le=OPEN, description="Start after this `at`; default: now (live only)."
+        ),
+        max_events: int | None = Query(
+            None, ge=1, le=100_000, description="Close after this many events (tests/tools)."
+        ),
+        poll_ms: int = Query(
+            int(STREAM_POLL_S * 1000),
+            ge=STREAM_POLL_MIN_MS,
+            le=10_000,
+            description="Database poll interval; at least 200.",
+        ),
     ):
         await anyio.to_thread.run_sync(
             run, tenant, "view/flow", {"after": OPEN, "limit": 1}
@@ -232,10 +323,26 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
         start = after if after is not None else (int(last_event_id) if last_event_id.isdigit() else None)
         if start is None:
             start = int(time.time() * 1000)
+        if start > OPEN:
+            raise HTTPException(422, "Last-Event-ID is out of range")
+        if not gate.try_acquire():
+            raise HTTPException(429, f"too many open streams (max {gate.limit}); close one and retry")
+        slot = _Slot(gate)
+
+        async def frames() -> AsyncIterator[str]:
+            try:
+                async for frame in sse_events(
+                    request, lambda a: flow_events(tenant, a), start, poll_ms / 1000, max_events
+                ):
+                    yield frame
+            finally:
+                slot.release()
+
         return StreamingResponse(
-            sse_events(request, lambda a: run_flow(tenant, a), start, poll_ms / 1000, max_events),
+            frames(),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+            background=BackgroundTask(slot.release),
         )
 
     # ------------------------------------------------------------------ lineage-backed
@@ -271,7 +378,7 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
         return model(id=ident, result=json.loads(json.dumps(result, default=str)))
 
     @app.get("/api/{tenant}/step/{n}", response_model=M.StepResponse)
-    def step(tenant: str, n: int):
+    def step(tenant: str, n: int = PathParam(ge=0, le=OPEN)):
         """What each agent knew and wrote at its latest step <= n: ``Lineage.knew_at`` per agent."""
         lin = lineage(tenant)
         agents: list[M.StepAgent] = []
@@ -310,12 +417,12 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
         return M.StepResponse(n=n, agents=agents)
 
     @app.get("/api/{tenant}/why/{node_id}", response_model=M.WhyResponse)
-    def why(tenant: str, node_id: str):
+    def why(tenant: str, node_id: str = PathParam(min_length=1, max_length=MAX_ID)):
         """``Lineage.why`` for a decision or fact id."""
         return explain(tenant, "why", node_id, M.WhyResponse, node_id)
 
     @app.get("/api/{tenant}/recall/{recall_id}", response_model=M.RecallResponse)
-    def recall_record(tenant: str, recall_id: str):
+    def recall_record(tenant: str, recall_id: str = PathParam(min_length=1, max_length=MAX_ID)):
         """``Lineage.why_recalled`` for a recall id (the recall tool returns it as ``recall_id``)."""
         return explain(tenant, "why_recalled", recall_id, M.RecallResponse, recall_id)
 
