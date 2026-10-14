@@ -259,6 +259,6 @@ def test_busy_loading_at_connect_is_retried(monkeypatch):
 
 
 def test_sync_pool_speaks_resp2_like_falkordb_does(lib_client):
-    """RESP3 would change reply shapes for callers that use the raw connection (MODULE LIST in the recorder)."""
+    """RESP3 would change reply shapes for callers that use the raw connection (MODULE LIST)."""
     mods = lib_client.db.connection.execute_command("MODULE", "LIST")
     assert isinstance(mods[0], list)
