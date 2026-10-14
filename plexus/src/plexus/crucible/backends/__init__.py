@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
+
 from plexus.crucible.api import BackendSpec, CoordinationBackend
 
 ARMS = ("B0", "B1", "B2", "P")
@@ -9,8 +11,21 @@ ALL_ARMS = (*ARMS, "P-mcp")
 LABELS = {"B0": "Files", "B1": "SQLite", "B2": "Vector", "P": "Plexus", "P-mcp": "Plexus (MCP path)"}
 
 
+_EXTRA: dict[str, Callable[[BackendSpec], CoordinationBackend]] = {}
+
+
+def register_arm(name: str, factory: Callable[[BackendSpec], CoordinationBackend] | None) -> None:
+    """Add (or, with ``None``, remove) an arm. Used by the tests to check that the harness catches broken arms."""
+    if factory is None:
+        _EXTRA.pop(name, None)
+    else:
+        _EXTRA[name] = factory
+
+
 def open_backend(spec: BackendSpec) -> CoordinationBackend:
     """Open (creating if needed) the tenant store for ``spec.arm``. Cheap enough to call per process/thread."""
+    if spec.arm in _EXTRA:
+        return _EXTRA[spec.arm](spec)
     if spec.arm == "B0":
         from plexus.crucible.backends.files import FilesBackend
 
