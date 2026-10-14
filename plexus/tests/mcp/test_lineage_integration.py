@@ -1,4 +1,4 @@
-"""Lineage wired into the MCP layer: Steps, READ/WROTE, Recall records, sources, quarantine, why."""
+"""Lineage wired into the MCP layer: Steps, READ/WROTE, Recall records, sources, quarantine, why.
 
 Everything goes through MCP tools only (in-memory client, real database); assertions read the graph directly.
 """
