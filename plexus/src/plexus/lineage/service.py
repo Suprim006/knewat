@@ -18,6 +18,7 @@ from plexus.lineage import explain
 MAX_LINK_IDS = 200  # ids per list in link_step
 MAX_RECALL_RESULTS = 200
 MAX_DERIVE_IDS = 100
+MAX_FORGET_FACTS = 5000
 MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
 
 
@@ -203,6 +204,45 @@ class Lineage:
         if result.get("duplicate_of"):
             return self.link_step(step_id, read_ids=[fid, *read])
         return self.link_step(step_id, wrote_ids=[fid], read_ids=read)
+
+    # -- forgetting -------------------------------------------------------------------------------------
+    def forget_source(
+        self, source_id: str, mode: str = "forget", *, now: int | None = None, limit: int = MAX_FORGET_FACTS
+    ) -> dict[str, Any]:
+        """Forget everything derived from a source, in one bounded statement.
+
+        Every fact that reaches the source through ``DERIVED_FROM*1..5`` becomes ``status='forgotten'`` with
+        ``valid_to = min(valid_to, now)``, so ``Engram.recall`` and :meth:`as_of` stop returning it. Decisions
+        ``BASED_ON`` those facts are flagged (``flagged = true``), never deleted. Handoffs that ``CARRIES``
+        them are reported. Idempotent; at most ``limit`` (<= 5000) facts per call, ``truncated`` says to call
+        again. Returns ``{source_id, mode, fact_ids, decision_ids, handoff_ids, truncated}``.
+        Raises :class:`UnknownNode` for an unknown source.
+        """
+        if mode != "forget":
+            raise ValueError("mode must be 'forget'")
+        if not 0 < limit <= MAX_FORGET_FACTS:
+            raise ValueError(f"limit must be between 1 and {MAX_FORGET_FACTS}")
+        rows = self.client.rw(
+            self.graph,
+            "lineage/forget_source",
+            {
+                "source_id": source_id,
+                "now": self._t(now),
+                "limit": limit,
+                "reason": f"derived from forgotten source {source_id}",
+            },
+        )
+        if not rows:
+            raise UnknownNode(f"no source with id '{source_id}'")
+        r = rows[0]
+        return {
+            "source_id": source_id,
+            "mode": mode,
+            "fact_ids": sorted(r["fact_ids"]),
+            "decision_ids": sorted(r["decision_ids"]),
+            "handoff_ids": sorted(r["handoff_ids"]),
+            "truncated": bool(r["truncated"]),
+        }
 
     # -- why --------------------------------------------------------------------------------------------
     def why(self, node_id: str, *, max_elements: int = MAX_WHY_ELEMENTS) -> dict[str, Any]:
