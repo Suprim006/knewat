@@ -12,10 +12,12 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
 from plexus.graph.client import GraphClient
+from plexus.lineage import explain
 
 MAX_LINK_IDS = 200  # ids per list in link_step
 MAX_RECALL_RESULTS = 200
 MAX_DERIVE_IDS = 100
+MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
 
 
 class LineageError(Exception):
@@ -24,6 +26,10 @@ class LineageError(Exception):
 
 class UnknownStep(LineageError, LookupError):
     """A step id (or a node id linked to a step) does not exist."""
+
+
+class UnknownNode(LineageError, LookupError):
+    """The id given to why / why_recalled / who_knew does not name a node of the expected kind."""
 
 
 class StepOrderError(LineageError, ValueError):
@@ -196,3 +202,43 @@ class Lineage:
         if result.get("duplicate_of"):
             return self.link_step(step_id, read_ids=[fid, *read])
         return self.link_step(step_id, wrote_ids=[fid], read_ids=read)
+
+    # -- why --------------------------------------------------------------------------------------------
+    def why(self, node_id: str, *, max_elements: int = MAX_WHY_ELEMENTS) -> dict[str, Any]:
+        """Explain a Decision or a Fact: the facts it rests on, who asserted them, where they came from.
+
+        Walks ``BASED_ON``, ``ASSERTED_BY``, ``DERIVED_FROM*1..3`` (Episode / Source / Fact, plus the Session
+        and agent behind an Episode), ``SUPERSEDES`` / ``CONTRADICTS`` / ``DUPLICATES`` neighbours and the
+        ``Step`` (with its agent) that wrote the decision and each fact. Returns::
+
+            {root, kind, facts: [{id, props, asserted_by, sources, episodes, derived_from_facts, supersedes,
+                                  superseded_by, contradicts, contradicted_by, written_by_steps}],
+             agents, sources, episodes, steps, paths: [[hop, ...]], nodes: [{id, label, props}],
+             edges: [{from, rel, to}], truncated}
+
+        ``nodes`` + ``edges`` hold at most ``max_elements`` (default 200) elements, closest to the root first;
+        ``truncated`` says whether anything was cut. A path hop is ``{from, rel, to, reverse}``, where
+        ``reverse`` marks an edge that is stored ``to -> from``. Raises :class:`UnknownNode`.
+        """
+        if max_elements < 2:
+            raise ValueError("max_elements must be at least 2")
+        rows = self.client.ro(self.graph, "lineage/why_edges", {"id": node_id, "limit": max_elements})
+        edges, labels, truncated = explain.bound_edges(rows, node_id, max_elements)
+        info = self._node_info([node_id, *labels])
+        root = info.get(node_id)
+        if root is None:
+            raise UnknownNode(f"no node with id '{node_id}'")
+        if root["label"] not in ("Decision", "Fact"):
+            raise UnknownNode(f"why() explains a Decision or a Fact, '{node_id}' is a {root['label']}")
+        labels = {node_id: root["label"], **labels}
+        nodes = [
+            {"id": i, "label": lab, "props": explain.clean(info[i]["props"]) if i in info else {}}
+            for i, lab in labels.items()
+        ]
+        out = explain.summarise(node_id, root["label"], nodes, edges)
+        out["truncated"] = truncated
+        return out
+
+    def _node_info(self, ids: Iterable[str]) -> dict[str, dict[str, Any]]:
+        rows = self.client.ro(self.graph, "lineage/node_info", {"ids": sorted(set(ids))})
+        return {r["id"]: dict(r) for r in rows}
