@@ -178,3 +178,41 @@ pool shared by 200 threads: `MaxConnectionsError`, 100 failed calls per run, 0 d
 cells were re-run; the original results are kept under `run.reruns[*].superseded` in `results.json` and listed in `report.md`.
 
 Not measured here: L2 (provenance questions), L3 (LLM agents). Limits: see `report.md` "Limits and honesty notes".
+
+## L2-scale (pre-registered)
+
+Written and committed **before any `claude -p` call of this experiment**. LLM calls made before this pre-registration: **0** (pilot calls made before pre-registration: 0; `plexus/demo_data/crucible/l2_scale_cache/` does not exist yet).
+Code state this text describes: branch `p4-l2-scale`, commits `9d0bbab`, `c13c1b0`, `977749d`; question file `plexus/demo_data/crucible/questions_scale.yaml` sha256 `177d5a0bbbdfa7620b862c1b999e6c6ed006b0fa07d8a82ec7b22ee609c4394b`.
+What was done before this text, without an LLM: built the scenario player, played it on all four arms, checked that the Plexus answerer matches the script ground truth (40/40, a correctness check of the answerer, not a model result), measured artifact sizes, and looked at a few selector outputs for sanity. One selector bug was fixed after that look (compound tokens such as `api_version=v13` are now also indexed as `api_version`, `v13`); the selectors are frozen from here on and will not be tuned after the first paid call.
+
+**Why.** The first L2 run (43 questions, one Acme project) tied: B0 43/43, B1 43/43, B2 40/43, P 43/43, because the whole history fit in the 32k-character context. This run asks whether accuracy diverges when it does not fit.
+
+**History.** K = **20** independent sprints (S01..S20) of the Acme story, played one after another into one tenant per arm, on one deterministic clock. Each sprint has 12 tasks, 6 decisions, 4 handoffs, 1 supersede (api version), 1 auth conflict, 1 killed builder and reclaim, 1 poisoned and forgotten source, 2 project-scoped facts. Ids, uris, subjects, scopes and decision texts carry the sprint tag; values vary per sprint (API versions, database, JWT key, API-key header, poison database, release channel, billing cycle). Totals: 240 tasks, 120 decisions, 80 handoffs, 180 facts, 80 episodes, 160 sources. Artifact sizes (full, uncut), measured before the run, against the 32,000-char cap:
+
+| Arm | Artifact | chars | x cap |
+|---|---|---|---|
+| B0 files | tasks.json, MEMORY.md, decisions/handoffs jsonl, sources.json, logs | 532,813 | 16.6 |
+| B1 SQLite | schema + CSV dump of all tables | 332,599 | 10.4 |
+| B2 vector | 860 memory chunks | 147,471 | 4.6 (B2 only ever shows its top-12 chunks) |
+
+**Questions.** 40 exact-match questions, the same 10 families as L2 (decision provenance, handoffs, time travel, supersession, dependencies, contradictions, recovery, memory scope, episodes, forgetting), 4 per family, each about **one named sprint** ("In sprint S07: ..."). Ground truth is derived from the per-sprint script ledger, never typed. Sprint choice is a fixed rule: question i (family order) takes stratum i mod 3 (early S01-S06, middle S07-S14, late S15-S20), sprints dealt round-robin from a shuffle seeded with 20261015 (`scale_questions.assign_sprints`). Pilot (fixed now): Q03, Q14, Q21, Q25, Q37 (five families, all three strata). Not measured: questions that aggregate across sprints (the strongest case for a graph) and the Procedures family.
+
+**Equal context budget.** 32,000 characters for every baseline. Same `claude -p --model sonnet` (no tools, context on stdin, `ANTHROPIC_API_KEY` removed, max-turns 3), same role prompt as L2; the shared conventions get one extra bullet saying the history has many sprints and each question is about the named one (prompt version `l2-scale-v1`).
+
+**Baseline context selection (competent, not truncation).** The question text is the retrieval query for all three arms.
+- **B0:** files cut into chunks (one task of `tasks.json`, one entry of `sources.json`, one `MEMORY.md` bullet, one line of each jsonl/log); BM25-ranked; the best chunks that fit the cap are shown grouped by file in file order.
+- **B1:** the full schema (all CREATE TABLE) is always shown; every table row is a document (own text plus the text of the rows its id columns point to, one hop); BM25-ranked; the best rows that fit are shown as CSV per table.
+- **B2:** unchanged from L2: top-12 chunks by cosine similarity (local bge-small), same cap.
+- BM25: Okapi, k1 = 1.5, b = 0.75, idf = ln(1 + (N - n + 0.5)/(n + 0.5)); lower-case alphanumeric tokens; identifiers indexed whole and in parts; short stop list; UUIDs not indexed; ties by document order.
+
+**Scoring.** Exact match after the L2 normalisation, no LLM judge. Final L2 reply rule: the reply may start with prose but must END with exactly one `{"answer": ...}` JSON object with nothing after it. The stricter whole-reply-JSON variant is reported next to it. The rule is fixed now and will not change after results. Replies are cached and re-parsed from the cache.
+
+**Plexus (P).** The same deterministic Cypher answerer, no LLM, unchanged for every question whose arguments already name a unique thing (task id, fact label, decision name, subject, source uri). Changes, all for sprint scoping (the original `plexus_answerer.py` and `queries/l2/*.cypher` are untouched; `scale_plexus.py` subclasses it):
+- nine class-wide operations are restricted to the named sprint by a Python filter over the rows of the existing statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): `handoffs_to`, `handoffs_with_superseded_facts`, `decisions_on_superseded`, `decisions_on_forgotten`, `active_conflicts`, `active_conflict_agents`, `reclaimed_tasks`, `completed_by`, `episode_count`;
+- `visible_facts` runs one new read-only statement, `queries/l2scale/facts_visible_subject.cypher` (= `l2/facts_visible` plus a subject restriction), because the global scope now holds the facts of all 20 sprints.
+
+**Hypothesis (stated before seeing any result).** Plexus answers 40/40 (deterministic, checked without an LLM). B0 and B1 lose accuracy relative to their 100% on the small history, but not necessarily much: every question names its sprint and a sprint's records share its tag, so keyword retrieval is favourable; I expect them to land roughly 75-95%, with failures on questions that need many scattered rows (class-wide questions such as handoffs_to, completed_by, decisions_on_superseded, and join-heavy provenance). B2 (12 chunks only) is expected to be the lowest. A tie between P and B0 and/or B1 is a live outcome and will be reported as a tie. With 40 questions and one run each, differences of 3 questions or fewer between two arms are within sampling width (Wilson 95% intervals are reported) and will be described as ties, not wins. Whatever comes out is published, including a Plexus loss.
+
+**What is reported.** Accuracy per arm, per family and per stratum (early/middle/late sprint); tokens, cost and latency per arm; for every wrong baseline answer the expected and given answer plus a diagnostic of whether the expected items' words were anywhere in the shown context; reply-format counts; the Plexus changes above; the limits (synthetic data, one scenario family repeated, sprints do not interact, sprint named in every question, hand-written Cypher for P, one model, one run per question). Results shape: `layers["L2_scale"]` in `plexus/demo_data/crucible/l2_scale/<run>/results.json` plus `report.md`, documented in `plexus/src/plexus/crucible/l2/README.md`. Every call is cached in `l2_scale_cache/`; contexts shown are saved per question.
+
+**Budget rule.** Pilot first: 5 questions x B0, B1, B2 (15 calls, cap `--budget-usd 2`). The full run (40 x 3 = 120 calls, the 15 pilot calls are reused from the cache) happens only if pilot `total_cost_usd` x (40/5) <= **$7.00**; otherwise the question count is reduced, and that reduction is recorded here (appended below, with the cost numbers) before the full run. Hard cap for the full run: `--budget-usd 7`; an arm that hits the cap is reported as incomplete.
