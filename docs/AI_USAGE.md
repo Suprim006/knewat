@@ -30,3 +30,8 @@ file as work happens, not at the end.
 The owner can explain the graph model (`docs/graph-model.md`), each query (`docs/queries.md`), the architecture
 (`docs/PLAN.md`) and the decisions (`docs/DECISIONS.md`). Anything an AI wrote that the owner has not yet reviewed
 is marked _TBD_ in the table above.
+
+The submission documents (`README.md`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) were drafted by a Sonnet subagent from the
+repo's own docs and result files. `python scripts/verify_readme.py` checks mechanically that their links resolve, their mermaid
+parses, and every quoted number and recording id matches its source; it does not check that the wording is fair. The owner must
+read those three files before submitting, and the video narration and the blog post are the owner's to edit and publish.
