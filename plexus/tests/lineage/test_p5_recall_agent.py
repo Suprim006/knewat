@@ -20,14 +20,18 @@ def _recalls(client, graph):
 def test_q8_unknown_fact_creates_no_agent(world, lin, client, graph):
     before = (_agents(client, graph), _recalls(client, graph))
     with pytest.raises(UnknownStep):
-        lin.record_recall("brand-new-agent", world.p1, "q", world.proj, 3, [{"fact_id": "no-such-fact"}], now=9000)
+        lin.record_recall(
+            "brand-new-agent", world.p1, "q", world.proj, 3, [{"fact_id": "no-such-fact"}], now=9000
+        )
     assert (_agents(client, graph), _recalls(client, graph)) == before
 
 
 def test_q8_unknown_step_creates_no_agent(world, lin, client, graph):
     before = _agents(client, graph)
     with pytest.raises(UnknownStep):
-        lin.record_recall("brand-new-agent", "no-such-step", "q", world.proj, 3, [{"fact_id": world.db1}], now=9000)
+        lin.record_recall(
+            "brand-new-agent", "no-such-step", "q", world.proj, 3, [{"fact_id": world.db1}], now=9000
+        )
     assert _agents(client, graph) == before
 
 
