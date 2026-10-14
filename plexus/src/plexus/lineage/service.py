@@ -8,13 +8,14 @@ from __future__ import annotations
 
 import time
 import uuid
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
 from plexus.graph.client import GraphClient
 
 MAX_LINK_IDS = 200  # ids per list in link_step
 MAX_RECALL_RESULTS = 200
+MAX_DERIVE_IDS = 100
 
 
 class LineageError(Exception):
@@ -114,6 +115,75 @@ class Lineage:
             have = {r["id"] for r in self.client.ro(self.graph, "lineage/existing_ids", {"ids": wanted})}
             raise UnknownStep(f"unknown id(s): {', '.join(i for i in wanted if i not in have)}")
         return {"read": rows[0]["n_read"], "wrote": rows[0]["n_wrote"]}
+
+    # -- derivation and recall records ------------------------------------------------------------------
+    def derive_from(self, fact_id: str, from_ids: Iterable[str]) -> int:
+        """Record ``(Fact)-[:DERIVED_FROM]->(Source|Episode|Fact)`` for an inferred / consolidated fact.
+
+        All-or-nothing; raises :class:`UnknownStep` (a LookupError) if the fact or any origin does not exist.
+        Returns the number of origins linked.
+        """
+        origins = _ids(from_ids)
+        if fact_id in origins:
+            raise ValueError("a fact cannot be derived from itself")
+        if len(origins) > MAX_DERIVE_IDS:
+            raise ValueError(f"at most {MAX_DERIVE_IDS} origins per call")
+        rows = self.client.rw(self.graph, "lineage/link_derived", {"fact_id": fact_id, "from_ids": origins})
+        if not rows:
+            raise UnknownStep(f"fact '{fact_id}' or one of its origins does not exist")
+        return rows[0]["linked"]
+
+    def record_recall(
+        self,
+        agent_id: str,
+        step_id: str | None,
+        query: str,
+        scope_id: str,
+        k: int,
+        results: Sequence[dict[str, Any]],
+        *,
+        now: int | None = None,
+    ) -> str:
+        """Store what a recall returned so ``why_recalled`` can explain it later. Returns the recall id.
+
+        ``results`` is ``[{fact_id, rank?, score}]``; the output of ``Engram.recall`` can be passed as is
+        (``rank`` defaults to the 1-based position). Creates ``Recall`` + ``BY`` + ``IN_STEP`` + ``RETURNED``
+        and ``(Step)-[:READ]->(Fact)`` for every returned fact, in one statement. All-or-nothing: raises
+        :class:`UnknownStep` if ``step_id`` or a fact id does not exist.
+        """
+        rows: list[dict[str, Any]] = []
+        seen: set[str] = set()
+        for pos, r in enumerate(results, start=1):
+            fid = r["fact_id"]
+            if fid in seen:
+                continue
+            seen.add(fid)
+            rows.append(
+                {"fact_id": fid, "rank": int(r.get("rank") or pos), "score": float(r.get("score") or 0.0)}
+            )
+        if len(rows) > MAX_RECALL_RESULTS:
+            raise ValueError(f"at most {MAX_RECALL_RESULTS} results per recall record")
+        recall_id = _new_id()
+        res = self.client.rw(
+            self.graph,
+            "lineage/record_recall",
+            {
+                "recall_id": recall_id,
+                "agent_id": agent_id,
+                "step_id": step_id or "",
+                "query": query,
+                "scope_id": scope_id,
+                "k": int(k),
+                "now": self._t(now),
+                "fact_ids": [r["fact_id"] for r in rows],
+                "results": rows,
+            },
+        )
+        if not res:
+            wanted = ([step_id] if step_id else []) + [r["fact_id"] for r in rows]
+            have = {r["id"] for r in self.client.ro(self.graph, "lineage/existing_ids", {"ids": wanted})}
+            raise UnknownStep(f"unknown id(s): {', '.join(i for i in wanted if i not in have)}")
+        return recall_id
 
     def link_assert_result(self, step_id: str, result: dict[str, Any]) -> dict[str, int]:
         """Link the outcome of ``Engram.assert_fact`` to a step.
