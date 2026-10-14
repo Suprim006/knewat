@@ -55,6 +55,20 @@ export interface L2Row {
   replyFormat?: { jsonOnly: number; proseThenJson: number; unparseable: number; callFailed: number };
   contextCharsMax?: number;
   questionsTruncated?: number;
+  /** L2-scale: 95% Wilson score interval of the accuracy, in percent. */
+  wilson?: [number, number];
+  /** L2-scale: accuracy by the position of the asked sprint (early / middle / late). */
+  byStratum?: Record<string, { correct: number; total: number; pct: number }>;
+  /** L2-scale, baselines: why the wrong answers were wrong (counts only; the report has the cases). */
+  failure?: {
+    wrong: number;
+    unparseable: number;
+    wrongWithAllEvidence: number;
+    wrongWithPartialOrNoEvidence: number;
+    medianShareFromAskedSprint?: number;
+  };
+  /** Per-question outcome, for the paired sign test. */
+  questions?: { id: string; correct: boolean }[];
 }
 export interface L2FamilyRow {
   family: string;
@@ -74,6 +88,19 @@ export interface L2Info {
   total?: number;
   families: L2FamilyRow[];
   notes: string[];
+  /** L2-scale only: what the history looks like relative to the context cap. */
+  history?: {
+    sprints?: number;
+    artifactChars: Record<string, number>;
+    overBudget: Record<string, number>;
+    strata: Record<string, number[]>;
+    scenario: Record<string, number>;
+  };
+  /** L2-scale only: the changes made to the Plexus answerer for it, verbatim. */
+  plexusChanges: string[];
+  /** L2-scale only: the run's honesty notes (also in the global list), verbatim. */
+  honesty: string[];
+  seed?: number;
 }
 export interface Percentiles {
   p50: number;
@@ -125,6 +152,8 @@ export interface ParsedResults {
   l1?: L1Table;
   l2?: L2Row[];
   l2Info?: L2Info;
+  l2Scale?: L2Row[];
+  l2ScaleInfo?: L2Info;
   l4: L4Sweep[];
   /** `layers.L4.notes`, verbatim. */
   l4Notes: string[];
@@ -237,6 +266,42 @@ function l2Details(v: unknown): Partial<L2Row> {
     replyFormat: rf,
     contextCharsMax: num(ctx.chars_max),
     questionsTruncated: num(ctx.questions_truncated),
+    wilson: wilsonOf(acc.wilson95_pct),
+    byStratum: strataOf(v.by_stratum),
+    failure: failureOf(v.failure_analysis),
+    questions: questionsOf(v.questions),
+  };
+}
+
+function questionsOf(v: unknown): L2Row['questions'] {
+  const qs = arr(v)
+    .filter(isObj)
+    .map((q) => ({ id: str(q.id), correct: q.correct === true }));
+  return qs.length > 0 ? qs : undefined;
+}
+
+function wilsonOf(v: unknown): [number, number] | undefined {
+  const a = arr(v).map(num);
+  return a.length === 2 && a[0] !== undefined && a[1] !== undefined ? [a[0], a[1]] : undefined;
+}
+
+function strataOf(v: unknown): L2Row['byStratum'] {
+  if (!isObj(v)) return undefined;
+  const out: NonNullable<L2Row['byStratum']> = {};
+  for (const [k, x] of Object.entries(v))
+    if (isObj(x) && num(x.correct) !== undefined && num(x.total) !== undefined)
+      out[k] = { correct: num(x.correct)!, total: num(x.total)!, pct: num(x.pct) ?? 0 };
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function failureOf(v: unknown): L2Row['failure'] {
+  if (!isObj(v)) return undefined;
+  return {
+    wrong: num(v.wrong) ?? 0,
+    unparseable: num(v.unparseable) ?? 0,
+    wrongWithAllEvidence: num(v.wrong_with_all_evidence_in_context) ?? 0,
+    wrongWithPartialOrNoEvidence: num(v.wrong_with_partial_or_no_evidence_in_context) ?? 0,
+    medianShareFromAskedSprint: num(v.median_share_of_shown_lines_from_the_asked_sprint),
   };
 }
 
@@ -270,6 +335,33 @@ function parseL2Info(layer: unknown): L2Info | undefined {
     total: num(qs.total),
     families,
     notes: strs(layer.notes),
+    history: historyOf(layer.history),
+    plexusChanges: strs(layer.plexus_changes),
+    honesty: strs(layer.honesty),
+    seed: isObj(layer.question_set) ? num(layer.question_set.seed) : undefined,
+  };
+}
+
+function numMap(v: unknown): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (isObj(v)) for (const [k, x] of Object.entries(v)) if (num(x) !== undefined) out[k] = num(x)!;
+  return out;
+}
+
+function historyOf(v: unknown): L2Info['history'] {
+  if (!isObj(v)) return undefined;
+  const strata: Record<string, number[]> = {};
+  if (isObj(v.strata))
+    for (const [k, x] of Object.entries(v.strata))
+      strata[k] = arr(x)
+        .map(num)
+        .filter((n): n is number => n !== undefined);
+  return {
+    sprints: num(v.sprints),
+    artifactChars: numMap(v.artifact_chars),
+    overBudget: numMap(v.artifact_chars_over_budget),
+    strata,
+    scenario: numMap(v.scenario),
   };
 }
 
@@ -416,6 +508,8 @@ export function parseResults(raw: unknown): ParsedResults {
   out.l1 = parseL1(layers.L1);
   out.l2 = parseL2(layers.L2);
   if (out.l2) out.l2Info = parseL2Info(layers.L2);
+  out.l2Scale = parseL2(layers.L2_scale);
+  if (out.l2Scale) out.l2ScaleInfo = parseL2Info(layers.L2_scale);
   if (isObj(layers.L4)) {
     out.l4Notes = strs(layers.L4.notes);
     out.embedderProbe = arr(layers.L4.embedder_probe)
@@ -479,4 +573,43 @@ export function medianComparison(sweep: L4Sweep, op: string, plexusArm = 'P'): M
     });
   }
   return out;
+}
+
+export interface SignTest {
+  /** questions only `a` got right / only `b` got right */
+  aOnly: number;
+  bOnly: number;
+  /** discordant pairs */
+  n: number;
+  /** exact two-sided binomial p (H0: each discordant question is equally likely to favour either arm) */
+  p: number;
+}
+
+/** Paired exact sign test on the questions (matched by id) where exactly one of the two arms was right. */
+export function signTest(a: L2Row, b: L2Row): SignTest | undefined {
+  if (!a.questions || !b.questions) return undefined;
+  const bById = new Map(b.questions.map((q) => [q.id, q.correct]));
+  let aOnly = 0;
+  let bOnly = 0;
+  for (const q of a.questions) {
+    const other = bById.get(q.id);
+    if (other === undefined) continue;
+    if (q.correct && !other) aOnly++;
+    if (!q.correct && other) bOnly++;
+  }
+  const n = aOnly + bOnly;
+  if (n === 0) return { aOnly, bOnly, n, p: 1 };
+  const k = Math.min(aOnly, bOnly);
+  let tail = 0;
+  let c = 1; // C(n, 0)
+  for (let i = 0; i <= k; i++) {
+    tail += c;
+    c = (c * (n - i)) / (i + 1);
+  }
+  return { aOnly, bOnly, n, p: Math.min(1, (2 * tail) / 2 ** n) };
+}
+
+/** Do two 95% intervals share any point? */
+export function intervalsOverlap(a?: [number, number], b?: [number, number]): boolean | undefined {
+  return a && b ? a[0] <= b[1] && b[0] <= a[1] : undefined;
 }

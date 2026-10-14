@@ -9,7 +9,7 @@ Built for Graph Hacks (WeMakeDevs × FalkorDB), **Track 02: Agent Memory and Coo
 
 ## Setup
 
-You need **Docker with Compose v2** and nothing else (no Python, no Node). About 3 GB of images are built the first time.
+You need **Docker with Compose v2** and nothing else (no Python, no Node). The first `up` builds two images (about 4 minutes, about 1 GB of images including FalkorDB).
 
 ```bash
 git clone <this repo> plexus && cd plexus
@@ -20,7 +20,7 @@ docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo 
 
 | Open | What |
 |---|---|
-| http://localhost:5180 | **The View.** Pick tenant `demo` in the header: Explorer, Flow, Time Machine, Why, Inventory and **Results** (the Crucible benchmark: L1, L2, L4, ablation) |
+| http://localhost:5180 | **The View.** Pick tenant `demo` in the header: Explorer, Flow, Time Machine, Why, Inventory and **Results** (the Crucible benchmark: L1, L2, L2 at scale, L4, ablation) |
 | http://localhost:3000 | FalkorDB Browser (the raw graph: graph `plexus_t_demo`) |
 | http://localhost:8080/api/tenants | the read-only View API (`/api/demo/inventory`, `/api/demo/graph`, `/api/results`, ...) |
 | http://localhost:8765/mcp/t/demo | the MCP server (streamable HTTP, tenant `demo` pinned by the path) |
@@ -45,7 +45,7 @@ docker compose down -v                  # stop and delete everything
 ```
 
 The Results page reads `plexus/src/plexus/crucible/results/latest-all.json` (L1 + L4 + ablation from the compose run, merged with
-the full L2 run), mounted into the API as `PLEXUS_RESULTS_PATH`. `docs/BASELINE.md` explains what each number means and what it does not.
+the full L2 and L2-scale runs by `python -m plexus.crucible.combine`), mounted into the API as `PLEXUS_RESULTS_PATH`. `docs/BASELINE.md` explains what each number means and what it does not.
 
 <details><summary>Without Docker for the app (Python 3.12 + <code>uv</code>, Node 22+): contributors and the full test suite</summary>
 

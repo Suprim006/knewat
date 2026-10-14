@@ -1,8 +1,8 @@
 """The committed combined results file (L1 + L4 + ablation + L2) that the View's Results page reads.
 
 ``latest.json`` is what ``crucible all`` writes (and overwrites on every run); ``latest-all.json`` is that file with
-the full L2 run merged in (``python -m plexus.crucible.l2.run merge --into latest.json --l2
-demo_data/crucible/l2/latest-full.json --write latest-all.json``). plexus-view carries a byte-identical copy as the
+the full L2 run and the L2-scale run merged in: ``python -m plexus.crucible.combine`` (``--check`` verifies it). The
+test below proves the committed file is exactly that merge. plexus-view carries a byte-identical copy as the
 fixture of its Results test, so a drift between the two shows up here.
 """
 
@@ -26,8 +26,8 @@ def doc() -> dict:
 
 def test_envelope_and_layers(doc):
     assert doc["schema_version"] == 1 and doc["kind"] == "crucible-results"
-    assert doc["run"]["layers"] == ["L1", "L4", "ablation", "L2"]
-    assert set(doc["layers"]) == {"L1", "L4", "ablation", "L2"}
+    assert doc["run"]["layers"] == ["L1", "L4", "ablation", "L2", "L2_scale"]
+    assert set(doc["layers"]) == {"L1", "L4", "ablation", "L2", "L2_scale"}
 
 
 def test_l2_keys_the_view_reads(doc):
@@ -41,6 +41,53 @@ def test_l2_keys_the_view_reads(doc):
             assert k in a["usage"]
     assert l2["arms"]["P"]["usage"]["cost_usd"] == 0
     assert any("methodology fix" in n for n in l2["notes"])
+
+
+def test_l2_scale_keys_the_view_reads(doc):
+    sc = doc["layers"]["L2_scale"]
+    assert sc["question_set"]["asked"] == 36 and sc["question_set"]["total"] == 40
+    got = {a: (v["accuracy"]["correct"], v["accuracy"]["wilson95_pct"]) for a, v in sc["arms"].items()}
+    assert {a: c for a, (c, _) in got.items()} == {"P": 36, "B1": 32, "B0": 30, "B2": 23}
+    assert got["P"][1] == [90.4, 100.0]
+    for arm, v in sc["arms"].items():
+        assert set(v["by_stratum"]) == {"early", "middle", "late"}
+        assert all({"id", "correct"} <= set(q) for q in v["questions"])
+        assert ("failure_analysis" in v) == (arm != "P")
+    assert sc["history"]["artifact_chars_over_budget"]["B0"] > 16
+    assert sc["notes"] and sc["plexus_changes"]
+    assert doc["summary"]["l2_scale_accuracy_pct"] == {"B0": 83.3, "B1": 88.9, "B2": 63.9, "P": 100.0}
+
+
+def test_l2_scale_honesty_travels_with_the_layer_verbatim(doc):
+    src = json.loads(
+        (ROOT / "plexus" / "demo_data" / "crucible" / "l2_scale" / "latest-full.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert doc["layers"]["L2_scale"]["honesty"] == src["honesty"]
+    assert all(h in doc["honesty"] for h in src["honesty"])
+    assert any("NOT in this set" in h for h in src["honesty"])
+
+
+def test_combined_file_is_exactly_the_merge_of_its_parts():
+    from plexus.crucible.combine import DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, combine, render
+
+    assert ALL.read_text(encoding="utf-8") == render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)), (
+        "latest-all.json is stale: run `python -m plexus.crucible.combine` and copy it to "
+        "plexus-view/src/fixtures/results.real.json"
+    )
+
+
+def test_combine_does_not_touch_its_inputs(tmp_path):
+    from plexus.crucible.combine import DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, main
+
+    before = [p.read_bytes() for p in (DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)]
+    out = tmp_path / "all.json"
+    assert main(["--out", str(out)]) == 0
+    assert main(["--out", str(out), "--check"]) == 0
+    assert main(["--out", str(out), "--l2", "none", "--check"]) == 1  # different parts, different file
+    assert before == [p.read_bytes() for p in (DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)]
+    assert out.read_bytes() == ALL.read_bytes()
 
 
 def test_l4_keys_the_view_reads(doc):
