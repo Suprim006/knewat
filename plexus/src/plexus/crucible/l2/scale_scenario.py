@@ -41,7 +41,18 @@ DATABASES = (
     "PostgreSQL 16", "MySQL 8", "MariaDB 11", "CockroachDB 24", "SQL Server 2022", "Oracle 23",
     "PostgreSQL 15", "Db2 12", "TiDB 8", "Aurora MySQL 3",
 )  # fmt: skip
-POISONS = ("MongoDB", "Cassandra", "Couchbase", "DynamoDB", "Redis", "CouchDB", "RethinkDB", "Neo4j", "ScyllaDB", "Riak")
+POISONS = (
+    "MongoDB",
+    "Cassandra",
+    "Couchbase",
+    "DynamoDB",
+    "Redis",
+    "CouchDB",
+    "RethinkDB",
+    "Neo4j",
+    "ScyllaDB",
+    "Riak",
+)
 JWT_ALGS = ("RS256", "ES256", "PS256", "RS384", "ES384")
 KEY_HEADERS = (
     "Api-Key", "Service-Key", "Client-Key", "Auth-Key", "App-Key", "Access-Key", "Team-Key", "Notes-Key",
@@ -50,7 +61,9 @@ KEY_HEADERS = (
 )  # fmt: skip
 CHANNELS = ("closed beta", "open beta", "private preview", "early access", "general availability")
 CYCLES = ("monthly", "weekly", "quarterly", "biweekly")
-MAX_SPRINTS = len(KEY_HEADERS)  # the API-key header must be unique per sprint (it labels a fact that questions look up)
+MAX_SPRINTS = len(
+    KEY_HEADERS
+)  # the API-key header must be unique per sprint (it labels a fact that questions look up)
 
 
 @dataclass(frozen=True)
@@ -185,7 +198,13 @@ def _recall(r: _Run, a: str, sp: Sprint, q: str) -> None:
 def _t01(r: _Run, sp: Sprint, a: str, t: dict) -> None:
     r.source(a, "01_product_brief")
     r.source(a, "02_api_style_guide_v1")
-    r.assert_(a, "purpose", "purpose", f"REST service to create, tag and search notes ({sp.tag})", "01_product_brief")
+    r.assert_(
+        a,
+        "purpose",
+        "purpose",
+        f"REST service to create, tag and search notes ({sp.tag})",
+        "01_product_brief",
+    )
     r.assert_(a, "api_version", "api_version", sp.v_old, "02_api_style_guide_v1")
     r.led.marks["after_v1"] = r.clock.t + TICK // 2
     r.finish(a, sp.art("requirements.md"), f"{sp.tag} requirements: notes CRUD, tags, API version {sp.v_old}")
@@ -248,7 +267,9 @@ def _t07(r: _Run, sp: Sprint, a: str, t: dict) -> None:
     _recall(r, a, sp, "API version")
     _recall(r, a, sp, "authentication")
     art = r.finish(a, sp.art("crud-spec.md"), f"{sp.tag} CRUD spec for the current API version with JWT auth")
-    r.hand(a, "planner", t["id"], f"{sp.tag}: CRUD spec ready for review.", [art], ["api_version", "auth_jwt"])
+    r.hand(
+        a, "planner", t["id"], f"{sp.tag}: CRUD spec ready for review.", [art], ["api_version", "auth_jwt"]
+    )
 
 
 def _t08(r: _Run, sp: Sprint, a: str, t: dict) -> None:
@@ -308,7 +329,10 @@ def _ingest_v2(r: _Run, sp: Sprint, a: str) -> None:
         superseded=[r.label_of[x] for x in res["superseded"]],
     )
     r.led.marks["after_v2"] = r.clock.t + TICK // 2
-    r.episode(a, f"{sp.tag}: Style guide {sp.v_new} was published: API version {sp.v_old} is withdrawn, routes move to /{sp.v_new}/.")
+    r.episode(
+        a,
+        f"{sp.tag}: Style guide {sp.v_new} was published: API version {sp.v_old} is withdrawn, routes move to /{sp.v_new}/.",
+    )
 
 
 def _adopt_v2(r: _Run, sp: Sprint, a: str) -> None:
@@ -326,7 +350,10 @@ def _ingest_forum_post(r: _Run, sp: Sprint, a: str) -> None:
     r.source(a, "07_forum_post_unverified")
     res = r.assert_(a, "database_poison", "database", sp.poison, "07_forum_post_unverified")
     r.event(
-        "poison_fact", agent=a, fact=f"database={sp.poison}", contradicts=[r.label_of[x] for x in res["contradicts"]]
+        "poison_fact",
+        agent=a,
+        fact=f"database={sp.poison}",
+        contradicts=[r.label_of[x] for x in res["contradicts"]],
     )
     r.decide(a, sp.tid("t06-write-db-schema"), sp.d_poison, ["database_poison"])
 

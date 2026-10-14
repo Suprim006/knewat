@@ -34,7 +34,9 @@ CONVENTIONS_SCALE_EXTRA = (
     "  subjects, source uris, artifacts and scopes carry it."
 )
 
-Spec = tuple[str, str, str, str, str, Any, str, dict[str, Any]]  # family, text, format, kind, item, answer, op, args
+Spec = tuple[
+    str, str, str, str, str, Any, str, dict[str, Any]
+]  # family, text, format, kind, item, answer, op, args
 
 
 def _only(xs: list[Any], what: str) -> Any:
@@ -49,7 +51,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
     subj = sp.subject
     out: list[Spec] = []
 
-    def add(family: str, text: str, fmt: str, kind: str, item: str, answer: Any, op: str, **args: Any) -> None:
+    def add(
+        family: str, text: str, fmt: str, kind: str, item: str, answer: Any, op: str, **args: Any
+    ) -> None:
         out.append((family, pre + text, fmt, kind, item, answer, op, {**args, "sprint": sp.low}))
 
     v_old, v_new = led.fact(f"api_version={sp.v_old}"), led.fact(f"api_version={sp.v_new}")

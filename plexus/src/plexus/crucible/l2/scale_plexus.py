@@ -28,7 +28,9 @@ class ScalePlexusAnswerer(PlexusAnswerer):
 
     def __init__(self, client: Any, tenant: str):
         super().__init__(client, tenant)
-        self._ops = {n[4:]: fn for n, fn in vars(PlexusAnswerer).items() if n.startswith("_op_")}  # the unchanged ops
+        self._ops = {
+            n[4:]: fn for n, fn in vars(PlexusAnswerer).items() if n.startswith("_op_")
+        }  # the unchanged ops
         self._sops = {n[5:]: fn for n, fn in vars(type(self)).items() if n.startswith("_sop_")}
         assert set(self._sops) == set(self.SCOPED_OPS)
 
@@ -70,10 +72,18 @@ class ScalePlexusAnswerer(PlexusAnswerer):
         ]
 
     def _sop_handoffs_with_superseded_facts(self, sprint: str) -> list[str]:
-        return [t for t in (r["task_id"] for r in self.run("handoffs_with_fact_status", status="superseded")) if self._in_sprint_task(sprint, t)]
+        return [
+            t
+            for t in (r["task_id"] for r in self.run("handoffs_with_fact_status", status="superseded"))
+            if self._in_sprint_task(sprint, t)
+        ]
 
     def _decisions_with_status(self, sprint: str, status: str) -> list[str]:
-        rows = [r for r in self.run("decisions") if self._in_sprint_task(sprint, r["task_id"]) and r["status"] == status]
+        rows = [
+            r
+            for r in self.run("decisions")
+            if self._in_sprint_task(sprint, r["task_id"]) and r["status"] == status
+        ]
         return list(dict.fromkeys(decision_label(r["text"]) for r in rows))
 
     def _sop_decisions_on_superseded(self, sprint: str) -> list[str]:
@@ -84,19 +94,27 @@ class ScalePlexusAnswerer(PlexusAnswerer):
 
     def _conflicts(self, sprint: str) -> list[dict[str, Any]]:
         return [
-            r for r in self.run("active_conflicts") if any(self._in_sprint_uri(sprint, s) for s in r["sources"])
+            r
+            for r in self.run("active_conflicts")
+            if any(self._in_sprint_uri(sprint, s) for s in r["sources"])
         ]
 
     def _sop_active_conflicts(self, sprint: str) -> list[str]:
         return [_label(r["predicate"], r["value"]) for r in self._conflicts(sprint)]
 
     def _sop_active_conflict_agents(self, sprint: str) -> list[str]:
-        return [f"{_label(r['predicate'], r['value'])}@{a}" for r in self._conflicts(sprint) for a in r["asserted_by"]]
+        return [
+            f"{_label(r['predicate'], r['value'])}@{a}"
+            for r in self._conflicts(sprint)
+            for a in r["asserted_by"]
+        ]
 
     def _sop_reclaimed_tasks(self, sprint: str) -> list[str]:
         return list(
             dict.fromkeys(
-                r["task_id"] for r in self.run("claims") if r["reclaimed_from"] and self._in_sprint_task(sprint, r["task_id"])
+                r["task_id"]
+                for r in self.run("claims")
+                if r["reclaimed_from"] and self._in_sprint_task(sprint, r["task_id"])
             )
         )
 
