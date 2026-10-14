@@ -17,6 +17,7 @@ dependencies = [
 plexus-mcp = "plexus.mcp.server:main"
 plexus-api = "plexus.api.view_api:main"
 plexus = "plexus.cli:main"
+crucible = "plexus.crucible.cli:main"
 
 [dependency-groups]
 dev = [
@@ -49,6 +50,8 @@ select = ["E", "F", "I", "B", "UP"]
 "src/plexus/demo/*.py" = ["E501"]
 "src/plexus/cli.py" = ["E501"]
 "tests/demo/*.py" = ["E501"]
+"src/plexus/crucible/**/*.py" = ["E501"]
+"tests/crucible/*.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

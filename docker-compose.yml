@@ -4,6 +4,8 @@
 #   PLEXUS_MCP_PORT=18765 docker compose -p plexus-int up -d falkordb plexus-api plexus-mcp
 name: plexus
 
+x-falkordb-args: &falkordb_args "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456"
+
 services:
   falkordb:
     image: falkordb/falkordb:6.0.2
@@ -17,7 +19,7 @@ services:
       REDIS_ARGS: "--appendonly yes --maxmemory-policy noeviction"
       # Names verified against GRAPH.CONFIG GET * on 6.0.2 (all accepted).
       # The image default TIMEOUT 1000 / MAX_QUEUED_QUERIES 25 / RESULTSET_SIZE 10000 bites under load.
-      FALKORDB_ARGS: "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456"
+      FALKORDB_ARGS: *falkordb_args
     volumes:
       - plexus_data:/var/lib/falkordb/data
     healthcheck:
@@ -69,6 +71,32 @@ services:
       timeout: 5s
       retries: 6
       start_period: 10s
+
+  # --- Crucible benchmark (P4-H) ---------------------------------------------------------------------
+  # Runs INSIDE the compose network, so the Windows/Docker Desktop port forward (~10 ms per round trip) does not
+  # distort latency. Not started by `up`; only with the bench profile:
+  #   export FALKORDB_PORT=6389 FALKORDB_BROWSER_PORT=3089 PLEXUS_API_PORT=18089 PLEXUS_MCP_PORT=18789
+  #   docker compose -p plexus-bench --profile bench run --rm crucible all     # or: l1 | l4 | ablation, add --quick
+  # Results land in ./plexus/src/plexus/crucible/results/<timestamp>/{results.json,report.md} (+ latest.json).
+  crucible:
+    profiles: [bench]
+    build: ./plexus
+    image: plexus-crucible:dev # own tag: building must not replace the plexus:dev image other stacks run
+    entrypoint: ["crucible"]
+    command: ["all"]
+    depends_on:
+      falkordb: { condition: service_healthy }
+    environment:
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: "6379"
+      FALKORDB_ARGS: *falkordb_args # same value as the server's; recorded next to GRAPH.CONFIG in results.json
+      CRUCIBLE_IN_DOCKER: "1"
+      CRUCIBLE_GIT_COMMIT: ${CRUCIBLE_GIT_COMMIT:-} # export CRUCIBLE_GIT_COMMIT=$(git rev-parse --short HEAD) before running
+      CRUCIBLE_RESULTS_DIR: /results
+      PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
+    volumes:
+      - plexus_fastembed:/opt/fastembed
+      - ./plexus/src/plexus/crucible/results:/results
 
   # plexus-view:  # P1/P3: React + Cytoscape demonstrator (static build behind nginx)
   #   build: ./plexus-view
