@@ -12,11 +12,18 @@
 // Expansion: the `sibs` nearest other facts on the seed's entity that pass the same filters; they are ranked by
 // (own distance - boost), floor 0, but report their own distance as `score`. A fact reached both ways counts as a seed (via null)
 // and keeps its best rank.
+// Plan shape (P5 review Q1): the sibling expansion is ENTITY-first: (e)<-[:ABOUT]-(g0:Fact) with the cheap property filters, then
+// the scope test with g0 already bound (separate OPTIONAL MATCH after a WITH). Written as one pattern
+// `(e)<-[:ABOUT]-(g)-[:IN_SCOPE]->(gs:Scope) WHERE gs.id IN sids` the planner starts at the Scope and walks every fact IN_SCOPE of it for
+// every seed, so recall latency grew with the facts in the scope instead of the entity's fan-out (tests/integration/test_p5_plans.py).
+// The keyword seeds are looked up one id at a time (`{id: kid}` is an index seek); `kx.id IN $kw_ids` planned a scan of the whole Fact
+// id index even for an empty list. The '' placeholder keeps the row alive when there are no keyword hits (no Fact has the id '').
 MATCH (:Scope {id: $scope_id})-[:INHERITS*0..3]->(a:Scope)
 WITH collect(DISTINCT a.id) AS sids
 CALL db.idx.vector.queryNodes('Fact', 'embedding', $over, vecf32($q)) YIELD node, score
 WITH sids, collect({n: node, s: score}) AS vh
-OPTIONAL MATCH (kx:Fact) WHERE kx.id IN $kw_ids
+UNWIND CASE WHEN size($kw_ids) = 0 THEN [''] ELSE $kw_ids END AS kid
+OPTIONAL MATCH (kx:Fact {id: kid})
 WITH sids, vh, collect({n: kx, s: vec.cosineDistance(kx.embedding, vecf32($q))}) AS kh
 UNWIND vh + kh AS h
 WITH sids, size(vh) AS raw, h WHERE h.n IS NOT NULL
@@ -28,8 +35,12 @@ MATCH (f)-[:ABOUT]->(e:Entity)
 WITH sids, raw, f, e, score
 ORDER BY score ASC
 LIMIT $k
-OPTIONAL MATCH (e)<-[:ABOUT]-(g:Fact)-[:IN_SCOPE]->(gs:Scope)
-  WHERE gs.id IN sids AND g.id <> f.id AND g.status IN $statuses AND g.valid_from <= $t AND $t < g.valid_to
+OPTIONAL MATCH (e)<-[:ABOUT]-(g0:Fact)
+  WHERE g0.id <> f.id AND g0.status IN $statuses AND g0.valid_from <= $t AND $t < g0.valid_to
+WITH sids, raw, f, e, score, g0
+OPTIONAL MATCH (g0)-[:IN_SCOPE]->(gs:Scope)
+  WHERE gs.id IN sids
+WITH raw, f, e, score, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
 WITH raw, f, e, score, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
 ORDER BY gd ASC
 WITH raw, f, e, score, collect({g: g, d: gd})[0..$sibs] AS sibs

@@ -1,8 +1,8 @@
 """P5-fix: plan-shape regressions for review findings Q1-Q3.
 
-Queries must follow the entity / source, not enumerate every fact of the scope. Each test seeds a throw-away graph
-with 400 facts in ONE scope (5 per entity) and profiles the query: no operation may produce as many records as the
-scope has facts.
+Queries must follow the entity / source, not enumerate every fact of the scope. Each test seeds a
+throw-away graph with 400 facts in ONE scope (5 per entity) and profiles the query: no operation may
+produce as many records as the scope has facts.
 """
 
 from __future__ import annotations
