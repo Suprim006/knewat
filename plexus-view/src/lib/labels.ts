@@ -44,6 +44,20 @@ export const LABEL_MODULES: Record<string, string> = {
 };
 export const MODULE_ORDER = ['Shared', 'Engram', 'Relay', 'Lineage', 'Audit'];
 
+/** One colour per module, for the Explorer's "colour by module" mode (Engram, Relay, Lineage, audit). */
+export const MODULE_COLORS: Record<string, string> = {
+  Shared: '#e6194b',
+  Engram: '#4363d8',
+  Relay: '#f58231',
+  Lineage: '#3cb44b',
+  Audit: '#9aa3b2',
+};
+export type ColorMode = 'label' | 'module';
+export const moduleOf = (label: string): string => LABEL_MODULES[label] ?? 'Other';
+export const moduleColor = (label: string): string => MODULE_COLORS[moduleOf(label)] ?? FALLBACK_COLOR;
+export const nodeColor = (label: string, mode: ColorMode): string =>
+  mode === 'module' ? moduleColor(label) : labelColor(label);
+
 /**
  * Noise that starts hidden in the Explorer so the memory/coordination structure is readable:
  * audit and lineage bookkeeping nodes, and the edges every fact has (scope, author) or every step has.

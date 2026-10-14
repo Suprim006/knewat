@@ -20,20 +20,27 @@ describe('App shell', () => {
     );
   });
 
-  it.each([
-    ['/flow', 'Flow'],
-    ['/time', 'Time Machine'],
-    ['/why/abc-123', 'Why'],
-    ['/results', 'Results'],
-  ])('%s is a placeholder page', (route, title) => {
-    renderApp(route);
-    expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
-    expect(screen.getByText(/Placeholder/)).toBeInTheDocument();
+  it('routes /results to the Results page (placeholder until a run exists)', async () => {
+    renderApp('/results');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Results' })).toBeInTheDocument();
+    expect(await screen.findByTestId('results-placeholder')).toBeInTheDocument();
   });
 
-  it('passes the :id of /why/:id to the page', () => {
+  it('routes /time to the Time Machine and /why to the newest decision', async () => {
+    renderApp('/time');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Time Machine' })).toBeInTheDocument();
+  });
+
+  it('routes /flow to the Flow page', async () => {
+    renderApp('/flow');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Flow' })).toBeInTheDocument();
+    expect(screen.queryByText(/Placeholder/)).not.toBeInTheDocument();
+  });
+
+  it('routes /why/:id to the Why page', async () => {
     renderApp('/why/abc-123');
-    expect(screen.getByText('abc-123')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Why' })).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('No Decision or Fact');
   });
 
   it('navigates between pages and cycles the theme', async () => {

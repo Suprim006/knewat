@@ -18,7 +18,7 @@ function lazyFixtureApi(): ViewApi {
     tenants: async () => (await load).tenants(),
     inventory: async (t) => (await load).inventory(t),
     graph: async (t, q) => (await load).graph(t, q),
-    flow: async (t, a) => (await load).flow(t, a),
+    flow: async (t, a, l) => (await load).flow(t, a, l),
     step: async (t, n) => (await load).step(t, n),
     why: async (t, id) => (await load).why(t, id),
     queryText: async (n) => (await load).queryText(n),

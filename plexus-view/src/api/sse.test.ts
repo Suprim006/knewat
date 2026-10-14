@@ -9,12 +9,18 @@ class FakeES implements EventSourceLike {
   onerror: ((ev: Event) => void) | null = null;
   readyState = 0;
   closed = false;
+  listeners = new Map<string, ((ev: MessageEvent) => void)[]>();
   constructor(readonly url: string) {}
+  addEventListener(type: string, fn: (ev: MessageEvent) => void) {
+    this.listeners.set(type, [...(this.listeners.get(type) ?? []), fn]);
+  }
   close() {
     this.closed = true;
   }
-  emit(ev: FlowEvent | string) {
-    this.onmessage?.({ data: typeof ev === 'string' ? ev : JSON.stringify(ev) } as MessageEvent);
+  /** Emit a frame the way the API sends it: `event: toolcall`. */
+  emit(ev: FlowEvent | string, type = 'toolcall') {
+    const msg = { data: typeof ev === 'string' ? ev : JSON.stringify(ev) } as MessageEvent;
+    for (const fn of this.listeners.get(type) ?? []) fn(msg);
   }
 }
 
@@ -25,6 +31,10 @@ const ev = (at: number): FlowEvent => ({
   agent_id: 'a',
   query_name: 'engram/assert_fact',
   run_time_ms: 1,
+  wrote: true,
+  step: null,
+  step_id: null,
+  step_n: null,
   created: [],
   updated: [],
 });
@@ -90,6 +100,16 @@ describe('sse helper', () => {
     sources[2]!.onopen?.(new Event('open'));
     sources[2]!.onerror?.(new Event('error'));
     expect(timers[2]!.ms).toBe(100);
+  });
+
+  it('only listens to the named toolcall event, and delivers a late-landing older call once', () => {
+    const { sources, events } = setup();
+    sources[0]!.emit(ev(10), 'something-else');
+    expect(events).toHaveLength(0);
+    sources[0]!.emit(ev(20));
+    sources[0]!.emit(ev(15)); // landed late: older `at`, new id
+    sources[0]!.emit(ev(15));
+    expect(events.map((e) => e.at)).toEqual([20, 15]);
   });
 
   it('starts from a given resume point', () => {

@@ -22,7 +22,7 @@ export function AppProviders({ api: given, children }: { api?: ViewApi; children
   const [chosen, setChosen] = useState(readStored);
 
   const tenants = useMemo(() => data?.tenants ?? [], [data]);
-  const tenant = tenants.some((t) => t.id === chosen) ? chosen : (tenants[0]?.id ?? '');
+  const tenant = tenants.some((t) => t.tenant === chosen) ? chosen : (tenants[0]?.tenant ?? '');
   const setTenant = useCallback((id: string) => {
     setChosen(id);
     try {

@@ -1,8 +1,10 @@
 import cytoscape from 'cytoscape';
 import type { Core, ElementDefinition, NodeSingular, StylesheetJson } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
+import { edgeId } from '../api/types';
 import type { GraphEdge, GraphNode, Props } from '../api/types';
-import { displayName, labelColor, LABEL_COLORS } from './labels';
+import { displayName, nodeColor } from './labels';
+import type { ColorMode } from './labels';
 
 /*
  * Thin imperative wrapper around Cytoscape.js (docs/spikes/S3-view-lib.md).
@@ -85,7 +87,7 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
       style: {
         width: 'data(size)',
         height: 'data(size)',
-        'background-color': '#999999',
+        'background-color': 'data(color)',
         label: 'data(name)',
         color: theme.text,
         'font-size': 10,
@@ -104,10 +106,6 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
         'node[label = "Agent"], node[label = "Task"], node[label = "Decision"], node[label = "Entity"]',
       style: { 'min-zoomed-font-size': 0, 'font-size': 11, 'font-weight': 600 },
     },
-    ...Object.entries(LABEL_COLORS).map(([label, color]) => ({
-      selector: `node[label = "${label}"]`,
-      style: { 'background-color': color },
-    })),
     {
       selector: 'edge',
       style: haystack
@@ -151,6 +149,9 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
       selector: 'node.fresh',
       style: { 'border-width': 5, 'border-color': '#22c55e', 'border-opacity': 0.9 },
     },
+    { selector: 'node.ctx, edge.ctx', style: { opacity: 0.45 } },
+    { selector: 'node.ev-created', style: { 'border-width': 5, 'border-color': '#22c55e', opacity: 1 } },
+    { selector: 'node.ev-updated', style: { 'border-width': 5, 'border-color': '#f59e0b', opacity: 1 } },
     { selector: 'node.path', style: { 'border-width': 4, 'border-color': theme.highlight, opacity: 1 } },
     {
       selector: 'edge.path',
@@ -191,6 +192,11 @@ export interface FilterState {
   hiddenEdgeTypes: ReadonlySet<string>;
 }
 
+const createdAt = (n: NodeSingular): number | null => {
+  const v = Number((n.data('props') as Props).created_at);
+  return Number.isFinite(v) && v > 0 ? v : null;
+};
+
 export interface GraphController {
   readonly cy: Core;
   /** Replace all elements and run the one-off fcose layout (draft). */
@@ -198,9 +204,21 @@ export interface GraphController {
   clear(): void;
   /** Add nodes/edges without relayout; new nodes are seeded next to a neighbour. Returns the ids of nodes actually added. */
   addLive(nodes: GraphNode[], edges: GraphEdge[]): string[];
+  /** Refresh the properties (and label text) of nodes already on the canvas. Returns how many changed. */
+  updateProps(nodes: GraphNode[]): number;
   /** Remove every node created at or after `ts` (used by the fixture "replay as live" demo). Returns the count. */
   removeCreatedSince(ts: number): number;
   setFilters(f: FilterState): void;
+  /** Colour nodes by their label or by the module that owns the label. */
+  setColorMode(mode: ColorMode): void;
+  /** Hide nodes whose `created_at` is outside [from, to] (epoch ms); null clears. Nodes without one stay. */
+  setTimeRange(range: [number, number] | null): void;
+  /** [min, max] of `created_at` over all nodes, or null when none has one. */
+  timeBounds(): [number, number] | null;
+  /** Show only `id` and everything within `hops` hops (over visible labels/edge types); returns the node count. */
+  focusNeighborhood(id: string, hops?: number): number;
+  clearFocus(): void;
+  focusedOn(): string | null;
   setSearch(q: string): string[];
   select(id: string | null): void;
   focus(id: string): void;
@@ -208,6 +226,8 @@ export interface GraphController {
   counts(): Counts;
   labelCounts(): Record<string, number>;
   edgeTypeCounts(): Record<string, number>;
+  /** Flow view: ring what one tool call created (green) and updated (amber); the rest recedes. */
+  markEvent(created: string[], updated: string[]): void;
   highlightPath(nodeIds: string[]): void;
   clearHighlight(): void;
   relayout(): void;
@@ -224,20 +244,20 @@ export interface ControllerOptions {
   theme?: Theme;
 }
 
-const toNodeDef = (n: GraphNode): ElementDefinition => ({
+const toNodeDef = (n: GraphNode, mode: ColorMode = 'label'): ElementDefinition => ({
   group: 'nodes',
   data: {
     id: n.id,
     label: n.label,
     name: displayName(n.label, n.props),
     size: NODE_SIZE[n.label] ?? 14,
-    color: labelColor(n.label),
+    color: nodeColor(n.label, mode),
     props: n.props,
   },
 });
 const toEdgeDef = (e: GraphEdge): ElementDefinition => ({
   group: 'edges',
-  data: { id: e.id, source: e.src, target: e.dst, type: e.type, props: e.props },
+  data: { id: edgeId(e), source: e.source, target: e.target, type: e.type },
 });
 
 /**
@@ -278,6 +298,10 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   let haystack = false;
   let filters: FilterState = { hiddenLabels: new Set(), hiddenEdgeTypes: new Set() };
   let pending: GraphEdge[] = [];
+  let colorMode: ColorMode = 'label';
+  let timeRange: [number, number] | null = null;
+  let focus: Set<string> | null = null;
+  let focusId: string | null = null;
   const timers = new Set<ReturnType<typeof setTimeout>>();
 
   const cy = cytoscape({
@@ -300,7 +324,14 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   function applyFilters(eles = cy.elements()) {
     cy.batch(() => {
       eles.nodes().forEach((n) => {
-        n.toggleClass('hide-label', filters.hiddenLabels.has(String(n.data('label'))));
+        const t = timeRange ? createdAt(n) : null;
+        const outOfTime = timeRange !== null && t !== null && (t < timeRange[0] || t > timeRange[1]);
+        const outOfFocus = focus !== null && !focus.has(n.id());
+        // `hide-label` means "hidden by any node filter" (label, time range, focus).
+        n.toggleClass(
+          'hide-label',
+          filters.hiddenLabels.has(String(n.data('label'))) || outOfTime || outOfFocus,
+        );
       });
       eles.edges().forEach((e) => {
         e.toggleClass('hide-type', filters.hiddenEdgeTypes.has(String(e.data('type'))));
@@ -313,8 +344,8 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     const ready: GraphEdge[] = [];
     const rest: GraphEdge[] = [];
     for (const e of pending) {
-      if (!cy.getElementById(e.id).empty()) continue;
-      if (cy.getElementById(e.src).nonempty() && cy.getElementById(e.dst).nonempty()) ready.push(e);
+      if (!cy.getElementById(edgeId(e)).empty()) continue;
+      if (cy.getElementById(e.source).nonempty() && cy.getElementById(e.target).nonempty()) ready.push(e);
       else rest.push(e);
     }
     pending = rest;
@@ -338,10 +369,13 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     load(nodes, edges) {
       cy.elements().remove();
       pending = [];
+      timeRange = null;
+      focus = null;
+      focusId = null;
       const known = new Set(nodes.map((n) => n.id));
       cy.batch(() => {
-        cy.add(nodes.map(toNodeDef));
-        cy.add(edges.filter((e) => known.has(e.src) && known.has(e.dst)).map(toEdgeDef));
+        cy.add(nodes.map((n) => toNodeDef(n, colorMode)));
+        cy.add(edges.filter((e) => known.has(e.source) && known.has(e.target)).map(toEdgeDef));
       });
       updateEdgeMode();
       applyFilters();
@@ -378,13 +412,13 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       const addedIds = fresh.map((n) => n.id);
       if (fresh.length === 0 && edges.length === 0) return [];
       cy.batch(() => {
-        const added = cy.add(fresh.map(toNodeDef));
+        const added = cy.add(fresh.map((n) => toNodeDef(n, colorMode)));
         // Edges whose endpoints exist (or arrive in this batch) go in now; the rest wait.
         const newEdges: GraphEdge[] = [];
         for (const e of edges) {
-          if (!cy.getElementById(e.id).empty() || pending.some((p) => p.id === e.id)) continue;
+          if (!cy.getElementById(edgeId(e)).empty() || pending.some((p) => edgeId(p) === edgeId(e))) continue;
           const ok = (id: string) => cy.getElementById(id).nonempty();
-          if (ok(e.src) && ok(e.dst)) newEdges.push(e);
+          if (ok(e.source) && ok(e.target)) newEdges.push(e);
           else pending.push(e);
         }
         const addedEdges = cy.add(newEdges.map(toEdgeDef));
@@ -412,6 +446,21 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       return addedIds;
     },
 
+    updateProps(nodes) {
+      let changed = 0;
+      cy.batch(() => {
+        for (const n of nodes) {
+          const el = cy.getElementById(n.id);
+          if (el.empty()) continue;
+          if (JSON.stringify(el.data('props')) === JSON.stringify(n.props)) continue;
+          el.data('props', n.props);
+          el.data('name', displayName(n.label, n.props));
+          changed++;
+        }
+      });
+      return changed;
+    },
+
     removeCreatedSince(ts) {
       const doomed = cy.nodes().filter((n) => Number((n.data('props') as Props).created_at) >= ts);
       const n = doomed.length;
@@ -423,6 +472,69 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     setFilters(f) {
       filters = f;
       applyFilters();
+    },
+
+    setColorMode(mode) {
+      colorMode = mode;
+      cy.batch(() => {
+        cy.nodes().forEach((n) => {
+          n.data('color', nodeColor(String(n.data('label')), mode));
+        });
+      });
+    },
+
+    setTimeRange(range) {
+      timeRange = range;
+      applyFilters();
+    },
+
+    timeBounds() {
+      let lo = Infinity;
+      let hi = -Infinity;
+      cy.nodes().forEach((n) => {
+        const t = createdAt(n);
+        if (t === null) return;
+        lo = Math.min(lo, t);
+        hi = Math.max(hi, t);
+      });
+      return lo <= hi ? [lo, hi] : null;
+    },
+
+    focusNeighborhood(id, hops = 2) {
+      const start = cy.getElementById(id);
+      if (start.empty()) return 0;
+      const usable = (n: NodeSingular) => !filters.hiddenLabels.has(String(n.data('label')));
+      const seen = new Set<string>([id]);
+      let frontier = [start as NodeSingular];
+      for (let h = 0; h < hops; h++) {
+        const next: NodeSingular[] = [];
+        for (const n of frontier) {
+          n.connectedEdges()
+            .filter((e) => !filters.hiddenEdgeTypes.has(String(e.data('type'))))
+            .forEach((e) => {
+              const other = e.source().id() === n.id() ? e.target() : e.source();
+              if (seen.has(other.id()) || !usable(other)) return;
+              seen.add(other.id());
+              next.push(other);
+            });
+        }
+        frontier = next;
+      }
+      focus = seen;
+      focusId = id;
+      applyFilters();
+      cy.fit(cy.nodes().not('.hide-label'), 40);
+      return seen.size;
+    },
+
+    clearFocus() {
+      focus = null;
+      focusId = null;
+      applyFilters();
+    },
+
+    focusedOn() {
+      return focusId;
     },
 
     setSearch(q) {
@@ -526,6 +638,23 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
         out[t] = (out[t] ?? 0) + 1;
       });
       return out;
+    },
+
+    markEvent(created, updated) {
+      cy.batch(() => {
+        cy.elements().removeClass('ev-created ev-updated ctx');
+        const c = cy.collection();
+        const hit = (ids: string[], cls: string) => {
+          const eles = cy.collection();
+          for (const id of ids) eles.merge(cy.getElementById(id));
+          eles.addClass(cls);
+          return eles;
+        };
+        const made = hit(created, 'ev-created');
+        const changed = hit(updated, 'ev-updated');
+        c.merge(made).merge(changed);
+        cy.elements().difference(c.union(c.connectedEdges())).addClass('ctx');
+      });
     },
 
     highlightPath(ids) {

@@ -16,7 +16,7 @@
  * Synthetic data only. Ids are deterministic UUID-shaped strings so tests and screenshots are stable.
  */
 import { NODE_LABELS, OPEN } from '../api/types';
-import type { FlowEvent, GraphEdge, GraphNode, NodeLabel, Props, PropValue } from '../api/types';
+import type { FlowEvent, GraphEdge, GraphNode, NodeLabel, NodeRef, Props, PropValue } from '../api/types';
 
 export const T0 = 1_792_060_800_000; // 2026-10-15T00:00:00Z-ish
 export const STEP_MS = 45_000;
@@ -433,7 +433,7 @@ const SCRIPT: StepSpec[] = [
     agent: 'builder',
     ops: [
       startSession('builder1'),
-      recall('storage choice and API spec', 'pg', 'paths', 'page_style', 'lang'),
+      recall('storage choice and API spec', 'pg', 'paths', 'page_style', 'lang', 'v1'),
       { tool: 'best_procedure', read: [] },
       claim('6', 1),
     ],
@@ -555,6 +555,7 @@ const SCRIPT: StepSpec[] = [
     n: 21,
     agent: 'builder',
     ops: [
+      recall('which API version is current?', 'v2'),
       remember(
         'b2',
         'builder2',
@@ -602,7 +603,13 @@ const SCRIPT: StepSpec[] = [
     agent: 'builder',
     ops: [
       claim('8', 1),
-      recall('how should the API authenticate requests?', 'jwt', 'ttl', 'auth_res'),
+      recall(
+        'how should the API authenticate requests, and under which version?',
+        'jwt',
+        'ttl',
+        'auth_res',
+        'v2',
+      ),
       af('mw', 'auth', 'middleware', 'verify RS256 signature and reject expired tokens', {
         from: ['jwt', 'ttl'],
       }),
@@ -731,7 +738,7 @@ export interface AcmeDataset {
   flow: FlowEvent[];
   /** script keys -> node ids, for tests and the Why fixture. */
   ids: Record<string, string>;
-  /** Step number -> agent id and time. */
+  /** One row per Step node: the agent's own step number (`n`), its agent and time. */
   steps: { n: number; at: number; agent_id: string; node_id: string }[];
 }
 
@@ -740,12 +747,12 @@ export function buildAcme(): AcmeDataset {
   const edges: GraphEdge[] = [];
   const created = new Map<string, number>();
   const counters: Record<string, number> = {};
-  let edgeSeq = 0;
 
   const mkNode = (label: NodeLabel, key: string, props: Props, at: number): GraphNode => {
     const c = (counters[label] = (counters[label] ?? 0) + 1);
     const node: GraphNode = {
-      id: uuid(NODE_LABELS.indexOf(label) + 1, c),
+      // Agents are keyed by their name, as the real tools do (`agent_id` is the id).
+      id: label === 'Agent' ? String(props.name) : uuid(NODE_LABELS.indexOf(label) + 1, c),
       label,
       props: { ...props, created_at: at },
     };
@@ -758,8 +765,8 @@ export function buildAcme(): AcmeDataset {
     if (!n) throw new Error(`fixture: unknown node key ${key}`);
     return n.id;
   };
-  const mkEdge = (type: string, src: string, dst: string, props: Props = {}): void => {
-    edges.push({ id: uuid(0xed9e, ++edgeSeq), type, src: idOf(src), dst: idOf(dst), props });
+  const mkEdge = (type: string, src: string, dst: string): void => {
+    edges.push({ type, source: idOf(src), target: idOf(dst) });
   };
   const rand = (() => {
     let s = 20261015;
@@ -780,6 +787,7 @@ export function buildAcme(): AcmeDataset {
     return out;
   };
   const sub = (key: string, agentKey: string) => key.replace('$agent', agentKey);
+  const ref = (n: GraphNode): NodeRef => ({ id: n.id, label: n.label });
 
   /* top-level seed: agents, scopes, sources (created before step 1) */
   const seed = T0;
@@ -805,50 +813,54 @@ export function buildAcme(): AcmeDataset {
   const flow: FlowEvent[] = [];
   const stepRows: AcmeDataset['steps'] = [];
   const agentEdgeCache = new Set<string>();
-  let prevStepKey: string | undefined;
+  const agentSteps: Record<string, number> = {};
+  const prevStepOf: Record<string, string> = {};
   const pendingSubjects: [string, string][] = []; // fact key, entity key
 
   for (const step of SCRIPT) {
     const agentKey = `a.${step.agent}`;
     const stepAt = stepTime(step.n);
     const stepKey = `step.${step.n}`;
-    const stepNode = mkNode('Step', stepKey, { n: step.n, at: stepAt, agent_id: idOf(agentKey) }, stepAt);
+    // Real Step numbers count per agent (each agent has its own NEXT chain).
+    const stepN = (agentSteps[step.agent] = (agentSteps[step.agent] ?? 0) + 1);
+    const stepNode = mkNode('Step', stepKey, { n: stepN, at: stepAt, agent_id: idOf(agentKey) }, stepAt);
     mkEdge('BY', stepKey, agentKey);
-    if (prevStepKey) mkEdge('NEXT', prevStepKey, stepKey);
-    prevStepKey = stepKey;
-    stepRows.push({ n: step.n, at: stepAt, agent_id: idOf(agentKey), node_id: stepNode.id });
+    const prevOfAgent = prevStepOf[step.agent];
+    if (prevOfAgent) mkEdge('NEXT', prevOfAgent, stepKey);
+    prevStepOf[step.agent] = stepKey;
+    stepRows.push({ n: stepN, at: stepAt, agent_id: idOf(agentKey), node_id: stepNode.id });
     const read = new Set<string>();
     const wrote = new Set<string>();
 
     step.ops.forEach((op, i) => {
       const at = stepAt + i * 2000 + 500;
-      const createdIds: string[] = [];
-      const updatedIds: string[] = [];
+      const created: NodeRef[] = [];
+      const updated: NodeRef[] = [];
 
       // entities referenced by an assert_fact are created lazily by the first call that mentions them
       for (const [, , dst] of op.edges ?? []) {
         if (dst.startsWith('e.') && !nodes.has(dst)) {
           const def = ENTITIES[dst.slice(2) as EntityName];
           const norm = def[0].toLowerCase().replace(/\s+/g, ' ');
-          createdIds.push(mkNode('Entity', dst, { name: def[0], norm_name: norm, kind: def[1] }, at).id);
+          created.push(ref(mkNode('Entity', dst, { name: def[0], norm_name: norm, kind: def[1] }, at)));
         }
       }
       for (const [label, key, props] of op.nodes ?? []) {
         const defaults: Props = label === 'Fact' ? { valid_from: at, valid_to: OPEN, recorded_at: at } : {};
         const n = mkNode(label, key, { ...defaults, ...resolve(props, agentKey, at, step.n) }, at);
-        createdIds.push(n.id);
+        created.push(ref(n));
         if (label === 'Fact' || label === 'Decision' || label === 'Handoff' || label === 'Task')
           wrote.add(n.id);
       }
-      for (const [type, s, d, p] of op.edges ?? []) {
-        mkEdge(type, sub(s, agentKey), sub(d, agentKey), resolve(p ?? {}, agentKey, at, step.n));
+      for (const [type, s, d] of op.edges ?? []) {
+        mkEdge(type, sub(s, agentKey), sub(d, agentKey));
         if (type === 'ABOUT') pendingSubjects.push([s, d]);
       }
       for (const [key, change] of Object.entries(op.patch ?? {})) {
         const n = nodes.get(key);
         if (!n) throw new Error(`fixture: patch of unknown node ${key}`);
         n.props = { ...n.props, ...resolve(change, agentKey, at, step.n) };
-        updatedIds.push(n.id);
+        updated.push(ref(n));
         if (n.label === 'Task' || n.label === 'Fact') wrote.add(n.id);
       }
       for (const f of op.read ?? []) read.add(idOf(`f.${f}`));
@@ -861,14 +873,11 @@ export function buildAcme(): AcmeDataset {
           { at, query: op.recall.query, scope_id: idOf('sc.project'), agent_id: idOf(agentKey), k: 5 },
           at,
         );
-        createdIds.push(rc.id);
+        created.push(ref(rc));
         mkEdge('BY', rk, agentKey);
         mkEdge('IN_STEP', rk, stepKey);
-        op.recall.facts.forEach((f, rank) => {
-          mkEdge('RETURNED', rk, `f.${f}`, {
-            rank: rank + 1,
-            score: Math.round((0.08 + rank * 0.07 + rand() * 0.03) * 1000) / 1000,
-          });
+        op.recall.facts.forEach((f) => {
+          mkEdge('RETURNED', rk, `f.${f}`);
           read.add(idOf(`f.${f}`));
         });
       }
@@ -888,10 +897,8 @@ export function buildAcme(): AcmeDataset {
         at,
       );
       mkEdge('IN_STEP', tcKey, stepKey);
-      for (const id of createdIds)
-        edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'CREATED', src: tc.id, dst: id, props: {} });
-      for (const id of updatedIds)
-        edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'UPDATED', src: tc.id, dst: id, props: {} });
+      for (const r of created) edges.push({ type: 'CREATED', source: tc.id, target: r.id });
+      for (const r of updated) edges.push({ type: 'UPDATED', source: tc.id, target: r.id });
       flow.push({
         id: tc.id,
         tool: op.tool,
@@ -899,8 +906,12 @@ export function buildAcme(): AcmeDataset {
         agent_id: idOf(agentKey),
         query_name: String(tc.props.query_name),
         run_time_ms: Number(tc.props.run_time_ms),
-        created: createdIds,
-        updated: updatedIds,
+        wrote: WRITE_TOOLS.has(op.tool),
+        step: null,
+        step_id: stepNode.id,
+        step_n: stepN,
+        created,
+        updated,
       });
     });
 
@@ -908,10 +919,9 @@ export function buildAcme(): AcmeDataset {
       const k = `${stepNode.id}>${id}`;
       if (agentEdgeCache.has(k)) continue;
       agentEdgeCache.add(k);
-      edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'READ', src: stepNode.id, dst: id, props: {} });
+      edges.push({ type: 'READ', source: stepNode.id, target: id });
     }
-    for (const id of wrote)
-      edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'WROTE', src: stepNode.id, dst: id, props: {} });
+    for (const id of wrote) edges.push({ type: 'WROTE', source: stepNode.id, target: id });
   }
 
   for (const [fk, ek] of pendingSubjects) {

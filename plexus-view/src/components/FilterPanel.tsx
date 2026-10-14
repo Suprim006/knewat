@@ -5,6 +5,8 @@ interface Props {
   edgeCounts: Record<string, number>;
   hiddenLabels: ReadonlySet<string>;
   hiddenEdgeTypes: ReadonlySet<string>;
+  /** Edge types hidden by the ablation switch: shown unchecked and locked. */
+  forcedEdgeTypes?: readonly string[];
   onChange: (labels: Set<string>, edgeTypes: Set<string>) => void;
 }
 
@@ -16,7 +18,14 @@ function toggled(set: ReadonlySet<string>, key: string): Set<string> {
 }
 
 /** Legend + label/edge-type filters. A checked box means "shown". */
-export function FilterPanel({ labelCounts, edgeCounts, hiddenLabels, hiddenEdgeTypes, onChange }: Props) {
+export function FilterPanel({
+  labelCounts,
+  edgeCounts,
+  hiddenLabels,
+  hiddenEdgeTypes,
+  forcedEdgeTypes = [],
+  onChange,
+}: Props) {
   const labels = Object.keys(labelCounts);
   const modules = MODULE_ORDER.map((m) => ({
     module: m,
@@ -87,7 +96,8 @@ export function FilterPanel({ labelCounts, edgeCounts, hiddenLabels, hiddenEdgeT
           <label key={t} className="check">
             <input
               type="checkbox"
-              checked={!hiddenEdgeTypes.has(t)}
+              checked={!hiddenEdgeTypes.has(t) && !forcedEdgeTypes.includes(t)}
+              disabled={forcedEdgeTypes.includes(t)}
               onChange={() => onChange(new Set(hiddenLabels), toggled(hiddenEdgeTypes, t))}
             />
             <span className="check-name mono">{t}</span>

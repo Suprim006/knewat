@@ -1,9 +1,8 @@
 /**
  * Types for the Plexus View API (docs/PLAN.md §4) and graph model v1 (docs/graph-model.md).
  *
- * The View API itself is built by another agent (P2-E). Only the node/edge shapes are pinned by the
- * plan; the envelope shapes below (`{ tenants }`, `{ events }`, ...) are this app's reading of §4 and
- * must be aligned with the real API when it lands. Everything funnels through `src/api/client.ts`.
+ * These mirror the real API: `plexus/src/plexus/api/models.py` (exported to docs/view-api.schema.json).
+ * Field names are final; times are epoch milliseconds. Everything funnels through `src/api/client.ts`.
  */
 
 /** FalkorDB cannot store null, so an open-ended `valid_to` is this sentinel. */
@@ -73,24 +72,29 @@ export interface GraphNode {
   props: Props;
 }
 
+/** Edges carry no id of their own in the API; see {@link edgeId}. */
 export interface GraphEdge {
-  id: string;
+  source: string;
+  target: string;
   type: string;
-  src: string;
-  dst: string;
-  props: Props;
 }
+
+/** Stable client-side key of an edge (the API gives none; parallel edges of one type collapse). */
+export const edgeId = (e: GraphEdge): string => `${e.source}|${e.type}|${e.target}`;
 
 /** `GET /api/{t}/graph` */
 export interface Subgraph {
   nodes: GraphNode[];
   edges: GraphEdge[];
+  /** True if more nodes matched than `limit`. */
+  truncated: boolean;
+  limit: number;
 }
 
 /** `GET /api/tenants` */
 export interface TenantInfo {
   /** Short tenant id (the part after `plexus_t_`). */
-  id: string;
+  tenant: string;
   /** Full graph name, `plexus_t_<id>`. */
   graph: string;
 }
@@ -101,8 +105,8 @@ export interface TenantList {
 export interface LabelCount {
   label: string;
   count: number;
-  /** Property keys seen on nodes with this label. */
-  property_keys: string[];
+  /** Property keys seen on a bounded sample of this label's nodes. */
+  keys: string[];
 }
 export interface EdgeTypeCount {
   type: string;
@@ -110,67 +114,150 @@ export interface EdgeTypeCount {
 }
 export interface IndexInfo {
   label: string;
-  property: string;
-  kind: 'range' | 'fulltext' | 'vector' | 'unique';
-  entity: 'node' | 'edge';
-  status?: string;
+  properties: string[];
+  /** Property -> index kinds (RANGE | FULLTEXT | VECTOR). */
+  types: Record<string, string[]>;
+  entity_type: string;
+  status: string;
 }
 
 /** `GET /api/{t}/inventory` */
 export interface Inventory {
   tenant: string;
-  node_total: number;
-  edge_total: number;
+  nodes_total: number;
+  edges_total: number;
   labels: LabelCount[];
   edge_types: EdgeTypeCount[];
   indexes: IndexInfo[];
 }
 
-/** One `ToolCall` node, with the ids it touched. */
+export interface NodeRef {
+  id: string;
+  label: string;
+}
+
+/** One `ToolCall` node with the nodes it created/updated (also one SSE `toolcall` frame). */
 export interface FlowEvent {
   id: string;
   tool: string;
   /** Epoch ms. */
   at: number;
   agent_id: string;
+  /** Named query under `GET /api/queries/{name}`; '' when the call ran none. */
   query_name: string;
   run_time_ms: number;
-  created: string[];
-  updated: string[];
+  wrote: boolean;
+  /** The agent's own step counter, if it sent one. */
+  step: number | null;
+  /** Lineage Step node id. */
+  step_id: string | null;
+  /** That Step's number in its agent's chain (the step slider's value). */
+  step_n: number | null;
+  created: NodeRef[];
+  updated: NodeRef[];
 }
 
 /** `GET /api/{t}/flow?after=` */
 export interface FlowResponse {
   events: FlowEvent[];
+  /** Largest `at` returned (or `after` when empty); pass it as the next `after`. */
+  last_at: number;
 }
 
-/** One entry of `GET /api/{t}/step/{n}`: what an agent knew and wrote at step n. */
-export interface KnewAtAgent {
+/** A fact an agent had read by the step and that was still valid then. */
+export interface StepFact {
+  id: string;
+  entity?: string | null;
+  predicate?: string | null;
+  value?: string | null;
+  status?: string | null;
+  valid_from?: number | null;
+  valid_to?: number | null;
+  /** The agent's first step that read it. */
+  read_at_step?: number | null;
+}
+/** A node (Fact, Decision, Handoff or Task) the agent's steps wrote up to the step. */
+export interface StepWrote extends NodeRef {
+  summary?: string | null;
+  step_n?: number | null;
+}
+export interface StepAgent {
   agent_id: string;
-  agent_name: string;
-  knew: string[];
-  wrote: string[];
+  /** This agent's latest step <= the requested n. */
+  step_n: number;
+  step_at: number;
+  read: StepFact[];
+  wrote: StepWrote[];
 }
 /** `GET /api/{t}/step/{n}` */
-export interface KnewAt {
-  step: number;
-  at: number;
-  agents: KnewAtAgent[];
+export interface StepResponse {
+  n: number;
+  agents: StepAgent[];
 }
 
-/** `GET /api/{t}/why/{id}`: ordered paths from the subject back to facts, agents, steps, sources. */
-export interface WhyPath {
-  subject_id: string;
-  paths: { node_ids: string[]; edge_ids: string[] }[];
+export interface LineageNode {
+  id: string;
+  label: string;
+  props: Record<string, unknown>;
+}
+/** Stored direction `from -[rel]-> to`. */
+export interface LineageEdge {
+  from: string;
+  rel: string;
+  to: string;
+  props?: Record<string, unknown> | null;
+}
+export interface WhyHop {
+  from: string;
+  rel: string;
+  to: string;
+  /** True when the edge is stored `to -> from`. */
+  reverse: boolean;
+}
+export interface WhyFact {
+  id: string;
+  props: Record<string, unknown>;
+  asserted_by: string[];
+  sources: string[];
+  episodes: string[];
+  derived_from_facts: string[];
+  supersedes: string[];
+  superseded_by: string[];
+  contradicts: string[];
+  contradicted_by: string[];
+  written_by_steps: string[];
+}
+export interface WhyResult {
+  root: string;
+  kind: string;
+  facts: WhyFact[];
+  agents: string[];
+  sources: string[];
+  episodes: string[];
+  steps: string[];
+  paths: WhyHop[][];
+  nodes: LineageNode[];
+  edges: LineageEdge[];
+  truncated: boolean;
+}
+/** `GET /api/{t}/why/{id}` */
+export interface WhyResponse {
+  id: string;
+  result: WhyResult;
 }
 
 /** `GET /api/queries/{name}` */
 export interface QueryText {
   name: string;
+  mode: string;
+  purpose: string;
+  params: Record<string, string>;
+  returns: string;
+  /** The full .cypher file text, header included. */
   text: string;
 }
 
-/** `GET /api/results`: Crucible results (shape owned by the Crucible agents). */
+/** `GET /api/results`: Crucible results (shape owned by the Crucible agents; rendered defensively). */
 export interface Results {
   [key: string]: unknown;
 }
@@ -188,10 +275,11 @@ export interface ViewApi {
   tenants(): Promise<TenantList>;
   inventory(tenant: string): Promise<Inventory>;
   graph(tenant: string, query?: GraphQuery): Promise<Subgraph>;
-  flow(tenant: string, after?: number): Promise<FlowResponse>;
-  step(tenant: string, n: number): Promise<KnewAt>;
-  why(tenant: string, id: string): Promise<WhyPath>;
+  flow(tenant: string, after?: number, limit?: number): Promise<FlowResponse>;
+  step(tenant: string, n: number): Promise<StepResponse>;
+  why(tenant: string, id: string): Promise<WhyResponse>;
   queryText(name: string): Promise<QueryText>;
+  /** Rejects with a 404 {@link ApiError} until the Crucible produces results. */
   results(): Promise<Results>;
   /** URL of the SSE stream for a tenant (`null` in fixture mode). */
   streamUrl(tenant: string): string | null;
