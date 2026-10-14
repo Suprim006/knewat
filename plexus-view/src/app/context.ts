@@ -15,6 +15,10 @@ export interface TenantState {
   tenant: string;
   setTenant: (id: string) => void;
   error?: string;
+  /** True until the tenant list has answered (success or error). */
+  loading: boolean;
+  /** The list loaded fine but is empty: no tenant exists yet. */
+  empty: boolean;
   /** True when the data comes from the built-in fixtures. */
   fixtures: boolean;
 }

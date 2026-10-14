@@ -26,7 +26,7 @@ const EMPTY_STATS: Stats = { counts: EMPTY_COUNTS, labels: {}, edges: {} };
 
 export function Explorer() {
   const api = useApi();
-  const { tenant } = useTenant();
+  const { tenant, empty: noTenants } = useTenant();
 
   const [ctl, setCtl] = useState<GraphController | null>(null);
   const [loaded, setLoaded] = useState<{ tenant: string; error?: string } | null>(null);
@@ -442,7 +442,8 @@ export function Explorer() {
             </button>
           </div>
         )}
-        {loading && <div className="overlay center">Loading graph…</div>}
+        {loading && !noTenants && <div className="overlay center">Loading graph…</div>}
+        {noTenants && <div className="overlay center muted">No tenant to show yet.</div>}
         {loaded?.error && loaded.tenant === tenant && (
           <div className="overlay center error" role="alert">
             Could not load the graph: {loaded.error}
