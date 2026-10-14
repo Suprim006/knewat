@@ -1,12 +1,14 @@
 import { useEffect, useId, useRef } from 'react';
 import { createGraphController, DARK_THEME, LIGHT_THEME } from '../lib/graphController';
-import type { GraphController } from '../lib/graphController';
+import type { ControllerOptions, GraphController } from '../lib/graphController';
 import { useIsDark } from '../lib/theme';
 
 interface Props {
   /** Called with the controller once mounted, and with null on unmount. Must be a stable function. */
   onReady: (c: GraphController | null) => void;
   onSelect: (id: string | null) => void;
+  /** Layout / label tuning. Read once at mount: pass a constant. */
+  tuning?: Pick<ControllerOptions, 'layout' | 'labelMaxWidth'>;
 }
 
 const isJsdom = (): boolean => typeof navigator !== 'undefined' && /jsdom/i.test(navigator.userAgent);
@@ -15,13 +17,14 @@ const isJsdom = (): boolean => typeof navigator !== 'undefined' && /jsdom/i.test
  * Mounts a Cytoscape instance in a div. Graph elements live inside Cytoscape (see
  * lib/graphController.ts); this component only owns its lifecycle.
  */
-export function GraphCanvas({ onReady, onSelect }: Props) {
+export function GraphCanvas({ onReady, onSelect, tuning }: Props) {
   const host = useRef<HTMLDivElement>(null);
   const descId = useId();
   const controller = useRef<GraphController | null>(null);
   const onSelectRef = useRef(onSelect);
   const dark = useIsDark();
   const darkRef = useRef(dark);
+  const tuningRef = useRef(tuning);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
@@ -35,6 +38,7 @@ export function GraphCanvas({ onReady, onSelect }: Props) {
       headless: isJsdom(),
       onSelect: (id) => onSelectRef.current(id),
       theme: darkRef.current ? DARK_THEME : LIGHT_THEME,
+      ...tuningRef.current,
     });
     controller.current = c;
     onReady(c);

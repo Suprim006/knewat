@@ -63,6 +63,24 @@ const NODE_SIZE: Record<string, number> = {
   Fact: 14,
 };
 
+/**
+ * The Flow page's "What it touched" mini-graph: a handful of nodes in a 320 px box. Quality `default`
+ * is cheap at this size and spreads nodes properly; a much stronger repulsion keep
+ * each node's label clear of its neighbours (draft layout on the default options put about 10 label/label or
+ * label/node overlaps in the busiest events, see miniLayout.test.ts); names are cut sooner and shown in full on hover.
+ */
+export const MINI_CONTROLLER_OPTIONS = {
+  labelMaxWidth: 84,
+  layout: {
+    quality: 'default',
+    idealEdgeLength: 120,
+    nodeRepulsion: 200000,
+    nodeSeparation: 220,
+    gravity: 0.1,
+    nodeDimensionsIncludeLabels: true,
+  },
+} as const satisfies Pick<ControllerOptions, 'layout' | 'labelMaxWidth'>;
+
 /** Above this many edges we switch to cheap haystack edges (no arrowheads). */
 export const HAYSTACK_EDGE_THRESHOLD = 1500;
 
@@ -80,7 +98,14 @@ export const LAYOUT_OPTIONS = {
   packComponents: true,
 } as const;
 
-export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
+/** Default node-label width on the canvas (px); longer names are cut with an ellipsis. */
+export const LABEL_MAX_WIDTH = 110;
+
+export function buildStyle(
+  theme: Theme,
+  haystack: boolean,
+  labelMaxWidth: number = LABEL_MAX_WIDTH,
+): StylesheetJson {
   return [
     {
       selector: 'node',
@@ -94,7 +119,7 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
         'text-valign': 'bottom',
         'text-margin-y': 3,
         'text-wrap': 'ellipsis',
-        'text-max-width': '110px',
+        'text-max-width': `${labelMaxWidth}px`,
         'text-outline-color': theme.textOutline,
         'text-outline-width': 2,
         'min-zoomed-font-size': 9,
@@ -118,6 +143,19 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
             'arrow-scale': 0.7,
             'curve-style': 'bezier' as const,
           },
+    },
+    // Hovering a node shows its whole name (labels are ellipsised otherwise) above its neighbours.
+    {
+      selector: 'node.hover',
+      style: {
+        'text-wrap': 'wrap' as const,
+        'text-max-width': '260px',
+        'z-index': 999,
+        'text-background-color': theme.textOutline,
+        'text-background-opacity': 0.9,
+        'text-background-padding': '2px',
+        'min-zoomed-font-size': 0,
+      },
     },
     { selector: '.hide-label, .hide-type', style: { display: 'none' as const } },
     { selector: 'node.dim, edge.dim', style: { opacity: 0.12 } },
@@ -238,6 +276,10 @@ export interface GraphController {
 
 export interface ControllerOptions {
   container?: HTMLElement | null;
+  /** Overrides merged into {@link LAYOUT_OPTIONS} (e.g. a roomier layout for a small graph). */
+  layout?: Record<string, unknown>;
+  /** Node-label width in px before the name is cut with an ellipsis (hover shows the whole name). */
+  labelMaxWidth?: number;
   /** No rendering (tests / jsdom). */
   headless?: boolean;
   onSelect?: (id: string | null) => void;
@@ -301,6 +343,8 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   const headless = opts.headless ?? !opts.container;
   let theme = opts.theme ?? LIGHT_THEME;
   let haystack = false;
+  const labelMaxWidth = opts.labelMaxWidth ?? LABEL_MAX_WIDTH;
+  const layoutOptions = { ...LAYOUT_OPTIONS, ...opts.layout };
   let filters: FilterState = { hiddenLabels: new Set(), hiddenEdgeTypes: new Set() };
   /** Edges waiting for an endpoint, by key (a Map so "already parked?" is O(1)). */
   const pending = new Map<string, KeyedEdge>();
@@ -317,9 +361,11 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     minZoom: 0.05,
     maxZoom: 4,
     wheelSensitivity: 0.25,
-    style: buildStyle(theme, haystack),
+    style: buildStyle(theme, haystack, labelMaxWidth),
   });
 
+  cy.on('mouseover', 'node', (e) => e.target.addClass('hover'));
+  cy.on('mouseout', 'node', (e) => e.target.removeClass('hover'));
   cy.on('tap', 'node', (e) => opts.onSelect?.(e.target.id()));
   cy.on('tap', (e) => {
     if (e.target === cy) opts.onSelect?.(null);
@@ -366,7 +412,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     const next = cy.edges().length > HAYSTACK_EDGE_THRESHOLD;
     if (next !== haystack) {
       haystack = next;
-      cy.style(buildStyle(theme, haystack));
+      cy.style(buildStyle(theme, haystack, labelMaxWidth));
     }
   }
 
@@ -391,7 +437,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
         // park the hidden nodes next to their neighbours so toggling them on moves nothing.
         const visible = cy.elements().not('.hide-label, .hide-type');
         if (visible.nodes().nonempty()) {
-          visible.layout({ ...LAYOUT_OPTIONS, animate: false } as cytoscape.LayoutOptions).run();
+          visible.layout({ ...layoutOptions, animate: false } as cytoscape.LayoutOptions).run();
         }
         const hidden = cy.nodes('.hide-label');
         seedNear(
@@ -682,7 +728,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     relayout() {
       cy.layout({
-        ...LAYOUT_OPTIONS,
+        ...layoutOptions,
         animate: !headless,
         animationDuration: 600,
       } as cytoscape.LayoutOptions).run();
@@ -694,7 +740,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     setTheme(t) {
       theme = t;
-      cy.style(buildStyle(theme, haystack));
+      cy.style(buildStyle(theme, haystack, labelMaxWidth));
     },
 
     destroy() {
