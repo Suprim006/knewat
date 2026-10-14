@@ -21,7 +21,6 @@ describe('App shell', () => {
   });
 
   it.each([
-    ['/flow', 'Flow'],
     ['/time', 'Time Machine'],
     ['/why/abc-123', 'Why'],
     ['/results', 'Results'],
@@ -29,6 +28,12 @@ describe('App shell', () => {
     renderApp(route);
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
     expect(screen.getByText(/Placeholder/)).toBeInTheDocument();
+  });
+
+  it('routes /flow to the Flow page', async () => {
+    renderApp('/flow');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Flow' })).toBeInTheDocument();
+    expect(screen.queryByText(/Placeholder/)).not.toBeInTheDocument();
   });
 
   it('passes the :id of /why/:id to the page', () => {

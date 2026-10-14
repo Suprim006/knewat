@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './app/Layout';
+import { Flow } from './views/Flow';
 import { Inventory } from './views/Inventory';
 import { Placeholder } from './views/Placeholder';
 
@@ -19,15 +20,7 @@ export function AppRoutes() {
             </Suspense>
           }
         />
-        <Route
-          path="flow"
-          element={
-            <Placeholder
-              title="Flow"
-              blurb="Live ToolCall timeline over SSE; click an event to light up what it created."
-            />
-          }
-        />
+        <Route path="flow" element={<Flow />} />
         <Route
           path="time"
           element={

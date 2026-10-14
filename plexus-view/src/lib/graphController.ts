@@ -152,6 +152,9 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
       selector: 'node.fresh',
       style: { 'border-width': 5, 'border-color': '#22c55e', 'border-opacity': 0.9 },
     },
+    { selector: 'node.ctx, edge.ctx', style: { opacity: 0.45 } },
+    { selector: 'node.ev-created', style: { 'border-width': 5, 'border-color': '#22c55e', opacity: 1 } },
+    { selector: 'node.ev-updated', style: { 'border-width': 5, 'border-color': '#f59e0b', opacity: 1 } },
     { selector: 'node.path', style: { 'border-width': 4, 'border-color': theme.highlight, opacity: 1 } },
     {
       selector: 'edge.path',
@@ -211,6 +214,8 @@ export interface GraphController {
   counts(): Counts;
   labelCounts(): Record<string, number>;
   edgeTypeCounts(): Record<string, number>;
+  /** Flow view: ring what one tool call created (green) and updated (amber); the rest recedes. */
+  markEvent(created: string[], updated: string[]): void;
   highlightPath(nodeIds: string[]): void;
   clearHighlight(): void;
   relayout(): void;
@@ -544,6 +549,23 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
         out[t] = (out[t] ?? 0) + 1;
       });
       return out;
+    },
+
+    markEvent(created, updated) {
+      cy.batch(() => {
+        cy.elements().removeClass('ev-created ev-updated ctx');
+        const c = cy.collection();
+        const hit = (ids: string[], cls: string) => {
+          const eles = cy.collection();
+          for (const id of ids) eles.merge(cy.getElementById(id));
+          eles.addClass(cls);
+          return eles;
+        };
+        const made = hit(created, 'ev-created');
+        const changed = hit(updated, 'ev-updated');
+        c.merge(made).merge(changed);
+        cy.elements().difference(c.union(c.connectedEdges())).addClass('ctx');
+      });
     },
 
     highlightPath(ids) {
