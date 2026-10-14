@@ -21,8 +21,8 @@ file as work happens, not at the end.
 | P1 | Sonnet subagents `P1-A Engram` and `P1-B Relay` (service code, `.cypher` queries, 149 tests incl. 50-thread no-double-claim). An independent Sonnet **reviewer** found 2 blockers, 2 majors and 8 minors, each verified with probes. Sonnet subagent `P1-fix` fixed all 12 test-first (313 tests on main after the merge). Orchestrator: specs, gates, merges, fix decisions | _TBD_ |
 | P2 | Sonnet subagents `P2-D Lineage` (provenance, time travel, forget/quarantine), `P2-E` (MCP server stdio+HTTP with tenant pinning, ToolCall audit, read-only View API, Dockerfile/compose) and `P2-int` (Lineage wired into the tool layer). Claude Code headless smoke runs (haiku) as an MCP client | _TBD_ |
 | P3 | Sonnet subagents `P3-F` (Acme Notes scenario, scripted agents, the `claude -p` orchestrator, recorder/replay, CLI) and `P3-G` (View: Flow, Time Machine, Why, Explorer upgrades, ablation toggle, Inventory, Results). **Claude Code (sonnet/haiku) as the demo agents:** one pilot plus one full recorded run (`demo_data/recordings/acme-claude-sonnet`, 16 processes, $0.70 notional) | _TBD_ |
-| P4 | _TBD_ | _TBD_ |
-| P5 | _TBD_ | _TBD_ |
+| P4 | Sonnet subagents `P4-H` (Crucible backends, L1/L4, ablation) and `P4-I` (L2 questions + runner, L3 pilot). **Claude Code (sonnet) as the baseline answerer** in L2 (129 `claude -p` calls, $5.53 notional, cached in `demo_data/crucible/l2_cache`) and in the L3 pilot ($1.70). Plexus itself answers with deterministic Cypher (no LLM) | _TBD_ |
+| P5 | Four read-only Sonnet **reviewer** subagents (queries, concurrency/tenancy, MCP/API surface, view/tests) and three fix subagents, plus an integration subagent. The orchestrator merged them and fixed integration breaks | _TBD_ |
 | P6 | _TBD_ | _TBD_ |
 
 ## Statement of understanding
