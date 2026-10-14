@@ -1,0 +1,34 @@
+# Render Blueprint: Plexus live demo, one Docker web service on the Free plan (512 MB RAM, 0.5 CPU).
+# FalkorDB + plexus-api + MCP (streamable HTTP) + the static View all run in this single container (deploy/Dockerfile).
+# Click-by-click setup, uptime pinger and the public-safety limits: docs/deploy.md.
+services:
+  - type: web
+    name: plexus-demo
+    runtime: docker
+    plan: free
+    dockerfilePath: ./deploy/Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit # redeploy on every push to the branch Render tracks
+    envVars:
+      # Embeddings: the local fastembed model baked into the image. No LLM credentials exist anywhere (D-002/D-003).
+      - key: PLEXUS_EMBEDDER
+        value: fastembed
+      - key: FASTEMBED_THREADS # S2: threads=1 on a CPU-limited box (2.8 vs 30 embeddings/s at 0.5 CPU)
+        value: "1"
+      - key: PLEXUS_EMBED_THREADS # the name plexus/src reads; same value
+        value: "1"
+      # CORS: same origin. The View is served by this process and calls /api on the same host, so no origin is allowed.
+      - key: PLEXUS_CORS_ORIGINS
+        value: ""
+      # Public-safety limits (defaults shown; see docs/deploy.md)
+      - key: PLEXUS_MAX_TENANTS
+        value: "50"
+      - key: PLEXUS_RATE_PER_MIN
+        value: "60"
+      - key: PLEXUS_TEAM_IDLE_HOURS
+        value: "24"
+      - key: PLEXUS_REDIS_MAXMEMORY
+        value: 100mb
+      - key: PLEXUS_PREWARM # load the embedding model at boot instead of on the first tool call
+        value: "1"

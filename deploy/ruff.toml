@@ -6,3 +6,6 @@ select = ["E", "F", "I", "B", "UP"]
 
 [lint.isort]
 known-first-party = ["deploy", "plexus"]
+
+[format]
+line-ending = "lf"

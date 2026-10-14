@@ -196,6 +196,16 @@ def test_demo_tool_calls_are_refused_with_a_clear_tool_error():
     assert inner.calls == []  # never reached Plexus
 
 
+def test_refusal_is_a_valid_mcp_call_tool_result():
+    """The synthesized answer must parse with the installed MCP SDK (2.x requires resultType)."""
+    from mcp.types import CallToolResult
+
+    g, _, _ = make_guard()
+    _, _, body = call(g, path="/mcp/t/demo", body=rpc("tools/call", name="recall", arguments={}))
+    res = CallToolResult.model_validate(json.loads(body)["result"])
+    assert res.is_error and "read-only" in res.content[0].text
+
+
 def test_demo_handshake_and_listing_still_work():
     g, inner, _ = make_guard()
     for m in ("initialize", "tools/list", "ping", "notifications/initialized"):

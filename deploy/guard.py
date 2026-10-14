@@ -286,7 +286,7 @@ def _tool_error(request_id, text: str) -> dict:
     return {
         "jsonrpc": "2.0",
         "id": request_id,
-        "result": {"content": [{"type": "text", "text": text}], "isError": True},
+        "result": {"content": [{"type": "text", "text": text}], "isError": True, "resultType": "complete"},
     }
 
 

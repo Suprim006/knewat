@@ -1,0 +1,22 @@
+# Used by `docker build -f deploy/Dockerfile .` (BuildKit picks <Dockerfile>.dockerignore). Context = repo root.
+.git
+.github
+**/.venv*
+**/node_modules
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+.env*
+docs
+scripts
+plexus/tests
+plexus-view/dist
+plexus-view/docs
+plexus/demo_data/crucible
+plexus/demo_data/acme
+plexus/demo_data/recordings/pilot-haiku
+# Crucible run folders are large; the app only serves latest*.json
+plexus/src/plexus/crucible/results/*
+!plexus/src/plexus/crucible/results/latest*.json
+deploy/tests
