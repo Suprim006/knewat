@@ -1128,3 +1128,9 @@ table.data thead th {
 .summary-card .parts b {
   color: var(--text);
 }
+.overlay.bottom-center {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 80%;
+}

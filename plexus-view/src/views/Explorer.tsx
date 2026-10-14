@@ -57,6 +57,9 @@ export function Explorer() {
   const lastAtRef = useRef(0);
   const replayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const ingestQueue = useRef<Promise<void>>(Promise.resolve());
+  /** Live-read state of the current (controller, tenant); replaced on switch so a stale read cannot touch it. */
+  const liveRead = useRef({ running: false, dirty: false });
+  const [liveError, setLiveError] = useState<{ tenant: string; message: string } | null>(null);
 
   const selectedId = sel && sel.tenant === tenant ? sel.id : null;
   const ready = !!ctl && loaded?.tenant === tenant && !loaded.error;
@@ -102,12 +105,23 @@ export function Explorer() {
     ctl?.select(selectedId);
   }, [ctl, selectedId, rev]);
 
+  /* a new controller or tenant starts a fresh live-read state (an old read finishing must not touch it) */
+  useEffect(() => {
+    liveRead.current = { running: false, dirty: false };
+  }, [ctl, tenant]);
+
   /*
    * A flow event arrived (SSE, or the fixture replay). The API cannot fetch nodes by id, and a
    * `since`/`until` window on created_at would drop the edges that join new nodes to older ones, so we
    * re-read the (bounded) subgraph and let `addLive` add only what is new: no relayout, new nodes seeded
-   * next to a neighbour. Bursts are coalesced into one read. `until` caps the read at the event's time
-   * (used by the replay so nodes appear one event at a time).
+   * next to a neighbour.
+   *
+   * Live events are coalesced: at most one read is in flight; events that arrive meanwhile only set a
+   * `dirty` flag, and one trailing read picks up everything they changed. A burst of N calls therefore
+   * costs two reads, not N. A failed read is shown (not swallowed) and the next event retries.
+   *
+   * The replay passes `until` (caps the read at the event's time so nodes appear one event at a time);
+   * those reads are deliberately one per event, in order.
    */
   const ingest = useCallback(
     (ev: FlowEvent, until?: number): Promise<void> => {
@@ -116,15 +130,41 @@ export function Explorer() {
       lastAtRef.current = Math.max(lastAtRef.current, ev.at);
       const known = (id: string) => ctl.cy.getElementById(id).nonempty();
       const touchesNew = ev.created.some((r) => !known(r.id)) || ev.updated.length > 0;
-      if (!touchesNew && until === undefined) return ingestQueue.current;
-      const run = async () => {
-        const g = await api.graph(tenant, { limit: GRAPH_LIMIT, until });
+      if (!touchesNew && until === undefined) return Promise.resolve();
+
+      const state = liveRead.current;
+      const read = async (cap?: number) => {
+        const g = await api.graph(tenant, { limit: GRAPH_LIMIT, until: cap });
+        if (liveRead.current !== state) return; // tenant or controller changed while reading
         ctl.addLive(g.nodes, g.edges);
         ctl.updateProps(g.nodes);
+        setLiveError(null);
         refresh(ctl);
       };
-      ingestQueue.current = ingestQueue.current.then(run).catch(() => undefined);
-      return ingestQueue.current;
+      if (until !== undefined) {
+        const run = () => read(until);
+        ingestQueue.current = ingestQueue.current.then(run).catch(() => undefined);
+        return ingestQueue.current;
+      }
+      if (state.running) {
+        state.dirty = true;
+        return Promise.resolve();
+      }
+      state.running = true;
+      void (async () => {
+        try {
+          do {
+            state.dirty = false;
+            await read();
+          } while (state.dirty && liveRead.current === state);
+        } catch (e) {
+          if (liveRead.current === state)
+            setLiveError({ tenant, message: e instanceof Error ? e.message : String(e) });
+        } finally {
+          state.running = false;
+        }
+      })();
+      return Promise.resolve();
     },
     [ctl, api, tenant, refresh],
   );
@@ -406,6 +446,11 @@ export function Explorer() {
         {loaded?.error && loaded.tenant === tenant && (
           <div className="overlay center error" role="alert">
             Could not load the graph: {loaded.error}
+          </div>
+        )}
+        {liveError && liveError.tenant === tenant && (
+          <div className="overlay bottom-center error" role="alert">
+            Live update failed: {liveError.message}. The graph may be behind; the next event retries.
           </div>
         )}
         {ready && c.totalNodes === 0 && (
