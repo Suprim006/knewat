@@ -17,6 +17,7 @@ import hashlib
 import json
 import shutil
 import statistics
+import sys
 import tempfile
 import time
 from collections.abc import Callable
@@ -65,7 +66,7 @@ L2_HONESTY = [
     "Arm P answers each question with a hand-written Cypher statement per question family. That is the point of the comparison (a graph can answer these with one query) but it is also engineering effort the baselines do not get: the baselines were given no hand-written SQL or grep helpers either.",
     "The Procedures family of BASELINE §2 is not in this set: the backend protocol has no procedure tool, so the arms cannot be compared on it. Cross-session recall is reduced to episodes recorded by agents (the protocol has no sessions).",
     "The scenario is the P3 Acme script replayed on the backend protocol, plus three L2 additions (the forum-post poison fault, one extra builder decision, two project-scoped facts); see crucible/l2/scenario.py.",
-    "B1 and B0 do not record claim history (only the final claimer), so the one recovery question about who held the expired lease is answerable only from B0's per-agent logs; this is a property of those arms as configured in L1, not of the LLM.",
+    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
 ]
 
 
@@ -380,6 +381,10 @@ def merge_into(base: dict[str, Any], l2_doc: dict[str, Any]) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------------------------------------ report
+def _fmt_ms(ms: float) -> str:
+    return f"{ms:.1f} ms" if ms < 1000 else f"{ms / 1000:.2f} s"
+
+
 def render_report(doc: dict[str, Any]) -> str:
     layer = doc["layers"]["L2"]
     arms = layer["arms"]
@@ -412,7 +417,7 @@ def render_report(doc: dict[str, Any]) -> str:
         u = arms[a]["usage"]
         c = arms[a].get("context", {})
         w.append(f"| {a} | {u['tokens_per_question']:.0f} | ${u['cost_per_question_usd']:.4f} | ${u['cost_usd']:.3f} | "
-                 f"{u['latency_ms']['median'] / 1000:.2f}s | {c.get('chars_median', '-')} | {c.get('questions_truncated', '-')} |")  # fmt: skip
+                 f"{_fmt_ms(u['latency_ms']['median'])} | {c.get('chars_median', '-')} | {c.get('questions_truncated', '-')} |")  # fmt: skip
     w.append("\n## Wrong answers\n")
     any_wrong = False
     for a in order:
@@ -490,8 +495,12 @@ def run_l2(
                     notes.append(
                         f"{arm} stopped early at the ${budget_usd} budget cap after {len(rows)} questions."
                     )
+        total_cost = sum(v["usage"]["cost_usd"] for v in results.values())
+        live = sum(v["usage"]["calls_run_live"] for v in results.values())
+        cached = sum(v["usage"]["calls_from_cache"] for v in results.values())
         notes.append(
-            f"LLM spend this run (calls that were not served from the cache): ${runner.spent_usd:.4f} over {runner.calls} calls."
+            f"LLM cost of the answers reported here: ${total_cost:.4f} over {live + cached} claude -p calls "
+            f"({live} run in this invocation for ${runner.spent_usd:.4f}, {cached} served from the on-disk cache)."
         )
         notes.append(
             "Each baseline question is one `claude -p` process (max-turns 3, no tools, context on stdin, ANTHROPIC_API_KEY removed); permission_denials and tool use are checked per call and fail the question."
@@ -572,7 +581,7 @@ def main(argv: list[str] | None = None) -> int:
     doc, d = run_l2(
         mode=a.mode, arms=arms, model=a.model, budget_usd=a.budget_usd, host=a.host, port=a.port,
         embedder=a.embedder, out_root=a.out, cache_dir=a.cache, log=lambda s: print(s, flush=True),
-        command="python -m plexus.crucible.l2.run " + " ".join(argv if argv is not None else []),
+        command="python -m plexus.crucible.l2.run " + " ".join(argv if argv is not None else sys.argv[1:]),
         question_ids=tuple(x for x in a.ids.split(",") if x) or None, keep_graph=a.keep_graph,
     )  # fmt: skip
     for h in doc["summary"]["headline"]:

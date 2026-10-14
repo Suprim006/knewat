@@ -1,0 +1,1165 @@
+{
+  "schema_version": 1,
+  "kind": "crucible-results",
+  "run": {
+    "id": "20261014T213018Z-pilot",
+    "started_at": "2026-10-14T21:30:18Z",
+    "finished_at": "2026-10-14T21:30:24Z",
+    "duration_s": 5.7,
+    "quick": true,
+    "command": "python -m plexus.crucible.l2.run run --mode pilot --port 6378 --budget-usd 1.5",
+    "layers": [
+      "L2"
+    ]
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "cpu_count": 12,
+    "in_docker": false,
+    "git_commit": "5877a42",
+    "embedder": "fastembed",
+    "falkordb": {
+      "host": "127.0.0.1",
+      "port": 6378,
+      "reachable": true,
+      "redis_version": "8.10.2",
+      "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+      "falkordb_args_env": "",
+      "modules": [
+        {
+          "name": "vectorset",
+          "ver": 1,
+          "path": "",
+          "args": []
+        },
+        {
+          "name": "graph",
+          "ver": 60002,
+          "path": "/var/lib/falkordb/bin/falkordb.so",
+          "args": [
+            "MAX_QUEUED_QUERIES",
+            "25",
+            "TIMEOUT",
+            "1000",
+            "RESULTSET_SIZE",
+            "10000"
+          ]
+        }
+      ],
+      "graph_config": {
+        "TIMEOUT_MAX": 0,
+        "TIMEOUT_DEFAULT": 0,
+        "MAX_QUEUED_QUERIES": 25,
+        "RESULTSET_SIZE": 10000,
+        "QUERY_MEM_CAPACITY": 0,
+        "THREAD_COUNT": 12,
+        "CACHE_SIZE": 25,
+        "OMP_THREAD_COUNT": 12
+      }
+    }
+  },
+  "config": {
+    "arms": [
+      "B0",
+      "B1",
+      "B2",
+      "P"
+    ],
+    "l2": {
+      "mode": "pilot",
+      "model": "sonnet",
+      "context_budget_chars": 32000,
+      "b2_top_k": 12,
+      "budget_usd": 1.5,
+      "question_set": {
+        "path": "plexus/demo_data/crucible/questions.yaml",
+        "sha256": "b62458338ab55cf2678d0653dbebbb1a578117d6057a30348b1835fa77136cb4",
+        "total": 43,
+        "asked": 5,
+        "ids": [
+          "Q05",
+          "Q15",
+          "Q17",
+          "Q29",
+          "Q43"
+        ]
+      }
+    }
+  },
+  "arms": {
+    "B0": {
+      "label": "Files",
+      "represents": "How Claude Code (CLAUDE.md, auto-memory, agent-team task list) and Hermes (MEMORY.md, kanban, files) coordinate today",
+      "description": "MEMORY.md + JSON task list under inter-process file locks (flock), atomic os.replace writes, append-only per-agent JSONL logs",
+      "isolation": "one directory per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade"
+      ]
+    },
+    "B1": {
+      "label": "SQLite",
+      "represents": "\"Just use a relational database\"",
+      "description": "SQLite in WAL mode, BEGIN IMMEDIATE transactions, FTS5 recall, recursive CTEs for provenance",
+      "isolation": "one SQLite database file per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "knew_at",
+        "why"
+      ]
+    },
+    "B2": {
+      "label": "Vector",
+      "represents": "Retrieval-based memory (Mem0-style)",
+      "description": "Same local bge-small embeddings as Plexus, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
+      "isolation": "one SQLite database file (facts + vectors) per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "semantic_dedupe"
+      ]
+    },
+    "P": {
+      "label": "Plexus",
+      "represents": "Plexus: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
+      "description": "Engram/Relay/Lineage service layer called directly (memory, decision and handoff calls also write Steps and READ/WROTE edges)",
+      "isolation": "one FalkorDB graph per tenant (plexus_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "knew_at",
+        "semantic_dedupe",
+        "why"
+      ]
+    }
+  },
+  "layers": {
+    "L2": {
+      "title": "Provenance and time questions (exact match)",
+      "mode": "pilot",
+      "model": "sonnet",
+      "model_ids": [
+        "claude-sonnet-5-5"
+      ],
+      "context_budget_chars": 32000,
+      "b2_top_k": 12,
+      "budget_usd": 1.5,
+      "question_set": {
+        "path": "plexus/demo_data/crucible/questions.yaml",
+        "sha256": "b62458338ab55cf2678d0653dbebbb1a578117d6057a30348b1835fa77136cb4",
+        "total": 43,
+        "asked": 5,
+        "ids": [
+          "Q05",
+          "Q15",
+          "Q17",
+          "Q29",
+          "Q43"
+        ]
+      },
+      "scenario": {
+        "subject": "Acme Notes API",
+        "agents": [
+          "planner",
+          "researcher",
+          "builder"
+        ],
+        "tasks": 12,
+        "decisions": 6,
+        "handoffs": 4,
+        "facts": 9,
+        "episodes": 4,
+        "sources": 8,
+        "supersedes": 1,
+        "conflicting_pairs": 2,
+        "reclaims": 1,
+        "forgotten_facts": 1,
+        "marks": {
+          "after_v1": 1760000003500,
+          "before_v2": 1760000017000,
+          "after_v2": 1760000018000,
+          "after_jwt": 1760000029000,
+          "after_apikey": 1760000033000,
+          "end": 1760000064500
+        }
+      },
+      "families": {
+        "decision_provenance": {
+          "title": "Decision provenance",
+          "n": 1
+        },
+        "time_travel": {
+          "title": "Time travel",
+          "n": 1
+        },
+        "supersession": {
+          "title": "Supersession impact",
+          "n": 1
+        },
+        "recovery": {
+          "title": "Recovery",
+          "n": 1
+        },
+        "forgetting": {
+          "title": "Forgetting",
+          "n": 1
+        }
+      },
+      "arms": {
+        "B0": {
+          "answerer": "claude -p over the arm's files (tasks.json, MEMORY.md, decisions/handoffs jsonl, sources.json, logs)",
+          "completed": true,
+          "accuracy": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "time_travel": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "usage": {
+            "llm_calls": 5,
+            "calls_run_live": 0,
+            "calls_from_cache": 5,
+            "input_tokens": 10,
+            "output_tokens": 479,
+            "cache_read_input_tokens": 2720,
+            "cache_creation_input_tokens": 76442,
+            "total_tokens": 79651,
+            "tokens_per_question": 15930.2,
+            "cost_usd": 0.3108,
+            "cost_per_question_usd": 0.0622,
+            "latency_ms": {
+              "median": 7114.9,
+              "p95": 8822.2,
+              "total": 36521.6
+            }
+          },
+          "questions": [
+            {
+              "id": "Q05",
+              "family": "decision_provenance",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "error": "",
+              "tokens": 15927,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 56,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 15325
+              },
+              "cost_usd": 0.061918,
+              "latency_ms": 8822.2,
+              "cached": true,
+              "context_chars": 25202,
+              "artifact_chars": 25202,
+              "truncated": false,
+              "context_sha256": "1b1dedfd90fcd004",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)@researcher\", \"auth_method=API key in X-Api-Key header@planner\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q15",
+              "family": "time_travel",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "error": "",
+              "tokens": 15969,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 112,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 15311
+              },
+              "cost_usd": 0.062422,
+              "latency_ms": 5109.6,
+              "cached": true,
+              "context_chars": 25202,
+              "artifact_chars": 25202,
+              "truncated": false,
+              "context_sha256": "1b1dedfd90fcd004",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)\", \"auth_method=API key in X-Api-Key header\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q17",
+              "family": "supersession",
+              "correct": true,
+              "expected": [
+                "build the acme notes"
+              ],
+              "got": [
+                "build the acme notes"
+              ],
+              "error": "",
+              "tokens": 15947,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 135,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 15266
+              },
+              "cost_usd": 0.062472,
+              "latency_ms": 6955.1,
+              "cached": true,
+              "context_chars": 25202,
+              "artifact_chars": 25202,
+              "truncated": false,
+              "context_sha256": "1b1dedfd90fcd004",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"build the acme notes\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q29",
+              "family": "recovery",
+              "correct": true,
+              "expected": [
+                "t03-design-endpoints"
+              ],
+              "got": [
+                "t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 15840,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 21,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 15273
+              },
+              "cost_usd": 0.06136,
+              "latency_ms": 8519.8,
+              "cached": true,
+              "context_chars": 25202,
+              "artifact_chars": 25202,
+              "truncated": false,
+              "context_sha256": "1b1dedfd90fcd004",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q43",
+              "family": "forgetting",
+              "correct": true,
+              "expected": [
+                "evaluate mongodb 4 as"
+              ],
+              "got": [
+                "evaluate mongodb 4 as"
+              ],
+              "error": "",
+              "tokens": 15968,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 155,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 15267
+              },
+              "cost_usd": 0.062676,
+              "latency_ms": 7114.9,
+              "cached": true,
+              "context_chars": 25202,
+              "artifact_chars": 25202,
+              "truncated": false,
+              "context_sha256": "1b1dedfd90fcd004",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+              "retrieved": null
+            }
+          ],
+          "context": {
+            "chars_median": 25202,
+            "chars_max": 25202,
+            "artifact_chars": 25202,
+            "questions_truncated": 0
+          }
+        },
+        "B1": {
+          "answerer": "claude -p over the schema + CSV dump of the arm's SQLite tables",
+          "completed": true,
+          "accuracy": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "time_travel": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "usage": {
+            "llm_calls": 5,
+            "calls_run_live": 0,
+            "calls_from_cache": 5,
+            "input_tokens": 10,
+            "output_tokens": 647,
+            "cache_read_input_tokens": 2720,
+            "cache_creation_input_tokens": 63802,
+            "total_tokens": 67179,
+            "tokens_per_question": 13435.8,
+            "cost_usd": 0.262,
+            "cost_per_question_usd": 0.0524,
+            "latency_ms": {
+              "median": 6720.0,
+              "p95": 8717.0,
+              "total": 35286.7
+            }
+          },
+          "questions": [
+            {
+              "id": "Q05",
+              "family": "decision_provenance",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "error": "",
+              "tokens": 13399,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 56,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 12797
+              },
+              "cost_usd": 0.051806,
+              "latency_ms": 8364.5,
+              "cached": true,
+              "context_chars": 18086,
+              "artifact_chars": 18086,
+              "truncated": false,
+              "context_sha256": "8518872c2589399a",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)@researcher\", \"auth_method=API key in X-Api-Key header@planner\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q15",
+              "family": "time_travel",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "error": "",
+              "tokens": 13442,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 113,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 12783
+              },
+              "cost_usd": 0.05232,
+              "latency_ms": 5927.9,
+              "cached": true,
+              "context_chars": 18086,
+              "artifact_chars": 18086,
+              "truncated": false,
+              "context_sha256": "8518872c2589399a",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)\", \"auth_method=API key in X-Api-Key header\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q17",
+              "family": "supersession",
+              "correct": true,
+              "expected": [
+                "build the acme notes"
+              ],
+              "got": [
+                "build the acme notes"
+              ],
+              "error": "",
+              "tokens": 13456,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 172,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 12738
+              },
+              "cost_usd": 0.05273,
+              "latency_ms": 8717.0,
+              "cached": true,
+              "context_chars": 18086,
+              "artifact_chars": 18086,
+              "truncated": false,
+              "context_sha256": "8518872c2589399a",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"build the acme notes\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q29",
+              "family": "recovery",
+              "correct": true,
+              "expected": [
+                "t03-design-endpoints"
+              ],
+              "got": [
+                "t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 13444,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 151,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 12747
+              },
+              "cost_usd": 0.052556,
+              "latency_ms": 6720.0,
+              "cached": true,
+              "context_chars": 18086,
+              "artifact_chars": 18086,
+              "truncated": false,
+              "context_sha256": "8518872c2589399a",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+              "retrieved": null
+            },
+            {
+              "id": "Q43",
+              "family": "forgetting",
+              "correct": true,
+              "expected": [
+                "evaluate mongodb 4 as"
+              ],
+              "got": [
+                "evaluate mongodb 4 as"
+              ],
+              "error": "",
+              "tokens": 13438,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 155,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 12737
+              },
+              "cost_usd": 0.052556,
+              "latency_ms": 5557.3,
+              "cached": true,
+              "context_chars": 18086,
+              "artifact_chars": 18086,
+              "truncated": false,
+              "context_sha256": "8518872c2589399a",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+              "retrieved": null
+            }
+          ],
+          "context": {
+            "chars_median": 18086,
+            "chars_max": 18086,
+            "artifact_chars": 18086,
+            "questions_truncated": 0
+          }
+        },
+        "B2": {
+          "answerer": "claude -p over the top-12 retrieved memory chunks (local bge-small embeddings)",
+          "completed": true,
+          "accuracy": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "time_travel": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "usage": {
+            "llm_calls": 5,
+            "calls_run_live": 0,
+            "calls_from_cache": 5,
+            "input_tokens": 10,
+            "output_tokens": 374,
+            "cache_read_input_tokens": 2720,
+            "cache_creation_input_tokens": 17421,
+            "total_tokens": 20525,
+            "tokens_per_question": 4105.0,
+            "cost_usd": 0.0737,
+            "cost_per_question_usd": 0.0147,
+            "latency_ms": {
+              "median": 6563.9,
+              "p95": 7143.0,
+              "total": 31666.1
+            }
+          },
+          "questions": [
+            {
+              "id": "Q05",
+              "family": "decision_provenance",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "error": "",
+              "tokens": 4138,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 56,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3536
+              },
+              "cost_usd": 0.014762,
+              "latency_ms": 7143.0,
+              "cached": true,
+              "context_chars": 2351,
+              "artifact_chars": 6923,
+              "truncated": false,
+              "context_sha256": "582f4f2cc75146fd",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)@researcher\", \"auth_method=API key in X-Api-Key header@planner\"]}",
+              "retrieved": [
+                "Decision by planner for task t05-choose-auth: \"Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.\" Based on facts: auth_method=JWT bearer tokens (RS256), auth_method=API key in X-Api-Key header.",
+                "Decision by planner for task t09-review-spec: \"Spec approved: endpoints, schema and JWT auth are consistent.\" Based on facts: api_version=v2, auth_method=JWT bearer tokens (RS256).",
+                "Fact auth_method=API key in X-Api-Key header about 'Acme Notes API' (scope global; status active; valid_from 1760000032500; valid_to 9999999999999); asserted by planner; source acme-docs/05_customer_request.md; contradicts auth_method=JWT bearer tokens (RS256).",
+                "Fact auth_method=JWT bearer tokens (RS256) about 'Acme Notes API' (scope global; status active; valid_from 1760000028500; valid_to 9999999999999); asserted by researcher; source acme-docs/04_security_note.md; contradicts auth_method=API key in X-Api-Key header.",
+                "Handoff for task t07-implement-crud-spec from builder to planner: \"CRUD spec ready for review.\" Artifacts: artifacts/crud-spec.md. Facts: api_version=v2, auth_method=JWT bearer tokens (RS256).",
+                "Task t05-choose-auth ('Choose authentication', priority 30) status done, claimed by planner; depends on t04-survey-infra-security; artifacts none.",
+                "Fact purpose=REST service to create, tag and search notes about 'Acme Notes API' (scope global; status active; valid_from 1760000002000; valid_to 9999999999999); asserted by researcher; source acme-docs/01_product_brief.md.",
+                "Fact release_channel=closed beta about 'Acme Notes API' (scope project:acme; status active; valid_from 1760000040500; valid_to 9999999999999); asserted by planner.",
+                "Task t02-choose-api-version ('Choose API version', priority 45) status done, claimed by planner; depends on t01-gather-requirements; artifacts none.",
+                "Episode recorded by researcher: \"Took over t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.\"",
+                "Episode recorded by builder: \"Endpoint design moves from /v1/ to /v2/: page_token/page_size lists and problem+json errors.\"",
+                "Source acme-docs/05_customer_request.md (kind chat, trust 0.8)."
+              ]
+            },
+            {
+              "id": "Q15",
+              "family": "time_travel",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "got": [
+                "auth_method=API key in X-Api-Key header",
+                "auth_method=JWT bearer tokens (RS256)"
+              ],
+              "error": "",
+              "tokens": 4148,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 49,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3553
+              },
+              "cost_usd": 0.01476,
+              "latency_ms": 5645.1,
+              "cached": true,
+              "context_chars": 2314,
+              "artifact_chars": 6923,
+              "truncated": false,
+              "context_sha256": "9ceaae6a9c94d6af",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=API key in X-Api-Key header\", \"auth_method=JWT bearer tokens (RS256)\"]}",
+              "retrieved": [
+                "Fact auth_method=API key in X-Api-Key header about 'Acme Notes API' (scope global; status active; valid_from 1760000032500; valid_to 9999999999999); asserted by planner; source acme-docs/05_customer_request.md; contradicts auth_method=JWT bearer tokens (RS256).",
+                "Fact auth_method=JWT bearer tokens (RS256) about 'Acme Notes API' (scope global; status active; valid_from 1760000028500; valid_to 9999999999999); asserted by researcher; source acme-docs/04_security_note.md; contradicts auth_method=API key in X-Api-Key header.",
+                "Fact purpose=REST service to create, tag and search notes about 'Acme Notes API' (scope global; status active; valid_from 1760000002000; valid_to 9999999999999); asserted by researcher; source acme-docs/01_product_brief.md.",
+                "Fact api_version=v2 about 'Acme Notes API' (scope global; status active; valid_from 1760000017500; valid_to 9999999999999); asserted by researcher; source acme-docs/06_api_style_guide_v2.md; supersedes api_version=v1.",
+                "Fact database=PostgreSQL 16 about 'Acme Notes API' (scope global; status active; valid_from 1760000027500; valid_to 9999999999999); asserted by researcher; source acme-docs/03_infra_note.md; contradicts database=MongoDB 4.",
+                "Fact api_version=v1 about 'Acme Notes API' (scope global; status superseded; valid_from 1760000003000; valid_to 1760000017500); asserted by researcher; source acme-docs/02_api_style_guide_v1.md; superseded by api_version=v2.",
+                "Fact database=MongoDB 4 about 'Acme Notes API' (scope global; status forgotten; valid_from 1760000035500; valid_to 1760000037501); asserted by planner; source acme-docs/07_forum_post_unverified.md; contradicts database=PostgreSQL 16.",
+                "Fact release_channel=closed beta about 'Acme Notes API' (scope project:acme; status active; valid_from 1760000040500; valid_to 9999999999999); asserted by planner.",
+                "Source acme-docs/04_security_note.md (kind doc, trust 1.0).",
+                "Decision by planner for task t02-choose-api-version: \"Build the Acme Notes API against v1 of the style guide (routes under /v1/).\" Based on facts: api_version=v1.",
+                "Source acme-docs/05_customer_request.md (kind chat, trust 0.8).",
+                "Source acme-docs/07_forum_post_unverified.md (kind web, trust 0.2)."
+              ]
+            },
+            {
+              "id": "Q17",
+              "family": "supersession",
+              "correct": true,
+              "expected": [
+                "build the acme notes"
+              ],
+              "got": [
+                "build the acme notes"
+              ],
+              "error": "",
+              "tokens": 4170,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 120,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3504
+              },
+              "cost_usd": 0.015274,
+              "latency_ms": 6563.9,
+              "cached": true,
+              "context_chars": 2410,
+              "artifact_chars": 6923,
+              "truncated": false,
+              "context_sha256": "e7af08d62f416080",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"build the acme notes\"]}",
+              "retrieved": [
+                "Fact api_version=v1 about 'Acme Notes API' (scope global; status superseded; valid_from 1760000003000; valid_to 1760000017500); asserted by researcher; source acme-docs/02_api_style_guide_v1.md; superseded by api_version=v2.",
+                "Decision by planner for task t02-choose-api-version: \"Adopt style guide v2: the API version is now v2 (routes under /v2/).\" Based on facts: api_version=v2.",
+                "Fact api_version=v2 about 'Acme Notes API' (scope global; status active; valid_from 1760000017500; valid_to 9999999999999); asserted by researcher; source acme-docs/06_api_style_guide_v2.md; supersedes api_version=v1.",
+                "Decision by planner for task t02-choose-api-version: \"Build the Acme Notes API against v1 of the style guide (routes under /v1/).\" Based on facts: api_version=v1.",
+                "Task t02-choose-api-version ('Choose API version', priority 45) status done, claimed by planner; depends on t01-gather-requirements; artifacts none.",
+                "Decision by planner for task t06-write-db-schema: \"Evaluate MongoDB 4 as the database (forum post).\" Based on facts: database=MongoDB 4. Flagged: a fact it relied on was forgotten.",
+                "Fact purpose=REST service to create, tag and search notes about 'Acme Notes API' (scope global; status active; valid_from 1760000002000; valid_to 9999999999999); asserted by researcher; source acme-docs/01_product_brief.md.",
+                "Fact database=MongoDB 4 about 'Acme Notes API' (scope global; status forgotten; valid_from 1760000035500; valid_to 1760000037501); asserted by planner; source acme-docs/07_forum_post_unverified.md; contradicts database=PostgreSQL 16.",
+                "Task t05-choose-auth ('Choose authentication', priority 30) status done, claimed by planner; depends on t04-survey-infra-security; artifacts none.",
+                "Fact release_channel=closed beta about 'Acme Notes API' (scope project:acme; status active; valid_from 1760000040500; valid_to 9999999999999); asserted by planner.",
+                "Fact database=PostgreSQL 16 about 'Acme Notes API' (scope global; status active; valid_from 1760000027500; valid_to 9999999999999); asserted by researcher; source acme-docs/03_infra_note.md; contradicts database=MongoDB 4.",
+                "Episode recorded by researcher: \"Took over t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.\""
+              ]
+            },
+            {
+              "id": "Q29",
+              "family": "recovery",
+              "correct": true,
+              "expected": [
+                "t03-design-endpoints"
+              ],
+              "got": [
+                "t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 3918,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 21,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3351
+              },
+              "cost_usd": 0.013672,
+              "latency_ms": 7032.1,
+              "cached": true,
+              "context_chars": 2026,
+              "artifact_chars": 6923,
+              "truncated": false,
+              "context_sha256": "e456b4bfabcea301",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+              "retrieved": [
+                "Episode recorded by researcher: \"Took over t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.\"",
+                "Handoff for task t12-update-endpoints-for-v2 from builder to planner: \"Updated for API v2.\" Artifacts: artifacts/openapi-v2.yaml. Facts: api_version=v2.",
+                "Handoff for task t11-package-release from builder to planner: \"Release bundle is ready.\" Artifacts: artifacts/release.tar. Facts: api_version=v2.",
+                "Task t02-choose-api-version ('Choose API version', priority 45) status done, claimed by planner; depends on t01-gather-requirements; artifacts none.",
+                "Episode recorded by builder: \"Endpoint design moves from /v1/ to /v2/: page_token/page_size lists and problem+json errors.\"",
+                "Handoff for task t03-design-endpoints from researcher to builder: \"Endpoint draft is ready. Finished on the builder's behalf after it went down.\" Artifacts: artifacts/openapi-draft.yaml. Facts: api_version=v1.",
+                "Task t09-review-spec ('Review spec', priority 12) status done, claimed by planner; depends on t07-implement-crud-spec, t08-write-test-plan; artifacts none.",
+                "Episode recorded by researcher: \"Style guide v2 was published: API version v1 is withdrawn, routes move to /v2/.\"",
+                "Task t05-choose-auth ('Choose authentication', priority 30) status done, claimed by planner; depends on t04-survey-infra-security; artifacts none.",
+                "Task t11-package-release ('Package release', priority 5) status done, claimed by builder; depends on t10-write-docs; artifacts artifacts/release.tar.",
+                "Fact release_channel=closed beta about 'Acme Notes API' (scope project:acme; status active; valid_from 1760000040500; valid_to 9999999999999); asserted by planner.",
+                "Task t12-update-endpoints-for-v2 ('Update endpoint design for API v2', priority 60) status done, claimed by builder; depends on t03-design-endpoints; artifacts artifacts/openapi-v2.yaml."
+              ]
+            },
+            {
+              "id": "Q43",
+              "family": "forgetting",
+              "correct": true,
+              "expected": [
+                "evaluate mongodb 4 as"
+              ],
+              "got": [
+                "evaluate mongodb 4 as"
+              ],
+              "error": "",
+              "tokens": 4151,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 128,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3477
+              },
+              "cost_usd": 0.015246,
+              "latency_ms": 5282.0,
+              "cached": true,
+              "context_chars": 2325,
+              "artifact_chars": 6923,
+              "truncated": false,
+              "context_sha256": "83835b07434ad103",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+              "retrieved": [
+                "Fact api_version=v1 about 'Acme Notes API' (scope global; status superseded; valid_from 1760000003000; valid_to 1760000017500); asserted by researcher; source acme-docs/02_api_style_guide_v1.md; superseded by api_version=v2.",
+                "Decision by planner for task t06-write-db-schema: \"Evaluate MongoDB 4 as the database (forum post).\" Based on facts: database=MongoDB 4. Flagged: a fact it relied on was forgotten.",
+                "Fact purpose=REST service to create, tag and search notes about 'Acme Notes API' (scope global; status active; valid_from 1760000002000; valid_to 9999999999999); asserted by researcher; source acme-docs/01_product_brief.md.",
+                "Fact database=MongoDB 4 about 'Acme Notes API' (scope global; status forgotten; valid_from 1760000035500; valid_to 1760000037501); asserted by planner; source acme-docs/07_forum_post_unverified.md; contradicts database=PostgreSQL 16.",
+                "Task t05-choose-auth ('Choose authentication', priority 30) status done, claimed by planner; depends on t04-survey-infra-security; artifacts none.",
+                "Fact release_channel=closed beta about 'Acme Notes API' (scope project:acme; status active; valid_from 1760000040500; valid_to 9999999999999); asserted by planner.",
+                "Fact api_version=v2 about 'Acme Notes API' (scope global; status active; valid_from 1760000017500; valid_to 9999999999999); asserted by researcher; source acme-docs/06_api_style_guide_v2.md; supersedes api_version=v1.",
+                "Task t02-choose-api-version ('Choose API version', priority 45) status done, claimed by planner; depends on t01-gather-requirements; artifacts none.",
+                "Decision by planner for task t02-choose-api-version: \"Build the Acme Notes API against v1 of the style guide (routes under /v1/).\" Based on facts: api_version=v1.",
+                "Task t09-review-spec ('Review spec', priority 12) status done, claimed by planner; depends on t07-implement-crud-spec, t08-write-test-plan; artifacts none.",
+                "Task t08-write-test-plan ('Write test plan', priority 15) status done, claimed by researcher; depends on t03-design-endpoints; artifacts artifacts/test-plan.md.",
+                "Decision by planner for task t02-choose-api-version: \"Adopt style guide v2: the API version is now v2 (routes under /v2/).\" Based on facts: api_version=v2."
+              ]
+            }
+          ],
+          "context": {
+            "chars_median": 2325,
+            "chars_max": 2410,
+            "artifact_chars": 6923,
+            "questions_truncated": 0
+          }
+        },
+        "P": {
+          "answerer": "deterministic Cypher against the tenant graph (no LLM)",
+          "completed": true,
+          "accuracy": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "time_travel": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "usage": {
+            "llm_calls": 0,
+            "calls_run_live": 0,
+            "calls_from_cache": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "total_tokens": 0,
+            "tokens_per_question": 0.0,
+            "cost_usd": 0.0,
+            "cost_per_question_usd": 0.0,
+            "latency_ms": {
+              "median": 3.0,
+              "p95": 4.8,
+              "total": 16.1
+            },
+            "server_ms": {
+              "median": 0.183,
+              "total": 1.854
+            },
+            "statements": 5
+          },
+          "questions": [
+            {
+              "id": "Q05",
+              "family": "decision_provenance",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)@researcher",
+                "auth_method=API key in X-Api-Key header@planner"
+              ],
+              "got": [
+                "auth_method=API key in X-Api-Key header@planner",
+                "auth_method=JWT bearer tokens (RS256)@researcher"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 4.76,
+              "server_ms": 1.033,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q15",
+              "family": "time_travel",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (RS256)",
+                "auth_method=API key in X-Api-Key header"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 3.2,
+              "server_ms": 0.358,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q17",
+              "family": "supersession",
+              "correct": true,
+              "expected": [
+                "build the acme notes"
+              ],
+              "got": [
+                "build the acme notes"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 2.75,
+              "server_ms": 0.183,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q29",
+              "family": "recovery",
+              "correct": true,
+              "expected": [
+                "t03-design-endpoints"
+              ],
+              "got": [
+                "t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 2.99,
+              "server_ms": 0.163,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q43",
+              "family": "forgetting",
+              "correct": true,
+              "expected": [
+                "evaluate mongodb 4 as"
+              ],
+              "got": [
+                "evaluate mongodb 4 as"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 2.38,
+              "server_ms": 0.117,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            }
+          ]
+        }
+      },
+      "summary": {
+        "accuracy_pct": {
+          "B0": 100.0,
+          "B1": 100.0,
+          "B2": 100.0,
+          "P": 100.0
+        },
+        "tokens_per_question": {
+          "B0": 15930.2,
+          "B1": 13435.8,
+          "B2": 4105.0,
+          "P": 0.0
+        },
+        "cost_usd": {
+          "B0": 0.3108,
+          "B1": 0.262,
+          "B2": 0.0737,
+          "P": 0.0
+        },
+        "latency_ms_median": {
+          "B0": 7114.9,
+          "B1": 6720.0,
+          "B2": 6563.9,
+          "P": 3.0
+        }
+      },
+      "notes": [
+        "LLM cost of the answers reported here: $0.6465 over 15 claude -p calls (0 run in this invocation for $0.0000, 15 served from the on-disk cache).",
+        "Each baseline question is one `claude -p` process (max-turns 3, no tools, context on stdin, ANTHROPIC_API_KEY removed); permission_denials and tool use are checked per call and fail the question.",
+        "PILOT: 5 questions (one from each of 5 families); not a result. The full set is run only if this costs under the budget gate."
+      ]
+    }
+  },
+  "summary": {
+    "l2_accuracy_pct": {
+      "B0": 100.0,
+      "B1": 100.0,
+      "B2": 100.0,
+      "P": 100.0
+    },
+    "headline": [
+      "L2: B0 + claude -p (sonnet) answered 5/5 (100.0%) exactly, 15930 tokens and $0.062 per question.",
+      "L2: B1 + claude -p (sonnet) answered 5/5 (100.0%) exactly, 13436 tokens and $0.052 per question.",
+      "L2: B2 + claude -p (sonnet) answered 5/5 (100.0%) exactly, 4105 tokens and $0.015 per question.",
+      "L2: Plexus (deterministic Cypher) answered 5/5 (100.0%) exactly.",
+      "L2: Plexus ties B0 by 0.0 points.",
+      "L2: Plexus ties B1 by 0.0 points.",
+      "L2: Plexus ties B2 by 0.0 points."
+    ]
+  },
+  "honesty": [
+    "L2: exact-match accuracy over a script-derived question set (43 questions, 10 families), one scenario, one model, one run per question; no LLM judge anywhere. Ground truth is computed from the scenario script, not read back from any arm.",
+    "Baselines are the same unmodified `claude -p` with no tools, shown their own artifacts at the same 32,000-character cap. At this scenario size the B0 and B1 artifacts fit in the cap without truncation, so the cap is not what limits them; B2 deliberately sees only its top-12 retrieved chunks.",
+    "Arm P answers each question with a hand-written Cypher statement per question family. That is the point of the comparison (a graph can answer these with one query) but it is also engineering effort the baselines do not get: the baselines were given no hand-written SQL or grep helpers either.",
+    "The Procedures family of BASELINE \u00a72 is not in this set: the backend protocol has no procedure tool, so the arms cannot be compared on it. Cross-session recall is reduced to episodes recorded by agents (the protocol has no sessions).",
+    "The scenario is the P3 Acme script replayed on the backend protocol, plus three L2 additions (the forum-post poison fault, one extra builder decision, two project-scoped facts); see crucible/l2/scenario.py.",
+    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1."
+  ]
+}

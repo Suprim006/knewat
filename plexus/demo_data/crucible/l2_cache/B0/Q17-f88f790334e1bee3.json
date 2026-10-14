@@ -1,0 +1,25 @@
+{
+ "qid": "Q17",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"build the acme notes\"]}",
+ "answer": [
+  "build the acme notes"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 135,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15266
+ },
+ "cost_usd": 0.0624724,
+ "latency_ms": 6955.1,
+ "duration_api_ms": 4196.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "3361e341-f843-4505-b139-3389e182e3fe",
+ "key": "f88f790334e1bee387524ae0e2023a0f88e685a40a9fd66f7ca7184a546f5a41"
+}

@@ -1,0 +1,25 @@
+{
+ "qid": "Q43",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+ "answer": [
+  "evaluate mongodb 4 as"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 128,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3477
+ },
+ "cost_usd": 0.0152464,
+ "latency_ms": 5282.0,
+ "duration_api_ms": 2415.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "d3ef2852-50cb-4f10-8141-d93ba16d3617",
+ "key": "2de917129edb47600a7ab3388f0c43bd4127c89397d64c779dfd22e83ddae19e"
+}
