@@ -106,6 +106,57 @@ class Relay:
             self._explain_rejected_create(ids, ext)
         return ids
 
+    # -- claims -----------------------------------------------------------------------------------------
+    def claim_next_task(self, agent_id: str, lease_ms: int, now: int | None = None) -> dict[str, Any] | None:
+        """Atomically claim the highest-priority ready task, or return None if nothing is claimable.
+
+        Ready = open (or lease expired) with every dependency done. The returned dict carries ``version``
+        (pass it to complete_task/fail_task) and ``reclaimed_from``
+        ('' unless an expired lease was taken over).
+        Raises :class:`UnknownReference` if the agent is not registered.
+        """
+        if lease_ms <= 0:
+            raise ValueError("lease_ms must be positive")
+        now = self._clock() if now is None else now
+        rows = self.client.rw(
+            self.graph, "relay/claim_next_task", {"agent": agent_id, "lease_ms": lease_ms, "now": now}
+        )
+        if rows:
+            return dict(rows[0])
+        if not self.client.ro(self.graph, "relay/agent_exists", {"id": agent_id}):
+            raise UnknownReference("agent", [agent_id])
+        return None
+
+    def heartbeat(self, agent_id: str, task_id: str, lease_ms: int, now: int | None = None) -> bool:
+        """Extend the lease to ``now + lease_ms``. False if the caller is not the current claimer."""
+        if lease_ms <= 0:
+            raise ValueError("lease_ms must be positive")
+        now = self._clock() if now is None else now
+        rows = self.client.rw(
+            self.graph,
+            "relay/heartbeat",
+            {"agent": agent_id, "task": task_id, "lease_ms": lease_ms, "now": now},
+        )
+        return bool(rows)
+
+    # -- reads ------------------------------------------------------------------------------------------
+    def ready_tasks(self, now: int | None = None, limit: int = 100) -> list[dict[str, Any]]:
+        now = self._clock() if now is None else now
+        return [
+            dict(r) for r in self.client.ro(self.graph, "relay/ready_tasks", {"now": now, "limit": limit})
+        ]
+
+    def task_status(self, task_id: str) -> dict[str, Any] | None:
+        rows = self.client.ro(self.graph, "relay/task_status", {"id": task_id})
+        if not rows:
+            return None
+        row = dict(rows[0])
+        deps = row.pop("depends_on")
+        statuses = row.pop("dependency_statuses")
+        row["dependencies"] = [{"id": i, "status": s} for i, s in zip(deps, statuses, strict=True)]
+        row["blocked_by"] = [d["id"] for d in row["dependencies"] if d["status"] != "done"]
+        return row
+
     def _explain_rejected_create(self, ids: list[str], ext: list[str]) -> None:
         have = {r["id"] for r in self.client.ro(self.graph, "relay/existing_tasks", {"ids": ids + ext})}
         dup = [i for i in ids if i in have]
