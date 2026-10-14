@@ -1,0 +1,21 @@
+{
+  "mcpServers": {
+    "plexus": {
+      "command": "C:/Users/ACER/AppData/Roaming/Python/Python311/Scripts/uv.exe",
+      "args": [
+        "run",
+        "--directory",
+        "C:/Change_folder_after_HDD/falkordb/plexus",
+        "plexus-mcp",
+        "--transport",
+        "stdio",
+        "--tenant",
+        "demo"
+      ],
+      "env": {
+        "FALKORDB_HOST": "127.0.0.1",
+        "FALKORDB_PORT": "6379"
+      }
+    }
+  }
+}

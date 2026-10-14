@@ -54,13 +54,15 @@ def record_tool_call(
     updated_ids: Iterable[Ref] = (),
     *,
     step: int | None = None,
+    wrote: bool | None = None,
     now: int | None = None,
 ) -> str:
     """Record one tool call and return the ``ToolCall`` id.
 
-    ``created_ids`` / ``updated_ids`` are ``(label, id)`` pairs (the label picks an index-backed lookup; unknown
-    labels are dropped). At most :data:`MAX_LINKS` edges are written, CREATED first. ``step_id`` is a Lineage
-    ``Step`` id; if it matches no node there is simply no ``IN_STEP`` edge.
+    ``created_ids`` / ``updated_ids`` are ``(label, id)`` pairs (the label picks an index-backed lookup;
+    unknown labels are dropped). ``wrote`` overrides the default (True when any link is written). At most
+    :data:`MAX_LINKS` edges are written, CREATED first. ``step_id`` is a Lineage ``Step`` id; if it matches
+    no node there is simply no ``IN_STEP`` edge.
     """
     created = _links(created_ids, "C", MAX_LINKS)
     updated = _links(updated_ids, "U", MAX_LINKS - len(created))
@@ -77,7 +79,7 @@ def record_tool_call(
             "step": -1 if step is None else step,
             "query_name": query_name,
             "run_time_ms": float(run_time_ms),
-            "wrote": bool(created or updated),
+            "wrote": bool(created or updated) if wrote is None else wrote,
             "links": created + updated,
             "now": t,
         },
