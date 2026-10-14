@@ -1,12 +1,8 @@
 {
   "mcpServers": {
     "plexus": {
-      "command": "C:/Users/ACER/AppData/Roaming/Python/Python311/Scripts/uv.exe",
+      "command": "C:/Change_folder_after_HDD/falkordb/plexus/.venv/Scripts/plexus-mcp.exe",
       "args": [
-        "run",
-        "--directory",
-        "C:/Change_folder_after_HDD/falkordb/plexus",
-        "plexus-mcp",
         "--transport",
         "stdio",
         "--tenant",

@@ -18,7 +18,11 @@ HTTP only: `PLEXUS_MCP_ALLOWED_HOSTS` (comma list, `host:*` = any port) for the 
 
 ## Claude Code
 
-Local, stdio: `plexus.mcp.json` at the repo root (edit the absolute paths for your checkout). Headless:
+Local, stdio: `plexus.mcp.json` at the repo root (edit the absolute paths for your checkout). It points straight at the
+venv script (`plexus/.venv/Scripts/plexus-mcp.exe`, run `uv sync` first) for the fastest start-up. A `uv run` variant
+(slower, and Claude's first `ToolSearch` can run while the server is still `pending`):
+`"command": "uv", "args": ["run", "--directory", "<abs>/plexus", "plexus-mcp", "--transport", "stdio", "--tenant", "demo"]`.
+Headless:
 
 ```bash
 env -u ANTHROPIC_API_KEY claude -p "<task>" --mcp-config <abs>/plexus.mcp.json --strict-mcp-config \
@@ -38,11 +42,21 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 ## Tools
 
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
-Engram: `start_session`, `remember_episode`, `assert_fact`, `recall`, `fact_history`, `log_procedure_run`, `best_procedure`.
-Relay: `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `handoff`,
-`verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure`.
-Lineage (`why`, `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`) is registered only when
-`plexus.lineage` exists (see `plexus/mcp/lineage_tools.py`).
+29 tools:
+- **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
+  `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
+- **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
+  `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure`.
+- **Lineage** (registered when `plexus.lineage` is installed; see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
+  `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`.
+
+**Steps and provenance:** after a call succeeds, the runtime opens or reuses a Lineage `Step` per (agent, n), chained
+by `NEXT`, and stores its id on `ToolCall.step_id`.
+- **Auto-numbering:** calls without `step` auto-increment per agent. An explicit `step` is respected; one behind the
+  agent's latest step falls back to the next number.
+- **Edges:** writes attach `WROTE` and reads attach `READ`. `assert_fact` uses `link_assert_result`, so a superseded
+  fact is READ by its superseder. `recall` writes a `Recall` node with `RETURNED {rank, score}`.
+- **Failures:** a rejected call leaves no Step.
 
 `scope` (assert_fact, recall, fact_history): `global` (default), `project:<name>`, `user:<name>` (both inherit `global`)
 or a scope id. Named scopes are created on first use.
