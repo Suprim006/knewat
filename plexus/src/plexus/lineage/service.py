@@ -46,6 +46,11 @@ def _new_id() -> str:
     return str(uuid.uuid4())
 
 
+def _check_limit(limit: int) -> None:
+    if not 0 < limit <= MAX_FORGET_FACTS:
+        raise ValueError(f"limit must be between 1 and {MAX_FORGET_FACTS}")
+
+
 def _ids(values: Iterable[str] | None) -> list[str]:
     return list(dict.fromkeys(values or ()))
 
@@ -216,12 +221,13 @@ class Lineage:
         ``BASED_ON`` those facts are flagged (``flagged = true``), never deleted. Handoffs that ``CARRIES``
         them are reported. Idempotent; at most ``limit`` (<= 5000) facts per call, ``truncated`` says to call
         again. Returns ``{source_id, mode, fact_ids, decision_ids, handoff_ids, truncated}``.
-        Raises :class:`UnknownNode` for an unknown source.
+        ``mode='quarantine'`` delegates to :meth:`quarantine`. Raises :class:`UnknownNode` (unknown source).
         """
+        if mode == "quarantine":
+            return self.quarantine(source_id, now=now, limit=limit)
         if mode != "forget":
-            raise ValueError("mode must be 'forget'")
-        if not 0 < limit <= MAX_FORGET_FACTS:
-            raise ValueError(f"limit must be between 1 and {MAX_FORGET_FACTS}")
+            raise ValueError("mode must be 'forget' or 'quarantine'")
+        _check_limit(limit)
         rows = self.client.rw(
             self.graph,
             "lineage/forget_source",
@@ -242,6 +248,64 @@ class Lineage:
             "decision_ids": sorted(r["decision_ids"]),
             "handoff_ids": sorted(r["handoff_ids"]),
             "truncated": bool(r["truncated"]),
+        }
+
+    def quarantine(
+        self, source_id: str, *, now: int | None = None, limit: int = MAX_FORGET_FACTS
+    ) -> dict[str, Any]:
+        """Quarantine a poisoned source and report its blast radius (stretch feature; reversible).
+
+        Same traversal as :meth:`forget_source` (``DERIVED_FROM*1..5``) but the facts become
+        ``status='quarantined'`` (hidden from recall and :meth:`as_of`, ``valid_to`` untouched, old status
+        kept so :meth:`release_quarantine` can restore it). Nothing else is modified. Returns
+        ``{source_id, mode, fact_ids, readers: [{agent_id, step_id, step_n, at, fact_id}], agents,
+        decision_ids, handoff_ids, truncated}``: ``readers`` / ``agents`` are the Steps / agents that READ a
+        quarantined fact, the decisions are ``BASED_ON`` them and the handoffs ``CARRIES`` them.
+        Raises :class:`UnknownNode`.
+        """
+        _check_limit(limit)
+        rows = self.client.rw(
+            self.graph, "lineage/quarantine", {"source_id": source_id, "now": self._t(now), "limit": limit}
+        )
+        if not rows:
+            raise UnknownNode(f"no source with id '{source_id}'")
+        r = rows[0]
+        readers = sorted(
+            (
+                {
+                    "agent_id": x["agent_id"],
+                    "step_id": x["step_id"],
+                    "step_n": x["n"],
+                    "at": x["at"],
+                    "fact_id": x["fact_id"],
+                }
+                for x in r["reads"]
+            ),
+            key=lambda x: (x["at"], x["agent_id"], x["fact_id"]),
+        )
+        return {
+            "source_id": source_id,
+            "mode": "quarantine",
+            "fact_ids": sorted(r["fact_ids"]),
+            "readers": readers,
+            "agents": sorted({x["agent_id"] for x in readers}),
+            "decision_ids": sorted(r["decision_ids"]),
+            "handoff_ids": sorted(r["handoff_ids"]),
+            "truncated": bool(r["truncated"]),
+        }
+
+    def release_quarantine(self, source_id: str, *, limit: int = MAX_FORGET_FACTS) -> dict[str, Any]:
+        """Undo :meth:`quarantine`: quarantined facts under the source get their previous status back."""
+        _check_limit(limit)
+        rows = self.client.rw(
+            self.graph, "lineage/release_quarantine", {"source_id": source_id, "limit": limit}
+        )
+        if not rows:
+            raise UnknownNode(f"no source with id '{source_id}'")
+        return {
+            "source_id": source_id,
+            "fact_ids": sorted(rows[0]["fact_ids"]),
+            "truncated": bool(rows[0]["truncated"]),
         }
 
     # -- why --------------------------------------------------------------------------------------------
