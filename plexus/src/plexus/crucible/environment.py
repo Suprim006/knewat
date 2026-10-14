@@ -26,6 +26,9 @@ def in_docker() -> bool:
 
 
 def git_commit() -> str:
+    env = os.environ.get("CRUCIBLE_GIT_COMMIT")
+    if env:
+        return env
     try:
         out = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],

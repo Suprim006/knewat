@@ -182,6 +182,8 @@ def assemble(
                 "claim = claim_next_task, heartbeat, complete are timed separately; each cycle is claim -> heartbeat -> complete.",
                 "B2's claims are B1's SQLite claims (hybrid), so only its recall is measured separately.",
                 "P-mcp adds a Step and a ToolCall write to every call, as the MCP server does.",
+                "B0/B1/B2 are embedded libraries running inside the crucible container (they have no server); the Plexus arms talk to the FalkorDB container over the compose network. B1/B2 use SQLite's built-in busy handler, which has no fairness queue, so tail latency under write contention is large; cross-process writers cannot be queued in-process.",
+                "recall includes embedding the query with the local bge-small model (one model instance per process, calls serialised by its lock) for B2, P and P-mcp.",
             ],
         }
         arms_used += [a for a in l4_cfg.arms if a not in arms_used]
