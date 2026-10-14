@@ -1,4 +1,59 @@
 {
+  "as_of": {
+    "description": "The value a (subject, predicate) had at time t.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "predicate": {
+          "description": "Fact attribute.",
+          "title": "Predicate",
+          "type": "string"
+        },
+        "scope": {
+          "default": "global",
+          "description": "Scope id (default: global).",
+          "title": "Scope",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        },
+        "subject": {
+          "description": "Fact subject.",
+          "title": "Subject",
+          "type": "string"
+        },
+        "t": {
+          "description": "Epoch milliseconds.",
+          "title": "T",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "agent_id",
+        "subject",
+        "predicate",
+        "t"
+      ],
+      "title": "as_ofArguments",
+      "type": "object"
+    }
+  },
   "assert_fact": {
     "description": "Store a durable fact (subject, predicate, value) in shared memory. A new value for the same\n        subject+predicate closes the old one (your own earlier value is superseded; a different agent's value is\n        reported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns\n        'duplicate_of'. Returns fact_id, superseded[], duplicate_of, contradicts[].",
     "inputSchema": {
@@ -563,6 +618,43 @@
       "type": "object"
     }
   },
+  "forget_source": {
+    "description": "Forget a source and every fact derived from it (cascade). Decisions based on them are flagged.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "Source whose derived facts should be forgotten.",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "source_id"
+      ],
+      "title": "forget_sourceArguments",
+      "type": "object"
+    }
+  },
   "handoff": {
     "description": "Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything\n        referenced must exist, otherwise nothing is written.",
     "inputSchema": {
@@ -671,6 +763,49 @@
         "task_id"
       ],
       "title": "heartbeatArguments",
+      "type": "object"
+    }
+  },
+  "knew_at": {
+    "description": "What a given agent knew (facts read and still valid) and wrote up to step N.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        },
+        "step_n": {
+          "description": "The step number.",
+          "title": "Step N",
+          "type": "integer"
+        },
+        "subject_agent": {
+          "description": "The agent whose knowledge to reconstruct.",
+          "title": "Subject Agent",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "subject_agent",
+        "step_n"
+      ],
+      "title": "knew_atArguments",
       "type": "object"
     }
   },
@@ -1132,6 +1267,117 @@
         "artifact_id"
       ],
       "title": "verify_artifactArguments",
+      "type": "object"
+    }
+  },
+  "who_knew": {
+    "description": "Which agents asserted or read a fact, and at which step.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "A fact id.",
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id"
+      ],
+      "title": "who_knewArguments",
+      "type": "object"
+    }
+  },
+  "why": {
+    "description": "Explain WHY: the graph paths from a decision (or fact) to the facts, agents, steps and sources\n            it rests on.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "node_id": {
+          "description": "A decision id or a fact id.",
+          "title": "Node Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "node_id"
+      ],
+      "title": "whyArguments",
+      "type": "object"
+    }
+  },
+  "why_recalled": {
+    "description": "Explain why a past recall returned the facts it did (ranks, scores, provenance).",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "recall_id": {
+          "description": "A recall id.",
+          "title": "Recall Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "recall_id"
+      ],
+      "title": "why_recalledArguments",
       "type": "object"
     }
   }

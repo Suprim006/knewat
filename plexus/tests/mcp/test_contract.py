@@ -55,7 +55,8 @@ async def test_tool_list_and_schema_snapshot(server):
     }
     names = set(got)
     assert ENGRAM_RELAY_TOOLS <= names
-    assert names - ENGRAM_RELAY_TOOLS == set(), "unexpected extra tools (Lineage not merged yet)"
+    lineage_tools = {"why", "why_recalled", "who_knew", "knew_at", "as_of", "forget_source"}
+    assert names - ENGRAM_RELAY_TOOLS <= lineage_tools, "unexpected extra tools"
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name
