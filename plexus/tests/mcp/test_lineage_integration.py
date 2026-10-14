@@ -1,4 +1,4 @@
-"""Lineage wired into the MCP layer: Steps, READ/WROTE, Recall records, sources, quarantine, why, time machine.
+"""Lineage wired into the MCP layer: Steps, READ/WROTE, Recall records, sources, quarantine, why."""
 
 Everything goes through MCP tools only (in-memory client, real database); assertions read the graph directly.
 """
@@ -32,7 +32,7 @@ def rows(client, tenant, q, **params):
 
 
 async def run_scenario(c: Client) -> dict:
-    """researcher cites a source and asserts a fact; planner recalls it, decides on it and hands off to builder."""
+    """researcher cites a source and asserts a fact; planner recalls, decides on it, hands off to builder."""
     s: dict = {}
     src = await call(
         c, "add_source", agent_id="researcher", title="Acme design doc", uri="https://example.test/doc"
@@ -87,7 +87,7 @@ async def test_two_agent_scenario_leaves_a_full_lineage(server, client, tenant):
         chain = rows(
             client,
             tenant,
-            "MATCH (a:Step)-[:NEXT]->(b:Step) RETURN a.agent_id, a.n, b.agent_id, b.n ORDER BY a.agent_id, a.n",
+            "MATCH (a:Step)-[:NEXT]->(b:Step) RETURN a.agent_id, a.n, b.agent_id, b.n ORDER BY a.agent_id",
         )
         assert all(a1 == a2 and n2 == n1 + 1 for a1, n1, a2, n2 in chain)
         assert len(chain) == (2 - 1) + (5 - 1)
