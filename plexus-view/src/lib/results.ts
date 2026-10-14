@@ -2,8 +2,10 @@
  * Read the Crucible results JSON (`GET /api/results`) defensively.
  *
  * The documented shape lives in plexus/src/plexus/crucible/results.py (`schema_version` 1): layers L1, L4 and
- * ablation, with L2 (provenance Q&A accuracy per arm) arriving later. Anything missing or oddly shaped is
- * skipped rather than thrown, so a newer or partial file still renders what it can.
+ * ablation; and `layers.L2` as documented in plexus/src/plexus/crucible/l2/README.md (merged in with
+ * `python -m plexus.crucible.l2.run merge`). Anything missing or oddly shaped is skipped rather than thrown,
+ * so a newer or partial file still renders what it can. Pinned against a copy of the real combined file by
+ * `src/fixtures/results.real.json` (see results.real.test.ts).
  */
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -33,6 +35,45 @@ export interface L2Row {
   /** 0..100 */
   accuracy: number;
   n?: number;
+  correct?: number;
+  /** The stricter variant: the reply must be nothing but the JSON object (0..100). */
+  wholeReplyPct?: number;
+  wholeReplyCorrect?: number;
+  /** false when the budget cap stopped the arm early. */
+  completed?: boolean;
+  answerer?: string;
+  llmCalls?: number;
+  tokensPerQuestion?: number;
+  totalTokens?: number;
+  costUsd?: number;
+  costPerQuestionUsd?: number;
+  latencyMedianMs?: number;
+  latencyP95Ms?: number;
+  serverMedianMs?: number;
+  errors?: number;
+  unparseable?: number;
+  replyFormat?: { jsonOnly: number; proseThenJson: number; unparseable: number; callFailed: number };
+  contextCharsMax?: number;
+  questionsTruncated?: number;
+}
+export interface L2FamilyRow {
+  family: string;
+  title: string;
+  n: number;
+  /** pct per arm id, 0..100 */
+  pct: Record<string, number | undefined>;
+}
+export interface L2Info {
+  title: string;
+  mode: string;
+  model: string;
+  modelIds: string[];
+  contextBudgetChars?: number;
+  b2TopK?: number;
+  asked?: number;
+  total?: number;
+  families: L2FamilyRow[];
+  notes: string[];
 }
 export interface Percentiles {
   p50: number;
@@ -83,7 +124,12 @@ export interface ParsedResults {
   arms: ArmInfo[];
   l1?: L1Table;
   l2?: L2Row[];
+  l2Info?: L2Info;
   l4: L4Sweep[];
+  /** `layers.L4.notes`, verbatim. */
+  l4Notes: string[];
+  /** `layers.L4.embedder_probe`: embedding latency by concurrency. */
+  embedderProbe: { workers: number; calls?: number; p50: number; p95: number; p99: number }[];
   ablation?: AblationView;
   /** Top-level keys nobody here knows how to draw (shown as raw JSON). */
   unknown: string[];
@@ -137,6 +183,14 @@ const ACCURACY_KEYS = ['accuracy', 'overall', 'exact_match', 'em', 'score', 'acc
 function accuracyOf(v: unknown): { accuracy: number; n?: number } | undefined {
   if (typeof v === 'number') return { accuracy: v };
   if (!isObj(v)) return undefined;
+  // The real L2 shape: `accuracy: {correct, total, pct}`. Prefer the counts (pct is already 0..100).
+  if (isObj(v.accuracy)) {
+    const c = num(v.accuracy.correct);
+    const t = num(v.accuracy.total);
+    if (c !== undefined && t) return { accuracy: c / t, n: t };
+    const pct = num(v.accuracy.pct);
+    if (pct !== undefined) return { accuracy: pct / 100, n: t };
+  }
   for (const k of ACCURACY_KEYS) {
     const direct = num(v[k]);
     if (direct !== undefined) return { accuracy: direct, n: num(v.n ?? v.questions ?? v.total) };
@@ -148,6 +202,77 @@ function accuracyOf(v: unknown): { accuracy: number; n?: number } | undefined {
   return undefined;
 }
 
+function l2Details(v: unknown): Partial<L2Row> {
+  if (!isObj(v)) return {};
+  const acc = isObj(v.accuracy) ? v.accuracy : {};
+  const whole = isObj(v.accuracy_whole_reply_json) ? v.accuracy_whole_reply_json : {};
+  const usage = isObj(v.usage) ? v.usage : {};
+  const lat = isObj(usage.latency_ms) ? usage.latency_ms : {};
+  const srv = isObj(usage.server_ms) ? usage.server_ms : {};
+  const ctx = isObj(v.context) ? v.context : {};
+  const rf = isObj(v.reply_format)
+    ? {
+        jsonOnly: num(v.reply_format.json_only) ?? 0,
+        proseThenJson: num(v.reply_format.prose_then_json) ?? 0,
+        unparseable: num(v.reply_format.unparseable) ?? 0,
+        callFailed: num(v.reply_format.call_failed) ?? 0,
+      }
+    : undefined;
+  return {
+    correct: num(acc.correct),
+    wholeReplyPct: num(whole.pct),
+    wholeReplyCorrect: num(whole.correct),
+    completed: typeof v.completed === 'boolean' ? v.completed : undefined,
+    answerer: typeof v.answerer === 'string' ? v.answerer : undefined,
+    llmCalls: num(usage.llm_calls),
+    tokensPerQuestion: num(usage.tokens_per_question),
+    totalTokens: num(usage.total_tokens),
+    costUsd: num(usage.cost_usd),
+    costPerQuestionUsd: num(usage.cost_per_question_usd),
+    latencyMedianMs: num(lat.median),
+    latencyP95Ms: num(lat.p95),
+    serverMedianMs: num(srv.median),
+    errors: num(v.errors),
+    unparseable: num(v.unparseable),
+    replyFormat: rf,
+    contextCharsMax: num(ctx.chars_max),
+    questionsTruncated: num(ctx.questions_truncated),
+  };
+}
+
+/** `layers.L2` metadata: run mode, model, question counts, per-family accuracy and the notes (verbatim). */
+function parseL2Info(layer: unknown): L2Info | undefined {
+  if (!isObj(layer) || !isObj(layer.arms)) return undefined;
+  const qs = isObj(layer.question_set) ? layer.question_set : {};
+  const fams = isObj(layer.families) ? layer.families : {};
+  const armsObj = layer.arms;
+  const families = Object.entries(fams).map(([family, f]) => {
+    const pct: Record<string, number | undefined> = {};
+    for (const [arm, a] of Object.entries(armsObj)) {
+      const bf = isObj(a) && isObj(a.by_family) ? a.by_family[family] : undefined;
+      pct[arm] = isObj(bf) ? num(bf.pct) : undefined;
+    }
+    return {
+      family,
+      title: isObj(f) ? str(f.title) || family : family,
+      n: isObj(f) ? (num(f.n) ?? 0) : 0,
+      pct,
+    };
+  });
+  return {
+    title: str(layer.title),
+    mode: str(layer.mode),
+    model: str(layer.model),
+    modelIds: strs(layer.model_ids),
+    contextBudgetChars: num(layer.context_budget_chars),
+    b2TopK: num(layer.b2_top_k),
+    asked: num(qs.asked),
+    total: num(qs.total),
+    families,
+    notes: strs(layer.notes),
+  };
+}
+
 /** L2: accuracy per arm. Accepts `{arms: {B0: {accuracy}}}`, `{B0: {...}}`, or `[{arm, accuracy}]`. */
 function parseL2(layer: unknown): L2Row[] | undefined {
   const rows: L2Row[] = [];
@@ -155,7 +280,12 @@ function parseL2(layer: unknown): L2Row[] | undefined {
     const a = accuracyOf(v);
     if (!a) return;
     // ratios (0..1) are shown as percentages
-    rows.push({ arm, accuracy: a.accuracy <= 1 ? a.accuracy * 100 : a.accuracy, n: a.n });
+    rows.push({
+      arm,
+      accuracy: a.accuracy <= 1 ? a.accuracy * 100 : a.accuracy,
+      n: a.n,
+      ...l2Details(v),
+    });
   };
   if (Array.isArray(layer)) {
     for (const item of layer) if (isObj(item)) push(str(item.arm ?? item.name), item);
@@ -184,7 +314,9 @@ const SWEEP_TITLES: Record<string, string> = {
 function parseSweep(key: string, raw: unknown): L4Sweep | undefined {
   const pts = arr(raw).filter(isObj);
   if (pts.length === 0) return undefined;
-  const xKey = pts.some((p) => num(p.workers) !== undefined) ? 'workers' : 'tenants';
+  // The tenant sweep also carries `workers` (fixed at 50); its x axis is the tenant count.
+  const xKey =
+    key === 'tenant_sweep' || !pts.some((p) => num(p.workers) !== undefined) ? 'tenants' : 'workers';
   const ops = new Set<string>();
   const points: L4Point[] = pts.map((p) => {
     const o: L4Point['ops'] = {};
@@ -255,7 +387,15 @@ const KNOWN_TOP = new Set([
 ]);
 
 export function parseResults(raw: unknown): ParsedResults {
-  const out: ParsedResults = { headline: [], honesty: [], arms: [], l4: [], unknown: [] };
+  const out: ParsedResults = {
+    headline: [],
+    honesty: [],
+    arms: [],
+    l4: [],
+    l4Notes: [],
+    embedderProbe: [],
+    unknown: [],
+  };
   if (!isObj(raw)) return out;
   out.schemaVersion = num(raw.schema_version);
   if (isObj(raw.run)) {
@@ -275,7 +415,19 @@ export function parseResults(raw: unknown): ParsedResults {
   const layers = isObj(raw.layers) ? raw.layers : {};
   out.l1 = parseL1(layers.L1);
   out.l2 = parseL2(layers.L2);
+  if (out.l2) out.l2Info = parseL2Info(layers.L2);
   if (isObj(layers.L4)) {
+    out.l4Notes = strs(layers.L4.notes);
+    out.embedderProbe = arr(layers.L4.embedder_probe)
+      .filter(isObj)
+      .flatMap((p) => {
+        const p50 = num(p.p50_ms);
+        const p99 = num(p.p99_ms);
+        const w = num(p.workers);
+        return p50 !== undefined && p99 !== undefined && w !== undefined
+          ? [{ workers: w, calls: num(p.calls), p50, p95: num(p.p95_ms) ?? p99, p99 }]
+          : [];
+      });
     for (const key of ['claim_sweep', 'recall_sweep', 'tenant_sweep']) {
       const s = parseSweep(key, layers.L4[key]);
       if (s) out.l4.push(s);
@@ -294,4 +446,37 @@ export function peakPoints(sweep: L4Sweep): L4Point[] {
     if (!cur || p.x > cur.x) best.set(p.arm, p);
   }
   return [...best.values()];
+}
+
+export interface MedianComparison {
+  x: number;
+  fastest: { arm: string; p50: number; p99: number };
+  plexus?: { arm: string; p50: number; p99: number };
+  /** Plexus's median relative to the fastest arm's; > 1 means slower. */
+  ratio?: number;
+}
+
+/**
+ * For one operation: at every load level, which arm has the lowest median, and how Plexus (arm `P`) compares on
+ * both the median and the tail. Computed from the data, so the page states what the file says: if a baseline wins
+ * on the median it is named (with its own tail next to it).
+ */
+export function medianComparison(sweep: L4Sweep, op: string, plexusArm = 'P'): MedianComparison[] {
+  const xs = [...new Set(sweep.points.map((p) => p.x))].sort((a, b) => a - b);
+  const out: MedianComparison[] = [];
+  for (const x of xs) {
+    const here = sweep.points.filter((p) => p.x === x && p.ops[op]);
+    if (here.length === 0) continue;
+    const best = here.reduce((a, b) => (b.ops[op]!.client.p50 < a.ops[op]!.client.p50 ? b : a));
+    const pl = here.find((p) => p.arm === plexusArm);
+    const cell = (p: L4Point) => ({ arm: p.arm, p50: p.ops[op]!.client.p50, p99: p.ops[op]!.client.p99 });
+    const bestP50 = best.ops[op]!.client.p50;
+    out.push({
+      x,
+      fastest: cell(best),
+      plexus: pl ? cell(pl) : undefined,
+      ratio: pl && bestP50 > 0 ? pl.ops[op]!.client.p50 / bestP50 : undefined,
+    });
+  }
+  return out;
 }
