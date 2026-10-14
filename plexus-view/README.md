@@ -3,14 +3,14 @@
 Read-only web demonstrator for Plexus: shows what is stored in FalkorDB, how it flows in, and what the demo created.
 Vite + React + TypeScript, Cytoscape.js (+ `cytoscape-fcose`) for the graph. It talks to the Plexus View API only and never writes.
 
-| Page         | What it shows                                                                                                                                        |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/` Explorer | graph, legend, label/edge filters, search, side panel; colour by module, created-at time range, 2-hop focus, "Why?" action, ablation view, live adds |
-| `/flow`      | live `ToolCall` timeline (backfill + SSE), replay with play/pause/speed; click an event for the Cypher that ran and a mini-graph of what it touched  |
-| `/time`      | Time Machine: per-agent step slider, what each agent knew and wrote, diff highlighting between steps                                                 |
-| `/why/:id`   | provenance of a Decision or Fact as a left-to-right layered graph (`/why/latest` = newest decision), path highlight                                  |
-| `/inventory` | "what the demo created" summary cards, counts per label and edge type, sample nodes, index list                                                      |
-| `/results`   | Crucible results from `/api/results`: L1 table, L2 accuracy bars, L4 latency percentiles, ablation; placeholder until a results file exists          |
+| Page         | What it shows                                                                                                                                                                                                                                                     |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/` Explorer | graph, legend, label/edge filters, search, side panel; colour by module, created-at time range, 2-hop focus, "Why?" action, ablation view, live adds                                                                                                              |
+| `/flow`      | live `ToolCall` timeline (backfill + SSE), replay with play/pause/speed; click an event for the Cypher that ran and a mini-graph of what it touched                                                                                                               |
+| `/time`      | Time Machine: per-agent step slider, what each agent knew and wrote, diff highlighting between steps                                                                                                                                                              |
+| `/why/:id`   | provenance of a Decision or Fact as a left-to-right layered graph (`/why/latest` = newest decision), path highlight                                                                                                                                               |
+| `/inventory` | "what the demo created" summary cards, counts per label and edge type, sample nodes, index list                                                                                                                                                                   |
+| `/results`   | Crucible results from `/api/results`: L1 table, L2 and L2-at-scale (accuracy, Wilson intervals, tokens/cost/latency, paired sign test, notes verbatim), L4 latency percentiles with the fastest-median callout, ablation; placeholder until a results file exists |
 
 ## Run
 

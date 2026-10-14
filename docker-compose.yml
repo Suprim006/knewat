@@ -1,7 +1,10 @@
 # Plexus: local stack. Requires Docker. Copy .env.example to .env to override defaults.
-# Do NOT run this on port 6379 / 3000 on the dev machine (falkordb-dev uses them). Every host port is configurable:
-#   COMPOSE_PROJECT_NAME=plexus-int FALKORDB_PORT=6377 FALKORDB_BROWSER_PORT=3077 PLEXUS_API_PORT=18080 \
-#   PLEXUS_MCP_PORT=18765 docker compose -p plexus-int up -d falkordb plexus-api plexus-mcp
+#   docker compose up -d --wait      # FalkorDB + View API + MCP server + the View (http://localhost:5180)
+#   docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo    # load the recorded demo run
+# Every host port is configurable, so a second stack can sit next to another one (`-p` gives it its own containers and
+# volumes; the FalkorDB container has no fixed name for the same reason):
+#   FALKORDB_PORT=6377 FALKORDB_BROWSER_PORT=3077 PLEXUS_API_PORT=18080 PLEXUS_MCP_PORT=18765 PLEXUS_VIEW_PORT=15180 \
+#   PLEXUS_IMAGE=plexus-int:dev docker compose -p plexus-int up -d --wait
 name: plexus
 
 x-falkordb-args: &falkordb_args "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456"
@@ -9,7 +12,6 @@ x-falkordb-args: &falkordb_args "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEU
 services:
   falkordb:
     image: falkordb/falkordb:6.0.2
-    container_name: plexus-falkordb
     restart: unless-stopped
     ports:
       - "127.0.0.1:${FALKORDB_PORT:-6379}:6379"
@@ -34,7 +36,7 @@ services:
   # --- Plexus product services (P2-E) ---------------------------------------------------------------
   plexus-mcp: # MCP server, streamable HTTP. Tenant bound per connection: http://127.0.0.1:8765/mcp/t/<tenant>
     build: ./plexus
-    image: plexus:dev
+    image: ${PLEXUS_IMAGE:-plexus:dev}
     restart: unless-stopped
     depends_on:
       falkordb: { condition: service_healthy }
@@ -55,7 +57,7 @@ services:
 
   plexus-api: # read-only View API (FastAPI + SSE)
     build: ./plexus
-    image: plexus:dev
+    image: ${PLEXUS_IMAGE:-plexus:dev}
     restart: unless-stopped
     command: ["plexus-api"]
     depends_on:
@@ -65,9 +67,13 @@ services:
       FALKORDB_PORT: "6379"
       PLEXUS_API_HOST: 0.0.0.0
       PLEXUS_API_PORT: "8080"
-      PLEXUS_CORS_ORIGINS: ${PLEXUS_CORS_ORIGINS:-http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173}
-      # PLEXUS_RESULTS_PATH: /data/results.json # Crucible results for GET /api/results
+      # The View is served from PLEXUS_VIEW_PORT; the browser calls this API from there, so it must be an allowed origin.
+      PLEXUS_CORS_ORIGINS: ${PLEXUS_CORS_ORIGINS:-http://localhost:${PLEXUS_VIEW_PORT:-5180},http://127.0.0.1:${PLEXUS_VIEW_PORT:-5180},http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173}
+      PLEXUS_RESULTS_PATH: /data/results.json # Crucible results for GET /api/results (the Results page)
     ports: ["127.0.0.1:${PLEXUS_API_PORT:-8080}:8080"]
+    volumes:
+      # L1 + L4 + ablation + L2 in one file (see plexus/src/plexus/crucible/README.md). Replace it with your own run's file.
+      - ./plexus/src/plexus/crucible/results/latest-all.json:/data/results.json:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8080/healthz?deep=1', timeout=3)"]
       interval: 10s
@@ -101,10 +107,44 @@ services:
       - plexus_fastembed:/opt/fastembed
       - ./plexus/src/plexus/crucible/results:/results
 
-  # plexus-view:  # P1/P3: React + Cytoscape demonstrator (static build behind nginx)
-  #   build: ./plexus-view
-  #   depends_on: [plexus-api]
-  #   ports: ["127.0.0.1:5173:80"]
+  # --- the View (React + Cytoscape, static build behind nginx) ------------------------------------------
+  plexus-view:
+    build:
+      context: ./plexus-view
+      args:
+        # Baked into the static bundle: the address the BROWSER uses for the View API (the host port, not the compose network).
+        VITE_PLEXUS_API: http://127.0.0.1:${PLEXUS_API_PORT:-8080}
+    image: ${PLEXUS_VIEW_IMAGE:-plexus-view:dev}
+    restart: unless-stopped
+    depends_on:
+      plexus-api: { condition: service_healthy }
+    ports: ["127.0.0.1:${PLEXUS_VIEW_PORT:-5180}:80"]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+      start_period: 5s
+
+  # --- one-off CLI (profile `cli`; not started by `up`) --------------------------------------------------
+  # docker compose run --rm plexus-cli demo list
+  # docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo
+  # docker compose run --rm plexus-cli demo ablation --tenant demo
+  # The recordings are not in the image (they are ~MB of data), so the repo's copy is mounted read-only.
+  plexus-cli:
+    profiles: [cli]
+    build: ./plexus
+    image: ${PLEXUS_IMAGE:-plexus:dev}
+    entrypoint: ["plexus"]
+    command: ["demo", "list"]
+    depends_on:
+      falkordb: { condition: service_healthy }
+    environment:
+      FALKORDB_HOST: falkordb
+      FALKORDB_PORT: "6379"
+      PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
+    volumes:
+      - ./plexus/demo_data:/app/demo_data:ro
 
 volumes:
   plexus_data:

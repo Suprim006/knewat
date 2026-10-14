@@ -9,6 +9,8 @@
 // Step(n) and ToolCall(at) serve time-travel and the flow feed. Each property is its own single-property index (there are no
 // composite indexes). Step(agent_id) serves record_step / knew_at; Source(uri), Scope(name) and Procedure(task_type) serve
 // the MERGE keys of create_source / create_scope / log_procedure_run and the best_procedure filter (P5 review Q4).
+// created_at on all 16 labels serves view/subgraph (the Explorer's label / time-window filter): one index range seek per label
+// instead of an All Node Scan of the graph (P5-int Q5).
 CREATE INDEX FOR (n:Agent) ON (n.id);
 CREATE INDEX FOR (n:Scope) ON (n.id);
 CREATE INDEX FOR (n:Session) ON (n.id);
@@ -36,4 +38,20 @@ CREATE INDEX FOR (n:ToolCall) ON (n.at);
 CREATE INDEX FOR (n:Step) ON (n.agent_id);
 CREATE INDEX FOR (n:Source) ON (n.uri);
 CREATE INDEX FOR (n:Scope) ON (n.name);
-CREATE INDEX FOR (n:Procedure) ON (n.task_type)
+CREATE INDEX FOR (n:Procedure) ON (n.task_type);
+CREATE INDEX FOR (n:Agent) ON (n.created_at);
+CREATE INDEX FOR (n:Artifact) ON (n.created_at);
+CREATE INDEX FOR (n:Decision) ON (n.created_at);
+CREATE INDEX FOR (n:Entity) ON (n.created_at);
+CREATE INDEX FOR (n:Episode) ON (n.created_at);
+CREATE INDEX FOR (n:Fact) ON (n.created_at);
+CREATE INDEX FOR (n:Handoff) ON (n.created_at);
+CREATE INDEX FOR (n:Procedure) ON (n.created_at);
+CREATE INDEX FOR (n:Recall) ON (n.created_at);
+CREATE INDEX FOR (n:Run) ON (n.created_at);
+CREATE INDEX FOR (n:Scope) ON (n.created_at);
+CREATE INDEX FOR (n:Session) ON (n.created_at);
+CREATE INDEX FOR (n:Source) ON (n.created_at);
+CREATE INDEX FOR (n:Step) ON (n.created_at);
+CREATE INDEX FOR (n:Task) ON (n.created_at);
+CREATE INDEX FOR (n:ToolCall) ON (n.created_at)

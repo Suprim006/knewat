@@ -114,6 +114,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | Range | `Step.n`, `Step.agent_id` | time-machine (step N); the agent's latest step and `knew_at` |
 | Range | `ToolCall.at` | flow feed ordering |
 | Range | `Entity.norm_name` | entity MERGE key |
+| Range | `created_at` on **every** label (16) | `view/subgraph`: the Explorer's label / time-window filter is one index range seek per label instead of an All Node Scan |
 | Range | `Source.uri`, `Scope.name`, `Procedure.task_type` | MERGE keys of `create_source`, `create_scope` (with `kind`) and `log_procedure_run` (with `name`); `best_procedure` filter |
 | Full-text | `Entity.name`, `Fact.value`, `Episode.text` | keyword entity resolution and recall |
 | Vector (384-d, cosine) | `Entity.embedding`, `Fact.embedding`, `Episode.embedding` | semantic seeds for recall |

@@ -65,10 +65,10 @@ def plexus_mcp_command() -> str:
     return str(p) if p.exists() else exe
 
 
-def write_mcp_config(
-    path: Path, tenant: str, mcp_command: str | None = None, env: dict[str, str] | None = None
-) -> Path:
-    """The per-run ``mcp.json``: one stdio Plexus server bound to ``tenant``."""
+def build_mcp_config(
+    tenant: str, mcp_command: str | None = None, env: dict[str, str] | None = None
+) -> dict[str, object]:
+    """The MCP config of one stdio Plexus server bound to ``tenant`` (what ``claude --mcp-config`` reads)."""
     server_env = {
         "FALKORDB_HOST": os.environ.get("FALKORDB_HOST", "127.0.0.1"),
         "FALKORDB_PORT": os.environ.get("FALKORDB_PORT", "6379"),
@@ -76,7 +76,7 @@ def write_mcp_config(
     if os.environ.get("PLEXUS_EMBEDDER"):
         server_env["PLEXUS_EMBEDDER"] = os.environ["PLEXUS_EMBEDDER"]
     server_env.update(env or {})
-    cfg = {
+    return {
         "mcpServers": {
             "plexus": {
                 "command": mcp_command or plexus_mcp_command(),
@@ -85,7 +85,25 @@ def write_mcp_config(
             }
         }
     }
-    path.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
+
+
+def build_http_mcp_config(url: str, tenant: str) -> dict[str, object]:
+    """The MCP config of a streamable-HTTP Plexus endpoint; the tenant is pinned by the URL path ``/mcp/t/<tenant>``."""
+    if not url.startswith(("http://", "https://")):
+        raise ValueError(f"--http must be an http(s) URL, got {url!r}")
+    base = url.rstrip("/")
+    if base.endswith("/mcp"):
+        base += f"/t/{tenant}"
+    elif "/mcp/t/" not in base:
+        base += f"/mcp/t/{tenant}"
+    return {"mcpServers": {"plexus": {"type": "http", "url": base}}}
+
+
+def write_mcp_config(
+    path: Path, tenant: str, mcp_command: str | None = None, env: dict[str, str] | None = None
+) -> Path:
+    """The per-run ``mcp.json``: one stdio Plexus server bound to ``tenant``."""
+    path.write_text(json.dumps(build_mcp_config(tenant, mcp_command, env), indent=2), encoding="utf-8")
     return path
 
 
