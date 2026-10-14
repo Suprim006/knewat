@@ -322,6 +322,32 @@ L3_HONESTY = [
 ]
 
 
+def headline_l3(layer: dict[str, Any]) -> list[str]:
+    """Plain statements from the numbers, ties and losses included (BASELINE §6 rule 3)."""
+    arms = layer["arms"]
+    if not arms:
+        return []
+    out = []
+    done = {a: f"{m['tasks_done']}/{m['tasks_total']}" for a, m in arms.items()}
+    out.append("L3 pilot (n=1 per arm): tasks done " + ", ".join(f"{a} {d}" for a, d in done.items()) + ".")
+    rec = [a for a, m in arms.items() if m["recovery"]["task_finished_after_reclaim"]]
+    out.append(
+        f"L3: the killed builder's task was reclaimed and finished in {len(rec)} of {len(arms)} arms ({', '.join(rec) or 'none'})."
+    )
+    keys = ("decisions_with_evidence", "handoffs_with_facts", "stale_artifacts", "contradictions_surfaced")
+    if len({tuple(m[k] for k in keys) for m in arms.values()}) == 1:
+        out.append(
+            "L3: no separation between arms on evidence-carrying decisions, fact-carrying handoffs, stale artifacts or surfaced contradictions (identical counts)."
+        )
+    cost = {a: m["cost_usd"] for a, m in arms.items()}
+    out.append(
+        "L3: cost per full run "
+        + ", ".join(f"{a} ${c:.2f}" for a, c in cost.items())
+        + "; with n=1 this is noise-level, not a ranking."
+    )
+    return out
+
+
 def render_l3_report(layer: dict[str, Any]) -> str:
     arms = layer["arms"]
     w = [
@@ -350,7 +376,8 @@ def render_l3_report(layer: dict[str, Any]) -> str:
     ]
     for name, fn in rows:
         w.append(f"| {name} | " + " | ".join(str(fn(a)) for a in arms.values()) + " |")
-    w.append("\n" + "\n".join(f"- {h}" for h in L3_HONESTY))
+    w.append("\n## Headline\n\n" + "\n".join(f"- {h}" for h in layer.get("headline", [])))
+    w.append("\n## Honesty\n\n" + "\n".join(f"- {h}" for h in L3_HONESTY))
     return "\n".join(w) + "\n"
 
 
@@ -412,11 +439,12 @@ def main(argv: list[str] | None = None) -> int:
         "config": {"arms": list(arms), "l3": {"model": a.model, "max_turns": a.max_turns, "runs_per_arm": 1}},
         "arms": H.arms_section([x for x in arms if x in ("B0", "B1", "B2", "P")]),
         "layers": {"L3": layer},
-        "summary": {},
+        "summary": {"headline": layer["headline"]},
         "honesty": L3_HONESTY,
     }  # fmt: skip
     (out / "results.json").write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
     (out / "report.md").write_text(render_l3_report(layer), encoding="utf-8", newline="\n")
+    shutil.copyfile(out / "results.json", a.out / "latest.json")
     print(f"results: {out / 'results.json'}", flush=True)
     return 0
 
