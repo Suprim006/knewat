@@ -16,6 +16,7 @@ dependencies = [
 [project.scripts]
 plexus-mcp = "plexus.mcp.server:main"
 plexus-api = "plexus.api.view_api:main"
+crucible = "plexus.crucible.cli:main"
 
 [dependency-groups]
 dev = [
@@ -44,6 +45,8 @@ select = ["E", "F", "I", "B", "UP"]
 # LLM-facing tool descriptions and module docstrings are long prose lines.
 "src/plexus/mcp/*.py" = ["E501"]
 "src/plexus/api/*.py" = ["E501"]
+"src/plexus/crucible/**/*.py" = ["E501"]
+"tests/crucible/*.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
