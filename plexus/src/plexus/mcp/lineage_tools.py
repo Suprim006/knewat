@@ -18,12 +18,22 @@ from typing import Annotated, Any
 from mcp.server.mcpserver import Context, MCPServer
 from pydantic import Field
 
+from plexus.mcp.limits import (
+    MAX_INT,
+    AgentId,
+    EpochMs,
+    IdStr,
+    Name,
+    NameReq,
+    ScopeArg,
+    Short,
+    Step,
+    Text,
+    Title,
+)
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 
 log = logging.getLogger("plexus.mcp")
-
-AgentId = Annotated[str, Field(description="Your stable agent id.", min_length=1)]
-Step = Annotated[int | None, Field(description="Optional: your own step counter.")]
 
 
 def lineage_available() -> bool:
@@ -83,7 +93,7 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def why(
             agent_id: AgentId,
-            node_id: Annotated[str, Field(description="A decision id or a fact id.")],
+            node_id: Annotated[IdStr, Field(description="A decision id or a fact id.")],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
@@ -100,7 +110,7 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def why_recalled(
             agent_id: AgentId,
-            recall_id: Annotated[str, Field(description="A recall id.")],
+            recall_id: Annotated[IdStr, Field(description="A recall id.")],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
@@ -117,7 +127,7 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def who_knew(
             agent_id: AgentId,
-            fact_id: Annotated[str, Field(description="A fact id.")],
+            fact_id: Annotated[IdStr, Field(description="A fact id.")],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
@@ -133,8 +143,8 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def knew_at(
             agent_id: AgentId,
-            subject_agent: Annotated[str, Field(description="The agent whose knowledge to reconstruct.")],
-            step_n: Annotated[int, Field(description="The step number.")],
+            subject_agent: Annotated[IdStr, Field(description="The agent whose knowledge to reconstruct.")],
+            step_n: Annotated[int, Field(description="The step number.", ge=0, le=MAX_INT)],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
@@ -151,18 +161,20 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def as_of(
             agent_id: AgentId,
-            subject: Annotated[str, Field(description="Fact subject.")],
-            predicate: Annotated[str, Field(description="Fact attribute.")],
-            t: Annotated[int, Field(description="Epoch milliseconds.")],
+            subject: Annotated[NameReq, Field(description="Fact subject.")],
+            predicate: Annotated[NameReq, Field(description="Fact attribute.")],
+            t: Annotated[EpochMs, Field(description="Epoch milliseconds.")],
             ctx: Context,
-            scope: Annotated[str, Field(description="Scope id (default: global).")] = "global",
+            scope: ScopeArg = "global",
             step: Step = None,
         ) -> dict[str, Any]:
             """The value a (subject, predicate) had at time t (epoch ms), or null if it had none yet. Forgotten
             and quarantined facts never answer."""
 
             def work(ts: TenantState, m: MeteredClient) -> Outcome:
-                sid = ts.scope_id(scope, m)
+                sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
+                if sid is None:
+                    return Outcome({"as_of": None})
                 return Outcome({"as_of": _jsonable(_lineage(ts, m).as_of(subject, predicate, t, sid))})
 
             return await rt.call(ctx.headers, "as_of", agent_id, step, work)
@@ -172,18 +184,20 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def add_source(
             agent_id: AgentId,
-            title: Annotated[str, Field(description="Short name of the source, e.g. 'Acme API design doc'.")],
+            title: Annotated[
+                Title, Field(description="Short name of the source, e.g. 'Acme API design doc'.")
+            ],
             ctx: Context,
             uri: Annotated[
-                str | None,
+                Short | None,
                 Field(
                     description="Where it lives (URL or path). The same uri always gives the same source id. "
                     "Omit for a pasted note: an id is derived from the title and text."
                 ),
             ] = None,
-            text: Annotated[str | None, Field(description="Optional excerpt or the pasted content.")] = None,
+            text: Annotated[Text | None, Field(description="Optional excerpt or the pasted content.")] = None,
             kind: Annotated[
-                str, Field(description="'doc', 'web', 'chat', 'note', 'tool'... (free text).")
+                Name, Field(description="'doc', 'web', 'chat', 'note', 'tool'... (free text).")
             ] = "doc",
             trust: Annotated[
                 float, Field(ge=0.0, le=1.0, description="How far this source is trusted, 0..1.")
@@ -207,7 +221,7 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def forget_source(
             agent_id: AgentId,
-            source_id: Annotated[str, Field(description="Source whose derived facts should be forgotten.")],
+            source_id: Annotated[IdStr, Field(description="Source whose derived facts should be forgotten.")],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
@@ -227,7 +241,7 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def quarantine_source(
             agent_id: AgentId,
-            source_id: Annotated[str, Field(description="The suspected (poisoned or wrong) source.")],
+            source_id: Annotated[IdStr, Field(description="The suspected (poisoned or wrong) source.")],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
@@ -247,7 +261,9 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
         @tool
         async def release_quarantine(
             agent_id: AgentId,
-            source_id: Annotated[str, Field(description="A source previously passed to quarantine_source.")],
+            source_id: Annotated[
+                IdStr, Field(description="A source previously passed to quarantine_source.")
+            ],
             ctx: Context,
             step: Step = None,
         ) -> dict[str, Any]:
