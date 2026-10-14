@@ -256,3 +256,9 @@ def test_busy_loading_at_connect_is_retried(monkeypatch):
     attempts["n"] = -10_000  # never recovers: gives up after the bounded wait
     with pytest.raises(BusyLoadingError):
         GraphClient(host=TEST_DB_HOST, port=TEST_DB_PORT, password="", loading_wait_s=0.5)
+
+
+def test_sync_pool_speaks_resp2_like_falkordb_does(lib_client):
+    """RESP3 would change reply shapes for callers that use the raw connection (MODULE LIST in the recorder)."""
+    mods = lib_client.db.connection.execute_command("MODULE", "LIST")
+    assert isinstance(mods[0], list)

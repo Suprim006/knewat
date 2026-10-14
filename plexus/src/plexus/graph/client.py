@@ -147,6 +147,7 @@ class GraphClient:
             max_connections=max_connections,
             timeout=pool_timeout,
             decode_responses=True,
+            protocol=2,  # what FalkorDB(...) itself uses; RESP3 changes reply shapes (e.g. MODULE LIST)
         )
         try:
             self.db = _retry_loading(lambda: FalkorDB(connection_pool=self.pool), self.loading_wait_s)

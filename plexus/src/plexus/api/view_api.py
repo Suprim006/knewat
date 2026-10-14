@@ -45,7 +45,20 @@ MAX_STREAMS = 20  # concurrent /stream connections (env PLEXUS_API_MAX_STREAMS);
 FLOW_CACHE_TTL_S = 0.15  # subscribers polling within this window share one view/flow read
 FLOW_CACHE_MAX = 256
 MAX_ID = 128
-INVENTORY_KEY_SAMPLE = 20_000
+INVENTORY_KEY_SAMPLE = 200  # nodes sampled PER LABEL for the property-key inventory
+# The graph model's node labels and edge types (docs/graph-model.md). view/inventory_nodes|edges|keys count each of
+# them in O(1); a test keeps these lists, the queries and the model in sync, and the inventory endpoint falls back
+# to the full scans if the graph holds a label or type that is not listed.
+INVENTORY_LABELS = (
+    "Agent Artifact Decision Entity Episode Fact Handoff Procedure Recall Run Scope Session Source Step Task ToolCall"
+).split()
+INVENTORY_EDGE_TYPES = sorted(
+    (
+        "ABOUT ASSERTED_BY BASED_ON BY CARRIES CLAIMED CONTRADICTS CREATED DECIDED DEPENDS_ON DERIVED_FROM DUPLICATES "
+        "FOR FROM HAD HAS_EPISODE IN_SCOPE IN_STEP INHERITS NEXT PRODUCED_BY READ RETURNED SUPERSEDES TO UPDATED "
+        "USED_IN VERIFIED_BY WROTE"
+    ).split()
+)
 
 
 class ReadOnlyClient:
@@ -239,7 +252,11 @@ def create_app(
     @app.get("/api/{tenant}/inventory", response_model=M.InventoryResponse)
     def inventory(tenant: str):
         nodes = run(tenant, "view/inventory_nodes")
+        if {r["label"] for r in run(tenant, "view/labels")} - set(INVENTORY_LABELS):
+            nodes = run(tenant, "view/inventory_nodes_scan")  # an unlisted label exists: count everything
         edges = run(tenant, "view/inventory_edges")
+        if {r["type"] for r in run(tenant, "view/relationship_types")} - set(INVENTORY_EDGE_TYPES):
+            edges = run(tenant, "view/inventory_edges_scan")
         sample = {"sample": INVENTORY_KEY_SAMPLE}
         keys = {r["label"]: sorted(r["keys"]) for r in run(tenant, "view/inventory_keys", sample)}
         idx = run(tenant, "view/indexes")
