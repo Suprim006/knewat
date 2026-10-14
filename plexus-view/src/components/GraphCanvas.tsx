@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import { createGraphController, DARK_THEME, LIGHT_THEME } from '../lib/graphController';
 import type { GraphController } from '../lib/graphController';
 import { useIsDark } from '../lib/theme';
@@ -17,6 +17,7 @@ const isJsdom = (): boolean => typeof navigator !== 'undefined' && /jsdom/i.test
  */
 export function GraphCanvas({ onReady, onSelect }: Props) {
   const host = useRef<HTMLDivElement>(null);
+  const descId = useId();
   const controller = useRef<GraphController | null>(null);
   const onSelectRef = useRef(onSelect);
   const dark = useIsDark();
@@ -45,12 +46,19 @@ export function GraphCanvas({ onReady, onSelect }: Props) {
   }, [onReady]);
 
   return (
-    <div
-      ref={host}
-      className="graph-canvas"
-      role="img"
-      aria-label="Graph canvas"
-      data-testid="graph-canvas"
-    />
+    <>
+      <div
+        ref={host}
+        className="graph-canvas"
+        role="img"
+        aria-label="Graph canvas"
+        aria-describedby={descId}
+        data-testid="graph-canvas"
+      />
+      <span id={descId} className="sr-only">
+        A node-link drawing of the graph; it cannot be navigated with the keyboard. Use the search box to find
+        a node, then read its properties and neighbours in the details panel.
+      </span>
+    </>
   );
 }

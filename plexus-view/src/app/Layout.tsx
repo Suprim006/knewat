@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useTenant } from './context';
 import { useThemeMode } from '../lib/theme';
 
@@ -16,6 +17,7 @@ const THEME_LABEL = { auto: 'Auto', light: 'Light', dark: 'Dark' } as const;
 export function Layout() {
   const { tenants, tenant, setTenant, fixtures, error, empty } = useTenant();
   const [mode, cycleTheme] = useThemeMode();
+  const { pathname } = useLocation();
   return (
     <div className="app">
       <header className="topbar">
@@ -75,7 +77,9 @@ export function Layout() {
         </div>
       )}
       <main className="content">
-        <Outlet />
+        <ErrorBoundary resetKey={pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );
