@@ -60,9 +60,10 @@ describe('Explorer: live ingest over SSE', () => {
     act(() => {
       for (let i = 0; i < 20; i++) FakeEventSource.last!.emit(event(i));
     });
-    await new Promise((r) => setTimeout(r, 200)); // let the in-flight read and the trailing one finish
-    expect(reads.n - afterLoad).toBeGreaterThanOrEqual(1);
-    expect(reads.n - afterLoad).toBeLessThanOrEqual(2);
+    // one read was in flight when the other 19 events arrived, and they cost exactly one trailing read
+    await waitFor(() => expect(reads.n - afterLoad).toBe(2));
+    await new Promise((r) => setTimeout(r, 200)); // ...and nothing more follows
+    expect(reads.n - afterLoad).toBe(2);
   });
 
   it('the trailing read picks up what changed while the first read was in flight', async () => {
