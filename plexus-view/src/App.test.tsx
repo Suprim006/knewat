@@ -20,10 +20,15 @@ describe('App shell', () => {
     );
   });
 
-  it.each([['/results', 'Results']])('%s is a placeholder page', (route, title) => {
-    renderApp(route);
-    expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
-    expect(screen.getByText(/Placeholder/)).toBeInTheDocument();
+  it('routes /results to the Results page (placeholder until a run exists)', async () => {
+    renderApp('/results');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Results' })).toBeInTheDocument();
+    expect(await screen.findByTestId('results-placeholder')).toBeInTheDocument();
+  });
+
+  it('routes /time to the Time Machine and /why to the newest decision', async () => {
+    renderApp('/time');
+    expect(await screen.findByRole('heading', { level: 1, name: 'Time Machine' })).toBeInTheDocument();
   });
 
   it('routes /flow to the Flow page', async () => {
