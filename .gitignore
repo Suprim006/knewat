@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+# Node
+node_modules/
+plexus-view/dist/
+# Env & secrets
+.env
+.env.*
+!.env.example
+# Local data / recordings scratch
+*.rdb
+*.aof
+.DS_Store
+# research ledgers
+docs/research/.ledger.json
