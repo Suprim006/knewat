@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './app/Layout';
 import { Flow } from './views/Flow';
 import { Inventory } from './views/Inventory';
+import { TimeMachine } from './views/TimeMachine';
 import { Placeholder } from './views/Placeholder';
 
 // Cytoscape + fcose are ~560 kB; keep them out of the entry chunk (docs/spikes/S3-view-lib.md).
@@ -21,15 +22,7 @@ export function AppRoutes() {
           }
         />
         <Route path="flow" element={<Flow />} />
-        <Route
-          path="time"
-          element={
-            <Placeholder
-              title="Time Machine"
-              blurb="Step slider: what each agent knew and wrote at step N."
-            />
-          }
-        />
+        <Route path="time" element={<TimeMachine />} />
         <Route
           path="why/:id"
           element={

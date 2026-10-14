@@ -21,7 +21,6 @@ describe('App shell', () => {
   });
 
   it.each([
-    ['/time', 'Time Machine'],
     ['/why/abc-123', 'Why'],
     ['/results', 'Results'],
   ])('%s is a placeholder page', (route, title) => {

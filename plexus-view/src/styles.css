@@ -745,3 +745,83 @@ pre.cypher {
 .placeholder-note {
   padding: 20px;
 }
+
+/* ---------- Time Machine ---------- */
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 12px 0 16px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  padding: 8px 0;
+  z-index: 2;
+}
+.slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+.slider input[type='range'] {
+  flex: 1;
+}
+.slider output {
+  font-variant-numeric: tabular-nums;
+  min-width: 70px;
+}
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 14px;
+  transition: opacity 0.15s;
+}
+.agent-grid.pending {
+  opacity: 0.6;
+}
+.agent-card {
+  border-top: 4px solid var(--accent);
+}
+.know-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.agent-card h4 {
+  margin: 6px 0 4px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.agent-card li {
+  margin: 3px 0;
+}
+.diff-new {
+  background: color-mix(in srgb, #22c55e 18%, transparent);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.diff-gone {
+  background: color-mix(in srgb, #ef4444 16%, transparent);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.diff-changed {
+  background: color-mix(in srgb, #f59e0b 22%, transparent);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+.diff-box {
+  margin-top: 10px;
+  border-top: 1px dashed var(--border);
+}
+.diff-box del {
+  color: #dc2626;
+}
+.diff-box ins {
+  color: #16a34a;
+  text-decoration: none;
+  font-weight: 600;
+}

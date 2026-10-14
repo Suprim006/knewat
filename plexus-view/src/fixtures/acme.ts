@@ -433,7 +433,7 @@ const SCRIPT: StepSpec[] = [
     agent: 'builder',
     ops: [
       startSession('builder1'),
-      recall('storage choice and API spec', 'pg', 'paths', 'page_style', 'lang'),
+      recall('storage choice and API spec', 'pg', 'paths', 'page_style', 'lang', 'v1'),
       { tool: 'best_procedure', read: [] },
       claim('6', 1),
     ],
@@ -555,6 +555,7 @@ const SCRIPT: StepSpec[] = [
     n: 21,
     agent: 'builder',
     ops: [
+      recall('which API version is current?', 'v2'),
       remember(
         'b2',
         'builder2',
@@ -602,7 +603,13 @@ const SCRIPT: StepSpec[] = [
     agent: 'builder',
     ops: [
       claim('8', 1),
-      recall('how should the API authenticate requests?', 'jwt', 'ttl', 'auth_res'),
+      recall(
+        'how should the API authenticate requests, and under which version?',
+        'jwt',
+        'ttl',
+        'auth_res',
+        'v2',
+      ),
       af('mw', 'auth', 'middleware', 'verify RS256 signature and reject expired tokens', {
         from: ['jwt', 'ttl'],
       }),
