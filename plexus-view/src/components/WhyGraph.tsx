@@ -49,8 +49,9 @@ export function WhyGraph({ layout, selected, highlight, onSelect }: Props) {
             viewBox="0 0 10 10"
             refX="9"
             refY="5"
-            markerWidth="7"
-            markerHeight="7"
+            markerUnits="userSpaceOnUse"
+            markerWidth="9"
+            markerHeight="9"
             orient="auto"
           >
             <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
