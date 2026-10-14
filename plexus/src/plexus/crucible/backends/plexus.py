@@ -117,14 +117,15 @@ class PlexusBackend:
 
         try:
             if self.mode == "mcp":
-                data = self.rt._run(self.tenant, tool, agent_id, None, wrapped)
+                data = self.rt._run(self.tenant, tool, agent_id, None, wrapped, self._now())
             else:
                 m = MeteredClient(self.client)
                 wrapped_out = wrapped(self.ts, m)
                 data = dict(wrapped_out.data)
                 if self._steps_enabled and tool in TRACKED:
-                    step_id = self.rt._open_step(self.ts, agent_id, None, self._now())
-                    data.update(self.rt._attach(self.ts, step_id, wrapped_out))
+                    degraded: list[str] = []
+                    step_id = self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
+                    data.update(self.rt._attach(self.ts, step_id, wrapped_out, degraded))
         except ToolError as exc:  # e.g. an invalid scope spec: a caller mistake, like a ValueError
             raise ValueError(str(exc)) from None
         except relay_errors.ClaimConflict as exc:
