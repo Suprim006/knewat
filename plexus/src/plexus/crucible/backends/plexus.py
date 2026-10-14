@@ -400,6 +400,15 @@ class PlexusBackend:
     def knew_at(self, agent_id: str, step_n: int) -> dict[str, Any]:
         return self.ts.lineage(MeteredClient(self.client)).knew_at(agent_id, step_n)
 
+    def who_knew(self, fact_id: str) -> dict[str, Any]:
+        """Agents whose Steps READ the fact (Plexus-only lineage read; the ablation probes use it)."""
+        from plexus.lineage.service import UnknownNode
+
+        try:
+            return self.ts.lineage(MeteredClient(self.client)).who_knew(fact_id)
+        except UnknownNode as exc:
+            raise UnknownReference(str(exc)) from None
+
     # -- ablation (D-001) ---------------------------------------------------------------------------------------------
     def ablate(self) -> dict[str, int]:
         """Delete every DEPENDS_ON, BASED_ON, DERIVED_FROM and READ relationship. Returns edges deleted per type."""

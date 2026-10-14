@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from typing import Any
 
 L1_ARMS = ("B0", "B1", "B2", "P")
@@ -55,8 +55,8 @@ def quick_l1() -> L1Config:
         c2_tasks=6,
         c2_victims=2,
         c2_survivors=3,
-        c2_lease_ms=1000,
-        c2_heartbeat_ms=300,
+        c2_lease_ms=800,
+        c2_heartbeat_ms=250,
         c3_same_value_agents=8,
         c3_conflicting_agents=4,
         c4_layers=(1, 3, 9, 27),
@@ -74,9 +74,10 @@ def quick_l1() -> L1Config:
 
 @dataclass
 class L4Config:
-    arms: tuple[str, ...] = L4_ARMS
+    claim_arms: tuple[str, ...] = ("B0", "B1", "P", "P-mcp")  # B2 claims are B1's SQLite claims
     workers: tuple[int, ...] = (1, 10, 50, 100, 200)
     ops_per_worker: int = 12  # claim -> heartbeat -> complete cycles per worker (claim phase)
+    min_cycles: int = 150  # at least this many cycles per point (so p99 is not one sample at 1 worker)
     max_cycles: int = 1500  # cap on total claim cycles per point (tasks created per point)
     recall_facts: int = 300
     recall_per_worker: int = 10
@@ -89,6 +90,7 @@ class L4Config:
     seed: int = 4242
     lease_ms: int = 600_000
     point_timeout_s: float = 240.0
+    arms: tuple[str, ...] = L4_ARMS  # all arms measured somewhere in L4
 
     def to_json(self) -> dict[str, Any]:
         return asdict(self)
@@ -96,8 +98,9 @@ class L4Config:
 
 def quick_l4() -> L4Config:
     return L4Config(
-        workers=(1, 10, 25),
+        workers=(1, 10),
         ops_per_worker=6,
+        min_cycles=60,
         max_cycles=300,
         recall_facts=60,
         recall_per_worker=4,
@@ -107,10 +110,3 @@ def quick_l4() -> L4Config:
         tenant_ops_per_worker=6,
         point_timeout_s=90.0,
     )
-
-
-@dataclass
-class Meta:
-    """Free-form facts about the run environment recorded next to the config."""
-
-    values: dict[str, Any] = field(default_factory=dict)
