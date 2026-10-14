@@ -114,9 +114,10 @@ def _is_tolerated(exc: Exception, tolerate: Sequence[str]) -> bool:
 class GraphClient:
     """Sync client. Connection: args, else ``FALKORDB_HOST/PORT/PASSWORD`` env, else localhost:6379.
 
-    Backed by a ``BlockingConnectionPool`` of ``max_connections`` (env ``PLEXUS_DB_POOL``, default 256): a
-    caller that finds every connection busy waits up to ``pool_timeout`` seconds instead of failing. While Redis
-    is still loading its dataset (``-LOADING``) connect and queries are retried for up to ``loading_wait_s``.
+    Backed by a ``BlockingConnectionPool`` of ``max_connections`` (env ``PLEXUS_DB_POOL``, default 256):
+    a caller that finds every connection busy waits up to ``pool_timeout`` seconds instead of failing.
+    While Redis is still loading its dataset (``-LOADING``) connect and queries are retried for up to
+    ``loading_wait_s``.
     """
 
     def __init__(
