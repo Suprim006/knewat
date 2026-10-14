@@ -1,7 +1,6 @@
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { edgeId } from '../api/types';
 import { ABLATED_EDGE_TYPES } from '../lib/ablation';
 import { DEFAULT_HIDDEN_EDGE_TYPES, DEFAULT_HIDDEN_LABELS } from '../lib/labels';
 import { acme, renderApp } from '../test/render';
@@ -26,12 +25,8 @@ describe('Explorer: ablation toggle', () => {
 
     // what the toggle should remove: edges of those types that are currently visible
     const label = new Map(acme.nodes.map((n) => [n.id, n.label]));
-    const seen = new Set<string>();
     const removed = acme.edges.filter((e) => {
-      const key = edgeId(e);
-      if (!ABLATED_EDGE_TYPES.includes(e.type) || DEFAULT_HIDDEN_EDGE_TYPES.includes(e.type) || seen.has(key))
-        return false;
-      seen.add(key);
+      if (!ABLATED_EDGE_TYPES.includes(e.type) || DEFAULT_HIDDEN_EDGE_TYPES.includes(e.type)) return false;
       return ![e.source, e.target].some((id) => DEFAULT_HIDDEN_LABELS.includes(label.get(id)!));
     }).length;
     expect(removed).toBeGreaterThan(10);

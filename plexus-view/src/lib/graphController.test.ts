@@ -92,6 +92,47 @@ describe('graph controller (headless Cytoscape)', () => {
     expect(ctl.counts().totalEdges).toBe(1);
   });
 
+  describe('parallel edges (same source, target and type)', () => {
+    const [a, b] = data.nodes.filter((n) => n.label === 'Task') as [
+      (typeof data.nodes)[0],
+      (typeof data.nodes)[0],
+    ];
+    const claimed = { type: 'CLAIMED', source: a.id, target: b.id };
+
+    it('draws every one of them, keyed by (source, target, type, index)', () => {
+      ctl = createGraphController({ headless: true });
+      ctl.load([a, b], [claimed, claimed, claimed, { ...claimed, type: 'DEPENDS_ON' }]);
+      expect(ctl.counts().totalEdges).toBe(4);
+      expect(ctl.edgeTypeCounts()).toEqual({ CLAIMED: 3, DEPENDS_ON: 1 });
+      const ids = ctl.cy.edges().map((e) => e.id());
+      expect(new Set(ids).size).toBe(4);
+      expect(ids).toContain(`${a.id}|CLAIMED|${b.id}|2`);
+      // the default curve style spreads parallel edges apart instead of drawing them on top of each other
+      expect(ctl.cy.edges().first().style('curve-style')).toBe('bezier');
+    });
+
+    it('a re-read adds only the extra parallel edge and is otherwise idempotent', () => {
+      ctl = createGraphController({ headless: true });
+      ctl.load([a, b], [claimed, claimed]);
+      expect(ctl.addLive([a, b], [claimed, claimed])).toEqual([]);
+      expect(ctl.counts().totalEdges).toBe(2);
+      ctl.addLive([a, b], [claimed, claimed, claimed]);
+      expect(ctl.counts().totalEdges).toBe(3);
+      ctl.addLive([a, b], [claimed, claimed, claimed]);
+      expect(ctl.counts().totalEdges).toBe(3);
+    });
+
+    it('parked parallel edges are all added once their endpoint arrives, and not parked twice', () => {
+      ctl = createGraphController({ headless: true });
+      ctl.load([a], []);
+      ctl.addLive([], [claimed, claimed]);
+      ctl.addLive([], [claimed, claimed]); // re-read while still parked
+      expect(ctl.counts().totalEdges).toBe(0);
+      ctl.addLive([b], []);
+      expect(ctl.counts().totalEdges).toBe(2);
+    });
+  });
+
   it('updates properties of nodes already on the canvas without moving them', () => {
     ctl = createGraphController({ headless: true });
     const fact = data.nodes.find((n) => n.label === 'Fact')!;

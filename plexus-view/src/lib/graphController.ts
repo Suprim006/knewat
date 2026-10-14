@@ -1,7 +1,7 @@
 import cytoscape from 'cytoscape';
 import type { Core, ElementDefinition, NodeSingular, StylesheetJson } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
-import { edgeId } from '../api/types';
+import { keyEdges } from '../api/types';
 import type { GraphEdge, GraphNode, Props } from '../api/types';
 import { displayName, nodeColor } from './labels';
 import type { ColorMode } from './labels';
@@ -244,6 +244,11 @@ export interface ControllerOptions {
   theme?: Theme;
 }
 
+interface KeyedEdge {
+  id: string;
+  edge: GraphEdge;
+}
+
 const toNodeDef = (n: GraphNode, mode: ColorMode = 'label'): ElementDefinition => ({
   group: 'nodes',
   data: {
@@ -255,9 +260,9 @@ const toNodeDef = (n: GraphNode, mode: ColorMode = 'label'): ElementDefinition =
     props: n.props,
   },
 });
-const toEdgeDef = (e: GraphEdge): ElementDefinition => ({
+const toEdgeDef = ({ id, edge: e }: KeyedEdge): ElementDefinition => ({
   group: 'edges',
-  data: { id: edgeId(e), source: e.source, target: e.target, type: e.type },
+  data: { id, source: e.source, target: e.target, type: e.type },
 });
 
 /**
@@ -297,7 +302,8 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   let theme = opts.theme ?? LIGHT_THEME;
   let haystack = false;
   let filters: FilterState = { hiddenLabels: new Set(), hiddenEdgeTypes: new Set() };
-  let pending: GraphEdge[] = [];
+  /** Edges waiting for an endpoint, by key (a Map so "already parked?" is O(1)). */
+  const pending = new Map<string, KeyedEdge>();
   let colorMode: ColorMode = 'label';
   let timeRange: [number, number] | null = null;
   let focus: Set<string> | null = null;
@@ -340,15 +346,16 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   }
 
   function flushPending(): void {
-    if (pending.length === 0) return;
-    const ready: GraphEdge[] = [];
-    const rest: GraphEdge[] = [];
-    for (const e of pending) {
-      if (!cy.getElementById(edgeId(e)).empty()) continue;
-      if (cy.getElementById(e.source).nonempty() && cy.getElementById(e.target).nonempty()) ready.push(e);
-      else rest.push(e);
+    if (pending.size === 0) return;
+    const ready: KeyedEdge[] = [];
+    for (const [id, k] of pending) {
+      if (!cy.getElementById(id).empty()) {
+        pending.delete(id);
+      } else if (cy.getElementById(k.edge.source).nonempty() && cy.getElementById(k.edge.target).nonempty()) {
+        pending.delete(id);
+        ready.push(k);
+      }
     }
-    pending = rest;
     if (ready.length > 0) {
       const added = cy.add(ready.map(toEdgeDef));
       applyFilters(added);
@@ -368,14 +375,14 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     load(nodes, edges) {
       cy.elements().remove();
-      pending = [];
+      pending.clear();
       timeRange = null;
       focus = null;
       focusId = null;
       const known = new Set(nodes.map((n) => n.id));
       cy.batch(() => {
         cy.add(nodes.map((n) => toNodeDef(n, colorMode)));
-        cy.add(edges.filter((e) => known.has(e.source) && known.has(e.target)).map(toEdgeDef));
+        cy.add(keyEdges(edges.filter((e) => known.has(e.source) && known.has(e.target))).map(toEdgeDef));
       });
       updateEdgeMode();
       applyFilters();
@@ -403,7 +410,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     clear() {
       cy.elements().remove();
-      pending = [];
+      pending.clear();
     },
 
     addLive(nodes, edges) {
@@ -414,12 +421,12 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       cy.batch(() => {
         const added = cy.add(fresh.map((n) => toNodeDef(n, colorMode)));
         // Edges whose endpoints exist (or arrive in this batch) go in now; the rest wait.
-        const newEdges: GraphEdge[] = [];
-        for (const e of edges) {
-          if (!cy.getElementById(edgeId(e)).empty() || pending.some((p) => edgeId(p) === edgeId(e))) continue;
-          const ok = (id: string) => cy.getElementById(id).nonempty();
-          if (ok(e.source) && ok(e.target)) newEdges.push(e);
-          else pending.push(e);
+        const newEdges: KeyedEdge[] = [];
+        const ok = (id: string) => cy.getElementById(id).nonempty();
+        for (const k of keyEdges(edges)) {
+          if (!cy.getElementById(k.id).empty() || pending.has(k.id)) continue;
+          if (ok(k.edge.source) && ok(k.edge.target)) newEdges.push(k);
+          else pending.set(k.id, k);
         }
         const addedEdges = cy.add(newEdges.map(toEdgeDef));
 
@@ -465,7 +472,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       const doomed = cy.nodes().filter((n) => Number((n.data('props') as Props).created_at) >= ts);
       const n = doomed.length;
       cy.remove(doomed);
-      pending = [];
+      pending.clear();
       return n;
     },
 

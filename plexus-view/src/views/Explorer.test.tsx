@@ -1,7 +1,6 @@
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { edgeId } from '../api/types';
 import { acme, renderApp } from '../test/render';
 
 const total = acme.nodes.length;
@@ -28,7 +27,8 @@ describe('Explorer', () => {
     renderApp('/');
     const c = await loaded();
     expect(c.totalNodes).toBe(total);
-    expect(c.totalEdges).toBe(new Set(acme.edges.map(edgeId)).size);
+    // parallel same-type edges are drawn, not collapsed
+    expect(c.totalEdges).toBe(acme.edges.length);
     expect(c.nodes).toBe(total - hiddenCount);
     expect(c.edges).toBeLessThan(c.totalEdges);
     for (const l of hiddenByDefault)

@@ -79,8 +79,27 @@ export interface GraphEdge {
   type: string;
 }
 
-/** Stable client-side key of an edge (the API gives none; parallel edges of one type collapse). */
+/** Groups parallel edges: same source, type and target. NOT unique, see {@link keyEdges}. */
 export const edgeId = (e: GraphEdge): string => `${e.source}|${e.type}|${e.target}`;
+
+/** Client-side key of the `index`-th edge of a (source, type, target) group. */
+export const edgeKey = (e: GraphEdge, index: number): string => `${edgeId(e)}|${index}`;
+
+/**
+ * The API gives edges no id and may return several parallel edges of one type between the same two
+ * nodes (a task claimed twice, a fact re-asserted). Key each by (source, target, type, index within its
+ * group, in response order) so none collapses. A re-read yields the same keys for the same edges, plus
+ * new ones for any extra parallel edge, which is all `addLive` needs to stay idempotent.
+ */
+export function keyEdges(edges: readonly GraphEdge[]): { id: string; edge: GraphEdge }[] {
+  const seen = new Map<string, number>();
+  return edges.map((edge) => {
+    const group = edgeId(edge);
+    const index = seen.get(group) ?? 0;
+    seen.set(group, index + 1);
+    return { id: edgeKey(edge, index), edge };
+  });
+}
 
 /** `GET /api/{t}/graph` */
 export interface Subgraph {
