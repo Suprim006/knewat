@@ -85,7 +85,8 @@ def build_http_app(rt: Runtime, allowed_hosts: list[str] | None = None):
     )
     mcp = build_server(rt)
     return TenantPathMiddleware(
-        mcp.streamable_http_app(streamable_http_path="/mcp", transport_security=security)
+        mcp.streamable_http_app(streamable_http_path="/mcp", transport_security=security),
+        health=lambda: rt.client.ping(),
     )
 
 
