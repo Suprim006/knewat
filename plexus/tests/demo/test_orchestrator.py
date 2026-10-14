@@ -125,3 +125,30 @@ def test_stop_after_turns_is_a_pilot_not_an_error(client, demo_tenants, tmp_path
         asyncio.run(run_engine(w, driver))
     assert [r.name for r in driver.reports] == ["init", "t01-gather-requirements", "t02-choose-api-version"]
     assert [t["status"] for t in w.statuses().values()].count("done") == 2
+
+
+def test_transcripts_are_sanitised(tmp_path):
+    init = {
+        "type": "system",
+        "subtype": "init",
+        "cwd": str(tmp_path),
+        "slash_commands": ["private-plugin:thing"],
+        "plugins": ["x"],
+        "tools": ["mcp__plexus__recall"],
+        "mcp_servers": [{"name": "plexus", "status": "connected"}],
+        "model": "claude-x",
+    }
+    other = {"type": "user", "note": f"path {tmp_path} and {Path.home()}"}
+    text = json.dumps(init) + "\n" + json.dumps(other) + "\n"
+    out = orch.sanitize_transcript(text, tmp_path)
+    first, second = (json.loads(x) for x in out.splitlines())
+    assert set(first) == {"type", "subtype", "tools", "mcp_servers", "model"}
+    assert "<workdir>" in second["note"] and "<home>" in second["note"] and str(tmp_path) not in out
+
+
+def test_each_prompt_carries_the_shared_step_counter(client):
+    w = World(load_scenario(), FaultScript(), "t_hint", client)
+    w.step = 16
+    assert "step=17 on your first call" in orch.init_prompt(w)
+    sp = orch.special_prompt(w, Turn("special", "researcher", "ingest-v2"), orch.TeamState())
+    assert "step=17" in sp and "06_api_style_guide_v2" in sp and "do NOT call claim_next_task" in sp

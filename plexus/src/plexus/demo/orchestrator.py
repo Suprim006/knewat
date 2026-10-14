@@ -36,7 +36,7 @@ from plexus.demo.scenario import (
 )
 
 MCP_PREFIX = "mcp__plexus__"
-REAL_LEASE_MS = 90_000  # ordinary leases in real runs (a turn is slow)
+REAL_LEASE_MS = 60_000  # ordinary leases in real runs (a turn is slow)
 REAL_BUILDER_LEASE_MS = 45_000
 TURN_TIMEOUT_S = 900
 
@@ -176,12 +176,21 @@ class TeamState:
             self.artifacts[task_id] = data["artifact_ids"][0]
 
 
+def step_hint(w: World) -> str:
+    n = w.step + 1
+    return (
+        f"\nStep numbers: pass `step` on every Plexus call: step={n} on your first call in this assignment, "
+        f"step={n + 1} on the next, then {n + 2}, {n + 3}, ... (one number per call, including start_session; "
+        "never reuse or skip a number)."
+    )
+
+
 def init_prompt(w: World) -> str:
     tasks = json.dumps([t.spec() for t in w.scenario.tasks], indent=1)
     return (
         "ASSIGNMENT (project kickoff). Your agent_id is 'planner'. Call start_session, then call create_tasks ONCE with "
         "EXACTLY this task list (same ids, titles, priorities and dependencies, do not change anything):\n"
-        f"{tasks}\nThen stop."
+        f"{tasks}\nThen stop.{step_hint(w)}"
     )
 
 
@@ -199,7 +208,7 @@ def task_prompt(w: World, turn: Turn, state: TeamState, lease_ms: int) -> str:
         f"Task id: {task.id}\nTask title: {task.title}\n"
         f"Steps: start_session; claim_next_task with lease_ms={lease_ms} (it must return task '{task.id}'); "
         f"then:\n{task.brief}{took_over}"
-        f"{_documents(w, task.sources)}{state.render()}\n\nStop after complete_task (and the handoff, if asked)."
+        f"{_documents(w, task.sources)}{state.render()}\n\nStop after complete_task (and the handoff, if asked).{step_hint(w)}"
     )
 
 
@@ -208,7 +217,7 @@ def special_prompt(w: World, turn: Turn, state: TeamState) -> str:
     return (
         f"ASSIGNMENT (event: {turn.name}). Your agent_id is '{turn.agent}' and your role is {turn.agent}. "
         f"This is not a claimed task: do NOT call claim_next_task. Steps: start_session, then:\n{sp.brief}"
-        f"{_documents(w, sp.sources)}{state.render()}\n\nThen stop."
+        f"{_documents(w, sp.sources)}{state.render()}\n\nThen stop.{step_hint(w)}"
     )
 
 
@@ -226,6 +235,40 @@ class TurnReport:
     problems: list[str] = field(default_factory=list)
 
 
+_INIT_KEEP = (
+    "type",
+    "subtype",
+    "session_id",
+    "tools",
+    "mcp_servers",
+    "model",
+    "permissionMode",
+    "apiKeySource",
+    "claude_code_version",
+)
+
+
+def sanitize_transcript(text: str, workdir: Path) -> str:
+    """Make a stream-json transcript publishable: keep only the useful keys of the ``system/init`` event (it lists
+    the machine's plugins, slash commands and paths) and replace the local work directory and home directory."""
+    home = str(Path.home())
+    subs = []
+    for path, label in ((str(workdir), "<workdir>"), (home, "<home>")):
+        subs += [(path, label), (path.replace("\\", "/"), label), (json.dumps(path)[1:-1], label)]
+    out = []
+    for line in text.splitlines():
+        try:
+            ev = json.loads(line)
+        except json.JSONDecodeError:
+            ev = None
+        if isinstance(ev, dict) and ev.get("type") == "system" and ev.get("subtype") == "init":
+            line = json.dumps({k: ev[k] for k in _INIT_KEEP if k in ev}, separators=(",", ":"))
+        for old, new in subs:
+            line = line.replace(old, new)
+        out.append(line)
+    return "\n".join(out) + ("\n" if out else "")
+
+
 class ClaudeDriver:
     """Plays turns as real ``claude -p`` processes."""
 
@@ -235,6 +278,7 @@ class ClaudeDriver:
         self.reports: list[TurnReport] = []
         self.on_event = on_event
         self.env = clean_env()
+        self.incomplete: dict[str, int] = {}
 
     # -- scheduler entry ------------------------------------------------------------------------------------
     async def run_turn(self, w: World, turn: Turn) -> None:
@@ -368,16 +412,22 @@ class ClaudeDriver:
         elif turn.kind == "task":
             st = w.relay.task_status(turn.name)
             if st is None or st["status"] != "done":
-                raise ClaudeRunError(
-                    f"{turn.agent} ended its turn without completing {turn.name} ({st and st['status']})"
-                )
+                # An agent that ends without completing leaves its claim to expire; the scheduler then hands the task
+                # to the reclaimer. Tolerate that once per task, then stop (it would only burn the budget).
+                self.incomplete[turn.name] = self.incomplete.get(turn.name, 0) + 1
+                rep.problems.append(f"turn ended without completing {turn.name} ({st and st['status']})")
+                w.released(turn.agent)
+                if self.incomplete[turn.name] > 1:
+                    raise ClaudeRunError(
+                        f"{turn.name} was not completed after {self.incomplete[turn.name]} attempts"
+                    )
         elif turn.name == "adopt-v2" and w.relay.task_status("t12-update-endpoints-for-v2") is None:
             raise ClaudeRunError("the planner did not create t12-update-endpoints-for-v2")
 
     def _flush_transcript(self, rep: TurnReport) -> None:
         (self.cfg.workdir / "transcripts").mkdir(exist_ok=True)
         (self.cfg.workdir / "transcripts" / f"{rep.index:02d}-{rep.agent}-{rep.name}.jsonl").write_text(
-            rep.transcript, encoding="utf-8"
+            sanitize_transcript(rep.transcript, self.cfg.workdir), encoding="utf-8"
         )
 
     def _emit(self, msg: str) -> None:
@@ -452,6 +502,19 @@ def _result_json(content: Any) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------------------------------------ CLI entry
+def step_numbering(client, tenant: str) -> dict[str, int]:
+    """How well the agents followed the shared step counter: ToolCalls whose ``step`` is their landing position."""
+    from plexus.graph.tenancy import graph_name
+
+    calls = client.ro(graph_name(tenant), "view/flow", {"after": 0, "limit": 5000})
+    ok = sum(1 for i, c in enumerate(calls, start=1) if c["step"] == i)
+    return {
+        "tool_calls": len(calls),
+        "step_matches_global_counter": ok,
+        "no_step_given": sum(1 for c in calls if c["step"] < 0),
+    }
+
+
 def cli_run_claude(a: argparse.Namespace) -> int:
     from plexus.cli import _client, _prepare_tenant
     from plexus.demo.recorder import record_run
@@ -490,6 +553,7 @@ def cli_run_claude(a: argparse.Namespace) -> int:
         status=status,
         error=error,
         mcp_config=json.loads(cfg.mcp_config.read_text())["mcpServers"]["plexus"]["args"],
+        step_numbering=step_numbering(client, tenant),
     )
     print(
         f"\nstatus: {status} {error}\nclaude turns: {claude_meta['claude_turns']}, cost ${claude_meta['total_cost_usd']}, "

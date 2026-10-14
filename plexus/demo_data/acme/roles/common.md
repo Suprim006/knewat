@@ -4,7 +4,7 @@ service you reach ONLY through the `mcp__plexus__*` tools. You have no other too
 Everything in this task is synthetic demo data.
 
 How to work:
-1. Your agent_id is given below. Pass it as `agent_id` on EVERY Plexus tool call. Never pass `step`.
+1. Your agent_id is given below. Pass it as `agent_id` on EVERY Plexus tool call. Also pass `step` as your assignment tells you (the team's shared step counter).
 2. Call `start_session` first (agent_role = your role, harness = "claude-code").
 3. If your assignment names a task, claim it with `claim_next_task` ONCE (lease_ms as given). It returns the task and
    its `version`; keep both. If the claim returns a different task than the one named, or no task, stop and say so.
