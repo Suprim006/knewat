@@ -1,0 +1,277 @@
+A SQLite database holding one team run. Each table follows, with its CREATE statement and its rows as CSV.
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- table tasks
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+t01-gather-requirements,Gather requirements,50,0,done,researcher,1760000121000,2,1760000000004,1760000003002
+t02-choose-api-version,Choose API version,45,1,done,planner,1760000125000,2,1760000000004,1760000006001
+t03-design-endpoints,Design endpoints,40,2,done,researcher,1760000132500,3,1760000000004,1760000014501
+t04-survey-infra-security,Survey infra and security constraints,35,3,done,researcher,1760000146500,2,1760000000004,1760000028502
+t05-choose-auth,Choose authentication,30,4,done,planner,1760000150500,2,1760000000004,1760000033501
+t06-write-db-schema,Write database schema,25,5,done,builder,1760000161500,2,1760000000004,1760000044501
+t07-implement-crud-spec,Implement CRUD spec,20,6,done,builder,1760000166500,2,1760000000004,1760000048501
+t08-write-test-plan,Write test plan,15,7,done,researcher,1760000171500,2,1760000000004,1760000052501
+t09-review-spec,Review spec,12,8,done,planner,1760000174500,2,1760000000004,1760000056501
+t10-write-docs,Write documentation,10,9,done,researcher,1760000178500,2,1760000000004,1760000059501
+t11-package-release,Package release,5,10,done,builder,1760000181500,2,1760000000004,1760000061501
+t12-update-endpoints-for-v2,Update endpoint design for API v2,60,11,done,builder,1760000141500,2,1760000020501,1760000023501
+
+-- table deps
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+task_id,dep_id
+t02-choose-api-version,t01-gather-requirements
+t03-design-endpoints,t02-choose-api-version
+t04-survey-infra-security,t01-gather-requirements
+t05-choose-auth,t04-survey-infra-security
+t06-write-db-schema,t02-choose-api-version
+t06-write-db-schema,t04-survey-infra-security
+t07-implement-crud-spec,t03-design-endpoints
+t07-implement-crud-spec,t05-choose-auth
+t07-implement-crud-spec,t06-write-db-schema
+t08-write-test-plan,t03-design-endpoints
+t09-review-spec,t07-implement-crud-spec
+t09-review-spec,t08-write-test-plan
+t10-write-docs,t09-review-spec
+t11-package-release,t10-write-docs
+t12-update-endpoints-for-v2,t03-design-endpoints
+
+-- table artifacts
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+0b7ef783-0955-57b2-a2ef-02e0d7570406,t01-gather-requirements,file,artifacts/requirements.md,,"Requirements: notes CRUD, tags, API version v1",researcher,1760000003002
+a55918ce-ca61-5ed2-ab86-bb5337c03aca,t03-design-endpoints,file,artifacts/openapi-draft.yaml,,Endpoint draft for /v1/notes (CRUD),researcher,1760000014501
+37dce107-05b5-5c9f-8a28-bd687a3670f8,t12-update-endpoints-for-v2,file,artifacts/openapi-v2.yaml,,Endpoint design for /v2/notes,builder,1760000023501
+51686939-9702-5a33-9dea-2ba1911e621a,t04-survey-infra-security,file,artifacts/constraints.md,,"Infra and security constraints: PostgreSQL 16, JWT auth",researcher,1760000028502
+43cec782-0384-5541-a493-2583d47e2a3b,t06-write-db-schema,file,artifacts/schema.sql,,"PostgreSQL 16 schema: notes, tags, note_tags",builder,1760000044501
+27ef1b24-205d-5803-8a6d-b59547042ff8,t07-implement-crud-spec,file,artifacts/crud-spec.md,,CRUD spec for the current API version with JWT auth,builder,1760000048501
+e48184dd-9df2-568a-ac17-347d69da1249,t08-write-test-plan,file,artifacts/test-plan.md,,Test plan for the CRUD endpoints,researcher,1760000052501
+da545bd4-6ee6-567d-8af0-24c320a2b505,t10-write-docs,file,artifacts/docs.md,,API documentation,researcher,1760000059501
+d21c02f5-7dca-5fc4-9583-b230506ad773,t11-package-release,file,artifacts/release.tar,,Release bundle of the Acme Notes API,builder,1760000061501
+
+-- table facts
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf,Acme Notes API,purpose,"REST service to create, tag and search notes",global,active,1760000002000,9999999999999
+2b927606-c02e-5d86-8c84-18c267e87215,Acme Notes API,api_version,v1,global,superseded,1760000003000,1760000017500
+e3d70963-c74e-5c24-9814-4c48b55c84bc,Acme Notes API,api_version,v2,global,active,1760000017500,9999999999999
+64481d26-77ec-5176-b2be-13b1074c32ee,Acme Notes API,database,PostgreSQL 16,global,active,1760000027500,9999999999999
+2c6740d8-7444-5f79-8d75-ce7112466e7f,Acme Notes API,auth_method,JWT bearer tokens (RS256),global,active,1760000028500,9999999999999
+f5aae893-1530-56f3-8882-3bed05324144,Acme Notes API,auth_method,API key in X-Api-Key header,global,active,1760000032500,9999999999999
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,Acme Notes API,database,MongoDB 4,global,forgotten,1760000035500,1760000037501
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,Bolt Billing API,billing_cycle,monthly,project:billing,active,1760000039500,9999999999999
+eaf77560-4cef-5eca-b904-e65479ecb272,Acme Notes API,release_channel,closed beta,project:acme,active,1760000040500,9999999999999
+
+-- table fact_agents
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+fact_id,agent_id,at
+21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf,researcher,1760000002000
+2b927606-c02e-5d86-8c84-18c267e87215,researcher,1760000003000
+e3d70963-c74e-5c24-9814-4c48b55c84bc,researcher,1760000017500
+64481d26-77ec-5176-b2be-13b1074c32ee,researcher,1760000027500
+2c6740d8-7444-5f79-8d75-ce7112466e7f,researcher,1760000028500
+f5aae893-1530-56f3-8882-3bed05324144,planner,1760000032500
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,planner,1760000035500
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,researcher,1760000039500
+eaf77560-4cef-5eca-b904-e65479ecb272,planner,1760000040500
+
+-- table fact_links
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+src,dst,kind
+21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf,1f13bc4f-1fca-59c1-9909-6abccb791bdc,derived_from
+2b927606-c02e-5d86-8c84-18c267e87215,053aefcf-235a-504d-9717-957fd1a2215a,derived_from
+e3d70963-c74e-5c24-9814-4c48b55c84bc,08921194-59e1-5b7b-9d29-b3db6ba9e3ab,derived_from
+e3d70963-c74e-5c24-9814-4c48b55c84bc,2b927606-c02e-5d86-8c84-18c267e87215,supersedes
+64481d26-77ec-5176-b2be-13b1074c32ee,f2cdeb01-8b98-5c8b-91c8-fa5084ebee10,derived_from
+2c6740d8-7444-5f79-8d75-ce7112466e7f,9f419ca1-904b-51dc-aa42-be01587c6e46,derived_from
+f5aae893-1530-56f3-8882-3bed05324144,0279cad1-5117-57e4-94a7-2b487b14db9a,derived_from
+f5aae893-1530-56f3-8882-3bed05324144,2c6740d8-7444-5f79-8d75-ce7112466e7f,contradicts
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,1531c911-182a-5a91-ae0a-1b92e90e2ce5,derived_from
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,64481d26-77ec-5176-b2be-13b1074c32ee,contradicts
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,c9391172-98a0-5227-a802-2562f4b47eaa,derived_from
+
+-- table sources
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+id,uri,kind,trust,created_at
+1f13bc4f-1fca-59c1-9909-6abccb791bdc,acme-docs/01_product_brief.md,doc,1.0,1760000001001
+053aefcf-235a-504d-9717-957fd1a2215a,acme-docs/02_api_style_guide_v1.md,doc,1.0,1760000001002
+08921194-59e1-5b7b-9d29-b3db6ba9e3ab,acme-docs/06_api_style_guide_v2.md,doc,1.0,1760000016501
+f2cdeb01-8b98-5c8b-91c8-fa5084ebee10,acme-docs/03_infra_note.md,doc,1.0,1760000026501
+9f419ca1-904b-51dc-aa42-be01587c6e46,acme-docs/04_security_note.md,doc,1.0,1760000026502
+0279cad1-5117-57e4-94a7-2b487b14db9a,acme-docs/05_customer_request.md,chat,0.8,1760000031501
+1531c911-182a-5a91-ae0a-1b92e90e2ce5,acme-docs/07_forum_post_unverified.md,web,0.2,1760000034501
+c9391172-98a0-5227-a802-2562f4b47eaa,billing-docs/01_overview.md,doc,1.0,1760000038501
+
+-- table decisions
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+id,agent_id,task_id,text,at,flagged
+1b75ee8e-6287-5f05-a83c-3f7f7197591f,planner,t02-choose-api-version,Build the Acme Notes API against v1 of the style guide (routes under /v1/).,1760000005001,0
+147514e4-e1ad-5601-9ca5-74141398c7c0,planner,t02-choose-api-version,Adopt style guide v2: the API version is now v2 (routes under /v2/).,1760000019501,0
+ca23b005-8686-53a8-9ab7-55f145266a71,planner,t05-choose-auth,Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.,1760000032502,0
+1ecc2885-26f6-5914-a67b-ef6c30f16c27,planner,t06-write-db-schema,Evaluate MongoDB 4 as the database (forum post).,1760000035502,1
+8bcccfbc-4974-5fcc-b706-19b189499cfc,builder,t06-write-db-schema,"Use PostgreSQL 16 for the notes, tags and note_tags tables.",1760000043501,0
+a95eed0c-9058-5840-b7ef-00b13a18ee88,planner,t09-review-spec,"Spec approved: endpoints, schema and JWT auth are consistent.",1760000055501,0
+
+-- table decision_facts
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+decision_id,fact_id
+1b75ee8e-6287-5f05-a83c-3f7f7197591f,2b927606-c02e-5d86-8c84-18c267e87215
+147514e4-e1ad-5601-9ca5-74141398c7c0,e3d70963-c74e-5c24-9814-4c48b55c84bc
+ca23b005-8686-53a8-9ab7-55f145266a71,2c6740d8-7444-5f79-8d75-ce7112466e7f
+ca23b005-8686-53a8-9ab7-55f145266a71,f5aae893-1530-56f3-8882-3bed05324144
+1ecc2885-26f6-5914-a67b-ef6c30f16c27,d04e6e8e-1f06-55a2-a92f-7e931314a9db
+8bcccfbc-4974-5fcc-b706-19b189499cfc,64481d26-77ec-5176-b2be-13b1074c32ee
+a95eed0c-9058-5840-b7ef-00b13a18ee88,e3d70963-c74e-5c24-9814-4c48b55c84bc
+a95eed0c-9058-5840-b7ef-00b13a18ee88,2c6740d8-7444-5f79-8d75-ce7112466e7f
+
+-- table handoffs
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+id,from_agent,to_agent,task_id,note,at
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,researcher,builder,t03-design-endpoints,Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000015501
+6bc546bd-8bc8-5700-9233-6c6718ab2bc3,builder,planner,t12-update-endpoints-for-v2,Updated for API v2.,1760000024501
+208456fd-84ac-52a7-b766-cef373b38b31,builder,planner,t07-implement-crud-spec,CRUD spec ready for review.,1760000049501
+4fd27171-41a3-557b-9a37-6599cb9a7855,builder,planner,t11-package-release,Release bundle is ready.,1760000062501
+
+-- table handoff_items
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+handoff_id,kind,item_id
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,artifact,a55918ce-ca61-5ed2-ab86-bb5337c03aca
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,fact,2b927606-c02e-5d86-8c84-18c267e87215
+6bc546bd-8bc8-5700-9233-6c6718ab2bc3,artifact,37dce107-05b5-5c9f-8a28-bd687a3670f8
+6bc546bd-8bc8-5700-9233-6c6718ab2bc3,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+208456fd-84ac-52a7-b766-cef373b38b31,artifact,27ef1b24-205d-5803-8a6d-b59547042ff8
+208456fd-84ac-52a7-b766-cef373b38b31,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+208456fd-84ac-52a7-b766-cef373b38b31,fact,2c6740d8-7444-5f79-8d75-ce7112466e7f
+4fd27171-41a3-557b-9a37-6599cb9a7855,artifact,d21c02f5-7dca-5fc4-9583-b230506ad773
+4fd27171-41a3-557b-9a37-6599cb9a7855,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+
+-- table episodes
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+id,agent_id,step,text,at
+2b2927c9-445d-5b91-9ed7-3cd8f8ca5f60,researcher,,Took over t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000013501
+a5d55088-1b8a-5d27-8952-fff66b1009a9,researcher,,"Style guide v2 was published: API version v1 is withdrawn, routes move to /v2/.",1760000017502
+f3e0a2f7-3fec-52e3-9307-afe686a134be,builder,,Endpoint design moves from /v1/ to /v2/: page_token/page_size lists and problem+json errors.,1760000022501
+0d903881-4fe3-58c2-a177-5393fb771f2e,builder,,"Schema: notes, tags and note_tags tables in PostgreSQL 16.",1760000042501
+
+-- table agents
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+id,role,created_at
+planner,planner,1760000000001
+researcher,researcher,1760000000002
+builder,builder,1760000000003
+
+-- table steps
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+id,agent_id,n,at
+1,researcher,1,1760000002000
+2,researcher,2,1760000003000
+3,planner,1,1760000005001
+4,builder,1,1760000008002
+5,researcher,3,1760000012502
+6,researcher,4,1760000013501
+7,researcher,5,1760000015501
+8,researcher,6,1760000017500
+9,researcher,7,1760000017502
+10,planner,2,1760000018502
+11,planner,3,1760000019501
+12,builder,2,1760000021502
+13,builder,3,1760000022501
+14,builder,4,1760000024501
+15,researcher,8,1760000027500
+16,researcher,9,1760000028500
+17,planner,4,1760000030502
+18,planner,5,1760000032500
+19,planner,6,1760000032502
+20,planner,7,1760000035500
+21,planner,8,1760000035502
+22,researcher,10,1760000036502
+23,researcher,11,1760000039500
+24,planner,9,1760000040500
+25,builder,5,1760000041502
+26,builder,6,1760000042501
+27,builder,7,1760000043501
+28,builder,8,1760000046502
+29,builder,9,1760000047502
+30,builder,10,1760000049501
+31,researcher,12,1760000051502
+32,planner,10,1760000054502
+33,planner,11,1760000055501
+34,researcher,13,1760000058502
+35,builder,11,1760000062501
+
+-- table step_reads
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+step_id,fact_id
+3,2b927606-c02e-5d86-8c84-18c267e87215
+4,2b927606-c02e-5d86-8c84-18c267e87215
+4,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+5,2b927606-c02e-5d86-8c84-18c267e87215
+5,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+7,2b927606-c02e-5d86-8c84-18c267e87215
+8,2b927606-c02e-5d86-8c84-18c267e87215
+10,e3d70963-c74e-5c24-9814-4c48b55c84bc
+10,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+11,e3d70963-c74e-5c24-9814-4c48b55c84bc
+12,e3d70963-c74e-5c24-9814-4c48b55c84bc
+12,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+14,e3d70963-c74e-5c24-9814-4c48b55c84bc
+18,2c6740d8-7444-5f79-8d75-ce7112466e7f
+19,2c6740d8-7444-5f79-8d75-ce7112466e7f
+19,f5aae893-1530-56f3-8882-3bed05324144
+20,64481d26-77ec-5176-b2be-13b1074c32ee
+21,d04e6e8e-1f06-55a2-a92f-7e931314a9db
+22,64481d26-77ec-5176-b2be-13b1074c32ee
+22,d04e6e8e-1f06-55a2-a92f-7e931314a9db
+25,64481d26-77ec-5176-b2be-13b1074c32ee
+27,64481d26-77ec-5176-b2be-13b1074c32ee
+28,e3d70963-c74e-5c24-9814-4c48b55c84bc
+28,f5aae893-1530-56f3-8882-3bed05324144
+28,64481d26-77ec-5176-b2be-13b1074c32ee
+28,2c6740d8-7444-5f79-8d75-ce7112466e7f
+28,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+30,e3d70963-c74e-5c24-9814-4c48b55c84bc
+30,2c6740d8-7444-5f79-8d75-ce7112466e7f
+31,e3d70963-c74e-5c24-9814-4c48b55c84bc
+31,f5aae893-1530-56f3-8882-3bed05324144
+31,64481d26-77ec-5176-b2be-13b1074c32ee
+31,2c6740d8-7444-5f79-8d75-ce7112466e7f
+31,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+32,e3d70963-c74e-5c24-9814-4c48b55c84bc
+32,f5aae893-1530-56f3-8882-3bed05324144
+32,64481d26-77ec-5176-b2be-13b1074c32ee
+32,2c6740d8-7444-5f79-8d75-ce7112466e7f
+32,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+33,e3d70963-c74e-5c24-9814-4c48b55c84bc
+33,2c6740d8-7444-5f79-8d75-ce7112466e7f
+34,e3d70963-c74e-5c24-9814-4c48b55c84bc
+34,f5aae893-1530-56f3-8882-3bed05324144
+34,64481d26-77ec-5176-b2be-13b1074c32ee
+34,2c6740d8-7444-5f79-8d75-ce7112466e7f
+34,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf
+35,e3d70963-c74e-5c24-9814-4c48b55c84bc
+
+-- table step_wrote
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+step_id,node_id,label,summary
+1,21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf,Fact,"REST service to create, tag and search notes"
+2,2b927606-c02e-5d86-8c84-18c267e87215,Fact,v1
+3,1b75ee8e-6287-5f05-a83c-3f7f7197591f,Decision,Build the Acme Notes API against v1 of the style guide (routes under /v1/).
+7,8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,Handoff,Endpoint draft is ready. Finished on the builder's behalf after it went down.
+8,e3d70963-c74e-5c24-9814-4c48b55c84bc,Fact,v2
+11,147514e4-e1ad-5601-9ca5-74141398c7c0,Decision,Adopt style guide v2: the API version is now v2 (routes under /v2/).
+14,6bc546bd-8bc8-5700-9233-6c6718ab2bc3,Handoff,Updated for API v2.
+15,64481d26-77ec-5176-b2be-13b1074c32ee,Fact,PostgreSQL 16
+16,2c6740d8-7444-5f79-8d75-ce7112466e7f,Fact,JWT bearer tokens (RS256)
+18,f5aae893-1530-56f3-8882-3bed05324144,Fact,API key in X-Api-Key header
+19,ca23b005-8686-53a8-9ab7-55f145266a71,Decision,Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.
+20,d04e6e8e-1f06-55a2-a92f-7e931314a9db,Fact,MongoDB 4
+21,1ecc2885-26f6-5914-a67b-ef6c30f16c27,Decision,Evaluate MongoDB 4 as the database (forum post).
+23,1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,Fact,monthly
+24,eaf77560-4cef-5eca-b904-e65479ecb272,Fact,closed beta
+27,8bcccfbc-4974-5fcc-b706-19b189499cfc,Decision,"Use PostgreSQL 16 for the notes, tags and note_tags tables."
+30,208456fd-84ac-52a7-b766-cef373b38b31,Handoff,CRUD spec ready for review.
+33,a95eed0c-9058-5840-b7ef-00b13a18ee88,Decision,"Spec approved: endpoints, schema and JWT auth are consistent."
+35,4fd27171-41a3-557b-9a37-6599cb9a7855,Handoff,Release bundle is ready.
+

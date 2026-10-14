@@ -1,0 +1,23 @@
+{
+ "qid": "Q37",
+ "arm": "B2",
+ "reply": "{\"answer\": \"project:billing\"}",
+ "answer": "project:billing",
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 14,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3524
+ },
+ "cost_usd": 0.014294399999999999,
+ "latency_ms": 5640.4,
+ "duration_api_ms": 3037.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "a861cf29-0ac4-4697-a4e5-779cd9d647e4",
+ "key": "774570deabc2036a3c458245af8c847c697d4c6ac45c9faa105e864dcf45c4b3"
+}

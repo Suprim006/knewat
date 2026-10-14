@@ -1,0 +1,30 @@
+{
+ "qid": "Q35",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"purpose=REST service to create, tag and search notes\", \"api_version=v2\", \"release_channel=closed beta\", \"auth_method=API key in X-Api-Key header\", \"auth_method=JWT bearer tokens (RS256)\", \"database=PostgreSQL 16\"]}",
+ "answer": [
+  "purpose=REST service to create, tag and search notes",
+  "api_version=v2",
+  "release_channel=closed beta",
+  "auth_method=API key in X-Api-Key header",
+  "auth_method=JWT bearer tokens (RS256)",
+  "database=PostgreSQL 16"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 259,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3559
+ },
+ "cost_usd": 0.0168844,
+ "latency_ms": 5653.4,
+ "duration_api_ms": 2894.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "a3691eb7-3c02-45dc-9814-0cc4219839b2",
+ "key": "f974a2de4b33fb04e02f78cb548bc37dfe7c7ddc4679bbd936fb69fbb9a36db1"
+}

@@ -1,0 +1,23 @@
+{
+ "qid": "Q20",
+ "arm": "B1",
+ "reply": "Current api_version fact is e3d70963 (v2). Decisions linked to it in decision_facts:\n- 147514e4: \"Adopt style guide v2: the API version is now v2...\" → \"adopt style guide v2\"\n- a95eed0c: \"Spec approved: endpoints, schema and JWT auth are consistent.\" → \"spec approved endpoints schema\"\n\n{\"answer\": [\"adopt style guide v2\", \"spec approved endpoints schema\"]}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 152,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12763
+ },
+ "cost_usd": 0.0526304,
+ "latency_ms": 4872.6,
+ "duration_api_ms": 2877.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "12c99ec0-18bf-4bb0-82b4-d34cc8f0c42f",
+ "key": "1cb3fe5960595e0010d3865f3b1e28dbb70d574c3176d8ef08cfab89bab71fc0"
+}

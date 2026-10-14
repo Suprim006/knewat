@@ -1,0 +1,23 @@
+{
+ "qid": "Q23",
+ "arm": "B0",
+ "reply": "Tasks that depend on t09-review-spec: t10-write-docs (deps: t09). Tasks that depend on t10: t11-package-release. Nothing depends on t11. No other tasks list t09, t10 or t11 as a dependency.\n\n{\"answer\": [\"t10-write-docs\", \"t11-package-release\"]}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 108,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15301
+ },
+ "cost_usd": 0.0623424,
+ "latency_ms": 5371.2,
+ "duration_api_ms": 2613.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "9ad9887f-b652-4229-b04f-eda3aebc8fcc",
+ "key": "1052e42077d91b2119394e9d4f8de09dd0aad93384fda6b28ed81e84cac88394"
+}

@@ -1,0 +1,26 @@
+{
+ "qid": "Q25",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"t02-choose-api-version\", \"t04-survey-infra-security\"]}",
+ "answer": [
+  "t02-choose-api-version",
+  "t04-survey-infra-security"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 172,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3467
+ },
+ "cost_usd": 0.0156464,
+ "latency_ms": 6081.7,
+ "duration_api_ms": 3002.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "b5e4b48c-5cb1-4a4c-b3be-a230e972b196",
+ "key": "8e6d0768cc6e1be4e99daedf177090c21b2c1b99c3df0463abfb9562b5a37752"
+}

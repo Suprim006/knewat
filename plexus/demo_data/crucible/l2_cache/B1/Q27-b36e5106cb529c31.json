@@ -1,0 +1,26 @@
+{
+ "qid": "Q27",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256) @ researcher\", \"auth_method=API key in X-Api-Key header @ planner\"]}",
+ "answer": [
+  "auth_method=JWT bearer tokens (RS256) @ researcher",
+  "auth_method=API key in X-Api-Key header @ planner"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 201,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12773
+ },
+ "cost_usd": 0.0531604,
+ "latency_ms": 5031.2,
+ "duration_api_ms": 2881.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "d0d55c58-2a71-4b05-80c3-8502e89707d5",
+ "key": "b36e5106cb529c3112a7d3594d621467935b29e1ecca1c3303bc4079935d4786"
+}

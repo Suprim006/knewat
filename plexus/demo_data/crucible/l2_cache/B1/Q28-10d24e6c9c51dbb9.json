@@ -1,0 +1,23 @@
+{
+ "qid": "Q28",
+ "arm": "B1",
+ "reply": "The API-key fact is `auth_method=API key in X-Api-Key header` (f5aae893), which contradicts the JWT fact. Its `derived_from` link points to source 0279cad1-5117-57e4-94a7-2b487b14db9a, which is `acme-docs/05_customer_request.md`.\n\n{\"answer\": \"acme-docs/05_customer_request.md\"}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 127,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12761
+ },
+ "cost_usd": 0.0523724,
+ "latency_ms": 4920.0,
+ "duration_api_ms": 2541.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "5a00f89a-ea10-4af1-b144-2f37f5bb6d1d",
+ "key": "10d24e6c9c51dbb9a8e43a7ecbb4efa8adcdfc2f3b4297faa8ed6e9c34dc3cf6"
+}

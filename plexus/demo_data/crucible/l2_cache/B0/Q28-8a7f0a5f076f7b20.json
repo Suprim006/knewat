@@ -1,0 +1,23 @@
+{
+ "qid": "Q28",
+ "arm": "B0",
+ "reply": "The API-key fact (`auth_method=API key in X-Api-Key header`, id f5aae893-...) was derived from source 0279cad1-5117-57e4-94a7-2b487b14db9a. In sources.json that ID maps to `acme-docs/05_customer_request.md`.\n\n{\"answer\": \"acme-docs/05_customer_request.md\"}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 120,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15285
+ },
+ "cost_usd": 0.0623984,
+ "latency_ms": 6639.4,
+ "duration_api_ms": 3017.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "a52fe163-b6ec-422c-b6e3-099ebda96495",
+ "key": "8a7f0a5f076f7b202d40814bc6cfd781da0f1559d73816dee120af5f4b79bc96"
+}

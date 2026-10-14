@@ -1,0 +1,23 @@
+{
+ "qid": "Q26",
+ "arm": "B0",
+ "reply": "Current (active) facts with the same subject and predicate but different values: Acme Notes API auth_method has two active values, \"JWT bearer tokens (RS256)\" and \"API key in X-Api-Key header\". The database conflict is resolved because MongoDB 4 is forgotten, and api_version v1 is superseded.\n\n{\"answer\": [\"auth_method=JWT bearer tokens (RS256)\", \"auth_method=API key in X-Api-Key header\"]}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 152,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15313
+ },
+ "cost_usd": 0.0628304,
+ "latency_ms": 4633.6,
+ "duration_api_ms": 2572.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "aee37534-b111-4eb1-a818-3990ad680759",
+ "key": "ef102a27a984b4ba22c374f9d28de2a0887205cc0cf55f6000709e7fff16c0ca"
+}

@@ -1,0 +1,23 @@
+{
+ "qid": "Q34",
+ "arm": "B0",
+ "reply": "{\"answer\": \"PostgreSQL 16\"}",
+ "answer": "PostgreSQL 16",
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 19,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15289
+ },
+ "cost_usd": 0.061404400000000005,
+ "latency_ms": 5418.3,
+ "duration_api_ms": 2453.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "bfa944cf-8eb7-4a91-aee2-66e03cf9cba8",
+ "key": "d104b8b2c3a85e92b09bafff58f8d84617e0318f368260e1ba078a89523242de"
+}

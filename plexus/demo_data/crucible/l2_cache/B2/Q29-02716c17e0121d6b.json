@@ -1,0 +1,25 @@
+{
+ "qid": "Q29",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+ "answer": [
+  "t03-design-endpoints"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 21,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3351
+ },
+ "cost_usd": 0.0136724,
+ "latency_ms": 7032.1,
+ "duration_api_ms": 2051.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "2a54cc6c-61ca-4aa0-9306-d70b947a7cd3",
+ "key": "02716c17e0121d6b401735bc467987a99bde18c8010c19ef45f6cf33f739a860"
+}

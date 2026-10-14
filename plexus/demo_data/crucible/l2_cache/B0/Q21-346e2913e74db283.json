@@ -1,0 +1,30 @@
+{
+ "qid": "Q21",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"t07-implement-crud-spec\", \"t08-write-test-plan\", \"t12-update-endpoints-for-v2\", \"t09-review-spec\", \"t10-write-docs\", \"t11-package-release\"]}",
+ "answer": [
+  "t07-implement-crud-spec",
+  "t08-write-test-plan",
+  "t12-update-endpoints-for-v2",
+  "t09-review-spec",
+  "t10-write-docs",
+  "t11-package-release"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 163,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15307
+ },
+ "cost_usd": 0.0629164,
+ "latency_ms": 7175.6,
+ "duration_api_ms": 4840.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "acfc973a-ff63-41dd-a045-be8f7d9fd841",
+ "key": "346e2913e74db28381e0c3fbe6f1b39cada82c5405a5354a6646aaef2b0fe270"
+}

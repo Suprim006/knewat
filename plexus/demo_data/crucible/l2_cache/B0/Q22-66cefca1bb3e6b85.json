@@ -1,0 +1,28 @@
+{
+ "qid": "Q22",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"t07-implement-crud-spec\", \"t09-review-spec\", \"t10-write-docs\", \"t11-package-release\"]}",
+ "answer": [
+  "t07-implement-crud-spec",
+  "t09-review-spec",
+  "t10-write-docs",
+  "t11-package-release"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 116,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15303
+ },
+ "cost_usd": 0.062430400000000004,
+ "latency_ms": 5042.2,
+ "duration_api_ms": 2745.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "d7ff8114-96e7-4023-8eaa-ec6342f26bff",
+ "key": "66cefca1bb3e6b8523f7067d7ce3efc24eafd5e4cc7a2f135f2db13b73e2a815"
+}

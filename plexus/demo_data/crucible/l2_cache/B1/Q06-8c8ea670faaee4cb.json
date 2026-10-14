@@ -1,0 +1,26 @@
+{
+ "qid": "Q06",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"acme-docs/04_security_note.md\", \"acme-docs/05_customer_request.md\"]}",
+ "answer": [
+  "acme-docs/04_security_note.md",
+  "acme-docs/05_customer_request.md"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 141,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12804
+ },
+ "cost_usd": 0.0526844,
+ "latency_ms": 5991.0,
+ "duration_api_ms": 3339.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "f4d22239-0352-4a49-b862-6d9e891ab964",
+ "key": "8c8ea670faaee4cb4f7c12f5931f3aa0c875a8eec014d849fea34cc51995aabb"
+}

@@ -1,0 +1,23 @@
+{
+ "qid": "Q11",
+ "arm": "B1",
+ "reply": "Fact superseded: 2b927606 (api_version=v1), status superseded. Only handoff carrying it is 8f2acfd6, task t03-design-endpoints.\n\n{\"answer\": [\"t03-design-endpoints\"]}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 78,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12778
+ },
+ "cost_usd": 0.0519504,
+ "latency_ms": 5306.9,
+ "duration_api_ms": 2671.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "68c34bf1-b4bd-4432-8b5e-82d5630aa0bc",
+ "key": "83f21ef01d63a9e6e347e859c64d83f445d0749509cb7ab557a633c9827a2a23"
+}
