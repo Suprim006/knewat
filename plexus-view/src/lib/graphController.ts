@@ -1,6 +1,7 @@
 import cytoscape from 'cytoscape';
 import type { Core, ElementDefinition, NodeSingular, StylesheetJson } from 'cytoscape';
 import fcose from 'cytoscape-fcose';
+import { edgeId } from '../api/types';
 import type { GraphEdge, GraphNode, Props } from '../api/types';
 import { displayName, labelColor, LABEL_COLORS } from './labels';
 
@@ -198,6 +199,8 @@ export interface GraphController {
   clear(): void;
   /** Add nodes/edges without relayout; new nodes are seeded next to a neighbour. Returns the ids of nodes actually added. */
   addLive(nodes: GraphNode[], edges: GraphEdge[]): string[];
+  /** Refresh the properties (and label text) of nodes already on the canvas. Returns how many changed. */
+  updateProps(nodes: GraphNode[]): number;
   /** Remove every node created at or after `ts` (used by the fixture "replay as live" demo). Returns the count. */
   removeCreatedSince(ts: number): number;
   setFilters(f: FilterState): void;
@@ -237,7 +240,7 @@ const toNodeDef = (n: GraphNode): ElementDefinition => ({
 });
 const toEdgeDef = (e: GraphEdge): ElementDefinition => ({
   group: 'edges',
-  data: { id: e.id, source: e.src, target: e.dst, type: e.type, props: e.props },
+  data: { id: edgeId(e), source: e.source, target: e.target, type: e.type },
 });
 
 /**
@@ -313,8 +316,8 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     const ready: GraphEdge[] = [];
     const rest: GraphEdge[] = [];
     for (const e of pending) {
-      if (!cy.getElementById(e.id).empty()) continue;
-      if (cy.getElementById(e.src).nonempty() && cy.getElementById(e.dst).nonempty()) ready.push(e);
+      if (!cy.getElementById(edgeId(e)).empty()) continue;
+      if (cy.getElementById(e.source).nonempty() && cy.getElementById(e.target).nonempty()) ready.push(e);
       else rest.push(e);
     }
     pending = rest;
@@ -341,7 +344,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       const known = new Set(nodes.map((n) => n.id));
       cy.batch(() => {
         cy.add(nodes.map(toNodeDef));
-        cy.add(edges.filter((e) => known.has(e.src) && known.has(e.dst)).map(toEdgeDef));
+        cy.add(edges.filter((e) => known.has(e.source) && known.has(e.target)).map(toEdgeDef));
       });
       updateEdgeMode();
       applyFilters();
@@ -382,9 +385,9 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
         // Edges whose endpoints exist (or arrive in this batch) go in now; the rest wait.
         const newEdges: GraphEdge[] = [];
         for (const e of edges) {
-          if (!cy.getElementById(e.id).empty() || pending.some((p) => p.id === e.id)) continue;
+          if (!cy.getElementById(edgeId(e)).empty() || pending.some((p) => edgeId(p) === edgeId(e))) continue;
           const ok = (id: string) => cy.getElementById(id).nonempty();
-          if (ok(e.src) && ok(e.dst)) newEdges.push(e);
+          if (ok(e.source) && ok(e.target)) newEdges.push(e);
           else pending.push(e);
         }
         const addedEdges = cy.add(newEdges.map(toEdgeDef));
@@ -410,6 +413,21 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
         timers.add(t);
       }
       return addedIds;
+    },
+
+    updateProps(nodes) {
+      let changed = 0;
+      cy.batch(() => {
+        for (const n of nodes) {
+          const el = cy.getElementById(n.id);
+          if (el.empty()) continue;
+          if (JSON.stringify(el.data('props')) === JSON.stringify(n.props)) continue;
+          el.data('props', n.props);
+          el.data('name', displayName(n.label, n.props));
+          changed++;
+        }
+      });
+      return changed;
     },
 
     removeCreatedSince(ts) {

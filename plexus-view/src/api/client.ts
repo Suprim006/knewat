@@ -2,13 +2,13 @@ import type {
   FlowResponse,
   GraphQuery,
   Inventory,
-  KnewAt,
   QueryText,
   Results,
   Subgraph,
   TenantList,
   ViewApi,
-  WhyPath,
+  StepResponse,
+  WhyResponse,
 } from './types';
 
 export const DEFAULT_API_BASE = 'http://localhost:8080';
@@ -62,9 +62,9 @@ export function createHttpApi(
     tenants: () => get<TenantList>('/api/tenants'),
     inventory: (t) => get<Inventory>(`/api/${seg(t)}/inventory`),
     graph: (t, q) => get<Subgraph>(`/api/${seg(t)}/graph`, graphParams(q)),
-    flow: (t, after) => get<FlowResponse>(`/api/${seg(t)}/flow`, { after }),
-    step: (t, n) => get<KnewAt>(`/api/${seg(t)}/step/${n}`),
-    why: (t, id) => get<WhyPath>(`/api/${seg(t)}/why/${seg(id)}`),
+    flow: (t, after, limit) => get<FlowResponse>(`/api/${seg(t)}/flow`, { after, limit }),
+    step: (t, n) => get<StepResponse>(`/api/${seg(t)}/step/${n}`),
+    why: (t, id) => get<WhyResponse>(`/api/${seg(t)}/why/${seg(id)}`),
     queryText: (name) => get<QueryText>(`/api/queries/${name.split('/').map(seg).join('/')}`),
     results: () => get<Results>('/api/results'),
     streamUrl: (t) => buildUrl(base, `/api/${seg(t)}/stream`),

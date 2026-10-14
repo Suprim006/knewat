@@ -1,7 +1,8 @@
 import { useCallback } from 'react';
-import type { GraphNode, IndexInfo } from '../api';
+import type { GraphNode, Inventory as InventoryData } from '../api';
 import { useApi, useTenant } from '../app/context';
 import { LABEL_MODULES, MODULE_ORDER, displayName, labelColor } from '../lib/labels';
+import { SUMMARY_LABELS, summarize } from '../lib/summary';
 import { useAsync } from '../lib/useAsync';
 
 const SAMPLES_PER_LABEL = 3;
@@ -15,13 +16,50 @@ function Bar({ value, max, color }: { value: number; max: number; color: string 
   );
 }
 
-const KIND_ORDER: IndexInfo['kind'][] = ['range', 'fulltext', 'vector', 'unique'];
-const KIND_NAME: Record<IndexInfo['kind'], string> = {
-  range: 'Range indexes',
-  fulltext: 'Full-text indexes',
-  vector: 'Vector indexes (384-d, cosine)',
-  unique: 'UNIQUE constraints',
+type IndexKind = 'RANGE' | 'FULLTEXT' | 'VECTOR';
+const KIND_ORDER: IndexKind[] = ['RANGE', 'FULLTEXT', 'VECTOR'];
+const KIND_NAME: Record<IndexKind, string> = {
+  RANGE: 'Range indexes',
+  FULLTEXT: 'Full-text indexes',
+  VECTOR: 'Vector indexes (384-d, cosine)',
 };
+
+/** One row per (label, property, kind): the API groups index kinds by label and property. */
+function flattenIndexes(indexes: InventoryData['indexes']) {
+  return indexes.flatMap((i) =>
+    i.properties.flatMap((property) =>
+      (i.types[property] ?? []).map((kind) => ({ label: i.label, property, kind, status: i.status })),
+    ),
+  );
+}
+
+function SummaryCard({
+  id,
+  title,
+  value,
+  parts,
+}: {
+  id: string;
+  title: string;
+  value: number;
+  parts?: [string, number][];
+}) {
+  return (
+    <article className="card summary-card" data-testid={`summary-${id}`}>
+      <div className="stat-n">{value}</div>
+      <div className="stat-l">{title}</div>
+      {parts && (
+        <ul className="parts">
+          {parts.map(([k, v]) => (
+            <li key={k}>
+              <b>{v}</b> {k}
+            </li>
+          ))}
+        </ul>
+      )}
+    </article>
+  );
+}
 
 export function Inventory() {
   const api = useApi();
@@ -34,7 +72,12 @@ export function Inventory() {
     () => (tenant ? api.graph(tenant, { limit: 2000 }) : Promise.resolve(undefined)),
     [api, tenant],
   );
+  const loadSummary = useCallback(
+    () => (tenant ? api.graph(tenant, { labels: SUMMARY_LABELS, limit: 2000 }) : Promise.resolve(undefined)),
+    [api, tenant],
+  );
   const inv = useAsync(loadInventory);
+  const summaryGraph = useAsync(loadSummary);
   const graph = useAsync(loadSamples);
 
   if (inv.error) {
@@ -57,6 +100,8 @@ export function Inventory() {
     );
   }
 
+  const summary = summarize(data, summaryGraph.data);
+  const indexes = flattenIndexes(data.indexes);
   const labels = [...data.labels].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
   const edgeTypes = [...data.edge_types].sort((a, b) => b.count - a.count || a.type.localeCompare(b.type));
   const maxLabel = labels[0]?.count ?? 0;
@@ -83,13 +128,13 @@ export function Inventory() {
       <div className="stat-row">
         <div className="stat">
           <div className="stat-n" data-testid="inventory-node-total">
-            {data.node_total}
+            {data.nodes_total}
           </div>
           <div className="stat-l">nodes</div>
         </div>
         <div className="stat">
           <div className="stat-n" data-testid="inventory-edge-total">
-            {data.edge_total}
+            {data.edges_total}
           </div>
           <div className="stat-l">edges</div>
         </div>
@@ -102,10 +147,41 @@ export function Inventory() {
           <div className="stat-l">edge types</div>
         </div>
         <div className="stat">
-          <div className="stat-n">{data.indexes.length}</div>
+          <div className="stat-n">{indexes.length}</div>
           <div className="stat-l">indexes and constraints</div>
         </div>
       </div>
+
+      <h2>What the demo created</h2>
+      <div className="cards summary" data-testid="demo-summary">
+        <SummaryCard id="agents" title="agents" value={summary.agents} />
+        <SummaryCard
+          id="tasks"
+          title="tasks"
+          value={summary.tasks.total}
+          parts={[
+            ['done', summary.tasks.done],
+            ['failed', summary.tasks.failed],
+            ['reclaimed', summary.tasks.reclaimed],
+          ]}
+        />
+        <SummaryCard
+          id="facts"
+          title="facts"
+          value={summary.facts.total}
+          parts={[
+            ['active', summary.facts.active],
+            ['superseded', summary.facts.superseded],
+            ['contradicting', summary.facts.contradicting],
+          ]}
+        />
+        <SummaryCard id="decisions" title="decisions" value={summary.decisions} />
+        <SummaryCard id="handoffs" title="handoffs" value={summary.handoffs} />
+        <SummaryCard id="toolcalls" title="tool calls" value={summary.toolCalls} />
+      </div>
+      {summary.sampled && (
+        <p className="muted">Task and fact splits are computed from the newest 2000 nodes only.</p>
+      )}
 
       <div className="two-col">
         <section className="panel" aria-labelledby="inv-labels">
@@ -168,7 +244,7 @@ export function Inventory() {
                   {graph.loading && <li className="muted">loading…</li>}
                 </ul>
                 <div className="keys">
-                  {l.property_keys
+                  {l.keys
                     .filter((k) => k !== 'embedding')
                     .map((k) => (
                       <code key={k}>{k}</code>
@@ -180,13 +256,13 @@ export function Inventory() {
         </div>
       ))}
 
-      <h2>Indexes and constraints</h2>
+      <h2>Indexes</h2>
       <div className="cards">
         {KIND_ORDER.map((kind) => {
-          const items = data.indexes.filter((i) => i.kind === kind);
+          const items = indexes.filter((i) => i.kind === kind);
           if (items.length === 0) return null;
           return (
-            <article key={kind} className="card wide" data-testid={`indexes-${kind}`}>
+            <article key={kind} className="card wide" data-testid={`indexes-${kind.toLowerCase()}`}>
               <header>
                 <strong>{KIND_NAME[kind]}</strong>
                 <span className="muted">{items.length}</span>

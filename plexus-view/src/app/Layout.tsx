@@ -51,8 +51,8 @@ export function Layout() {
             >
               {tenants.length === 0 && <option value="">{error ? 'unavailable' : 'loading…'}</option>}
               {tenants.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.id}
+                <option key={t.tenant} value={t.tenant}>
+                  {t.tenant}
                 </option>
               ))}
             </select>

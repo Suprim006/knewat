@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildAcme } from './acme';
-import { EDGE_TYPES, NODE_LABELS, OPEN } from '../api/types';
+import { EDGE_TYPES, NODE_LABELS, OPEN, edgeId } from '../api/types';
 
 const data = buildAcme();
 const byLabel = (l: string) => data.nodes.filter((n) => n.label === l);
@@ -25,14 +25,15 @@ describe('Acme Notes fixture follows graph model v1', () => {
   it('uses only labels and edge types from the model, with unique ids and no dangling edges', () => {
     const ids = new Set(data.nodes.map((n) => n.id));
     expect(ids.size).toBe(data.nodes.length);
-    expect(new Set([...data.nodes, ...data.edges].map((x) => x.id)).size).toBe(
-      data.nodes.length + data.edges.length,
-    );
+    // the API gives edges no id: parallel same-type edges (a re-claimed task) are the only repeats
+    const dupes = data.edges.length - new Set(data.edges.map(edgeId)).size;
+    expect(dupes).toBeGreaterThanOrEqual(1);
+    expect(dupes).toBeLessThanOrEqual(3);
     for (const n of data.nodes) expect(NODE_LABELS as readonly string[]).toContain(n.label);
     for (const e of data.edges) {
       expect(EDGE_TYPES as readonly string[]).toContain(e.type);
-      expect(ids.has(e.src)).toBe(true);
-      expect(ids.has(e.dst)).toBe(true);
+      expect(ids.has(e.source)).toBe(true);
+      expect(ids.has(e.target)).toBe(true);
     }
   });
 
@@ -54,27 +55,31 @@ describe('Acme Notes fixture follows graph model v1', () => {
     expect(v1.props.valid_to).toBe(v2.props.valid_from);
     expect(v2.props.valid_to).toBe(OPEN);
     expect(data.edges).toContainEqual(
-      expect.objectContaining({ type: 'SUPERSEDES', src: v2.id, dst: v1.id }),
+      expect.objectContaining({ type: 'SUPERSEDES', source: v2.id, target: v1.id }),
     );
   });
 
   it('models the JWT vs API key contradiction', () => {
     const jwt = data.ids['f.jwt'];
     const key = data.ids['f.apikey'];
-    expect(data.edges).toContainEqual(expect.objectContaining({ type: 'CONTRADICTS', src: key, dst: jwt }));
-    const decision = data.edges.filter((e) => e.type === 'BASED_ON' && e.src === data.ids['d.jwt']);
-    expect(decision.map((e) => e.dst)).toContain(jwt);
+    expect(data.edges).toContainEqual(
+      expect.objectContaining({ type: 'CONTRADICTS', source: key, target: jwt }),
+    );
+    const decision = data.edges.filter((e) => e.type === 'BASED_ON' && e.source === data.ids['d.jwt']);
+    expect(decision.map((e) => e.target)).toContain(jwt);
   });
 
   it('ties every fact to an entity, scope and agent, and every ToolCall to a step', () => {
     for (const f of byLabel('Fact')) {
       for (const t of ['ABOUT', 'IN_SCOPE', 'ASSERTED_BY']) {
-        expect(data.edges.filter((e) => e.src === f.id && e.type === t)).toHaveLength(1);
+        expect(data.edges.filter((e) => e.source === f.id && e.type === t)).toHaveLength(1);
       }
-      expect(f.props.subject_id).toBe(data.edges.find((e) => e.src === f.id && e.type === 'ABOUT')!.dst);
+      expect(f.props.subject_id).toBe(
+        data.edges.find((e) => e.source === f.id && e.type === 'ABOUT')!.target,
+      );
     }
     for (const tc of byLabel('ToolCall')) {
-      expect(data.edges.filter((e) => e.src === tc.id && e.type === 'IN_STEP')).toHaveLength(1);
+      expect(data.edges.filter((e) => e.source === tc.id && e.type === 'IN_STEP')).toHaveLength(1);
     }
   });
 
@@ -84,7 +89,7 @@ describe('Acme Notes fixture follows graph model v1', () => {
     expect(status('t.7')).toBe('done');
     expect(status('t.8')).toBe('claimed');
     expect(data.edges.filter((e) => e.type === 'DEPENDS_ON')).toHaveLength(16);
-    expect(data.edges.filter((e) => e.type === 'CLAIMED' && e.dst === data.ids['t.7'])).toHaveLength(2);
+    expect(data.edges.filter((e) => e.type === 'CLAIMED' && e.target === data.ids['t.7'])).toHaveLength(2);
   });
 
   it('reports created and updated ids on flow events, ordered by time', () => {
@@ -92,7 +97,25 @@ describe('Acme Notes fixture follows graph model v1', () => {
     expect([...ats].sort((a, b) => a - b)).toEqual(ats);
     const ids = new Set(data.nodes.map((n) => n.id));
     for (const ev of data.flow)
-      for (const id of [...ev.created, ...ev.updated]) expect(ids.has(id)).toBe(true);
+      for (const r of [...ev.created, ...ev.updated]) expect(ids.has(r.id)).toBe(true);
     expect(data.flow.find((f) => f.tool === 'assert_fact' && f.created.length > 0)).toBeTruthy();
+  });
+
+  it('gives flow events the real API fields and per-agent step numbers', () => {
+    const byId = new Map(data.nodes.map((n) => [n.id, n]));
+    for (const ev of data.flow) {
+      expect(typeof ev.wrote).toBe('boolean');
+      expect(ev.step).toBeNull();
+      const step = byId.get(ev.step_id!)!;
+      expect(step.label).toBe('Step');
+      expect(step.props.n).toBe(ev.step_n);
+      expect(step.props.agent_id).toBe(ev.agent_id);
+      for (const r of ev.created) expect(byId.get(r.id)!.label).toBe(r.label);
+    }
+    // Each agent's steps are numbered 1..k with no gaps.
+    for (const agent of ['planner', 'researcher', 'builder']) {
+      const ns = data.steps.filter((s) => s.agent_id === agent).map((s) => s.n);
+      expect(ns).toEqual(ns.map((_, i) => i + 1));
+    }
   });
 });

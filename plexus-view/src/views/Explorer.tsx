@@ -8,6 +8,7 @@ import { NodePanel } from '../components/NodePanel';
 import { DEFAULT_HIDDEN_EDGE_TYPES, DEFAULT_HIDDEN_LABELS, labelColor } from '../lib/labels';
 import type { Counts, GraphController } from '../lib/graphController';
 
+const GRAPH_LIMIT = 2000;
 const REPLAY_EVENTS = 24;
 const REPLAY_INTERVAL_MS = 700;
 const EMPTY_COUNTS: Counts = { visibleNodes: 0, totalNodes: 0, visibleEdges: 0, totalEdges: 0 };
@@ -60,12 +61,13 @@ export function Explorer() {
     if (!ctl || !tenant) return;
     let live = true;
     api
-      .graph(tenant, { limit: 2000 })
+      .graph(tenant, { limit: GRAPH_LIMIT })
       .then((g) => {
         if (!live) return;
         ctl.setFilters(filtersRef.current);
         ctl.load(g.nodes, g.edges);
         lastAtRef.current = g.nodes.reduce((m, n) => Math.max(m, Number(n.props.created_at) || 0), 0);
+        if (g.truncated) console.warn('Explorer: graph truncated to the newest', g.limit, 'nodes');
         setFeed([]);
         setLoaded({ tenant });
         refresh(ctl);
@@ -83,21 +85,31 @@ export function Explorer() {
     ctl?.select(selectedId);
   }, [ctl, selectedId, rev]);
 
-  /* a flow event arrived (SSE, or the fixture replay): fetch what it created and add it, no relayout */
+  /*
+   * A flow event arrived (SSE, or the fixture replay). The API cannot fetch nodes by id, and a
+   * `since`/`until` window on created_at would drop the edges that join new nodes to older ones, so we
+   * re-read the (bounded) subgraph and let `addLive` add only what is new: no relayout, new nodes seeded
+   * next to a neighbour. Bursts are coalesced into one read. `until` caps the read at the event's time
+   * (used by the replay so nodes appear one event at a time).
+   */
   const ingest = useCallback(
-    (ev: FlowEvent): Promise<void> => {
+    (ev: FlowEvent, until?: number): Promise<void> => {
       if (!ctl) return Promise.resolve();
+      setFeed((f) => [ev, ...f].slice(0, 6));
+      lastAtRef.current = Math.max(lastAtRef.current, ev.at);
+      const known = (id: string) => ctl.cy.getElementById(id).nonempty();
+      const touchesNew = ev.created.some((r) => !known(r.id)) || ev.updated.length > 0;
+      if (!touchesNew && until === undefined) return ingestQueue.current;
       const run = async () => {
-        const g = await api.graph(tenant, { since: lastAtRef.current + 1, until: ev.at });
+        const g = await api.graph(tenant, { limit: GRAPH_LIMIT, until });
         ctl.addLive(g.nodes, g.edges);
-        lastAtRef.current = Math.max(lastAtRef.current, ev.at);
-        setFeed((f) => [ev, ...f].slice(0, 6));
+        ctl.updateProps(g.nodes);
         refresh(ctl);
       };
       ingestQueue.current = ingestQueue.current.then(run).catch(() => undefined);
       return ingestQueue.current;
     },
-    [api, ctl, tenant, refresh],
+    [ctl, api, tenant, refresh],
   );
 
   /* live mode: SSE with reconnection */
@@ -139,7 +151,7 @@ export function Explorer() {
         return;
       }
       replayTimer.current = setTimeout(() => {
-        void ingest(ev).then(() => {
+        void ingest(ev, ev.at).then(() => {
           setReplay({ tenant, done: i + 1, total });
           tick(i + 1);
         });

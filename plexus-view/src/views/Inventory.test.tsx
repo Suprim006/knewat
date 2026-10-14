@@ -43,6 +43,6 @@ describe('Inventory', () => {
     );
     const vector = screen.getByTestId('indexes-vector');
     expect(within(vector).getByText('Fact.embedding')).toBeInTheDocument();
-    expect(within(screen.getByTestId('indexes-unique')).getAllByRole('listitem')).toHaveLength(5);
+    expect(within(screen.getByTestId('indexes-fulltext')).getByText('Entity.name')).toBeInTheDocument();
   });
 });

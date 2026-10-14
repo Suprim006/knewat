@@ -86,7 +86,7 @@ describe('createApi', () => {
   it('serves fixtures when VITE_FIXTURES=1', async () => {
     const api = createApi({ VITE_FIXTURES: '1' });
     const t = await api.tenants();
-    expect(t.tenants.map((x) => x.id)).toContain('acme');
+    expect(t.tenants.map((x) => x.tenant)).toContain('acme');
     expect(api.streamUrl('acme')).toBeNull();
   });
   it('uses VITE_PLEXUS_API otherwise, defaulting to :8080', () => {

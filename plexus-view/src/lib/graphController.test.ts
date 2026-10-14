@@ -17,7 +17,7 @@ describe('graph controller (headless Cytoscape)', () => {
     const ids = new Set(nodes.map((n) => n.id));
     ctl.load(
       nodes,
-      data.edges.filter((e) => ids.has(e.src) && ids.has(e.dst)),
+      data.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
     );
     const c = ctl.counts();
     expect(c.totalNodes).toBe(nodes.length);
@@ -57,7 +57,7 @@ describe('graph controller (headless Cytoscape)', () => {
     const earlyIds = new Set(early.map((n) => n.id));
     ctl.load(
       early,
-      data.edges.filter((e) => earlyIds.has(e.src) && earlyIds.has(e.dst)),
+      data.edges.filter((e) => earlyIds.has(e.source) && earlyIds.has(e.target)),
     );
     const before = new Map(ctl.cy.nodes().map((n) => [n.id(), { ...n.position() }]));
     const late = data.nodes.filter((n) => !earlyIds.has(n.id));
@@ -84,11 +84,26 @@ describe('graph controller (headless Cytoscape)', () => {
       (typeof data.nodes)[0],
     ];
     ctl.load([a], []);
-    const edge = { id: 'e1', type: 'DEPENDS_ON', src: a.id, dst: b.id, props: {} };
+    const edge = { type: 'DEPENDS_ON', source: a.id, target: b.id };
     ctl.addLive([], [edge]);
     expect(ctl.counts().totalEdges).toBe(0);
     ctl.addLive([b], []);
     expect(ctl.counts().totalEdges).toBe(1);
+  });
+
+  it('updates properties of nodes already on the canvas without moving them', () => {
+    ctl = createGraphController({ headless: true });
+    const fact = data.nodes.find((n) => n.label === 'Fact')!;
+    ctl.load([fact], []);
+    const before = { ...ctl.cy.getElementById(fact.id).position() };
+    const changed = ctl.updateProps([
+      { ...fact, props: { ...fact.props, status: 'superseded', value: 'v9' } },
+    ]);
+    expect(changed).toBe(1);
+    expect(ctl.describe(fact.id)!.props.status).toBe('superseded');
+    expect(ctl.describe(fact.id)!.name).toContain('v9');
+    expect(ctl.cy.getElementById(fact.id).position()).toEqual(before);
+    expect(ctl.updateProps([fact, { ...fact, id: 'unknown' }])).toBe(1); // reverts the one known node
   });
 
   it('searches names and property values', () => {

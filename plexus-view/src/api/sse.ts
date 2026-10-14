@@ -1,11 +1,16 @@
 import type { FlowEvent } from './types';
 
+/** The SSE event name the View API uses for a ToolCall frame (`event: toolcall`). */
+export const TOOLCALL_EVENT = 'toolcall';
+
 /** Minimal slice of EventSource we depend on (lets tests inject a fake). */
 export interface EventSourceLike {
   onopen: ((ev: Event) => void) | null;
   onmessage: ((ev: MessageEvent) => void) | null;
   onerror: ((ev: Event) => void) | null;
   readyState: number;
+  /** The API names its frames `event: toolcall`, which `onmessage` never sees. */
+  addEventListener(type: string, listener: (ev: MessageEvent) => void): void;
   close(): void;
 }
 export type EventSourceFactory = (url: string) => EventSourceLike;
@@ -51,6 +56,8 @@ export function connectFlowStream(opts: FlowStreamOptions): () => void {
   const max = opts.maxDelayMs ?? 15_000;
 
   let lastAt = opts.after;
+  // Dedupe by id, not by `at`: the server may deliver a late-landing call with an older `at` exactly once.
+  const seen = new Set<string>();
   let attempt = 0;
   let source: EventSourceLike | null = null;
   let timer: unknown = null;
@@ -66,17 +73,21 @@ export function connectFlowStream(opts: FlowStreamOptions): () => void {
       attempt = 0;
       status('open');
     };
-    es.onmessage = (msg) => {
+    const onFrame = (msg: MessageEvent) => {
       let ev: FlowEvent;
       try {
         ev = JSON.parse(String(msg.data)) as FlowEvent;
       } catch {
         return; // ignore keep-alives and malformed frames
       }
-      if (lastAt !== undefined && ev.at <= lastAt) return; // replay after reconnect
-      lastAt = ev.at;
+      if (seen.has(ev.id)) return; // replayed after a reconnect
+      seen.add(ev.id);
+      if (seen.size > 5000) seen.delete(seen.values().next().value as string);
+      lastAt = Math.max(lastAt ?? 0, ev.at);
       opts.onEvent(ev);
     };
+    es.addEventListener(TOOLCALL_EVENT, onFrame);
+    es.onmessage = onFrame; // tolerate unnamed frames too
     es.onerror = () => {
       if (closed) return;
       es.close();
