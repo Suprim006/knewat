@@ -1,4 +1,4 @@
-"""Helpers for plan-shape tests: run a named query under GRAPH.PROFILE and look at what each operation produced.
+"""Helpers for plan-shape tests: run a named query under GRAPH.PROFILE and read what each operation produced.
 
 A scope-first plan (start at the Scope, enumerate every fact IN_SCOPE, filter afterwards) shows up as one
 operation producing ~"facts in the scope" records. An entity- or source-anchored plan only touches the rows
@@ -89,10 +89,10 @@ def seed_big_scope(
         g.query(
             """UNWIND $rows AS r
                MATCH (e:Entity {id: r.e}), (s:Scope {id: 'S'}), (a:Agent {id: 'a1'})
-               CREATE (f:Fact {id: 'F' + toString(r.i), subject_id: r.e, predicate: 'p', value: 'v' + toString(r.i),
-                               norm_value: 'v' + toString(r.i), value_tokens: '', valid_from: 1, valid_to: $open,
-                               recorded_at: 1, created_at: 1, status: $status, confidence: 1.0,
-                               embedding: vecf32(r.emb), value_embedding: vecf32(r.emb)})
+               CREATE (f:Fact {id: 'F' + toString(r.i), subject_id: r.e, predicate: 'p',
+                               value: 'v' + toString(r.i), norm_value: 'v' + toString(r.i), value_tokens: '',
+                               valid_from: 1, valid_to: $open, recorded_at: 1, created_at: 1, status: $status,
+                               confidence: 1.0, embedding: vecf32(r.emb), value_embedding: vecf32(r.emb)})
                CREATE (f)-[:ABOUT]->(e), (f)-[:IN_SCOPE]->(s), (f)-[:ASSERTED_BY {at: 1}]->(a)""",
             {"rows": rows, "open": OPEN, "status": status},
         )
@@ -111,7 +111,7 @@ def seed_steps(client: GraphClient, graph: str, n_steps: int = BIG, agents: int 
     """``n_steps`` Steps spread over ``agents`` agents (``ag0``..), numbered 1.. per agent."""
     client.graph(graph).query(
         """UNWIND range(0, $n - 1) AS i
-           CREATE (:Step {id: 'ST' + toString(i), n: i / $agents + 1, at: i, agent_id: 'ag' + toString(i % $agents),
-                          created_at: 1})""",
+           CREATE (:Step {id: 'ST' + toString(i), n: i / $agents + 1, at: i,
+                          agent_id: 'ag' + toString(i % $agents), created_at: 1})""",
         {"n": n_steps, "agents": agents},
     )

@@ -1,4 +1,4 @@
-"""P5-fix Q4: lookups by Step.agent_id, Source.uri, Scope.name and Procedure.task_type must be index-backed (no label scans)."""
+"""P5-fix Q4: lookups by Step.agent_id, Source.uri, Scope.name, Procedure.task_type must be indexed."""
 
 from __future__ import annotations
 
@@ -7,10 +7,7 @@ from tests.plan_util import BIG, explain_lines, max_records, profile_ops, seed_s
 
 def _assert_small(ops, limit=BIG):
     worst = max_records(ops)
-    assert worst.records < limit, f"label-wide enumeration: {worst}
-" + "
-".join(map(str, ops))
-
+    assert worst.records < limit, "label-wide enumeration: " + str(worst) + "\n" + "\n".join(map(str, ops))
 
 
 def _no_label_scan(client, graph, query, params, label):
@@ -21,14 +18,14 @@ def _no_label_scan(client, graph, query, params, label):
 
 def test_q4_record_step_uses_agent_index(client, graph):
     seed_steps(client, graph)
-    ops = profile_ops(client, graph, "lineage/record_step", {"agent_id": "ag3", "step_id": "new", "n": -1, "at": 9})
-    _assert_small(ops, limit=100)  # 400 steps, 20 per agent
+    params = {"agent_id": "ag3", "step_id": "new", "n": -1, "at": 9}
+    _assert_small(profile_ops(client, graph, "lineage/record_step", params), limit=100)  # 20 steps per agent
 
 
 def test_q4_knew_at_uses_agent_index(client, graph):
     seed_steps(client, graph)
-    ops = profile_ops(client, graph, "lineage/knew_at", {"agent_id": "ag3", "n": 50, "limit": 10})
-    _assert_small(ops, limit=100)
+    params = {"agent_id": "ag3", "n": 50, "limit": 10}
+    _assert_small(profile_ops(client, graph, "lineage/knew_at", params), limit=100)
 
 
 def test_q4_create_source_uses_uri_index(client, graph):
@@ -37,9 +34,8 @@ def test_q4_create_source_uses_uri_index(client, graph):
 
 
 def test_q4_create_scope_uses_name_index(client, graph):
-    _no_label_scan(
-        client, graph, "engram/create_scope", {"kind": "user", "name": "n", "scope_id": "x", "inherits": [], "now": 1}, "Scope"
-    )
+    params = {"kind": "user", "name": "n", "scope_id": "x", "inherits": [], "now": 1}
+    _no_label_scan(client, graph, "engram/create_scope", params, "Scope")
 
 
 def test_q4_procedure_lookups_use_an_index(client, graph):
@@ -56,4 +52,6 @@ def test_q4_procedure_lookups_use_an_index(client, graph):
         "now": 1,
     }
     _no_label_scan(client, graph, "engram/log_procedure_run", run, "Procedure")
-    _no_label_scan(client, graph, "engram/best_procedure", {"task_type": "t", "min_runs": 1, "limit": 5}, "Procedure")
+    _no_label_scan(
+        client, graph, "engram/best_procedure", {"task_type": "t", "min_runs": 1, "limit": 5}, "Procedure"
+    )
