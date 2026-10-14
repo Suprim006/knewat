@@ -108,16 +108,24 @@ def test_wrong_shapes_are_wrong_not_errors():
 
 
 @pytest.mark.parametrize(
-    "text,ok",
+    "text,final_ok,whole_ok",
     [
-        ('{"answer": ["a"]}', True),
-        ('```json\n{"answer": "x"}\n```', True),
-        ('Sure! {"answer": "x"}', False),
-        ('{"answer": "x", "why": "y"}', False),
-        ("[1]", False),
-        ("", False),
+        ('{"answer": ["a"]}', True, True),
+        ('```json\n{"answer": "x"}\n```', True, True),
+        ('Reasoning first.\n\n{"answer": "x"}', True, False),
+        ('Reasoning.\n```json\n{"answer": 2}\n```', True, False),
+        ('Draft {"answer": "no"} then final {"answer": "yes"}', True, False),
+        ('{"answer": "x"} and then some more text', False, False),
+        ('{"answer": "x", "why": "y"}', False, False),
+        ("[1]", False, False),
+        ("", False, False),
+        ("Sure, the answer is x", False, False),
     ],
 )
-def test_parse_reply_is_strict(text, ok):
-    _, err = parse_reply(text)
-    assert (err == "") is ok
+def test_parse_reply_rules(text, final_ok, whole_ok):
+    assert (parse_reply(text)[1] == "") is final_ok
+    assert (parse_reply(text, strict=True)[1] == "") is whole_ok
+
+
+def test_the_last_answer_object_wins():
+    assert parse_reply('Draft {"answer": "no"} then final {"answer": "yes"}')[0] == "yes"

@@ -1,0 +1,27 @@
+{
+ "qid": "Q10",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"t11-package-release\", \"t12-update-endpoints-for-v2\", \"t07-implement-crud-spec\"]}",
+ "answer": [
+  "t11-package-release",
+  "t12-update-endpoints-for-v2",
+  "t07-implement-crud-spec"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 105,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3419
+ },
+ "cost_usd": 0.014784400000000001,
+ "latency_ms": 8975.5,
+ "duration_api_ms": 2780.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "7de86b22-2508-4a21-9421-8a1c160ff6b2",
+ "key": "8f52d859014ebc9ed337af8184a56f3f2537d7a646579ad7e19d576b1bf01f8b"
+}

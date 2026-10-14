@@ -1,0 +1,23 @@
+{
+ "qid": "Q23",
+ "arm": "B1",
+ "reply": "Tasks that depend on t09-review-spec: t10-write-docs directly, and t11-package-release through t10.\n\n{\"answer\": [\"t10-write-docs\", \"t11-package-release\"]}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 65,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12775
+ },
+ "cost_usd": 0.0518084,
+ "latency_ms": 3970.3,
+ "duration_api_ms": 1601.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "1e74db10-e346-448e-8409-9770deb31dc9",
+ "key": "21153a8f0db37d2b9f3b7aca5106d491898ca7defb570dedd0716a2b9df755fb"
+}

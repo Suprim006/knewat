@@ -1,0 +1,25 @@
+{
+ "qid": "Q07",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"artifacts/openapi-draft.yaml\"]}",
+ "answer": [
+  "artifacts/openapi-draft.yaml"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 27,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12775
+ },
+ "cost_usd": 0.0514284,
+ "latency_ms": 6435.0,
+ "duration_api_ms": 3330.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "9abc39c5-d263-47d3-a4c6-a67fded30871",
+ "key": "a820821a640d6585e3aa4e70ba21eb5cc56b775abd0f5e55359f06defa8601da"
+}

@@ -83,7 +83,7 @@ def test_protocol_violations_are_errors_not_answers(tmp_path, truth, fake_env, m
 def test_garbage_reply_is_a_parse_error(tmp_path, truth, fake_env, monkeypatch):
     monkeypatch.setenv("FAKE_MODE", "garbage")
     c = runner(tmp_path).ask("B1", truth[1][0], "ctx")
-    assert c.error == "" and c.answer is None and "not JSON" in c.parse_error
+    assert c.error == "" and c.answer is None and "answer" in c.parse_error
 
 
 def test_budget_cap_stops_spending(tmp_path, truth, fake_env):

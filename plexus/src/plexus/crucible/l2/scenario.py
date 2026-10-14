@@ -92,8 +92,10 @@ def deterministic(clock: Clock) -> Iterator[None]:
         return clock.t + counter["ms"]
 
     saved: list[tuple[Any, str, Any]] = []
-    for name in _PATCHED_MODULES:
-        mod = importlib.import_module(name)
+    mods = [
+        importlib.import_module(name) for name in _PATCHED_MODULES
+    ]  # import first: a late import would bind the fakes
+    for mod in mods:
         for attr, fn in (("new_id", new_id), ("now_ms", now_ms)):
             if hasattr(mod, attr):
                 saved.append((mod, attr, getattr(mod, attr)))

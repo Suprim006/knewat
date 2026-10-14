@@ -2,10 +2,10 @@
   "schema_version": 1,
   "kind": "crucible-results",
   "run": {
-    "id": "20261014T213018Z-pilot",
-    "started_at": "2026-10-14T21:30:18Z",
-    "finished_at": "2026-10-14T21:30:24Z",
-    "duration_s": 5.7,
+    "id": "20261014T215458Z-pilot",
+    "started_at": "2026-10-14T21:54:58Z",
+    "finished_at": "2026-10-14T21:55:03Z",
+    "duration_s": 5.5,
     "quick": true,
     "command": "python -m plexus.crucible.l2.run run --mode pilot --port 6378 --budget-usd 1.5",
     "layers": [
@@ -18,7 +18,7 @@
     "machine": "AMD64",
     "cpu_count": 12,
     "in_docker": false,
-    "git_commit": "5877a42",
+    "git_commit": "4ac62a8",
     "embedder": "fastembed",
     "falkordb": {
       "host": "127.0.0.1",
@@ -254,6 +254,17 @@
           },
           "errors": 0,
           "unparseable": 0,
+          "reply_format": {
+            "json_only": 5,
+            "prose_then_json": 0,
+            "unparseable": 0,
+            "call_failed": 0
+          },
+          "accuracy_whole_reply_json": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
           "usage": {
             "llm_calls": 5,
             "calls_run_live": 0,
@@ -303,6 +314,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)@researcher\", \"auth_method=API key in X-Api-Key header@planner\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -335,6 +347,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)\", \"auth_method=API key in X-Api-Key header\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -365,6 +378,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"build the acme notes\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -395,6 +409,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -425,6 +440,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             }
           ],
@@ -472,6 +488,17 @@
           },
           "errors": 0,
           "unparseable": 0,
+          "reply_format": {
+            "json_only": 5,
+            "prose_then_json": 0,
+            "unparseable": 0,
+            "call_failed": 0
+          },
+          "accuracy_whole_reply_json": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
           "usage": {
             "llm_calls": 5,
             "calls_run_live": 0,
@@ -521,6 +548,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)@researcher\", \"auth_method=API key in X-Api-Key header@planner\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -553,6 +581,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)\", \"auth_method=API key in X-Api-Key header\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -583,6 +612,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"build the acme notes\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -613,6 +643,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             },
             {
@@ -643,6 +674,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+              "reply_format": "json_only",
               "retrieved": null
             }
           ],
@@ -690,6 +722,17 @@
           },
           "errors": 0,
           "unparseable": 0,
+          "reply_format": {
+            "json_only": 5,
+            "prose_then_json": 0,
+            "unparseable": 0,
+            "call_failed": 0
+          },
+          "accuracy_whole_reply_json": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
           "usage": {
             "llm_calls": 5,
             "calls_run_live": 0,
@@ -739,6 +782,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (RS256)@researcher\", \"auth_method=API key in X-Api-Key header@planner\"]}",
+              "reply_format": "json_only",
               "retrieved": [
                 "Decision by planner for task t05-choose-auth: \"Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.\" Based on facts: auth_method=JWT bearer tokens (RS256), auth_method=API key in X-Api-Key header.",
                 "Decision by planner for task t09-review-spec: \"Spec approved: endpoints, schema and JWT auth are consistent.\" Based on facts: api_version=v2, auth_method=JWT bearer tokens (RS256).",
@@ -784,6 +828,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"auth_method=API key in X-Api-Key header\", \"auth_method=JWT bearer tokens (RS256)\"]}",
+              "reply_format": "json_only",
               "retrieved": [
                 "Fact auth_method=API key in X-Api-Key header about 'Acme Notes API' (scope global; status active; valid_from 1760000032500; valid_to 9999999999999); asserted by planner; source acme-docs/05_customer_request.md; contradicts auth_method=JWT bearer tokens (RS256).",
                 "Fact auth_method=JWT bearer tokens (RS256) about 'Acme Notes API' (scope global; status active; valid_from 1760000028500; valid_to 9999999999999); asserted by researcher; source acme-docs/04_security_note.md; contradicts auth_method=API key in X-Api-Key header.",
@@ -827,6 +872,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"build the acme notes\"]}",
+              "reply_format": "json_only",
               "retrieved": [
                 "Fact api_version=v1 about 'Acme Notes API' (scope global; status superseded; valid_from 1760000003000; valid_to 1760000017500); asserted by researcher; source acme-docs/02_api_style_guide_v1.md; superseded by api_version=v2.",
                 "Decision by planner for task t02-choose-api-version: \"Adopt style guide v2: the API version is now v2 (routes under /v2/).\" Based on facts: api_version=v2.",
@@ -870,6 +916,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"t03-design-endpoints\"]}",
+              "reply_format": "json_only",
               "retrieved": [
                 "Episode recorded by researcher: \"Took over t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.\"",
                 "Handoff for task t12-update-endpoints-for-v2 from builder to planner: \"Updated for API v2.\" Artifacts: artifacts/openapi-v2.yaml. Facts: api_version=v2.",
@@ -913,6 +960,7 @@
               "model": "claude-sonnet-5-5",
               "num_turns": 1,
               "reply": "{\"answer\": [\"evaluate mongodb 4 as\"]}",
+              "reply_format": "json_only",
               "retrieved": [
                 "Fact api_version=v1 about 'Acme Notes API' (scope global; status superseded; valid_from 1760000003000; valid_to 1760000017500); asserted by researcher; source acme-docs/02_api_style_guide_v1.md; superseded by api_version=v2.",
                 "Decision by planner for task t06-write-db-schema: \"Evaluate MongoDB 4 as the database (forum post).\" Based on facts: database=MongoDB 4. Flagged: a fact it relied on was forgotten.",
@@ -973,6 +1021,12 @@
           },
           "errors": 0,
           "unparseable": 0,
+          "reply_format": null,
+          "accuracy_whole_reply_json": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
           "usage": {
             "llm_calls": 0,
             "calls_run_live": 0,
@@ -986,13 +1040,13 @@
             "cost_usd": 0.0,
             "cost_per_question_usd": 0.0,
             "latency_ms": {
-              "median": 3.0,
-              "p95": 4.8,
-              "total": 16.1
+              "median": 2.7,
+              "p95": 3.6,
+              "total": 14.7
             },
             "server_ms": {
-              "median": 0.183,
-              "total": 1.854
+              "median": 0.17,
+              "total": 1.663
             },
             "statements": 5
           },
@@ -1012,8 +1066,8 @@
               "error": "",
               "tokens": 0,
               "cost_usd": 0.0,
-              "latency_ms": 4.76,
-              "server_ms": 1.033,
+              "latency_ms": 3.61,
+              "server_ms": 0.762,
               "statements": 1,
               "cached": false,
               "context_chars": 0,
@@ -1034,8 +1088,8 @@
               "error": "",
               "tokens": 0,
               "cost_usd": 0.0,
-              "latency_ms": 3.2,
-              "server_ms": 0.358,
+              "latency_ms": 3.28,
+              "server_ms": 0.458,
               "statements": 1,
               "cached": false,
               "context_chars": 0,
@@ -1054,8 +1108,8 @@
               "error": "",
               "tokens": 0,
               "cost_usd": 0.0,
-              "latency_ms": 2.75,
-              "server_ms": 0.183,
+              "latency_ms": 2.54,
+              "server_ms": 0.17,
               "statements": 1,
               "cached": false,
               "context_chars": 0,
@@ -1074,8 +1128,8 @@
               "error": "",
               "tokens": 0,
               "cost_usd": 0.0,
-              "latency_ms": 2.99,
-              "server_ms": 0.163,
+              "latency_ms": 2.53,
+              "server_ms": 0.129,
               "statements": 1,
               "cached": false,
               "context_chars": 0,
@@ -1094,8 +1148,8 @@
               "error": "",
               "tokens": 0,
               "cost_usd": 0.0,
-              "latency_ms": 2.38,
-              "server_ms": 0.117,
+              "latency_ms": 2.72,
+              "server_ms": 0.144,
               "statements": 1,
               "cached": false,
               "context_chars": 0,
@@ -1127,12 +1181,13 @@
           "B0": 7114.9,
           "B1": 6720.0,
           "B2": 6563.9,
-          "P": 3.0
+          "P": 2.7
         }
       },
       "notes": [
-        "LLM cost of the answers reported here: $0.6465 over 15 claude -p calls (0 run in this invocation for $0.0000, 15 served from the on-disk cache).",
+        "LLM cost of the answers reported here: $0.6465 over 15 claude -p calls (0 run in this invocation for $0.0000; 15 re-used from the on-disk cache demo_data/crucible/l2_cache, where each entry is the original call: tokens, cost and latency in the rows are those original measurements, so 'cached: true' on a row means re-scored, not free of cost).",
         "Each baseline question is one `claude -p` process (max-turns 3, no tools, context on stdin, ANTHROPIC_API_KEY removed); permission_denials and tool use are checked per call and fail the question.",
+        "Scoring rule for the baselines: the model may reason in prose first, but the reply must END with exactly one {\"answer\": ...} JSON object (no text after it); that object is compared by exact match. `accuracy_whole_reply_json` is the stricter variant where only replies that are nothing but the JSON object count. The first full run used the whole-reply rule and scored B0 36/43, B1 38/43, B2 39/43 (Plexus 43/43): 13 baseline replies had a sentence of reasoning before a correct JSON object and were counted as unparseable. The rule was changed to the one above after seeing that (a methodology fix made with the results in view, so treat it as such), and every number was recomputed from the cached replies without any new LLM call. Both variants are reported.",
         "PILOT: 5 questions (one from each of 5 families); not a result. The full set is run only if this costs under the budget gate."
       ]
     }
@@ -1157,6 +1212,7 @@
   "honesty": [
     "L2: exact-match accuracy over a script-derived question set (43 questions, 10 families), one scenario, one model, one run per question; no LLM judge anywhere. Ground truth is computed from the scenario script, not read back from any arm.",
     "Baselines are the same unmodified `claude -p` with no tools, shown their own artifacts at the same 32,000-character cap. At this scenario size the B0 and B1 artifacts fit in the cap without truncation, so the cap is not what limits them; B2 deliberately sees only its top-12 retrieved chunks.",
+    "Result in plain words: at this scenario size (12 tasks, 9 facts, 6 decisions) the whole B0 run is about 25k characters and the whole B1 dump about 18k, so Sonnet reads everything and answers every question; Plexus TIES them on accuracy. What Plexus does measurably better here is cost and determinism (no tokens, a few milliseconds, same answer every time versus 13-16k tokens and ~5 s per question). Whether accuracy diverges when the artifacts outgrow the context cap is NOT measured by this run.",
     "Arm P answers each question with a hand-written Cypher statement per question family. That is the point of the comparison (a graph can answer these with one query) but it is also engineering effort the baselines do not get: the baselines were given no hand-written SQL or grep helpers either.",
     "The Procedures family of BASELINE \u00a72 is not in this set: the backend protocol has no procedure tool, so the arms cannot be compared on it. Cross-session recall is reduced to episodes recorded by agents (the protocol has no sessions).",
     "The scenario is the P3 Acme script replayed on the backend protocol, plus three L2 additions (the forum-post poison fault, one extra builder decision, two project-scoped facts); see crucible/l2/scenario.py.",

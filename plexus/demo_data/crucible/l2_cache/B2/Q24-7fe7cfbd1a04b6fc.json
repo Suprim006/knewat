@@ -1,0 +1,27 @@
+{
+ "qid": "Q24",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"t03-design-endpoints\", \"t05-choose-auth\", \"t06-write-db-schema\"]}",
+ "answer": [
+  "t03-design-endpoints",
+  "t05-choose-auth",
+  "t06-write-db-schema"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 42,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3447
+ },
+ "cost_usd": 0.0142664,
+ "latency_ms": 5477.9,
+ "duration_api_ms": 2228.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "c7ed7045-76eb-4716-89fa-1a725bb037a3",
+ "key": "7fe7cfbd1a04b6fc0bf075f23938e289376f63a0d48043e4264f6f02e20aa35e"
+}

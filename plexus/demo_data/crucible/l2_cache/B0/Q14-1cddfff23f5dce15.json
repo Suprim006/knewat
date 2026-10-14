@@ -1,0 +1,23 @@
+{
+ "qid": "Q14",
+ "arm": "B0",
+ "reply": "The `auth_method` facts for Acme Notes API (global scope) are:\n- JWT bearer tokens (RS256): valid_from 1760000028500, valid_to 9999999999999. This covers t=1760000029000.\n- API key in X-Api-Key header: valid_from 1760000032500. This is after t, so it was not yet valid.\n\n{\"answer\": [\"auth_method=JWT bearer tokens (RS256)\"]}",
+ "answer": null,
+ "parse_error": "reply is not JSON: Expecting value",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 144,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 15340
+ },
+ "cost_usd": 0.0628584,
+ "latency_ms": 5276.1,
+ "duration_api_ms": 2985.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "be701db8-d90d-4ba6-b542-aee0718dde68",
+ "key": "1cddfff23f5dce15cea8a436c9db49e932826509f758b56910fec11eabc87863"
+}

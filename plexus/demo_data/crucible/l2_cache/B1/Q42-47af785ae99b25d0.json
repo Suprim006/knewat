@@ -1,0 +1,25 @@
+{
+ "qid": "Q42",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"database=MongoDB 4\"]}",
+ "answer": [
+  "database=MongoDB 4"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 85,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12797
+ },
+ "cost_usd": 0.052096399999999994,
+ "latency_ms": 4925.1,
+ "duration_api_ms": 2646.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "3da6c5af-b352-458e-b893-ece863328201",
+ "key": "47af785ae99b25d0a333b8962866a93bd1ec5b3bac2578a446f5e8dd07c5fb86"
+}

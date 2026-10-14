@@ -139,18 +139,32 @@ def score(q: Question, got: Any) -> tuple[bool, str]:
 
 
 _FENCE = re.compile(r"^```(?:json)?\s*(.*?)\s*```$", re.DOTALL)
+_ANSWER_OBJ = re.compile(r'\{\s*"answer"\s*:')
+_DECODER = json.JSONDecoder()
 
 
-def parse_reply(text: str) -> tuple[Any, str]:
-    """Strictly parse a model reply: the whole reply (optionally in a code fence) must be ``{"answer": ...}``."""
+def parse_reply(text: str, *, strict: bool = False) -> tuple[Any, str]:
+    """Parse a model reply into its ``{"answer": ...}`` object.
+
+    ``strict=True``: the whole reply (optionally in one code fence) must be exactly that JSON object.
+    ``strict=False`` (the scoring rule): the reply may start with reasoning prose, but its **last** ``{"answer": ...}``
+    must be valid JSON of exactly that shape and nothing but whitespace or a closing fence may follow it.
+    """
     s = text.strip()
     m = _FENCE.match(s)
     if m:
         s = m.group(1).strip()
+    if not strict and not s.startswith("{"):
+        hits = list(_ANSWER_OBJ.finditer(s))
+        if not hits:
+            return None, 'no {"answer": ...} object in the reply'
+        s = s[hits[-1].start() :]
     try:
-        obj = json.loads(s)
+        obj, end = _DECODER.raw_decode(s)
     except json.JSONDecodeError as exc:
         return None, f"reply is not JSON: {exc.msg}"
+    if s[end:].strip().strip("`").strip():
+        return None, "text after the JSON object"
     if not isinstance(obj, dict) or set(obj) != {"answer"}:
         return None, 'reply must be exactly {"answer": ...}'
     return obj["answer"], ""

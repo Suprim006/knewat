@@ -37,6 +37,7 @@ from plexus.crucible.l2.questions import (
     dump_questions,
     generate,
     load_questions,
+    parse_reply,
     scenario_summary,
     score,
 )
@@ -63,6 +64,7 @@ ANSWERERS = {
 L2_HONESTY = [
     "L2: exact-match accuracy over a script-derived question set (43 questions, 10 families), one scenario, one model, one run per question; no LLM judge anywhere. Ground truth is computed from the scenario script, not read back from any arm.",
     "Baselines are the same unmodified `claude -p` with no tools, shown their own artifacts at the same 32,000-character cap. At this scenario size the B0 and B1 artifacts fit in the cap without truncation, so the cap is not what limits them; B2 deliberately sees only its top-12 retrieved chunks.",
+    "Result in plain words: at this scenario size (12 tasks, 9 facts, 6 decisions) the whole B0 run is about 25k characters and the whole B1 dump about 18k, so Sonnet reads everything and answers every question; Plexus TIES them on accuracy. What Plexus does measurably better here is cost and determinism (no tokens, a few milliseconds, same answer every time versus 13-16k tokens and ~5 s per question). Whether accuracy diverges when the artifacts outgrow the context cap is NOT measured by this run.",
     "Arm P answers each question with a hand-written Cypher statement per question family. That is the point of the comparison (a graph can answer these with one query) but it is also engineering effort the baselines do not get: the baselines were given no hand-written SQL or grep helpers either.",
     "The Procedures family of BASELINE §2 is not in this set: the backend protocol has no procedure tool, so the arms cannot be compared on it. Cross-session recall is reduced to episodes recorded by agents (the protocol has no sessions).",
     "The scenario is the P3 Acme script replayed on the backend protocol, plus three L2 additions (the forum-post poison fault, one extra builder decision, two project-scoped facts); see crucible/l2/scenario.py.",
@@ -94,6 +96,15 @@ def prepare_arm(arm: str, root: Path, host: str, port: int, embedder: str, tenan
     led = play(b)
     path = getattr(b, "dir", None)
     return Prepared(arm, tenant, b, led, Path(path) if path else None)
+
+
+def reply_format(reply: str, failed: bool) -> str:
+    """``json_only`` (the whole reply is the answer object), ``prose_then_json`` or ``unparseable``."""
+    if failed:
+        return "call_failed"
+    if parse_reply(reply, strict=True)[1] == "":
+        return "json_only"
+    return "prose_then_json" if parse_reply(reply)[1] == "" else "unparseable"
 
 
 def check_questions(committed: list[Question], tmp: Path) -> tuple[Ledger, list[Question]]:
@@ -185,7 +196,8 @@ def answer_baseline(
                 tokens=call.total_tokens, usage={k: call.usage.get(k, 0) for k in USAGE_KEYS},
                 cost_usd=round(call.cost_usd, 6), latency_ms=call.latency_ms, cached=call.cached,
                 context_chars=ctx.chars, artifact_chars=ctx.artifact_chars, truncated=ctx.truncated, context_sha256=ctx.sha256[:16],
-                model=call.model, num_turns=call.num_turns, reply=call.reply[:400],
+                model=call.model, num_turns=call.num_turns, reply=call.reply[:600],
+                reply_format=reply_format(call.reply, bool(call.error)),
                 retrieved=[c for c in ctx.parts] if p.arm == "B2" else None,
             )
         )  # fmt: skip
@@ -220,7 +232,20 @@ def arm_summary(
         "accuracy": {"correct": correct, "total": n, "pct": _pct(correct, n)},
         "by_family": by_family,
         "errors": sum(1 for r in rows if r["error"].startswith("call failed")),
-        "unparseable": sum(1 for r in rows if r["error"].startswith(("reply ", "unparseable"))),
+        "unparseable": sum(1 for r in rows if r.get("reply_format") == "unparseable"),
+        "reply_format": {
+            k: sum(1 for r in rows if r.get("reply_format") == k)
+            for k in ("json_only", "prose_then_json", "unparseable", "call_failed")
+        }
+        if arm != "P"
+        else None,
+        "accuracy_whole_reply_json": {
+            "correct": sum(r["correct"] and r.get("reply_format", "json_only") == "json_only" for r in rows),
+            "total": n,
+            "pct": _pct(
+                sum(r["correct"] and r.get("reply_format", "json_only") == "json_only" for r in rows), n
+            ),
+        },
         "usage": {
             "llm_calls": 0 if arm == "P" else n,
             "calls_run_live": len(live),
@@ -408,6 +433,15 @@ def render_report(doc: dict[str, Any]) -> str:
         for a in order
     ]
     w.append(f"| **All** | {layer['question_set']['asked']} | " + " | ".join(totals) + " |\n")
+    strict = [
+        f"{arms[a]['accuracy_whole_reply_json']['correct']}/{arms[a]['accuracy_whole_reply_json']['total']}"
+        for a in order
+    ]
+    w.append(
+        "Whole-reply-JSON-only variant (stricter): "
+        + ", ".join(f"{a} {x}" for a, x in zip(order, strict, strict=True))
+        + "\n"
+    )
     w.append("## Cost\n")
     w.append(
         "| Arm | tokens / question | cost / question | total cost | median latency | context chars (median) | truncated |"
@@ -443,6 +477,8 @@ def write_outputs(doc: dict[str, Any], out_root: Path, run_id: str) -> Path:
     d.mkdir(parents=True, exist_ok=True)
     (d / "results.json").write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
     (d / "report.md").write_text(render_report(doc), encoding="utf-8", newline="\n")
+    mode = doc["layers"]["L2"]["mode"]
+    shutil.copyfile(d / "results.json", out_root / f"latest-{mode}.json")
     return d
 
 
@@ -500,10 +536,18 @@ def run_l2(
         cached = sum(v["usage"]["calls_from_cache"] for v in results.values())
         notes.append(
             f"LLM cost of the answers reported here: ${total_cost:.4f} over {live + cached} claude -p calls "
-            f"({live} run in this invocation for ${runner.spent_usd:.4f}, {cached} served from the on-disk cache)."
+            f"({live} run in this invocation for ${runner.spent_usd:.4f}; {cached} re-used from the on-disk cache "
+            "demo_data/crucible/l2_cache, where each entry is the original call: tokens, cost and latency in the rows are "
+            "those original measurements, so 'cached: true' on a row means re-scored, not free of cost)."
         )
         notes.append(
             "Each baseline question is one `claude -p` process (max-turns 3, no tools, context on stdin, ANTHROPIC_API_KEY removed); permission_denials and tool use are checked per call and fail the question."
+        )
+        notes.append(
+            "Scoring rule for the baselines: the model may reason in prose first, but the reply must END with exactly one "
+            '{"answer": ...} JSON object (no text after it); that object is compared by exact match. '
+            "`accuracy_whole_reply_json` is the stricter variant where only replies that are nothing but the JSON object "
+            "count. The first full run used the whole-reply rule and scored B0 36/43, B1 38/43, B2 39/43 (Plexus 43/43): 13 baseline replies had a sentence of reasoning before a correct JSON object and were counted as unparseable. The rule was changed to the one above after seeing that (a methodology fix made with the results in view, so treat it as such), and every number was recomputed from the cached replies without any new LLM call. Both variants are reported."
         )
         if mode == "pilot":
             notes.append(

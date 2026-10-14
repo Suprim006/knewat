@@ -1,0 +1,26 @@
+{
+ "qid": "Q20",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"adopt style guide v2\", \"spec approved endpoints schema\"]}",
+ "answer": [
+  "adopt style guide v2",
+  "spec approved endpoints schema"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 192,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3497
+ },
+ "cost_usd": 0.0159664,
+ "latency_ms": 8410.6,
+ "duration_api_ms": 3040.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "73647ec3-18f4-4af8-8bff-673c30fc4986",
+ "key": "92f163e8b403ae53a4342c7debc624c052c82c103e9dacb5fcf8f5291e169f66"
+}

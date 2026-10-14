@@ -157,7 +157,11 @@ class ClaudeRunner:
         if use_cache and path is not None and path.exists():
             d = json.loads(path.read_text(encoding="utf-8"))
             if d.get("key") == key and not d.get("error"):
-                return LlmCall.from_json(d)
+                call = LlmCall.from_json(d)
+                call.answer, call.parse_error = parse_reply(
+                    call.reply
+                )  # the parser may be newer than the cache
+                return call
         if self.budget_usd is not None and self.spent_usd >= self.budget_usd:
             raise BudgetExceeded(f"spent ${self.spent_usd:.2f} of the ${self.budget_usd:.2f} cap")
         call = self._run(arm, q, context)

@@ -1,0 +1,26 @@
+{
+ "qid": "Q03",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"api_version=v2\", \"auth_method=JWT bearer tokens (RS256)\"]}",
+ "answer": [
+  "api_version=v2",
+  "auth_method=JWT bearer tokens (RS256)"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 39,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 12797
+ },
+ "cost_usd": 0.0516364,
+ "latency_ms": 4868.3,
+ "duration_api_ms": 2038.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "6fb4d624-77e0-4ed7-bafc-3a448afada7a",
+ "key": "84ecb1e95c5dd5dc3eed1e730deb196627c338b1b9b8c43f296a085b6e554c96"
+}
