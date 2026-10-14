@@ -4,6 +4,7 @@ import { Layout } from './app/Layout';
 import { Flow } from './views/Flow';
 import { Inventory } from './views/Inventory';
 import { TimeMachine } from './views/TimeMachine';
+import { Why } from './views/Why';
 import { Placeholder } from './views/Placeholder';
 
 // Cytoscape + fcose are ~560 kB; keep them out of the entry chunk (docs/spikes/S3-view-lib.md).
@@ -23,12 +24,7 @@ export function AppRoutes() {
         />
         <Route path="flow" element={<Flow />} />
         <Route path="time" element={<TimeMachine />} />
-        <Route
-          path="why/:id"
-          element={
-            <Placeholder title="Why" blurb="Path highlight from a decision or fact back to its evidence." />
-          }
-        />
+        <Route path="why/:id" element={<Why />} />
         <Route path="inventory" element={<Inventory />} />
         <Route
           path="results"

@@ -20,10 +20,7 @@ describe('App shell', () => {
     );
   });
 
-  it.each([
-    ['/why/abc-123', 'Why'],
-    ['/results', 'Results'],
-  ])('%s is a placeholder page', (route, title) => {
+  it.each([['/results', 'Results']])('%s is a placeholder page', (route, title) => {
     renderApp(route);
     expect(screen.getByRole('heading', { level: 1, name: title })).toBeInTheDocument();
     expect(screen.getByText(/Placeholder/)).toBeInTheDocument();
@@ -35,9 +32,10 @@ describe('App shell', () => {
     expect(screen.queryByText(/Placeholder/)).not.toBeInTheDocument();
   });
 
-  it('passes the :id of /why/:id to the page', () => {
+  it('routes /why/:id to the Why page', async () => {
     renderApp('/why/abc-123');
-    expect(screen.getByText('abc-123')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 1, name: 'Why' })).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('No Decision or Fact');
   });
 
   it('navigates between pages and cycles the theme', async () => {

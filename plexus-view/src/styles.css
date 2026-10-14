@@ -825,3 +825,87 @@ pre.cypher {
   text-decoration: none;
   font-weight: 600;
 }
+
+/* ---------- Why ---------- */
+.why-picker {
+  margin: 4px 0 14px;
+}
+.why-picker select {
+  max-width: min(720px, 70vw);
+}
+.why-scroll {
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 12px 0;
+  color: var(--muted);
+}
+.why-col-head {
+  font-size: 11px;
+  fill: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.why-edge {
+  stroke: var(--muted);
+  stroke-width: 1.4;
+}
+.why-edge.on {
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.why-edge-label {
+  font-size: 9px;
+  fill: var(--muted);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+}
+.why-box {
+  fill: var(--surface-2);
+  stroke: var(--border);
+}
+.why-node {
+  cursor: pointer;
+  outline: none;
+}
+.why-node.root .why-box {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.why-node.sel .why-box,
+.why-node:focus-visible .why-box {
+  stroke: var(--text);
+  stroke-width: 2.5;
+}
+.why-label {
+  font-size: 10px;
+  fill: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.why-title {
+  font-size: 12px;
+  fill: var(--text);
+}
+.why-stats {
+  margin-bottom: 4px;
+}
+.why-below {
+  align-items: start;
+}
+.fact-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fact-list li {
+  margin: 0 0 8px;
+}
+.fact-list .chip {
+  margin-left: 6px;
+}
+.kv-row {
+  display: contents;
+}
