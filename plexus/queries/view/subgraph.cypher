@@ -20,5 +20,5 @@ RETURN [x IN ns | {
     at: x.at, created_at: x.created_at, valid_from: x.valid_from, valid_to: x.valid_to,
     priority: x.priority, success: x.success, n: x.n, step: x.step, claimed_by: x.claimed_by,
     version: x.version, summary: left(x.summary, 200), note: left(x.note, 200), confidence: x.confidence,
-    trust: x.trust, harness: x.harness, task_type: x.task_type, subject_id: x.subject_id
+    trust: x.trust, query: left(x.query, 200), k: x.k, harness: x.harness, task_type: x.task_type, subject_id: x.subject_id
   }}] AS nodes, es AS edges

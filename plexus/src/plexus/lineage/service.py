@@ -19,6 +19,7 @@ MAX_LINK_IDS = 200  # ids per list in link_step
 MAX_RECALL_RESULTS = 200
 MAX_DERIVE_IDS = 100
 MAX_FORGET_FACTS = 5000
+MAX_SOURCE_TEXT = 2000
 MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
 
 
@@ -74,9 +75,14 @@ class Lineage:
         trust: float = 1.0,
         *,
         source_id: str | None = None,
+        title: str = "",
+        text: str = "",
         now: int | None = None,
     ) -> str:
-        """MERGE a ``Source`` by ``uri`` (idempotent) and return its id. Pass it to ``Engram.assert_fact``."""
+        """MERGE a ``Source`` by ``uri`` (idempotent) and return its id. Pass it to ``Engram.assert_fact``.
+
+        ``title`` / ``text`` are optional display properties (text is cut to 2000 chars).
+        """
         if not uri.strip():
             raise ValueError("source uri must not be empty")
         rows = self.client.rw(
@@ -87,6 +93,8 @@ class Lineage:
                 "uri": uri,
                 "kind": kind,
                 "trust": float(trust),
+                "title": title,
+                "text": text[:MAX_SOURCE_TEXT],
                 "now": self._t(now),
             },
         )

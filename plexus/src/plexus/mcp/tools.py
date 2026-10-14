@@ -2,7 +2,9 @@
 
 Every tool takes ``agent_id`` (who is acting) and an optional ``step`` (the agent's own step counter, used by the
 time machine). The tenant is NOT an argument: it is bound to the connection (see ``plexus.mcp.runtime``).
-Each tool body is one service call; :meth:`Runtime.call` times it and records a ``ToolCall``.
+Each tool body is one service call; :meth:`Runtime.call` times it, records a ``ToolCall`` and (when Lineage is
+installed) attaches the call to the agent's ``Step``: ``WROTE`` for what it created or updated, ``READ`` for the
+facts it looked at (``Outcome.read_ids`` / ``Outcome.assert_result`` / ``Outcome.after``).
 """
 
 from typing import Annotated, Any
@@ -23,7 +25,8 @@ AgentId = Annotated[
 Step = Annotated[
     int | None,
     Field(
-        description="Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew."
+        description="Optional: your own step counter (1, 2, 3...); calls with the same step share one step. "
+        "If omitted, every call becomes the next step automatically. Never go backwards."
     ),
 ]
 ScopeArg = Annotated[
@@ -133,7 +136,11 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         ctx: Context,
         scope: ScopeArg = "global",
         source_id: Annotated[
-            str | None, Field(description="Optional Source id this fact comes from.")
+            str | None,
+            Field(
+                description="Optional Source id (from add_source) this fact comes from. The fact is linked to "
+                "it, so it can be explained with why() and removed with forget_source / quarantine_source."
+            ),
         ] = None,
         episode_id: Annotated[
             str | None, Field(description="Optional episode_id that evidences this fact.")
@@ -173,7 +180,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
             updated = [_fact_ref(f) for f in r["superseded"]]
             if r["duplicate_of"]:
                 updated.append(_fact_ref(r["duplicate_of"]))
-            return Outcome(data, created=created, updated=updated)
+            return Outcome(data, created=created, updated=updated, assert_result=r)
 
         return await rt.call(ctx.headers, "assert_fact", agent_id, step, work)
 
@@ -197,14 +204,19 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     ) -> dict[str, Any]:
         """Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this
         before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window
-        and a 'path' showing where it came from."""
+        and a 'path' showing where it came from. Also returns recall_id: pass it to why_recalled to see why these
+        facts came back, in this order."""
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
             sid = ts.scope_id(scope, m)
             hits = ts.engram(m).recall(query, sid, k=k, as_of=as_of, budget_chars=budget_chars)
             for h in hits:
                 h["score"] = round(h["score"], 4)
-            return Outcome({"facts": hits, "count": len(hits), "scope_id": sid})
+
+            def record(lin, step_id: str | None) -> dict[str, Any]:
+                return {"recall_id": lin.record_recall(agent_id, step_id, query, sid, k, hits)}
+
+            return Outcome({"facts": hits, "count": len(hits), "scope_id": sid}, after=record)
 
         return await rt.call(ctx.headers, "recall", agent_id, step, work)
 
@@ -396,6 +408,23 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         return await rt.call(ctx.headers, "fail_task", agent_id, step, work)
 
     @tool
+    async def reopen_task(
+        agent_id: AgentId,
+        task_id: Annotated[str, Field(description="A task that is currently 'failed'.")],
+        ctx: Context,
+        step: Step = None,
+    ) -> dict[str, Any]:
+        """Retry a failed task: it becomes 'open' again so it can be claimed (by anyone, including you). Fails
+        if the task is not failed. Tasks that depend on it stay blocked until it is done again. Returns the new
+        status and version."""
+
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).reopen_task(agent_id, task_id)
+            return Outcome({"task": r}, updated=[("Task", task_id)])
+
+        return await rt.call(ctx.headers, "reopen_task", agent_id, step, work)
+
+    @tool
     async def handoff(
         agent_id: AgentId,
         to_agent: Annotated[str, Field(description="Agent id receiving the work (must be registered).")],
@@ -411,7 +440,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
             hid = ts.relay(m).handoff(agent_id, to_agent, task_id, note, artifact_ids, fact_ids)
-            return Outcome({"handoff_id": hid}, created=[("Handoff", hid)])
+            return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=fact_ids)
 
         return await rt.call(ctx.headers, "handoff", agent_id, step, work)
 
@@ -449,7 +478,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
             did = ts.relay(m).record_decision(agent_id, task_id, text, based_on_fact_ids)
-            return Outcome({"decision_id": did}, created=[("Decision", did)])
+            return Outcome({"decision_id": did}, created=[("Decision", did)], read_ids=based_on_fact_ids)
 
         return await rt.call(ctx.headers, "record_decision", agent_id, step, work)
 

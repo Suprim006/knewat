@@ -30,6 +30,7 @@ ENGRAM_RELAY_TOOLS = {
     "handoff",
     "verify_artifact",
     "record_decision",
+    "reopen_task",
     "ready_tasks",
     "task_status",
     "blocked_by_failure",
@@ -55,8 +56,18 @@ async def test_tool_list_and_schema_snapshot(server):
     }
     names = set(got)
     assert ENGRAM_RELAY_TOOLS <= names
-    lineage_tools = {"why", "why_recalled", "who_knew", "knew_at", "as_of", "forget_source"}
-    assert names - ENGRAM_RELAY_TOOLS <= lineage_tools, "unexpected extra tools"
+    lineage_tools = {
+        "why",
+        "why_recalled",
+        "who_knew",
+        "knew_at",
+        "as_of",
+        "add_source",
+        "forget_source",
+        "quarantine_source",
+        "release_quarantine",
+    }
+    assert names - ENGRAM_RELAY_TOOLS == lineage_tools, "unexpected or missing tools"
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name

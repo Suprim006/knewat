@@ -31,7 +31,9 @@ OPTIONAL MATCH (n9:Decision {id: l.id}) WHERE l.label = 'Decision'
 OPTIONAL MATCH (n10:Run {id: l.id}) WHERE l.label = 'Run'
 OPTIONAL MATCH (n11:Agent {id: l.id}) WHERE l.label = 'Agent'
 OPTIONAL MATCH (n12:Procedure {id: l.id}) WHERE l.label = 'Procedure'
-WITH tc, l, coalesce(n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12) AS n
+OPTIONAL MATCH (n13:Source {id: l.id}) WHERE l.label = 'Source'
+OPTIONAL MATCH (n14:Recall {id: l.id}) WHERE l.label = 'Recall'
+WITH tc, l, coalesce(n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14) AS n
 FOREACH (_ IN CASE WHEN n IS NOT NULL AND l.rel = 'C' THEN [1] ELSE [] END | CREATE (tc)-[:CREATED]->(n))
 FOREACH (_ IN CASE WHEN n IS NOT NULL AND l.rel = 'U' THEN [1] ELSE [] END | CREATE (tc)-[:UPDATED]->(n))
 RETURN tc.id AS id, sum(CASE WHEN n IS NOT NULL THEN 1 ELSE 0 END) AS links
