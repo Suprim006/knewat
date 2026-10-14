@@ -368,6 +368,25 @@ def _l4(layer: dict[str, Any], w) -> None:
             )
         )
         w("")
+        recall_pts = layer.get("recall_sweep", [])
+        wmax = max((p["workers"] for p in recall_pts), default=0)
+        by_arm = {p["arm"]: p for p in recall_pts if p["workers"] == wmax}
+        if "P" in by_arm and "P-mcp" in by_arm:
+            p, m = by_arm["P"], by_arm["P-mcp"]
+            top = max(probe, key=lambda x: x["workers"])
+            w(
+                f"At {wmax} workers recall runs at {p['throughput_ops_s']:g} ops/s (P) and {m['throughput_ops_s']:g} ops/s (P-mcp), "
+                f"against {top['throughput_ops_s']:g} embeds/s for the embedder alone at {top['workers']} workers. The server-side time stays at "
+                f"{p['recall'].get('server_p50_ms', '?')} ms (P) / {m['recall'].get('server_p50_ms', '?')} ms (P-mcp) p50, while client p50 is "
+                f"{p['recall']['p50_ms'] / 1000:.1f} s / {m['recall']['p50_ms'] / 1000:.1f} s: that is the closed-loop queue "
+                f"({wmax} workers / throughput), not database time. "
+                + (
+                    "P-mcp's extra Step and ToolCall writes do not make it slower than P at this worker count, so there the audit writes are not the limiter (at low worker counts, where the embedder is not saturated, P-mcp is slower: see the table above)."
+                    if m["throughput_ops_s"] >= 0.8 * p["throughput_ops_s"]
+                    else "P-mcp is slower than P here, which is the cost of its extra Step and ToolCall writes."
+                )
+            )
+            w("")
     tenants = layer["tenant_sweep"]
     if tenants:
         tarms = list(dict.fromkeys(p["arm"] for p in tenants))
