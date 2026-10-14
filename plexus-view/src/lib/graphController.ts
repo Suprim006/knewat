@@ -64,6 +64,20 @@ const NODE_SIZE: Record<string, number> = {
 /** Above this many edges we switch to cheap haystack edges (no arrowheads). */
 export const HAYSTACK_EDGE_THRESHOLD = 1500;
 
+/** fcose options. Quality stays "draft" (spike S3): `default` takes ~26 s at 2k nodes. */
+export const LAYOUT_OPTIONS = {
+  name: 'fcose',
+  quality: 'draft',
+  randomize: true,
+  nodeDimensionsIncludeLabels: false,
+  idealEdgeLength: 110,
+  nodeRepulsion: 14000,
+  nodeSeparation: 110,
+  edgeElasticity: 0.4,
+  gravity: 0.15,
+  packComponents: true,
+} as const;
+
 export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
   return [
     {
@@ -83,6 +97,12 @@ export function buildStyle(theme: Theme, haystack: boolean): StylesheetJson {
         'text-outline-width': 2,
         'min-zoomed-font-size': 9,
       },
+    },
+    // Anchors keep their label even when zoomed out; everything else labels on zoom-in.
+    {
+      selector:
+        'node[label = "Agent"], node[label = "Task"], node[label = "Decision"], node[label = "Entity"]',
+      style: { 'min-zoomed-font-size': 0, 'font-size': 11, 'font-weight': 600 },
     },
     ...Object.entries(LABEL_COLORS).map(([label, color]) => ({
       selector: `node[label = "${label}"]`,
@@ -220,6 +240,37 @@ const toEdgeDef = (e: GraphEdge): ElementDefinition => ({
   data: { id: e.id, source: e.src, target: e.dst, type: e.type, props: e.props },
 });
 
+/**
+ * Give each unplaced node a position next to an already-placed neighbour (several passes so chains of
+ * new nodes work), falling back to the centre of the placed cluster. Never moves placed nodes.
+ */
+function seedNear(cy: Core, unplaced: NodeSingular[], placed: Set<string>): void {
+  const todo = [...unplaced];
+  for (let pass = 0; pass < 4 && todo.length > 0; pass++) {
+    for (let i = todo.length - 1; i >= 0; i--) {
+      const n = todo[i]!;
+      const nb = n
+        .neighborhood('node')
+        .filter((m) => placed.has(m.id()))
+        .first() as NodeSingular;
+      if (nb.empty()) continue;
+      const p = nb.position();
+      n.position({ x: p.x + (Math.random() - 0.5) * 60, y: p.y + (Math.random() - 0.5) * 60 });
+      placed.add(n.id());
+      todo.splice(i, 1);
+    }
+  }
+  if (todo.length === 0) return;
+  const ext = cy.nodes().filter((n) => placed.has(n.id()));
+  const box = ext.nonempty() ? ext.boundingBox() : { x1: 0, x2: 0, y1: 0, y2: 0 };
+  for (const n of todo) {
+    n.position({
+      x: (box.x1 + box.x2) / 2 + (Math.random() - 0.5) * 120,
+      y: (box.y1 + box.y2) / 2 + (Math.random() - 0.5) * 120,
+    });
+  }
+}
+
 export function createGraphController(opts: ControllerOptions = {}): GraphController {
   register();
   const headless = opts.headless ?? !opts.container;
@@ -295,13 +346,23 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       updateEdgeMode();
       applyFilters();
       if (nodes.length > 0) {
-        cy.layout({
-          name: 'fcose',
-          quality: 'draft',
-          randomize: true,
-          animate: false,
-          nodeDimensionsIncludeLabels: false,
-        } as cytoscape.LayoutOptions).run();
+        // Lay out what is visible (hidden-by-default labels/edge types would only add hairball), then
+        // park the hidden nodes next to their neighbours so toggling them on moves nothing.
+        const visible = cy.elements().not('.hide-label, .hide-type');
+        if (visible.nodes().nonempty()) {
+          visible.layout({ ...LAYOUT_OPTIONS, animate: false } as cytoscape.LayoutOptions).run();
+        }
+        const hidden = cy.nodes('.hide-label');
+        seedNear(
+          cy,
+          hidden.toArray(),
+          new Set(
+            cy
+              .nodes()
+              .not('.hide-label')
+              .map((n) => n.id()),
+          ),
+        );
         cy.fit(undefined, 30);
       }
     },
@@ -335,29 +396,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
             .filter((n) => !freshIds.has(n.id()))
             .map((n) => n.id()),
         );
-        const unplaced = added.nodes().toArray();
-        for (let pass = 0; pass < 4 && unplaced.length > 0; pass++) {
-          for (let i = unplaced.length - 1; i >= 0; i--) {
-            const n = unplaced[i]!;
-            const nb = n
-              .neighborhood('node')
-              .filter((m) => placed.has(m.id()))
-              .first() as NodeSingular;
-            if (nb.empty()) continue;
-            const p = nb.position();
-            n.position({ x: p.x + (Math.random() - 0.5) * 60, y: p.y + (Math.random() - 0.5) * 60 });
-            placed.add(n.id());
-            unplaced.splice(i, 1);
-          }
-        }
-        const ext = cy.nodes().filter((n) => placed.has(n.id()) && !freshIds.has(n.id()));
-        const center = ext.nonempty() ? ext.boundingBox() : { x1: 0, x2: 0, y1: 0, y2: 0 };
-        for (const n of unplaced) {
-          n.position({
-            x: (center.x1 + center.x2) / 2 + (Math.random() - 0.5) * 120,
-            y: (center.y1 + center.y2) / 2 + (Math.random() - 0.5) * 120,
-          });
-        }
+        seedNear(cy, added.nodes().toArray(), placed);
         applyFilters(added.union(addedEdges));
         added.nodes().addClass('fresh');
       });
@@ -507,9 +546,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     relayout() {
       cy.layout({
-        name: 'fcose',
-        quality: 'draft',
-        randomize: true,
+        ...LAYOUT_OPTIONS,
         animate: !headless,
         animationDuration: 600,
       } as cytoscape.LayoutOptions).run();

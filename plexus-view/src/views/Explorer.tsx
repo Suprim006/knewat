@@ -5,7 +5,7 @@ import { useApi, useTenant } from '../app/context';
 import { FilterPanel } from '../components/FilterPanel';
 import { GraphCanvas } from '../components/GraphCanvas';
 import { NodePanel } from '../components/NodePanel';
-import { DEFAULT_HIDDEN_LABELS, labelColor } from '../lib/labels';
+import { DEFAULT_HIDDEN_EDGE_TYPES, DEFAULT_HIDDEN_LABELS, labelColor } from '../lib/labels';
 import type { Counts, GraphController } from '../lib/graphController';
 
 const REPLAY_EVENTS = 24;
@@ -28,7 +28,9 @@ export function Explorer() {
   const [stats, setStats] = useState<Stats>(EMPTY_STATS);
   const [rev, setRev] = useState(0);
   const [hiddenLabels, setHiddenLabels] = useState<ReadonlySet<string>>(() => new Set(DEFAULT_HIDDEN_LABELS));
-  const [hiddenEdgeTypes, setHiddenEdgeTypes] = useState<ReadonlySet<string>>(() => new Set());
+  const [hiddenEdgeTypes, setHiddenEdgeTypes] = useState<ReadonlySet<string>>(
+    () => new Set(DEFAULT_HIDDEN_EDGE_TYPES),
+  );
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<string[]>([]);
   const [sel, setSel] = useState<{ tenant: string; id: string } | null>(null);

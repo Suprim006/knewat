@@ -4,8 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { acme, renderApp } from '../test/render';
 
 const total = acme.nodes.length;
-const toolCalls = acme.nodes.filter((n) => n.label === 'ToolCall').length;
 const countOf = (label: string) => acme.nodes.filter((n) => n.label === label).length;
+const hiddenByDefault = ['ToolCall', 'Step', 'Recall', 'Session'];
+const hiddenCount = hiddenByDefault.reduce((s, l) => s + countOf(l), 0);
 
 /** Parses "Showing X of N nodes · Y of M edges". */
 function counts() {
@@ -22,14 +23,16 @@ async function loaded() {
 afterEach(() => vi.useRealTimers());
 
 describe('Explorer', () => {
-  it('renders the fixture graph with ToolCall nodes hidden by default', async () => {
+  it('renders the fixture graph with bookkeeping labels hidden by default', async () => {
     renderApp('/');
     const c = await loaded();
     expect(c.totalNodes).toBe(total);
     expect(c.totalEdges).toBe(acme.edges.length);
-    expect(c.nodes).toBe(total - toolCalls);
+    expect(c.nodes).toBe(total - hiddenCount);
     expect(c.edges).toBeLessThan(c.totalEdges);
-    expect(screen.getByRole('checkbox', { name: /^ToolCall/ })).not.toBeChecked();
+    for (const l of hiddenByDefault)
+      expect(screen.getByRole('checkbox', { name: new RegExp(`^${l}`) })).not.toBeChecked();
+    expect(screen.getByRole('checkbox', { name: /^IN_SCOPE/ })).not.toBeChecked();
     const fact = screen.getByRole('checkbox', { name: /^Fact/ });
     expect(fact).toBeChecked();
     // the legend shows per-label counts
@@ -48,7 +51,7 @@ describe('Explorer', () => {
     await user.click(screen.getByRole('checkbox', { name: /^Fact/ }));
     expect(counts()).toEqual(before);
     await user.click(screen.getByRole('checkbox', { name: /^ToolCall/ }));
-    expect(counts().nodes).toBe(total);
+    expect(counts().nodes).toBe(before.nodes + countOf('ToolCall'));
   });
 
   it('edge-type filters reduce the visible edges but not the nodes', async () => {

@@ -44,8 +44,12 @@ export const LABEL_MODULES: Record<string, string> = {
 };
 export const MODULE_ORDER = ['Shared', 'Engram', 'Relay', 'Lineage', 'Audit'];
 
-/** Labels that are noisy (one node per tool call) and start hidden in the Explorer. */
-export const DEFAULT_HIDDEN_LABELS = ['ToolCall'];
+/**
+ * Noise that starts hidden in the Explorer so the memory/coordination structure is readable:
+ * audit and lineage bookkeeping nodes, and the edges every fact has (scope, author) or every step has.
+ */
+export const DEFAULT_HIDDEN_LABELS = ['ToolCall', 'Step', 'Recall', 'Session'];
+export const DEFAULT_HIDDEN_EDGE_TYPES = ['IN_SCOPE', 'ASSERTED_BY', 'BY', 'WROTE', 'READ'];
 
 const trunc = (s: string, n = 48): string => (s.length > n ? `${s.slice(0, n - 1)}…` : s);
 const str = (v: unknown): string =>
