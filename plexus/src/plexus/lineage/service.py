@@ -297,7 +297,8 @@ class Lineage:
         ``readers`` / ``agents`` are the Steps / agents that READ a quarantined fact, the decisions are
         ``BASED_ON`` them and the handoffs ``CARRIES`` them. The response is bounded: ``readers``,
         ``decision_ids`` and ``handoff_ids`` list at most ``max_detail`` (1..5000, default 500) entries
-        (readers: the earliest), the ``*_total`` counts and ``agents`` are always complete. Raises :class:`UnknownNode`.
+        (readers: the earliest), the ``*_total`` counts and ``agents`` are always complete. Raises
+        :class:`UnknownNode`.
         """
         _check_limit(limit)
         _check_detail(max_detail)
