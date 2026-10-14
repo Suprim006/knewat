@@ -44,3 +44,24 @@ PROPERTIES 1 id` for `Task`, `Fact`, `Agent`, `Decision` and `Handoff` (see `doc
 ```
 
 Other `//` comment lines in the header or body are free comments and are ignored.
+
+## Relay queries (`queries/relay/`)
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `relay/register_agent` | rw | MERGE the `Agent` node by id and refresh name/role/harness | Agents are graph nodes that claims, handoffs and decisions attach to. |
+| `relay/create_tasks` | rw | Create a task DAG (`UNWIND` tasks, then `DEPENDS_ON` edges) in one statement, guarded so it writes all or nothing | The dependency DAG is stored as `DEPENDS_ON` edges; edges use list indexes because nodes created in the same statement are not `MATCH`able. |
+| `relay/existing_tasks` | ro | Which task ids exist (explains a rejected create) | Diagnostic id lookup (index-backed). |
+| `relay/claim_next_task` | rw | Atomically claim the best ready task (open or lease-expired, all `DEPENDS_ON` targets `done`), set lease and `version+1`, create the `CLAIMED` edge (with `reclaimed_from`) | Readiness is a traversal over `DEPENDS_ON`; the claim is a single serialised graph write, so two agents never win the same task (50-thread test). |
+| `relay/ready_tasks` | ro | Tasks claimable now, best first (same rule as the claim) | Dependency check by traversal. |
+| `relay/heartbeat` | rw | Extend a lease only if `claimed_by = agent AND status = 'claimed'` | Compare-and-set on graph node state. |
+| `relay/task_status` | ro | One task with its direct dependencies and their statuses | One-hop `DEPENDS_ON` traversal. |
+| `relay/agent_exists` | ro | Explains an empty claim result (unknown agent) | Diagnostic id lookup. |
+| `relay/complete_task` | rw | CAS on `claimed_by` + `version`; set `done`, `done_at`, `version+1`; create `Artifact`s with `PRODUCED_BY` | Completion unblocks `DEPENDS_ON` successors; artifacts hang off the producing agent as graph evidence. |
+| `relay/fail_task` | rw | Same CAS, status `failed` and a `fail_reason`; a failed dependency keeps dependents blocked | Failure propagates by traversal (`blocked_by_failure`). |
+| `relay/existing_artifacts` | ro | Which artifact ids exist (explains a rejected complete/fail/handoff) | Diagnostic id lookup. |
+| `relay/handoff` | rw | Create `Handoff` + `FROM`/`TO`/`FOR` + `CARRIES` to artifacts and facts; matches every referenced node first and compares counts, so a bad id writes nothing | A handoff is a node that links agents, a task and the evidence it carries, so it can be traversed later (`why`). |
+| `relay/verify_artifact` | rw | `MERGE (Artifact)-[:VERIFIED_BY]->(Agent)`; reports whether the verifier is independent of the producer | Verification is an edge, not a self-reported field. |
+| `relay/record_decision` | rw | Create `Decision` with `DECIDED`, `FOR`, and all-or-nothing `BASED_ON` facts (fact count compared in the same statement) | Decisions link to the exact facts they rest on; `why(decision)` walks `BASED_ON`. |
+| `relay/blocked_by_failure` | ro | Not-done tasks reachable by `(t)<-[:DEPENDS_ON*1..10]-(x)`, with shortest distance | Transitive dependency traversal. |
+| `relay/missing_refs` | ro | Which agent/task/fact/artifact ids exist (explains a rejected handoff or decision) | Diagnostic id lookups. |
