@@ -48,6 +48,12 @@ Read this first; open the detailed part only when needed. Section numbers point 
 | 14 | Data directory | The docs disagree between `/data` and `/var/lib/falkordb/data`. Our container uses `/var/lib/falkordb/data`, and data survived a restart. | D §1 |
 | 15 | Eviction | The docs' production example uses `allkeys-lru`, which **can evict whole graphs**. Use `noeviction`. | D §9 |
 | 16 | Latency from Windows | Docker Desktop's port forward adds ~10 ms per round trip; it's ~0.3 ms inside the container. Benchmark inside the compose network. | CLAUDE.md |
+| 17 | Multiple CASE-wrapped list comprehensions with nested pattern comprehensions in one `WITH` | Return wrong results: empty, or one copies another. **Project them in separate `WITH` clauses.** | P1 Engram (`assert_fact.cypher`) |
+| 18 | `WHERE NOT (:X)-[:R]->(e)` immediately followed by another `MATCH` | Raises `'x' not defined`. Put `WITH e` in between. | P1 Engram |
+| 19 | `MATCH` a node created earlier in the same statement | Doesn't see it. Build edges from the collected list by index instead. | P1 Relay (`create_tasks.cypher`) |
+| 20 | Vector inserts of the wrong dimension; vector query on a label with no index | Silently accepted, and returns empty with no error. **Validate `len == 384` in Python.** | S2 |
+| 21 | Legacy `db.idx.fulltext.createNodeIndex` | Broken on 6.0.2 (creates nothing). Use `CREATE FULLTEXT INDEX FOR (n:L) ON (n.p)`. Fuzzy `%term%` means edit distance 1, not a substring match. | S2 |
+| 22 | Vector `WHERE` filters run after top-k | Over-fetch k (Engram uses k*4). | S2, P1 |
 
 Known Cypher limits from the docs:
 - `LIMIT` doesn't stop eager writes.

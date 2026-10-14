@@ -137,3 +137,17 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
   `Task.status` ∈ `open|claimed|done|failed`.
 - **Bounded writes.** One statement per operation, `UNWIND` sizes bounded by the caller. `LIMIT` does not stop
   eager writes (`CREATE/SET/MERGE/DELETE`).
+
+## Properties added during P1 (orchestrator-approved; graph model v1.1)
+
+| Where | Property | Why |
+|---|---|---|
+| `Fact` | `norm_value` | normalised value used for exact duplicate detection |
+| `Fact` | `value_embedding` (vecf32 384, no index) | value-only embedding for the paraphrase check. The full-sentence `embedding` put different values within 0.08 (e.g. PostgreSQL 16 vs MySQL 8 at 0.082); value-only separates them (0.064 same vs 0.165 different) |
+| `Session` | `ended_at = OPEN` at creation | no null properties |
+| `Episode` | `step = -1` when no step is given | no null properties |
+| `Task` | `fail_reason`; `version` also bumped by complete/fail | CAS and diagnostics |
+| `Artifact` | `task_id` | direct lookup without traversal |
+| `Handoff`, `Decision` | `created_at` | ordering |
+| `CLAIMED` edge | `reclaimed_from` (`''` when not a reclaim) | dead-agent recovery evidence |
+| `VERIFIED_BY` edge | `at` | audit |
