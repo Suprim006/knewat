@@ -20,6 +20,10 @@
 //                of windows stays contiguous and non-negative. ASSERTED_BY.at / recorded_at keep the caller's `now`.
 //   otherwise  -> clashing  = the remaining current facts (other agents' view)
 //                 new Fact (valid_from=ts); closing get valid_to=ts,status='superseded' + (new)-[:SUPERSEDES]->(old); clashing get (new)-[:CONTRADICTS]->(old) and stay active
+// Plan shape (P5 review Q2): the current-fact lookup is anchored at the Entity (its ABOUT edges, then the predicate / status / valid_to
+// filters, then the scope test via Expand Into). With `Fact {subject_id: ...}-[:IN_SCOPE]->(sc)` the planner started at the bound Scope
+// and enumerated every fact of it, so the write-serialised assert path cost O(facts in the scope). subject_id always equals the ABOUT
+// entity's id (this query is the only writer of Facts), so the edge is equivalent.
 // FalkorDB 6.0.2 gotcha: two CASE-wrapped list comprehensions with a nested pattern comprehension in ONE WITH return wrong (empty/duplicated) lists,
 // so closing and clashing are projected in separate WITH clauses.
 // source_id / episode_id are '' when absent. A given id that does not resolve yields no row (the guard sits before the Agent MERGE).
@@ -28,7 +32,7 @@
 MATCH (e:Entity {id: $entity_id}), (sc:Scope {id: $scope_id})
 OPTIONAL MATCH (ep:Episode {id: $episode_id})
 OPTIONAL MATCH (src:Source {id: $source_id})
-OPTIONAL MATCH (f:Fact {subject_id: $entity_id, predicate: $predicate, status: 'active', valid_to: $open_to})-[:IN_SCOPE]->(sc)
+OPTIONAL MATCH (e)<-[:ABOUT]-(f:Fact {predicate: $predicate, status: 'active', valid_to: $open_to})-[:IN_SCOPE]->(sc)
 WITH e, sc, ep, src, collect(f) AS cur
 WHERE ($episode_id = '' OR ep IS NOT NULL) AND ($source_id = '' OR src IS NOT NULL)
 MERGE (ag:Agent {id: $agent_id})

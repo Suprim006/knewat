@@ -74,10 +74,8 @@ def test_q2_assert_fact_current_lookup_does_not_enumerate_the_scope(client, grap
     ops = profile_ops(client, graph, "engram/assert_fact", _assert_params())
     _assert_small(ops)
     # the lookup still finds the five current facts of E0 (another agent, no supersede: they all clash)
-    row = client.rw(
-        graph, "engram/assert_fact", _assert_params(fact_id="NEW2", value="other", norm_value="other")
-    )[0]
-    assert len(row["contradicts"]) + len(row["superseded"]) >= 5
+    q = "MATCH (:Fact {id: 'NEW'})-[:CONTRADICTS]->(o:Fact) RETURN count(o)"
+    assert client.graph(graph).ro_query(q).result_set[0][0] == 5
 
 
 def test_q2_fact_history_does_not_enumerate_the_scope(client, graph, big):
