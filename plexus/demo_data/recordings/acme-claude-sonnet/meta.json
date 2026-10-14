@@ -1,0 +1,454 @@
+{
+  "run": "acme-claude-sonnet",
+  "mode": "claude",
+  "recorded_at": "2026-10-15T02:23:22+0545",
+  "source_tenant": "acme_claude",
+  "falkordb_version": "60002",
+  "dump_bytes": 80513,
+  "inventory": {
+    "nodes": {
+      "Agent": 3,
+      "Artifact": 9,
+      "Decision": 4,
+      "Entity": 1,
+      "Episode": 5,
+      "Fact": 6,
+      "Handoff": 4,
+      "Recall": 14,
+      "Scope": 1,
+      "Session": 16,
+      "Source": 6,
+      "Step": 83,
+      "Task": 12,
+      "ToolCall": 83
+    },
+    "edges": {
+      "ABOUT": 6,
+      "ASSERTED_BY": 6,
+      "BASED_ON": 7,
+      "BY": 97,
+      "CARRIES": 12,
+      "CLAIMED": 13,
+      "CONTRADICTS": 1,
+      "CREATED": 76,
+      "DECIDED": 4,
+      "DEPENDS_ON": 15,
+      "DERIVED_FROM": 6,
+      "FOR": 17,
+      "FROM": 4,
+      "HAD": 16,
+      "HAS_EPISODE": 5,
+      "IN_SCOPE": 6,
+      "IN_STEP": 97,
+      "NEXT": 81,
+      "PRODUCED_BY": 9,
+      "READ": 71,
+      "RETURNED": 54,
+      "SUPERSEDES": 1,
+      "TO": 4,
+      "UPDATED": 48,
+      "VERIFIED_BY": 1,
+      "WROTE": 51
+    },
+    "total_nodes": 247,
+    "total_edges": 708
+  },
+  "steps": 83,
+  "faults": {
+    "kill_builder": 17,
+    "publish_v2": 24
+  },
+  "events": [
+    {
+      "event": "kill_builder",
+      "step": 17,
+      "t": 59.48,
+      "agent": "builder",
+      "task": "t03-design-endpoints",
+      "lease_ms": 45000
+    },
+    {
+      "event": "lease_wait",
+      "step": 17,
+      "t": 59.697,
+      "task": "t03-design-endpoints",
+      "until_ms": 1792010080462
+    },
+    {
+      "event": "reclaim",
+      "step": 17,
+      "t": 101.822,
+      "task": "t03-design-endpoints",
+      "agent": "researcher",
+      "reclaimed_from": "builder"
+    },
+    {
+      "event": "publish_v2",
+      "step": 24,
+      "t": 124.146,
+      "doc": "06_api_style_guide_v2"
+    }
+  ],
+  "tool_calls_by_tool": {
+    "start_session": 16,
+    "create_tasks": 2,
+    "claim_next_task": 13,
+    "add_source": 6,
+    "assert_fact": 6,
+    "complete_task": 12,
+    "recall": 14,
+    "record_decision": 4,
+    "remember_episode": 5,
+    "handoff": 4,
+    "verify_artifact": 1
+  },
+  "turns": [
+    {
+      "kind": "init",
+      "agent": "planner",
+      "name": "init",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t01-gather-requirements",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "planner",
+      "name": "t02-choose-api-version",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t03-design-endpoints",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t03-design-endpoints",
+      "reclaim_from": "builder"
+    },
+    {
+      "kind": "special",
+      "agent": "researcher",
+      "name": "ingest-v2",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "special",
+      "agent": "planner",
+      "name": "adopt-v2",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t12-update-endpoints-for-v2",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t04-survey-infra-security",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "planner",
+      "name": "t05-choose-auth",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t06-write-db-schema",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t07-implement-crud-spec",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t08-write-test-plan",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "planner",
+      "name": "t09-review-spec",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t10-write-docs",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t11-package-release",
+      "reclaim_from": ""
+    }
+  ],
+  "model": "sonnet",
+  "max_turns_per_agent_turn": 25,
+  "claude_turns": 95,
+  "tokens": {
+    "input_tokens": 170,
+    "output_tokens": 17671,
+    "cache_creation_input_tokens": 90364,
+    "cache_read_input_tokens": 1594863
+  },
+  "total_cost_usd": 0.698,
+  "permission_denials": [],
+  "claude_processes": 16,
+  "per_turn": [
+    {
+      "turn": 1,
+      "agent": "planner",
+      "name": "init",
+      "killed": false,
+      "plexus_calls": 2,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 3,
+      "duration_ms": 8435,
+      "total_cost_usd": 0.09015249999999998,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 2,
+      "agent": "researcher",
+      "name": "t01-gather-requirements",
+      "killed": false,
+      "plexus_calls": 7,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 8,
+      "duration_ms": 14147,
+      "total_cost_usd": 0.055525,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 3,
+      "agent": "planner",
+      "name": "t02-choose-api-version",
+      "killed": false,
+      "plexus_calls": 5,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 6,
+      "duration_ms": 12022,
+      "total_cost_usd": 0.0320563,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 4,
+      "agent": "builder",
+      "name": "t03-design-endpoints",
+      "killed": true,
+      "plexus_calls": 3,
+      "subtype": null,
+      "is_error": null,
+      "num_turns": null,
+      "duration_ms": null,
+      "total_cost_usd": null,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 5,
+      "agent": "researcher",
+      "name": "t03-design-endpoints",
+      "killed": false,
+      "plexus_calls": 7,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 8,
+      "duration_ms": 18387,
+      "total_cost_usd": 0.048335899999999994,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 6,
+      "agent": "researcher",
+      "name": "ingest-v2",
+      "killed": false,
+      "plexus_calls": 4,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 5,
+      "duration_ms": 13301,
+      "total_cost_usd": 0.032359399999999997,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 7,
+      "agent": "planner",
+      "name": "adopt-v2",
+      "killed": false,
+      "plexus_calls": 4,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 5,
+      "duration_ms": 9337,
+      "total_cost_usd": 0.027481699999999998,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 8,
+      "agent": "builder",
+      "name": "t12-update-endpoints-for-v2",
+      "killed": false,
+      "plexus_calls": 6,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 7,
+      "duration_ms": 18568,
+      "total_cost_usd": 0.0452363,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 9,
+      "agent": "researcher",
+      "name": "t04-survey-infra-security",
+      "killed": false,
+      "plexus_calls": 7,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 8,
+      "duration_ms": 15750,
+      "total_cost_usd": 0.045193300000000006,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 10,
+      "agent": "planner",
+      "name": "t05-choose-auth",
+      "killed": false,
+      "plexus_calls": 7,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 8,
+      "duration_ms": 19796,
+      "total_cost_usd": 0.05234950000000001,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 11,
+      "agent": "builder",
+      "name": "t06-write-db-schema",
+      "killed": false,
+      "plexus_calls": 5,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 6,
+      "duration_ms": 12749,
+      "total_cost_usd": 0.0406303,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 12,
+      "agent": "builder",
+      "name": "t07-implement-crud-spec",
+      "killed": false,
+      "plexus_calls": 6,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 7,
+      "duration_ms": 16448,
+      "total_cost_usd": 0.0576185,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 13,
+      "agent": "researcher",
+      "name": "t08-write-test-plan",
+      "killed": false,
+      "plexus_calls": 4,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 5,
+      "duration_ms": 10472,
+      "total_cost_usd": 0.036007700000000004,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 14,
+      "agent": "planner",
+      "name": "t09-review-spec",
+      "killed": false,
+      "plexus_calls": 7,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 8,
+      "duration_ms": 13688,
+      "total_cost_usd": 0.053658500000000005,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 15,
+      "agent": "researcher",
+      "name": "t10-write-docs",
+      "killed": false,
+      "plexus_calls": 4,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 5,
+      "duration_ms": 9984,
+      "total_cost_usd": 0.0356925,
+      "permission_denials": [],
+      "problems": []
+    },
+    {
+      "turn": 16,
+      "agent": "builder",
+      "name": "t11-package-release",
+      "killed": false,
+      "plexus_calls": 5,
+      "subtype": "success",
+      "is_error": false,
+      "num_turns": 6,
+      "duration_ms": 15256,
+      "total_cost_usd": 0.045694900000000004,
+      "permission_denials": [],
+      "problems": []
+    }
+  ],
+  "status": "completed",
+  "error": "",
+  "mcp_config": [
+    "--transport",
+    "stdio",
+    "--tenant",
+    "acme_claude"
+  ],
+  "step_numbering": {
+    "tool_calls": 83,
+    "step_matches_global_counter": 83,
+    "no_step_given": 0
+  }
+}

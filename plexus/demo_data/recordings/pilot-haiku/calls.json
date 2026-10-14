@@ -1,0 +1,87 @@
+[
+ {
+  "step": 1,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 2,
+  "agent": "planner",
+  "tool": "create_tasks"
+ },
+ {
+  "step": 3,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 4,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 5,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 6,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 7,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 8,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 9,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 10,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 11,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 12,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 13,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 14,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 15,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 16,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 17,
+  "agent": "builder",
+  "tool": "recall"
+ }
+]

@@ -1,0 +1,223 @@
+{
+  "run": "acme-scripted",
+  "mode": "scripted",
+  "recorded_at": "2026-10-15T02:24:37+0545",
+  "source_tenant": "acme_scripted",
+  "falkordb_version": "60002",
+  "dump_bytes": 70758,
+  "inventory": {
+    "nodes": {
+      "Agent": 3,
+      "Artifact": 9,
+      "Decision": 4,
+      "Entity": 1,
+      "Episode": 4,
+      "Fact": 6,
+      "Handoff": 4,
+      "Recall": 11,
+      "Scope": 1,
+      "Session": 4,
+      "Source": 6,
+      "Step": 67,
+      "Task": 12,
+      "ToolCall": 67
+    },
+    "edges": {
+      "ABOUT": 6,
+      "ASSERTED_BY": 6,
+      "BASED_ON": 6,
+      "BY": 78,
+      "CARRIES": 9,
+      "CLAIMED": 13,
+      "CONTRADICTS": 1,
+      "CREATED": 60,
+      "DECIDED": 4,
+      "DEPENDS_ON": 15,
+      "DERIVED_FROM": 6,
+      "FOR": 17,
+      "FROM": 4,
+      "HAD": 4,
+      "HAS_EPISODE": 4,
+      "IN_SCOPE": 6,
+      "IN_STEP": 78,
+      "NEXT": 66,
+      "PRODUCED_BY": 9,
+      "READ": 55,
+      "RETURNED": 42,
+      "SUPERSEDES": 1,
+      "TO": 4,
+      "UPDATED": 35,
+      "VERIFIED_BY": 1,
+      "WROTE": 51
+    },
+    "total_nodes": 199,
+    "total_edges": 581
+  },
+  "steps": 67,
+  "faults": {
+    "kill_builder": 15,
+    "publish_v2": 20
+  },
+  "events": [
+    {
+      "event": "kill_builder",
+      "step": 15,
+      "t": 2.333,
+      "agent": "builder",
+      "task": "t03-design-endpoints",
+      "lease_ms": 800
+    },
+    {
+      "event": "lease_wait",
+      "step": 15,
+      "t": 2.368,
+      "task": "t03-design-endpoints",
+      "until_ms": 1792010376026
+    },
+    {
+      "event": "reclaim",
+      "step": 15,
+      "t": 3.149,
+      "task": "t03-design-endpoints",
+      "agent": "researcher",
+      "reclaimed_from": "builder"
+    },
+    {
+      "event": "publish_v2",
+      "step": 20,
+      "t": 3.278,
+      "doc": "06_api_style_guide_v2"
+    },
+    {
+      "event": "version_superseded",
+      "step": 22,
+      "t": 3.339,
+      "agent": "researcher",
+      "new_fact": "9e9d5691-f8d6-42a2-923a-10182be6b098",
+      "superseded": [
+        "58c45f47-9a75-4d6a-95c8-dc3b1637566e"
+      ]
+    },
+    {
+      "event": "auth_contradiction",
+      "step": 42,
+      "t": 3.898,
+      "agent": "planner",
+      "new_fact": "e9ef8eeb-8d3b-40b9-b062-3740e13318d2",
+      "contradicts": [
+        "02d57f13-767d-4a71-8ba5-7656ddba40e7"
+      ]
+    }
+  ],
+  "tool_calls_by_tool": {
+    "start_session": 4,
+    "create_tasks": 2,
+    "claim_next_task": 13,
+    "add_source": 6,
+    "assert_fact": 6,
+    "complete_task": 12,
+    "record_decision": 4,
+    "recall": 11,
+    "remember_episode": 4,
+    "handoff": 4,
+    "verify_artifact": 1
+  },
+  "turns": [
+    {
+      "kind": "init",
+      "agent": "planner",
+      "name": "init",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t01-gather-requirements",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "planner",
+      "name": "t02-choose-api-version",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t03-design-endpoints",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t03-design-endpoints",
+      "reclaim_from": "builder"
+    },
+    {
+      "kind": "special",
+      "agent": "researcher",
+      "name": "ingest-v2",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "special",
+      "agent": "planner",
+      "name": "adopt-v2",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t12-update-endpoints-for-v2",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t04-survey-infra-security",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "planner",
+      "name": "t05-choose-auth",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t06-write-db-schema",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t07-implement-crud-spec",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t08-write-test-plan",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "planner",
+      "name": "t09-review-spec",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "researcher",
+      "name": "t10-write-docs",
+      "reclaim_from": ""
+    },
+    {
+      "kind": "task",
+      "agent": "builder",
+      "name": "t11-package-release",
+      "reclaim_from": ""
+    }
+  ]
+}

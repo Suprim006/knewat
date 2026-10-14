@@ -1,0 +1,175 @@
+{
+  "subject": "Acme Notes API",
+  "tasks": [
+    {
+      "id": "t01-gather-requirements",
+      "title": "Gather requirements",
+      "role": "researcher",
+      "priority": 50,
+      "depends_on": [],
+      "sources": [
+        "01_product_brief",
+        "02_api_style_guide_v1"
+      ],
+      "brief": "Register the two documents below with add_source (title = the document's heading, uri = 'acme-docs/<file name>', text = the full document). Then assert two facts about subject 'Acme Notes API', each with the source_id of the document it comes from: predicate 'purpose' (one short sentence, from the product brief) and predicate 'api_version' with the value the style guide prescribes (just the short version label, e.g. 'v1'). Complete the task with one artifact: kind 'file', uri 'artifacts/requirements.md', a one-line summary."
+    },
+    {
+      "id": "t02-choose-api-version",
+      "title": "Choose API version",
+      "role": "planner",
+      "priority": 45,
+      "depends_on": [
+        "t01-gather-requirements"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version' to get the current fact and its fact_id. Record ONE decision (record_decision) saying which API version the team builds against, with based_on_fact_ids = [the api_version fact id]. Then complete the task (no artifacts)."
+    },
+    {
+      "id": "t03-design-endpoints",
+      "title": "Design endpoints",
+      "role": "builder",
+      "priority": 40,
+      "depends_on": [
+        "t02-choose-api-version"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version' so the endpoint paths use the right version prefix. Write a short episode (remember_episode) naming the endpoints you will draft (list/create/read/update/delete notes under /<version>/notes). Complete the task with one artifact: kind 'file', uri 'artifacts/openapi-draft.yaml', a one-line summary. Then hand off to 'planner' (handoff) with a short note, the artifact_id and the api_version fact id you relied on."
+    },
+    {
+      "id": "t04-survey-infra-security",
+      "title": "Survey infra and security constraints",
+      "role": "researcher",
+      "priority": 35,
+      "depends_on": [
+        "t01-gather-requirements"
+      ],
+      "sources": [
+        "03_infra_note",
+        "04_security_note"
+      ],
+      "brief": "Register the two documents below with add_source (uri = 'acme-docs/<file name>'). Assert two facts about subject 'Acme Notes API', each with its source_id: predicate 'database' (the database product and version) and predicate 'auth_method' (the authentication scheme the security note requires). Complete the task with one artifact: kind 'file', uri 'artifacts/constraints.md', a one-line summary."
+    },
+    {
+      "id": "t05-choose-auth",
+      "title": "Choose authentication",
+      "role": "planner",
+      "priority": 30,
+      "depends_on": [
+        "t04-survey-infra-security"
+      ],
+      "sources": [
+        "05_customer_request"
+      ],
+      "brief": "Recall 'authentication' to see what is already known. Register the customer request below with add_source (kind 'chat', uri 'acme-docs/<file name>'). The customer asks for something different from the security note: assert predicate 'auth_method' for subject 'Acme Notes API' with the customer's requested scheme and the customer request's source_id. The server will report a contradiction (contradicts) because another agent asserted a different value: do NOT pass supersede. Then record ONE decision resolving it (prefer the security team's scheme for user traffic and say what you do about the customer), with based_on_fact_ids = both auth_method fact ids. Complete the task (no artifacts)."
+    },
+    {
+      "id": "t06-write-db-schema",
+      "title": "Write database schema",
+      "role": "builder",
+      "priority": 25,
+      "depends_on": [
+        "t02-choose-api-version",
+        "t04-survey-infra-security"
+      ],
+      "sources": [],
+      "brief": "Recall 'database' to learn which database the team runs. Write an episode (remember_episode) summarising the tables you will create (notes, tags, note_tags). Complete the task with one artifact: kind 'file', uri 'artifacts/schema.sql', a one-line summary."
+    },
+    {
+      "id": "t07-implement-crud-spec",
+      "title": "Implement CRUD spec",
+      "role": "builder",
+      "priority": 20,
+      "depends_on": [
+        "t03-design-endpoints",
+        "t05-choose-auth",
+        "t06-write-db-schema"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version' and then recall 'authentication'. Complete the task with one artifact: kind 'file', uri 'artifacts/crud-spec.md', a one-line summary that names the API version and auth scheme you specified. Then hand off to 'planner' (handoff) with a short note, the artifact_id and the fact ids of the api_version and auth_method facts you relied on."
+    },
+    {
+      "id": "t08-write-test-plan",
+      "title": "Write test plan",
+      "role": "researcher",
+      "priority": 15,
+      "depends_on": [
+        "t03-design-endpoints"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version'. Complete the task with one artifact: kind 'file', uri 'artifacts/test-plan.md', a one-line summary of the test plan for the CRUD endpoints (name the API version)."
+    },
+    {
+      "id": "t09-review-spec",
+      "title": "Review spec",
+      "role": "planner",
+      "priority": 12,
+      "depends_on": [
+        "t07-implement-crud-spec",
+        "t08-write-test-plan"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version' and 'authentication'. Verify the crud-spec artifact with verify_artifact: its artifact_id is listed under 'Ids from earlier work' as the artifact of t07-implement-crud-spec (if it is not listed, skip verification). Record ONE decision approving or rejecting the spec, with based_on_fact_ids = the current api_version and auth_method fact ids. Complete the task (no artifacts)."
+    },
+    {
+      "id": "t10-write-docs",
+      "title": "Write documentation",
+      "role": "researcher",
+      "priority": 10,
+      "depends_on": [
+        "t09-review-spec"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version'. Complete the task with one artifact: kind 'file', uri 'artifacts/docs.md', a one-line summary of the API documentation (name the API version)."
+    },
+    {
+      "id": "t11-package-release",
+      "title": "Package release",
+      "role": "builder",
+      "priority": 5,
+      "depends_on": [
+        "t10-write-docs"
+      ],
+      "sources": [],
+      "brief": "Complete the task with one artifact: kind 'file', uri 'artifacts/release.tar', a one-line summary. Then hand off to 'planner' (handoff) with a short release note and the artifact_id."
+    }
+  ],
+  "extra_tasks": [
+    {
+      "id": "t12-update-endpoints-for-v2",
+      "title": "Update endpoint design for API v2",
+      "role": "builder",
+      "priority": 60,
+      "depends_on": [
+        "t03-design-endpoints"
+      ],
+      "sources": [],
+      "brief": "Recall 'API version' (it has changed). Write an episode (remember_episode) listing what changes in the endpoint design. Complete the task with one artifact: kind 'file', uri 'artifacts/openapi-v2.yaml', a one-line summary. Then hand off to 'planner' (handoff) with a short note, the artifact_id and the new api_version fact id."
+    }
+  ],
+  "specials": {
+    "ingest-v2": {
+      "role": "researcher",
+      "sources": [
+        "06_api_style_guide_v2"
+      ],
+      "brief": "A new document was just published (below). Register it with add_source (uri 'acme-docs/<file name>'). It replaces the style guide you read earlier: assert predicate 'api_version' for subject 'Acme Notes API' with the version it prescribes and its source_id (you asserted the old value yourself, so the old fact is superseded automatically). Then write one episode (remember_episode) saying what changed."
+    },
+    "adopt-v2": {
+      "role": "planner",
+      "sources": [],
+      "brief": "The researcher just updated the 'api_version' fact. Recall 'API version' to get the new fact id. Record ONE decision (record_decision, task_id 't02-choose-api-version') to adopt the new version, with based_on_fact_ids = [the new api_version fact id]. Then create exactly one new task with create_tasks: id 't12-update-endpoints-for-v2', title 'Update endpoint design for API v2', priority 60, depends_on ['t03-design-endpoints']."
+    },
+    "ingest-forum-post": {
+      "role": "planner",
+      "sources": [
+        "07_forum_post_unverified"
+      ],
+      "brief": "An anonymous forum post arrived (below). Register it with add_source (kind 'web', trust 0.2, uri 'acme-docs/<file name>') and assert predicate 'database' for subject 'Acme Notes API' with the value it claims and its source_id. Then record ONE decision (task 't06-write-db-schema') to evaluate that database, with based_on_fact_ids = [the new database fact id]."
+    },
+    "quarantine-forum-post": {
+      "role": "researcher",
+      "sources": [],
+      "brief": "The forum post is unverified and its claim contradicts the infra note. Recall 'database', then quarantine the post's source with quarantine_source (call add_source again with uri 'acme-docs/07_forum_post_unverified.md' to get its source_id back). Report the blast radius it returns."
+    }
+  }
+}

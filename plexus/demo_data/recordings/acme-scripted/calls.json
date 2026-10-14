@@ -1,0 +1,337 @@
+[
+ {
+  "step": 1,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 2,
+  "agent": "planner",
+  "tool": "create_tasks"
+ },
+ {
+  "step": 3,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 4,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 5,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 6,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 7,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 8,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 9,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 10,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 11,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 12,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 13,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 14,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 15,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 16,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 17,
+  "agent": "researcher",
+  "tool": "recall"
+ },
+ {
+  "step": 18,
+  "agent": "researcher",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 19,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 20,
+  "agent": "researcher",
+  "tool": "handoff"
+ },
+ {
+  "step": 21,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 22,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 23,
+  "agent": "researcher",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 24,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 25,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 26,
+  "agent": "planner",
+  "tool": "create_tasks"
+ },
+ {
+  "step": 27,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 28,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 29,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 30,
+  "agent": "builder",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 31,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 32,
+  "agent": "builder",
+  "tool": "handoff"
+ },
+ {
+  "step": 33,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 34,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 35,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 36,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 37,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 38,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 39,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 40,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 41,
+  "agent": "planner",
+  "tool": "add_source"
+ },
+ {
+  "step": 42,
+  "agent": "planner",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 43,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 44,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 45,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 46,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 47,
+  "agent": "builder",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 48,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 49,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 50,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 51,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 52,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 53,
+  "agent": "builder",
+  "tool": "handoff"
+ },
+ {
+  "step": 54,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 55,
+  "agent": "researcher",
+  "tool": "recall"
+ },
+ {
+  "step": 56,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 57,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 58,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 59,
+  "agent": "planner",
+  "tool": "verify_artifact"
+ },
+ {
+  "step": 60,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 61,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 62,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 63,
+  "agent": "researcher",
+  "tool": "recall"
+ },
+ {
+  "step": 64,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 65,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 66,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 67,
+  "agent": "builder",
+  "tool": "handoff"
+ }
+]
