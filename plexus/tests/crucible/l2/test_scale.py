@@ -237,7 +237,12 @@ def test_baselines_end_to_end_with_the_mocked_cli(tmp_path, fake_answers):
     )
     for arm in ("B0", "B1", "B2"):
         a = layer["arms"][arm]
-        assert a["accuracy"] == {"correct": 4, "total": 5, "pct": 80.0}
+        assert {k: a["accuracy"][k] for k in ("correct", "total", "pct")} == {
+            "correct": 4,
+            "total": 5,
+            "pct": 80.0,
+        }
+        assert a["accuracy"]["wilson95_pct"][0] < 80.0 < a["accuracy"]["wilson95_pct"][1]
         assert [r["id"] for r in a["questions"] if not r["correct"]] == ["Q14"]
         assert a["usage"]["llm_calls"] == 5 and a["usage"]["cost_usd"] == 0.05
         assert set(a["by_stratum"]) == {"early", "middle", "late"}
