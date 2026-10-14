@@ -24,3 +24,12 @@ bash ../scripts/agent_db.sh rm 10
 - `docs/graph-model.md`: graph data model (diagram, labels, edges, indexes)
 - `docs/queries.md`: index of every Cypher query
 - `docs/AI_USAGE.md`: AI disclosure
+
+## Live demo
+
+One container (FalkorDB + API + MCP over HTTP + the View) on Render Free: **URL: TBD after the owner deploys it**
+(`docs/deploy.md` has the click-by-click steps and the uptime pinger). The `demo` and `demo_scripted` tenants are
+restored from the recordings on every boot and are read-only; point your own agent at `https://<host>/mcp/t/team_<name>`
+(`claude mcp add --transport http plexus https://<host>/mcp/t/team_alice01`) to write. Everything in a `team_*` tenant is
+public and deleted after 24 h idle, so store nothing private. Verified locally under `-m 512m --cpus 0.5`: boot in
+5 to 14 s, peak 322 MiB (`docker stats`), 40/40 checks (`deploy/verify.py`).

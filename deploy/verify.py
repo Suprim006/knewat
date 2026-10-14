@@ -191,6 +191,67 @@ def tenant_inventory(base: str, tenant: str):
     return status, (inv or {}).get("nodes_total"), (inv or {}).get("edges_total")
 
 
+async def open_tenant(base: str, tenant: str) -> None:
+    """Connect and make one write so the tenant's graph really exists."""
+    from mcp import Client
+
+    async with Client(f"{base}/mcp/t/{tenant}") as c:
+        await c.call_tool("start_session", {"agent_id": "cap", "agent_role": "cap"})
+
+
+def limits_phase(image: str, port: int) -> None:
+    """Graph cap + idle sweep against a real FalkorDB (a second container with tiny limits)."""
+    base = f"http://127.0.0.1:{port}"
+    sh("docker", "rm", "-f", NAME)
+    sh("docker", "run", "-d", "--name", NAME, "-m", "512m", "--cpus", "0.5", "-e", "PORT=10000",
+       "-e", "PLEXUS_MAX_TENANTS=4", "-e", "PLEXUS_TEAM_IDLE_HOURS=0.0017", "-e", "PLEXUS_SWEEP_INTERVAL_S=4",
+       "-e", "PLEXUS_PREWARM=0", "-p", f"127.0.0.1:{port}:10000", image, check=True)  # fmt: skip
+    try:
+        wait_healthy(base)
+        names = lambda: {t["tenant"] for t in jget(base, "/api/tenants")[1]["tenants"]}  # noqa: E731
+        for t in ("team_capa01", "team_capb01"):
+            asyncio.run(open_tenant(base, t))
+        check(
+            "[limits] two team graphs created (2 demo + 2 team = cap of 4)",
+            {"team_capa01", "team_capb01"} <= names(),
+            str(sorted(names())),
+        )
+        init = json.dumps({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}).encode()
+        hdrs = {"content-type": "application/json", "accept": "application/json, text/event-stream"}
+        time.sleep(5.5)  # past the 5 s directory cache
+        st, _, body = http(base, "/mcp/t/team_capc01", "POST", init, hdrs)
+        check(
+            "[limits] a third team tenant is refused at the graph cap (503)",
+            st == 503 and b"maximum of 4" in body,
+            f"{st} {body[:90]!r}",
+        )
+        check(
+            "[limits] an existing tenant still works at the cap",
+            http(base, "/mcp/t/team_capa01", "POST", init, hdrs)[0] in (200, 202),
+        )
+        deadline = time.monotonic() + 40
+        while time.monotonic() < deadline and {"team_capa01", "team_capb01"} & names():
+            time.sleep(2)
+        left = names()
+        check(
+            "[limits] idle sweep deleted the idle team graphs",
+            not ({"team_capa01", "team_capb01"} & left),
+            str(sorted(left)),
+        )
+        check(
+            "[limits] demo tenants survive the sweep",
+            {"demo", "demo_scripted"} <= left and tenant_inventory(base, "demo")[1] == 247,
+        )
+        time.sleep(5.5)
+        asyncio.run(open_tenant(base, "team_capc01"))
+        check("[limits] after the sweep a new tenant fits again", "team_capc01" in names())
+        check("[limits] no tracebacks in logs", "Traceback" not in sh("docker", "logs", NAME))
+        sweep_lines = [ln for ln in sh("docker", "logs", NAME).splitlines() if "idle sweep deleted" in ln]
+        print("LOG", sweep_lines[:2])
+    finally:
+        sh("docker", "rm", "-f", NAME)
+
+
 # ----------------------------------------------------------------------------------------------- main
 def main() -> int:
     ap = argparse.ArgumentParser()
@@ -268,6 +329,12 @@ def main() -> int:
         st, res = jget(base, "/api/results")
         check("Results page data", st == 200 and bool(res), f"{st}")
         check("unknown tenant 404", http(base, "/api/nosuch/inventory")[0] == 404)
+        sse = subprocess.run(
+            ["curl", "-s", "-N", "-m", "3", f"{base}/api/demo/stream?after=0&poll_ms=500"], capture_output=True
+        ).stdout.decode("utf-8", "replace")
+        check(
+            "Flow SSE stream delivers events", "event: toolcall" in sse, f"{sse.count('event: toolcall')} events in 3s"
+        )
 
         # --- MCP: a write tenant
         url = f"{base}/mcp/t/team_test01"
@@ -366,6 +433,8 @@ def main() -> int:
         sampler.stop.set()
         if not a.keep:
             sh("docker", "rm", "-f", NAME)
+    if not a.keep:
+        limits_phase(a.image, a.port)
     failed = [r for r in RESULTS if not r[1]]
     print(f"\n{len(RESULTS) - len(failed)}/{len(RESULTS)} checks passed")
     return 1 if failed else 0

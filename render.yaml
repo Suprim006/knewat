@@ -18,9 +18,10 @@ services:
         value: "1"
       - key: PLEXUS_EMBED_THREADS # the name plexus/src reads; same value
         value: "1"
-      # CORS: same origin. The View is served by this process and calls /api on the same host, so no origin is allowed.
+      # CORS: same origin. The View is served by this process and calls /api on the same host, so no cross-origin caller
+      # is needed; the only origin listed is the service's own (harmless if Render gives it another subdomain).
       - key: PLEXUS_CORS_ORIGINS
-        value: ""
+        value: https://plexus-demo.onrender.com
       # Public-safety limits (defaults shown; see docs/deploy.md)
       - key: PLEXUS_MAX_TENANTS
         value: "50"
