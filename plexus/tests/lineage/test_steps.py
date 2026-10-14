@@ -101,3 +101,16 @@ def test_link_assert_result(lin, eng, client, graph):
         [3, "READ", r1["fact_id"]],
         [3, "WROTE", r3["fact_id"]],
     ]
+
+
+def test_concurrent_auto_steps_form_one_linear_chain(lin, client, graph):
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        ids = list(pool.map(lambda _: lin.record_step("busy"), range(30)))
+    assert len(set(ids)) == 30
+    ns = cypher(client, graph, "MATCH (s:Step {agent_id:'busy'}) RETURN s.n ORDER BY s.n")
+    assert [r[0] for r in ns] == list(range(1, 31))  # no gaps, no duplicates
+    assert cypher(client, graph, "MATCH (:Step)-[r:NEXT]->(:Step) RETURN count(r)") == [[29]]
+    heads = "MATCH (s:Step {agent_id:'busy'}) WHERE NOT ()-[:NEXT]->(s) RETURN count(s)"
+    assert cypher(client, graph, heads) == [[1]]  # exactly one chain head: the chain did not fork
