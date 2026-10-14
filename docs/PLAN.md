@@ -193,9 +193,9 @@ The tenant is bound per connection (CLI arg or env for stdio, header or path for
 
 | Phase | Target (NPT) | Parallel work (agent → worktree / DB port) | Status |
 |---|---|---|---|
-| **P0** Kickoff and foundations | Oct 15 00:16 → ~05:00 | orchestrator; spike agents S1 (MCP + Claude Code), S2 (embeddings on Windows/Linux), S3 (view graph library) | ☐ |
-| **P1** Engram core ‖ Relay core ‖ View shell | Oct 15 → Oct 15 night | A Engram (`wt-engram`, :6381) · B Relay (`wt-relay`, :6382) · C View shell on fixture data (`wt-view`) | ☐ |
-| **P2** Lineage ‖ MCP server + View API | Oct 16 | D Lineage (`wt-lineage`, :6383) · E MCP server + audit + View API (`wt-mcp`, :6384) | ☐ |
+| **P0** Kickoff and foundations | Oct 15 00:16 → ~05:00 | orchestrator; spike agents S1 (MCP + Claude Code), S2 (embeddings on Windows/Linux), S3 (view graph library) | ✅ core 88d09c0 (55 tests); S1 ✅; S2/S3 reports pending |
+| **P1** Engram core ‖ Relay core ‖ View shell | Oct 15 → Oct 15 night | A Engram (`wt-engram`, :6381) · B Relay (`wt-relay`, :6382) · C View shell on fixture data (`wt-view`) | ✅ A+B merged f3a428e (149 tests); review running; C waits for S3 |
+| **P2** Lineage ‖ MCP server + View API | Oct 16 | D Lineage (`wt-lineage`, :6383) · E MCP server + audit + View API (`wt-mcp`, :6384) | ⏳ dispatched 01:0x |
 | **P3** Demo scenario + agents ‖ View features | Oct 16 eve → Oct 17 | F Demo runner + scenario + recordings (`wt-demo`, :6385) · G View features (`wt-view2`) | ☐ |
 | **P4** Crucible benchmark | Oct 17 | H backends + L1 + L4 (`wt-cru1`, :6386) · I L2 questions + runner (`wt-cru2`, :6387) | ☐ |
 | **P5** Integration, hardening, review → **READY FOR TESTING** | Oct 17 night → Oct 18 ~10:00 | 3–4 disjoint reviewers → fix agents; stretch work only if green | ☐ |
