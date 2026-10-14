@@ -6,7 +6,9 @@
 // split: ;
 // Why: id lookups are the entry point of every query and the UNIQUE constraints need these; Fact(subject_id,
 // predicate, valid_to, status) serve current-fact and as-of lookups; Task(status) serves ready-task scans;
-// Step(n) and ToolCall(at) serve time-travel and the flow feed.
+// Step(n) and ToolCall(at) serve time-travel and the flow feed. Each property is its own single-property index (there are no
+// composite indexes). Step(agent_id) serves record_step / knew_at; Source(uri), Scope(name) and Procedure(task_type) serve
+// the MERGE keys of create_source / create_scope / log_procedure_run and the best_procedure filter (P5 review Q4).
 CREATE INDEX FOR (n:Agent) ON (n.id);
 CREATE INDEX FOR (n:Scope) ON (n.id);
 CREATE INDEX FOR (n:Session) ON (n.id);
@@ -30,4 +32,8 @@ CREATE INDEX FOR (n:Fact) ON (n.valid_to);
 CREATE INDEX FOR (n:Fact) ON (n.status);
 CREATE INDEX FOR (n:Task) ON (n.status);
 CREATE INDEX FOR (n:Step) ON (n.n);
-CREATE INDEX FOR (n:ToolCall) ON (n.at)
+CREATE INDEX FOR (n:ToolCall) ON (n.at);
+CREATE INDEX FOR (n:Step) ON (n.agent_id);
+CREATE INDEX FOR (n:Source) ON (n.uri);
+CREATE INDEX FOR (n:Scope) ON (n.name);
+CREATE INDEX FOR (n:Procedure) ON (n.task_type)

@@ -57,7 +57,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Episode` | `id, role, text, at, step, embedding` | Engram |
 | `Entity` | `id, name, norm_name, kind, embedding` | Engram |
 | `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten, confidence, embedding` | Engram |
-| `Source` | `id, uri, kind, trust` | Lineage |
+| `Source` | `id, uri, kind, trust, title, text` | Lineage |
 | `Procedure` | `id, name, task_type, steps_json` | Engram |
 | `Run` | `id, at, success, notes` | Engram |
 | `Task` | `id, title, status: open\|claimed\|done\|failed, priority, lease_until, claimed_by, version, done_at` | Relay |
@@ -108,13 +108,13 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 
 | Kind | Label.property | Why |
 |---|---|---|
-| Range | `id` on **every** label (15) | entry point of every query; the UNIQUE constraints need it |
-| Range | `Fact.subject_id`, `Fact.predicate` | current-fact and as-of lookups |
-| Range | `Fact.valid_to`, `Fact.status` | validity-window and active-only filters |
+| Range | `id` on **every** label (16, including `Recall`) | entry point of every query; the UNIQUE constraints need it |
+| Range | `Fact.subject_id`, `Fact.predicate`, `Fact.valid_to`, `Fact.status` | four separate single-property indexes (FalkorDB range indexes here are not composite): `predicate` / `valid_to` / `status` serve the as-of and active-only filters; the current-fact lookup of `assert_fact` starts at the Entity and uses them as filters |
 | Range | `Task.status` | ready-task scans for `claim_next_task` |
-| Range | `Step.n` | time-machine (step N) |
+| Range | `Step.n`, `Step.agent_id` | time-machine (step N); the agent's latest step and `knew_at` |
 | Range | `ToolCall.at` | flow feed ordering |
-| Range | `Recall.id`, `Entity.norm_name` | why_recalled lookup; entity MERGE key |
+| Range | `Entity.norm_name` | entity MERGE key |
+| Range | `Source.uri`, `Scope.name`, `Procedure.task_type` | MERGE keys of `create_source`, `create_scope` (with `kind`) and `log_procedure_run` (with `name`); `best_procedure` filter |
 | Full-text | `Entity.name`, `Fact.value`, `Episode.text` | keyword entity resolution and recall |
 | Vector (384-d, cosine) | `Entity.embedding`, `Fact.embedding`, `Episode.embedding` | semantic seeds for recall |
 | UNIQUE constraint | `Task.id`, `Fact.id`, `Agent.id`, `Decision.id`, `Handoff.id` | no duplicate ids; `apply_schema` waits until each is `OPERATIONAL` |
@@ -158,6 +158,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 |---|---|---|
 | `Fact` | `value_tokens` | numeric/version tokens. A paraphrase counts as a duplicate only when they are identical (v1 ≠ v2, 8080 ≠ 8081) |
 | `Fact` | `forgotten_at`, `quarantined_at`, `prior_status` | Lineage forgetting and reversible quarantine |
+| `Source` | `title`, `text` | optional human-readable name and excerpt, written by `lineage/create_source` (empty string when absent) |
 | `Decision` | `flagged`, `flag_reason` | flagged (not deleted) when a fact it is `BASED_ON` is forgotten |
 | `Task` | `seq` | FIFO tie-break for claims, by `create_tasks` input order |
 | `Task` | `reopened_by`, `reopened_at` | `reopen_task` for failed tasks |

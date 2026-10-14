@@ -19,6 +19,8 @@ MAX_LINK_IDS = 200  # ids per list in link_step
 MAX_RECALL_RESULTS = 200
 MAX_DERIVE_IDS = 100
 MAX_FORGET_FACTS = 5000
+DEFAULT_DETAIL = 500  # forget / quarantine report: readers, decision ids and handoff ids listed per call
+MAX_DETAIL = 5000
 MAX_SOURCE_TEXT = 2000
 MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
 
@@ -50,6 +52,11 @@ def _new_id() -> str:
 def _check_limit(limit: int) -> None:
     if not 0 < limit <= MAX_FORGET_FACTS:
         raise ValueError(f"limit must be between 1 and {MAX_FORGET_FACTS}")
+
+
+def _check_detail(max_detail: int) -> None:
+    if not 0 < max_detail <= MAX_DETAIL:
+        raise ValueError(f"max_detail must be between 1 and {MAX_DETAIL}")
 
 
 def _ids(values: Iterable[str] | None) -> list[str]:
@@ -220,7 +227,13 @@ class Lineage:
 
     # -- forgetting -------------------------------------------------------------------------------------
     def forget_source(
-        self, source_id: str, mode: str = "forget", *, now: int | None = None, limit: int = MAX_FORGET_FACTS
+        self,
+        source_id: str,
+        mode: str = "forget",
+        *,
+        now: int | None = None,
+        limit: int = MAX_FORGET_FACTS,
+        max_detail: int = DEFAULT_DETAIL,
     ) -> dict[str, Any]:
         """Forget everything derived from a source, in one bounded statement.
 
@@ -228,14 +241,18 @@ class Lineage:
         ``valid_to = min(valid_to, now)``, so ``Engram.recall`` and :meth:`as_of` stop returning it. Decisions
         ``BASED_ON`` those facts are flagged (``flagged = true``), never deleted. Handoffs that ``CARRIES``
         them are reported. Idempotent; at most ``limit`` (<= 5000) facts per call, ``truncated`` says to call
-        again. Returns ``{source_id, mode, fact_ids, decision_ids, handoff_ids, truncated}``.
-        ``mode='quarantine'`` delegates to :meth:`quarantine`. Raises :class:`UnknownNode` (unknown source).
+        again. Returns ``{source_id, mode, fact_ids, decision_ids, decisions_total, handoff_ids,
+        handoffs_total, detail_truncated, truncated}``: ``decision_ids`` / ``handoff_ids`` list at most
+        ``max_detail`` (1..5000, default 500) ids, the ``*_total`` counts are exact (every decision is flagged
+        regardless). ``mode='quarantine'`` delegates to :meth:`quarantine`. Raises :class:`UnknownNode`
+        (unknown source).
         """
         if mode == "quarantine":
-            return self.quarantine(source_id, now=now, limit=limit)
+            return self.quarantine(source_id, now=now, limit=limit, max_detail=max_detail)
         if mode != "forget":
             raise ValueError("mode must be 'forget' or 'quarantine'")
         _check_limit(limit)
+        _check_detail(max_detail)
         rows = self.client.rw(
             self.graph,
             "lineage/forget_source",
@@ -244,6 +261,7 @@ class Lineage:
                 "now": self._t(now),
                 "limit": limit,
                 "reason": f"derived from forgotten source {source_id}",
+                "max_detail": max_detail,
             },
         )
         if not rows:
@@ -254,26 +272,40 @@ class Lineage:
             "mode": mode,
             "fact_ids": sorted(r["fact_ids"]),
             "decision_ids": sorted(r["decision_ids"]),
+            "decisions_total": r["decisions_total"],
             "handoff_ids": sorted(r["handoff_ids"]),
+            "handoffs_total": r["handoffs_total"],
+            "detail_truncated": r["decisions_total"] > max_detail or r["handoffs_total"] > max_detail,
             "truncated": bool(r["truncated"]),
         }
 
     def quarantine(
-        self, source_id: str, *, now: int | None = None, limit: int = MAX_FORGET_FACTS
+        self,
+        source_id: str,
+        *,
+        now: int | None = None,
+        limit: int = MAX_FORGET_FACTS,
+        max_detail: int = DEFAULT_DETAIL,
     ) -> dict[str, Any]:
         """Quarantine a poisoned source and report its blast radius (stretch feature; reversible).
 
         Same traversal as :meth:`forget_source` (``DERIVED_FROM*1..5``) but the facts become
         ``status='quarantined'`` (hidden from recall and :meth:`as_of`, ``valid_to`` untouched, old status
         kept so :meth:`release_quarantine` can restore it). Nothing else is modified. Returns
-        ``{source_id, mode, fact_ids, readers: [{agent_id, step_id, step_n, at, fact_id}], agents,
-        decision_ids, handoff_ids, truncated}``: ``readers`` / ``agents`` are the Steps / agents that READ a
-        quarantined fact, the decisions are ``BASED_ON`` them and the handoffs ``CARRIES`` them.
-        Raises :class:`UnknownNode`.
+        ``{source_id, mode, fact_ids, readers: [{agent_id, step_id, step_n, at, fact_id}], readers_total,
+        agents, decision_ids, decisions_total, handoff_ids, handoffs_total, detail_truncated, truncated}``:
+        ``readers`` / ``agents`` are the Steps / agents that READ a quarantined fact, the decisions are
+        ``BASED_ON`` them and the handoffs ``CARRIES`` them. The response is bounded: ``readers``,
+        ``decision_ids`` and ``handoff_ids`` list at most ``max_detail`` (1..5000, default 500) entries
+        (readers: the earliest), the ``*_total`` counts and ``agents`` are always complete. Raises
+        :class:`UnknownNode`.
         """
         _check_limit(limit)
+        _check_detail(max_detail)
         rows = self.client.rw(
-            self.graph, "lineage/quarantine", {"source_id": source_id, "now": self._t(now), "limit": limit}
+            self.graph,
+            "lineage/quarantine",
+            {"source_id": source_id, "now": self._t(now), "limit": limit, "max_detail": max_detail},
         )
         if not rows:
             raise UnknownNode(f"no source with id '{source_id}'")
@@ -296,9 +328,13 @@ class Lineage:
             "mode": "quarantine",
             "fact_ids": sorted(r["fact_ids"]),
             "readers": readers,
-            "agents": sorted({x["agent_id"] for x in readers}),
+            "readers_total": r["reads_total"],
+            "agents": sorted(r["agent_ids"]),
             "decision_ids": sorted(r["decision_ids"]),
+            "decisions_total": r["decisions_total"],
             "handoff_ids": sorted(r["handoff_ids"]),
+            "handoffs_total": r["handoffs_total"],
+            "detail_truncated": max(r["reads_total"], r["decisions_total"], r["handoffs_total"]) > max_detail,
             "truncated": bool(r["truncated"]),
         }
 

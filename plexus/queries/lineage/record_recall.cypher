@@ -5,16 +5,16 @@
 // returns: id, returned (number of facts linked). Zero rows = step_id is non-empty but unknown, or some fact id does not exist; nothing written.
 // mode: rw
 // step_id is '' when the caller has no Step (then no IN_STEP / READ edges). results = [{fact_id, rank, score}], fact_ids = their de-duplicated ids (<= 200).
-// The facts are matched first and their count compared with size($fact_ids) so a bad id writes nothing (same pattern as relay/handoff).
-MERGE (a:Agent {id: $agent_id})
-  ON CREATE SET a.name = $agent_id, a.created_at = $now
-WITH a
+// The facts are matched first and their count compared with size($fact_ids) so a bad id writes nothing (same pattern as relay/handoff);
+// the Agent MERGE comes after that guard, so a rejected call does not leave a new Agent behind (P5 review Q8).
 OPTIONAL MATCH (st:Step {id: $step_id})
-WITH a, st
+WITH st
 WHERE $step_id = '' OR st IS NOT NULL
 OPTIONAL MATCH (f:Fact) WHERE f.id IN $fact_ids
-WITH a, st, collect(f) AS fs
+WITH st, collect(f) AS fs
 WHERE size(fs) = size($fact_ids)
+MERGE (a:Agent {id: $agent_id})
+  ON CREATE SET a.name = $agent_id, a.created_at = $now
 CREATE (r:Recall {id: $recall_id, at: $now, created_at: $now, query: $query, scope_id: $scope_id, agent_id: $agent_id, k: $k})
 CREATE (r)-[:BY]->(a)
 FOREACH (s IN CASE WHEN st IS NULL THEN [] ELSE [st] END | CREATE (r)-[:IN_STEP]->(s))

@@ -10,6 +10,7 @@ import json
 import re
 import time
 import uuid
+from collections.abc import Callable
 from typing import Any
 
 from redis.exceptions import ResponseError
@@ -32,6 +33,8 @@ MAX_K = 50  # recall clamps k to this
 MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 10  # distinct query words sent to the Fact.value full-text index
+DEFAULT_HISTORY = 200  # fact_history default
+MAX_HISTORY = 10_000  # fact_history ceiling: versions of ONE entity+predicate in one scope
 
 _WORD = re.compile(r"[^\W_]+", re.UNICODE)
 _NUMBER = re.compile(r"\d+(?:\.\d+)*")  # 16, 8080, 1.2.3 (a trailing '.' is not part of the number)
@@ -144,8 +147,19 @@ class Engram:
 
     # -- entities --------------------------------------------------------------------------------------
 
-    def resolve_entity_ex(self, name: str, kind: str = "thing", *, now: int | None = None) -> dict[str, Any]:
+    def resolve_entity_ex(
+        self,
+        name: str,
+        kind: str = "thing",
+        *,
+        now: int | None = None,
+        before_create: Callable[[], None] | None = None,
+    ) -> dict[str, Any]:
         """Resolve ``name`` to an Entity, creating it if needed.
+
+        ``before_create`` runs right before the only write (the ``upsert_entity`` MERGE), i.e. only when no
+        existing entity matched. :meth:`assert_fact` uses it to reject a bad scope / episode / source *before*
+        an Entity is created for a call that will be rejected (P5 review Q8).
 
         Order: exact normalised name -> full-text (token Jaccard >= 0.6, same kind) -> vector (distance <=
         ``entity_threshold``, same kind) -> ``MERGE (e:Entity {norm_name})``.
@@ -203,6 +217,8 @@ class Engram:
                     "matched_by": "vector",
                 }
 
+        if before_create is not None:
+            before_create()
         rows = self.client.rw(
             self.graph,
             "engram/upsert_entity",
@@ -285,7 +301,8 @@ class Engram:
         ``v1.2.4``); anything else follows the update / contradiction path.
 
         Raises :class:`UnknownReference` (a ``LookupError``) and writes nothing if the scope, or a given
-        ``episode_id`` / ``source_id``, does not exist.
+        ``episode_id`` / ``source_id``, does not exist: a new subject Entity is only created after those ids
+        were checked, so a rejected call leaves no orphan Entity (P5 Q8).
         The classification and the writes happen in one Cypher statement (``engram/assert_fact``); the
         entity resolution before it is a separate (idempotent) step.
         """
@@ -294,9 +311,14 @@ class Engram:
         if not pred or not norm_value:
             raise ValueError("predicate and value must not be empty")
         t = now if now is not None else _now_ms()
-        entity = self.resolve_entity_ex(subject, subject_kind, now=t)
-        text_emb, value_emb = self._embed([fact_text(entity["name"], pred, value), value])
         episode_id, source_id = episode_id or "", source_id or ""
+        entity = self.resolve_entity_ex(
+            subject,
+            subject_kind,
+            now=t,
+            before_create=lambda: self._check_refs(scope_id, episode_id, source_id),
+        )
+        text_emb, value_emb = self._embed([fact_text(entity["name"], pred, value), value])
         rows = self.client.rw(
             self.graph,
             "engram/assert_fact",
@@ -321,7 +343,8 @@ class Engram:
             },
         )
         if not rows:
-            self._explain_rejected_assert(scope_id, episode_id, source_id)
+            self._check_refs(scope_id, episode_id, source_id)
+            raise RuntimeError("assert_fact rejected although every referenced id exists")  # pragma: no cover
         r = rows[0]
         return {
             "fact_id": r["fact_id"],
@@ -331,7 +354,8 @@ class Engram:
             "entity_id": entity["id"],
         }
 
-    def _explain_rejected_assert(self, scope_id: str, episode_id: str, source_id: str) -> None:
+    def _check_refs(self, scope_id: str, episode_id: str, source_id: str) -> None:
+        """Raise :class:`UnknownReference` for the first scope / episode / source id that does not exist."""
         have = self.client.ro(
             self.graph,
             "engram/missing_refs",
@@ -343,10 +367,16 @@ class Engram:
             raise UnknownReference("episode", [episode_id])
         if source_id and not have["sources"]:
             raise UnknownReference("source", [source_id])
-        raise RuntimeError("assert_fact rejected although every referenced id exists")  # pragma: no cover
 
-    def fact_history(self, subject: str, predicate: str, scope_id: str) -> list[dict[str, Any]]:
-        """All versions of (subject, predicate) in a scope, oldest first (does not create the entity)."""
+    def fact_history(
+        self, subject: str, predicate: str, scope_id: str, limit: int = DEFAULT_HISTORY
+    ) -> list[dict[str, Any]]:
+        """Versions of (subject, predicate) in a scope, oldest first (does not create the entity).
+
+        At most ``limit`` (1..10,000, default 200) versions: the **newest** ones, oldest first.
+        """
+        if not 0 < limit <= MAX_HISTORY:
+            raise ValueError(f"limit must be between 1 and {MAX_HISTORY}")
         hit = self.client.ro(self.graph, "engram/find_entity_exact", {"norm_name": normalize(subject)})
         if not hit:
             return []
@@ -354,7 +384,12 @@ class Engram:
             self.client.ro(
                 self.graph,
                 "engram/fact_history",
-                {"entity_id": hit[0]["id"], "predicate": normalize(predicate), "scope_id": scope_id},
+                {
+                    "entity_id": hit[0]["id"],
+                    "predicate": normalize(predicate),
+                    "scope_id": scope_id,
+                    "limit": limit,
+                },
             )
         )
 
