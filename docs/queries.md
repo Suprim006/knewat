@@ -116,10 +116,19 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 
 | Name | Mode | Purpose | Why it's a graph query |
 |---|---|---|---|
-| `view/inventory_nodes` / `view/inventory_edges` | ro | Node count per label / edge count per relationship type | The data inventory is the shape of the graph itself. |
-| `view/inventory_keys` | ro | Property keys per label over a bounded sample (≤ 20 000 nodes) | Shows which properties each label really carries. |
+| `view/inventory_nodes` / `view/inventory_edges` | ro | Node count per label / edge count per relationship type: one indexed count per graph-model label/type (O(labels), not O(nodes)) | The data inventory is the shape of the graph itself. |
+| `view/inventory_nodes_scan` / `view/inventory_edges_scan` | ro | Full-scan counts, complete for any label/type (O(nodes)/O(edges)) | Fallback used only when the graph holds a label or type the fast counts don't list. |
+| `view/labels` / `view/relationship_types` | ro | Labels and relationship types the graph has used (metadata, O(1)) | Decides whether the fast inventory counts are complete. |
+| `view/scope_lookup` | ro | An existing `Scope` by id or (kind, name), never created | Read tools (`recall`, `as_of`, `fact_history`) use it, so a typo in `scope` never grows the graph. |
+| `view/inventory_keys` | ro | Property keys per label, sampled per label (so every label gets keys) | Shows which properties each label really carries. |
 | `view/indexes` | ro | `db.indexes()`: range, full-text and vector indexes with status | Proves the vector/full-text indexes recall depends on are operational. |
 | `view/subgraph` | ro | Newest N nodes (label / `created_at` filter) plus the edges among them, one row, display-property whitelist, no embeddings | The explorer draws exactly the stored nodes and edges. |
 | `view/flow` | ro | Tool calls in order with the nodes each `CREATED`/`UPDATED` and its `IN_STEP` step | The flow timeline is a traversal of `ToolCall` → `CREATED`/`UPDATED` edges. Also the SSE feed (polled every 500 ms with a 2 s look-back, de-duplicated by id). |
-| `view/knew_at` | ro | Per agent: latest step ≤ n, facts it `READ` that were valid at that step's time, nodes it `WROTE` | The time machine: validity windows plus `READ`/`WROTE` edges answer "what did X know at step N". |
-| `view/step_agents` | ro | Agents that have a `Step` numbered ≤ n | `GET /step/{n}` lists these, then asks `Lineage.knew_at` per agent (one definition of "what X knew at step N" for the MCP tool and the API). `view/knew_at` stays as the single-query variant. |
+| `view/step_agents` | ro | Agents that have a `Step` numbered ≤ n | `GET /step/{n}` lists these, then asks `Lineage.knew_at` per agent (one definition of "what X knew at step N" for the MCP tool and the API). (The earlier single-query `view/knew_at` was dead code and was removed in P5.) |
+
+## Crucible queries (`queries/crucible/`, benchmark harness only; not used by the product)
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `crucible/list_tasks` | ro | Every task with its state, claimer and version | The L1 harness counts double claims, lost updates and orphans from this. |
+| `crucible/strip_edges` | rw | **Ablation only (D-001):** deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM` and `READ` in bounded batches | Measures which capabilities break without the edges. 7 of 7 break; 5 of 5 controls are unaffected (`docs/BASELINE.md`). |
