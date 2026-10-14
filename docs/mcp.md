@@ -50,3 +50,19 @@ or a scope id. Named scopes are created on first use.
 Every call is audited: the tool wrapper sums the database-reported `run_time_ms` of the queries the tool ran and then
 writes one `ToolCall` (`audit/record_tool_call`) with `IN_STEP`/`CREATED`/`UPDATED` edges. Deliberate deviation from
 PLAN §3 ("same statement"): the server-side time is only known after the tool's own statement has run.
+
+## Headless smoke (verified)
+
+`claude -p "Use the plexus tools: start a session as agent smoke, remember an episode 'hello', assert fact subject=API
+predicate=version value=v1 in the default scope, then recall 'API version'. Report the recalled value."` with
+`--strict-mcp-config --allowedTools "mcp__plexus__*" --model haiku --max-turns 6` returned `v1` (success, 6 turns, ~$0.006).
+Tip: point `command` at the venv script (`<abs>/plexus/.venv/Scripts/plexus-mcp.exe`, no `uv run`) for the fastest start-up.
+With `uv run`, Claude's first `ToolSearch` can run while the server is still `pending` and burn the turn budget
+(`error_max_turns`); the exit code is 0 either way, so check `result.subtype` and `permission_denials`.
+
+## View API
+
+`uv run plexus-api` (port 8080, env `PLEXUS_API_HOST`/`PLEXUS_API_PORT`; CORS origins from `PLEXUS_CORS_ORIGINS`, default
+`localhost`/`127.0.0.1` on 5180 and 5173; Crucible results file from `PLEXUS_RESULTS_PATH`). Response shapes:
+`docs/view-api.schema.json` (regenerate with `uv run python -m plexus.api.export_schema`). Reads only: the API holds a
+`ReadOnlyClient` with no write method, and `step/{n}` and `why/{id}` return 501 until `plexus.lineage` is installed.
