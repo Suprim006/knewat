@@ -1,13 +1,18 @@
+import { Link } from 'react-router-dom';
 import { formatProp, labelColor } from '../lib/labels';
 import type { NeighborInfo, NodeDescription } from '../lib/graphController';
 
 interface Props {
   node: NodeDescription | null;
+  /** True while the canvas is focused on this node's neighbourhood. */
+  focused?: boolean;
+  /** Focus the 2-hop neighbourhood of a node (null clears the focus). */
+  onFocus?: (id: string | null) => void;
   onSelectNode: (id: string) => void;
   onClose: () => void;
 }
 
-export function NodePanel({ node, onSelectNode, onClose }: Props) {
+export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClose }: Props) {
   if (!node) {
     return (
       <aside className="panel side" aria-label="Node details">
@@ -32,6 +37,18 @@ export function NodePanel({ node, onSelectNode, onClose }: Props) {
         </button>
       </div>
       <h2 className="side-title">{node.name}</h2>
+      <div className="actions-row">
+        {(node.label === 'Decision' || node.label === 'Fact') && (
+          <Link className="btn small" to={`/why/${encodeURIComponent(node.id)}`}>
+            Why?
+          </Link>
+        )}
+        {onFocus && (
+          <button type="button" className="btn small" onClick={() => onFocus(focused ? null : node.id)}>
+            {focused ? 'Show all' : 'Focus neighbourhood (2 hops)'}
+          </button>
+        )}
+      </div>
       <h3>Properties</h3>
       <dl className="props">
         <dt>id</dt>

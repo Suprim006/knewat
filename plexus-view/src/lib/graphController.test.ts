@@ -1,6 +1,7 @@
 import type { NodeSingular } from 'cytoscape';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createGraphController } from './graphController';
+import { LABEL_COLORS, MODULE_COLORS } from './labels';
 import type { GraphController } from './graphController';
 import { buildAcme } from '../fixtures/acme';
 
@@ -104,6 +105,85 @@ describe('graph controller (headless Cytoscape)', () => {
     expect(ctl.describe(fact.id)!.name).toContain('v9');
     expect(ctl.cy.getElementById(fact.id).position()).toEqual(before);
     expect(ctl.updateProps([fact, { ...fact, id: 'unknown' }])).toBe(1); // reverts the one known node
+  });
+
+  it('colours by label or by module', () => {
+    ctl = createGraphController({ headless: true });
+    const task = data.nodes.find((n) => n.label === 'Task')!;
+    const fact = data.nodes.find((n) => n.label === 'Fact')!;
+    ctl.load([task, fact], []);
+    const color = (id: string) => String(ctl!.cy.getElementById(id).data('color'));
+    expect(color(task.id)).not.toBe(color(fact.id));
+    ctl.setColorMode('module');
+    expect(color(task.id)).toBe(MODULE_COLORS.Relay);
+    expect(color(fact.id)).toBe(MODULE_COLORS.Engram);
+    ctl.addLive([data.nodes.find((n) => n.label === 'Decision')!], []);
+    expect(color(data.nodes.find((n) => n.label === 'Decision')!.id)).toBe(MODULE_COLORS.Relay); // new nodes follow the mode
+    ctl.setColorMode('label');
+    expect(color(task.id)).toBe(LABEL_COLORS.Task);
+  });
+
+  it('filters by a created_at range and reports the bounds', () => {
+    ctl = createGraphController({ headless: true });
+    const facts = data.nodes.filter((n) => n.label === 'Fact');
+    ctl.load(facts, []);
+    const [lo, hi] = ctl.timeBounds()!;
+    expect(lo).toBeLessThan(hi);
+    const mid = Math.floor((lo + hi) / 2);
+    ctl.setTimeRange([lo, mid]);
+    const early = facts.filter((n) => Number(n.props.created_at) <= mid).length;
+    expect(ctl.counts().visibleNodes).toBe(early);
+    expect(ctl.counts().totalNodes).toBe(facts.length);
+    ctl.setTimeRange([mid + 1, hi]);
+    expect(ctl.counts().visibleNodes).toBe(facts.length - early);
+    ctl.setTimeRange(null);
+    expect(ctl.counts().visibleNodes).toBe(facts.length);
+    expect(createGraphController({ headless: true }).timeBounds()).toBeNull();
+  });
+
+  it('focuses the 2-hop neighbourhood of a node and clears it', () => {
+    ctl = createGraphController({ headless: true });
+    const keep = data.nodes.filter((n) => n.label !== 'ToolCall' && n.label !== 'Step');
+    const ids = new Set(keep.map((n) => n.id));
+    ctl.load(
+      keep,
+      data.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+    );
+    const total = ctl.counts().visibleNodes;
+    const decision = data.ids['d.jwt']!;
+    const one = ctl.focusNeighborhood(decision, 1);
+    const two = ctl.focusNeighborhood(decision, 2);
+    expect(ctl.focusedOn()).toBe(decision);
+    expect(one).toBeGreaterThan(2);
+    expect(two).toBeGreaterThan(one);
+    expect(two).toBeLessThan(total);
+    expect(ctl.counts().visibleNodes).toBe(two);
+    // every focused node is within 2 hops
+    const reach = ctl.cy.getElementById(decision).closedNeighborhood().closedNeighborhood().nodes();
+    ctl.cy.nodes('.hide-label').forEach((n) => expect(reach.contains(n)).toBe(false));
+    ctl.clearFocus();
+    expect(ctl.focusedOn()).toBeNull();
+    expect(ctl.counts().visibleNodes).toBe(total);
+  });
+
+  it('does not walk through hidden edge types when focusing', () => {
+    ctl = createGraphController({ headless: true });
+    const agentIds = new Set(['planner']);
+    const nodes = data.nodes.filter(
+      (n) => n.label === 'Decision' || agentIds.has(n.id) || n.label === 'Fact',
+    );
+    const ids = new Set(nodes.map((n) => n.id));
+    ctl.load(
+      nodes,
+      data.edges.filter((e) => ids.has(e.source) && ids.has(e.target)),
+    );
+    const d = data.ids['d.jwt']!;
+    ctl.setFilters({ hiddenLabels: new Set(), hiddenEdgeTypes: new Set(['BASED_ON']) });
+    expect(ctl.focusNeighborhood(d, 2)).toBeLessThan(
+      (ctl.clearFocus(),
+      ctl.setFilters({ hiddenLabels: new Set(), hiddenEdgeTypes: new Set() }),
+      ctl.focusNeighborhood(d, 2)),
+    );
   });
 
   it('searches names and property values', () => {

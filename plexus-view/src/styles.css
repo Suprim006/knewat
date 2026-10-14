@@ -909,3 +909,75 @@ pre.cypher {
 .kv-row {
   display: contents;
 }
+
+/* ---------- Explorer upgrades ---------- */
+.view-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.view-controls h3 {
+  margin: 0;
+}
+.module-legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 12px;
+}
+.time-range {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.time-range legend {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 0 4px;
+}
+.time-range label {
+  display: grid;
+  grid-template-columns: 38px 1fr 88px;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.time-range output {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+.ablation-panel {
+  border: 1px dashed var(--danger);
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 12px;
+}
+.ablation-panel ul {
+  margin: 4px 0;
+  padding-left: 16px;
+}
+.ablation-panel p {
+  margin: 0 0 4px;
+}
+.overlay.top-center {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.actions-row {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 10px;
+}
+a.btn {
+  text-decoration: none;
+  display: inline-block;
+}
