@@ -6,12 +6,20 @@ requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
 dependencies = [
     "falkordb>=1.2",
+    "fastapi>=0.115",
     "fastembed>=0.9.0",
+    "mcp>=2.3,<3",
     "pydantic>=2",
+    "uvicorn>=0.30",
 ]
+
+[project.scripts]
+plexus-mcp = "plexus.mcp.server:main"
+plexus-api = "plexus.api.view_api:main"
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28.1",
     "pytest>=8",
     "pytest-asyncio>=0.24",
     "ruff>=0.8",
@@ -31,6 +39,11 @@ src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP"]
+
+[tool.ruff.lint.per-file-ignores]
+# LLM-facing tool descriptions and module docstrings are long prose lines.
+"src/plexus/mcp/*.py" = ["E501"]
+"src/plexus/api/*.py" = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

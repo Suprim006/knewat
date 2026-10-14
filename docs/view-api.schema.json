@@ -1,0 +1,536 @@
+{
+  "$defs": {
+    "EdgeInventory": {
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type",
+        "count"
+      ],
+      "title": "EdgeInventory",
+      "type": "object"
+    },
+    "ErrorBody": {
+      "properties": {
+        "detail": {
+          "title": "Detail",
+          "type": "string"
+        }
+      },
+      "required": [
+        "detail"
+      ],
+      "title": "ErrorBody",
+      "type": "object"
+    },
+    "FlowResponse": {
+      "properties": {
+        "events": {
+          "items": {
+            "$ref": "#/$defs/ToolCallEvent"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "last_at": {
+          "description": "Largest `at` returned (or `after` when empty); pass it as the next `after`.",
+          "title": "Last At",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "events",
+        "last_at"
+      ],
+      "title": "FlowResponse",
+      "type": "object"
+    },
+    "GraphEdge": {
+      "properties": {
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "target": {
+          "title": "Target",
+          "type": "string"
+        },
+        "type": {
+          "title": "Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "type"
+      ],
+      "title": "GraphEdge",
+      "type": "object"
+    },
+    "GraphNode": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "props": {
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "description": "Whitelisted display properties; nulls dropped; embeddings never sent.",
+          "title": "Props",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "props"
+      ],
+      "title": "GraphNode",
+      "type": "object"
+    },
+    "GraphResponse": {
+      "properties": {
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/GraphEdge"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "limit": {
+          "title": "Limit",
+          "type": "integer"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/GraphNode"
+          },
+          "title": "Nodes",
+          "type": "array"
+        },
+        "truncated": {
+          "description": "True if more nodes matched than `limit`.",
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "nodes",
+        "edges",
+        "truncated",
+        "limit"
+      ],
+      "title": "GraphResponse",
+      "type": "object"
+    },
+    "IndexInfo": {
+      "properties": {
+        "entity_type": {
+          "title": "Entity Type",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "properties": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Properties",
+          "type": "array"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "types": {
+          "additionalProperties": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "description": "Property -> index kinds (RANGE | FULLTEXT | VECTOR).",
+          "title": "Types",
+          "type": "object"
+        }
+      },
+      "required": [
+        "label",
+        "properties",
+        "types",
+        "entity_type",
+        "status"
+      ],
+      "title": "IndexInfo",
+      "type": "object"
+    },
+    "InventoryResponse": {
+      "properties": {
+        "edge_types": {
+          "items": {
+            "$ref": "#/$defs/EdgeInventory"
+          },
+          "title": "Edge Types",
+          "type": "array"
+        },
+        "edges_total": {
+          "title": "Edges Total",
+          "type": "integer"
+        },
+        "indexes": {
+          "items": {
+            "$ref": "#/$defs/IndexInfo"
+          },
+          "title": "Indexes",
+          "type": "array"
+        },
+        "labels": {
+          "items": {
+            "$ref": "#/$defs/LabelInventory"
+          },
+          "title": "Labels",
+          "type": "array"
+        },
+        "nodes_total": {
+          "title": "Nodes Total",
+          "type": "integer"
+        },
+        "tenant": {
+          "title": "Tenant",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenant",
+        "nodes_total",
+        "edges_total",
+        "labels",
+        "edge_types",
+        "indexes"
+      ],
+      "title": "InventoryResponse",
+      "type": "object"
+    },
+    "LabelInventory": {
+      "properties": {
+        "count": {
+          "title": "Count",
+          "type": "integer"
+        },
+        "keys": {
+          "description": "Property keys seen on a bounded sample of this label's nodes.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Keys",
+          "type": "array"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "label",
+        "count",
+        "keys"
+      ],
+      "title": "LabelInventory",
+      "type": "object"
+    },
+    "NodeRef": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "NodeRef",
+      "type": "object"
+    },
+    "QueryText": {
+      "properties": {
+        "mode": {
+          "title": "Mode",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "params": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Params",
+          "type": "object"
+        },
+        "purpose": {
+          "title": "Purpose",
+          "type": "string"
+        },
+        "returns": {
+          "title": "Returns",
+          "type": "string"
+        },
+        "text": {
+          "description": "The full .cypher file text, header included.",
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "mode",
+        "purpose",
+        "params",
+        "returns",
+        "text"
+      ],
+      "title": "QueryText",
+      "type": "object"
+    },
+    "StepAgent": {
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "read": {
+          "description": "Facts read, valid at step_at: id, predicate, value, status, valid_from, valid_to.",
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Read",
+          "type": "array"
+        },
+        "step_at": {
+          "title": "Step At",
+          "type": "integer"
+        },
+        "step_n": {
+          "description": "This agent's latest step <= the requested n.",
+          "title": "Step N",
+          "type": "integer"
+        },
+        "wrote": {
+          "items": {
+            "$ref": "#/$defs/NodeRef"
+          },
+          "title": "Wrote",
+          "type": "array"
+        }
+      },
+      "required": [
+        "agent_id",
+        "step_n",
+        "step_at",
+        "read",
+        "wrote"
+      ],
+      "title": "StepAgent",
+      "type": "object"
+    },
+    "StepResponse": {
+      "properties": {
+        "agents": {
+          "items": {
+            "$ref": "#/$defs/StepAgent"
+          },
+          "title": "Agents",
+          "type": "array"
+        },
+        "n": {
+          "title": "N",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "n",
+        "agents"
+      ],
+      "title": "StepResponse",
+      "type": "object"
+    },
+    "TenantInfo": {
+      "properties": {
+        "graph": {
+          "description": "FalkorDB graph name.",
+          "title": "Graph",
+          "type": "string"
+        },
+        "tenant": {
+          "description": "Tenant id (graph name without the plexus_t_ prefix).",
+          "title": "Tenant",
+          "type": "string"
+        }
+      },
+      "required": [
+        "tenant",
+        "graph"
+      ],
+      "title": "TenantInfo",
+      "type": "object"
+    },
+    "TenantsResponse": {
+      "properties": {
+        "tenants": {
+          "items": {
+            "$ref": "#/$defs/TenantInfo"
+          },
+          "title": "Tenants",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tenants"
+      ],
+      "title": "TenantsResponse",
+      "type": "object"
+    },
+    "ToolCallEvent": {
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "at": {
+          "title": "At",
+          "type": "integer"
+        },
+        "created": {
+          "items": {
+            "$ref": "#/$defs/NodeRef"
+          },
+          "title": "Created",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "query_name": {
+          "title": "Query Name",
+          "type": "string"
+        },
+        "run_time_ms": {
+          "title": "Run Time Ms",
+          "type": "number"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The agent's own step counter, if it sent one.",
+          "title": "Step"
+        },
+        "step_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Lineage Step node id, if the call is attached to one.",
+          "title": "Step Id"
+        },
+        "tool": {
+          "title": "Tool",
+          "type": "string"
+        },
+        "updated": {
+          "items": {
+            "$ref": "#/$defs/NodeRef"
+          },
+          "title": "Updated",
+          "type": "array"
+        },
+        "wrote": {
+          "title": "Wrote",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "tool",
+        "at",
+        "agent_id",
+        "query_name",
+        "run_time_ms",
+        "wrote",
+        "step",
+        "step_id",
+        "created",
+        "updated"
+      ],
+      "title": "ToolCallEvent",
+      "type": "object"
+    },
+    "WhyResponse": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "result": {
+          "description": "Lineage `why` result: paths plus flat nodes/edges (shape owned by plexus.lineage).",
+          "title": "Result"
+        }
+      },
+      "required": [
+        "id",
+        "result"
+      ],
+      "title": "WhyResponse",
+      "type": "object"
+    }
+  },
+  "description": "Generated by plexus.api.export_schema. Endpoints: GET /api/tenants -> TenantsResponse; /api/{tenant}/inventory -> InventoryResponse; /api/{tenant}/graph -> GraphResponse; /api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); /api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody.",
+  "title": "Plexus View API response models"
+}

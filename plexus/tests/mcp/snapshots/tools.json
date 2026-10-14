@@ -1,0 +1,1138 @@
+{
+  "assert_fact": {
+    "description": "Store a durable fact (subject, predicate, value) in shared memory. A new value for the same\n        subject+predicate closes the old one (your own earlier value is superseded; a different agent's value is\n        reported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns\n        'duplicate_of'. Returns fact_id, superseded[], duplicate_of, contradicts[].",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "confidence": {
+          "default": 1.0,
+          "description": "How sure you are, 0..1.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "episode_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional episode_id that evidences this fact.",
+          "title": "Episode Id"
+        },
+        "predicate": {
+          "description": "The attribute, e.g. 'version', 'database', 'owner'.",
+          "title": "Predicate",
+          "type": "string"
+        },
+        "scope": {
+          "default": "global",
+          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "title": "Scope",
+          "type": "string"
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional Source id this fact comes from.",
+          "title": "Source Id"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "subject": {
+          "description": "What the fact is about, e.g. 'API' or 'Acme Notes API'.",
+          "title": "Subject",
+          "type": "string"
+        },
+        "subject_kind": {
+          "default": "thing",
+          "description": "Entity kind, e.g. 'thing', 'person', 'service'.",
+          "title": "Subject Kind",
+          "type": "string"
+        },
+        "supersede": {
+          "default": false,
+          "description": "True to replace the current value even if another agent asserted it.",
+          "title": "Supersede",
+          "type": "boolean"
+        },
+        "value": {
+          "description": "The value, e.g. 'v1'.",
+          "title": "Value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "subject",
+        "predicate",
+        "value"
+      ],
+      "title": "assert_factArguments",
+      "type": "object"
+    }
+  },
+  "best_procedure": {
+    "description": "Ask which procedures have worked best for a kind of task (ranked by success rate, then number of runs).",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "limit": {
+          "default": 5,
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "min_runs": {
+          "default": 1,
+          "description": "Ignore procedures tried fewer times than this.",
+          "minimum": 1,
+          "title": "Min Runs",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_type": {
+          "description": "Kind of task, e.g. 'bugfix'.",
+          "title": "Task Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_type"
+      ],
+      "title": "best_procedureArguments",
+      "type": "object"
+    }
+  },
+  "blocked_by_failure": {
+    "description": "List every unfinished task that transitively depends on this one (what a failure is blocking).",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "The failed (or stuck) task.",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id"
+      ],
+      "title": "blocked_by_failureArguments",
+      "type": "object"
+    }
+  },
+  "claim_next_task": {
+    "description": "Atomically claim the highest-priority task that is ready (all dependencies done). No two agents can win\n        the same task. Returns {task: null} when nothing is ready. Keep the 'version' for complete_task/fail_task and\n        call heartbeat while working.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "lease_ms": {
+          "default": 60000,
+          "description": "Lease length in milliseconds. Heartbeat before it runs out or others may take the task.",
+          "exclusiveMinimum": 0,
+          "title": "Lease Ms",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "claim_next_taskArguments",
+      "type": "object"
+    }
+  },
+  "complete_task": {
+    "description": "Mark a claimed task done and attach the artifacts you produced. Fails with a conflict if you no longer\n        hold the task at that version (someone else reclaimed it). Completing unblocks dependent tasks.",
+    "inputSchema": {
+      "$defs": {
+        "ArtifactSpec": {
+          "properties": {
+            "hash": {
+              "default": "",
+              "description": "Optional content hash, so others can verify it.",
+              "title": "Hash",
+              "type": "string"
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Optional id; generated if omitted.",
+              "title": "Id"
+            },
+            "kind": {
+              "description": "e.g. 'file', 'url', 'report'.",
+              "title": "Kind",
+              "type": "string"
+            },
+            "summary": {
+              "default": "",
+              "description": "One line describing the artifact.",
+              "title": "Summary",
+              "type": "string"
+            },
+            "uri": {
+              "description": "Where the artifact lives (path or URL).",
+              "title": "Uri",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "uri"
+          ],
+          "title": "ArtifactSpec",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "artifacts": {
+          "default": [],
+          "description": "What you produced (files, URLs, reports).",
+          "items": {
+            "$ref": "#/$defs/ArtifactSpec"
+          },
+          "title": "Artifacts",
+          "type": "array"
+        },
+        "expected_version": {
+          "description": "The 'version' returned by claim_next_task.",
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "The task you claimed.",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id",
+        "expected_version"
+      ],
+      "title": "complete_taskArguments",
+      "type": "object"
+    }
+  },
+  "create_tasks": {
+    "description": "Create a batch of tasks with dependencies (a DAG) in one atomic step: all are created or none. A task\n        becomes claimable once everything in its depends_on is done. Returns the task ids in input order.",
+    "inputSchema": {
+      "$defs": {
+        "TaskSpec": {
+          "properties": {
+            "depends_on": {
+              "description": "Ids of tasks that must be 'done' first (in this batch or already existing).",
+              "items": {
+                "type": "string"
+              },
+              "title": "Depends On",
+              "type": "array"
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Optional stable id; generated if omitted.",
+              "title": "Id"
+            },
+            "priority": {
+              "default": 0,
+              "description": "Higher is claimed first.",
+              "title": "Priority",
+              "type": "integer"
+            },
+            "title": {
+              "description": "Short imperative task title.",
+              "title": "Title",
+              "type": "string"
+            }
+          },
+          "required": [
+            "title"
+          ],
+          "title": "TaskSpec",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "tasks": {
+          "description": "The task graph to create (max 500 tasks).",
+          "items": {
+            "$ref": "#/$defs/TaskSpec"
+          },
+          "minItems": 1,
+          "title": "Tasks",
+          "type": "array"
+        }
+      },
+      "required": [
+        "agent_id",
+        "tasks"
+      ],
+      "title": "create_tasksArguments",
+      "type": "object"
+    }
+  },
+  "fact_history": {
+    "description": "List every value a (subject, predicate) has had in a scope, oldest first, with validity windows and who\n        asserted each. Use it to see how a fact changed over time.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "predicate": {
+          "description": "Attribute, e.g. 'version'.",
+          "title": "Predicate",
+          "type": "string"
+        },
+        "scope": {
+          "default": "global",
+          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "title": "Scope",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "subject": {
+          "description": "Subject of the fact, e.g. 'API'.",
+          "title": "Subject",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "subject",
+        "predicate"
+      ],
+      "title": "fact_historyArguments",
+      "type": "object"
+    }
+  },
+  "fail_task": {
+    "description": "Mark a claimed task failed. Tasks that depend on it stay blocked (see blocked_by_failure).",
+    "inputSchema": {
+      "$defs": {
+        "ArtifactSpec": {
+          "properties": {
+            "hash": {
+              "default": "",
+              "description": "Optional content hash, so others can verify it.",
+              "title": "Hash",
+              "type": "string"
+            },
+            "id": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Optional id; generated if omitted.",
+              "title": "Id"
+            },
+            "kind": {
+              "description": "e.g. 'file', 'url', 'report'.",
+              "title": "Kind",
+              "type": "string"
+            },
+            "summary": {
+              "default": "",
+              "description": "One line describing the artifact.",
+              "title": "Summary",
+              "type": "string"
+            },
+            "uri": {
+              "description": "Where the artifact lives (path or URL).",
+              "title": "Uri",
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "uri"
+          ],
+          "title": "ArtifactSpec",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "artifacts": {
+          "default": [],
+          "description": "Any partial output worth keeping.",
+          "items": {
+            "$ref": "#/$defs/ArtifactSpec"
+          },
+          "title": "Artifacts",
+          "type": "array"
+        },
+        "expected_version": {
+          "description": "The 'version' returned by claim_next_task.",
+          "title": "Expected Version",
+          "type": "integer"
+        },
+        "reason": {
+          "default": "",
+          "description": "Why it failed.",
+          "title": "Reason",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "The task you claimed.",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id",
+        "expected_version"
+      ],
+      "title": "fail_taskArguments",
+      "type": "object"
+    }
+  },
+  "handoff": {
+    "description": "Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything\n        referenced must exist, otherwise nothing is written.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "artifact_ids": {
+          "default": [],
+          "description": "Artifacts you hand over.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Artifact Ids",
+          "type": "array"
+        },
+        "fact_ids": {
+          "default": [],
+          "description": "Facts (evidence) you hand over.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Fact Ids",
+          "type": "array"
+        },
+        "note": {
+          "description": "What the next agent needs to know.",
+          "title": "Note",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "The task this handoff is about.",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "to_agent": {
+          "description": "Agent id receiving the work (must be registered).",
+          "title": "To Agent",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "to_agent",
+        "task_id",
+        "note"
+      ],
+      "title": "handoffArguments",
+      "type": "object"
+    }
+  },
+  "heartbeat": {
+    "description": "Extend your lease on a claimed task. Returns {alive: false} if you no longer hold it (it was taken over).",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "lease_ms": {
+          "default": 60000,
+          "description": "Lease length in milliseconds. Heartbeat before it runs out or others may take the task.",
+          "exclusiveMinimum": 0,
+          "title": "Lease Ms",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "The task you claimed.",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id"
+      ],
+      "title": "heartbeatArguments",
+      "type": "object"
+    }
+  },
+  "log_procedure_run": {
+    "description": "Record that you applied a named procedure to a kind of task and whether it worked. Over time this builds\n        success rates that best_procedure uses to recommend what to try.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "notes": {
+          "default": "",
+          "description": "What happened, one or two lines.",
+          "title": "Notes",
+          "type": "string"
+        },
+        "procedure_name": {
+          "description": "Name of the method you used, e.g. 'run-tests-then-fix'.",
+          "title": "Procedure Name",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "steps": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional ordered list of the procedure's steps.",
+          "title": "Steps"
+        },
+        "success": {
+          "description": "Did it work?",
+          "title": "Success",
+          "type": "boolean"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional Relay task id this run was for.",
+          "title": "Task Id"
+        },
+        "task_type": {
+          "description": "Kind of task it was applied to, e.g. 'bugfix'.",
+          "title": "Task Type",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "procedure_name",
+        "task_type",
+        "success"
+      ],
+      "title": "log_procedure_runArguments",
+      "type": "object"
+    }
+  },
+  "ready_tasks": {
+    "description": "List tasks that could be claimed right now (dependencies done), best first, without claiming any.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "limit": {
+          "default": 20,
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "ready_tasksArguments",
+      "type": "object"
+    }
+  },
+  "recall": {
+    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\n        before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\n        and a 'path' showing where it came from.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "as_of": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Epoch milliseconds: answer as the world was then (includes since-replaced values).",
+          "title": "As Of"
+        },
+        "budget_chars": {
+          "default": 2000,
+          "description": "Rough cap on total returned text.",
+          "maximum": 20000,
+          "minimum": 50,
+          "title": "Budget Chars",
+          "type": "integer"
+        },
+        "k": {
+          "default": 8,
+          "description": "Max number of facts to return.",
+          "maximum": 50,
+          "minimum": 1,
+          "title": "K",
+          "type": "integer"
+        },
+        "query": {
+          "description": "Natural-language question or topic, e.g. 'API version'.",
+          "title": "Query",
+          "type": "string"
+        },
+        "scope": {
+          "default": "global",
+          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "title": "Scope",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "query"
+      ],
+      "title": "recallArguments",
+      "type": "object"
+    }
+  },
+  "record_decision": {
+    "description": "Log a decision you made and the facts it is based on. Later anyone can ask WHY it was made. All fact ids\n        must exist or nothing is written.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "based_on_fact_ids": {
+          "default": [],
+          "description": "Facts (from recall) this decision rests on, so it can be explained later.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Based On Fact Ids",
+          "type": "array"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "The task the decision is for.",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "text": {
+          "description": "The decision and its reason, in one or two sentences.",
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id",
+        "text"
+      ],
+      "title": "record_decisionArguments",
+      "type": "object"
+    }
+  },
+  "register_agent": {
+    "description": "Register (or refresh) yourself as a team member so you can claim tasks and receive handoffs. Needed\n        before claim_next_task unless you already called start_session.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "harness": {
+          "default": "",
+          "description": "e.g. 'claude-code'.",
+          "title": "Harness",
+          "type": "string"
+        },
+        "name": {
+          "default": "",
+          "description": "Display name (defaults to agent_id).",
+          "title": "Name",
+          "type": "string"
+        },
+        "role": {
+          "default": "",
+          "description": "e.g. 'planner', 'researcher', 'builder'.",
+          "title": "Role",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "register_agentArguments",
+      "type": "object"
+    }
+  },
+  "remember_episode": {
+    "description": "Append an episode (one event of the conversation or work log) to your session's timeline. Use it for\n        raw history (\"user asked X\", \"I tried Y and it failed\"). For durable knowledge use assert_fact instead.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "role": {
+          "default": "note",
+          "description": "Who is speaking: 'user', 'assistant', 'tool' or 'note'.",
+          "title": "Role",
+          "type": "string"
+        },
+        "session_id": {
+          "description": "The session_id returned by start_session.",
+          "title": "Session Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "text": {
+          "description": "What happened / was said, in your own words. Keep it factual.",
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "session_id",
+        "text"
+      ],
+      "title": "remember_episodeArguments",
+      "type": "object"
+    }
+  },
+  "start_session": {
+    "description": "Begin a memory session. Call this FIRST in every run. It registers you as an agent and returns a\n        session_id that you pass to remember_episode. Safe to call again in a later run: memory persists across\n        sessions.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "agent_role": {
+          "default": "",
+          "description": "Your role, e.g. 'planner', 'researcher', 'builder'.",
+          "title": "Agent Role",
+          "type": "string"
+        },
+        "harness": {
+          "default": "",
+          "description": "What runs you, e.g. 'claude-code'.",
+          "title": "Harness",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "start_sessionArguments",
+      "type": "object"
+    }
+  },
+  "task_status": {
+    "description": "Show one task: status, owner, lease, version, and the status of each dependency.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "Task id.",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id"
+      ],
+      "title": "task_statusArguments",
+      "type": "object"
+    }
+  },
+  "verify_artifact": {
+    "description": "Record that you independently checked an artifact. 'independent' is false if you produced it yourself.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "artifact_id": {
+          "description": "Artifact to verify, e.g. after checking it yourself.",
+          "title": "Artifact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "artifact_id"
+      ],
+      "title": "verify_artifactArguments",
+      "type": "object"
+    }
+  }
+}
