@@ -4,7 +4,7 @@ from plexus.graph.schema import UNIQUE_LABELS, apply_schema, wait_for_constraint
 
 ALL_LABELS = [
     "Agent", "Scope", "Session", "Episode", "Entity", "Fact", "Source", "Procedure",
-    "Run", "Task", "Handoff", "Artifact", "Decision", "Step", "ToolCall",
+    "Run", "Task", "Handoff", "Artifact", "Decision", "Step", "ToolCall", "Recall",
 ]  # fmt: skip
 
 EXPECTED_RANGE = {(label, "id") for label in ALL_LABELS} | {
@@ -15,6 +15,12 @@ EXPECTED_RANGE = {(label, "id") for label in ALL_LABELS} | {
     ("Task", "status"),
     ("Step", "n"),
     ("ToolCall", "at"),
+    ("Entity", "norm_name"),
+    # P5 review Q4: MERGE keys / hot filters that used to fall back to label scans
+    ("Step", "agent_id"),
+    ("Source", "uri"),
+    ("Scope", "name"),
+    ("Procedure", "task_type"),
 }
 EXPECTED_FULLTEXT = {("Entity", "name"), ("Fact", "value"), ("Episode", "text")}
 EXPECTED_VECTOR = {("Entity", "embedding"), ("Fact", "embedding"), ("Episode", "embedding")}
