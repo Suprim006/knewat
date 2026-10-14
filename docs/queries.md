@@ -71,3 +71,14 @@ Other `//` comment lines in the header or body are free comments and are ignored
 | Name | Mode | Purpose | Why it's a graph query |
 |---|---|---|---|
 | `audit/record_tool_call` | rw | Create a `ToolCall` (tool, agent, step, query name, server-side `run_time_ms`, `wrote`) with `IN_STEP` and `CREATED`/`UPDATED` edges to the nodes the tool touched (≤ 200, label+id index lookups, unknown ids get no edge) | The flow the View draws is these edges: each tool call points at the exact nodes it created or updated. Runs as the statement right after the tool's own write (deliberate deviation from "same statement": `run_time_ms` is only known after execution). |
+
+## View queries (`queries/view/`, all `ro`, used only by the read-only View API)
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `view/inventory_nodes` / `view/inventory_edges` | ro | Node count per label / edge count per relationship type | The data inventory is the shape of the graph itself. |
+| `view/inventory_keys` | ro | Property keys per label over a bounded sample (≤ 20 000 nodes) | Shows which properties each label really carries. |
+| `view/indexes` | ro | `db.indexes()`: range, full-text and vector indexes with status | Proves the vector/full-text indexes recall depends on are operational. |
+| `view/subgraph` | ro | Newest N nodes (label / `created_at` filter) plus the edges among them, one row, display-property whitelist, no embeddings | The explorer draws exactly the stored nodes and edges. |
+| `view/flow` | ro | Tool calls in order with the nodes each `CREATED`/`UPDATED` and its `IN_STEP` step | The flow timeline is a traversal of `ToolCall` → `CREATED`/`UPDATED` edges. Also the SSE feed (polled every 500 ms with a 2 s look-back, de-duplicated by id). |
+| `view/knew_at` | ro | Per agent: latest step ≤ n, facts it `READ` that were valid at that step's time, nodes it `WROTE` | The time machine: validity windows plus `READ`/`WROTE` edges answer "what did X know at step N". |

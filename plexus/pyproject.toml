@@ -15,6 +15,7 @@ dependencies = [
 
 [project.scripts]
 plexus-mcp = "plexus.mcp.server:main"
+plexus-api = "plexus.api.view_api:main"
 
 [dependency-groups]
 dev = [
