@@ -25,7 +25,9 @@ describe('Acme Notes fixture follows graph model v1', () => {
   it('uses only labels and edge types from the model, with unique ids and no dangling edges', () => {
     const ids = new Set(data.nodes.map((n) => n.id));
     expect(ids.size).toBe(data.nodes.length);
-    expect(new Set(data.edges.map((e) => e.id)).size).toBe(data.edges.length);
+    expect(new Set([...data.nodes, ...data.edges].map((x) => x.id)).size).toBe(
+      data.nodes.length + data.edges.length,
+    );
     for (const n of data.nodes) expect(NODE_LABELS as readonly string[]).toContain(n.label);
     for (const e of data.edges) {
       expect(EDGE_TYPES as readonly string[]).toContain(e.type);

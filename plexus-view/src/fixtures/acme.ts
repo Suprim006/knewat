@@ -759,7 +759,7 @@ export function buildAcme(): AcmeDataset {
     return n.id;
   };
   const mkEdge = (type: string, src: string, dst: string, props: Props = {}): void => {
-    edges.push({ id: uuid(0xe, ++edgeSeq), type, src: idOf(src), dst: idOf(dst), props });
+    edges.push({ id: uuid(0xed9e, ++edgeSeq), type, src: idOf(src), dst: idOf(dst), props });
   };
   const rand = (() => {
     let s = 20261015;
@@ -889,9 +889,9 @@ export function buildAcme(): AcmeDataset {
       );
       mkEdge('IN_STEP', tcKey, stepKey);
       for (const id of createdIds)
-        edges.push({ id: uuid(0xe, ++edgeSeq), type: 'CREATED', src: tc.id, dst: id, props: {} });
+        edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'CREATED', src: tc.id, dst: id, props: {} });
       for (const id of updatedIds)
-        edges.push({ id: uuid(0xe, ++edgeSeq), type: 'UPDATED', src: tc.id, dst: id, props: {} });
+        edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'UPDATED', src: tc.id, dst: id, props: {} });
       flow.push({
         id: tc.id,
         tool: op.tool,
@@ -908,10 +908,10 @@ export function buildAcme(): AcmeDataset {
       const k = `${stepNode.id}>${id}`;
       if (agentEdgeCache.has(k)) continue;
       agentEdgeCache.add(k);
-      edges.push({ id: uuid(0xe, ++edgeSeq), type: 'READ', src: stepNode.id, dst: id, props: {} });
+      edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'READ', src: stepNode.id, dst: id, props: {} });
     }
     for (const id of wrote)
-      edges.push({ id: uuid(0xe, ++edgeSeq), type: 'WROTE', src: stepNode.id, dst: id, props: {} });
+      edges.push({ id: uuid(0xed9e, ++edgeSeq), type: 'WROTE', src: stepNode.id, dst: id, props: {} });
   }
 
   for (const [fk, ek] of pendingSubjects) {
