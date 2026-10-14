@@ -48,3 +48,8 @@ Other `//` comment lines in the header or body are free comments and are ignored
 | `relay/complete_task` | rw | CAS on `claimed_by` + `version`; set `done`, `done_at`, `version+1`; create `Artifact`s with `PRODUCED_BY` | Completion unblocks `DEPENDS_ON` successors; artifacts hang off the producing agent as graph evidence. |
 | `relay/fail_task` | rw | Same CAS, status `failed` and a `fail_reason`; a failed dependency keeps dependents blocked | Failure propagates by traversal (`blocked_by_failure`). |
 | `relay/existing_artifacts` | ro | Which artifact ids exist (explains a rejected complete/fail/handoff) | Diagnostic id lookup. |
+| `relay/handoff` | rw | Create `Handoff` + `FROM`/`TO`/`FOR` + `CARRIES` to artifacts and facts; matches every referenced node first and compares counts, so a bad id writes nothing | A handoff is a node that links agents, a task and the evidence it carries, so it can be traversed later (`why`). |
+| `relay/verify_artifact` | rw | `MERGE (Artifact)-[:VERIFIED_BY]->(Agent)`; reports whether the verifier is independent of the producer | Verification is an edge, not a self-reported field. |
+| `relay/record_decision` | rw | Create `Decision` with `DECIDED`, `FOR`, and all-or-nothing `BASED_ON` facts (fact count compared in the same statement) | Decisions link to the exact facts they rest on; `why(decision)` walks `BASED_ON`. |
+| `relay/blocked_by_failure` | ro | Not-done tasks reachable by `(t)<-[:DEPENDS_ON*1..10]-(x)`, with shortest distance | Transitive dependency traversal. |
+| `relay/missing_refs` | ro | Which agent/task/fact/artifact ids exist (explains a rejected handoff or decision) | Diagnostic id lookups. |

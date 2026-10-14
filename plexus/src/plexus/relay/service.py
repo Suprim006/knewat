@@ -18,6 +18,7 @@ from plexus.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask,
 MAX_TASKS_PER_CALL = 500
 MAX_EDGES_PER_CALL = 5000
 MAX_ARTIFACTS_PER_CALL = 100
+MAX_REFS_PER_CALL = 100
 
 
 def _now_ms() -> int:
@@ -231,12 +232,112 @@ class Relay:
             raise DuplicateArtifact(dup)
         raise UnknownReference("agent", [agent_id])
 
+    # -- handoffs, evidence, decisions -------------------------------------------------------------------
+    def handoff(
+        self,
+        from_agent: str,
+        to_agent: str,
+        task_id: str,
+        note: str,
+        artifact_ids: Iterable[str] = (),
+        fact_ids: Iterable[str] = (),
+        now: int | None = None,
+    ) -> str:
+        """Create a Handoff node carrying artifacts and facts; returns its id.
+
+        All-or-nothing: raises :class:`UnknownReference` (and writes nothing) if either agent, the task, or
+        any artifact/fact id does not exist.
+        """
+        arts, facts = _ids(artifact_ids), _ids(fact_ids)
+        _bound_refs(arts, facts)
+        hid = str(uuid.uuid4())
+        rows = self.client.rw(
+            self.graph,
+            "relay/handoff",
+            {
+                "id": hid,
+                "from_agent": from_agent,
+                "to_agent": to_agent,
+                "task": task_id,
+                "note": note,
+                "artifact_ids": arts,
+                "fact_ids": facts,
+                "now": self._clock() if now is None else now,
+            },
+        )
+        if not rows:
+            self._explain_missing(agents=[from_agent, to_agent], tasks=[task_id], facts=facts, artifacts=arts)
+        return hid
+
+    def verify_artifact(self, agent_id: str, artifact_id: str, now: int | None = None) -> dict[str, Any]:
+        """Record ``(Artifact)-[:VERIFIED_BY]->(Agent)``. ``independent`` is False for a self-verification."""
+        rows = self.client.rw(
+            self.graph,
+            "relay/verify_artifact",
+            {"agent": agent_id, "artifact": artifact_id, "now": self._clock() if now is None else now},
+        )
+        if not rows:
+            self._explain_missing(agents=[agent_id], tasks=[], facts=[], artifacts=[artifact_id])
+        return dict(rows[0])
+
+    def record_decision(
+        self,
+        agent_id: str,
+        task_id: str,
+        text: str,
+        based_on_fact_ids: Iterable[str] = (),
+        now: int | None = None,
+    ) -> str:
+        """Record a Decision BASED_ON facts; returns its id. If any fact id is unknown, nothing is written."""
+        facts = _ids(based_on_fact_ids)
+        _bound_refs([], facts)
+        did = str(uuid.uuid4())
+        rows = self.client.rw(
+            self.graph,
+            "relay/record_decision",
+            {
+                "id": did,
+                "agent": agent_id,
+                "task": task_id,
+                "text": text,
+                "fact_ids": facts,
+                "now": self._clock() if now is None else now,
+            },
+        )
+        if not rows:
+            self._explain_missing(agents=[agent_id], tasks=[task_id], facts=facts, artifacts=[])
+        return did
+
+    def _explain_missing(
+        self, agents: list[str], tasks: list[str], facts: list[str], artifacts: list[str]
+    ) -> None:
+        have = self.client.ro(
+            self.graph,
+            "relay/missing_refs",
+            {"agent_ids": agents, "task_ids": tasks, "fact_ids": facts, "artifact_ids": artifacts},
+        )[0]
+        for kind, wanted, found in (
+            ("agent", agents, have["agents"]),
+            ("task", tasks, have["tasks"]),
+            ("artifact", artifacts, have["artifacts"]),
+            ("fact", facts, have["facts"]),
+        ):
+            missing = [i for i in dict.fromkeys(wanted) if i not in found]
+            if missing:
+                raise UnknownReference(kind, missing)
+        raise RuntimeError("write rejected although every referenced id exists")  # pragma: no cover
+
     # -- reads ------------------------------------------------------------------------------------------
     def ready_tasks(self, now: int | None = None, limit: int = 100) -> list[dict[str, Any]]:
         now = self._clock() if now is None else now
         return [
             dict(r) for r in self.client.ro(self.graph, "relay/ready_tasks", {"now": now, "limit": limit})
         ]
+
+    def blocked_by_failure(self, task_id: str) -> list[str]:
+        """Not-done tasks that depend (transitively, up to 10 hops) on ``task_id``, nearest first."""
+        rows = self.client.ro(self.graph, "relay/blocked_by_failure", {"task": task_id})
+        return [r["id"] for r in rows]
 
     def task_status(self, task_id: str) -> dict[str, Any] | None:
         rows = self.client.ro(self.graph, "relay/task_status", {"id": task_id})
@@ -260,3 +361,9 @@ class Relay:
 
 def _ids(values: Iterable[str] | None) -> list[str]:
     return list(dict.fromkeys(values or ()))
+
+
+def _bound_refs(*lists: list[str]) -> None:
+    for lst in lists:
+        if len(lst) > MAX_REFS_PER_CALL:
+            raise InvalidDag(f"at most {MAX_REFS_PER_CALL} referenced ids per list, got {len(lst)}")
