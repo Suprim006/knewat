@@ -1,0 +1,26 @@
+{
+ "qid": "Q06",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"4e6d9291-e9a9-5e7e-b158-836682b7f9c2\", \"d2ef79a9-557b-5225-8093-670c4f36db73\"]}",
+ "answer": [
+  "4e6d9291-e9a9-5e7e-b158-836682b7f9c2",
+  "d2ef79a9-557b-5225-8093-670c4f36db73"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 356,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 19782
+ },
+ "cost_usd": 0.0827464,
+ "latency_ms": 7174.7,
+ "duration_api_ms": 5408.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "3a64dfb2-d78e-4abb-8fa7-310d17fe7151",
+ "key": "8ca5f2f7a8b5322433ff15a0e0805b2f20bcf1fddb8435fb2f2437598940d9b9"
+}

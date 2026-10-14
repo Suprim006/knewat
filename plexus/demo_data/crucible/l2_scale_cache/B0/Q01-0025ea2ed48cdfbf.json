@@ -1,0 +1,23 @@
+{
+ "qid": "Q01",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (PS256, key s03)\"]}\n\nThe decision was based on two fact IDs, but only one appears in the material I was given. The other, 246b7904-0d0c-53ef-b7a4-974669a37be8, has no matching record, so I can't name it and left it out.",
+ "answer": null,
+ "parse_error": "text after the JSON object",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 386,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 18790
+ },
+ "cost_usd": 0.07907840000000001,
+ "latency_ms": 7052.2,
+ "duration_api_ms": 5332.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "b06d67eb-5591-49f8-af8c-85f37e02c864",
+ "key": "0025ea2ed48cdfbf5125d92c86235def58a44f1178f6db51e36c85d7b1eed5d9"
+}

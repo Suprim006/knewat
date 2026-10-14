@@ -197,8 +197,8 @@ The tenant is bound per connection (CLI arg or env for stdio, header or path for
 | **P1** Engram core ‖ Relay core ‖ View shell | Oct 15 → Oct 15 night | A Engram (`wt-engram`, :6381) · B Relay (`wt-relay`, :6382) · C View shell on fixture data (`wt-view`) | ✅ A+B merged f3a428e; review found 2 blockers → P1-fix merged; C view shell merged 4e867e3 (65 view tests) |
 | **P2** Lineage ‖ MCP server + View API | Oct 16 | D Lineage (`wt-lineage`, :6383) · E MCP server + audit + View API (`wt-mcp`, :6384) | ✅ D+E merged 059cdaf; P2-int merged 1271d7b (328 tests; compose up + MCP HTTP + View API verified end-to-end) |
 | **P3** Demo scenario + agents ‖ View features | Oct 16 eve → Oct 17 | F Demo runner + scenario + recordings (`wt-demo`, :6386) · G View features (`wt-view2`) | ✅ F merged 50bf55e (real Sonnet 3-agent recording: 83 steps, kill→reclaim, v1→v2 supersede, 0 denials, $0.70); G merged ce29cca (117 view tests, live screenshots); compose walkthrough + reviewers in P5 |
-| **P4** Crucible benchmark | Oct 17 | H backends + L1 + L4 (`wt-cru1`, :6389) · I L2 questions + runner (`wt-cru2`, :6378) | ⏳ H running |
-| **P5** Integration, hardening, review → **READY FOR TESTING** | Oct 17 night → Oct 18 ~10:00 | 3–4 disjoint reviewers → fix agents; stretch work only if green | ☐ |
+| **P4** Crucible benchmark | Oct 17 | H backends + L1 + L4 (`wt-cru1`, :6389) · I L2 questions + runner (`wt-cru2`, :6378) | ✅ H merged (L1 C1–C8 0 violations all arms; L4; ablation 7/7 break); I merged (L2 43q: P 43, B0 43, B1 43, B2 40; P $0/2 ms vs ~$0.05/5 s; L3 pilot n=1). Pre-registered L2-at-scale running |
+| **P5** Integration, hardening, review → **READY FOR TESTING** | Oct 17 night → Oct 18 ~10:00 | 3–4 disjoint reviewers → fix agents; stretch work only if green | ⏳ 4 reviews (1 blocker, 7 major) → 3 fix branches merged (755→808 tests); P5-int (fresh-clone compose e2e, Results on real data, ablation script, TESTING.md) running |
 | **P6** Deploy + submission | Oct 18 10:00 → 20:00 | orchestrator + owner (video, submission form) | ☐ |
 
 ### P0: Kickoff and foundations (orchestrator-led)

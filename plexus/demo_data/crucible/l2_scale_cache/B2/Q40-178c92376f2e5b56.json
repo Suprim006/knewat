@@ -1,0 +1,23 @@
+{
+ "qid": "Q40",
+ "arm": "B2",
+ "reply": "{\"answer\": \"planner\"}",
+ "answer": "planner",
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 12,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3978
+ },
+ "cost_usd": 0.016090399999999998,
+ "latency_ms": 3742.8,
+ "duration_api_ms": 1707.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "42910eba-3798-4f35-9f76-2fc6ef5d5232",
+ "key": "178c92376f2e5b56d8c383d09684a140affe4d2b3dd188a870e17be00a36c7d2"
+}

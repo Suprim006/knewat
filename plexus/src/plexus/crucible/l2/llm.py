@@ -87,16 +87,18 @@ def clean_env(base: dict[str, str] | None = None) -> dict[str, str]:
     return env
 
 
-def cache_key(model: str, context: str, q: Question) -> str:
+def cache_key(
+    model: str, context: str, q: Question, *, conventions: str = CONVENTIONS, version: str = PROMPT_VERSION
+) -> str:
     h = hashlib.sha256()
-    for part in (PROMPT_VERSION, model, ROLE, CONVENTIONS, context, q.prompt()):
+    for part in (version, model, ROLE, conventions, context, q.prompt()):
         h.update(part.encode("utf-8"))
         h.update(b"\x00")
     return h.hexdigest()
 
 
-def build_prompt(context: str, q: Question) -> str:
-    return f"{context.rstrip()}\n\n---\n{CONVENTIONS}\n\n{q.prompt()}\n"
+def build_prompt(context: str, q: Question, conventions: str = CONVENTIONS) -> str:
+    return f"{context.rstrip()}\n\n---\n{conventions}\n\n{q.prompt()}\n"
 
 
 class ClaudeRunner:
@@ -111,7 +113,10 @@ class ClaudeRunner:
         budget_usd: float | None = None,
         cwd: Path | None = None,
         env: dict[str, str] | None = None,
+        conventions: str = CONVENTIONS,  # the L2-at-scale run adds a sprint note; the default keeps the L2 cache keys
+        prompt_version: str = PROMPT_VERSION,
     ):
+        self.conventions, self.prompt_version = conventions, prompt_version
         self.model, self.max_turns, self.timeout_s = model, max_turns, timeout_s
         self.cache_dir = cache_dir
         self.launcher = launcher
@@ -152,7 +157,7 @@ class ClaudeRunner:
         return self.cache_dir / arm / f"{qid}-{key[:16]}.json" if self.cache_dir else None
 
     def ask(self, arm: str, q: Question, context: str, *, use_cache: bool = True) -> LlmCall:
-        key = cache_key(self.model, context, q)
+        key = cache_key(self.model, context, q, conventions=self.conventions, version=self.prompt_version)
         path = self._path(arm, q.id, key)
         if use_cache and path is not None and path.exists():
             d = json.loads(path.read_text(encoding="utf-8"))
@@ -185,7 +190,7 @@ class ClaudeRunner:
         try:
             proc = subprocess.run(
                 self.command(),
-                input=build_prompt(context, q).encode("utf-8"),
+                input=build_prompt(context, q, self.conventions).encode("utf-8"),
                 capture_output=True,
                 cwd=str(cwd),
                 env=self._env if self._env is not None else clean_env(),

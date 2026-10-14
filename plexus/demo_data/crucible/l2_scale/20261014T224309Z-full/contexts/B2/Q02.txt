@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Decision by planner for task s13-t06-write-db-schema: "S13: Evaluate Couchbase 16 as the database (forum post)." Based on facts: database=Couchbase 16. Flagged: a fact it relied on was forgotten.
+[2] Decision by planner for task s16-t06-write-db-schema: "S16: Evaluate CouchDB 19 as the database (forum post)." Based on facts: database=CouchDB 19. Flagged: a fact it relied on was forgotten.
+[3] Decision by planner for task s03-t06-write-db-schema: "S03: Evaluate Couchbase 6 as the database (forum post)." Based on facts: database=Couchbase 6. Flagged: a fact it relied on was forgotten.
+[4] Decision by planner for task s06-t06-write-db-schema: "S06: Evaluate CouchDB 9 as the database (forum post)." Based on facts: database=CouchDB 9. Flagged: a fact it relied on was forgotten.
+[5] Decision by planner for task s12-t06-write-db-schema: "S12: Evaluate Cassandra 15 as the database (forum post)." Based on facts: database=Cassandra 15. Flagged: a fact it relied on was forgotten.
+[6] Decision by planner for task s14-t06-write-db-schema: "S14: Evaluate DynamoDB 17 as the database (forum post)." Based on facts: database=DynamoDB 17. Flagged: a fact it relied on was forgotten.
+[7] Decision by planner for task s19-t06-write-db-schema: "S19: Evaluate ScyllaDB 22 as the database (forum post)." Based on facts: database=ScyllaDB 22. Flagged: a fact it relied on was forgotten.
+[8] Decision by planner for task s02-t06-write-db-schema: "S02: Evaluate Cassandra 5 as the database (forum post)." Based on facts: database=Cassandra 5. Flagged: a fact it relied on was forgotten.
+[9] Decision by planner for task s15-t06-write-db-schema: "S15: Evaluate Redis 18 as the database (forum post)." Based on facts: database=Redis 18. Flagged: a fact it relied on was forgotten.
+[10] Decision by planner for task s09-t06-write-db-schema: "S09: Evaluate ScyllaDB 12 as the database (forum post)." Based on facts: database=ScyllaDB 12. Flagged: a fact it relied on was forgotten.
+[11] Decision by planner for task s11-t06-write-db-schema: "S11: Evaluate MongoDB 14 as the database (forum post)." Based on facts: database=MongoDB 14. Flagged: a fact it relied on was forgotten.
+[12] Decision by planner for task s04-t06-write-db-schema: "S04: Evaluate DynamoDB 7 as the database (forum post)." Based on facts: database=DynamoDB 7. Flagged: a fact it relied on was forgotten.

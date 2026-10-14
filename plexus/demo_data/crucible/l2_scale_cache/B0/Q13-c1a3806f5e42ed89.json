@@ -1,0 +1,25 @@
+{
+ "qid": "Q13",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"s06 build the acme\"]}",
+ "answer": [
+  "s06 build the acme"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 374,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 19438
+ },
+ "cost_usd": 0.0815504,
+ "latency_ms": 6136.8,
+ "duration_api_ms": 4120.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "24e9c485-6d89-49a3-bcf6-61207fc6123e",
+ "key": "c1a3806f5e42ed893bf75fd1109ac2612cd8fb0920974a6fa2d972dcb80ec561"
+}

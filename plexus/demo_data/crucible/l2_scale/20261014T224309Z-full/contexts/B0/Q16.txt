@@ -1,0 +1,181 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: MEMORY.md ===
+# Shared team memory
+[...]
+- **Acme Notes API S01** api_version: v1 (superseded, global) <!--{"id":"2b927606-c02e-5d86-8c84-18c267e87215","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"api_version","value":"v1","norm_value":"v1","scope":"global","status":"superseded","valid_from":1760000003000,"valid_to":1760000017500,"recorded_at":1760000003000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["053aefcf-235a-504d-9717-957fd1a2215a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S01** api_version: v2 (active, global) <!--{"id":"e3d70963-c74e-5c24-9814-4c48b55c84bc","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"api_version","value":"v2","norm_value":"v2","scope":"global","status":"active","valid_from":1760000017500,"valid_to":9999999999999,"recorded_at":1760000017500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["08921194-59e1-5b7b-9d29-b3db6ba9e3ab"],"supersedes":["2b927606-c02e-5d86-8c84-18c267e87215"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S02** purpose: REST service to create, tag and search notes (S02) (active, global) <!--{"id":"d6c1fd09-8fa8-5038-a694-6cecd2fb2334","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"purpose","value":"REST service to create, tag and search notes (S02)","norm_value":"rest service to create, tag and search notes (s02)","scope":"global","status":"active","valid_from":1760000070500,"valid_to":9999999999999,"recorded_at":1760000070500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["6ac9410a-aedf-56e9-9448-fb8cf91b7651"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S02** api_version: v3 (superseded, global) <!--{"id":"271b3641-7f41-5602-9219-6f7236a6b215","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"api_version","value":"v3","norm_value":"v3","scope":"global","status":"superseded","valid_from":1760000071500,"valid_to":1760000086000,"recorded_at":1760000071500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["b83ab153-22ee-50b3-8961-418c640369fd"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S02** api_version: v4 (active, global) <!--{"id":"399e1e16-1b03-5184-b159-958079bedc70","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"api_version","value":"v4","norm_value":"v4","scope":"global","status":"active","valid_from":1760000086000,"valid_to":9999999999999,"recorded_at":1760000086000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["b942a2c4-3fa2-5dbe-9f13-476a31eb2453"],"supersedes":["271b3641-7f41-5602-9219-6f7236a6b215"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S02** release_channel: open beta (active, project:acme-s02) <!--{"id":"f388cc5f-a42f-533d-881f-f3c0e3903e3e","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"release_channel","value":"open beta","norm_value":"open beta","scope":"project:acme-s02","status":"active","valid_from":1760000109000,"valid_to":9999999999999,"recorded_at":1760000109000,"confidence":1.0,"asserted_by":["planner"],"derived_from":[],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S03** api_version: v5 (superseded, global) <!--{"id":"fc4e0924-6721-5efd-bd74-45c790960ce6","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"api_version","value":"v5","norm_value":"v5","scope":"global","status":"superseded","valid_from":1760000140000,"valid_to":1760000154500,"recorded_at":1760000140000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a1b92333-9f22-553b-a091-6987afa9f06a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S03** api_version: v6 (active, global) <!--{"id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"api_version","value":"v6","norm_value":"v6","scope":"global","status":"active","valid_from":1760000154500,"valid_to":9999999999999,"recorded_at":1760000154500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a3157cf7-c91c-5f87-be04-71e3c929bd80"],"supersedes":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S04** api_version: v7 (superseded, global) <!--{"id":"a3e6a516-fc31-5e62-ab92-e9f92abb72e9","entity":"acme notes api s04","entity_name":"Acme Notes API S04","predicate":"api_version","value":"v7","norm_value":"v7","scope":"global","status":"superseded","valid_from":1760000208500,"valid_to":1760000223000,"recorded_at":1760000208500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["127f89af-2f69-58ef-9f4e-97156837348a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S04** api_version: v8 (active, global) <!--{"id":"c73b692e-9cd9-58f6-a146-aa387e5d2e33","entity":"acme notes api s04","entity_name":"Acme Notes API S04","predicate":"api_version","value":"v8","norm_value":"v8","scope":"global","status":"active","valid_from":1760000223000,"valid_to":9999999999999,"recorded_at":1760000223000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["33afd039-81e6-5afe-a3ff-d692210600e4"],"supersedes":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S05** api_version: v9 (superseded, global) <!--{"id":"ca0ea7ab-cc37-5143-b241-878499db2bd5","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"api_version","value":"v9","norm_value":"v9","scope":"global","status":"superseded","valid_from":1760000277000,"valid_to":1760000291500,"recorded_at":1760000277000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["e866d2c3-18c0-5987-bbb0-925ce526c9e4"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S05** api_version: v10 (active, global) <!--{"id":"cbde9957-b402-503b-bef3-f0a0733a8c27","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"api_version","value":"v10","norm_value":"v10","scope":"global","status":"active","valid_from":1760000291500,"valid_to":9999999999999,"recorded_at":1760000291500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["eee47460-6df3-5c18-876c-c4da21de79b1"],"supersedes":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S06** api_version: v11 (superseded, global) <!--{"id":"f91cd115-13a9-5c16-bb96-f8a9c4b990eb","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"api_version","value":"v11","norm_value":"v11","scope":"global","status":"superseded","valid_from":1760000345500,"valid_to":1760000360000,"recorded_at":1760000345500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["fa6709cb-2c39-53ac-b0be-247d40d19369"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S06** api_version: v12 (active, global) <!--{"id":"8d2b5d80-fe43-5534-8e8a-955905c4975b","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"api_version","value":"v12","norm_value":"v12","scope":"global","status":"active","valid_from":1760000360000,"valid_to":9999999999999,"recorded_at":1760000360000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["c15bc998-60b5-5fbd-83de-0068f1d0a6ea"],"supersedes":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S07** api_version: v13 (superseded, global) <!--{"id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"api_version","value":"v13","norm_value":"v13","scope":"global","status":"superseded","valid_from":1760000414000,"valid_to":1760000428500,"recorded_at":1760000414000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8ec6c76b-30af-5963-a883-dc5b07bb74a3"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S07** api_version: v14 (active, global) <!--{"id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"api_version","value":"v14","norm_value":"v14","scope":"global","status":"active","valid_from":1760000428500,"valid_to":9999999999999,"recorded_at":1760000428500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["869f233b-3538-59ce-85e5-df14448ec824"],"supersedes":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S08** api_version: v15 (superseded, global) <!--{"id":"2d18baf0-1ce3-5f5f-94b3-5d524493d2f9","entity":"acme notes api s08","entity_name":"Acme Notes API S08","predicate":"api_version","value":"v15","norm_value":"v15","scope":"global","status":"superseded","valid_from":1760000482500,"valid_to":1760000497000,"recorded_at":1760000482500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8db9312f-53c0-59a9-8018-8c984ab125d7"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S08** api_version: v16 (active, global) <!--{"id":"f4918c86-ef7f-50df-94d1-abc537082890","entity":"acme notes api s08","entity_name":"Acme Notes API S08","predicate":"api_version","value":"v16","norm_value":"v16","scope":"global","status":"active","valid_from":1760000497000,"valid_to":9999999999999,"recorded_at":1760000497000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["6e8458f2-1a44-5607-8240-9c18a2c08e4e"],"supersedes":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S09** api_version: v17 (superseded, global) <!--{"id":"c591ebd4-30f6-5f5a-bdd3-03a2c78fb133","entity":"acme notes api s09","entity_name":"Acme Notes API S09","predicate":"api_version","value":"v17","norm_value":"v17","scope":"global","status":"superseded","valid_from":1760000551000,"valid_to":1760000565500,"recorded_at":1760000551000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["1abe3754-097b-525b-898d-8fcbc775edeb"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S09** api_version: v18 (active, global) <!--{"id":"1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","entity":"acme notes api s09","entity_name":"Acme Notes API S09","predicate":"api_version","value":"v18","norm_value":"v18","scope":"global","status":"active","valid_from":1760000565500,"valid_to":9999999999999,"recorded_at":1760000565500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a544dc16-5f41-5160-8bff-d71dd5400678"],"supersedes":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S10** api_version: v19 (superseded, global) <!--{"id":"ae28d59b-3427-5793-b33d-9abfe80363c8","entity":"acme notes api s10","entity_name":"Acme Notes API S10","predicate":"api_version","value":"v19","norm_value":"v19","scope":"global","status":"superseded","valid_from":1760000619500,"valid_to":1760000634000,"recorded_at":1760000619500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["38cdc76e-414d-564c-9188-7a6af3010502"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S10** api_version: v20 (active, global) <!--{"id":"9d834c69-70bf-51a2-a771-d04e1f6a0a07","entity":"acme notes api s10","entity_name":"Acme Notes API S10","predicate":"api_version","value":"v20","norm_value":"v20","scope":"global","status":"active","valid_from":1760000634000,"valid_to":9999999999999,"recorded_at":1760000634000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["9057dfda-8909-579e-b9f0-0069760a6038"],"supersedes":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S11** api_version: v21 (superseded, global) <!--{"id":"a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a","entity":"acme notes api s11","entity_name":"Acme Notes API S11","predicate":"api_version","value":"v21","norm_value":"v21","scope":"global","status":"superseded","valid_from":1760000688000,"valid_to":1760000702500,"recorded_at":1760000688000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["86e5bde8-3396-50de-b079-518943120969"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S11** api_version: v22 (active, global) <!--{"id":"6e976d44-c6ad-52c2-918c-f396900cc85e","entity":"acme notes api s11","entity_name":"Acme Notes API S11","predicate":"api_version","value":"v22","norm_value":"v22","scope":"global","status":"active","valid_from":1760000702500,"valid_to":9999999999999,"recorded_at":1760000702500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["66ae2012-c0b6-586b-b970-aaf97edbbb0c"],"supersedes":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"contradicts":[]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"1b75ee8e-6287-5f05-a83c-3f7f7197591f","agent":"planner","task":"s01-t02-choose-api-version","text":"S01: Build the Acme Notes API against v1 of the style guide (routes under /v1/).","based_on":["2b927606-c02e-5d86-8c84-18c267e87215"],"at":1760000005002}
+[...]
+{"type":"decision","id":"ab2b1043-6cae-5861-8ded-9be524b1e29e","agent":"planner","task":"s02-t02-choose-api-version","text":"S02: Build the Acme Notes API against v3 of the style guide (routes under /v3/).","based_on":["271b3641-7f41-5602-9219-6f7236a6b215"],"at":1760000073502}
+{"type":"decision","id":"6abda574-f2f9-5c24-ba12-5464654c58d8","agent":"planner","task":"s02-t02-choose-api-version","text":"S02: Adopt style guide v4: the API version is now v4 (routes under /v4/).","based_on":["399e1e16-1b03-5184-b159-958079bedc70"],"at":1760000088001}
+{"type":"decision","id":"aa9ce909-9647-5e6b-be6c-30c9f687d82a","agent":"planner","task":"s02-t05-choose-auth","text":"S02: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["adce43a0-b0da-5936-b9e3-11456941bd65","8aa0e063-17d5-5061-922f-ecb6884e4eca"],"at":1760000101002}
+{"type":"decision","id":"c2768527-08b0-597d-a83d-6e5f577abdec","agent":"planner","task":"s02-t06-write-db-schema","text":"S02: Evaluate Cassandra 5 as the database (forum post).","based_on":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000104002}
+[...]
+{"type":"decision","id":"ddc43da5-6203-5b25-902e-0482f81a67ea","agent":"builder","task":"s02-t06-write-db-schema","text":"S02: Use MySQL 8 for the notes, tags and note_tags tables.","based_on":["2db29fe7-a2f9-5d63-936b-f07eaf671eb6"],"at":1760000112001}
+{"type":"decision","id":"7efc5fbb-61ae-5b3f-b965-6cefad5f77f0","agent":"planner","task":"s02-t09-review-spec","text":"S02: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000124001}
+{"type":"decision","id":"48b7e2ae-d667-5369-82bc-aa45c44801eb","agent":"planner","task":"s03-t02-choose-api-version","text":"S03: Build the Acme Notes API against v5 of the style guide (routes under /v5/).","based_on":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"at":1760000142002}
+[...]
+{"type":"decision","id":"ba2ccd54-752f-5318-8a75-52589881edd7","agent":"planner","task":"s04-t02-choose-api-version","text":"S04: Build the Acme Notes API against v7 of the style guide (routes under /v7/).","based_on":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"at":1760000210502}
+[...]
+{"type":"decision","id":"82f3af6c-2e74-5829-860e-0f4ff3257333","agent":"planner","task":"s05-t02-choose-api-version","text":"S05: Build the Acme Notes API against v9 of the style guide (routes under /v9/).","based_on":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"at":1760000279002}
+[...]
+{"type":"decision","id":"e2639309-acaa-51ac-a150-710fbcf08ebd","agent":"planner","task":"s06-t02-choose-api-version","text":"S06: Build the Acme Notes API against v11 of the style guide (routes under /v11/).","based_on":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"at":1760000347502}
+[...]
+{"type":"decision","id":"dca0a768-44d1-5cd0-b396-d1fab02ce13d","agent":"planner","task":"s07-t02-choose-api-version","text":"S07: Build the Acme Notes API against v13 of the style guide (routes under /v13/).","based_on":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"at":1760000416002}
+[...]
+{"type":"decision","id":"67edc01c-7910-5aa0-aceb-fdfd0856a6db","agent":"planner","task":"s08-t02-choose-api-version","text":"S08: Build the Acme Notes API against v15 of the style guide (routes under /v15/).","based_on":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"at":1760000484502}
+[...]
+{"type":"decision","id":"c4f5edc5-edfb-54b2-9ada-bf082e95e114","agent":"planner","task":"s09-t02-choose-api-version","text":"S09: Build the Acme Notes API against v17 of the style guide (routes under /v17/).","based_on":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"at":1760000553002}
+[...]
+{"type":"decision","id":"5c7f1801-deb5-545a-a331-611ba794181b","agent":"planner","task":"s10-t02-choose-api-version","text":"S10: Build the Acme Notes API against v19 of the style guide (routes under /v19/).","based_on":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"at":1760000621502}
+[...]
+{"type":"decision","id":"5333f19e-de64-5f4e-ae14-4c87191fc6dc","agent":"planner","task":"s11-t02-choose-api-version","text":"S11: Build the Acme Notes API against v21 of the style guide (routes under /v21/).","based_on":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"at":1760000690002}
+[...]
+{"type":"decision","id":"36cde603-0ae0-5c40-8e0c-45ee4acaddb9","agent":"planner","task":"s12-t02-choose-api-version","text":"S12: Build the Acme Notes API against v23 of the style guide (routes under /v23/).","based_on":["9d31097e-bc44-5443-b9c6-6e15ee7fceba"],"at":1760000758502}
+[...]
+{"type":"decision","id":"0239283d-f514-56f1-ab23-875cafa0ed90","agent":"planner","task":"s13-t02-choose-api-version","text":"S13: Build the Acme Notes API against v25 of the style guide (routes under /v25/).","based_on":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"at":1760000827002}
+[...]
+{"type":"decision","id":"0608522f-ebab-532c-aee4-8fb1dd8e628e","agent":"planner","task":"s14-t02-choose-api-version","text":"S14: Build the Acme Notes API against v27 of the style guide (routes under /v27/).","based_on":["dabba289-f252-508f-9c32-f03223137480"],"at":1760000895502}
+[...]
+{"type":"decision","id":"5a926988-bc21-59db-a9f4-f78d83aa3012","agent":"planner","task":"s15-t02-choose-api-version","text":"S15: Build the Acme Notes API against v29 of the style guide (routes under /v29/).","based_on":["eeb91d3d-4345-5271-9659-12e1597fda54"],"at":1760000964002}
+[...]
+{"type":"decision","id":"f0e87c0f-d75b-5c85-8e58-af8ddfa3e616","agent":"planner","task":"s16-t02-choose-api-version","text":"S16: Build the Acme Notes API against v31 of the style guide (routes under /v31/).","based_on":["343721a0-acf1-5d8a-b8bb-a4eff45c56d5"],"at":1760001032502}
+[...]
+{"type":"decision","id":"4278e861-a78e-5b70-aec3-e78bcd859e87","agent":"planner","task":"s17-t02-choose-api-version","text":"S17: Build the Acme Notes API against v33 of the style guide (routes under /v33/).","based_on":["767c0e30-7c17-5b0a-afca-43d877935410"],"at":1760001101002}
+[...]
+{"type":"decision","id":"30770055-203c-54e9-8cab-fabf2826db7f","agent":"planner","task":"s18-t02-choose-api-version","text":"S18: Build the Acme Notes API against v35 of the style guide (routes under /v35/).","based_on":["37c89e1d-d386-5dd8-874f-7da4a9406202"],"at":1760001169502}
+[...]
+{"type":"decision","id":"6c89b03b-ef91-5dcb-b274-afd7ad589b51","agent":"planner","task":"s19-t02-choose-api-version","text":"S19: Build the Acme Notes API against v37 of the style guide (routes under /v37/).","based_on":["21836852-1574-5d90-9068-b12642ab4ccd"],"at":1760001238002}
+[...]
+{"type":"decision","id":"db007e0b-8781-525b-86db-4e11f6fe55f3","agent":"planner","task":"s20-t02-choose-api-version","text":"S20: Build the Acme Notes API against v39 of the style guide (routes under /v39/).","based_on":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001306502}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000073503,"tool":"record_decision","id":"ab2b1043-6cae-5861-8ded-9be524b1e29e","task":"s02-t02-choose-api-version","based_on":["271b3641-7f41-5602-9219-6f7236a6b215"]}
+[...]
+{"ts":1760000101001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"auth_method","value":"API key in X-Service-Key header","scope":"global","fact_id":"8aa0e063-17d5-5061-922f-ecb6884e4eca","duplicate_of":null,"superseded":[],"contradicts":["adce43a0-b0da-5936-b9e3-11456941bd65"]}
+[...]
+{"ts":1760000104001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"database","value":"Cassandra 5","scope":"global","fact_id":"829390c2-ab74-5246-8ede-795f0315774d","duplicate_of":null,"superseded":[],"contradicts":["2db29fe7-a2f9-5d63-936b-f07eaf671eb6"]}
+[...]
+{"ts":1760000109001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"release_channel","value":"open beta","scope":"project:acme-s02","fact_id":"f388cc5f-a42f-533d-881f-f3c0e3903e3e","duplicate_of":null,"superseded":[],"contradicts":[]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000003001,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v1","scope":"global","fact_id":"2b927606-c02e-5d86-8c84-18c267e87215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000017501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v2","scope":"global","fact_id":"e3d70963-c74e-5c24-9814-4c48b55c84bc","duplicate_of":null,"superseded":["2b927606-c02e-5d86-8c84-18c267e87215"],"contradicts":[]}
+[...]
+{"ts":1760000070501,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"purpose","value":"REST service to create, tag and search notes (S02)","scope":"global","fact_id":"d6c1fd09-8fa8-5038-a694-6cecd2fb2334","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000071501,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v3","scope":"global","fact_id":"271b3641-7f41-5602-9219-6f7236a6b215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000086001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v4","scope":"global","fact_id":"399e1e16-1b03-5184-b159-958079bedc70","duplicate_of":null,"superseded":["271b3641-7f41-5602-9219-6f7236a6b215"],"contradicts":[]}
+[...]
+{"ts":1760000096001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"database","value":"MySQL 8","scope":"global","fact_id":"2db29fe7-a2f9-5d63-936b-f07eaf671eb6","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000097001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"auth_method","value":"JWT bearer tokens (ES256, key s02)","scope":"global","fact_id":"adce43a0-b0da-5936-b9e3-11456941bd65","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000140001,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v5","scope":"global","fact_id":"fc4e0924-6721-5efd-bd74-45c790960ce6","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000154501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v6","scope":"global","fact_id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","duplicate_of":null,"superseded":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}
+[...]
+{"ts":1760000208501,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v7","scope":"global","fact_id":"a3e6a516-fc31-5e62-ab92-e9f92abb72e9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000223001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v8","scope":"global","fact_id":"c73b692e-9cd9-58f6-a146-aa387e5d2e33","duplicate_of":null,"superseded":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"contradicts":[]}
+[...]
+{"ts":1760000277001,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v9","scope":"global","fact_id":"ca0ea7ab-cc37-5143-b241-878499db2bd5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000291501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v10","scope":"global","fact_id":"cbde9957-b402-503b-bef3-f0a0733a8c27","duplicate_of":null,"superseded":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"contradicts":[]}
+[...]
+{"ts":1760000345501,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v11","scope":"global","fact_id":"f91cd115-13a9-5c16-bb96-f8a9c4b990eb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000360001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v12","scope":"global","fact_id":"8d2b5d80-fe43-5534-8e8a-955905c4975b","duplicate_of":null,"superseded":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"contradicts":[]}
+[...]
+{"ts":1760000414001,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v13","scope":"global","fact_id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000428501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v14","scope":"global","fact_id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","duplicate_of":null,"superseded":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}
+[...]
+{"ts":1760000482501,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v15","scope":"global","fact_id":"2d18baf0-1ce3-5f5f-94b3-5d524493d2f9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000497001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v16","scope":"global","fact_id":"f4918c86-ef7f-50df-94d1-abc537082890","duplicate_of":null,"superseded":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"contradicts":[]}
+[...]
+{"ts":1760000551001,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v17","scope":"global","fact_id":"c591ebd4-30f6-5f5a-bdd3-03a2c78fb133","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000565501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v18","scope":"global","fact_id":"1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","duplicate_of":null,"superseded":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"contradicts":[]}
+[...]
+{"ts":1760000619501,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"api_version","value":"v19","scope":"global","fact_id":"ae28d59b-3427-5793-b33d-9abfe80363c8","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000634001,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"api_version","value":"v20","scope":"global","fact_id":"9d834c69-70bf-51a2-a771-d04e1f6a0a07","duplicate_of":null,"superseded":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"contradicts":[]}
+[...]
+{"ts":1760000688001,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"api_version","value":"v21","scope":"global","fact_id":"a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000702501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"api_version","value":"v22","scope":"global","fact_id":"6e976d44-c6ad-52c2-918c-f396900cc85e","duplicate_of":null,"superseded":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"contradicts":[]}
+[...]
+{"ts":1760000756501,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"api_version","value":"v23","scope":"global","fact_id":"9d31097e-bc44-5443-b9c6-6e15ee7fceba","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000771001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"api_version","value":"v24","scope":"global","fact_id":"9c6f3395-6466-5261-87f5-70fa6df0101e","duplicate_of":null,"superseded":["9d31097e-bc44-5443-b9c6-6e15ee7fceba"],"contradicts":[]}
+[...]
+{"ts":1760000825001,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"api_version","value":"v25","scope":"global","fact_id":"a8d569a8-4806-56a9-b86e-f497a45654d5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000839501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"api_version","value":"v26","scope":"global","fact_id":"cf3fd407-5373-5c92-a502-6ca529fefeca","duplicate_of":null,"superseded":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"contradicts":[]}
+[...]
+{"ts":1760000893501,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"api_version","value":"v27","scope":"global","fact_id":"dabba289-f252-508f-9c32-f03223137480","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000908001,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"api_version","value":"v28","scope":"global","fact_id":"9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","duplicate_of":null,"superseded":["dabba289-f252-508f-9c32-f03223137480"],"contradicts":[]}
+[...]
+{"ts":1760000962001,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"api_version","value":"v29","scope":"global","fact_id":"eeb91d3d-4345-5271-9659-12e1597fda54","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000976501,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"api_version","value":"v30","scope":"global","fact_id":"4a728057-55a9-5aca-8e1e-b552d2f8daa5","duplicate_of":null,"superseded":["eeb91d3d-4345-5271-9659-12e1597fda54"],"contradicts":[]}
+[...]
+{"ts":1760001030501,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"api_version","value":"v31","scope":"global","fact_id":"343721a0-acf1-5d8a-b8bb-a4eff45c56d5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001045001,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"api_version","value":"v32","scope":"global","fact_id":"cab11576-003a-511c-86e7-a5bb6da5dbf4","duplicate_of":null,"superseded":["343721a0-acf1-5d8a-b8bb-a4eff45c56d5"],"contradicts":[]}
+[...]
+{"ts":1760001099001,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"api_version","value":"v33","scope":"global","fact_id":"767c0e30-7c17-5b0a-afca-43d877935410","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001113501,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"api_version","value":"v34","scope":"global","fact_id":"4e6d9291-e9a9-5e7e-b158-836682b7f9c2","duplicate_of":null,"superseded":["767c0e30-7c17-5b0a-afca-43d877935410"],"contradicts":[]}
+[...]
+{"ts":1760001167501,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"api_version","value":"v35","scope":"global","fact_id":"37c89e1d-d386-5dd8-874f-7da4a9406202","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001182001,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"api_version","value":"v36","scope":"global","fact_id":"db6089a8-7374-54f4-9bf6-f233ae2d1d4d","duplicate_of":null,"superseded":["37c89e1d-d386-5dd8-874f-7da4a9406202"],"contradicts":[]}
+[...]
+{"ts":1760001236001,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"api_version","value":"v37","scope":"global","fact_id":"21836852-1574-5d90-9068-b12642ab4ccd","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001250501,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"api_version","value":"v38","scope":"global","fact_id":"28a328cd-86a1-5480-9a95-d398ed40eb33","duplicate_of":null,"superseded":["21836852-1574-5d90-9068-b12642ab4ccd"],"contradicts":[]}
+[...]
+{"ts":1760001304501,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v39","scope":"global","fact_id":"314cea0e-655e-578d-b067-95bf5b16cb93","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001319001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v40","scope":"global","fact_id":"94fef2a4-a13b-53ed-9d07-0f8cf862efa6","duplicate_of":null,"superseded":["314cea0e-655e-578d-b067-95bf5b16cb93"],"contradicts":[]}
+

@@ -1,0 +1,436 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table tasks
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+s19-t02-choose-api-version,Choose API version (S19),45,217,done,planner,1760001358000,2,1760001233001,1760001239001
+
+-- table deps
+task_id,dep_id
+s19-t02-choose-api-version,s19-t01-gather-requirements
+s19-t03-design-endpoints,s19-t02-choose-api-version
+s19-t06-write-db-schema,s19-t02-choose-api-version
+s19-t12-update-endpoints-for-v2,s19-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+1f53701f-36f3-5f12-9dce-5b9d857064ca,s19-t01-gather-requirements,file,artifacts/s19/requirements.md,,"S19 requirements: notes CRUD, tags, API version v37",researcher,1760001236002
+23e75da2-6e16-5dae-8a44-c5372a9ceaa9,s19-t03-design-endpoints,file,artifacts/s19/openapi-draft.yaml,,S19 endpoint draft for /v37/notes (CRUD),researcher,1760001247501
+1c0d05f1-45ba-5830-810f-6b80d4da47f1,s19-t12-update-endpoints-for-v2,file,artifacts/s19/openapi-v2.yaml,,S19 endpoint design for /v38/notes,builder,1760001256501
+35526b32-184f-5c71-9231-8c8a80ecd34c,s19-t07-implement-crud-spec,file,artifacts/s19/crud-spec.md,,S19 CRUD spec for the current API version with JWT auth,builder,1760001281501
+bf38bc39-6f3c-53a1-aff7-d3d529b5eddf,s19-t10-write-docs,file,artifacts/s19/docs.md,,S19 API documentation,researcher,1760001292501
+3991bc77-3505-566d-95d9-9eccaf6a1884,s19-t11-package-release,file,artifacts/s19/release.tar,,S19 release bundle of the Acme Notes API,builder,1760001294501
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+2b927606-c02e-5d86-8c84-18c267e87215,Acme Notes API S01,api_version,v1,global,superseded,1760000003000,1760000017500
+e3d70963-c74e-5c24-9814-4c48b55c84bc,Acme Notes API S01,api_version,v2,global,active,1760000017500,9999999999999
+271b3641-7f41-5602-9219-6f7236a6b215,Acme Notes API S02,api_version,v3,global,superseded,1760000071500,1760000086000
+399e1e16-1b03-5184-b159-958079bedc70,Acme Notes API S02,api_version,v4,global,active,1760000086000,9999999999999
+fc4e0924-6721-5efd-bd74-45c790960ce6,Acme Notes API S03,api_version,v5,global,superseded,1760000140000,1760000154500
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,Acme Notes API S03,api_version,v6,global,active,1760000154500,9999999999999
+a3e6a516-fc31-5e62-ab92-e9f92abb72e9,Acme Notes API S04,api_version,v7,global,superseded,1760000208500,1760000223000
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,Acme Notes API S04,api_version,v8,global,active,1760000223000,9999999999999
+ca0ea7ab-cc37-5143-b241-878499db2bd5,Acme Notes API S05,api_version,v9,global,superseded,1760000277000,1760000291500
+cbde9957-b402-503b-bef3-f0a0733a8c27,Acme Notes API S05,api_version,v10,global,active,1760000291500,9999999999999
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,Acme Notes API S06,api_version,v11,global,superseded,1760000345500,1760000360000
+8d2b5d80-fe43-5534-8e8a-955905c4975b,Acme Notes API S06,api_version,v12,global,active,1760000360000,9999999999999
+9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,Acme Notes API S07,api_version,v13,global,superseded,1760000414000,1760000428500
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,Acme Notes API S07,api_version,v14,global,active,1760000428500,9999999999999
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,Acme Notes API S08,api_version,v15,global,superseded,1760000482500,1760000497000
+f4918c86-ef7f-50df-94d1-abc537082890,Acme Notes API S08,api_version,v16,global,active,1760000497000,9999999999999
+c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,Acme Notes API S09,api_version,v17,global,superseded,1760000551000,1760000565500
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,Acme Notes API S09,api_version,v18,global,active,1760000565500,9999999999999
+ae28d59b-3427-5793-b33d-9abfe80363c8,Acme Notes API S10,api_version,v19,global,superseded,1760000619500,1760000634000
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,Acme Notes API S10,api_version,v20,global,active,1760000634000,9999999999999
+a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,Acme Notes API S11,api_version,v21,global,superseded,1760000688000,1760000702500
+6e976d44-c6ad-52c2-918c-f396900cc85e,Acme Notes API S11,api_version,v22,global,active,1760000702500,9999999999999
+9d31097e-bc44-5443-b9c6-6e15ee7fceba,Acme Notes API S12,api_version,v23,global,superseded,1760000756500,1760000771000
+9c6f3395-6466-5261-87f5-70fa6df0101e,Acme Notes API S12,api_version,v24,global,active,1760000771000,9999999999999
+a8d569a8-4806-56a9-b86e-f497a45654d5,Acme Notes API S13,api_version,v25,global,superseded,1760000825000,1760000839500
+cf3fd407-5373-5c92-a502-6ca529fefeca,Acme Notes API S13,api_version,v26,global,active,1760000839500,9999999999999
+dabba289-f252-508f-9c32-f03223137480,Acme Notes API S14,api_version,v27,global,superseded,1760000893500,1760000908000
+9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,Acme Notes API S14,api_version,v28,global,active,1760000908000,9999999999999
+eeb91d3d-4345-5271-9659-12e1597fda54,Acme Notes API S15,api_version,v29,global,superseded,1760000962000,1760000976500
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,Acme Notes API S15,api_version,v30,global,active,1760000976500,9999999999999
+343721a0-acf1-5d8a-b8bb-a4eff45c56d5,Acme Notes API S16,api_version,v31,global,superseded,1760001030500,1760001045000
+cab11576-003a-511c-86e7-a5bb6da5dbf4,Acme Notes API S16,api_version,v32,global,active,1760001045000,9999999999999
+767c0e30-7c17-5b0a-afca-43d877935410,Acme Notes API S17,api_version,v33,global,superseded,1760001099000,1760001113500
+4e6d9291-e9a9-5e7e-b158-836682b7f9c2,Acme Notes API S17,api_version,v34,global,active,1760001113500,9999999999999
+37c89e1d-d386-5dd8-874f-7da4a9406202,Acme Notes API S18,api_version,v35,global,superseded,1760001167500,1760001182000
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,Acme Notes API S18,api_version,v36,global,active,1760001182000,9999999999999
+fe13037b-cc88-5469-b07b-1577cff14510,Acme Notes API S19,purpose,"REST service to create, tag and search notes (S19)",global,active,1760001235000,9999999999999
+21836852-1574-5d90-9068-b12642ab4ccd,Acme Notes API S19,api_version,v37,global,superseded,1760001236000,1760001250500
+28a328cd-86a1-5480-9a95-d398ed40eb33,Acme Notes API S19,api_version,v38,global,active,1760001250500,9999999999999
+6e0b3ad2-753f-5f6a-b06d-aa6393260428,Acme Notes API S19,database,TiDB 8,global,active,1760001260500,9999999999999
+23fa06c9-0de6-5176-a4a8-778840fb69e2,Acme Notes API S19,auth_method,"JWT bearer tokens (RS384, key s19)",global,active,1760001261500,9999999999999
+48fc4ea1-e142-54b8-909b-1d578b143614,Acme Notes API S19,auth_method,API key in X-Cloud-Key header,global,active,1760001265500,9999999999999
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,Acme Notes API S19,database,ScyllaDB 22,global,forgotten,1760001268500,1760001270501
+01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,Acme Notes API S19,release_channel,early access,project:acme-s19,active,1760001273500,9999999999999
+314cea0e-655e-578d-b067-95bf5b16cb93,Acme Notes API S20,api_version,v39,global,superseded,1760001304500,1760001319000
+94fef2a4-a13b-53ed-9d07-0f8cf862efa6,Acme Notes API S20,api_version,v40,global,active,1760001319000,9999999999999
+
+-- table fact_agents
+fact_id,agent_id,at
+2b927606-c02e-5d86-8c84-18c267e87215,researcher,1760000003000
+e3d70963-c74e-5c24-9814-4c48b55c84bc,researcher,1760000017500
+271b3641-7f41-5602-9219-6f7236a6b215,researcher,1760000071500
+399e1e16-1b03-5184-b159-958079bedc70,researcher,1760000086000
+fc4e0924-6721-5efd-bd74-45c790960ce6,researcher,1760000140000
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,researcher,1760000154500
+a3e6a516-fc31-5e62-ab92-e9f92abb72e9,researcher,1760000208500
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,researcher,1760000223000
+ca0ea7ab-cc37-5143-b241-878499db2bd5,researcher,1760000277000
+cbde9957-b402-503b-bef3-f0a0733a8c27,researcher,1760000291500
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,researcher,1760000345500
+8d2b5d80-fe43-5534-8e8a-955905c4975b,researcher,1760000360000
+9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,researcher,1760000414000
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,researcher,1760000428500
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,researcher,1760000482500
+f4918c86-ef7f-50df-94d1-abc537082890,researcher,1760000497000
+c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,researcher,1760000551000
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,researcher,1760000565500
+ae28d59b-3427-5793-b33d-9abfe80363c8,researcher,1760000619500
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,researcher,1760000634000
+a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,researcher,1760000688000
+6e976d44-c6ad-52c2-918c-f396900cc85e,researcher,1760000702500
+9d31097e-bc44-5443-b9c6-6e15ee7fceba,researcher,1760000756500
+9c6f3395-6466-5261-87f5-70fa6df0101e,researcher,1760000771000
+a8d569a8-4806-56a9-b86e-f497a45654d5,researcher,1760000825000
+cf3fd407-5373-5c92-a502-6ca529fefeca,researcher,1760000839500
+dabba289-f252-508f-9c32-f03223137480,researcher,1760000893500
+9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,researcher,1760000908000
+eeb91d3d-4345-5271-9659-12e1597fda54,researcher,1760000962000
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,researcher,1760000976500
+343721a0-acf1-5d8a-b8bb-a4eff45c56d5,researcher,1760001030500
+cab11576-003a-511c-86e7-a5bb6da5dbf4,researcher,1760001045000
+767c0e30-7c17-5b0a-afca-43d877935410,researcher,1760001099000
+4e6d9291-e9a9-5e7e-b158-836682b7f9c2,researcher,1760001113500
+37c89e1d-d386-5dd8-874f-7da4a9406202,researcher,1760001167500
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,researcher,1760001182000
+fe13037b-cc88-5469-b07b-1577cff14510,researcher,1760001235000
+21836852-1574-5d90-9068-b12642ab4ccd,researcher,1760001236000
+28a328cd-86a1-5480-9a95-d398ed40eb33,researcher,1760001250500
+6e0b3ad2-753f-5f6a-b06d-aa6393260428,researcher,1760001260500
+23fa06c9-0de6-5176-a4a8-778840fb69e2,researcher,1760001261500
+48fc4ea1-e142-54b8-909b-1d578b143614,planner,1760001265500
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,planner,1760001268500
+1329b454-6349-510a-bc35-8fcc8867f611,researcher,1760001272500
+01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,planner,1760001273500
+314cea0e-655e-578d-b067-95bf5b16cb93,researcher,1760001304500
+94fef2a4-a13b-53ed-9d07-0f8cf862efa6,researcher,1760001319000
+
+-- table fact_links
+src,dst,kind
+2b927606-c02e-5d86-8c84-18c267e87215,053aefcf-235a-504d-9717-957fd1a2215a,derived_from
+e3d70963-c74e-5c24-9814-4c48b55c84bc,08921194-59e1-5b7b-9d29-b3db6ba9e3ab,derived_from
+e3d70963-c74e-5c24-9814-4c48b55c84bc,2b927606-c02e-5d86-8c84-18c267e87215,supersedes
+271b3641-7f41-5602-9219-6f7236a6b215,b83ab153-22ee-50b3-8961-418c640369fd,derived_from
+399e1e16-1b03-5184-b159-958079bedc70,b942a2c4-3fa2-5dbe-9f13-476a31eb2453,derived_from
+399e1e16-1b03-5184-b159-958079bedc70,271b3641-7f41-5602-9219-6f7236a6b215,supersedes
+fc4e0924-6721-5efd-bd74-45c790960ce6,a1b92333-9f22-553b-a091-6987afa9f06a,derived_from
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,a3157cf7-c91c-5f87-be04-71e3c929bd80,derived_from
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,fc4e0924-6721-5efd-bd74-45c790960ce6,supersedes
+a3e6a516-fc31-5e62-ab92-e9f92abb72e9,127f89af-2f69-58ef-9f4e-97156837348a,derived_from
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,33afd039-81e6-5afe-a3ff-d692210600e4,derived_from
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,a3e6a516-fc31-5e62-ab92-e9f92abb72e9,supersedes
+ca0ea7ab-cc37-5143-b241-878499db2bd5,e866d2c3-18c0-5987-bbb0-925ce526c9e4,derived_from
+cbde9957-b402-503b-bef3-f0a0733a8c27,eee47460-6df3-5c18-876c-c4da21de79b1,derived_from
+cbde9957-b402-503b-bef3-f0a0733a8c27,ca0ea7ab-cc37-5143-b241-878499db2bd5,supersedes
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,fa6709cb-2c39-53ac-b0be-247d40d19369,derived_from
+8d2b5d80-fe43-5534-8e8a-955905c4975b,c15bc998-60b5-5fbd-83de-0068f1d0a6ea,derived_from
+8d2b5d80-fe43-5534-8e8a-955905c4975b,f91cd115-13a9-5c16-bb96-f8a9c4b990eb,supersedes
+9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,8ec6c76b-30af-5963-a883-dc5b07bb74a3,derived_from
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,869f233b-3538-59ce-85e5-df14448ec824,derived_from
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,supersedes
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,8db9312f-53c0-59a9-8018-8c984ab125d7,derived_from
+f4918c86-ef7f-50df-94d1-abc537082890,6e8458f2-1a44-5607-8240-9c18a2c08e4e,derived_from
+f4918c86-ef7f-50df-94d1-abc537082890,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,supersedes
+c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,1abe3754-097b-525b-898d-8fcbc775edeb,derived_from
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,a544dc16-5f41-5160-8bff-d71dd5400678,derived_from
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,supersedes
+ae28d59b-3427-5793-b33d-9abfe80363c8,38cdc76e-414d-564c-9188-7a6af3010502,derived_from
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,9057dfda-8909-579e-b9f0-0069760a6038,derived_from
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,ae28d59b-3427-5793-b33d-9abfe80363c8,supersedes
+a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,86e5bde8-3396-50de-b079-518943120969,derived_from
+6e976d44-c6ad-52c2-918c-f396900cc85e,66ae2012-c0b6-586b-b970-aaf97edbbb0c,derived_from
+6e976d44-c6ad-52c2-918c-f396900cc85e,a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,supersedes
+9d31097e-bc44-5443-b9c6-6e15ee7fceba,11c8e79f-8d95-5601-bf84-6a0c4e09af17,derived_from
+9c6f3395-6466-5261-87f5-70fa6df0101e,984fcb0a-5db2-50a7-a217-53cfb5455d54,derived_from
+9c6f3395-6466-5261-87f5-70fa6df0101e,9d31097e-bc44-5443-b9c6-6e15ee7fceba,supersedes
+a8d569a8-4806-56a9-b86e-f497a45654d5,5d563c9a-d8a3-54b3-84f4-dbef8f943c1e,derived_from
+cf3fd407-5373-5c92-a502-6ca529fefeca,f7afef02-c1c0-54de-8497-6e8c8876109e,derived_from
+cf3fd407-5373-5c92-a502-6ca529fefeca,a8d569a8-4806-56a9-b86e-f497a45654d5,supersedes
+dabba289-f252-508f-9c32-f03223137480,5db5a3c9-a8d8-5095-be9a-984cf39a7448,derived_from
+9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,84f9416b-d943-5f99-8b02-4de094011157,derived_from
+9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,dabba289-f252-508f-9c32-f03223137480,supersedes
+eeb91d3d-4345-5271-9659-12e1597fda54,6874e4c1-5a5e-5325-aca1-40da0f75530b,derived_from
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,0f430b25-1004-5258-af83-b706946f124b,derived_from
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,eeb91d3d-4345-5271-9659-12e1597fda54,supersedes
+343721a0-acf1-5d8a-b8bb-a4eff45c56d5,4220badb-08ab-5afa-9a27-6f95d3b33f3c,derived_from
+cab11576-003a-511c-86e7-a5bb6da5dbf4,2eceb1b2-253c-5aea-b9bf-94443ad7d369,derived_from
+cab11576-003a-511c-86e7-a5bb6da5dbf4,343721a0-acf1-5d8a-b8bb-a4eff45c56d5,supersedes
+767c0e30-7c17-5b0a-afca-43d877935410,ca9d44d1-ef72-52df-8cc8-7d4e2e8190d8,derived_from
+4e6d9291-e9a9-5e7e-b158-836682b7f9c2,3ce724cf-8c78-5df6-ac55-a51b3d075308,derived_from
+4e6d9291-e9a9-5e7e-b158-836682b7f9c2,767c0e30-7c17-5b0a-afca-43d877935410,supersedes
+37c89e1d-d386-5dd8-874f-7da4a9406202,28cd0fbc-8f79-589d-a39c-7bcbf449d68c,derived_from
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,bf68c6c6-ba99-5030-ac6f-f6afe648acca,derived_from
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,37c89e1d-d386-5dd8-874f-7da4a9406202,supersedes
+fe13037b-cc88-5469-b07b-1577cff14510,dcb6a066-7789-5474-a6a4-4d7c56704c93,derived_from
+21836852-1574-5d90-9068-b12642ab4ccd,dafcc7e1-ddf1-5675-9c88-9fa8bd5e8d21,derived_from
+28a328cd-86a1-5480-9a95-d398ed40eb33,f42421c7-30cb-5940-a03d-e707a7516790,derived_from
+28a328cd-86a1-5480-9a95-d398ed40eb33,21836852-1574-5d90-9068-b12642ab4ccd,supersedes
+6e0b3ad2-753f-5f6a-b06d-aa6393260428,11821551-c490-517f-965c-e94a52effb27,derived_from
+23fa06c9-0de6-5176-a4a8-778840fb69e2,80401274-db22-5422-88b3-2f326993bae1,derived_from
+48fc4ea1-e142-54b8-909b-1d578b143614,286b5282-5143-54de-82ef-62f67b4c57a4,derived_from
+48fc4ea1-e142-54b8-909b-1d578b143614,23fa06c9-0de6-5176-a4a8-778840fb69e2,contradicts
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,433f47b1-eac7-5fcc-80a1-9a37cdbed257,derived_from
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,6e0b3ad2-753f-5f6a-b06d-aa6393260428,contradicts
+1329b454-6349-510a-bc35-8fcc8867f611,68b7e181-14a3-5707-a5a4-8c6ace961663,derived_from
+314cea0e-655e-578d-b067-95bf5b16cb93,0042c983-67c6-5f1b-867f-ccfb9dd8bc53,derived_from
+94fef2a4-a13b-53ed-9d07-0f8cf862efa6,9e9091b0-4fef-57cb-bb7e-313c3aa9d897,derived_from
+94fef2a4-a13b-53ed-9d07-0f8cf862efa6,314cea0e-655e-578d-b067-95bf5b16cb93,supersedes
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+6c89b03b-ef91-5dcb-b274-afd7ad589b51,planner,s19-t02-choose-api-version,S19: Build the Acme Notes API against v37 of the style guide (routes under /v37/).,1760001238001,0
+c3562fc8-6095-5e67-b4ed-a00d016653b3,planner,s19-t02-choose-api-version,S19: Adopt style guide v38: the API version is now v38 (routes under /v38/).,1760001252501,0
+
+-- table decision_facts
+decision_id,fact_id
+6c89b03b-ef91-5dcb-b274-afd7ad589b51,21836852-1574-5d90-9068-b12642ab4ccd
+c3562fc8-6095-5e67-b4ed-a00d016653b3,28a328cd-86a1-5480-9a95-d398ed40eb33
+37e78a9e-2728-5662-8aba-54f484114147,23fa06c9-0de6-5176-a4a8-778840fb69e2
+37e78a9e-2728-5662-8aba-54f484114147,48fc4ea1-e142-54b8-909b-1d578b143614
+9acc129e-f910-5b32-8f14-80475529c123,e4fcdd43-d040-5571-a6ad-13d72dfaec1f
+234a2e9d-22a3-5ecb-9c5e-14e8f5215c99,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+d7599553-d578-5ca7-9422-4f7161446421,28a328cd-86a1-5480-9a95-d398ed40eb33
+d7599553-d578-5ca7-9422-4f7161446421,23fa06c9-0de6-5176-a4a8-778840fb69e2
+
+-- table handoff_items
+handoff_id,kind,item_id
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,fact,2b927606-c02e-5d86-8c84-18c267e87215
+6bc546bd-8bc8-5700-9233-6c6718ab2bc3,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+208456fd-84ac-52a7-b766-cef373b38b31,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+4fd27171-41a3-557b-9a37-6599cb9a7855,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+6d1c8827-5364-5087-b34b-8f5ab75fc134,fact,271b3641-7f41-5602-9219-6f7236a6b215
+0ca31f69-6cb8-5a25-ab92-bb5ce1e8b36f,fact,399e1e16-1b03-5184-b159-958079bedc70
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,fact,399e1e16-1b03-5184-b159-958079bedc70
+ef0ee3ab-9c04-5bda-b160-99921a49c854,fact,399e1e16-1b03-5184-b159-958079bedc70
+8c410f22-7191-553a-84e8-b4748682424d,fact,fc4e0924-6721-5efd-bd74-45c790960ce6
+059b350c-3f17-5a85-b0ad-dcd63af1ab57,fact,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd
+ca66045d-b446-5002-b023-ae96f7e1a787,fact,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd
+d92ca6d4-d296-58d8-b904-11943ddd547e,fact,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd
+c9ae64b6-af8c-56ff-b547-2b7cad06361c,fact,a3e6a516-fc31-5e62-ab92-e9f92abb72e9
+5af8810a-070a-556b-ab66-4043fa66f25e,fact,c73b692e-9cd9-58f6-a146-aa387e5d2e33
+dcae7214-ee5d-59da-a431-1d3670c8cce5,fact,c73b692e-9cd9-58f6-a146-aa387e5d2e33
+7c05f813-32f1-5c8f-8b7a-08548f8702b3,fact,c73b692e-9cd9-58f6-a146-aa387e5d2e33
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,fact,ca0ea7ab-cc37-5143-b241-878499db2bd5
+40cb7ea3-a858-55fd-8c7b-71675760c139,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+152c0486-f2fa-5da5-bb8d-4f89714562d1,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+33f70db4-6bf8-5816-9887-b03772acc401,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,fact,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+9d7cebfd-874c-5e0d-89da-27e66f64a5ea,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+16c140ee-b857-5484-8171-56ca555ba268,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+0160c629-b5f5-5ea0-b2bd-661e3e27fe6e,fact,9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d
+45dd3ffa-7b5c-5cf3-9ab3-cb2f93ebcb83,fact,a708b29f-1316-57c9-9cd2-e1d93d1fd605
+8ff3f392-de52-5299-ad8f-cb75c615c81d,fact,a708b29f-1316-57c9-9cd2-e1d93d1fd605
+b8ebd551-0f4d-5fb2-b0ab-6b1506c3cdaa,fact,a708b29f-1316-57c9-9cd2-e1d93d1fd605
+3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2,fact,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9
+9667e5d7-ed2a-5648-bcb0-06ec5f20a23e,fact,f4918c86-ef7f-50df-94d1-abc537082890
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,fact,f4918c86-ef7f-50df-94d1-abc537082890
+b5aa54ac-f8db-5fb0-930a-3888c9185415,fact,f4918c86-ef7f-50df-94d1-abc537082890
+055e0241-8283-5c4f-8491-576d5d73be55,fact,c591ebd4-30f6-5f5a-bdd3-03a2c78fb133
+b19435e3-2f21-5ade-b5f7-e937e833ca29,fact,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c
+a133d97a-e731-5223-a8ff-0925912bf303,fact,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c
+54b240fc-2f84-57bb-96b2-7d99a74d6ed2,fact,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c
+357e4c93-b791-52a8-a731-c6f51a269a8a,fact,ae28d59b-3427-5793-b33d-9abfe80363c8
+a22e7489-1ac9-5b97-9569-fe356491e3c2,fact,9d834c69-70bf-51a2-a771-d04e1f6a0a07
+69e73a46-631b-58b6-85f3-f89634202221,fact,9d834c69-70bf-51a2-a771-d04e1f6a0a07
+6e92f678-f18c-5999-9912-ec8415fc7da2,fact,9d834c69-70bf-51a2-a771-d04e1f6a0a07
+a4e86dad-a233-58ab-8e66-ebfedc265fd1,fact,a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a
+5330f315-775b-5949-a809-889db467312c,fact,6e976d44-c6ad-52c2-918c-f396900cc85e
+bfcd23c6-ae34-5363-8253-c4b8fb8e9d61,fact,6e976d44-c6ad-52c2-918c-f396900cc85e
+d8751268-de6c-5eb6-9b44-c1061cc89f7f,fact,6e976d44-c6ad-52c2-918c-f396900cc85e
+e56e47d7-f618-5c4f-8aa3-d373c94991fe,fact,9d31097e-bc44-5443-b9c6-6e15ee7fceba
+c73c2ee0-484b-56a1-b471-11cc1a710f8b,fact,9c6f3395-6466-5261-87f5-70fa6df0101e
+65b478b3-d1cf-57b3-8a6c-5742497ffa24,fact,9c6f3395-6466-5261-87f5-70fa6df0101e
+2187e643-9ef3-5352-b417-5d530fc28c94,fact,9c6f3395-6466-5261-87f5-70fa6df0101e
+543b5765-aa76-55ba-9c62-490eec17d1da,fact,a8d569a8-4806-56a9-b86e-f497a45654d5
+70e4d5a5-d6e6-565d-a996-9559f222a053,fact,cf3fd407-5373-5c92-a502-6ca529fefeca
+c45b3769-f3cb-5369-ac8b-24830f52e357,fact,cf3fd407-5373-5c92-a502-6ca529fefeca
+eece0352-6fee-5dfa-bf7b-f35be556b905,fact,cf3fd407-5373-5c92-a502-6ca529fefeca
+8ebcca38-a83e-56a8-b7d4-340bd20009f5,fact,dabba289-f252-508f-9c32-f03223137480
+2c50784b-6e55-5ee2-92e0-bf5171c924e9,fact,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3
+ca0b29f4-363a-57e4-81bf-f609a231a089,fact,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3
+8b871045-f36b-5f09-8616-17186a9e3220,fact,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3
+0a5bee96-8991-5ad5-a970-5e8f410b233f,fact,eeb91d3d-4345-5271-9659-12e1597fda54
+d27471aa-e216-5b7d-a706-6398fcdfcc03,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+36c8a8ee-f3bd-5d05-898e-6bc8f82471ab,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+557e0af8-ad36-58d3-8116-66262ca0fb46,fact,343721a0-acf1-5d8a-b8bb-a4eff45c56d5
+9ea84b0f-c667-5df6-bde1-e6c3efcedd51,fact,cab11576-003a-511c-86e7-a5bb6da5dbf4
+2081e45a-3076-554a-9a08-25d03365657c,fact,cab11576-003a-511c-86e7-a5bb6da5dbf4
+e875da2c-ffd6-58f9-be4a-1b036888b8c6,fact,cab11576-003a-511c-86e7-a5bb6da5dbf4
+fcb5aa76-3f00-5c66-8368-4d8a8f895556,fact,767c0e30-7c17-5b0a-afca-43d877935410
+30599fdf-ce03-5e10-b4a1-e58c3b175932,fact,4e6d9291-e9a9-5e7e-b158-836682b7f9c2
+b5bdb2aa-2104-568e-aa83-ae98bd3c42bc,fact,4e6d9291-e9a9-5e7e-b158-836682b7f9c2
+3e775cce-fadf-537a-9cc1-617c6f039461,fact,4e6d9291-e9a9-5e7e-b158-836682b7f9c2
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,fact,37c89e1d-d386-5dd8-874f-7da4a9406202
+885b4432-61ea-5f01-bcd4-aa0c5e1880f7,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+a1c481f4-1960-533b-8678-827d85efd5ff,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+1030063b-dcfc-5c26-aff6-b500539933c9,fact,21836852-1574-5d90-9068-b12642ab4ccd
+0c7205f8-6b55-57b7-b67c-87e64a40937d,artifact,1c0d05f1-45ba-5830-810f-6b80d4da47f1
+0c7205f8-6b55-57b7-b67c-87e64a40937d,fact,28a328cd-86a1-5480-9a95-d398ed40eb33
+06ebdeee-a486-5452-8706-29e8c33c6f6d,artifact,35526b32-184f-5c71-9231-8c8a80ecd34c
+06ebdeee-a486-5452-8706-29e8c33c6f6d,fact,28a328cd-86a1-5480-9a95-d398ed40eb33
+06ebdeee-a486-5452-8706-29e8c33c6f6d,fact,23fa06c9-0de6-5176-a4a8-778840fb69e2
+1d677918-4f3d-5e40-a1c4-76f150894e20,artifact,3991bc77-3505-566d-95d9-9eccaf6a1884
+1d677918-4f3d-5e40-a1c4-76f150894e20,fact,28a328cd-86a1-5480-9a95-d398ed40eb33
+54235b76-539d-5a8b-8cb3-8f3bef999e97,fact,314cea0e-655e-578d-b067-95bf5b16cb93
+9e3ebf44-8b77-59d1-a95b-7b042fdea0e6,fact,94fef2a4-a13b-53ed-9d07-0f8cf862efa6
+cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f,fact,94fef2a4-a13b-53ed-9d07-0f8cf862efa6
+7bbf6041-419d-5037-a0f4-94c2747a34ed,fact,94fef2a4-a13b-53ed-9d07-0f8cf862efa6
+
+-- table episodes
+id,agent_id,step,text,at
+01276057-5ad4-581c-a9a3-78c8a16cceaf,researcher,,S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001246501
+
+-- table step_reads
+step_id,fact_id
+633,21836852-1574-5d90-9068-b12642ab4ccd
+634,21836852-1574-5d90-9068-b12642ab4ccd
+634,fe13037b-cc88-5469-b07b-1577cff14510
+635,21836852-1574-5d90-9068-b12642ab4ccd
+635,fe13037b-cc88-5469-b07b-1577cff14510
+637,21836852-1574-5d90-9068-b12642ab4ccd
+638,21836852-1574-5d90-9068-b12642ab4ccd
+640,28a328cd-86a1-5480-9a95-d398ed40eb33
+640,fe13037b-cc88-5469-b07b-1577cff14510
+641,28a328cd-86a1-5480-9a95-d398ed40eb33
+642,28a328cd-86a1-5480-9a95-d398ed40eb33
+642,fe13037b-cc88-5469-b07b-1577cff14510
+644,28a328cd-86a1-5480-9a95-d398ed40eb33
+647,23fa06c9-0de6-5176-a4a8-778840fb69e2
+647,fe13037b-cc88-5469-b07b-1577cff14510
+647,28a328cd-86a1-5480-9a95-d398ed40eb33
+647,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+648,23fa06c9-0de6-5176-a4a8-778840fb69e2
+649,23fa06c9-0de6-5176-a4a8-778840fb69e2
+650,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+651,e4fcdd43-d040-5571-a6ad-13d72dfaec1f
+652,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+652,e4fcdd43-d040-5571-a6ad-13d72dfaec1f
+652,23fa06c9-0de6-5176-a4a8-778840fb69e2
+652,fe13037b-cc88-5469-b07b-1577cff14510
+652,28a328cd-86a1-5480-9a95-d398ed40eb33
+655,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+655,23fa06c9-0de6-5176-a4a8-778840fb69e2
+655,fe13037b-cc88-5469-b07b-1577cff14510
+655,28a328cd-86a1-5480-9a95-d398ed40eb33
+657,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+658,28a328cd-86a1-5480-9a95-d398ed40eb33
+658,23fa06c9-0de6-5176-a4a8-778840fb69e2
+658,fe13037b-cc88-5469-b07b-1577cff14510
+658,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+659,23fa06c9-0de6-5176-a4a8-778840fb69e2
+659,fe13037b-cc88-5469-b07b-1577cff14510
+659,28a328cd-86a1-5480-9a95-d398ed40eb33
+659,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+660,28a328cd-86a1-5480-9a95-d398ed40eb33
+660,23fa06c9-0de6-5176-a4a8-778840fb69e2
+661,28a328cd-86a1-5480-9a95-d398ed40eb33
+661,23fa06c9-0de6-5176-a4a8-778840fb69e2
+661,fe13037b-cc88-5469-b07b-1577cff14510
+661,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+662,28a328cd-86a1-5480-9a95-d398ed40eb33
+662,23fa06c9-0de6-5176-a4a8-778840fb69e2
+662,fe13037b-cc88-5469-b07b-1577cff14510
+662,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+663,28a328cd-86a1-5480-9a95-d398ed40eb33
+663,23fa06c9-0de6-5176-a4a8-778840fb69e2
+664,28a328cd-86a1-5480-9a95-d398ed40eb33
+664,23fa06c9-0de6-5176-a4a8-778840fb69e2
+664,fe13037b-cc88-5469-b07b-1577cff14510
+664,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+665,28a328cd-86a1-5480-9a95-d398ed40eb33
+669,28a328cd-86a1-5480-9a95-d398ed40eb33
+670,28a328cd-86a1-5480-9a95-d398ed40eb33
+675,28a328cd-86a1-5480-9a95-d398ed40eb33
+677,28a328cd-86a1-5480-9a95-d398ed40eb33
+
+-- table step_wrote
+step_id,node_id,label,summary
+2,2b927606-c02e-5d86-8c84-18c267e87215,Fact,v1
+8,e3d70963-c74e-5c24-9814-4c48b55c84bc,Fact,v2
+37,271b3641-7f41-5602-9219-6f7236a6b215,Fact,v3
+43,399e1e16-1b03-5184-b159-958079bedc70,Fact,v4
+72,fc4e0924-6721-5efd-bd74-45c790960ce6,Fact,v5
+78,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,Fact,v6
+107,a3e6a516-fc31-5e62-ab92-e9f92abb72e9,Fact,v7
+113,c73b692e-9cd9-58f6-a146-aa387e5d2e33,Fact,v8
+142,ca0ea7ab-cc37-5143-b241-878499db2bd5,Fact,v9
+148,cbde9957-b402-503b-bef3-f0a0733a8c27,Fact,v10
+177,f91cd115-13a9-5c16-bb96-f8a9c4b990eb,Fact,v11
+183,8d2b5d80-fe43-5534-8e8a-955905c4975b,Fact,v12
+212,9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,Fact,v13
+218,a708b29f-1316-57c9-9cd2-e1d93d1fd605,Fact,v14
+247,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,Fact,v15
+253,f4918c86-ef7f-50df-94d1-abc537082890,Fact,v16
+282,c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,Fact,v17
+288,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,Fact,v18
+317,ae28d59b-3427-5793-b33d-9abfe80363c8,Fact,v19
+323,9d834c69-70bf-51a2-a771-d04e1f6a0a07,Fact,v20
+352,a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,Fact,v21
+358,6e976d44-c6ad-52c2-918c-f396900cc85e,Fact,v22
+387,9d31097e-bc44-5443-b9c6-6e15ee7fceba,Fact,v23
+393,9c6f3395-6466-5261-87f5-70fa6df0101e,Fact,v24
+422,a8d569a8-4806-56a9-b86e-f497a45654d5,Fact,v25
+428,cf3fd407-5373-5c92-a502-6ca529fefeca,Fact,v26
+457,dabba289-f252-508f-9c32-f03223137480,Fact,v27
+463,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,Fact,v28
+492,eeb91d3d-4345-5271-9659-12e1597fda54,Fact,v29
+498,4a728057-55a9-5aca-8e1e-b552d2f8daa5,Fact,v30
+527,343721a0-acf1-5d8a-b8bb-a4eff45c56d5,Fact,v31
+533,cab11576-003a-511c-86e7-a5bb6da5dbf4,Fact,v32
+562,767c0e30-7c17-5b0a-afca-43d877935410,Fact,v33
+568,4e6d9291-e9a9-5e7e-b158-836682b7f9c2,Fact,v34
+597,37c89e1d-d386-5dd8-874f-7da4a9406202,Fact,v35
+603,db6089a8-7374-54f4-9bf6-f233ae2d1d4d,Fact,v36
+631,fe13037b-cc88-5469-b07b-1577cff14510,Fact,"REST service to create, tag and search notes (S19)"
+632,21836852-1574-5d90-9068-b12642ab4ccd,Fact,v37
+633,6c89b03b-ef91-5dcb-b274-afd7ad589b51,Decision,S19: Build the Acme Notes API against v37 of the style guide (routes under /v37/).
+638,28a328cd-86a1-5480-9a95-d398ed40eb33,Fact,v38
+641,c3562fc8-6095-5e67-b4ed-a00d016653b3,Decision,S19: Adopt style guide v38: the API version is now v38 (routes under /v38/).
+645,6e0b3ad2-753f-5f6a-b06d-aa6393260428,Fact,TiDB 8
+646,23fa06c9-0de6-5176-a4a8-778840fb69e2,Fact,"JWT bearer tokens (RS384, key s19)"
+648,48fc4ea1-e142-54b8-909b-1d578b143614,Fact,API key in X-Cloud-Key header
+650,e4fcdd43-d040-5571-a6ad-13d72dfaec1f,Fact,ScyllaDB 22
+653,1329b454-6349-510a-bc35-8fcc8867f611,Fact,"quarterly, invoiced on day 19"
+654,01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,Fact,early access
+667,314cea0e-655e-578d-b067-95bf5b16cb93,Fact,v39
+673,94fef2a4-a13b-53ed-9d07-0f8cf862efa6,Fact,v40
+

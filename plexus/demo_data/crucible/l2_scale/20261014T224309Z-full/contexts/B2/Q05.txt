@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Handoff for task s09-t12-update-endpoints-for-v2 from builder to planner: "S09: Updated for API v18." Artifacts: artifacts/s09/openapi-v2.yaml. Facts: api_version=v18.
+[2] Handoff for task s09-t03-design-endpoints from researcher to builder: "S09: Endpoint draft is ready. Finished on the builder's behalf after it went down." Artifacts: artifacts/s09/openapi-draft.yaml. Facts: api_version=v17.
+[3] Handoff for task s03-t12-update-endpoints-for-v2 from builder to planner: "S03: Updated for API v6." Artifacts: artifacts/s03/openapi-v2.yaml. Facts: api_version=v6.
+[4] Handoff for task s03-t03-design-endpoints from researcher to builder: "S03: Endpoint draft is ready. Finished on the builder's behalf after it went down." Artifacts: artifacts/s03/openapi-draft.yaml. Facts: api_version=v5.
+[5] Handoff for task s09-t11-package-release from builder to planner: "S09: Release bundle is ready." Artifacts: artifacts/s09/release.tar. Facts: api_version=v18.
+[6] Handoff for task s15-t12-update-endpoints-for-v2 from builder to planner: "S15: Updated for API v30." Artifacts: artifacts/s15/openapi-v2.yaml. Facts: api_version=v30.
+[7] Handoff for task s01-t12-update-endpoints-for-v2 from builder to planner: "S01: Updated for API v2." Artifacts: artifacts/s01/openapi-v2.yaml. Facts: api_version=v2.
+[8] Handoff for task s08-t12-update-endpoints-for-v2 from builder to planner: "S08: Updated for API v16." Artifacts: artifacts/s08/openapi-v2.yaml. Facts: api_version=v16.
+[9] Handoff for task s06-t12-update-endpoints-for-v2 from builder to planner: "S06: Updated for API v12." Artifacts: artifacts/s06/openapi-v2.yaml. Facts: api_version=v12.
+[10] Handoff for task s06-t03-design-endpoints from researcher to builder: "S06: Endpoint draft is ready. Finished on the builder's behalf after it went down." Artifacts: artifacts/s06/openapi-draft.yaml. Facts: api_version=v11.
+[11] Handoff for task s16-t12-update-endpoints-for-v2 from builder to planner: "S16: Updated for API v32." Artifacts: artifacts/s16/openapi-v2.yaml. Facts: api_version=v32.
+[12] Handoff for task s02-t03-design-endpoints from researcher to builder: "S02: Endpoint draft is ready. Finished on the builder's behalf after it went down." Artifacts: artifacts/s02/openapi-draft.yaml. Facts: api_version=v3.

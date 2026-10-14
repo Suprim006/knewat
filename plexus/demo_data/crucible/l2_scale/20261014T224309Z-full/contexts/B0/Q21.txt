@@ -1,0 +1,180 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"s20-t01-gather-requirements":{"id":"s20-t01-gather-requirements","title":"Gather requirements (S20)","priority":50,"seq":228,"status":"done","claimed_by":"researcher","lease_until":1760001422500,"version":2,"created_at":1760001301501,"done_at":1760001304502,"deps":[],"artifacts":[{"id":"01872b74-1ba2-5785-9a2e-503dc6874c07","kind":"file","uri":"artifacts/s20/requirements.md","hash":"","summary":"S20 requirements: notes CRUD, tags, API version v39","agent_id":"researcher","created_at":1760001304502}]}}
+{"s20-t02-choose-api-version":{"id":"s20-t02-choose-api-version","title":"Choose API version (S20)","priority":45,"seq":229,"status":"done","claimed_by":"planner","lease_until":1760001426500,"version":2,"created_at":1760001301501,"done_at":1760001307501,"deps":["s20-t01-gather-requirements"],"artifacts":[]}}
+{"s20-t03-design-endpoints":{"id":"s20-t03-design-endpoints","title":"Design endpoints (S20)","priority":40,"seq":230,"status":"done","claimed_by":"researcher","lease_until":1760001434000,"version":3,"created_at":1760001301501,"done_at":1760001316001,"deps":["s20-t02-choose-api-version"],"artifacts":[{"id":"3f9ae36b-b458-5d18-87d7-5a7b3fad4658","kind":"file","uri":"artifacts/s20/openapi-draft.yaml","hash":"","summary":"S20 endpoint draft for /v39/notes (CRUD)","agent_id":"researcher","created_at":1760001316001}]}}
+{"s20-t04-survey-infra-security":{"id":"s20-t04-survey-infra-security","title":"Survey infra and security constraints (S20)","priority":35,"seq":231,"status":"done","claimed_by":"researcher","lease_until":1760001448000,"version":2,"created_at":1760001301501,"done_at":1760001330002,"deps":["s20-t01-gather-requirements"],"artifacts":[{"id":"9c2f0535-d22f-54b7-8058-8429ae73e9ee","kind":"file","uri":"artifacts/s20/constraints.md","hash":"","summary":"S20 infra and security constraints: Aurora MySQL 3, JWT auth","agent_id":"researcher","created_at":1760001330002}]}}
+{"s20-t05-choose-auth":{"id":"s20-t05-choose-auth","title":"Choose authentication (S20)","priority":30,"seq":232,"status":"done","claimed_by":"planner","lease_until":1760001452000,"version":2,"created_at":1760001301501,"done_at":1760001335001,"deps":["s20-t04-survey-infra-security"],"artifacts":[]}}
+{"s20-t06-write-db-schema":{"id":"s20-t06-write-db-schema","title":"Write database schema (S20)","priority":25,"seq":233,"status":"done","claimed_by":"builder","lease_until":1760001463000,"version":2,"created_at":1760001301501,"done_at":1760001346001,"deps":["s20-t02-choose-api-version","s20-t04-survey-infra-security"],"artifacts":[{"id":"cbe059bf-0171-5937-84c0-07e67073f866","kind":"file","uri":"artifacts/s20/schema.sql","hash":"","summary":"S20 Aurora MySQL 3 schema: notes, tags, note_tags","agent_id":"builder","created_at":1760001346001}]}}
+{"s20-t07-implement-crud-spec":{"id":"s20-t07-implement-crud-spec","title":"Implement CRUD spec (S20)","priority":20,"seq":234,"status":"done","claimed_by":"builder","lease_until":1760001468000,"version":2,"created_at":1760001301501,"done_at":1760001350001,"deps":["s20-t03-design-endpoints","s20-t05-choose-auth","s20-t06-write-db-schema"],"artifacts":[{"id":"b42170a8-7f57-562e-afbc-cabf2df369be","kind":"file","uri":"artifacts/s20/crud-spec.md","hash":"","summary":"S20 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001350001}]}}
+{"s20-t08-write-test-plan":{"id":"s20-t08-write-test-plan","title":"Write test plan (S20)","priority":15,"seq":235,"status":"done","claimed_by":"researcher","lease_until":1760001473000,"version":2,"created_at":1760001301501,"done_at":1760001354001,"deps":["s20-t03-design-endpoints"],"artifacts":[{"id":"6c0210c2-e311-5fe4-b7ec-6e7eab646e6e","kind":"file","uri":"artifacts/s20/test-plan.md","hash":"","summary":"S20 test plan for the CRUD endpoints","agent_id":"researcher","created_at":1760001354001}]}}
+{"s20-t09-review-spec":{"id":"s20-t09-review-spec","title":"Review spec (S20)","priority":12,"seq":236,"status":"done","claimed_by":"planner","lease_until":1760001476000,"version":2,"created_at":1760001301501,"done_at":1760001358001,"deps":["s20-t07-implement-crud-spec","s20-t08-write-test-plan"],"artifacts":[]}}
+{"s20-t10-write-docs":{"id":"s20-t10-write-docs","title":"Write documentation (S20)","priority":10,"seq":237,"status":"done","claimed_by":"researcher","lease_until":1760001480000,"version":2,"created_at":1760001301501,"done_at":1760001361001,"deps":["s20-t09-review-spec"],"artifacts":[{"id":"dfa76cb9-84fa-52f7-a8bb-3b2614ec70da","kind":"file","uri":"artifacts/s20/docs.md","hash":"","summary":"S20 API documentation","agent_id":"researcher","created_at":1760001361001}]}}
+{"s20-t11-package-release":{"id":"s20-t11-package-release","title":"Package release (S20)","priority":5,"seq":238,"status":"done","claimed_by":"builder","lease_until":1760001483000,"version":2,"created_at":1760001301501,"done_at":1760001363002,"deps":["s20-t10-write-docs"],"artifacts":[{"id":"39a2636d-0bc6-5313-ab44-0961f7bf83a3","kind":"file","uri":"artifacts/s20/release.tar","hash":"","summary":"S20 release bundle of the Acme Notes API","agent_id":"builder","created_at":1760001363002}]}}
+{"s20-t12-update-endpoints-for-v2":{"id":"s20-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S20)","priority":60,"seq":239,"status":"done","claimed_by":"builder","lease_until":1760001443000,"version":2,"created_at":1760001322001,"done_at":1760001325001,"deps":["s20-t03-design-endpoints"],"artifacts":[{"id":"08a3099d-1dc9-503e-aa10-f96efe7a360e","kind":"file","uri":"artifacts/s20/openapi-v2.yaml","hash":"","summary":"S20 endpoint design for /v40/notes","agent_id":"builder","created_at":1760001325001}]}}
+
+=== file: MEMORY.md ===
+- **Acme Notes API S20** purpose: REST service to create, tag and search notes (S20) (active, global) <!--{"id":"b55b96c8-ef25-512e-acde-fa3bb5a37f6c","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"purpose","value":"REST service to create, tag and search notes (S20)","norm_value":"rest service to create, tag and search notes (s20)","scope":"global","status":"active","valid_from":1760001303500,"valid_to":9999999999999,"recorded_at":1760001303500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["df71f9f2-f60d-57ea-ade8-138693805032"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S20** api_version: v39 (superseded, global) <!--{"id":"314cea0e-655e-578d-b067-95bf5b16cb93","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"api_version","value":"v39","norm_value":"v39","scope":"global","status":"superseded","valid_from":1760001304500,"valid_to":1760001319000,"recorded_at":1760001304500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["0042c983-67c6-5f1b-867f-ccfb9dd8bc53"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S20** api_version: v40 (active, global) <!--{"id":"94fef2a4-a13b-53ed-9d07-0f8cf862efa6","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"api_version","value":"v40","norm_value":"v40","scope":"global","status":"active","valid_from":1760001319000,"valid_to":9999999999999,"recorded_at":1760001319000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["9e9091b0-4fef-57cb-bb7e-313c3aa9d897"],"supersedes":["314cea0e-655e-578d-b067-95bf5b16cb93"],"contradicts":[]}-->
+- **Acme Notes API S20** database: Aurora MySQL 3 (active, global) <!--{"id":"7f1d8278-94f2-5c84-948a-e34170fedb65","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"database","value":"Aurora MySQL 3","norm_value":"aurora mysql 3","scope":"global","status":"active","valid_from":1760001329000,"valid_to":9999999999999,"recorded_at":1760001329000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["c51fc7a1-395f-5173-8de6-98c16f02fdcf"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S20** auth_method: JWT bearer tokens (ES384, key s20) (active, global) <!--{"id":"984f762e-88d6-54ff-a7d4-9cd8d024486a","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"auth_method","value":"JWT bearer tokens (ES384, key s20)","norm_value":"jwt bearer tokens (es384, key s20)","scope":"global","status":"active","valid_from":1760001330000,"valid_to":9999999999999,"recorded_at":1760001330000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["402de8e3-28a6-5757-b250-67e17c1975ce"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S20** auth_method: API key in X-Ops-Key header (active, global) <!--{"id":"c30226fc-2b32-5539-9e38-2a7c33585dcf","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"auth_method","value":"API key in X-Ops-Key header","norm_value":"api key in x-ops-key header","scope":"global","status":"active","valid_from":1760001334000,"valid_to":9999999999999,"recorded_at":1760001334000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["6706b1cf-499b-5e4e-b605-38c03014d712"],"supersedes":[],"contradicts":["984f762e-88d6-54ff-a7d4-9cd8d024486a"]}-->
+- **Acme Notes API S20** database: Riak 23 (forgotten, global) <!--{"id":"3feb9534-3d34-5900-84f0-73e95a1532ea","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"database","value":"Riak 23","norm_value":"riak 23","scope":"global","status":"forgotten","valid_from":1760001337000,"valid_to":1760001339001,"recorded_at":1760001337000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["0d04ac3e-ab11-50fc-8239-48273717b517"],"supersedes":[],"contradicts":["7f1d8278-94f2-5c84-948a-e34170fedb65"]}-->
+- **Bolt Billing API S20** billing_cycle: biweekly, invoiced on day 20 (active, project:billing-s20) <!--{"id":"368a3f28-d754-5731-b810-e2d4d01debbc","entity":"bolt billing api s20","entity_name":"Bolt Billing API S20","predicate":"billing_cycle","value":"biweekly, invoiced on day 20","norm_value":"biweekly, invoiced on day 20","scope":"project:billing-s20","status":"active","valid_from":1760001341000,"valid_to":9999999999999,"recorded_at":1760001341000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["0a028c65-53b7-58a8-8306-5fcfe2d64a7c"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S20** release_channel: general availability (active, project:acme-s20) <!--{"id":"e507c7cc-74bf-53e4-b40b-40037024086b","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"release_channel","value":"general availability","norm_value":"general availability","scope":"project:acme-s20","status":"active","valid_from":1760001342000,"valid_to":9999999999999,"recorded_at":1760001342000,"confidence":1.0,"asserted_by":["planner"],"derived_from":[],"supersedes":[],"contradicts":[]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"db007e0b-8781-525b-86db-4e11f6fe55f3","agent":"planner","task":"s20-t02-choose-api-version","text":"S20: Build the Acme Notes API against v39 of the style guide (routes under /v39/).","based_on":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001306502}
+{"type":"decision","id":"1e8c0d8c-e476-5c80-8c5a-cdbe261d1564","agent":"planner","task":"s20-t02-choose-api-version","text":"S20: Adopt style guide v40: the API version is now v40 (routes under /v40/).","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001321001}
+[...]
+{"type":"decision","id":"1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97","agent":"planner","task":"s20-t06-write-db-schema","text":"S20: Evaluate Riak 23 as the database (forum post).","based_on":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001337002}
+[...]
+{"type":"decision","id":"7a399c5d-8466-5a73-a025-d311f59d7a7c","agent":"builder","task":"s20-t06-write-db-schema","text":"S20: Use Aurora MySQL 3 for the notes, tags and note_tags tables.","based_on":["7f1d8278-94f2-5c84-948a-e34170fedb65"],"at":1760001345001}
+{"type":"decision","id":"2f3bfbdb-ff3b-5075-9f34-b47d193db3ef","agent":"planner","task":"s20-t09-review-spec","text":"S20: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001357001}
+
+=== file: handoffs.jsonl ===
+{"id":"54235b76-539d-5a8b-8cb3-8f3bef999e97","from":"researcher","to":"builder","task":"s20-t03-design-endpoints","note":"S20: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["3f9ae36b-b458-5d18-87d7-5a7b3fad4658"],"facts":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001317001}
+{"id":"9e3ebf44-8b77-59d1-a95b-7b042fdea0e6","from":"builder","to":"planner","task":"s20-t12-update-endpoints-for-v2","note":"S20: Updated for API v40.","artifacts":["08a3099d-1dc9-503e-aa10-f96efe7a360e"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001326001}
+{"id":"cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f","from":"builder","to":"planner","task":"s20-t07-implement-crud-spec","note":"S20: CRUD spec ready for review.","artifacts":["b42170a8-7f57-562e-afbc-cabf2df369be"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001351001}
+{"id":"7bbf6041-419d-5037-a0f4-94c2747a34ed","from":"builder","to":"planner","task":"s20-t11-package-release","note":"S20: Release bundle is ready.","artifacts":["39a2636d-0bc6-5313-ab44-0961f7bf83a3"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001364001}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760001326002,"tool":"handoff","id":"9e3ebf44-8b77-59d1-a95b-7b042fdea0e6","to":"planner","task":"s20-t12-update-endpoints-for-v2","note":"S20: Updated for API v40.","artifacts":["08a3099d-1dc9-503e-aa10-f96efe7a360e"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001326001}
+[...]
+{"ts":1760001351002,"tool":"handoff","id":"cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f","to":"planner","task":"s20-t07-implement-crud-spec","note":"S20: CRUD spec ready for review.","artifacts":["b42170a8-7f57-562e-afbc-cabf2df369be"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001351001}
+[...]
+{"ts":1760001363003,"tool":"complete_task","task":"s20-t11-package-release","artifacts":["39a2636d-0bc6-5313-ab44-0961f7bf83a3"]}
+{"ts":1760001364002,"tool":"handoff","id":"7bbf6041-419d-5037-a0f4-94c2747a34ed","to":"planner","task":"s20-t11-package-release","note":"S20: Release bundle is ready.","artifacts":["39a2636d-0bc6-5313-ab44-0961f7bf83a3"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001364001}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000035501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"database","value":"MongoDB 4","scope":"global","fact_id":"d04e6e8e-1f06-55a2-a92f-7e931314a9db","duplicate_of":null,"superseded":[],"contradicts":["64481d26-77ec-5176-b2be-13b1074c32ee"]}
+[...]
+{"ts":1760000104001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"database","value":"Cassandra 5","scope":"global","fact_id":"829390c2-ab74-5246-8ede-795f0315774d","duplicate_of":null,"superseded":[],"contradicts":["2db29fe7-a2f9-5d63-936b-f07eaf671eb6"]}
+[...]
+{"ts":1760000172501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"database","value":"Couchbase 6","scope":"global","fact_id":"9bfc1e64-3bac-5fa5-ad23-e26c14efcd47","duplicate_of":null,"superseded":[],"contradicts":["f68de5be-dd66-5ad8-bc70-58e5a90803ce"]}
+[...]
+{"ts":1760000241001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"database","value":"DynamoDB 7","scope":"global","fact_id":"21402263-e0ee-5823-9999-b8b0073049d5","duplicate_of":null,"superseded":[],"contradicts":["b18ce498-ca5b-5425-b920-72c0df42f780"]}
+[...]
+{"ts":1760000309501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"database","value":"Redis 8","scope":"global","fact_id":"8b709ed9-81a2-5c6c-801a-bd45c94e7a6d","duplicate_of":null,"superseded":[],"contradicts":["56aae829-cd18-53c7-b1f0-748deb332dfb"]}
+[...]
+{"ts":1760000378001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"database","value":"CouchDB 9","scope":"global","fact_id":"a358e2a2-9b4c-5143-97ec-721836d2a9de","duplicate_of":null,"superseded":[],"contradicts":["1654df3c-dbba-515b-85a1-fb158f3a95b0"]}
+[...]
+{"ts":1760000446501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"database","value":"RethinkDB 10","scope":"global","fact_id":"cc4ca4b0-4d9e-5305-aeca-1d63e046a297","duplicate_of":null,"superseded":[],"contradicts":["81a13776-eecc-5127-af30-f5e30618d336"]}
+[...]
+{"ts":1760000515001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"database","value":"Neo4j 11","scope":"global","fact_id":"89d0ea3a-71e0-54c0-ad11-ad8dc201b757","duplicate_of":null,"superseded":[],"contradicts":["e5ca0231-f709-5a9b-905f-27706b8cdc3e"]}
+[...]
+{"ts":1760000583501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"database","value":"ScyllaDB 12","scope":"global","fact_id":"627cee86-09ce-53a8-8797-fbf748462ecb","duplicate_of":null,"superseded":[],"contradicts":["213040a9-fd8c-54ce-88b8-18b5642c6258"]}
+[...]
+{"ts":1760000652001,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"database","value":"Riak 13","scope":"global","fact_id":"a7c6ea31-4300-5afb-a980-2f6dba60fc95","duplicate_of":null,"superseded":[],"contradicts":["c171bdc8-2c65-5c84-b9d1-f56c58740be9"]}
+[...]
+{"ts":1760000720501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"database","value":"MongoDB 14","scope":"global","fact_id":"840758d6-b085-5fb7-8439-41ea4d9075e2","duplicate_of":null,"superseded":[],"contradicts":["a409f3e8-d6af-55b5-ac10-76322be26bcc"]}
+[...]
+{"ts":1760000789001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"database","value":"Cassandra 15","scope":"global","fact_id":"95e1d954-04a9-5d9a-8441-994f908947d4","duplicate_of":null,"superseded":[],"contradicts":["10b8bab6-920b-56d7-8a22-210c07835836"]}
+[...]
+{"ts":1760000857501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"database","value":"Couchbase 16","scope":"global","fact_id":"89edb49c-4d7d-5da0-b79c-14d927fe6390","duplicate_of":null,"superseded":[],"contradicts":["e186e943-f3c8-561f-892d-5b6711d9ebc8"]}
+[...]
+{"ts":1760000926001,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"database","value":"DynamoDB 17","scope":"global","fact_id":"909bf6fb-2c0d-5c9b-a327-e3c3803ff755","duplicate_of":null,"superseded":[],"contradicts":["ebf95c3e-be4e-5a31-ba0c-945f2ea4f373"]}
+[...]
+{"ts":1760000994501,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"database","value":"Redis 18","scope":"global","fact_id":"d90f88cf-844f-53f2-ae23-ee244ac551bf","duplicate_of":null,"superseded":[],"contradicts":["83c9ac76-b3e6-5f7b-b728-9034960b4407"]}
+[...]
+{"ts":1760001063001,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"database","value":"CouchDB 19","scope":"global","fact_id":"8c0c9c0e-e435-5989-b4d5-0b471560e947","duplicate_of":null,"superseded":[],"contradicts":["661c6b9a-615a-575b-9022-2dc167b28eaf"]}
+[...]
+{"ts":1760001131501,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"database","value":"RethinkDB 20","scope":"global","fact_id":"bc5bb23b-a206-5d2a-a0d1-800573fa5575","duplicate_of":null,"superseded":[],"contradicts":["0a07e018-2944-50d3-afee-056128b01781"]}
+[...]
+{"ts":1760001200001,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"database","value":"Neo4j 21","scope":"global","fact_id":"7a67ca14-839a-5170-9971-a20197810304","duplicate_of":null,"superseded":[],"contradicts":["605f027c-e18c-50b3-b33e-c5e54407570a"]}
+[...]
+{"ts":1760001268501,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"database","value":"ScyllaDB 22","scope":"global","fact_id":"e4fcdd43-d040-5571-a6ad-13d72dfaec1f","duplicate_of":null,"superseded":[],"contradicts":["6e0b3ad2-753f-5f6a-b06d-aa6393260428"]}
+[...]
+{"ts":1760001334001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"auth_method","value":"API key in X-Ops-Key header","scope":"global","fact_id":"c30226fc-2b32-5539-9e38-2a7c33585dcf","duplicate_of":null,"superseded":[],"contradicts":["984f762e-88d6-54ff-a7d4-9cd8d024486a"]}
+[...]
+{"ts":1760001335002,"tool":"complete_task","task":"s20-t05-choose-auth","artifacts":[]}
+{"ts":1760001337001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"database","value":"Riak 23","scope":"global","fact_id":"3feb9534-3d34-5900-84f0-73e95a1532ea","duplicate_of":null,"superseded":[],"contradicts":["7f1d8278-94f2-5c84-948a-e34170fedb65"]}
+[...]
+{"ts":1760001342001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"release_channel","value":"general availability","scope":"project:acme-s20","fact_id":"e507c7cc-74bf-53e4-b40b-40037024086b","duplicate_of":null,"superseded":[],"contradicts":[]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000003001,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v1","scope":"global","fact_id":"2b927606-c02e-5d86-8c84-18c267e87215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000017501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v2","scope":"global","fact_id":"e3d70963-c74e-5c24-9814-4c48b55c84bc","duplicate_of":null,"superseded":["2b927606-c02e-5d86-8c84-18c267e87215"],"contradicts":[]}
+[...]
+{"ts":1760000027501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"database","value":"PostgreSQL 16","scope":"global","fact_id":"64481d26-77ec-5176-b2be-13b1074c32ee","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000071501,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v3","scope":"global","fact_id":"271b3641-7f41-5602-9219-6f7236a6b215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000086001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v4","scope":"global","fact_id":"399e1e16-1b03-5184-b159-958079bedc70","duplicate_of":null,"superseded":["271b3641-7f41-5602-9219-6f7236a6b215"],"contradicts":[]}
+[...]
+{"ts":1760000096001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"database","value":"MySQL 8","scope":"global","fact_id":"2db29fe7-a2f9-5d63-936b-f07eaf671eb6","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000140001,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v5","scope":"global","fact_id":"fc4e0924-6721-5efd-bd74-45c790960ce6","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000154501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v6","scope":"global","fact_id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","duplicate_of":null,"superseded":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}
+[...]
+{"ts":1760000164501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"database","value":"MariaDB 11","scope":"global","fact_id":"f68de5be-dd66-5ad8-bc70-58e5a90803ce","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000208501,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v7","scope":"global","fact_id":"a3e6a516-fc31-5e62-ab92-e9f92abb72e9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000223001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v8","scope":"global","fact_id":"c73b692e-9cd9-58f6-a146-aa387e5d2e33","duplicate_of":null,"superseded":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"contradicts":[]}
+[...]
+{"ts":1760000233001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"database","value":"CockroachDB 24","scope":"global","fact_id":"b18ce498-ca5b-5425-b920-72c0df42f780","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000277001,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v9","scope":"global","fact_id":"ca0ea7ab-cc37-5143-b241-878499db2bd5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000291501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v10","scope":"global","fact_id":"cbde9957-b402-503b-bef3-f0a0733a8c27","duplicate_of":null,"superseded":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"contradicts":[]}
+[...]
+{"ts":1760000301501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"database","value":"SQL Server 2022","scope":"global","fact_id":"56aae829-cd18-53c7-b1f0-748deb332dfb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000345501,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v11","scope":"global","fact_id":"f91cd115-13a9-5c16-bb96-f8a9c4b990eb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000360001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v12","scope":"global","fact_id":"8d2b5d80-fe43-5534-8e8a-955905c4975b","duplicate_of":null,"superseded":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"contradicts":[]}
+[...]
+{"ts":1760000370001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"database","value":"Oracle 23","scope":"global","fact_id":"1654df3c-dbba-515b-85a1-fb158f3a95b0","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000414001,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v13","scope":"global","fact_id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000428501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v14","scope":"global","fact_id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","duplicate_of":null,"superseded":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}
+[...]
+{"ts":1760000438501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"database","value":"PostgreSQL 15","scope":"global","fact_id":"81a13776-eecc-5127-af30-f5e30618d336","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000482501,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v15","scope":"global","fact_id":"2d18baf0-1ce3-5f5f-94b3-5d524493d2f9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000497001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v16","scope":"global","fact_id":"f4918c86-ef7f-50df-94d1-abc537082890","duplicate_of":null,"superseded":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"contradicts":[]}
+[...]
+{"ts":1760000507001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"database","value":"Db2 12","scope":"global","fact_id":"e5ca0231-f709-5a9b-905f-27706b8cdc3e","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000551001,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v17","scope":"global","fact_id":"c591ebd4-30f6-5f5a-bdd3-03a2c78fb133","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000565501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v18","scope":"global","fact_id":"1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","duplicate_of":null,"superseded":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"contradicts":[]}
+[...]
+{"ts":1760000575501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"database","value":"TiDB 8","scope":"global","fact_id":"213040a9-fd8c-54ce-88b8-18b5642c6258","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000712501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"database","value":"PostgreSQL 16","scope":"global","fact_id":"a409f3e8-d6af-55b5-ac10-76322be26bcc","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000781001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"database","value":"MySQL 8","scope":"global","fact_id":"10b8bab6-920b-56d7-8a22-210c07835836","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000849501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"database","value":"MariaDB 11","scope":"global","fact_id":"e186e943-f3c8-561f-892d-5b6711d9ebc8","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000918001,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"database","value":"CockroachDB 24","scope":"global","fact_id":"ebf95c3e-be4e-5a31-ba0c-945f2ea4f373","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001055001,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"database","value":"Oracle 23","scope":"global","fact_id":"661c6b9a-615a-575b-9022-2dc167b28eaf","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001123501,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"database","value":"PostgreSQL 15","scope":"global","fact_id":"0a07e018-2944-50d3-afee-056128b01781","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001192001,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"database","value":"Db2 12","scope":"global","fact_id":"605f027c-e18c-50b3-b33e-c5e54407570a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001260501,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"database","value":"TiDB 8","scope":"global","fact_id":"6e0b3ad2-753f-5f6a-b06d-aa6393260428","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001303501,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"purpose","value":"REST service to create, tag and search notes (S20)","scope":"global","fact_id":"b55b96c8-ef25-512e-acde-fa3bb5a37f6c","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760001304501,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v39","scope":"global","fact_id":"314cea0e-655e-578d-b067-95bf5b16cb93","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001315001,"tool":"episode","id":"e0e4bed4-343d-5960-bbbc-5a2209706cc7","step":null,"text":"S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+[...]
+{"ts":1760001317002,"tool":"handoff","id":"54235b76-539d-5a8b-8cb3-8f3bef999e97","to":"builder","task":"s20-t03-design-endpoints","note":"S20: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["3f9ae36b-b458-5d18-87d7-5a7b3fad4658"],"facts":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001317001}
+{"ts":1760001319001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v40","scope":"global","fact_id":"94fef2a4-a13b-53ed-9d07-0f8cf862efa6","duplicate_of":null,"superseded":["314cea0e-655e-578d-b067-95bf5b16cb93"],"contradicts":[]}
+[...]
+{"ts":1760001329001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"database","value":"Aurora MySQL 3","scope":"global","fact_id":"7f1d8278-94f2-5c84-948a-e34170fedb65","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760001330001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"auth_method","value":"JWT bearer tokens (ES384, key s20)","scope":"global","fact_id":"984f762e-88d6-54ff-a7d4-9cd8d024486a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001341001,"tool":"assert_fact","subject":"Bolt Billing API S20","predicate":"billing_cycle","value":"biweekly, invoiced on day 20","scope":"project:billing-s20","fact_id":"368a3f28-d754-5731-b810-e2d4d01debbc","duplicate_of":null,"superseded":[],"contradicts":[]}
+

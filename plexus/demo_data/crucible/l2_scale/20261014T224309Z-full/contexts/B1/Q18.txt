@@ -1,0 +1,370 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table tasks
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+s01-t07-implement-crud-spec,Implement CRUD spec (S01),20,6,done,builder,1760000166500,2,1760000000004,1760000048501
+s01-t09-review-spec,Review spec (S01),12,8,done,planner,1760000174500,2,1760000000004,1760000056501
+s02-t07-implement-crud-spec,Implement CRUD spec (S02),20,18,done,builder,1760000235000,2,1760000068501,1760000117001
+s02-t09-review-spec,Review spec (S02),12,20,done,planner,1760000243000,2,1760000068501,1760000125001
+s03-t07-implement-crud-spec,Implement CRUD spec (S03),20,30,done,builder,1760000303500,2,1760000137001,1760000185501
+s03-t09-review-spec,Review spec (S03),12,32,done,planner,1760000311500,2,1760000137001,1760000193501
+s04-t07-implement-crud-spec,Implement CRUD spec (S04),20,42,done,builder,1760000372000,2,1760000205501,1760000254001
+s04-t09-review-spec,Review spec (S04),12,44,done,planner,1760000380000,2,1760000205501,1760000262001
+s05-t07-implement-crud-spec,Implement CRUD spec (S05),20,54,done,builder,1760000440500,2,1760000274001,1760000322501
+s05-t09-review-spec,Review spec (S05),12,56,done,planner,1760000448500,2,1760000274001,1760000330501
+s06-t07-implement-crud-spec,Implement CRUD spec (S06),20,66,done,builder,1760000509000,2,1760000342501,1760000391001
+s06-t09-review-spec,Review spec (S06),12,68,done,planner,1760000517000,2,1760000342501,1760000399001
+s07-t07-implement-crud-spec,Implement CRUD spec (S07),20,78,done,builder,1760000577500,2,1760000411001,1760000459501
+s07-t09-review-spec,Review spec (S07),12,80,done,planner,1760000585500,2,1760000411001,1760000467501
+s08-t07-implement-crud-spec,Implement CRUD spec (S08),20,90,done,builder,1760000646000,2,1760000479501,1760000528001
+s08-t09-review-spec,Review spec (S08),12,92,done,planner,1760000654000,2,1760000479501,1760000536001
+s09-t07-implement-crud-spec,Implement CRUD spec (S09),20,102,done,builder,1760000714500,2,1760000548001,1760000596501
+s09-t09-review-spec,Review spec (S09),12,104,done,planner,1760000722500,2,1760000548001,1760000604501
+s10-t07-implement-crud-spec,Implement CRUD spec (S10),20,114,done,builder,1760000783000,2,1760000616501,1760000665001
+s10-t09-review-spec,Review spec (S10),12,116,done,planner,1760000791000,2,1760000616501,1760000673001
+s11-t07-implement-crud-spec,Implement CRUD spec (S11),20,126,done,builder,1760000851500,2,1760000685001,1760000733501
+s11-t09-review-spec,Review spec (S11),12,128,done,planner,1760000859500,2,1760000685001,1760000741501
+s12-t07-implement-crud-spec,Implement CRUD spec (S12),20,138,done,builder,1760000920000,2,1760000753501,1760000802001
+s12-t09-review-spec,Review spec (S12),12,140,done,planner,1760000928000,2,1760000753501,1760000810001
+s13-t07-implement-crud-spec,Implement CRUD spec (S13),20,150,done,builder,1760000988500,2,1760000822001,1760000870501
+s13-t09-review-spec,Review spec (S13),12,152,done,planner,1760000996500,2,1760000822001,1760000878501
+s14-t07-implement-crud-spec,Implement CRUD spec (S14),20,162,done,builder,1760001057000,2,1760000890501,1760000939001
+s14-t09-review-spec,Review spec (S14),12,164,done,planner,1760001065000,2,1760000890501,1760000947001
+s15-t07-implement-crud-spec,Implement CRUD spec (S15),20,174,done,builder,1760001125500,2,1760000959001,1760001007501
+s15-t09-review-spec,Review spec (S15),12,176,done,planner,1760001133500,2,1760000959001,1760001015501
+s16-t01-gather-requirements,Gather requirements (S16),50,180,done,researcher,1760001148500,2,1760001027501,1760001030502
+s16-t02-choose-api-version,Choose API version (S16),45,181,done,planner,1760001152500,2,1760001027501,1760001033501
+s16-t03-design-endpoints,Design endpoints (S16),40,182,done,researcher,1760001160000,3,1760001027501,1760001042001
+s16-t04-survey-infra-security,Survey infra and security constraints (S16),35,183,done,researcher,1760001174000,2,1760001027501,1760001056002
+s16-t05-choose-auth,Choose authentication (S16),30,184,done,planner,1760001178000,2,1760001027501,1760001061001
+s16-t06-write-db-schema,Write database schema (S16),25,185,done,builder,1760001189000,2,1760001027501,1760001072001
+s16-t07-implement-crud-spec,Implement CRUD spec (S16),20,186,done,builder,1760001194000,2,1760001027501,1760001076001
+s16-t08-write-test-plan,Write test plan (S16),15,187,done,researcher,1760001199000,2,1760001027501,1760001080001
+s16-t09-review-spec,Review spec (S16),12,188,done,planner,1760001202000,2,1760001027501,1760001084001
+s16-t10-write-docs,Write documentation (S16),10,189,done,researcher,1760001206000,2,1760001027501,1760001087001
+s16-t11-package-release,Package release (S16),5,190,done,builder,1760001209000,2,1760001027501,1760001089001
+s16-t12-update-endpoints-for-v2,Update endpoint design for API v2 (S16),60,191,done,builder,1760001169000,2,1760001048001,1760001051001
+s17-t07-implement-crud-spec,Implement CRUD spec (S17),20,198,done,builder,1760001262500,2,1760001096001,1760001144501
+s17-t09-review-spec,Review spec (S17),12,200,done,planner,1760001270500,2,1760001096001,1760001152501
+s18-t07-implement-crud-spec,Implement CRUD spec (S18),20,210,done,builder,1760001331000,2,1760001164501,1760001213001
+s18-t09-review-spec,Review spec (S18),12,212,done,planner,1760001339000,2,1760001164501,1760001221001
+s19-t07-implement-crud-spec,Implement CRUD spec (S19),20,222,done,builder,1760001399500,2,1760001233001,1760001281501
+s19-t09-review-spec,Review spec (S19),12,224,done,planner,1760001407500,2,1760001233001,1760001289501
+s20-t07-implement-crud-spec,Implement CRUD spec (S20),20,234,done,builder,1760001468000,2,1760001301501,1760001350001
+s20-t09-review-spec,Review spec (S20),12,236,done,planner,1760001476000,2,1760001301501,1760001358001
+
+-- table deps
+task_id,dep_id
+s01-t07-implement-crud-spec,s01-t05-choose-auth
+s01-t09-review-spec,s01-t07-implement-crud-spec
+s01-t09-review-spec,s01-t08-write-test-plan
+s01-t10-write-docs,s01-t09-review-spec
+s02-t09-review-spec,s02-t07-implement-crud-spec
+s02-t09-review-spec,s02-t08-write-test-plan
+s02-t10-write-docs,s02-t09-review-spec
+s03-t09-review-spec,s03-t07-implement-crud-spec
+s03-t09-review-spec,s03-t08-write-test-plan
+s03-t10-write-docs,s03-t09-review-spec
+s04-t09-review-spec,s04-t07-implement-crud-spec
+s04-t09-review-spec,s04-t08-write-test-plan
+s04-t10-write-docs,s04-t09-review-spec
+s05-t09-review-spec,s05-t07-implement-crud-spec
+s05-t09-review-spec,s05-t08-write-test-plan
+s05-t10-write-docs,s05-t09-review-spec
+s06-t09-review-spec,s06-t07-implement-crud-spec
+s06-t09-review-spec,s06-t08-write-test-plan
+s06-t10-write-docs,s06-t09-review-spec
+s07-t09-review-spec,s07-t07-implement-crud-spec
+s07-t09-review-spec,s07-t08-write-test-plan
+s07-t10-write-docs,s07-t09-review-spec
+s08-t09-review-spec,s08-t07-implement-crud-spec
+s08-t09-review-spec,s08-t08-write-test-plan
+s08-t10-write-docs,s08-t09-review-spec
+s09-t09-review-spec,s09-t07-implement-crud-spec
+s09-t09-review-spec,s09-t08-write-test-plan
+s09-t10-write-docs,s09-t09-review-spec
+s10-t09-review-spec,s10-t07-implement-crud-spec
+s10-t09-review-spec,s10-t08-write-test-plan
+s10-t10-write-docs,s10-t09-review-spec
+s11-t09-review-spec,s11-t07-implement-crud-spec
+s11-t09-review-spec,s11-t08-write-test-plan
+s11-t10-write-docs,s11-t09-review-spec
+s12-t09-review-spec,s12-t07-implement-crud-spec
+s12-t09-review-spec,s12-t08-write-test-plan
+s12-t10-write-docs,s12-t09-review-spec
+s13-t09-review-spec,s13-t07-implement-crud-spec
+s13-t09-review-spec,s13-t08-write-test-plan
+s13-t10-write-docs,s13-t09-review-spec
+s14-t09-review-spec,s14-t07-implement-crud-spec
+s14-t09-review-spec,s14-t08-write-test-plan
+s14-t10-write-docs,s14-t09-review-spec
+s15-t09-review-spec,s15-t07-implement-crud-spec
+s15-t09-review-spec,s15-t08-write-test-plan
+s15-t10-write-docs,s15-t09-review-spec
+s16-t02-choose-api-version,s16-t01-gather-requirements
+s16-t03-design-endpoints,s16-t02-choose-api-version
+s16-t04-survey-infra-security,s16-t01-gather-requirements
+s16-t05-choose-auth,s16-t04-survey-infra-security
+s16-t06-write-db-schema,s16-t02-choose-api-version
+s16-t06-write-db-schema,s16-t04-survey-infra-security
+s16-t07-implement-crud-spec,s16-t03-design-endpoints
+s16-t07-implement-crud-spec,s16-t05-choose-auth
+s16-t07-implement-crud-spec,s16-t06-write-db-schema
+s16-t08-write-test-plan,s16-t03-design-endpoints
+s16-t09-review-spec,s16-t07-implement-crud-spec
+s16-t09-review-spec,s16-t08-write-test-plan
+s16-t10-write-docs,s16-t09-review-spec
+s16-t11-package-release,s16-t10-write-docs
+s16-t12-update-endpoints-for-v2,s16-t03-design-endpoints
+s17-t09-review-spec,s17-t07-implement-crud-spec
+s17-t09-review-spec,s17-t08-write-test-plan
+s17-t10-write-docs,s17-t09-review-spec
+s18-t09-review-spec,s18-t07-implement-crud-spec
+s18-t09-review-spec,s18-t08-write-test-plan
+s18-t10-write-docs,s18-t09-review-spec
+s19-t09-review-spec,s19-t07-implement-crud-spec
+s19-t09-review-spec,s19-t08-write-test-plan
+s19-t10-write-docs,s19-t09-review-spec
+s20-t09-review-spec,s20-t07-implement-crud-spec
+s20-t09-review-spec,s20-t08-write-test-plan
+s20-t10-write-docs,s20-t09-review-spec
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+d11d7938-bd92-5fb7-a295-420bc74cfd26,s16-t01-gather-requirements,file,artifacts/s16/requirements.md,,"S16 requirements: notes CRUD, tags, API version v31",researcher,1760001030502
+f74a1f42-6478-5364-b018-6b4f5c21383d,s16-t03-design-endpoints,file,artifacts/s16/openapi-draft.yaml,,S16 endpoint draft for /v31/notes (CRUD),researcher,1760001042001
+5006e7c2-97d0-5cb2-93d7-bf6a45c6a74d,s16-t12-update-endpoints-for-v2,file,artifacts/s16/openapi-v2.yaml,,S16 endpoint design for /v32/notes,builder,1760001051001
+377d2aae-c9e0-5259-b582-d7fec3ad5fb4,s16-t04-survey-infra-security,file,artifacts/s16/constraints.md,,"S16 infra and security constraints: Oracle 23, JWT auth",researcher,1760001056002
+83ab3a50-4f3b-57f7-8182-40ae8ee30eb0,s16-t06-write-db-schema,file,artifacts/s16/schema.sql,,"S16 Oracle 23 schema: notes, tags, note_tags",builder,1760001072001
+38c9690b-72a3-58ad-899c-d2a034a39f1c,s16-t07-implement-crud-spec,file,artifacts/s16/crud-spec.md,,S16 CRUD spec for the current API version with JWT auth,builder,1760001076001
+0196f6af-7395-5a37-b83a-52f9f8508583,s16-t08-write-test-plan,file,artifacts/s16/test-plan.md,,S16 test plan for the CRUD endpoints,researcher,1760001080001
+2d64ef2d-3215-5c8b-8203-c0fe75975e68,s16-t10-write-docs,file,artifacts/s16/docs.md,,S16 API documentation,researcher,1760001087001
+ac3e4536-3c2b-5f03-a372-d1ee1633ccff,s16-t11-package-release,file,artifacts/s16/release.tar,,S16 release bundle of the Acme Notes API,builder,1760001089001
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+a95eed0c-9058-5840-b7ef-00b13a18ee88,planner,s01-t09-review-spec,"S01: Spec approved: endpoints, schema and JWT auth are consistent.",1760000055501,0
+7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,planner,s02-t09-review-spec,"S02: Spec approved: endpoints, schema and JWT auth are consistent.",1760000124001,0
+d05051b1-49c1-5cd5-a51c-2a64a1af1409,planner,s03-t09-review-spec,"S03: Spec approved: endpoints, schema and JWT auth are consistent.",1760000192501,0
+ecefce34-9176-58d8-94f6-c6d6783639ad,planner,s04-t09-review-spec,"S04: Spec approved: endpoints, schema and JWT auth are consistent.",1760000261001,0
+62932fdb-3076-59d2-ba7e-bf5b9bab07ea,planner,s05-t09-review-spec,"S05: Spec approved: endpoints, schema and JWT auth are consistent.",1760000329501,0
+3bc6e6b9-213b-5a05-8e74-175df8e45057,planner,s06-t09-review-spec,"S06: Spec approved: endpoints, schema and JWT auth are consistent.",1760000398001,0
+151ec366-1445-5726-b70d-6a9513cb94de,planner,s07-t09-review-spec,"S07: Spec approved: endpoints, schema and JWT auth are consistent.",1760000466501,0
+66744935-c4fa-5a06-bddd-7835dfc6a7af,planner,s08-t09-review-spec,"S08: Spec approved: endpoints, schema and JWT auth are consistent.",1760000535001,0
+3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca,planner,s09-t09-review-spec,"S09: Spec approved: endpoints, schema and JWT auth are consistent.",1760000603501,0
+3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a,planner,s10-t09-review-spec,"S10: Spec approved: endpoints, schema and JWT auth are consistent.",1760000672001,0
+5a045ccd-4ca8-5279-900a-661aab445648,planner,s11-t09-review-spec,"S11: Spec approved: endpoints, schema and JWT auth are consistent.",1760000740501,0
+5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3,planner,s12-t09-review-spec,"S12: Spec approved: endpoints, schema and JWT auth are consistent.",1760000809001,0
+8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1,planner,s13-t09-review-spec,"S13: Spec approved: endpoints, schema and JWT auth are consistent.",1760000877501,0
+c5e4aaf8-7959-55b9-8526-2ac75e975544,planner,s14-t09-review-spec,"S14: Spec approved: endpoints, schema and JWT auth are consistent.",1760000946001,0
+088c32c9-9211-501e-8eab-f6ea616d8eb4,planner,s15-t09-review-spec,"S15: Spec approved: endpoints, schema and JWT auth are consistent.",1760001014501,0
+010224fb-29ba-56be-99c4-d33174f6f565,builder,s16-t06-write-db-schema,"S16: Use Oracle 23 for the notes, tags and note_tags tables.",1760001071001,0
+7f71e476-1a85-5b91-9885-e133ad3a02c2,planner,s16-t09-review-spec,"S16: Spec approved: endpoints, schema and JWT auth are consistent.",1760001083001,0
+c7d232bd-c4b4-5ac1-89ae-decaf18696bb,planner,s17-t09-review-spec,"S17: Spec approved: endpoints, schema and JWT auth are consistent.",1760001151501,0
+a21750a7-4500-5e73-b55a-067a4ca490af,planner,s18-t09-review-spec,"S18: Spec approved: endpoints, schema and JWT auth are consistent.",1760001220001,0
+d7599553-d578-5ca7-9422-4f7161446421,planner,s19-t09-review-spec,"S19: Spec approved: endpoints, schema and JWT auth are consistent.",1760001288501,0
+2f3bfbdb-ff3b-5075-9f34-b47d193db3ef,planner,s20-t09-review-spec,"S20: Spec approved: endpoints, schema and JWT auth are consistent.",1760001357001,0
+
+-- table decision_facts
+decision_id,fact_id
+a95eed0c-9058-5840-b7ef-00b13a18ee88,e3d70963-c74e-5c24-9814-4c48b55c84bc
+a95eed0c-9058-5840-b7ef-00b13a18ee88,2c6740d8-7444-5f79-8d75-ce7112466e7f
+7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,399e1e16-1b03-5184-b159-958079bedc70
+7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,adce43a0-b0da-5936-b9e3-11456941bd65
+d05051b1-49c1-5cd5-a51c-2a64a1af1409,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd
+d05051b1-49c1-5cd5-a51c-2a64a1af1409,8c782244-d287-5241-97fe-81123ca9a9a9
+ecefce34-9176-58d8-94f6-c6d6783639ad,c73b692e-9cd9-58f6-a146-aa387e5d2e33
+ecefce34-9176-58d8-94f6-c6d6783639ad,6a825d90-ffb7-5427-ba96-9e4db1fb916a
+62932fdb-3076-59d2-ba7e-bf5b9bab07ea,cbde9957-b402-503b-bef3-f0a0733a8c27
+62932fdb-3076-59d2-ba7e-bf5b9bab07ea,caaa893a-626f-5079-bebd-835aa31eb750
+3bc6e6b9-213b-5a05-8e74-175df8e45057,8d2b5d80-fe43-5534-8e8a-955905c4975b
+3bc6e6b9-213b-5a05-8e74-175df8e45057,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+151ec366-1445-5726-b70d-6a9513cb94de,a708b29f-1316-57c9-9cd2-e1d93d1fd605
+151ec366-1445-5726-b70d-6a9513cb94de,9aa3ca0d-ddf3-5024-b383-b632b16c6648
+66744935-c4fa-5a06-bddd-7835dfc6a7af,f4918c86-ef7f-50df-94d1-abc537082890
+66744935-c4fa-5a06-bddd-7835dfc6a7af,796aea04-86c3-5458-9108-e6250cae575b
+3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c
+3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca,3a1468b7-0a5c-5b70-9e35-98f20baacab6
+3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a,9d834c69-70bf-51a2-a771-d04e1f6a0a07
+3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a,1957d113-2caf-53d4-a9c9-713c893bed4e
+5a045ccd-4ca8-5279-900a-661aab445648,6e976d44-c6ad-52c2-918c-f396900cc85e
+5a045ccd-4ca8-5279-900a-661aab445648,facb64f3-a7ed-5ee0-859d-5752d670f2c7
+5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3,9c6f3395-6466-5261-87f5-70fa6df0101e
+5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3,c741d5a2-182e-533c-bac5-124f08e9a37a
+8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1,cf3fd407-5373-5c92-a502-6ca529fefeca
+8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1,281fe1b5-fe2f-570f-b317-b10819b44639
+c5e4aaf8-7959-55b9-8526-2ac75e975544,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3
+c5e4aaf8-7959-55b9-8526-2ac75e975544,a1585f54-8bb4-5e20-b07a-d2d19e89af89
+088c32c9-9211-501e-8eab-f6ea616d8eb4,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+088c32c9-9211-501e-8eab-f6ea616d8eb4,174dde7f-0a35-54ec-849b-1bb81f3919c9
+7f71e476-1a85-5b91-9885-e133ad3a02c2,cab11576-003a-511c-86e7-a5bb6da5dbf4
+7f71e476-1a85-5b91-9885-e133ad3a02c2,5973c274-277d-5dd2-bd7c-dce1278d8139
+c7d232bd-c4b4-5ac1-89ae-decaf18696bb,4e6d9291-e9a9-5e7e-b158-836682b7f9c2
+c7d232bd-c4b4-5ac1-89ae-decaf18696bb,d2ef79a9-557b-5225-8093-670c4f36db73
+a21750a7-4500-5e73-b55a-067a4ca490af,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+a21750a7-4500-5e73-b55a-067a4ca490af,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+d7599553-d578-5ca7-9422-4f7161446421,28a328cd-86a1-5480-9a95-d398ed40eb33
+d7599553-d578-5ca7-9422-4f7161446421,23fa06c9-0de6-5176-a4a8-778840fb69e2
+2f3bfbdb-ff3b-5075-9f34-b47d193db3ef,94fef2a4-a13b-53ed-9d07-0f8cf862efa6
+2f3bfbdb-ff3b-5075-9f34-b47d193db3ef,984f762e-88d6-54ff-a7d4-9cd8d024486a
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+208456fd-84ac-52a7-b766-cef373b38b31,builder,planner,s01-t07-implement-crud-spec,S01: CRUD spec ready for review.,1760000049501
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,builder,planner,s02-t07-implement-crud-spec,S02: CRUD spec ready for review.,1760000118001
+ca66045d-b446-5002-b023-ae96f7e1a787,builder,planner,s03-t07-implement-crud-spec,S03: CRUD spec ready for review.,1760000186501
+dcae7214-ee5d-59da-a431-1d3670c8cce5,builder,planner,s04-t07-implement-crud-spec,S04: CRUD spec ready for review.,1760000255001
+152c0486-f2fa-5da5-bb8d-4f89714562d1,builder,planner,s05-t07-implement-crud-spec,S05: CRUD spec ready for review.,1760000323501
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,builder,planner,s06-t07-implement-crud-spec,S06: CRUD spec ready for review.,1760000392001
+8ff3f392-de52-5299-ad8f-cb75c615c81d,builder,planner,s07-t07-implement-crud-spec,S07: CRUD spec ready for review.,1760000460501
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,builder,planner,s08-t07-implement-crud-spec,S08: CRUD spec ready for review.,1760000529001
+a133d97a-e731-5223-a8ff-0925912bf303,builder,planner,s09-t07-implement-crud-spec,S09: CRUD spec ready for review.,1760000597501
+69e73a46-631b-58b6-85f3-f89634202221,builder,planner,s10-t07-implement-crud-spec,S10: CRUD spec ready for review.,1760000666001
+bfcd23c6-ae34-5363-8253-c4b8fb8e9d61,builder,planner,s11-t07-implement-crud-spec,S11: CRUD spec ready for review.,1760000734501
+65b478b3-d1cf-57b3-8a6c-5742497ffa24,builder,planner,s12-t07-implement-crud-spec,S12: CRUD spec ready for review.,1760000803001
+c45b3769-f3cb-5369-ac8b-24830f52e357,builder,planner,s13-t07-implement-crud-spec,S13: CRUD spec ready for review.,1760000871501
+ca0b29f4-363a-57e4-81bf-f609a231a089,builder,planner,s14-t07-implement-crud-spec,S14: CRUD spec ready for review.,1760000940001
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,builder,planner,s15-t07-implement-crud-spec,S15: CRUD spec ready for review.,1760001008501
+557e0af8-ad36-58d3-8116-66262ca0fb46,researcher,builder,s16-t03-design-endpoints,S16: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001043001
+9ea84b0f-c667-5df6-bde1-e6c3efcedd51,builder,planner,s16-t12-update-endpoints-for-v2,S16: Updated for API v32.,1760001052001
+2081e45a-3076-554a-9a08-25d03365657c,builder,planner,s16-t07-implement-crud-spec,S16: CRUD spec ready for review.,1760001077001
+e875da2c-ffd6-58f9-be4a-1b036888b8c6,builder,planner,s16-t11-package-release,S16: Release bundle is ready.,1760001090001
+b5bdb2aa-2104-568e-aa83-ae98bd3c42bc,builder,planner,s17-t07-implement-crud-spec,S17: CRUD spec ready for review.,1760001145501
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,builder,planner,s18-t07-implement-crud-spec,S18: CRUD spec ready for review.,1760001214001
+06ebdeee-a486-5452-8706-29e8c33c6f6d,builder,planner,s19-t07-implement-crud-spec,S19: CRUD spec ready for review.,1760001282501
+cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f,builder,planner,s20-t07-implement-crud-spec,S20: CRUD spec ready for review.,1760001351001
+
+-- table handoff_items
+handoff_id,kind,item_id
+208456fd-84ac-52a7-b766-cef373b38b31,artifact,27ef1b24-205d-5803-8a6d-b59547042ff8
+208456fd-84ac-52a7-b766-cef373b38b31,fact,e3d70963-c74e-5c24-9814-4c48b55c84bc
+208456fd-84ac-52a7-b766-cef373b38b31,fact,2c6740d8-7444-5f79-8d75-ce7112466e7f
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,artifact,0e6b7bc2-796b-5295-ad42-bfc0a62594ba
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,fact,399e1e16-1b03-5184-b159-958079bedc70
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,fact,adce43a0-b0da-5936-b9e3-11456941bd65
+ca66045d-b446-5002-b023-ae96f7e1a787,artifact,ccc99f24-fa03-56d7-add8-9e4a492be44f
+ca66045d-b446-5002-b023-ae96f7e1a787,fact,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd
+ca66045d-b446-5002-b023-ae96f7e1a787,fact,8c782244-d287-5241-97fe-81123ca9a9a9
+dcae7214-ee5d-59da-a431-1d3670c8cce5,artifact,f800fe12-3a0d-5ecf-9463-25316e8b0776
+dcae7214-ee5d-59da-a431-1d3670c8cce5,fact,c73b692e-9cd9-58f6-a146-aa387e5d2e33
+dcae7214-ee5d-59da-a431-1d3670c8cce5,fact,6a825d90-ffb7-5427-ba96-9e4db1fb916a
+152c0486-f2fa-5da5-bb8d-4f89714562d1,artifact,b2ee9a12-5645-5138-87a3-303d5063554a
+152c0486-f2fa-5da5-bb8d-4f89714562d1,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+152c0486-f2fa-5da5-bb8d-4f89714562d1,fact,caaa893a-626f-5079-bebd-835aa31eb750
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,artifact,19715af8-0853-577c-a079-771cecf2f34a
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,fact,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+8ff3f392-de52-5299-ad8f-cb75c615c81d,artifact,1fd0fea1-4134-5a70-a173-ddd7cb97836b
+8ff3f392-de52-5299-ad8f-cb75c615c81d,fact,a708b29f-1316-57c9-9cd2-e1d93d1fd605
+8ff3f392-de52-5299-ad8f-cb75c615c81d,fact,9aa3ca0d-ddf3-5024-b383-b632b16c6648
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,artifact,d76294c4-c550-5029-845f-880e44cb4bf1
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,fact,f4918c86-ef7f-50df-94d1-abc537082890
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,fact,796aea04-86c3-5458-9108-e6250cae575b
+a133d97a-e731-5223-a8ff-0925912bf303,artifact,c15b251d-c799-5fb6-99ca-e6b78a41b088
+a133d97a-e731-5223-a8ff-0925912bf303,fact,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c
+a133d97a-e731-5223-a8ff-0925912bf303,fact,3a1468b7-0a5c-5b70-9e35-98f20baacab6
+69e73a46-631b-58b6-85f3-f89634202221,artifact,c87489d9-9608-51ba-a15a-db6abf9fd091
+69e73a46-631b-58b6-85f3-f89634202221,fact,9d834c69-70bf-51a2-a771-d04e1f6a0a07
+69e73a46-631b-58b6-85f3-f89634202221,fact,1957d113-2caf-53d4-a9c9-713c893bed4e
+bfcd23c6-ae34-5363-8253-c4b8fb8e9d61,artifact,bf750cef-8374-5117-a75b-cb228bf48e39
+bfcd23c6-ae34-5363-8253-c4b8fb8e9d61,fact,6e976d44-c6ad-52c2-918c-f396900cc85e
+bfcd23c6-ae34-5363-8253-c4b8fb8e9d61,fact,facb64f3-a7ed-5ee0-859d-5752d670f2c7
+65b478b3-d1cf-57b3-8a6c-5742497ffa24,artifact,82365dcb-e9ac-585f-a493-0c6efa43b506
+65b478b3-d1cf-57b3-8a6c-5742497ffa24,fact,9c6f3395-6466-5261-87f5-70fa6df0101e
+65b478b3-d1cf-57b3-8a6c-5742497ffa24,fact,c741d5a2-182e-533c-bac5-124f08e9a37a
+c45b3769-f3cb-5369-ac8b-24830f52e357,artifact,69ce9b3f-1ffd-5ee1-a99d-4909596d0457
+c45b3769-f3cb-5369-ac8b-24830f52e357,fact,cf3fd407-5373-5c92-a502-6ca529fefeca
+c45b3769-f3cb-5369-ac8b-24830f52e357,fact,281fe1b5-fe2f-570f-b317-b10819b44639
+ca0b29f4-363a-57e4-81bf-f609a231a089,artifact,5e1cc5e6-991f-5fb3-bf84-9377b8a89805
+ca0b29f4-363a-57e4-81bf-f609a231a089,fact,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3
+ca0b29f4-363a-57e4-81bf-f609a231a089,fact,a1585f54-8bb4-5e20-b07a-d2d19e89af89
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,artifact,a8166a94-af06-514f-aa6d-29ef076b114a
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,fact,174dde7f-0a35-54ec-849b-1bb81f3919c9
+557e0af8-ad36-58d3-8116-66262ca0fb46,artifact,f74a1f42-6478-5364-b018-6b4f5c21383d
+9ea84b0f-c667-5df6-bde1-e6c3efcedd51,artifact,5006e7c2-97d0-5cb2-93d7-bf6a45c6a74d
+2081e45a-3076-554a-9a08-25d03365657c,artifact,38c9690b-72a3-58ad-899c-d2a034a39f1c
+2081e45a-3076-554a-9a08-25d03365657c,fact,cab11576-003a-511c-86e7-a5bb6da5dbf4
+2081e45a-3076-554a-9a08-25d03365657c,fact,5973c274-277d-5dd2-bd7c-dce1278d8139
+e875da2c-ffd6-58f9-be4a-1b036888b8c6,artifact,ac3e4536-3c2b-5f03-a372-d1ee1633ccff
+e875da2c-ffd6-58f9-be4a-1b036888b8c6,fact,cab11576-003a-511c-86e7-a5bb6da5dbf4
+b5bdb2aa-2104-568e-aa83-ae98bd3c42bc,artifact,d7abdc81-f7d7-5996-9cf5-27b78fe17339
+b5bdb2aa-2104-568e-aa83-ae98bd3c42bc,fact,4e6d9291-e9a9-5e7e-b158-836682b7f9c2
+b5bdb2aa-2104-568e-aa83-ae98bd3c42bc,fact,d2ef79a9-557b-5225-8093-670c4f36db73
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,artifact,3cfb4932-60c7-5e17-a32c-06a963667df4
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,fact,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+06ebdeee-a486-5452-8706-29e8c33c6f6d,artifact,35526b32-184f-5c71-9231-8c8a80ecd34c
+06ebdeee-a486-5452-8706-29e8c33c6f6d,fact,28a328cd-86a1-5480-9a95-d398ed40eb33
+06ebdeee-a486-5452-8706-29e8c33c6f6d,fact,23fa06c9-0de6-5176-a4a8-778840fb69e2
+cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f,artifact,b42170a8-7f57-562e-afbc-cabf2df369be
+cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f,fact,94fef2a4-a13b-53ed-9d07-0f8cf862efa6
+cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f,fact,984f762e-88d6-54ff-a7d4-9cd8d024486a
+
+-- table step_wrote
+step_id,node_id,label,summary
+30,208456fd-84ac-52a7-b766-cef373b38b31,Handoff,S01: CRUD spec ready for review.
+33,a95eed0c-9058-5840-b7ef-00b13a18ee88,Decision,"S01: Spec approved: endpoints, schema and JWT auth are consistent."
+65,d04e9737-19af-51e3-b2c3-69a2d16d23a9,Handoff,S02: CRUD spec ready for review.
+68,7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,Decision,"S02: Spec approved: endpoints, schema and JWT auth are consistent."
+100,ca66045d-b446-5002-b023-ae96f7e1a787,Handoff,S03: CRUD spec ready for review.
+103,d05051b1-49c1-5cd5-a51c-2a64a1af1409,Decision,"S03: Spec approved: endpoints, schema and JWT auth are consistent."
+135,dcae7214-ee5d-59da-a431-1d3670c8cce5,Handoff,S04: CRUD spec ready for review.
+138,ecefce34-9176-58d8-94f6-c6d6783639ad,Decision,"S04: Spec approved: endpoints, schema and JWT auth are consistent."
+170,152c0486-f2fa-5da5-bb8d-4f89714562d1,Handoff,S05: CRUD spec ready for review.
+173,62932fdb-3076-59d2-ba7e-bf5b9bab07ea,Decision,"S05: Spec approved: endpoints, schema and JWT auth are consistent."
+205,0aff62b2-52de-5019-aeb4-ea6f9488fb44,Handoff,S06: CRUD spec ready for review.
+208,3bc6e6b9-213b-5a05-8e74-175df8e45057,Decision,"S06: Spec approved: endpoints, schema and JWT auth are consistent."
+240,8ff3f392-de52-5299-ad8f-cb75c615c81d,Handoff,S07: CRUD spec ready for review.
+243,151ec366-1445-5726-b70d-6a9513cb94de,Decision,"S07: Spec approved: endpoints, schema and JWT auth are consistent."
+275,70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,Handoff,S08: CRUD spec ready for review.
+278,66744935-c4fa-5a06-bddd-7835dfc6a7af,Decision,"S08: Spec approved: endpoints, schema and JWT auth are consistent."
+310,a133d97a-e731-5223-a8ff-0925912bf303,Handoff,S09: CRUD spec ready for review.
+313,3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca,Decision,"S09: Spec approved: endpoints, schema and JWT auth are consistent."
+345,69e73a46-631b-58b6-85f3-f89634202221,Handoff,S10: CRUD spec ready for review.
+348,3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a,Decision,"S10: Spec approved: endpoints, schema and JWT auth are consistent."
+380,bfcd23c6-ae34-5363-8253-c4b8fb8e9d61,Handoff,S11: CRUD spec ready for review.
+383,5a045ccd-4ca8-5279-900a-661aab445648,Decision,"S11: Spec approved: endpoints, schema and JWT auth are consistent."
+415,65b478b3-d1cf-57b3-8a6c-5742497ffa24,Handoff,S12: CRUD spec ready for review.
+418,5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3,Decision,"S12: Spec approved: endpoints, schema and JWT auth are consistent."
+450,c45b3769-f3cb-5369-ac8b-24830f52e357,Handoff,S13: CRUD spec ready for review.
+453,8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1,Decision,"S13: Spec approved: endpoints, schema and JWT auth are consistent."
+485,ca0b29f4-363a-57e4-81bf-f609a231a089,Handoff,S14: CRUD spec ready for review.
+488,c5e4aaf8-7959-55b9-8526-2ac75e975544,Decision,"S14: Spec approved: endpoints, schema and JWT auth are consistent."
+520,924f23f7-7c01-5a36-870b-8a0a4a002dc5,Handoff,S15: CRUD spec ready for review.
+523,088c32c9-9211-501e-8eab-f6ea616d8eb4,Decision,"S15: Spec approved: endpoints, schema and JWT auth are consistent."
+539,9ea84b0f-c667-5df6-bde1-e6c3efcedd51,Handoff,S16: Updated for API v32.
+555,2081e45a-3076-554a-9a08-25d03365657c,Handoff,S16: CRUD spec ready for review.
+558,7f71e476-1a85-5b91-9885-e133ad3a02c2,Decision,"S16: Spec approved: endpoints, schema and JWT auth are consistent."
+560,e875da2c-ffd6-58f9-be4a-1b036888b8c6,Handoff,S16: Release bundle is ready.
+590,b5bdb2aa-2104-568e-aa83-ae98bd3c42bc,Handoff,S17: CRUD spec ready for review.
+593,c7d232bd-c4b4-5ac1-89ae-decaf18696bb,Decision,"S17: Spec approved: endpoints, schema and JWT auth are consistent."
+625,5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,Handoff,S18: CRUD spec ready for review.
+628,a21750a7-4500-5e73-b55a-067a4ca490af,Decision,"S18: Spec approved: endpoints, schema and JWT auth are consistent."
+660,06ebdeee-a486-5452-8706-29e8c33c6f6d,Handoff,S19: CRUD spec ready for review.
+663,d7599553-d578-5ca7-9422-4f7161446421,Decision,"S19: Spec approved: endpoints, schema and JWT auth are consistent."
+695,cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f,Handoff,S20: CRUD spec ready for review.
+698,2f3bfbdb-ff3b-5075-9f34-b47d193db3ef,Decision,"S20: Spec approved: endpoints, schema and JWT auth are consistent."
+

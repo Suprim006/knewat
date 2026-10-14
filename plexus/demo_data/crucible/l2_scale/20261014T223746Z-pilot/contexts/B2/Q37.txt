@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact database=ScyllaDB 12 about 'Acme Notes API S09' (scope global; status forgotten; valid_from 1760000583500; valid_to 1760000585501); asserted by planner; source acme-docs/s09/07_forum_post_unverified.md; contradicts database=TiDB 8.
+[2] Source acme-docs/s03/07_forum_post_unverified.md (kind web, trust 0.2).
+[3] Fact release_channel=private preview about 'Acme Notes API S03' (scope project:acme-s03; status active; valid_from 1760000177500; valid_to 9999999999999); asserted by planner.
+[4] Fact database=ScyllaDB 22 about 'Acme Notes API S19' (scope global; status forgotten; valid_from 1760001268500; valid_to 1760001270501); asserted by planner; source acme-docs/s19/07_forum_post_unverified.md; contradicts database=TiDB 8.
+[5] Source acme-docs/s09/07_forum_post_unverified.md (kind web, trust 0.2).
+[6] Source acme-docs/s05/07_forum_post_unverified.md (kind web, trust 0.2).
+[7] Source acme-docs/s07/07_forum_post_unverified.md (kind web, trust 0.2).
+[8] Source acme-docs/s04/07_forum_post_unverified.md (kind web, trust 0.2).
+[9] Source acme-docs/s02/07_forum_post_unverified.md (kind web, trust 0.2).
+[10] Source acme-docs/s08/07_forum_post_unverified.md (kind web, trust 0.2).
+[11] Fact purpose=REST service to create, tag and search notes (S03) about 'Acme Notes API S03' (scope global; status active; valid_from 1760000139000; valid_to 9999999999999); asserted by researcher; source acme-docs/s03/01_product_brief.md.
+[12] Source acme-docs/s06/07_forum_post_unverified.md (kind web, trust 0.2).

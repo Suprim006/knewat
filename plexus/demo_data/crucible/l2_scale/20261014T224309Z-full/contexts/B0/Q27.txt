@@ -1,0 +1,163 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"s01-t03-design-endpoints":{"id":"s01-t03-design-endpoints","title":"Design endpoints (S01)","priority":40,"seq":2,"status":"done","claimed_by":"researcher","lease_until":1760000132500,"version":3,"created_at":1760000000004,"done_at":1760000014501,"deps":["s01-t02-choose-api-version"],"artifacts":[{"id":"a55918ce-ca61-5ed2-ab86-bb5337c03aca","kind":"file","uri":"artifacts/s01/openapi-draft.yaml","hash":"","summary":"S01 endpoint draft for /v1/notes (CRUD)","agent_id":"researcher","created_at":1760000014501}]}}
+[...]
+{"s01-t12-update-endpoints-for-v2":{"id":"s01-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S01)","priority":60,"seq":11,"status":"done","claimed_by":"builder","lease_until":1760000141500,"version":2,"created_at":1760000020501,"done_at":1760000023501,"deps":["s01-t03-design-endpoints"],"artifacts":[{"id":"37dce107-05b5-5c9f-8a28-bd687a3670f8","kind":"file","uri":"artifacts/s01/openapi-v2.yaml","hash":"","summary":"S01 endpoint design for /v2/notes","agent_id":"builder","created_at":1760000023501}]}}
+[...]
+{"s02-t03-design-endpoints":{"id":"s02-t03-design-endpoints","title":"Design endpoints (S02)","priority":40,"seq":14,"status":"done","claimed_by":"researcher","lease_until":1760000201000,"version":3,"created_at":1760000068501,"done_at":1760000083001,"deps":["s02-t02-choose-api-version"],"artifacts":[{"id":"dd47afb7-64e9-5cc0-a482-da4b7fc9f423","kind":"file","uri":"artifacts/s02/openapi-draft.yaml","hash":"","summary":"S02 endpoint draft for /v3/notes (CRUD)","agent_id":"researcher","created_at":1760000083001}]}}
+[...]
+{"s02-t12-update-endpoints-for-v2":{"id":"s02-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S02)","priority":60,"seq":23,"status":"done","claimed_by":"builder","lease_until":1760000210000,"version":2,"created_at":1760000089001,"done_at":1760000092001,"deps":["s02-t03-design-endpoints"],"artifacts":[{"id":"e77b5744-3fd9-58d4-ba71-3abf0148b480","kind":"file","uri":"artifacts/s02/openapi-v2.yaml","hash":"","summary":"S02 endpoint design for /v4/notes","agent_id":"builder","created_at":1760000092001}]}}
+[...]
+{"s03-t03-design-endpoints":{"id":"s03-t03-design-endpoints","title":"Design endpoints (S03)","priority":40,"seq":26,"status":"done","claimed_by":"researcher","lease_until":1760000269500,"version":3,"created_at":1760000137001,"done_at":1760000151501,"deps":["s03-t02-choose-api-version"],"artifacts":[{"id":"43c95bc7-09ef-520f-b7c4-f7dc844b4617","kind":"file","uri":"artifacts/s03/openapi-draft.yaml","hash":"","summary":"S03 endpoint draft for /v5/notes (CRUD)","agent_id":"researcher","created_at":1760000151501}]}}
+[...]
+{"s03-t12-update-endpoints-for-v2":{"id":"s03-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S03)","priority":60,"seq":35,"status":"done","claimed_by":"builder","lease_until":1760000278500,"version":2,"created_at":1760000157501,"done_at":1760000160501,"deps":["s03-t03-design-endpoints"],"artifacts":[{"id":"aca951fd-7570-5816-8b28-48c758f15282","kind":"file","uri":"artifacts/s03/openapi-v2.yaml","hash":"","summary":"S03 endpoint design for /v6/notes","agent_id":"builder","created_at":1760000160501}]}}
+[...]
+{"s04-t03-design-endpoints":{"id":"s04-t03-design-endpoints","title":"Design endpoints (S04)","priority":40,"seq":38,"status":"done","claimed_by":"researcher","lease_until":1760000338000,"version":3,"created_at":1760000205501,"done_at":1760000220001,"deps":["s04-t02-choose-api-version"],"artifacts":[{"id":"ed487dea-c14a-5dfa-b10a-2800e5511bba","kind":"file","uri":"artifacts/s04/openapi-draft.yaml","hash":"","summary":"S04 endpoint draft for /v7/notes (CRUD)","agent_id":"researcher","created_at":1760000220001}]}}
+[...]
+{"s04-t12-update-endpoints-for-v2":{"id":"s04-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S04)","priority":60,"seq":47,"status":"done","claimed_by":"builder","lease_until":1760000347000,"version":2,"created_at":1760000226001,"done_at":1760000229001,"deps":["s04-t03-design-endpoints"],"artifacts":[{"id":"9a8f0d25-912c-54db-8b09-8446ce2954d5","kind":"file","uri":"artifacts/s04/openapi-v2.yaml","hash":"","summary":"S04 endpoint design for /v8/notes","agent_id":"builder","created_at":1760000229001}]}}
+[...]
+{"s05-t03-design-endpoints":{"id":"s05-t03-design-endpoints","title":"Design endpoints (S05)","priority":40,"seq":50,"status":"done","claimed_by":"researcher","lease_until":1760000406500,"version":3,"created_at":1760000274001,"done_at":1760000288501,"deps":["s05-t02-choose-api-version"],"artifacts":[{"id":"fc3ba49c-61e2-505a-adce-6e24175c67fd","kind":"file","uri":"artifacts/s05/openapi-draft.yaml","hash":"","summary":"S05 endpoint draft for /v9/notes (CRUD)","agent_id":"researcher","created_at":1760000288501}]}}
+[...]
+{"s05-t12-update-endpoints-for-v2":{"id":"s05-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S05)","priority":60,"seq":59,"status":"done","claimed_by":"builder","lease_until":1760000415500,"version":2,"created_at":1760000294501,"done_at":1760000297501,"deps":["s05-t03-design-endpoints"],"artifacts":[{"id":"79974657-4a4a-5c35-849a-1731418875be","kind":"file","uri":"artifacts/s05/openapi-v2.yaml","hash":"","summary":"S05 endpoint design for /v10/notes","agent_id":"builder","created_at":1760000297501}]}}
+[...]
+{"s06-t03-design-endpoints":{"id":"s06-t03-design-endpoints","title":"Design endpoints (S06)","priority":40,"seq":62,"status":"done","claimed_by":"researcher","lease_until":1760000475000,"version":3,"created_at":1760000342501,"done_at":1760000357001,"deps":["s06-t02-choose-api-version"],"artifacts":[{"id":"58e17d8f-917c-5493-b9c7-481e83844c3b","kind":"file","uri":"artifacts/s06/openapi-draft.yaml","hash":"","summary":"S06 endpoint draft for /v11/notes (CRUD)","agent_id":"researcher","created_at":1760000357001}]}}
+[...]
+{"s06-t12-update-endpoints-for-v2":{"id":"s06-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S06)","priority":60,"seq":71,"status":"done","claimed_by":"builder","lease_until":1760000484000,"version":2,"created_at":1760000363001,"done_at":1760000366001,"deps":["s06-t03-design-endpoints"],"artifacts":[{"id":"6aa07c46-b70f-5a79-87a2-2300fc191e20","kind":"file","uri":"artifacts/s06/openapi-v2.yaml","hash":"","summary":"S06 endpoint design for /v12/notes","agent_id":"builder","created_at":1760000366001}]}}
+[...]
+{"s07-t03-design-endpoints":{"id":"s07-t03-design-endpoints","title":"Design endpoints (S07)","priority":40,"seq":74,"status":"done","claimed_by":"researcher","lease_until":1760000543500,"version":3,"created_at":1760000411001,"done_at":1760000425501,"deps":["s07-t02-choose-api-version"],"artifacts":[{"id":"09f557a1-f24a-515a-b6a5-1c451ea2963d","kind":"file","uri":"artifacts/s07/openapi-draft.yaml","hash":"","summary":"S07 endpoint draft for /v13/notes (CRUD)","agent_id":"researcher","created_at":1760000425501}]}}
+[...]
+{"s07-t12-update-endpoints-for-v2":{"id":"s07-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S07)","priority":60,"seq":83,"status":"done","claimed_by":"builder","lease_until":1760000552500,"version":2,"created_at":1760000431501,"done_at":1760000434501,"deps":["s07-t03-design-endpoints"],"artifacts":[{"id":"26ccd88e-4a22-5b06-b8fc-d53cde49e168","kind":"file","uri":"artifacts/s07/openapi-v2.yaml","hash":"","summary":"S07 endpoint design for /v14/notes","agent_id":"builder","created_at":1760000434501}]}}
+[...]
+{"s08-t03-design-endpoints":{"id":"s08-t03-design-endpoints","title":"Design endpoints (S08)","priority":40,"seq":86,"status":"done","claimed_by":"researcher","lease_until":1760000612000,"version":3,"created_at":1760000479501,"done_at":1760000494001,"deps":["s08-t02-choose-api-version"],"artifacts":[{"id":"7e2dee80-d58a-5a18-9eb7-70ccfa65385b","kind":"file","uri":"artifacts/s08/openapi-draft.yaml","hash":"","summary":"S08 endpoint draft for /v15/notes (CRUD)","agent_id":"researcher","created_at":1760000494001}]}}
+[...]
+{"s08-t12-update-endpoints-for-v2":{"id":"s08-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S08)","priority":60,"seq":95,"status":"done","claimed_by":"builder","lease_until":1760000621000,"version":2,"created_at":1760000500001,"done_at":1760000503001,"deps":["s08-t03-design-endpoints"],"artifacts":[{"id":"7253b2be-e185-58e7-bcd2-1364d108d38f","kind":"file","uri":"artifacts/s08/openapi-v2.yaml","hash":"","summary":"S08 endpoint design for /v16/notes","agent_id":"builder","created_at":1760000503001}]}}
+[...]
+{"s09-t03-design-endpoints":{"id":"s09-t03-design-endpoints","title":"Design endpoints (S09)","priority":40,"seq":98,"status":"done","claimed_by":"researcher","lease_until":1760000680500,"version":3,"created_at":1760000548001,"done_at":1760000562501,"deps":["s09-t02-choose-api-version"],"artifacts":[{"id":"e502a352-1cd2-5251-ad1a-68e2c5727589","kind":"file","uri":"artifacts/s09/openapi-draft.yaml","hash":"","summary":"S09 endpoint draft for /v17/notes (CRUD)","agent_id":"researcher","created_at":1760000562501}]}}
+[...]
+{"s09-t12-update-endpoints-for-v2":{"id":"s09-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S09)","priority":60,"seq":107,"status":"done","claimed_by":"builder","lease_until":1760000689500,"version":2,"created_at":1760000568501,"done_at":1760000571501,"deps":["s09-t03-design-endpoints"],"artifacts":[{"id":"6e9ca35f-8635-5e8b-b860-96be85496752","kind":"file","uri":"artifacts/s09/openapi-v2.yaml","hash":"","summary":"S09 endpoint design for /v18/notes","agent_id":"builder","created_at":1760000571501}]}}
+[...]
+{"s10-t03-design-endpoints":{"id":"s10-t03-design-endpoints","title":"Design endpoints (S10)","priority":40,"seq":110,"status":"done","claimed_by":"researcher","lease_until":1760000749000,"version":3,"created_at":1760000616501,"done_at":1760000631001,"deps":["s10-t02-choose-api-version"],"artifacts":[{"id":"1e77ecb1-4669-5067-8796-9b76f37025fb","kind":"file","uri":"artifacts/s10/openapi-draft.yaml","hash":"","summary":"S10 endpoint draft for /v19/notes (CRUD)","agent_id":"researcher","created_at":1760000631001}]}}
+[...]
+{"s10-t12-update-endpoints-for-v2":{"id":"s10-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S10)","priority":60,"seq":119,"status":"done","claimed_by":"builder","lease_until":1760000758000,"version":2,"created_at":1760000637001,"done_at":1760000640001,"deps":["s10-t03-design-endpoints"],"artifacts":[{"id":"879e36e3-c268-595f-8906-ebbc3b1067e6","kind":"file","uri":"artifacts/s10/openapi-v2.yaml","hash":"","summary":"S10 endpoint design for /v20/notes","agent_id":"builder","created_at":1760000640001}]}}
+[...]
+{"s11-t03-design-endpoints":{"id":"s11-t03-design-endpoints","title":"Design endpoints (S11)","priority":40,"seq":122,"status":"done","claimed_by":"researcher","lease_until":1760000817500,"version":3,"created_at":1760000685001,"done_at":1760000699501,"deps":["s11-t02-choose-api-version"],"artifacts":[{"id":"b63b6984-3cea-5eb8-b3b5-6c0969fe6a16","kind":"file","uri":"artifacts/s11/openapi-draft.yaml","hash":"","summary":"S11 endpoint draft for /v21/notes (CRUD)","agent_id":"researcher","created_at":1760000699501}]}}
+[...]
+{"s11-t12-update-endpoints-for-v2":{"id":"s11-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S11)","priority":60,"seq":131,"status":"done","claimed_by":"builder","lease_until":1760000826500,"version":2,"created_at":1760000705501,"done_at":1760000708501,"deps":["s11-t03-design-endpoints"],"artifacts":[{"id":"1487ccdd-3f31-51aa-bac8-2defe1803704","kind":"file","uri":"artifacts/s11/openapi-v2.yaml","hash":"","summary":"S11 endpoint design for /v22/notes","agent_id":"builder","created_at":1760000708501}]}}
+[...]
+{"s12-t03-design-endpoints":{"id":"s12-t03-design-endpoints","title":"Design endpoints (S12)","priority":40,"seq":134,"status":"done","claimed_by":"researcher","lease_until":1760000886000,"version":3,"created_at":1760000753501,"done_at":1760000768001,"deps":["s12-t02-choose-api-version"],"artifacts":[{"id":"82dd8009-8df6-5c96-8144-20ae2149aca2","kind":"file","uri":"artifacts/s12/openapi-draft.yaml","hash":"","summary":"S12 endpoint draft for /v23/notes (CRUD)","agent_id":"researcher","created_at":1760000768001}]}}
+[...]
+{"s12-t12-update-endpoints-for-v2":{"id":"s12-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S12)","priority":60,"seq":143,"status":"done","claimed_by":"builder","lease_until":1760000895000,"version":2,"created_at":1760000774001,"done_at":1760000777001,"deps":["s12-t03-design-endpoints"],"artifacts":[{"id":"f9ff72e6-53c5-5a52-9d82-7855aa48dc88","kind":"file","uri":"artifacts/s12/openapi-v2.yaml","hash":"","summary":"S12 endpoint design for /v24/notes","agent_id":"builder","created_at":1760000777001}]}}
+[...]
+{"s13-t03-design-endpoints":{"id":"s13-t03-design-endpoints","title":"Design endpoints (S13)","priority":40,"seq":146,"status":"done","claimed_by":"researcher","lease_until":1760000954500,"version":3,"created_at":1760000822001,"done_at":1760000836501,"deps":["s13-t02-choose-api-version"],"artifacts":[{"id":"f46d85c3-1e7b-5865-8e0f-a24d1eaef54d","kind":"file","uri":"artifacts/s13/openapi-draft.yaml","hash":"","summary":"S13 endpoint draft for /v25/notes (CRUD)","agent_id":"researcher","created_at":1760000836501}]}}
+[...]
+{"s13-t12-update-endpoints-for-v2":{"id":"s13-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S13)","priority":60,"seq":155,"status":"done","claimed_by":"builder","lease_until":1760000963500,"version":2,"created_at":1760000842501,"done_at":1760000845501,"deps":["s13-t03-design-endpoints"],"artifacts":[{"id":"9d7b2303-5861-5ea4-bb15-9d8ef467dcda","kind":"file","uri":"artifacts/s13/openapi-v2.yaml","hash":"","summary":"S13 endpoint design for /v26/notes","agent_id":"builder","created_at":1760000845501}]}}
+[...]
+{"s14-t03-design-endpoints":{"id":"s14-t03-design-endpoints","title":"Design endpoints (S14)","priority":40,"seq":158,"status":"done","claimed_by":"researcher","lease_until":1760001023000,"version":3,"created_at":1760000890501,"done_at":1760000905001,"deps":["s14-t02-choose-api-version"],"artifacts":[{"id":"91986b62-e761-5eed-87dd-b4991cb6f95f","kind":"file","uri":"artifacts/s14/openapi-draft.yaml","hash":"","summary":"S14 endpoint draft for /v27/notes (CRUD)","agent_id":"researcher","created_at":1760000905001}]}}
+[...]
+{"s14-t12-update-endpoints-for-v2":{"id":"s14-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S14)","priority":60,"seq":167,"status":"done","claimed_by":"builder","lease_until":1760001032000,"version":2,"created_at":1760000911001,"done_at":1760000914001,"deps":["s14-t03-design-endpoints"],"artifacts":[{"id":"4c0d39c0-72a3-5432-ab84-9b9688d92da0","kind":"file","uri":"artifacts/s14/openapi-v2.yaml","hash":"","summary":"S14 endpoint design for /v28/notes","agent_id":"builder","created_at":1760000914001}]}}
+[...]
+{"s15-t03-design-endpoints":{"id":"s15-t03-design-endpoints","title":"Design endpoints (S15)","priority":40,"seq":170,"status":"done","claimed_by":"researcher","lease_until":1760001091500,"version":3,"created_at":1760000959001,"done_at":1760000973501,"deps":["s15-t02-choose-api-version"],"artifacts":[{"id":"614024b9-b96b-5417-8716-c3f5379df053","kind":"file","uri":"artifacts/s15/openapi-draft.yaml","hash":"","summary":"S15 endpoint draft for /v29/notes (CRUD)","agent_id":"researcher","created_at":1760000973501}]}}
+[...]
+{"s15-t12-update-endpoints-for-v2":{"id":"s15-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S15)","priority":60,"seq":179,"status":"done","claimed_by":"builder","lease_until":1760001100500,"version":2,"created_at":1760000979501,"done_at":1760000982501,"deps":["s15-t03-design-endpoints"],"artifacts":[{"id":"df3d8849-54e7-5591-b48e-3701f4d28516","kind":"file","uri":"artifacts/s15/openapi-v2.yaml","hash":"","summary":"S15 endpoint design for /v30/notes","agent_id":"builder","created_at":1760000982501}]}}
+[...]
+{"s16-t03-design-endpoints":{"id":"s16-t03-design-endpoints","title":"Design endpoints (S16)","priority":40,"seq":182,"status":"done","claimed_by":"researcher","lease_until":1760001160000,"version":3,"created_at":1760001027501,"done_at":1760001042001,"deps":["s16-t02-choose-api-version"],"artifacts":[{"id":"f74a1f42-6478-5364-b018-6b4f5c21383d","kind":"file","uri":"artifacts/s16/openapi-draft.yaml","hash":"","summary":"S16 endpoint draft for /v31/notes (CRUD)","agent_id":"researcher","created_at":1760001042001}]}}
+[...]
+{"s16-t12-update-endpoints-for-v2":{"id":"s16-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S16)","priority":60,"seq":191,"status":"done","claimed_by":"builder","lease_until":1760001169000,"version":2,"created_at":1760001048001,"done_at":1760001051001,"deps":["s16-t03-design-endpoints"],"artifacts":[{"id":"5006e7c2-97d0-5cb2-93d7-bf6a45c6a74d","kind":"file","uri":"artifacts/s16/openapi-v2.yaml","hash":"","summary":"S16 endpoint design for /v32/notes","agent_id":"builder","created_at":1760001051001}]}}
+[...]
+{"s17-t03-design-endpoints":{"id":"s17-t03-design-endpoints","title":"Design endpoints (S17)","priority":40,"seq":194,"status":"done","claimed_by":"researcher","lease_until":1760001228500,"version":3,"created_at":1760001096001,"done_at":1760001110501,"deps":["s17-t02-choose-api-version"],"artifacts":[{"id":"22029c20-86ea-54fc-8b0a-97fcdba8117c","kind":"file","uri":"artifacts/s17/openapi-draft.yaml","hash":"","summary":"S17 endpoint draft for /v33/notes (CRUD)","agent_id":"researcher","created_at":1760001110501}]}}
+[...]
+{"s17-t12-update-endpoints-for-v2":{"id":"s17-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S17)","priority":60,"seq":203,"status":"done","claimed_by":"builder","lease_until":1760001237500,"version":2,"created_at":1760001116501,"done_at":1760001119501,"deps":["s17-t03-design-endpoints"],"artifacts":[{"id":"5bf93bc9-e4e7-56c0-971b-42d5603aea84","kind":"file","uri":"artifacts/s17/openapi-v2.yaml","hash":"","summary":"S17 endpoint design for /v34/notes","agent_id":"builder","created_at":1760001119501}]}}
+[...]
+{"s18-t03-design-endpoints":{"id":"s18-t03-design-endpoints","title":"Design endpoints (S18)","priority":40,"seq":206,"status":"done","claimed_by":"researcher","lease_until":1760001297000,"version":3,"created_at":1760001164501,"done_at":1760001179001,"deps":["s18-t02-choose-api-version"],"artifacts":[{"id":"48334bd4-a893-5f41-829a-44db4d95ce44","kind":"file","uri":"artifacts/s18/openapi-draft.yaml","hash":"","summary":"S18 endpoint draft for /v35/notes (CRUD)","agent_id":"researcher","created_at":1760001179001}]}}
+[...]
+{"s18-t12-update-endpoints-for-v2":{"id":"s18-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S18)","priority":60,"seq":215,"status":"done","claimed_by":"builder","lease_until":1760001306000,"version":2,"created_at":1760001185001,"done_at":1760001188001,"deps":["s18-t03-design-endpoints"],"artifacts":[{"id":"7f6c9a50-5bb7-543c-9b15-e9bb663d03a7","kind":"file","uri":"artifacts/s18/openapi-v2.yaml","hash":"","summary":"S18 endpoint design for /v36/notes","agent_id":"builder","created_at":1760001188001}]}}
+[...]
+{"s19-t03-design-endpoints":{"id":"s19-t03-design-endpoints","title":"Design endpoints (S19)","priority":40,"seq":218,"status":"done","claimed_by":"researcher","lease_until":1760001365500,"version":3,"created_at":1760001233001,"done_at":1760001247501,"deps":["s19-t02-choose-api-version"],"artifacts":[{"id":"23e75da2-6e16-5dae-8a44-c5372a9ceaa9","kind":"file","uri":"artifacts/s19/openapi-draft.yaml","hash":"","summary":"S19 endpoint draft for /v37/notes (CRUD)","agent_id":"researcher","created_at":1760001247501}]}}
+[...]
+{"s19-t07-implement-crud-spec":{"id":"s19-t07-implement-crud-spec","title":"Implement CRUD spec (S19)","priority":20,"seq":222,"status":"done","claimed_by":"builder","lease_until":1760001399500,"version":2,"created_at":1760001233001,"done_at":1760001281501,"deps":["s19-t03-design-endpoints","s19-t05-choose-auth","s19-t06-write-db-schema"],"artifacts":[{"id":"35526b32-184f-5c71-9231-8c8a80ecd34c","kind":"file","uri":"artifacts/s19/crud-spec.md","hash":"","summary":"S19 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001281501}]}}
+{"s19-t08-write-test-plan":{"id":"s19-t08-write-test-plan","title":"Write test plan (S19)","priority":15,"seq":223,"status":"done","claimed_by":"researcher","lease_until":1760001404500,"version":2,"created_at":1760001233001,"done_at":1760001285501,"deps":["s19-t03-design-endpoints"],"artifacts":[{"id":"9b6a2886-d26b-5ef3-8dd0-f19646ab7283","kind":"file","uri":"artifacts/s19/test-plan.md","hash":"","summary":"S19 test plan for the CRUD endpoints","agent_id":"researcher","created_at":1760001285501}]}}
+[...]
+{"s19-t12-update-endpoints-for-v2":{"id":"s19-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S19)","priority":60,"seq":227,"status":"done","claimed_by":"builder","lease_until":1760001374500,"version":2,"created_at":1760001253501,"done_at":1760001256501,"deps":["s19-t03-design-endpoints"],"artifacts":[{"id":"1c0d05f1-45ba-5830-810f-6b80d4da47f1","kind":"file","uri":"artifacts/s19/openapi-v2.yaml","hash":"","summary":"S19 endpoint design for /v38/notes","agent_id":"builder","created_at":1760001256501}]}}
+[...]
+{"s20-t03-design-endpoints":{"id":"s20-t03-design-endpoints","title":"Design endpoints (S20)","priority":40,"seq":230,"status":"done","claimed_by":"researcher","lease_until":1760001434000,"version":3,"created_at":1760001301501,"done_at":1760001316001,"deps":["s20-t02-choose-api-version"],"artifacts":[{"id":"3f9ae36b-b458-5d18-87d7-5a7b3fad4658","kind":"file","uri":"artifacts/s20/openapi-draft.yaml","hash":"","summary":"S20 endpoint draft for /v39/notes (CRUD)","agent_id":"researcher","created_at":1760001316001}]}}
+[...]
+{"s20-t12-update-endpoints-for-v2":{"id":"s20-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S20)","priority":60,"seq":239,"status":"done","claimed_by":"builder","lease_until":1760001443000,"version":2,"created_at":1760001322001,"done_at":1760001325001,"deps":["s20-t03-design-endpoints"],"artifacts":[{"id":"08a3099d-1dc9-503e-aa10-f96efe7a360e","kind":"file","uri":"artifacts/s20/openapi-v2.yaml","hash":"","summary":"S20 endpoint design for /v40/notes","agent_id":"builder","created_at":1760001325001}]}}
+
+=== file: MEMORY.md ===
+<!-- One fact per bullet. The JSON comment is the machine-readable record. Edit through the tools only. -->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"d7599553-d578-5ca7-9422-4f7161446421","agent":"planner","task":"s19-t09-review-spec","text":"S19: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"],"at":1760001288501}
+
+=== file: handoffs.jsonl ===
+{"id":"1030063b-dcfc-5c26-aff6-b500539933c9","from":"researcher","to":"builder","task":"s19-t03-design-endpoints","note":"S19: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["23e75da2-6e16-5dae-8a44-c5372a9ceaa9"],"facts":["21836852-1574-5d90-9068-b12642ab4ccd"],"at":1760001248501}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000000003,"tool":"register_agent","role":"builder"}
+[...]
+{"ts":1760001241001,"tool":"claim_next_task","task":"s19-t03-design-endpoints","version":1,"reclaimed_from":""}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000013501,"tool":"episode","id":"2b2927c9-445d-5b91-9ed7-3cd8f8ca5f60","step":null,"text":"S01: Took over s01-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000014502,"tool":"complete_task","task":"s01-t03-design-endpoints","artifacts":["a55918ce-ca61-5ed2-ab86-bb5337c03aca"]}
+[...]
+{"ts":1760000082001,"tool":"episode","id":"66343eeb-328f-543b-b800-5456b3b6aaf6","step":null,"text":"S02: Took over s02-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000083002,"tool":"complete_task","task":"s02-t03-design-endpoints","artifacts":["dd47afb7-64e9-5cc0-a482-da4b7fc9f423"]}
+[...]
+{"ts":1760000150501,"tool":"episode","id":"73d51714-8921-5c9c-a31b-0355a087932c","step":null,"text":"S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000151502,"tool":"complete_task","task":"s03-t03-design-endpoints","artifacts":["43c95bc7-09ef-520f-b7c4-f7dc844b4617"]}
+[...]
+{"ts":1760000219001,"tool":"episode","id":"e4d2112e-1617-5cff-9baf-63d7df42b1ee","step":null,"text":"S04: Took over s04-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000220002,"tool":"complete_task","task":"s04-t03-design-endpoints","artifacts":["ed487dea-c14a-5dfa-b10a-2800e5511bba"]}
+[...]
+{"ts":1760000287501,"tool":"episode","id":"9732e8b0-96d2-5243-acaf-a3505d0fd7f6","step":null,"text":"S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000288502,"tool":"complete_task","task":"s05-t03-design-endpoints","artifacts":["fc3ba49c-61e2-505a-adce-6e24175c67fd"]}
+[...]
+{"ts":1760000356001,"tool":"episode","id":"37e849fd-d33a-5694-9b19-129c8b625c33","step":null,"text":"S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000357002,"tool":"complete_task","task":"s06-t03-design-endpoints","artifacts":["58e17d8f-917c-5493-b9c7-481e83844c3b"]}
+[...]
+{"ts":1760000424501,"tool":"episode","id":"cecd5680-faf9-5359-85ef-98d8dd09161b","step":null,"text":"S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000425502,"tool":"complete_task","task":"s07-t03-design-endpoints","artifacts":["09f557a1-f24a-515a-b6a5-1c451ea2963d"]}
+[...]
+{"ts":1760000493001,"tool":"episode","id":"3deb2979-de41-59b3-a58b-2d82de004a8b","step":null,"text":"S08: Took over s08-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000494002,"tool":"complete_task","task":"s08-t03-design-endpoints","artifacts":["7e2dee80-d58a-5a18-9eb7-70ccfa65385b"]}
+[...]
+{"ts":1760000561501,"tool":"episode","id":"27529bf0-fa9e-554c-a8dc-44ccbb91e425","step":null,"text":"S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000562502,"tool":"complete_task","task":"s09-t03-design-endpoints","artifacts":["e502a352-1cd2-5251-ad1a-68e2c5727589"]}
+[...]
+{"ts":1760000630001,"tool":"episode","id":"f8c93f28-c86b-514e-a5c2-63345dcff9a5","step":null,"text":"S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000631002,"tool":"complete_task","task":"s10-t03-design-endpoints","artifacts":["1e77ecb1-4669-5067-8796-9b76f37025fb"]}
+[...]
+{"ts":1760000698501,"tool":"episode","id":"3605540b-9086-52cb-8dcd-94b93b0dfa43","step":null,"text":"S11: Took over s11-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000699502,"tool":"complete_task","task":"s11-t03-design-endpoints","artifacts":["b63b6984-3cea-5eb8-b3b5-6c0969fe6a16"]}
+[...]
+{"ts":1760000767001,"tool":"episode","id":"2346e1e7-e4e6-5a86-902c-902b626bc08a","step":null,"text":"S12: Took over s12-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000768002,"tool":"complete_task","task":"s12-t03-design-endpoints","artifacts":["82dd8009-8df6-5c96-8144-20ae2149aca2"]}
+[...]
+{"ts":1760000835501,"tool":"episode","id":"9baad9e1-5110-5af2-a8db-e0a0fa09d707","step":null,"text":"S13: Took over s13-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000836502,"tool":"complete_task","task":"s13-t03-design-endpoints","artifacts":["f46d85c3-1e7b-5865-8e0f-a24d1eaef54d"]}
+[...]
+{"ts":1760000904001,"tool":"episode","id":"3b1e306e-be98-5346-884c-8870b40ae48a","step":null,"text":"S14: Took over s14-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000905002,"tool":"complete_task","task":"s14-t03-design-endpoints","artifacts":["91986b62-e761-5eed-87dd-b4991cb6f95f"]}
+[...]
+{"ts":1760000972501,"tool":"episode","id":"41cccec9-4b18-579a-8599-ca2236a6c04a","step":null,"text":"S15: Took over s15-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000973502,"tool":"complete_task","task":"s15-t03-design-endpoints","artifacts":["614024b9-b96b-5417-8716-c3f5379df053"]}
+[...]
+{"ts":1760001041001,"tool":"episode","id":"6ae754c3-3860-5dca-80d5-86f47d276622","step":null,"text":"S16: Took over s16-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760001042002,"tool":"complete_task","task":"s16-t03-design-endpoints","artifacts":["f74a1f42-6478-5364-b018-6b4f5c21383d"]}
+[...]
+{"ts":1760001109501,"tool":"episode","id":"d5789121-beda-5571-8692-22e0d213796f","step":null,"text":"S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760001110502,"tool":"complete_task","task":"s17-t03-design-endpoints","artifacts":["22029c20-86ea-54fc-8b0a-97fcdba8117c"]}
+[...]
+{"ts":1760001178001,"tool":"episode","id":"c4e45a75-4c61-50fe-9aa8-e6d76fca022c","step":null,"text":"S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760001179002,"tool":"complete_task","task":"s18-t03-design-endpoints","artifacts":["48334bd4-a893-5f41-829a-44db4d95ce44"]}
+[...]
+{"ts":1760001245501,"tool":"claim_next_task","task":"s19-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760001246501,"tool":"episode","id":"01276057-5ad4-581c-a9a3-78c8a16cceaf","step":null,"text":"S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760001247502,"tool":"complete_task","task":"s19-t03-design-endpoints","artifacts":["23e75da2-6e16-5dae-8a44-c5372a9ceaa9"]}
+{"ts":1760001248502,"tool":"handoff","id":"1030063b-dcfc-5c26-aff6-b500539933c9","to":"builder","task":"s19-t03-design-endpoints","note":"S19: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["23e75da2-6e16-5dae-8a44-c5372a9ceaa9"],"facts":["21836852-1574-5d90-9068-b12642ab4ccd"],"at":1760001248501}
+[...]
+{"ts":1760001315001,"tool":"episode","id":"e0e4bed4-343d-5960-bbbc-5a2209706cc7","step":null,"text":"S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+

@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact billing_cycle=biweekly, invoiced on day 12 about 'Bolt Billing API S12' (scope project:billing-s12; status active; valid_from 1760000793000; valid_to 9999999999999); asserted by researcher; source billing-docs/s12/01_overview.md.
+[2] Fact billing_cycle=biweekly, invoiced on day 20 about 'Bolt Billing API S20' (scope project:billing-s20; status active; valid_from 1760001341000; valid_to 9999999999999); asserted by researcher; source billing-docs/s20/01_overview.md.
+[3] Fact billing_cycle=biweekly, invoiced on day 4 about 'Bolt Billing API S04' (scope project:billing-s04; status active; valid_from 1760000245000; valid_to 9999999999999); asserted by researcher; source billing-docs/s04/01_overview.md.
+[4] Fact billing_cycle=biweekly, invoiced on day 8 about 'Bolt Billing API S08' (scope project:billing-s08; status active; valid_from 1760000519000; valid_to 9999999999999); asserted by researcher; source billing-docs/s08/01_overview.md.
+[5] Fact billing_cycle=biweekly, invoiced on day 16 about 'Bolt Billing API S16' (scope project:billing-s16; status active; valid_from 1760001067000; valid_to 9999999999999); asserted by researcher; source billing-docs/s16/01_overview.md.
+[6] Fact billing_cycle=weekly, invoiced on day 6 about 'Bolt Billing API S06' (scope project:billing-s06; status active; valid_from 1760000382000; valid_to 9999999999999); asserted by researcher; source billing-docs/s06/01_overview.md.
+[7] Fact billing_cycle=weekly, invoiced on day 14 about 'Bolt Billing API S14' (scope project:billing-s14; status active; valid_from 1760000930000; valid_to 9999999999999); asserted by researcher; source billing-docs/s14/01_overview.md.
+[8] Fact billing_cycle=weekly, invoiced on day 18 about 'Bolt Billing API S18' (scope project:billing-s18; status active; valid_from 1760001204000; valid_to 9999999999999); asserted by researcher; source billing-docs/s18/01_overview.md.
+[9] Fact billing_cycle=weekly, invoiced on day 2 about 'Bolt Billing API S02' (scope project:billing-s02; status active; valid_from 1760000108000; valid_to 9999999999999); asserted by researcher; source billing-docs/s02/01_overview.md.
+[10] Fact billing_cycle=weekly, invoiced on day 10 about 'Bolt Billing API S10' (scope project:billing-s10; status active; valid_from 1760000656000; valid_to 9999999999999); asserted by researcher; source billing-docs/s10/01_overview.md.
+[11] Fact billing_cycle=monthly, invoiced on day 13 about 'Bolt Billing API S13' (scope project:billing-s13; status active; valid_from 1760000861500; valid_to 9999999999999); asserted by researcher; source billing-docs/s13/01_overview.md.
+[12] Fact billing_cycle=monthly, invoiced on day 17 about 'Bolt Billing API S17' (scope project:billing-s17; status active; valid_from 1760001135500; valid_to 9999999999999); asserted by researcher; source billing-docs/s17/01_overview.md.

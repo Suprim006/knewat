@@ -1,0 +1,25 @@
+{
+ "qid": "Q39",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"s20 evaluate riak 23\"]}",
+ "answer": [
+  "s20 evaluate riak 23"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 171,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 19338
+ },
+ "cost_usd": 0.07912040000000001,
+ "latency_ms": 5040.5,
+ "duration_api_ms": 2998.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "f0cdd903-b9a5-446e-b5a2-91eaae5d6aef",
+ "key": "c1c312a97c70dfb93eaae0c779b70ae06f6bee6c6e83c79c16bae9cb110ba53c"
+}
