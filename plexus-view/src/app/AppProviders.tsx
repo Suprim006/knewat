@@ -18,7 +18,7 @@ function readStored(): string {
 export function AppProviders({ api: given, children }: { api?: ViewApi; children: ReactNode }) {
   const api = useMemo(() => given ?? createApi(), [given]);
   const load = useCallback(() => api.tenants(), [api]);
-  const { data, error } = useAsync(load);
+  const { data, error, loading } = useAsync(load);
   const [chosen, setChosen] = useState(readStored);
 
   const tenants = useMemo(() => data?.tenants ?? [], [data]);
@@ -33,8 +33,16 @@ export function AppProviders({ api: given, children }: { api?: ViewApi; children
   }, []);
 
   const value = useMemo(
-    () => ({ tenants, tenant, setTenant, error: error?.message, fixtures: given ? false : isFixtureMode() }),
-    [tenants, tenant, setTenant, error, given],
+    () => ({
+      tenants,
+      tenant,
+      setTenant,
+      error: error?.message,
+      loading,
+      empty: !loading && !error && tenants.length === 0,
+      fixtures: given ? false : isFixtureMode(),
+    }),
+    [tenants, tenant, setTenant, error, loading, given],
   );
   return (
     <ApiContext.Provider value={api}>

@@ -63,7 +63,7 @@ function SummaryCard({
 
 export function Inventory() {
   const api = useApi();
-  const { tenant } = useTenant();
+  const { tenant, empty: noTenants } = useTenant();
   const loadInventory = useCallback(
     () => (tenant ? api.inventory(tenant) : Promise.resolve(undefined)),
     [api, tenant],
@@ -95,7 +95,13 @@ export function Inventory() {
     return (
       <section className="page">
         <h1>Inventory</h1>
-        <p className="muted">{tenant ? 'Loading inventory…' : 'Waiting for tenants…'}</p>
+        <p className="muted">
+          {tenant
+            ? 'Loading inventory…'
+            : noTenants
+              ? 'No tenants yet, so there is no inventory to show.'
+              : 'Waiting for tenants…'}
+        </p>
       </section>
     );
   }

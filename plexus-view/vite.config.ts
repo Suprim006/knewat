@@ -16,6 +16,9 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
     css: false,
+    // Backstop only: the Explorer tests run a real fcose layout, and 16 jsdom files share the CPU
+    // (src/test/render.tsx pre-warms the expensive first-call work).
+    testTimeout: 20_000,
     env: { VITE_FIXTURES: '1' },
   },
 });

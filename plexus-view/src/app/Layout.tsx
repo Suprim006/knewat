@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useTenant } from './context';
 import { useThemeMode } from '../lib/theme';
 
@@ -14,8 +15,9 @@ const NAV: { to: string; label: string; end?: boolean }[] = [
 const THEME_LABEL = { auto: 'Auto', light: 'Light', dark: 'Dark' } as const;
 
 export function Layout() {
-  const { tenants, tenant, setTenant, fixtures, error } = useTenant();
+  const { tenants, tenant, setTenant, fixtures, error, empty } = useTenant();
   const [mode, cycleTheme] = useThemeMode();
+  const { pathname } = useLocation();
   return (
     <div className="app">
       <header className="topbar">
@@ -49,7 +51,9 @@ export function Layout() {
               onChange={(e) => setTenant(e.target.value)}
               disabled={tenants.length === 0}
             >
-              {tenants.length === 0 && <option value="">{error ? 'unavailable' : 'loading…'}</option>}
+              {tenants.length === 0 && (
+                <option value="">{error ? 'unavailable' : empty ? 'no tenants' : 'loading…'}</option>
+              )}
               {tenants.map((t) => (
                 <option key={t.tenant} value={t.tenant}>
                   {t.tenant}
@@ -67,8 +71,15 @@ export function Layout() {
           Cannot reach the View API: {error}
         </div>
       )}
+      {empty && (
+        <div className="banner" role="status">
+          No tenants yet. A tenant appears here once an agent writes memory through the MCP server.
+        </div>
+      )}
       <main className="content">
-        <Outlet />
+        <ErrorBoundary resetKey={pathname}>
+          <Outlet />
+        </ErrorBoundary>
       </main>
     </div>
   );

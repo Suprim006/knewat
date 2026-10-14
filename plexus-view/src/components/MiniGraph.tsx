@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import type { GraphEdge, GraphNode } from '../api';
+import { MINI_CONTROLLER_OPTIONS } from '../lib/graphController';
 import type { GraphController } from '../lib/graphController';
 import { GraphCanvas } from './GraphCanvas';
 
@@ -24,7 +25,7 @@ export function MiniGraph({ nodes, edges, created, updated, onSelect }: Props) {
 
   return (
     <div className="mini-graph" data-testid="mini-graph">
-      <GraphCanvas onReady={setCtl} onSelect={select} />
+      <GraphCanvas onReady={setCtl} onSelect={select} tuning={MINI_CONTROLLER_OPTIONS} />
       <div className="legend-inline">
         <span>
           <i className="swatch" style={{ borderColor: '#22c55e' }} /> created ({created.length})

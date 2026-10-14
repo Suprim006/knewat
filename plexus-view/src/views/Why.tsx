@@ -30,7 +30,7 @@ function factFlags(f: WhyFact): string[] {
 
 export function Why() {
   const api = useApi();
-  const { tenant } = useTenant();
+  const { tenant, empty: noTenants } = useTenant();
   const { id: routeId = LATEST } = useParams();
   const navigate = useNavigate();
   const [sel, setSel] = useState<{ subject: string; id: string } | null>(null);
@@ -69,7 +69,7 @@ export function Why() {
   );
   const selectedNode = result?.nodes.find((n) => n.id === selectedId) ?? null;
 
-  const waiting = !tenant || (routeId === LATEST && candidates.loading);
+  const waiting = (!tenant && !noTenants) || (routeId === LATEST && candidates.loading);
   const nothing = routeId === LATEST && !candidates.loading && !latest;
 
   return (
