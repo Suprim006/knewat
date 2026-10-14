@@ -107,7 +107,8 @@ def test_decision_with_unknown_fact_creates_no_decision_node(relay, client, grap
     assert ei.value.kind == "fact" and ei.value.ids == ["ghost-1", "ghost-2"]
     assert _count(client, graph, "Decision") == 0
     assert _rels(client, graph, "BASED_ON") == 0 and _rels(client, graph, "DECIDED") == 0
-    assert _rels(client, graph, "FOR") == 0  # no Decision/Handoff -[:FOR]-> edge either
+    for_edges = client.graph(graph).ro_query("MATCH (n)-[r:FOR]->() RETURN labels(n)[0], count(r)").result_set
+    assert [r for r in for_edges if r[0] != "Artifact"] == []  # no Decision/Handoff -[:FOR]-> edge either
 
 
 def test_decision_with_unknown_agent_or_task(relay, client, graph, world):

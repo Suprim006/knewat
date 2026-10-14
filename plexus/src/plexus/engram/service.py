@@ -408,7 +408,7 @@ class Engram:
                     "kw_ids": kw_ids,
                 },
             )
-            # Stop: enough rows, the index is exhausted (returned fewer nodes than asked for), or the cap is hit.
+            # Stop: enough rows, index exhausted (returned fewer nodes than asked for), or cap hit.
             if len(rows) >= k or over >= MAX_OVER or (rows and rows[0]["raw"] < over):
                 break
             over *= RETRY_FACTOR

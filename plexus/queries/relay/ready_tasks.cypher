@@ -10,5 +10,5 @@ WITH t, count(d) AS open_deps
 WHERE open_deps = 0
 RETURN t.id AS id, t.title AS title, t.priority AS priority, t.status AS status,
        t.claimed_by AS claimed_by, t.lease_until AS lease_until
-ORDER BY t.priority DESC, t.created_at ASC, t.id ASC
+ORDER BY t.priority DESC, t.created_at ASC, t.seq ASC, t.id ASC
 LIMIT $limit

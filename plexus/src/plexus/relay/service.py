@@ -19,6 +19,8 @@ MAX_TASKS_PER_CALL = 500
 MAX_EDGES_PER_CALL = 5000
 MAX_ARTIFACTS_PER_CALL = 100
 MAX_REFS_PER_CALL = 100
+MAX_BLOCKED_DEPTH = 10  # blocked_by_failure: BFS levels
+MAX_BLOCKED_NODES = 5000  # blocked_by_failure: distinct tasks returned
 
 
 def _now_ms() -> int:
@@ -87,7 +89,14 @@ class Relay:
             if tid in depends:
                 raise InvalidDag(f"task {tid} depends on itself")
             deps[tid] = depends
-            rows.append({"id": tid, "title": str(item["title"]), "priority": int(item.get("priority", 0))})
+            rows.append(
+                {
+                    "id": tid,
+                    "title": str(item["title"]),
+                    "priority": int(item.get("priority", 0)),
+                    "seq": len(rows),
+                }
+            )
         _check_acyclic(deps)
         ids = list(deps)
         index = {t: i for i, t in enumerate(ids)}
@@ -130,7 +139,10 @@ class Relay:
         return None
 
     def heartbeat(self, agent_id: str, task_id: str, lease_ms: int, now: int | None = None) -> bool:
-        """Extend the lease to ``now + lease_ms``. False if the caller is not the current claimer."""
+        """Extend the lease to ``max(current, now + lease_ms)``; it is never shortened.
+
+        False if the caller is not the current claimer.
+        """
         if lease_ms <= 0:
             raise ValueError("lease_ms must be positive")
         now = self._clock() if now is None else now
@@ -171,6 +183,26 @@ class Relay:
         return self._finish(
             "relay/fail_task", agent_id, task_id, expected_version, artifacts, now, {"reason": reason}
         )
+
+    def reopen_task(self, agent_id: str, task_id: str, now: int | None = None) -> dict[str, Any]:
+        """Retry a failed task: CAS ``failed`` -> ``open`` (version+1, lease and ``done_at`` cleared).
+
+        Returns ``{id, status, version}``. Raises :class:`UnknownReference` (task or agent) or
+        :class:`ClaimConflict` (the task is not failed); nothing is written then. Dependents stay blocked
+        until the reopened task is done again; a stale holder of the old claim cannot complete it.
+        """
+        now = self._clock() if now is None else now
+        rows = self.client.rw(
+            self.graph, "relay/reopen_task", {"agent": agent_id, "task": task_id, "now": now}
+        )
+        if rows:
+            return dict(rows[0])
+        st = self.task_status(task_id)
+        if st is None:
+            raise UnknownReference("task", [task_id])
+        if not self.client.ro(self.graph, "relay/agent_exists", {"id": agent_id}):
+            raise UnknownReference("agent", [agent_id])
+        raise ClaimConflict(task_id, f"not failed (status is {st['status']})")
 
     def _finish(
         self,
@@ -335,9 +367,26 @@ class Relay:
         ]
 
     def blocked_by_failure(self, task_id: str) -> list[str]:
-        """Not-done tasks that depend (transitively, up to 10 hops) on ``task_id``, nearest first."""
-        rows = self.client.ro(self.graph, "relay/blocked_by_failure", {"task": task_id})
-        return [r["id"] for r in rows]
+        """Not-done tasks that depend (transitively, up to 10 hops) on ``task_id``, nearest first.
+
+        Level-wise BFS over distinct tasks (``relay/dependents_of``): linear in the edges touched, unlike the
+        old path enumeration, which was exponential on layered DAGs. At most 5,000 tasks are returned. Tasks
+        are listed by hop distance, then id; done tasks are walked through but not reported.
+        """
+        seen = {task_id}
+        frontier = [task_id]
+        out: list[str] = []
+        for _ in range(MAX_BLOCKED_DEPTH):
+            rows = self.client.ro(self.graph, "relay/dependents_of", {"frontier": frontier})
+            level = {r["id"]: r["status"] for r in rows if r["id"] not in seen}
+            if not level:
+                break
+            seen.update(level)
+            out.extend(sorted(i for i, s in level.items() if s != "done"))
+            if len(out) >= MAX_BLOCKED_NODES:
+                return out[:MAX_BLOCKED_NODES]
+            frontier = sorted(level)
+        return out
 
     def task_status(self, task_id: str) -> dict[str, Any] | None:
         rows = self.client.ro(self.graph, "relay/task_status", {"id": task_id})

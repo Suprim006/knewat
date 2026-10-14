@@ -7,6 +7,7 @@
 // guard makes a duplicate artifact id reject the whole call. Artifacts are created inside FOREACH so an empty
 // list does not remove the row. $artifacts items: {id, kind, uri, hash, summary} (no nulls; '' when absent).
 // $artifact_ids is the list of those ids (used only for the duplicate guard).
+// Each artifact gets (Artifact)-[:PRODUCED_BY]->(Agent) and (Artifact)-[:FOR]->(Task); the task_id property is kept too.
 MATCH (t:Task {id: $task})
 WHERE t.status = 'claimed' AND t.claimed_by = $agent AND t.version = $expected_version
 MATCH (a:Agent {id: $agent})
@@ -19,5 +20,6 @@ FOREACH (art IN $artifacts |
     id: art.id, kind: art.kind, uri: art.uri, hash: art.hash, summary: art.summary,
     task_id: $task, created_at: $now
   })-[:PRODUCED_BY]->(a)
+  CREATE (x)-[:FOR]->(t)
 )
 RETURN t.id AS id, t.status AS status, t.version AS version

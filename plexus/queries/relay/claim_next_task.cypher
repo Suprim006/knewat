@@ -15,7 +15,7 @@ WHERE t.status IN ['open', 'claimed'] AND (t.status = 'open' OR t.lease_until < 
 OPTIONAL MATCH (t)-[:DEPENDS_ON]->(d:Task) WHERE d.status <> 'done'
 WITH a, t, count(d) AS open_deps
 WHERE open_deps = 0
-WITH a, t ORDER BY t.priority DESC, t.created_at ASC, t.id ASC LIMIT 1
+WITH a, t ORDER BY t.priority DESC, t.created_at ASC, t.seq ASC, t.id ASC LIMIT 1
 WITH a, t, t.claimed_by AS previous
 SET t.status = 'claimed', t.claimed_by = $agent, t.lease_until = $now + $lease_ms, t.version = t.version + 1
 CREATE (a)-[:CLAIMED {at: $now, lease_until: $now + $lease_ms, reclaimed_from: previous}]->(t)
