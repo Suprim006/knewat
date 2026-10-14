@@ -57,7 +57,9 @@ def _jaccard(a: set[str], b: set[str]) -> float:
 
 
 def numeric_tokens(text: str) -> list[str]:
-    """Sorted multiset of the numbers / version strings in ``text`` (``'v1.2.3 on 8080'`` -> ``['1.2.3', '8080']``).
+    """Sorted multiset of the numbers / version strings in ``text``.
+
+    ``'v1.2.3 on 8080'`` -> ``['1.2.3', '8080']``.
 
     Embeddings barely move when one digit changes, so two values or entity names are only treated as the same
     thing when this multiset is identical (P1-01, P1-04).
@@ -273,8 +275,8 @@ class Engram:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
         Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id}``. For a duplicate no fact is
-        created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge, and
-        which supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
+        created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
+        and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
 
         A value is a duplicate only if its normalised text is equal, or its embedding is within
         ``dup_threshold`` **and** its numeric/version tokens are identical (``16`` != ``15``, ``v1.2.3`` !=

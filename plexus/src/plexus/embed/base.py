@@ -1,4 +1,4 @@
-"""Embedder protocol shared by the local models, plus the dimension guard used before any vector is written."""
+"""Embedder protocol shared by the local models, plus the dimension guard for stored vectors."""
 
 from __future__ import annotations
 
@@ -34,5 +34,5 @@ def check_dim(vectors: Sequence[Sequence[float]], dim: int = DIM) -> list[list[f
 
 
 def embed_checked(embedder: Embedder, texts: list[str], dim: int = DIM) -> list[list[float]]:
-    """``embedder.embed(texts)`` validated with :func:`check_dim` (use this for every vector that is stored)."""
+    """``embedder.embed(texts)`` validated with :func:`check_dim` (use for every vector that is stored)."""
     return check_dim(embedder.embed(texts), dim)

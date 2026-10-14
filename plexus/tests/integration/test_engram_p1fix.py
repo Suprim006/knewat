@@ -14,7 +14,7 @@ def _count(client, graph, q):
     return client.graph(graph).ro_query(q).result_set[0][0]
 
 
-# -- P1-01: paraphrase duplicates must not swallow updates -------------------------------------------------
+# -- P1-01: paraphrase duplicates must not swallow updates -----------------------------------------
 
 
 def test_near_identical_values_with_different_numbers_are_an_update_not_a_duplicate(eng, proj):
@@ -46,7 +46,7 @@ def test_same_words_different_version_tokens_never_duplicate(eng, proj):
     assert r2["duplicate_of"] is None and r2["superseded"] == [r1["fact_id"]]
 
 
-# -- P1-03: A/B/A -------------------------------------------------------------------------------------------
+# -- P1-03: A/B/A ----------------------------------------------------------------------------------
 
 
 def test_aba_reassert_closes_own_earlier_value_and_links_supersedes(eng, client, graph, proj):
@@ -73,7 +73,7 @@ def test_dup_path_does_not_close_other_agents_facts(eng, proj):
     assert r2["contradicts"] == [r1["fact_id"]]
 
 
-# -- P1-08: duplicate assertion is timestamped ---------------------------------------------------------------
+# -- P1-08: duplicate assertion is timestamped -----------------------------------------------------
 
 
 def test_asserted_by_edges_carry_the_assertion_time_including_duplicates(eng, client, graph, proj):
@@ -92,7 +92,7 @@ def test_asserted_by_edges_carry_the_assertion_time_including_duplicates(eng, cl
     assert _count(client, graph, "MATCH ()-[r:DUPLICATES]->() RETURN count(r)") == 0
 
 
-# -- P1-04: entity collapse ------------------------------------------------------------------------------------
+# -- P1-04: entity collapse ------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
@@ -123,7 +123,7 @@ def test_vector_entity_match_requires_same_numeric_tokens(eng):
     assert a["id"] != b["id"]
 
 
-# -- P1-10: unknown references ---------------------------------------------------------------------------------
+# -- P1-10: unknown references ---------------------------------------------------------------------
 
 
 def test_unknown_episode_or_source_raises_and_writes_nothing(eng, client, graph, proj):
@@ -141,7 +141,7 @@ def test_unknown_episode_or_source_raises_and_writes_nothing(eng, client, graph,
     assert _count(client, graph, "MATCH (a:Agent) RETURN count(a)") == 0  # not even the Agent was merged
 
 
-# -- embedding dimension guard -----------------------------------------------------------------------------------
+# -- embedding dimension guard ---------------------------------------------------------------------
 
 
 def test_wrong_dimension_embedder_is_rejected_before_writing(client, graph):
