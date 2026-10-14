@@ -73,7 +73,7 @@ PLEXUS_CHANGES = [
     "No other query was changed; the original plexus_answerer.py and queries/l2/*.cypher are untouched.",
 ]
 HONESTY = [
-    "L2-scale: exact-match accuracy over 40 script-derived questions (10 families x 4) about 20 independent sprints of one team history; one scenario family, one model (sonnet), one run per question; no LLM judge. Ground truth is computed from the per-sprint scenario ledgers, not read back from any arm. Pre-registered in docs/BASELINE.md before the first paid call.",
+    "L2-scale: exact-match accuracy over script-derived questions (40 generated, 10 families x 4; 36 asked after the pre-registered budget rule) about 20 independent sprints of one team history; one scenario family, one model (sonnet), one run per question; no LLM judge. Ground truth is computed from the per-sprint scenario ledgers, not read back from any arm. Pre-registered in docs/BASELINE.md before the first paid call.",
     "The history is 20 repetitions of the same synthetic story with varied ids and values. Real histories are messier; sprints here do not interact, which favours retrieval (a question names its sprint and a sprint's records share its tag).",
     "Every question names exactly one sprint, so competent keyword retrieval can find a sprint's records. Questions that aggregate across sprints (the strongest case for a graph) are NOT in this set.",
     "Baselines are the same unmodified `claude -p --model sonnet` with no tools at the same 32,000-character cap, shown BM25-ranked chunks/rows (B0, B1) or vector top-12 (B2) selected with the question text. The selectors were written once, before any paid call, and not tuned afterwards.",
@@ -135,7 +135,8 @@ def evidence_in_context(q: Question, context_text: str) -> dict[str, int] | None
     have = set(SC.tokens(context_text))
     found = 0
     for it in items:
-        need = set(SC.tokens(str(it).split("@")[0] if q.item == "fact_by" else str(it)))
+        text = str(it).split("@")[0] if q.item == "fact_by" else str(it)
+        need = set(SC.tokens(text.replace("=", " ")))  # `pred=value` is not one word in a table or a bullet
         found += bool(need) and need <= have
     return {"found": found, "total": len(items)}
 
@@ -616,11 +617,43 @@ def run_scale(
         shutil.rmtree(work, ignore_errors=True)
 
 
+def refresh_results(results_path: Path, qpath: Path = QUESTIONS_PATH) -> Path:
+    """Recompute the context diagnostic from the saved contexts and re-render ``report.md``. No LLM call, no re-scoring:
+    ``correct`` / ``got`` are untouched. Used once, after the full run, to fix the diagnostic (see BASELINE amendment 2)."""
+    doc = json.loads(results_path.read_text(encoding="utf-8"))
+    layer = doc["layers"]["L2_scale"]
+    qs = {q.id: q for q in load_scale_questions(qpath)}
+    for arm, a in layer["arms"].items():
+        if arm == "P":
+            continue
+        for r in a["questions"]:
+            ctx = (results_path.parent / "contexts" / arm / f"{r['id']}.txt").read_text(encoding="utf-8")
+            r["evidence_in_context"] = evidence_in_context(qs[r["id"]], ctx)
+        wrong = [r for r in a["questions"] if not r["correct"]]
+        ev = [r["evidence_in_context"] for r in wrong if r.get("evidence_in_context")]
+        fa = a["failure_analysis"]
+        fa["wrong_with_all_evidence_in_context"] = sum(e["found"] == e["total"] for e in ev)
+        fa["wrong_with_partial_or_no_evidence_in_context"] = sum(e["found"] < e["total"] for e in ev)
+    doc["honesty"] = [*HONESTY]
+    doc["layers"]["L2_scale"]["notes"].append(
+        "The evidence_in_context diagnostic was corrected after the run (it treated `predicate=value` as one word and so under-counted); "
+        "it is recomputed from the saved contexts by `scale_run refresh`, with no LLM call; answers and scores are untouched."
+    )
+    results_path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
+    (results_path.parent / "report.md").write_text(render_scale_report(doc), encoding="utf-8", newline="\n")
+    shutil.copyfile(results_path, results_path.parent.parent / f"latest-{layer['mode']}.json")
+    return results_path
+
+
 # ------------------------------------------------------------------------------------------------ CLI
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="crucible-l2-scale")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("questions", help="regenerate questions_scale.yaml from the scenario script")
+    rf = sub.add_parser(
+        "refresh", help="recompute the context diagnostic of a finished run and re-render its report"
+    )
+    rf.add_argument("results", type=Path)
     r = sub.add_parser("run", help="play K sprints on every arm, answer and score")
     r.add_argument("--mode", choices=("pilot", "full"), default="pilot")
     r.add_argument("--arms", default=",".join(ARMS))
@@ -640,6 +673,9 @@ def main(argv: list[str] | None = None) -> int:
         sl, qs = generate_scale(tempfile.mkdtemp(prefix="crucible-l2s-q-"), K_SPRINTS)
         dump_scale_questions(qs, sl, QUESTIONS_PATH)
         print(f"wrote {len(qs)} questions to {QUESTIONS_PATH}")
+        return 0
+    if a.cmd == "refresh":
+        print(f"refreshed {refresh_results(a.results)}")
         return 0
     arms = tuple(x for x in a.arms.split(",") if x)
     bad = [x for x in arms if x not in ARMS]

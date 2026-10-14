@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Task s03-t07-implement-crud-spec ('Implement CRUD spec (S03)', priority 20) status done, claimed by builder; depends on s03-t03-design-endpoints, s03-t05-choose-auth, s03-t06-write-db-schema; artifacts artifacts/s03/crud-spec.md.
+[2] Task s09-t07-implement-crud-spec ('Implement CRUD spec (S09)', priority 20) status done, claimed by builder; depends on s09-t03-design-endpoints, s09-t05-choose-auth, s09-t06-write-db-schema; artifacts artifacts/s09/crud-spec.md.
+[3] Task s07-t07-implement-crud-spec ('Implement CRUD spec (S07)', priority 20) status done, claimed by builder; depends on s07-t03-design-endpoints, s07-t05-choose-auth, s07-t06-write-db-schema; artifacts artifacts/s07/crud-spec.md.
+[4] Task s16-t07-implement-crud-spec ('Implement CRUD spec (S16)', priority 20) status done, claimed by builder; depends on s16-t03-design-endpoints, s16-t05-choose-auth, s16-t06-write-db-schema; artifacts artifacts/s16/crud-spec.md.
+[5] Task s05-t07-implement-crud-spec ('Implement CRUD spec (S05)', priority 20) status done, claimed by builder; depends on s05-t03-design-endpoints, s05-t05-choose-auth, s05-t06-write-db-schema; artifacts artifacts/s05/crud-spec.md.
+[6] Task s10-t07-implement-crud-spec ('Implement CRUD spec (S10)', priority 20) status done, claimed by builder; depends on s10-t03-design-endpoints, s10-t05-choose-auth, s10-t06-write-db-schema; artifacts artifacts/s10/crud-spec.md.
+[7] Task s01-t07-implement-crud-spec ('Implement CRUD spec (S01)', priority 20) status done, claimed by builder; depends on s01-t03-design-endpoints, s01-t05-choose-auth, s01-t06-write-db-schema; artifacts artifacts/s01/crud-spec.md.
+[8] Task s06-t07-implement-crud-spec ('Implement CRUD spec (S06)', priority 20) status done, claimed by builder; depends on s06-t03-design-endpoints, s06-t05-choose-auth, s06-t06-write-db-schema; artifacts artifacts/s06/crud-spec.md.
+[9] Task s17-t07-implement-crud-spec ('Implement CRUD spec (S17)', priority 20) status done, claimed by builder; depends on s17-t03-design-endpoints, s17-t05-choose-auth, s17-t06-write-db-schema; artifacts artifacts/s17/crud-spec.md.
+[10] Task s02-t07-implement-crud-spec ('Implement CRUD spec (S02)', priority 20) status done, claimed by builder; depends on s02-t03-design-endpoints, s02-t05-choose-auth, s02-t06-write-db-schema; artifacts artifacts/s02/crud-spec.md.
+[11] Task s15-t07-implement-crud-spec ('Implement CRUD spec (S15)', priority 20) status done, claimed by builder; depends on s15-t03-design-endpoints, s15-t05-choose-auth, s15-t06-write-db-schema; artifacts artifacts/s15/crud-spec.md.
+[12] Task s13-t07-implement-crud-spec ('Implement CRUD spec (S13)', priority 20) status done, claimed by builder; depends on s13-t03-design-endpoints, s13-t05-choose-auth, s13-t06-write-db-schema; artifacts artifacts/s13/crud-spec.md.

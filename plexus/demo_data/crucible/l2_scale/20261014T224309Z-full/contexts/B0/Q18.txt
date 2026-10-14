@@ -1,0 +1,242 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"s01-t09-review-spec":{"id":"s01-t09-review-spec","title":"Review spec (S01)","priority":12,"seq":8,"status":"done","claimed_by":"planner","lease_until":1760000174500,"version":2,"created_at":1760000000004,"done_at":1760000056501,"deps":["s01-t07-implement-crud-spec","s01-t08-write-test-plan"],"artifacts":[]}}
+{"s01-t10-write-docs":{"id":"s01-t10-write-docs","title":"Write documentation (S01)","priority":10,"seq":9,"status":"done","claimed_by":"researcher","lease_until":1760000178500,"version":2,"created_at":1760000000004,"done_at":1760000059501,"deps":["s01-t09-review-spec"],"artifacts":[{"id":"da545bd4-6ee6-567d-8af0-24c320a2b505","kind":"file","uri":"artifacts/s01/docs.md","hash":"","summary":"S01 API documentation","agent_id":"researcher","created_at":1760000059501}]}}
+[...]
+{"s02-t09-review-spec":{"id":"s02-t09-review-spec","title":"Review spec (S02)","priority":12,"seq":20,"status":"done","claimed_by":"planner","lease_until":1760000243000,"version":2,"created_at":1760000068501,"done_at":1760000125001,"deps":["s02-t07-implement-crud-spec","s02-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s03-t09-review-spec":{"id":"s03-t09-review-spec","title":"Review spec (S03)","priority":12,"seq":32,"status":"done","claimed_by":"planner","lease_until":1760000311500,"version":2,"created_at":1760000137001,"done_at":1760000193501,"deps":["s03-t07-implement-crud-spec","s03-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s04-t09-review-spec":{"id":"s04-t09-review-spec","title":"Review spec (S04)","priority":12,"seq":44,"status":"done","claimed_by":"planner","lease_until":1760000380000,"version":2,"created_at":1760000205501,"done_at":1760000262001,"deps":["s04-t07-implement-crud-spec","s04-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s05-t09-review-spec":{"id":"s05-t09-review-spec","title":"Review spec (S05)","priority":12,"seq":56,"status":"done","claimed_by":"planner","lease_until":1760000448500,"version":2,"created_at":1760000274001,"done_at":1760000330501,"deps":["s05-t07-implement-crud-spec","s05-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s06-t09-review-spec":{"id":"s06-t09-review-spec","title":"Review spec (S06)","priority":12,"seq":68,"status":"done","claimed_by":"planner","lease_until":1760000517000,"version":2,"created_at":1760000342501,"done_at":1760000399001,"deps":["s06-t07-implement-crud-spec","s06-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s07-t09-review-spec":{"id":"s07-t09-review-spec","title":"Review spec (S07)","priority":12,"seq":80,"status":"done","claimed_by":"planner","lease_until":1760000585500,"version":2,"created_at":1760000411001,"done_at":1760000467501,"deps":["s07-t07-implement-crud-spec","s07-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s08-t09-review-spec":{"id":"s08-t09-review-spec","title":"Review spec (S08)","priority":12,"seq":92,"status":"done","claimed_by":"planner","lease_until":1760000654000,"version":2,"created_at":1760000479501,"done_at":1760000536001,"deps":["s08-t07-implement-crud-spec","s08-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s09-t09-review-spec":{"id":"s09-t09-review-spec","title":"Review spec (S09)","priority":12,"seq":104,"status":"done","claimed_by":"planner","lease_until":1760000722500,"version":2,"created_at":1760000548001,"done_at":1760000604501,"deps":["s09-t07-implement-crud-spec","s09-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s10-t09-review-spec":{"id":"s10-t09-review-spec","title":"Review spec (S10)","priority":12,"seq":116,"status":"done","claimed_by":"planner","lease_until":1760000791000,"version":2,"created_at":1760000616501,"done_at":1760000673001,"deps":["s10-t07-implement-crud-spec","s10-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s11-t09-review-spec":{"id":"s11-t09-review-spec","title":"Review spec (S11)","priority":12,"seq":128,"status":"done","claimed_by":"planner","lease_until":1760000859500,"version":2,"created_at":1760000685001,"done_at":1760000741501,"deps":["s11-t07-implement-crud-spec","s11-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s12-t09-review-spec":{"id":"s12-t09-review-spec","title":"Review spec (S12)","priority":12,"seq":140,"status":"done","claimed_by":"planner","lease_until":1760000928000,"version":2,"created_at":1760000753501,"done_at":1760000810001,"deps":["s12-t07-implement-crud-spec","s12-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s13-t09-review-spec":{"id":"s13-t09-review-spec","title":"Review spec (S13)","priority":12,"seq":152,"status":"done","claimed_by":"planner","lease_until":1760000996500,"version":2,"created_at":1760000822001,"done_at":1760000878501,"deps":["s13-t07-implement-crud-spec","s13-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s14-t09-review-spec":{"id":"s14-t09-review-spec","title":"Review spec (S14)","priority":12,"seq":164,"status":"done","claimed_by":"planner","lease_until":1760001065000,"version":2,"created_at":1760000890501,"done_at":1760000947001,"deps":["s14-t07-implement-crud-spec","s14-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s15-t09-review-spec":{"id":"s15-t09-review-spec","title":"Review spec (S15)","priority":12,"seq":176,"status":"done","claimed_by":"planner","lease_until":1760001133500,"version":2,"created_at":1760000959001,"done_at":1760001015501,"deps":["s15-t07-implement-crud-spec","s15-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s16-t02-choose-api-version":{"id":"s16-t02-choose-api-version","title":"Choose API version (S16)","priority":45,"seq":181,"status":"done","claimed_by":"planner","lease_until":1760001152500,"version":2,"created_at":1760001027501,"done_at":1760001033501,"deps":["s16-t01-gather-requirements"],"artifacts":[]}}
+{"s16-t03-design-endpoints":{"id":"s16-t03-design-endpoints","title":"Design endpoints (S16)","priority":40,"seq":182,"status":"done","claimed_by":"researcher","lease_until":1760001160000,"version":3,"created_at":1760001027501,"done_at":1760001042001,"deps":["s16-t02-choose-api-version"],"artifacts":[{"id":"f74a1f42-6478-5364-b018-6b4f5c21383d","kind":"file","uri":"artifacts/s16/openapi-draft.yaml","hash":"","summary":"S16 endpoint draft for /v31/notes (CRUD)","agent_id":"researcher","created_at":1760001042001}]}}
+[...]
+{"s16-t05-choose-auth":{"id":"s16-t05-choose-auth","title":"Choose authentication (S16)","priority":30,"seq":184,"status":"done","claimed_by":"planner","lease_until":1760001178000,"version":2,"created_at":1760001027501,"done_at":1760001061001,"deps":["s16-t04-survey-infra-security"],"artifacts":[]}}
+[...]
+{"s16-t07-implement-crud-spec":{"id":"s16-t07-implement-crud-spec","title":"Implement CRUD spec (S16)","priority":20,"seq":186,"status":"done","claimed_by":"builder","lease_until":1760001194000,"version":2,"created_at":1760001027501,"done_at":1760001076001,"deps":["s16-t03-design-endpoints","s16-t05-choose-auth","s16-t06-write-db-schema"],"artifacts":[{"id":"38c9690b-72a3-58ad-899c-d2a034a39f1c","kind":"file","uri":"artifacts/s16/crud-spec.md","hash":"","summary":"S16 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001076001}]}}
+{"s16-t08-write-test-plan":{"id":"s16-t08-write-test-plan","title":"Write test plan (S16)","priority":15,"seq":187,"status":"done","claimed_by":"researcher","lease_until":1760001199000,"version":2,"created_at":1760001027501,"done_at":1760001080001,"deps":["s16-t03-design-endpoints"],"artifacts":[{"id":"0196f6af-7395-5a37-b83a-52f9f8508583","kind":"file","uri":"artifacts/s16/test-plan.md","hash":"","summary":"S16 test plan for the CRUD endpoints","agent_id":"researcher","created_at":1760001080001}]}}
+{"s16-t09-review-spec":{"id":"s16-t09-review-spec","title":"Review spec (S16)","priority":12,"seq":188,"status":"done","claimed_by":"planner","lease_until":1760001202000,"version":2,"created_at":1760001027501,"done_at":1760001084001,"deps":["s16-t07-implement-crud-spec","s16-t08-write-test-plan"],"artifacts":[]}}
+{"s16-t10-write-docs":{"id":"s16-t10-write-docs","title":"Write documentation (S16)","priority":10,"seq":189,"status":"done","claimed_by":"researcher","lease_until":1760001206000,"version":2,"created_at":1760001027501,"done_at":1760001087001,"deps":["s16-t09-review-spec"],"artifacts":[{"id":"2d64ef2d-3215-5c8b-8203-c0fe75975e68","kind":"file","uri":"artifacts/s16/docs.md","hash":"","summary":"S16 API documentation","agent_id":"researcher","created_at":1760001087001}]}}
+{"s16-t11-package-release":{"id":"s16-t11-package-release","title":"Package release (S16)","priority":5,"seq":190,"status":"done","claimed_by":"builder","lease_until":1760001209000,"version":2,"created_at":1760001027501,"done_at":1760001089002,"deps":["s16-t10-write-docs"],"artifacts":[{"id":"ac3e4536-3c2b-5f03-a372-d1ee1633ccff","kind":"file","uri":"artifacts/s16/release.tar","hash":"","summary":"S16 release bundle of the Acme Notes API","agent_id":"builder","created_at":1760001089002}]}}
+[...]
+{"s17-t09-review-spec":{"id":"s17-t09-review-spec","title":"Review spec (S17)","priority":12,"seq":200,"status":"done","claimed_by":"planner","lease_until":1760001270500,"version":2,"created_at":1760001096001,"done_at":1760001152501,"deps":["s17-t07-implement-crud-spec","s17-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s18-t09-review-spec":{"id":"s18-t09-review-spec","title":"Review spec (S18)","priority":12,"seq":212,"status":"done","claimed_by":"planner","lease_until":1760001339000,"version":2,"created_at":1760001164501,"done_at":1760001221001,"deps":["s18-t07-implement-crud-spec","s18-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s19-t09-review-spec":{"id":"s19-t09-review-spec","title":"Review spec (S19)","priority":12,"seq":224,"status":"done","claimed_by":"planner","lease_until":1760001407500,"version":2,"created_at":1760001233001,"done_at":1760001289501,"deps":["s19-t07-implement-crud-spec","s19-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s20-t09-review-spec":{"id":"s20-t09-review-spec","title":"Review spec (S20)","priority":12,"seq":236,"status":"done","claimed_by":"planner","lease_until":1760001476000,"version":2,"created_at":1760001301501,"done_at":1760001358001,"deps":["s20-t07-implement-crud-spec","s20-t08-write-test-plan"],"artifacts":[]}}
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"a95eed0c-9058-5840-b7ef-00b13a18ee88","agent":"planner","task":"s01-t09-review-spec","text":"S01: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"],"at":1760000055501}
+[...]
+{"type":"decision","id":"7efc5fbb-61ae-5b3f-b965-6cefad5f77f0","agent":"planner","task":"s02-t09-review-spec","text":"S02: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000124001}
+[...]
+{"type":"decision","id":"d05051b1-49c1-5cd5-a51c-2a64a1af1409","agent":"planner","task":"s03-t09-review-spec","text":"S03: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000192501}
+[...]
+{"type":"decision","id":"ecefce34-9176-58d8-94f6-c6d6783639ad","agent":"planner","task":"s04-t09-review-spec","text":"S04: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"],"at":1760000261001}
+[...]
+{"type":"decision","id":"62932fdb-3076-59d2-ba7e-bf5b9bab07ea","agent":"planner","task":"s05-t09-review-spec","text":"S05: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000329501}
+[...]
+{"type":"decision","id":"3bc6e6b9-213b-5a05-8e74-175df8e45057","agent":"planner","task":"s06-t09-review-spec","text":"S06: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"],"at":1760000398001}
+[...]
+{"type":"decision","id":"151ec366-1445-5726-b70d-6a9513cb94de","agent":"planner","task":"s07-t09-review-spec","text":"S07: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"],"at":1760000466501}
+[...]
+{"type":"decision","id":"66744935-c4fa-5a06-bddd-7835dfc6a7af","agent":"planner","task":"s08-t09-review-spec","text":"S08: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"],"at":1760000535001}
+[...]
+{"type":"decision","id":"3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca","agent":"planner","task":"s09-t09-review-spec","text":"S09: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000603501}
+[...]
+{"type":"decision","id":"3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a","agent":"planner","task":"s10-t09-review-spec","text":"S10: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"],"at":1760000672001}
+[...]
+{"type":"decision","id":"5a045ccd-4ca8-5279-900a-661aab445648","agent":"planner","task":"s11-t09-review-spec","text":"S11: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"],"at":1760000740501}
+[...]
+{"type":"decision","id":"5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3","agent":"planner","task":"s12-t09-review-spec","text":"S12: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"],"at":1760000809001}
+[...]
+{"type":"decision","id":"8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1","agent":"planner","task":"s13-t09-review-spec","text":"S13: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000877501}
+[...]
+{"type":"decision","id":"c5e4aaf8-7959-55b9-8526-2ac75e975544","agent":"planner","task":"s14-t09-review-spec","text":"S14: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"],"at":1760000946001}
+[...]
+{"type":"decision","id":"088c32c9-9211-501e-8eab-f6ea616d8eb4","agent":"planner","task":"s15-t09-review-spec","text":"S15: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"],"at":1760001014501}
+[...]
+{"type":"decision","id":"7f71e476-1a85-5b91-9885-e133ad3a02c2","agent":"planner","task":"s16-t09-review-spec","text":"S16: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001083001}
+[...]
+{"type":"decision","id":"c7d232bd-c4b4-5ac1-89ae-decaf18696bb","agent":"planner","task":"s17-t09-review-spec","text":"S17: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"],"at":1760001151501}
+[...]
+{"type":"decision","id":"a21750a7-4500-5e73-b55a-067a4ca490af","agent":"planner","task":"s18-t09-review-spec","text":"S18: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"],"at":1760001220001}
+[...]
+{"type":"decision","id":"d7599553-d578-5ca7-9422-4f7161446421","agent":"planner","task":"s19-t09-review-spec","text":"S19: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"],"at":1760001288501}
+[...]
+{"type":"decision","id":"2f3bfbdb-ff3b-5075-9f34-b47d193db3ef","agent":"planner","task":"s20-t09-review-spec","text":"S20: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001357001}
+
+=== file: handoffs.jsonl ===
+{"id":"208456fd-84ac-52a7-b766-cef373b38b31","from":"builder","to":"planner","task":"s01-t07-implement-crud-spec","note":"S01: CRUD spec ready for review.","artifacts":["27ef1b24-205d-5803-8a6d-b59547042ff8"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"],"at":1760000049501}
+[...]
+{"id":"d04e9737-19af-51e3-b2c3-69a2d16d23a9","from":"builder","to":"planner","task":"s02-t07-implement-crud-spec","note":"S02: CRUD spec ready for review.","artifacts":["0e6b7bc2-796b-5295-ad42-bfc0a62594ba"],"facts":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000118001}
+[...]
+{"id":"ca66045d-b446-5002-b023-ae96f7e1a787","from":"builder","to":"planner","task":"s03-t07-implement-crud-spec","note":"S03: CRUD spec ready for review.","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000186501}
+[...]
+{"id":"dcae7214-ee5d-59da-a431-1d3670c8cce5","from":"builder","to":"planner","task":"s04-t07-implement-crud-spec","note":"S04: CRUD spec ready for review.","artifacts":["f800fe12-3a0d-5ecf-9463-25316e8b0776"],"facts":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"],"at":1760000255001}
+[...]
+{"id":"152c0486-f2fa-5da5-bb8d-4f89714562d1","from":"builder","to":"planner","task":"s05-t07-implement-crud-spec","note":"S05: CRUD spec ready for review.","artifacts":["b2ee9a12-5645-5138-87a3-303d5063554a"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000323501}
+[...]
+{"id":"0aff62b2-52de-5019-aeb4-ea6f9488fb44","from":"builder","to":"planner","task":"s06-t07-implement-crud-spec","note":"S06: CRUD spec ready for review.","artifacts":["19715af8-0853-577c-a079-771cecf2f34a"],"facts":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"],"at":1760000392001}
+[...]
+{"id":"8ff3f392-de52-5299-ad8f-cb75c615c81d","from":"builder","to":"planner","task":"s07-t07-implement-crud-spec","note":"S07: CRUD spec ready for review.","artifacts":["1fd0fea1-4134-5a70-a173-ddd7cb97836b"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"],"at":1760000460501}
+[...]
+{"id":"70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b","from":"builder","to":"planner","task":"s08-t07-implement-crud-spec","note":"S08: CRUD spec ready for review.","artifacts":["d76294c4-c550-5029-845f-880e44cb4bf1"],"facts":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"],"at":1760000529001}
+[...]
+{"id":"a133d97a-e731-5223-a8ff-0925912bf303","from":"builder","to":"planner","task":"s09-t07-implement-crud-spec","note":"S09: CRUD spec ready for review.","artifacts":["c15b251d-c799-5fb6-99ca-e6b78a41b088"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000597501}
+[...]
+{"id":"69e73a46-631b-58b6-85f3-f89634202221","from":"builder","to":"planner","task":"s10-t07-implement-crud-spec","note":"S10: CRUD spec ready for review.","artifacts":["c87489d9-9608-51ba-a15a-db6abf9fd091"],"facts":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"],"at":1760000666001}
+[...]
+{"id":"bfcd23c6-ae34-5363-8253-c4b8fb8e9d61","from":"builder","to":"planner","task":"s11-t07-implement-crud-spec","note":"S11: CRUD spec ready for review.","artifacts":["bf750cef-8374-5117-a75b-cb228bf48e39"],"facts":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"],"at":1760000734501}
+[...]
+{"id":"65b478b3-d1cf-57b3-8a6c-5742497ffa24","from":"builder","to":"planner","task":"s12-t07-implement-crud-spec","note":"S12: CRUD spec ready for review.","artifacts":["82365dcb-e9ac-585f-a493-0c6efa43b506"],"facts":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"],"at":1760000803001}
+[...]
+{"id":"c45b3769-f3cb-5369-ac8b-24830f52e357","from":"builder","to":"planner","task":"s13-t07-implement-crud-spec","note":"S13: CRUD spec ready for review.","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000871501}
+[...]
+{"id":"ca0b29f4-363a-57e4-81bf-f609a231a089","from":"builder","to":"planner","task":"s14-t07-implement-crud-spec","note":"S14: CRUD spec ready for review.","artifacts":["5e1cc5e6-991f-5fb3-bf84-9377b8a89805"],"facts":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"],"at":1760000940001}
+[...]
+{"id":"924f23f7-7c01-5a36-870b-8a0a4a002dc5","from":"builder","to":"planner","task":"s15-t07-implement-crud-spec","note":"S15: CRUD spec ready for review.","artifacts":["a8166a94-af06-514f-aa6d-29ef076b114a"],"facts":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"],"at":1760001008501}
+[...]
+{"id":"2081e45a-3076-554a-9a08-25d03365657c","from":"builder","to":"planner","task":"s16-t07-implement-crud-spec","note":"S16: CRUD spec ready for review.","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001077001}
+[...]
+{"id":"b5bdb2aa-2104-568e-aa83-ae98bd3c42bc","from":"builder","to":"planner","task":"s17-t07-implement-crud-spec","note":"S17: CRUD spec ready for review.","artifacts":["d7abdc81-f7d7-5996-9cf5-27b78fe17339"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"],"at":1760001145501}
+[...]
+{"id":"5d3b5248-07a2-54cf-bc45-5813ec8e9e1d","from":"builder","to":"planner","task":"s18-t07-implement-crud-spec","note":"S18: CRUD spec ready for review.","artifacts":["3cfb4932-60c7-5e17-a32c-06a963667df4"],"facts":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"],"at":1760001214001}
+[...]
+{"id":"06ebdeee-a486-5452-8706-29e8c33c6f6d","from":"builder","to":"planner","task":"s19-t07-implement-crud-spec","note":"S19: CRUD spec ready for review.","artifacts":["35526b32-184f-5c71-9231-8c8a80ecd34c"],"facts":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"],"at":1760001282501}
+[...]
+{"id":"cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f","from":"builder","to":"planner","task":"s20-t07-implement-crud-spec","note":"S20: CRUD spec ready for review.","artifacts":["b42170a8-7f57-562e-afbc-cabf2df369be"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001351001}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760001074001,"tool":"claim_next_task","task":"s16-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001076002,"tool":"complete_task","task":"s16-t07-implement-crud-spec","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"]}
+{"ts":1760001077002,"tool":"handoff","id":"2081e45a-3076-554a-9a08-25d03365657c","to":"planner","task":"s16-t07-implement-crud-spec","note":"S16: CRUD spec ready for review.","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001077001}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000054501,"tool":"claim_next_task","task":"s01-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000055502,"tool":"record_decision","id":"a95eed0c-9058-5840-b7ef-00b13a18ee88","task":"s01-t09-review-spec","based_on":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"]}
+{"ts":1760000056502,"tool":"complete_task","task":"s01-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000123001,"tool":"claim_next_task","task":"s02-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000124002,"tool":"record_decision","id":"7efc5fbb-61ae-5b3f-b965-6cefad5f77f0","task":"s02-t09-review-spec","based_on":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"]}
+{"ts":1760000125002,"tool":"complete_task","task":"s02-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000191501,"tool":"claim_next_task","task":"s03-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000192502,"tool":"record_decision","id":"d05051b1-49c1-5cd5-a51c-2a64a1af1409","task":"s03-t09-review-spec","based_on":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"]}
+{"ts":1760000193502,"tool":"complete_task","task":"s03-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000260001,"tool":"claim_next_task","task":"s04-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000261002,"tool":"record_decision","id":"ecefce34-9176-58d8-94f6-c6d6783639ad","task":"s04-t09-review-spec","based_on":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"]}
+{"ts":1760000262002,"tool":"complete_task","task":"s04-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000328501,"tool":"claim_next_task","task":"s05-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000329502,"tool":"record_decision","id":"62932fdb-3076-59d2-ba7e-bf5b9bab07ea","task":"s05-t09-review-spec","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"]}
+{"ts":1760000330502,"tool":"complete_task","task":"s05-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000397001,"tool":"claim_next_task","task":"s06-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000398002,"tool":"record_decision","id":"3bc6e6b9-213b-5a05-8e74-175df8e45057","task":"s06-t09-review-spec","based_on":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"]}
+{"ts":1760000399002,"tool":"complete_task","task":"s06-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000465501,"tool":"claim_next_task","task":"s07-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000466502,"tool":"record_decision","id":"151ec366-1445-5726-b70d-6a9513cb94de","task":"s07-t09-review-spec","based_on":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"]}
+{"ts":1760000467502,"tool":"complete_task","task":"s07-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000534001,"tool":"claim_next_task","task":"s08-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000535002,"tool":"record_decision","id":"66744935-c4fa-5a06-bddd-7835dfc6a7af","task":"s08-t09-review-spec","based_on":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"]}
+{"ts":1760000536002,"tool":"complete_task","task":"s08-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000602501,"tool":"claim_next_task","task":"s09-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000603502,"tool":"record_decision","id":"3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca","task":"s09-t09-review-spec","based_on":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"]}
+{"ts":1760000604502,"tool":"complete_task","task":"s09-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000671001,"tool":"claim_next_task","task":"s10-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000672002,"tool":"record_decision","id":"3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a","task":"s10-t09-review-spec","based_on":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"]}
+{"ts":1760000673002,"tool":"complete_task","task":"s10-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000739501,"tool":"claim_next_task","task":"s11-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000740502,"tool":"record_decision","id":"5a045ccd-4ca8-5279-900a-661aab445648","task":"s11-t09-review-spec","based_on":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"]}
+{"ts":1760000741502,"tool":"complete_task","task":"s11-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000808001,"tool":"claim_next_task","task":"s12-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000809002,"tool":"record_decision","id":"5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3","task":"s12-t09-review-spec","based_on":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"]}
+{"ts":1760000810002,"tool":"complete_task","task":"s12-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000876501,"tool":"claim_next_task","task":"s13-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000877502,"tool":"record_decision","id":"8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1","task":"s13-t09-review-spec","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"]}
+{"ts":1760000878502,"tool":"complete_task","task":"s13-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760000945001,"tool":"claim_next_task","task":"s14-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000946002,"tool":"record_decision","id":"c5e4aaf8-7959-55b9-8526-2ac75e975544","task":"s14-t09-review-spec","based_on":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"]}
+{"ts":1760000947002,"tool":"complete_task","task":"s14-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760001013501,"tool":"claim_next_task","task":"s15-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001014502,"tool":"record_decision","id":"088c32c9-9211-501e-8eab-f6ea616d8eb4","task":"s15-t09-review-spec","based_on":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"]}
+{"ts":1760001015502,"tool":"complete_task","task":"s15-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760001082001,"tool":"claim_next_task","task":"s16-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001083002,"tool":"record_decision","id":"7f71e476-1a85-5b91-9885-e133ad3a02c2","task":"s16-t09-review-spec","based_on":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"]}
+{"ts":1760001084002,"tool":"complete_task","task":"s16-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760001150501,"tool":"claim_next_task","task":"s17-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001151502,"tool":"record_decision","id":"c7d232bd-c4b4-5ac1-89ae-decaf18696bb","task":"s17-t09-review-spec","based_on":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"]}
+{"ts":1760001152502,"tool":"complete_task","task":"s17-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760001219001,"tool":"claim_next_task","task":"s18-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001220002,"tool":"record_decision","id":"a21750a7-4500-5e73-b55a-067a4ca490af","task":"s18-t09-review-spec","based_on":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"]}
+{"ts":1760001221002,"tool":"complete_task","task":"s18-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760001287501,"tool":"claim_next_task","task":"s19-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001288502,"tool":"record_decision","id":"d7599553-d578-5ca7-9422-4f7161446421","task":"s19-t09-review-spec","based_on":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"]}
+{"ts":1760001289502,"tool":"complete_task","task":"s19-t09-review-spec","artifacts":[]}
+[...]
+{"ts":1760001356001,"tool":"claim_next_task","task":"s20-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001357002,"tool":"record_decision","id":"2f3bfbdb-ff3b-5075-9f34-b47d193db3ef","task":"s20-t09-review-spec","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"]}
+{"ts":1760001358002,"tool":"complete_task","task":"s20-t09-review-spec","artifacts":[]}
+

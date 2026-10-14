@@ -1,0 +1,25 @@
+{
+ "qid": "Q08",
+ "arm": "B0",
+ "reply": "Handoffs in S12 and the facts they carried:\n\n- s12-t03-design-endpoints carried 9d31097e (api_version=v23), which is superseded by v24. It counts.\n- s12-t12-update-endpoints-for-v2 carried 9c6f3395 (api_version=v24), which is active. It does not count.\n- s12-t07-implement-crud-spec carried v24 and the auth_method JWT fact, both active. It does not count.\n- s12-t11-package-release carried v24, which is active. It does not count.\n\n{\"answer\": [\"s12-t03-design-endpoints\"]}",
+ "answer": [
+  "s12-t03-design-endpoints"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 198,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 19071
+ },
+ "cost_usd": 0.0783224,
+ "latency_ms": 5073.5,
+ "duration_api_ms": 3012.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "7fbefdee-1bd3-4c26-894c-497db20dec05",
+ "key": "ffba0d6f37115099e3e4d9b0b70246aef698e9c6898c95d2b08a8d83ac3a0dc9"
+}

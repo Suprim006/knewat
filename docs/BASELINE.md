@@ -222,3 +222,49 @@ What was done before this text, without an LLM: built the scenario player, playe
 Pilot calls made so far: **15** (B0, B1, B2 x Q03, Q14, Q21, Q25, Q37), run after the pre-registration commit `cba0a5a`. Artifacts: `plexus/demo_data/crucible/l2_scale/20261014T223746Z-pilot/`. Pilot cost (`total_cost_usd` summed over the 15 calls): B0 $0.3875, B1 $0.4384, B2 $0.0874, total **$0.9133**. The pilot is not a result; its 15 calls are the same prompts as the full run and are reused from the cache.
 
 Budget rule: $0.9133 x (40 / 5) = **$7.31 > $7.00**, so the question count is reduced (pre-registered above). New size: **36 questions** (projected $6.58). Which four are dropped was fixed by a seeded rule, without looking at any answer: `random.Random(20261016).sample(families, 4)` gave time_travel, episodes, recovery, dependencies; the 4th question of each family is dropped: **Q12, Q36, Q28, Q20** (none is a pilot question). `questions_scale.yaml` keeps all 40; the full run asks the 36 others (`scale_run.FULL_DROPPED_IDS`). Families keep 3-4 questions each (time_travel, episodes, recovery, dependencies 3; the other six 4). Full run cap: new spend is limited to `--budget-usd 6.0` (total of pilot + full stays under $7). Nothing else in the pre-registration changes: same selectors, scoring, hypothesis.
+
+### L2-scale amendment 2: diagnostic fix (after the full run, no LLM call)
+
+The `evidence_in_context` diagnostic (do all words of each expected answer item occur anywhere in the shown context) first treated `predicate=value` as a single word and so under-counted. It was corrected and recomputed from the saved contexts with `scale_run refresh`; answers, scores and costs are untouched. The "Honesty" text of the results was also changed from "40 questions" to "40 generated, 36 asked". Nothing else was edited after the run.
+
+## L2-scale results (full run, 36 questions)
+
+Source of truth: `plexus/demo_data/crucible/l2_scale/20261014T224309Z-full/{results.json,report.md,contexts/}`; every call is in `plexus/demo_data/crucible/l2_scale_cache/`. Model `sonnet` = claude-sonnet-5-5, `claude -p` 2.1.296, no tools, 20 sprints, 32,000-char cap (B0 history 532,813 chars = 16.6x, B1 332,599 = 10.4x, B2 store 147,471 = 4.6x). Asked 36 of the 40 generated questions (amendment 1). Pre-registered scoring rule (prose allowed, reply ends with one JSON object).
+
+| Family | n | B0 | B1 | B2 | P |
+|---|---|---|---|---|---|
+| Decision provenance | 4 | 1 | 1 | 2 | 4 |
+| Handoffs | 4 | 3 | 4 | 2 | 4 |
+| Time travel | 3 | 3 | 3 | 3 | 3 |
+| Supersession impact | 4 | 4 | 4 | 2 | 4 |
+| Dependencies | 3 | 2 | 2 | 1 | 3 |
+| Contradictions | 4 | 3 | 4 | 1 | 4 |
+| Recovery | 3 | 3 | 3 | 3 | 3 |
+| Memory currency and scope | 4 | 4 | 4 | 3 | 4 |
+| Cross-session recall | 3 | 3 | 3 | 2 | 3 |
+| Forgetting | 4 | 4 | 4 | 4 | 4 |
+| **All** | 36 | **30 (83.3%)** | **32 (88.9%)** | **23 (63.9%)** | **36 (100%)** |
+
+Wilson 95% intervals: B0 68.1-92.1%, B1 74.7-95.6%, B2 47.6-77.5%, P 90.4-100%. Whole-reply-JSON-only variant: B0 28/36, B1 26/36, B2 23/36, P 36/36. By sprint position (early S01-S06 / middle S07-S14 / late S15-S20): B0 11/13, 10/12, 9/11; B1 11/13, 11/12, 10/11; B2 8/13, 8/12, 7/11; P 13/13, 12/12, 11/11.
+
+| Arm | tokens / question | cost / question | total | median latency |
+|---|---|---|---|---|
+| B0 | 19,646 | $0.077 | $2.785 | 4.7 s |
+| B1 | 22,010 | $0.087 | $3.117 | 4.9 s |
+| B2 | 4,424 | $0.016 | $0.585 | 5.0 s |
+| P | 0 | $0 | $0 | 7.5 ms (server-side Cypher) |
+
+Money spent on this experiment: pilot $0.9133 + full run $5.5739 = **$6.4872** over 108 `claude -p` calls (108 = 36 x 3; 15 of them were the pilot calls), under the $7 cap; no call failed, none used a tool.
+
+What it says, in plain words:
+- Plexus answered 36/36. This is the same hand-written Cypher answerer as in L2 plus sprint scoping, checked against the script ground truth without an LLM before the run (40/40).
+- With a history 10-17x the context budget and competent BM25 selection, B1 got 32/36 and B0 30/36. They lost 4 and 6 questions to Plexus. By the pre-registered rule (more than 3 questions apart) that is a gap, but it is small: the Wilson intervals of P and B0/B1 overlap, and a paired sign test on the discordant questions gives p = 0.031 (P ahead on 6, B0 ahead on 0) for B0 and p = 0.125 (4 vs 0) for B1. The B0 gap is suggestive, the B1 gap is not distinguishable from sampling noise with 36 questions, one run each.
+- B2 (vector top-12, as before) got 23/36; its interval does not overlap with P's. It shows 12 chunks (about 2.4k chars), so it misses the second side of anything two-sided (conflicts, provenance with several facts) and anything that lists more than a few records.
+- The accuracy of B0/B1 did not decay with the position of the asked sprint (early/middle/late look the same): retrieval by the sprint tag works. The cost is what moved: B0 and B1 spent about 20-22k tokens and $0.08-0.09 per question and about 5 s, against no tokens and a few milliseconds for Plexus; this is the same cost gap as in L2, now with accuracy that no longer ties.
+- My hypothesis was right on the arm ordering and on the ranges (B0 83%, B1 89%, B2 64%, P 100%), and wrong on where B0/B1 fail: all their class-wide questions that were asked (handoffs_to, completed_by, decisions_on_superseded, reclaimed_tasks, ...) were answered correctly. They failed on join-heavy provenance (decision provenance: B0 1/4, B1 1/4) and one transitive dependency question.
+
+Failure analysis (from `report.md`, the saved contexts and the cached replies):
+- Decision provenance (Q01, Q03, Q04): the decision's `decision_facts` / handoff rows were retrieved, but the fact on the other side (the API-key fact and its source document) was not in the 32k shown, so the model gave one of two items (B0 Q03, Q04, B1 Q01, Q04), refused to name an unseen fact id (B0 Q01, B1 Q03: both replies ended with commentary after the JSON object and were unparseable under the rule; their JSON was incomplete anyway) or answered with raw ids (B0 Q06, Q23: UUIDs, because the fact rows were not in the context). The wrong answers where evidence was missing from the context are retrieval misses; the model never invented a fact.
+- Dependencies Q17 (blocked if `s11-t03-design-endpoints` fails): B0 and B1 listed 3 of 6 downstream tasks (missed the transitive chain t09 -> t10 -> t11); for B1 all six task ids were in the context, so this one is a model reasoning error, not a retrieval miss. B2 returned an empty list.
+- B2: 13 wrong, 11 of them with words of an expected item missing from the 12 retrieved chunks (empty lists, one side of a conflict, a count of 1 instead of 2), 1 with the evidence present (Q03 answered `@unknown` agents); the 13th is the count question Q35, which has no checkable evidence.
+- Limits that may flatter the baselines: every question names its sprint and a sprint's records share its tag; sprints do not interact; no question aggregates across sprints. Limits that may flatter Plexus: hand-written Cypher per question family, scoped by sprint with the changes listed above. One model, one run per question, 36 questions, synthetic data.

@@ -1,0 +1,350 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table tasks
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+s18-t01-gather-requirements,Gather requirements (S18),50,204,done,researcher,1760001285500,2,1760001164501,1760001167502
+s18-t02-choose-api-version,Choose API version (S18),45,205,done,planner,1760001289500,2,1760001164501,1760001170501
+s18-t03-design-endpoints,Design endpoints (S18),40,206,done,researcher,1760001297000,3,1760001164501,1760001179001
+s18-t04-survey-infra-security,Survey infra and security constraints (S18),35,207,done,researcher,1760001311000,2,1760001164501,1760001193002
+s18-t05-choose-auth,Choose authentication (S18),30,208,done,planner,1760001315000,2,1760001164501,1760001198001
+s18-t06-write-db-schema,Write database schema (S18),25,209,done,builder,1760001326000,2,1760001164501,1760001209001
+s18-t07-implement-crud-spec,Implement CRUD spec (S18),20,210,done,builder,1760001331000,2,1760001164501,1760001213001
+s18-t08-write-test-plan,Write test plan (S18),15,211,done,researcher,1760001336000,2,1760001164501,1760001217001
+s18-t09-review-spec,Review spec (S18),12,212,done,planner,1760001339000,2,1760001164501,1760001221001
+s18-t10-write-docs,Write documentation (S18),10,213,done,researcher,1760001343000,2,1760001164501,1760001224001
+s18-t11-package-release,Package release (S18),5,214,done,builder,1760001346000,2,1760001164501,1760001226001
+s18-t12-update-endpoints-for-v2,Update endpoint design for API v2 (S18),60,215,done,builder,1760001306000,2,1760001185001,1760001188001
+
+-- table deps
+task_id,dep_id
+s01-t02-choose-api-version,s01-t01-gather-requirements
+s18-t02-choose-api-version,s18-t01-gather-requirements
+s18-t03-design-endpoints,s18-t02-choose-api-version
+s18-t04-survey-infra-security,s18-t01-gather-requirements
+s18-t05-choose-auth,s18-t04-survey-infra-security
+s18-t06-write-db-schema,s18-t02-choose-api-version
+s18-t06-write-db-schema,s18-t04-survey-infra-security
+s18-t07-implement-crud-spec,s18-t03-design-endpoints
+s18-t07-implement-crud-spec,s18-t05-choose-auth
+s18-t07-implement-crud-spec,s18-t06-write-db-schema
+s18-t08-write-test-plan,s18-t03-design-endpoints
+s18-t09-review-spec,s18-t07-implement-crud-spec
+s18-t09-review-spec,s18-t08-write-test-plan
+s18-t10-write-docs,s18-t09-review-spec
+s18-t11-package-release,s18-t10-write-docs
+s18-t12-update-endpoints-for-v2,s18-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+f149a338-1f24-512f-af27-e78f2479ea07,s18-t01-gather-requirements,file,artifacts/s18/requirements.md,,"S18 requirements: notes CRUD, tags, API version v35",researcher,1760001167502
+48334bd4-a893-5f41-829a-44db4d95ce44,s18-t03-design-endpoints,file,artifacts/s18/openapi-draft.yaml,,S18 endpoint draft for /v35/notes (CRUD),researcher,1760001179001
+7f6c9a50-5bb7-543c-9b15-e9bb663d03a7,s18-t12-update-endpoints-for-v2,file,artifacts/s18/openapi-v2.yaml,,S18 endpoint design for /v36/notes,builder,1760001188001
+adced1e0-8d35-5d77-9f62-2bdd90f48ceb,s18-t04-survey-infra-security,file,artifacts/s18/constraints.md,,"S18 infra and security constraints: Db2 12, JWT auth",researcher,1760001193002
+bba4c2e3-cdd1-59e0-b438-2e556b2092d7,s18-t06-write-db-schema,file,artifacts/s18/schema.sql,,"S18 Db2 12 schema: notes, tags, note_tags",builder,1760001209001
+3cfb4932-60c7-5e17-a32c-06a963667df4,s18-t07-implement-crud-spec,file,artifacts/s18/crud-spec.md,,S18 CRUD spec for the current API version with JWT auth,builder,1760001213001
+841e548b-3c5d-58a7-906c-205e2ac4d209,s18-t08-write-test-plan,file,artifacts/s18/test-plan.md,,S18 test plan for the CRUD endpoints,researcher,1760001217001
+7d160ecd-d8b8-578f-a8f0-8a54fc1be073,s18-t10-write-docs,file,artifacts/s18/docs.md,,S18 API documentation,researcher,1760001224001
+7680c162-e1b2-5337-a0d6-2eddc234a001,s18-t11-package-release,file,artifacts/s18/release.tar,,S18 release bundle of the Acme Notes API,builder,1760001226001
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+f4694c65-a438-53f4-8ded-10de4787565c,Acme Notes API S18,purpose,"REST service to create, tag and search notes (S18)",global,active,1760001166500,9999999999999
+37c89e1d-d386-5dd8-874f-7da4a9406202,Acme Notes API S18,api_version,v35,global,superseded,1760001167500,1760001182000
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,Acme Notes API S18,api_version,v36,global,active,1760001182000,9999999999999
+605f027c-e18c-50b3-b33e-c5e54407570a,Acme Notes API S18,database,Db2 12,global,active,1760001192000,9999999999999
+eef8f7cb-f76e-5e79-8d53-d51d76f57fe4,Acme Notes API S18,auth_method,"JWT bearer tokens (PS256, key s18)",global,active,1760001193000,9999999999999
+7391eb9e-0e08-5a18-b064-95861cfada02,Acme Notes API S18,auth_method,API key in X-Sync-Key header,global,active,1760001197000,9999999999999
+7a67ca14-839a-5170-9971-a20197810304,Acme Notes API S18,database,Neo4j 21,global,forgotten,1760001200000,1760001202001
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,Bolt Billing API S18,billing_cycle,"weekly, invoiced on day 18",project:billing-s18,active,1760001204000,9999999999999
+f646a829-19e3-57ce-8aaa-920070d468cd,Acme Notes API S18,release_channel,private preview,project:acme-s18,active,1760001205000,9999999999999
+
+-- table fact_agents
+fact_id,agent_id,at
+f4694c65-a438-53f4-8ded-10de4787565c,researcher,1760001166500
+37c89e1d-d386-5dd8-874f-7da4a9406202,researcher,1760001167500
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,researcher,1760001182000
+605f027c-e18c-50b3-b33e-c5e54407570a,researcher,1760001192000
+eef8f7cb-f76e-5e79-8d53-d51d76f57fe4,researcher,1760001193000
+7391eb9e-0e08-5a18-b064-95861cfada02,planner,1760001197000
+7a67ca14-839a-5170-9971-a20197810304,planner,1760001200000
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,researcher,1760001204000
+f646a829-19e3-57ce-8aaa-920070d468cd,planner,1760001205000
+
+-- table fact_links
+src,dst,kind
+e3d70963-c74e-5c24-9814-4c48b55c84bc,2b927606-c02e-5d86-8c84-18c267e87215,supersedes
+399e1e16-1b03-5184-b159-958079bedc70,271b3641-7f41-5602-9219-6f7236a6b215,supersedes
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,fc4e0924-6721-5efd-bd74-45c790960ce6,supersedes
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,a3e6a516-fc31-5e62-ab92-e9f92abb72e9,supersedes
+cbde9957-b402-503b-bef3-f0a0733a8c27,ca0ea7ab-cc37-5143-b241-878499db2bd5,supersedes
+8d2b5d80-fe43-5534-8e8a-955905c4975b,f91cd115-13a9-5c16-bb96-f8a9c4b990eb,supersedes
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,supersedes
+f4918c86-ef7f-50df-94d1-abc537082890,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,supersedes
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,supersedes
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,ae28d59b-3427-5793-b33d-9abfe80363c8,supersedes
+6e976d44-c6ad-52c2-918c-f396900cc85e,a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,supersedes
+9c6f3395-6466-5261-87f5-70fa6df0101e,9d31097e-bc44-5443-b9c6-6e15ee7fceba,supersedes
+cf3fd407-5373-5c92-a502-6ca529fefeca,a8d569a8-4806-56a9-b86e-f497a45654d5,supersedes
+9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,dabba289-f252-508f-9c32-f03223137480,supersedes
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,eeb91d3d-4345-5271-9659-12e1597fda54,supersedes
+cab11576-003a-511c-86e7-a5bb6da5dbf4,343721a0-acf1-5d8a-b8bb-a4eff45c56d5,supersedes
+4e6d9291-e9a9-5e7e-b158-836682b7f9c2,767c0e30-7c17-5b0a-afca-43d877935410,supersedes
+f4694c65-a438-53f4-8ded-10de4787565c,035fa372-9b02-5ca4-ac8b-086de9ee632d,derived_from
+37c89e1d-d386-5dd8-874f-7da4a9406202,28cd0fbc-8f79-589d-a39c-7bcbf449d68c,derived_from
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,bf68c6c6-ba99-5030-ac6f-f6afe648acca,derived_from
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,37c89e1d-d386-5dd8-874f-7da4a9406202,supersedes
+605f027c-e18c-50b3-b33e-c5e54407570a,a94d255e-8389-523e-87b6-ede330edc27e,derived_from
+eef8f7cb-f76e-5e79-8d53-d51d76f57fe4,2e1b1482-0960-5c29-afcf-ee144db7aeb7,derived_from
+7391eb9e-0e08-5a18-b064-95861cfada02,028ba9b7-6c12-5e69-941b-1df80c0c1f9d,derived_from
+7391eb9e-0e08-5a18-b064-95861cfada02,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4,contradicts
+7a67ca14-839a-5170-9971-a20197810304,06de3fcd-ed3b-59e6-a82f-7a56587aaefb,derived_from
+7a67ca14-839a-5170-9971-a20197810304,605f027c-e18c-50b3-b33e-c5e54407570a,contradicts
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,944d2579-e081-58b4-a307-92e33bcbabf5,derived_from
+28a328cd-86a1-5480-9a95-d398ed40eb33,21836852-1574-5d90-9068-b12642ab4ccd,supersedes
+94fef2a4-a13b-53ed-9d07-0f8cf862efa6,314cea0e-655e-578d-b067-95bf5b16cb93,supersedes
+
+-- table sources
+id,uri,kind,trust,created_at
+035fa372-9b02-5ca4-ac8b-086de9ee632d,acme-docs/s18/01_product_brief.md,doc,1.0,1760001165501
+28cd0fbc-8f79-589d-a39c-7bcbf449d68c,acme-docs/s18/02_api_style_guide_v1.md,doc,1.0,1760001165502
+bf68c6c6-ba99-5030-ac6f-f6afe648acca,acme-docs/s18/06_api_style_guide_v2.md,doc,1.0,1760001181001
+a94d255e-8389-523e-87b6-ede330edc27e,acme-docs/s18/03_infra_note.md,doc,1.0,1760001191001
+2e1b1482-0960-5c29-afcf-ee144db7aeb7,acme-docs/s18/04_security_note.md,doc,1.0,1760001191002
+028ba9b7-6c12-5e69-941b-1df80c0c1f9d,acme-docs/s18/05_customer_request.md,chat,0.8,1760001196001
+06de3fcd-ed3b-59e6-a82f-7a56587aaefb,acme-docs/s18/07_forum_post_unverified.md,web,0.2,1760001199001
+944d2579-e081-58b4-a307-92e33bcbabf5,billing-docs/s18/01_overview.md,doc,1.0,1760001203001
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+1b75ee8e-6287-5f05-a83c-3f7f7197591f,planner,s01-t02-choose-api-version,S01: Build the Acme Notes API against v1 of the style guide (routes under /v1/).,1760000005001,0
+147514e4-e1ad-5601-9ca5-74141398c7c0,planner,s01-t02-choose-api-version,S01: Adopt style guide v2: the API version is now v2 (routes under /v2/).,1760000019501,0
+ab2b1043-6cae-5861-8ded-9be524b1e29e,planner,s02-t02-choose-api-version,S02: Build the Acme Notes API against v3 of the style guide (routes under /v3/).,1760000073501,0
+6abda574-f2f9-5c24-ba12-5464654c58d8,planner,s02-t02-choose-api-version,S02: Adopt style guide v4: the API version is now v4 (routes under /v4/).,1760000088001,0
+8f6bf9e8-6001-5911-96a2-e5bb828699ed,planner,s03-t02-choose-api-version,S03: Adopt style guide v6: the API version is now v6 (routes under /v6/).,1760000156501,0
+7903c6f0-0c62-5aa9-9510-f3a49c056663,planner,s04-t02-choose-api-version,S04: Adopt style guide v8: the API version is now v8 (routes under /v8/).,1760000225001,0
+c9072b15-a345-5512-9020-46cdb23e5ed4,planner,s05-t02-choose-api-version,S05: Adopt style guide v10: the API version is now v10 (routes under /v10/).,1760000293501,0
+ae9e1fff-9b6b-5ddf-9fff-282fe921961c,planner,s06-t02-choose-api-version,S06: Adopt style guide v12: the API version is now v12 (routes under /v12/).,1760000362001,0
+d189bd53-f00d-527c-9cb8-561862777239,planner,s07-t02-choose-api-version,S07: Adopt style guide v14: the API version is now v14 (routes under /v14/).,1760000430501,0
+baf11370-e45c-581d-a186-52aefcfb5397,planner,s08-t02-choose-api-version,S08: Adopt style guide v16: the API version is now v16 (routes under /v16/).,1760000499001,0
+268b7806-2332-5669-9d07-75dc05a254a7,planner,s09-t02-choose-api-version,S09: Adopt style guide v18: the API version is now v18 (routes under /v18/).,1760000567501,0
+d31cb2aa-3f01-545d-b05d-fc1aeab63e3a,planner,s10-t02-choose-api-version,S10: Adopt style guide v20: the API version is now v20 (routes under /v20/).,1760000636001,0
+d2dfcae4-f563-5974-ae0c-de661875f80f,planner,s11-t02-choose-api-version,S11: Adopt style guide v22: the API version is now v22 (routes under /v22/).,1760000704501,0
+83158d79-ca00-5766-b9a1-4b55b8ee5ace,planner,s12-t02-choose-api-version,S12: Adopt style guide v24: the API version is now v24 (routes under /v24/).,1760000773001,0
+837ec50c-122d-512c-bd5f-ee3fa31c8acd,planner,s13-t02-choose-api-version,S13: Adopt style guide v26: the API version is now v26 (routes under /v26/).,1760000841501,0
+5d3e9ab7-f512-5a07-a88e-afd2225c20f9,planner,s14-t02-choose-api-version,S14: Adopt style guide v28: the API version is now v28 (routes under /v28/).,1760000910001,0
+d0c30ce2-124f-57cd-aab6-e7c460ec4806,planner,s15-t02-choose-api-version,S15: Adopt style guide v30: the API version is now v30 (routes under /v30/).,1760000978501,0
+d80cd0b0-91af-50b4-8cd7-2fab9f7fb08d,planner,s16-t02-choose-api-version,S16: Adopt style guide v32: the API version is now v32 (routes under /v32/).,1760001047001,0
+70fc4db5-edd2-56e6-8ec4-3a7615f0292d,planner,s17-t02-choose-api-version,S17: Adopt style guide v34: the API version is now v34 (routes under /v34/).,1760001115501,0
+30770055-203c-54e9-8cab-fabf2826db7f,planner,s18-t02-choose-api-version,S18: Build the Acme Notes API against v35 of the style guide (routes under /v35/).,1760001169501,0
+6ebc4be0-c8b8-5cfa-a48d-4404106558ac,planner,s18-t02-choose-api-version,S18: Adopt style guide v36: the API version is now v36 (routes under /v36/).,1760001184001,0
+a9019881-d439-51fc-bb53-02e73f630977,planner,s18-t05-choose-auth,S18: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.,1760001197002,0
+ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2,planner,s18-t06-write-db-schema,S18: Evaluate Neo4j 21 as the database (forum post).,1760001200002,1
+77475b25-bd2b-5670-9864-28530180052d,builder,s18-t06-write-db-schema,"S18: Use Db2 12 for the notes, tags and note_tags tables.",1760001208001,0
+a21750a7-4500-5e73-b55a-067a4ca490af,planner,s18-t09-review-spec,"S18: Spec approved: endpoints, schema and JWT auth are consistent.",1760001220001,0
+c3562fc8-6095-5e67-b4ed-a00d016653b3,planner,s19-t02-choose-api-version,S19: Adopt style guide v38: the API version is now v38 (routes under /v38/).,1760001252501,0
+1e8c0d8c-e476-5c80-8c5a-cdbe261d1564,planner,s20-t02-choose-api-version,S20: Adopt style guide v40: the API version is now v40 (routes under /v40/).,1760001321001,0
+
+-- table decision_facts
+decision_id,fact_id
+147514e4-e1ad-5601-9ca5-74141398c7c0,e3d70963-c74e-5c24-9814-4c48b55c84bc
+6abda574-f2f9-5c24-ba12-5464654c58d8,399e1e16-1b03-5184-b159-958079bedc70
+8f6bf9e8-6001-5911-96a2-e5bb828699ed,1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd
+7903c6f0-0c62-5aa9-9510-f3a49c056663,c73b692e-9cd9-58f6-a146-aa387e5d2e33
+c9072b15-a345-5512-9020-46cdb23e5ed4,cbde9957-b402-503b-bef3-f0a0733a8c27
+ae9e1fff-9b6b-5ddf-9fff-282fe921961c,8d2b5d80-fe43-5534-8e8a-955905c4975b
+d189bd53-f00d-527c-9cb8-561862777239,a708b29f-1316-57c9-9cd2-e1d93d1fd605
+baf11370-e45c-581d-a186-52aefcfb5397,f4918c86-ef7f-50df-94d1-abc537082890
+268b7806-2332-5669-9d07-75dc05a254a7,1addbe80-48b1-5bfc-9ed2-234d9c49ea8c
+d31cb2aa-3f01-545d-b05d-fc1aeab63e3a,9d834c69-70bf-51a2-a771-d04e1f6a0a07
+d2dfcae4-f563-5974-ae0c-de661875f80f,6e976d44-c6ad-52c2-918c-f396900cc85e
+83158d79-ca00-5766-b9a1-4b55b8ee5ace,9c6f3395-6466-5261-87f5-70fa6df0101e
+837ec50c-122d-512c-bd5f-ee3fa31c8acd,cf3fd407-5373-5c92-a502-6ca529fefeca
+5d3e9ab7-f512-5a07-a88e-afd2225c20f9,9fd49e10-ddb9-5be8-b66f-63cf9ce130f3
+d0c30ce2-124f-57cd-aab6-e7c460ec4806,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+d80cd0b0-91af-50b4-8cd7-2fab9f7fb08d,cab11576-003a-511c-86e7-a5bb6da5dbf4
+70fc4db5-edd2-56e6-8ec4-3a7615f0292d,4e6d9291-e9a9-5e7e-b158-836682b7f9c2
+30770055-203c-54e9-8cab-fabf2826db7f,37c89e1d-d386-5dd8-874f-7da4a9406202
+6ebc4be0-c8b8-5cfa-a48d-4404106558ac,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+a9019881-d439-51fc-bb53-02e73f630977,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+a9019881-d439-51fc-bb53-02e73f630977,7391eb9e-0e08-5a18-b064-95861cfada02
+ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2,7a67ca14-839a-5170-9971-a20197810304
+77475b25-bd2b-5670-9864-28530180052d,605f027c-e18c-50b3-b33e-c5e54407570a
+a21750a7-4500-5e73-b55a-067a4ca490af,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+a21750a7-4500-5e73-b55a-067a4ca490af,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+c3562fc8-6095-5e67-b4ed-a00d016653b3,28a328cd-86a1-5480-9a95-d398ed40eb33
+1e8c0d8c-e476-5c80-8c5a-cdbe261d1564,94fef2a4-a13b-53ed-9d07-0f8cf862efa6
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,researcher,builder,s18-t03-design-endpoints,S18: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001180001
+885b4432-61ea-5f01-bcd4-aa0c5e1880f7,builder,planner,s18-t12-update-endpoints-for-v2,S18: Updated for API v36.,1760001189001
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,builder,planner,s18-t07-implement-crud-spec,S18: CRUD spec ready for review.,1760001214001
+a1c481f4-1960-533b-8678-827d85efd5ff,builder,planner,s18-t11-package-release,S18: Release bundle is ready.,1760001227001
+
+-- table handoff_items
+handoff_id,kind,item_id
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,artifact,48334bd4-a893-5f41-829a-44db4d95ce44
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,fact,37c89e1d-d386-5dd8-874f-7da4a9406202
+885b4432-61ea-5f01-bcd4-aa0c5e1880f7,artifact,7f6c9a50-5bb7-543c-9b15-e9bb663d03a7
+885b4432-61ea-5f01-bcd4-aa0c5e1880f7,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,artifact,3cfb4932-60c7-5e17-a32c-06a963667df4
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,fact,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+a1c481f4-1960-533b-8678-827d85efd5ff,artifact,7680c162-e1b2-5337-a0d6-2eddc234a001
+a1c481f4-1960-533b-8678-827d85efd5ff,fact,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+
+-- table episodes
+id,agent_id,step,text,at
+2b2927c9-445d-5b91-9ed7-3cd8f8ca5f60,researcher,,S01: Took over s01-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000013501
+a5d55088-1b8a-5d27-8952-fff66b1009a9,researcher,,"S01: Style guide v2 was published: API version v1 is withdrawn, routes move to /v2/.",1760000017502
+66343eeb-328f-543b-b800-5456b3b6aaf6,researcher,,S02: Took over s02-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000082001
+13461217-5618-54f6-a287-ec29c4339ea1,researcher,,"S02: Style guide v4 was published: API version v3 is withdrawn, routes move to /v4/.",1760000086002
+73d51714-8921-5c9c-a31b-0355a087932c,researcher,,S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000150501
+5c4c5f4e-0319-5ed8-beb3-ca27b70c5c7e,researcher,,"S03: Style guide v6 was published: API version v5 is withdrawn, routes move to /v6/.",1760000154502
+e4d2112e-1617-5cff-9baf-63d7df42b1ee,researcher,,S04: Took over s04-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000219001
+0b90a3c1-9237-51f6-b28e-866aa0e4ef36,researcher,,"S04: Style guide v8 was published: API version v7 is withdrawn, routes move to /v8/.",1760000223002
+9732e8b0-96d2-5243-acaf-a3505d0fd7f6,researcher,,S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000287501
+d94bd003-3954-54f8-a3a1-9302087d9cf2,researcher,,"S05: Style guide v10 was published: API version v9 is withdrawn, routes move to /v10/.",1760000291502
+37e849fd-d33a-5694-9b19-129c8b625c33,researcher,,S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000356001
+635aaf93-f7d5-5530-8561-902e63f5914b,researcher,,"S06: Style guide v12 was published: API version v11 is withdrawn, routes move to /v12/.",1760000360002
+cecd5680-faf9-5359-85ef-98d8dd09161b,researcher,,S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000424501
+291e849a-8257-5efb-8329-08771fa3efb3,researcher,,"S07: Style guide v14 was published: API version v13 is withdrawn, routes move to /v14/.",1760000428502
+3deb2979-de41-59b3-a58b-2d82de004a8b,researcher,,S08: Took over s08-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000493001
+2069bbff-0806-5850-b062-aa8d06834980,researcher,,"S08: Style guide v16 was published: API version v15 is withdrawn, routes move to /v16/.",1760000497002
+27529bf0-fa9e-554c-a8dc-44ccbb91e425,researcher,,S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000561501
+cdd7bf35-9595-509e-9bcf-f369838a1930,researcher,,"S09: Style guide v18 was published: API version v17 is withdrawn, routes move to /v18/.",1760000565502
+f8c93f28-c86b-514e-a5c2-63345dcff9a5,researcher,,S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000630001
+8ac08d26-674d-5e76-8eef-be13734211e4,researcher,,"S10: Style guide v20 was published: API version v19 is withdrawn, routes move to /v20/.",1760000634002
+3605540b-9086-52cb-8dcd-94b93b0dfa43,researcher,,S11: Took over s11-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000698501
+c7d726cf-17ee-5595-b6de-a810f0a515d8,researcher,,"S11: Style guide v22 was published: API version v21 is withdrawn, routes move to /v22/.",1760000702502
+2346e1e7-e4e6-5a86-902c-902b626bc08a,researcher,,S12: Took over s12-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000767001
+6199d543-35bd-5a12-bb63-c4ed303f9f7f,researcher,,"S12: Style guide v24 was published: API version v23 is withdrawn, routes move to /v24/.",1760000771002
+9baad9e1-5110-5af2-a8db-e0a0fa09d707,researcher,,S13: Took over s13-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000835501
+f9cfff5a-b76a-541c-a6d5-16f997b237a5,researcher,,"S13: Style guide v26 was published: API version v25 is withdrawn, routes move to /v26/.",1760000839502
+3b1e306e-be98-5346-884c-8870b40ae48a,researcher,,S14: Took over s14-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000904001
+ddc39ae6-360c-566e-9262-14630d75a57d,researcher,,"S14: Style guide v28 was published: API version v27 is withdrawn, routes move to /v28/.",1760000908002
+41cccec9-4b18-579a-8599-ca2236a6c04a,researcher,,S15: Took over s15-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000972501
+b05fcfe4-30f5-5c37-9eea-969325f261d1,researcher,,"S15: Style guide v30 was published: API version v29 is withdrawn, routes move to /v30/.",1760000976502
+6ae754c3-3860-5dca-80d5-86f47d276622,researcher,,S16: Took over s16-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001041001
+e63272aa-ca1d-5a45-b03e-b1e978540a13,researcher,,"S16: Style guide v32 was published: API version v31 is withdrawn, routes move to /v32/.",1760001045002
+d5789121-beda-5571-8692-22e0d213796f,researcher,,S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001109501
+b9c8a2ba-37e6-588b-a46d-5701cf4e2a76,researcher,,"S17: Style guide v34 was published: API version v33 is withdrawn, routes move to /v34/.",1760001113502
+c4e45a75-4c61-50fe-9aa8-e6d76fca022c,researcher,,S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001178001
+a1e36626-83be-57c9-a6fa-6acd29b1e75b,researcher,,"S18: Style guide v36 was published: API version v35 is withdrawn, routes move to /v36/.",1760001182002
+ce309945-5127-5155-902d-4bc08b5df5fd,builder,,S18: Endpoint design moves from /v35/ to /v36/: page_token/page_size lists and problem+json errors.,1760001187001
+e1d61bb0-1cd8-5a14-baaf-efd43aa89c93,builder,,"S18: Schema: notes, tags and note_tags tables in Db2 12.",1760001207001
+01276057-5ad4-581c-a9a3-78c8a16cceaf,researcher,,S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001246501
+6d9b35be-0582-5324-b27e-e5958831475a,researcher,,"S19: Style guide v38 was published: API version v37 is withdrawn, routes move to /v38/.",1760001250502
+e0e4bed4-343d-5960-bbbc-5a2209706cc7,researcher,,S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001315001
+88ea20f3-086d-50f0-b33b-57f7d309390e,researcher,,"S20: Style guide v40 was published: API version v39 is withdrawn, routes move to /v40/.",1760001319002
+
+-- table step_reads
+step_id,fact_id
+598,37c89e1d-d386-5dd8-874f-7da4a9406202
+599,37c89e1d-d386-5dd8-874f-7da4a9406202
+599,f4694c65-a438-53f4-8ded-10de4787565c
+600,37c89e1d-d386-5dd8-874f-7da4a9406202
+600,f4694c65-a438-53f4-8ded-10de4787565c
+602,37c89e1d-d386-5dd8-874f-7da4a9406202
+603,37c89e1d-d386-5dd8-874f-7da4a9406202
+605,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+605,f4694c65-a438-53f4-8ded-10de4787565c
+606,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+607,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+607,f4694c65-a438-53f4-8ded-10de4787565c
+609,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+612,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+612,f4694c65-a438-53f4-8ded-10de4787565c
+612,605f027c-e18c-50b3-b33e-c5e54407570a
+612,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+613,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+614,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+614,7391eb9e-0e08-5a18-b064-95861cfada02
+615,605f027c-e18c-50b3-b33e-c5e54407570a
+616,7a67ca14-839a-5170-9971-a20197810304
+617,605f027c-e18c-50b3-b33e-c5e54407570a
+617,7a67ca14-839a-5170-9971-a20197810304
+617,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+617,f4694c65-a438-53f4-8ded-10de4787565c
+617,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+620,605f027c-e18c-50b3-b33e-c5e54407570a
+620,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+620,f4694c65-a438-53f4-8ded-10de4787565c
+620,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+620,7391eb9e-0e08-5a18-b064-95861cfada02
+622,605f027c-e18c-50b3-b33e-c5e54407570a
+623,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+623,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+623,f4694c65-a438-53f4-8ded-10de4787565c
+623,605f027c-e18c-50b3-b33e-c5e54407570a
+623,7391eb9e-0e08-5a18-b064-95861cfada02
+624,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+624,f4694c65-a438-53f4-8ded-10de4787565c
+624,605f027c-e18c-50b3-b33e-c5e54407570a
+624,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+624,7391eb9e-0e08-5a18-b064-95861cfada02
+625,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+625,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+626,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+626,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+626,f4694c65-a438-53f4-8ded-10de4787565c
+626,605f027c-e18c-50b3-b33e-c5e54407570a
+626,7391eb9e-0e08-5a18-b064-95861cfada02
+627,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+627,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+627,f4694c65-a438-53f4-8ded-10de4787565c
+627,605f027c-e18c-50b3-b33e-c5e54407570a
+627,7391eb9e-0e08-5a18-b064-95861cfada02
+628,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+628,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+629,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+629,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4
+629,f4694c65-a438-53f4-8ded-10de4787565c
+629,605f027c-e18c-50b3-b33e-c5e54407570a
+629,7391eb9e-0e08-5a18-b064-95861cfada02
+630,db6089a8-7374-54f4-9bf6-f233ae2d1d4d
+
+-- table step_wrote
+step_id,node_id,label,summary
+596,f4694c65-a438-53f4-8ded-10de4787565c,Fact,"REST service to create, tag and search notes (S18)"
+597,37c89e1d-d386-5dd8-874f-7da4a9406202,Fact,v35
+598,30770055-203c-54e9-8cab-fabf2826db7f,Decision,S18: Build the Acme Notes API against v35 of the style guide (routes under /v35/).
+602,d06b0a37-93a8-5507-8c08-f9bc09b78ad4,Handoff,S18: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+603,db6089a8-7374-54f4-9bf6-f233ae2d1d4d,Fact,v36
+606,6ebc4be0-c8b8-5cfa-a48d-4404106558ac,Decision,S18: Adopt style guide v36: the API version is now v36 (routes under /v36/).
+609,885b4432-61ea-5f01-bcd4-aa0c5e1880f7,Handoff,S18: Updated for API v36.
+610,605f027c-e18c-50b3-b33e-c5e54407570a,Fact,Db2 12
+611,eef8f7cb-f76e-5e79-8d53-d51d76f57fe4,Fact,"JWT bearer tokens (PS256, key s18)"
+613,7391eb9e-0e08-5a18-b064-95861cfada02,Fact,API key in X-Sync-Key header
+614,a9019881-d439-51fc-bb53-02e73f630977,Decision,S18: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.
+615,7a67ca14-839a-5170-9971-a20197810304,Fact,Neo4j 21
+616,ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2,Decision,S18: Evaluate Neo4j 21 as the database (forum post).
+618,5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,Fact,"weekly, invoiced on day 18"
+619,f646a829-19e3-57ce-8aaa-920070d468cd,Fact,private preview
+622,77475b25-bd2b-5670-9864-28530180052d,Decision,"S18: Use Db2 12 for the notes, tags and note_tags tables."
+625,5d3b5248-07a2-54cf-bc45-5813ec8e9e1d,Handoff,S18: CRUD spec ready for review.
+628,a21750a7-4500-5e73-b55a-067a4ca490af,Decision,"S18: Spec approved: endpoints, schema and JWT auth are consistent."
+630,a1c481f4-1960-533b-8678-827d85efd5ff,Handoff,S18: Release bundle is ready.
+

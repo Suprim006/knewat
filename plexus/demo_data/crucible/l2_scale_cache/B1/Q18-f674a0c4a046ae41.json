@@ -1,0 +1,26 @@
+{
+ "qid": "Q18",
+ "arm": "B1",
+ "reply": "Tasks depending on s16-t09-review-spec: s16-t10-write-docs (directly), and s16-t11-package-release (depends on t10, so transitively).\n\n{\"answer\": [\"s16-t10-write-docs\", \"s16-t11-package-release\"]}",
+ "answer": [
+  "s16-t10-write-docs",
+  "s16-t11-package-release"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 88,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 21164
+ },
+ "cost_usd": 0.0855944,
+ "latency_ms": 5254.7,
+ "duration_api_ms": 2717.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "843bf7cd-44b0-4d98-86d3-ee0c5fc67de9",
+ "key": "f674a0c4a046ae4160010a2a7d70ae499b538431d506875319acc0ffa49eae51"
+}

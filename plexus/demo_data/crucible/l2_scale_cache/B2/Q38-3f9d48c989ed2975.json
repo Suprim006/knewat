@@ -1,0 +1,25 @@
+{
+ "qid": "Q38",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"database=Neo4j 11\"]}",
+ "answer": [
+  "database=Neo4j 11"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 21,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3654
+ },
+ "cost_usd": 0.0148844,
+ "latency_ms": 5921.7,
+ "duration_api_ms": 3822.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "b03fd136-203d-4e87-a398-23404c380f53",
+ "key": "3f9d48c989ed2975f4ba587e00e18fd358ef2fd02f3de9bb3400c9ccac7f68d3"
+}

@@ -1,0 +1,179 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"next_seq":240}
+[...]
+{"s20-t07-implement-crud-spec":{"id":"s20-t07-implement-crud-spec","title":"Implement CRUD spec (S20)","priority":20,"seq":234,"status":"done","claimed_by":"builder","lease_until":1760001468000,"version":2,"created_at":1760001301501,"done_at":1760001350001,"deps":["s20-t03-design-endpoints","s20-t05-choose-auth","s20-t06-write-db-schema"],"artifacts":[{"id":"b42170a8-7f57-562e-afbc-cabf2df369be","kind":"file","uri":"artifacts/s20/crud-spec.md","hash":"","summary":"S20 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001350001}]}}
+[...]
+{"s20-t09-review-spec":{"id":"s20-t09-review-spec","title":"Review spec (S20)","priority":12,"seq":236,"status":"done","claimed_by":"planner","lease_until":1760001476000,"version":2,"created_at":1760001301501,"done_at":1760001358001,"deps":["s20-t07-implement-crud-spec","s20-t08-write-test-plan"],"artifacts":[]}}
+{"s20-t10-write-docs":{"id":"s20-t10-write-docs","title":"Write documentation (S20)","priority":10,"seq":237,"status":"done","claimed_by":"researcher","lease_until":1760001480000,"version":2,"created_at":1760001301501,"done_at":1760001361001,"deps":["s20-t09-review-spec"],"artifacts":[{"id":"dfa76cb9-84fa-52f7-a8bb-3b2614ec70da","kind":"file","uri":"artifacts/s20/docs.md","hash":"","summary":"S20 API documentation","agent_id":"researcher","created_at":1760001361001}]}}
+
+=== file: MEMORY.md ===
+# Shared team memory
+[...]
+- **Acme Notes API S01** database: MongoDB 4 (forgotten, global) <!--{"id":"d04e6e8e-1f06-55a2-a92f-7e931314a9db","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"database","value":"MongoDB 4","norm_value":"mongodb 4","scope":"global","status":"forgotten","valid_from":1760000035500,"valid_to":1760000037501,"recorded_at":1760000035500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["1531c911-182a-5a91-ae0a-1b92e90e2ce5"],"supersedes":[],"contradicts":["64481d26-77ec-5176-b2be-13b1074c32ee"]}-->
+[...]
+- **Acme Notes API S02** database: Cassandra 5 (forgotten, global) <!--{"id":"829390c2-ab74-5246-8ede-795f0315774d","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"database","value":"Cassandra 5","norm_value":"cassandra 5","scope":"global","status":"forgotten","valid_from":1760000104000,"valid_to":1760000106001,"recorded_at":1760000104000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a"],"supersedes":[],"contradicts":["2db29fe7-a2f9-5d63-936b-f07eaf671eb6"]}-->
+[...]
+- **Acme Notes API S03** database: Couchbase 6 (forgotten, global) <!--{"id":"9bfc1e64-3bac-5fa5-ad23-e26c14efcd47","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"database","value":"Couchbase 6","norm_value":"couchbase 6","scope":"global","status":"forgotten","valid_from":1760000172500,"valid_to":1760000174501,"recorded_at":1760000172500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["50a82728-74ce-51ca-8126-1bfcad8093cc"],"supersedes":[],"contradicts":["f68de5be-dd66-5ad8-bc70-58e5a90803ce"]}-->
+[...]
+- **Acme Notes API S04** database: DynamoDB 7 (forgotten, global) <!--{"id":"21402263-e0ee-5823-9999-b8b0073049d5","entity":"acme notes api s04","entity_name":"Acme Notes API S04","predicate":"database","value":"DynamoDB 7","norm_value":"dynamodb 7","scope":"global","status":"forgotten","valid_from":1760000241000,"valid_to":1760000243001,"recorded_at":1760000241000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["88dae90f-05ce-5028-bc63-af5836789f02"],"supersedes":[],"contradicts":["b18ce498-ca5b-5425-b920-72c0df42f780"]}-->
+[...]
+- **Acme Notes API S05** database: Redis 8 (forgotten, global) <!--{"id":"8b709ed9-81a2-5c6c-801a-bd45c94e7a6d","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"database","value":"Redis 8","norm_value":"redis 8","scope":"global","status":"forgotten","valid_from":1760000309500,"valid_to":1760000311501,"recorded_at":1760000309500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["14284b1e-5c73-5edc-b916-8a8ed5b096c2"],"supersedes":[],"contradicts":["56aae829-cd18-53c7-b1f0-748deb332dfb"]}-->
+[...]
+- **Acme Notes API S06** database: CouchDB 9 (forgotten, global) <!--{"id":"a358e2a2-9b4c-5143-97ec-721836d2a9de","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"database","value":"CouchDB 9","norm_value":"couchdb 9","scope":"global","status":"forgotten","valid_from":1760000378000,"valid_to":1760000380001,"recorded_at":1760000378000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["c477da62-2474-573b-851d-1e136de0257a"],"supersedes":[],"contradicts":["1654df3c-dbba-515b-85a1-fb158f3a95b0"]}-->
+[...]
+- **Acme Notes API S07** database: RethinkDB 10 (forgotten, global) <!--{"id":"cc4ca4b0-4d9e-5305-aeca-1d63e046a297","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"database","value":"RethinkDB 10","norm_value":"rethinkdb 10","scope":"global","status":"forgotten","valid_from":1760000446500,"valid_to":1760000448501,"recorded_at":1760000446500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["c5d7113f-1c71-55f0-9770-7ffee4112b3e"],"supersedes":[],"contradicts":["81a13776-eecc-5127-af30-f5e30618d336"]}-->
+[...]
+- **Acme Notes API S20** database: Riak 23 (forgotten, global) <!--{"id":"3feb9534-3d34-5900-84f0-73e95a1532ea","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"database","value":"Riak 23","norm_value":"riak 23","scope":"global","status":"forgotten","valid_from":1760001337000,"valid_to":1760001339001,"recorded_at":1760001337000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["0d04ac3e-ab11-50fc-8239-48273717b517"],"supersedes":[],"contradicts":["7f1d8278-94f2-5c84-948a-e34170fedb65"]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"ca23b005-8686-53a8-9ab7-55f145266a71","agent":"planner","task":"s01-t05-choose-auth","text":"S01: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["2c6740d8-7444-5f79-8d75-ce7112466e7f","f5aae893-1530-56f3-8882-3bed05324144"],"at":1760000032502}
+{"type":"decision","id":"1ecc2885-26f6-5914-a67b-ef6c30f16c27","agent":"planner","task":"s01-t06-write-db-schema","text":"S01: Evaluate MongoDB 4 as the database (forum post).","based_on":["d04e6e8e-1f06-55a2-a92f-7e931314a9db"],"at":1760000035502}
+{"type":"forget","source_id":"1531c911-182a-5a91-ae0a-1b92e90e2ce5","fact_ids":["d04e6e8e-1f06-55a2-a92f-7e931314a9db"],"at":1760000037501}
+{"type":"decision","id":"8bcccfbc-4974-5fcc-b706-19b189499cfc","agent":"builder","task":"s01-t06-write-db-schema","text":"S01: Use PostgreSQL 16 for the notes, tags and note_tags tables.","based_on":["64481d26-77ec-5176-b2be-13b1074c32ee"],"at":1760000043501}
+{"type":"decision","id":"a95eed0c-9058-5840-b7ef-00b13a18ee88","agent":"planner","task":"s01-t09-review-spec","text":"S01: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"],"at":1760000055501}
+[...]
+{"type":"decision","id":"aa9ce909-9647-5e6b-be6c-30c9f687d82a","agent":"planner","task":"s02-t05-choose-auth","text":"S02: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["adce43a0-b0da-5936-b9e3-11456941bd65","8aa0e063-17d5-5061-922f-ecb6884e4eca"],"at":1760000101002}
+{"type":"decision","id":"c2768527-08b0-597d-a83d-6e5f577abdec","agent":"planner","task":"s02-t06-write-db-schema","text":"S02: Evaluate Cassandra 5 as the database (forum post).","based_on":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000104002}
+{"type":"forget","source_id":"5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a","fact_ids":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000106001}
+[...]
+{"type":"decision","id":"7efc5fbb-61ae-5b3f-b965-6cefad5f77f0","agent":"planner","task":"s02-t09-review-spec","text":"S02: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000124001}
+[...]
+{"type":"decision","id":"fa935234-53c8-5970-8f5f-551235160409","agent":"planner","task":"s03-t05-choose-auth","text":"S03: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["8c782244-d287-5241-97fe-81123ca9a9a9","246b7904-0d0c-53ef-b7a4-974669a37be8"],"at":1760000169502}
+{"type":"decision","id":"e7e5c47b-e9f9-56ff-aa91-d15f746fd0ce","agent":"planner","task":"s03-t06-write-db-schema","text":"S03: Evaluate Couchbase 6 as the database (forum post).","based_on":["9bfc1e64-3bac-5fa5-ad23-e26c14efcd47"],"at":1760000172502}
+{"type":"forget","source_id":"50a82728-74ce-51ca-8126-1bfcad8093cc","fact_ids":["9bfc1e64-3bac-5fa5-ad23-e26c14efcd47"],"at":1760000174501}
+[...]
+{"type":"decision","id":"d05051b1-49c1-5cd5-a51c-2a64a1af1409","agent":"planner","task":"s03-t09-review-spec","text":"S03: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000192501}
+[...]
+{"type":"decision","id":"7311882b-09bd-544a-9f83-e77884ba8431","agent":"planner","task":"s04-t05-choose-auth","text":"S04: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["6a825d90-ffb7-5427-ba96-9e4db1fb916a","d84cd0fb-8f2d-54be-a05a-23e0a2b00462"],"at":1760000238002}
+{"type":"decision","id":"3ec33149-f8f9-5802-8f21-98104778f70a","agent":"planner","task":"s04-t06-write-db-schema","text":"S04: Evaluate DynamoDB 7 as the database (forum post).","based_on":["21402263-e0ee-5823-9999-b8b0073049d5"],"at":1760000241002}
+{"type":"forget","source_id":"88dae90f-05ce-5028-bc63-af5836789f02","fact_ids":["21402263-e0ee-5823-9999-b8b0073049d5"],"at":1760000243001}
+[...]
+{"type":"decision","id":"ecefce34-9176-58d8-94f6-c6d6783639ad","agent":"planner","task":"s04-t09-review-spec","text":"S04: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"],"at":1760000261001}
+[...]
+{"type":"decision","id":"0be418c2-82f8-5ce5-9456-1f0c70789d7f","agent":"planner","task":"s05-t05-choose-auth","text":"S05: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["caaa893a-626f-5079-bebd-835aa31eb750","489da596-b3ca-5043-a0ea-5086de9014b6"],"at":1760000306502}
+{"type":"decision","id":"b014b68b-cb82-5a7c-93da-20a91e4ad5c8","agent":"planner","task":"s05-t06-write-db-schema","text":"S05: Evaluate Redis 8 as the database (forum post).","based_on":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000309502}
+{"type":"forget","source_id":"14284b1e-5c73-5edc-b916-8a8ed5b096c2","fact_ids":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000311501}
+[...]
+{"type":"decision","id":"62932fdb-3076-59d2-ba7e-bf5b9bab07ea","agent":"planner","task":"s05-t09-review-spec","text":"S05: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000329501}
+[...]
+{"type":"decision","id":"1e35ca91-55b3-57a8-bc76-48963a1353d8","agent":"planner","task":"s06-t05-choose-auth","text":"S06: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["a7d999dc-22d8-5a8f-9859-1e0bf1c06070","df087bdd-00a4-582c-8b35-5ab24374ba4a"],"at":1760000375002}
+{"type":"decision","id":"b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9","agent":"planner","task":"s06-t06-write-db-schema","text":"S06: Evaluate CouchDB 9 as the database (forum post).","based_on":["a358e2a2-9b4c-5143-97ec-721836d2a9de"],"at":1760000378002}
+{"type":"forget","source_id":"c477da62-2474-573b-851d-1e136de0257a","fact_ids":["a358e2a2-9b4c-5143-97ec-721836d2a9de"],"at":1760000380001}
+[...]
+{"type":"decision","id":"3bc6e6b9-213b-5a05-8e74-175df8e45057","agent":"planner","task":"s06-t09-review-spec","text":"S06: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"],"at":1760000398001}
+[...]
+{"type":"decision","id":"6146b0ed-711b-585b-aa7b-c56ddbe62134","agent":"planner","task":"s07-t05-choose-auth","text":"S07: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["9aa3ca0d-ddf3-5024-b383-b632b16c6648","420dbc5d-4360-5896-9a31-6d72eaf60eb9"],"at":1760000443502}
+{"type":"decision","id":"08a171d3-d7cf-56b7-bf89-66584f33edf7","agent":"planner","task":"s07-t06-write-db-schema","text":"S07: Evaluate RethinkDB 10 as the database (forum post).","based_on":["cc4ca4b0-4d9e-5305-aeca-1d63e046a297"],"at":1760000446502}
+{"type":"forget","source_id":"c5d7113f-1c71-55f0-9770-7ffee4112b3e","fact_ids":["cc4ca4b0-4d9e-5305-aeca-1d63e046a297"],"at":1760000448501}
+[...]
+{"type":"decision","id":"151ec366-1445-5726-b70d-6a9513cb94de","agent":"planner","task":"s07-t09-review-spec","text":"S07: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"],"at":1760000466501}
+[...]
+{"type":"decision","id":"36705ae7-678a-5284-a7da-9cf7ffa2d0d4","agent":"planner","task":"s08-t05-choose-auth","text":"S08: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["796aea04-86c3-5458-9108-e6250cae575b","8d09189a-de26-57cf-9d86-0b803170cfb1"],"at":1760000512002}
+{"type":"decision","id":"9e4af6aa-2f02-52e7-881a-b59decb90332","agent":"planner","task":"s08-t06-write-db-schema","text":"S08: Evaluate Neo4j 11 as the database (forum post).","based_on":["89d0ea3a-71e0-54c0-ad11-ad8dc201b757"],"at":1760000515002}
+{"type":"forget","source_id":"20d49ab5-015b-5a6b-a5a0-85c90a3f0d76","fact_ids":["89d0ea3a-71e0-54c0-ad11-ad8dc201b757"],"at":1760000517001}
+[...]
+{"type":"decision","id":"66744935-c4fa-5a06-bddd-7835dfc6a7af","agent":"planner","task":"s08-t09-review-spec","text":"S08: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"],"at":1760000535001}
+[...]
+{"type":"decision","id":"8b33f23b-07cc-5b89-b920-76c55909df67","agent":"planner","task":"s09-t05-choose-auth","text":"S09: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["3a1468b7-0a5c-5b70-9e35-98f20baacab6","13efb66e-9d5d-54a9-ae84-c2274ed15e81"],"at":1760000580502}
+{"type":"decision","id":"96e9e1aa-20d9-5746-b630-bedb9425649a","agent":"planner","task":"s09-t06-write-db-schema","text":"S09: Evaluate ScyllaDB 12 as the database (forum post).","based_on":["627cee86-09ce-53a8-8797-fbf748462ecb"],"at":1760000583502}
+{"type":"forget","source_id":"e5611a24-7de2-532c-a909-85db31e7657f","fact_ids":["627cee86-09ce-53a8-8797-fbf748462ecb"],"at":1760000585501}
+[...]
+{"type":"decision","id":"3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca","agent":"planner","task":"s09-t09-review-spec","text":"S09: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000603501}
+[...]
+{"type":"decision","id":"d3d1eb53-18de-5a60-9ee8-c6ed8290a067","agent":"planner","task":"s10-t05-choose-auth","text":"S10: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["1957d113-2caf-53d4-a9c9-713c893bed4e","e2a918a4-327c-555e-ba96-36c9375fea00"],"at":1760000649002}
+{"type":"decision","id":"080ac483-a67c-55ac-a6e0-9ce1a6aa1d80","agent":"planner","task":"s10-t06-write-db-schema","text":"S10: Evaluate Riak 13 as the database (forum post).","based_on":["a7c6ea31-4300-5afb-a980-2f6dba60fc95"],"at":1760000652002}
+{"type":"forget","source_id":"21c87012-3ab3-5927-9747-7be6156e72ea","fact_ids":["a7c6ea31-4300-5afb-a980-2f6dba60fc95"],"at":1760000654001}
+[...]
+{"type":"decision","id":"3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a","agent":"planner","task":"s10-t09-review-spec","text":"S10: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"],"at":1760000672001}
+[...]
+{"type":"decision","id":"ad51edc8-1e17-5621-b861-114fa4f8a490","agent":"planner","task":"s11-t05-choose-auth","text":"S11: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["facb64f3-a7ed-5ee0-859d-5752d670f2c7","c8c99a70-f727-5676-9ae3-35ab4de58986"],"at":1760000717502}
+{"type":"decision","id":"a34874f3-ebe0-52fb-9d27-a7aa14f96d94","agent":"planner","task":"s11-t06-write-db-schema","text":"S11: Evaluate MongoDB 14 as the database (forum post).","based_on":["840758d6-b085-5fb7-8439-41ea4d9075e2"],"at":1760000720502}
+{"type":"forget","source_id":"0b38768f-c32e-5d8e-8ca2-2b38b8239eab","fact_ids":["840758d6-b085-5fb7-8439-41ea4d9075e2"],"at":1760000722501}
+[...]
+{"type":"decision","id":"5a045ccd-4ca8-5279-900a-661aab445648","agent":"planner","task":"s11-t09-review-spec","text":"S11: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"],"at":1760000740501}
+[...]
+{"type":"decision","id":"c78e7d92-66b5-5698-8991-9da1f71a2a49","agent":"planner","task":"s12-t05-choose-auth","text":"S12: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["c741d5a2-182e-533c-bac5-124f08e9a37a","38c8d041-eef8-59ec-9099-41b2cb46ac35"],"at":1760000786002}
+{"type":"decision","id":"e58506c9-24f6-5063-be8f-d80e205130dc","agent":"planner","task":"s12-t06-write-db-schema","text":"S12: Evaluate Cassandra 15 as the database (forum post).","based_on":["95e1d954-04a9-5d9a-8441-994f908947d4"],"at":1760000789002}
+{"type":"forget","source_id":"9aad5fe4-ef32-51c4-80a8-b3cdc43cef96","fact_ids":["95e1d954-04a9-5d9a-8441-994f908947d4"],"at":1760000791001}
+[...]
+{"type":"decision","id":"5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3","agent":"planner","task":"s12-t09-review-spec","text":"S12: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"],"at":1760000809001}
+[...]
+{"type":"decision","id":"470a72ca-83d3-5abe-b9a2-8b824327ac7f","agent":"planner","task":"s13-t05-choose-auth","text":"S13: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["281fe1b5-fe2f-570f-b317-b10819b44639","e0bfc28b-0c15-5c06-82d1-c39499d7b337"],"at":1760000854502}
+{"type":"decision","id":"e4c1fb22-8f33-5326-b439-096db849e51b","agent":"planner","task":"s13-t06-write-db-schema","text":"S13: Evaluate Couchbase 16 as the database (forum post).","based_on":["89edb49c-4d7d-5da0-b79c-14d927fe6390"],"at":1760000857502}
+{"type":"forget","source_id":"203c5d63-1133-5029-a45a-d7e225c3d5e5","fact_ids":["89edb49c-4d7d-5da0-b79c-14d927fe6390"],"at":1760000859501}
+[...]
+{"type":"decision","id":"8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1","agent":"planner","task":"s13-t09-review-spec","text":"S13: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000877501}
+[...]
+{"type":"decision","id":"9d089b2b-3f53-52e8-a086-0df5f5ac8453","agent":"planner","task":"s14-t05-choose-auth","text":"S14: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["a1585f54-8bb4-5e20-b07a-d2d19e89af89","fd06adfe-07c0-53f6-9faf-0642215810b3"],"at":1760000923002}
+{"type":"decision","id":"fb9a364e-958f-53c1-8db7-72cabb71cf6a","agent":"planner","task":"s14-t06-write-db-schema","text":"S14: Evaluate DynamoDB 17 as the database (forum post).","based_on":["909bf6fb-2c0d-5c9b-a327-e3c3803ff755"],"at":1760000926002}
+{"type":"forget","source_id":"96231bab-e1e8-5422-92f8-27d3f98d3fd9","fact_ids":["909bf6fb-2c0d-5c9b-a327-e3c3803ff755"],"at":1760000928001}
+[...]
+{"type":"decision","id":"c5e4aaf8-7959-55b9-8526-2ac75e975544","agent":"planner","task":"s14-t09-review-spec","text":"S14: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"],"at":1760000946001}
+[...]
+{"type":"decision","id":"96c0e0f7-c96d-54d0-ab72-20dc1e7e9233","agent":"planner","task":"s15-t05-choose-auth","text":"S15: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["174dde7f-0a35-54ec-849b-1bb81f3919c9","87611194-56da-542a-9bce-78206b3ffdb8"],"at":1760000991502}
+{"type":"decision","id":"a913056a-8c85-5859-a2e2-0bf257ad7506","agent":"planner","task":"s15-t06-write-db-schema","text":"S15: Evaluate Redis 18 as the database (forum post).","based_on":["d90f88cf-844f-53f2-ae23-ee244ac551bf"],"at":1760000994502}
+{"type":"forget","source_id":"f5b88b48-3666-511e-9da7-5fde53059225","fact_ids":["d90f88cf-844f-53f2-ae23-ee244ac551bf"],"at":1760000996501}
+[...]
+{"type":"decision","id":"088c32c9-9211-501e-8eab-f6ea616d8eb4","agent":"planner","task":"s15-t09-review-spec","text":"S15: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"],"at":1760001014501}
+[...]
+{"type":"decision","id":"36bff734-0b39-5ab8-a3e7-2b2265e643d4","agent":"planner","task":"s16-t05-choose-auth","text":"S16: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["5973c274-277d-5dd2-bd7c-dce1278d8139","9f3b6391-e763-5939-ae40-d897fb75be2c"],"at":1760001060002}
+{"type":"decision","id":"a058c6d5-d503-5e8e-99c4-cc338d94e8d6","agent":"planner","task":"s16-t06-write-db-schema","text":"S16: Evaluate CouchDB 19 as the database (forum post).","based_on":["8c0c9c0e-e435-5989-b4d5-0b471560e947"],"at":1760001063002}
+{"type":"forget","source_id":"c9505fea-78a0-575f-b569-0d272e7e74ac","fact_ids":["8c0c9c0e-e435-5989-b4d5-0b471560e947"],"at":1760001065001}
+[...]
+{"type":"decision","id":"7f71e476-1a85-5b91-9885-e133ad3a02c2","agent":"planner","task":"s16-t09-review-spec","text":"S16: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001083001}
+[...]
+{"type":"decision","id":"1481bbd7-bba7-5e4e-998f-8332add1f38b","agent":"planner","task":"s17-t05-choose-auth","text":"S17: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["d2ef79a9-557b-5225-8093-670c4f36db73","7f5d1ec6-c136-55f8-b51f-8cf943553a70"],"at":1760001128502}
+{"type":"decision","id":"d906d405-5d7f-5646-b053-8464e2681021","agent":"planner","task":"s17-t06-write-db-schema","text":"S17: Evaluate RethinkDB 20 as the database (forum post).","based_on":["bc5bb23b-a206-5d2a-a0d1-800573fa5575"],"at":1760001131502}
+{"type":"forget","source_id":"2b32abee-1156-5b5b-b04d-5b6d42420594","fact_ids":["bc5bb23b-a206-5d2a-a0d1-800573fa5575"],"at":1760001133501}
+[...]
+{"type":"decision","id":"c7d232bd-c4b4-5ac1-89ae-decaf18696bb","agent":"planner","task":"s17-t09-review-spec","text":"S17: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"],"at":1760001151501}
+[...]
+{"type":"decision","id":"a9019881-d439-51fc-bb53-02e73f630977","agent":"planner","task":"s18-t05-choose-auth","text":"S18: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["eef8f7cb-f76e-5e79-8d53-d51d76f57fe4","7391eb9e-0e08-5a18-b064-95861cfada02"],"at":1760001197002}
+{"type":"decision","id":"ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2","agent":"planner","task":"s18-t06-write-db-schema","text":"S18: Evaluate Neo4j 21 as the database (forum post).","based_on":["7a67ca14-839a-5170-9971-a20197810304"],"at":1760001200002}
+{"type":"forget","source_id":"06de3fcd-ed3b-59e6-a82f-7a56587aaefb","fact_ids":["7a67ca14-839a-5170-9971-a20197810304"],"at":1760001202001}
+[...]
+{"type":"decision","id":"a21750a7-4500-5e73-b55a-067a4ca490af","agent":"planner","task":"s18-t09-review-spec","text":"S18: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"],"at":1760001220001}
+[...]
+{"type":"decision","id":"37e78a9e-2728-5662-8aba-54f484114147","agent":"planner","task":"s19-t05-choose-auth","text":"S19: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["23fa06c9-0de6-5176-a4a8-778840fb69e2","48fc4ea1-e142-54b8-909b-1d578b143614"],"at":1760001265502}
+{"type":"decision","id":"9acc129e-f910-5b32-8f14-80475529c123","agent":"planner","task":"s19-t06-write-db-schema","text":"S19: Evaluate ScyllaDB 22 as the database (forum post).","based_on":["e4fcdd43-d040-5571-a6ad-13d72dfaec1f"],"at":1760001268502}
+{"type":"forget","source_id":"433f47b1-eac7-5fcc-80a1-9a37cdbed257","fact_ids":["e4fcdd43-d040-5571-a6ad-13d72dfaec1f"],"at":1760001270501}
+[...]
+{"type":"decision","id":"d7599553-d578-5ca7-9422-4f7161446421","agent":"planner","task":"s19-t09-review-spec","text":"S19: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"],"at":1760001288501}
+{"type":"decision","id":"db007e0b-8781-525b-86db-4e11f6fe55f3","agent":"planner","task":"s20-t02-choose-api-version","text":"S20: Build the Acme Notes API against v39 of the style guide (routes under /v39/).","based_on":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001306502}
+{"type":"decision","id":"1e8c0d8c-e476-5c80-8c5a-cdbe261d1564","agent":"planner","task":"s20-t02-choose-api-version","text":"S20: Adopt style guide v40: the API version is now v40 (routes under /v40/).","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001321001}
+{"type":"decision","id":"b1a4bc6c-442e-55de-9ec1-09f6b58ded95","agent":"planner","task":"s20-t05-choose-auth","text":"S20: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["984f762e-88d6-54ff-a7d4-9cd8d024486a","c30226fc-2b32-5539-9e38-2a7c33585dcf"],"at":1760001334002}
+{"type":"decision","id":"1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97","agent":"planner","task":"s20-t06-write-db-schema","text":"S20: Evaluate Riak 23 as the database (forum post).","based_on":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001337002}
+{"type":"forget","source_id":"0d04ac3e-ab11-50fc-8239-48273717b517","fact_ids":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001339001}
+{"type":"decision","id":"7a399c5d-8466-5a73-a025-d311f59d7a7c","agent":"builder","task":"s20-t06-write-db-schema","text":"S20: Use Aurora MySQL 3 for the notes, tags and note_tags tables.","based_on":["7f1d8278-94f2-5c84-948a-e34170fedb65"],"at":1760001345001}
+{"type":"decision","id":"2f3bfbdb-ff3b-5075-9f34-b47d193db3ef","agent":"planner","task":"s20-t09-review-spec","text":"S20: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001357001}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760001345002,"tool":"record_decision","id":"7a399c5d-8466-5a73-a025-d311f59d7a7c","task":"s20-t06-write-db-schema","based_on":["7f1d8278-94f2-5c84-948a-e34170fedb65"]}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760001306503,"tool":"record_decision","id":"db007e0b-8781-525b-86db-4e11f6fe55f3","task":"s20-t02-choose-api-version","based_on":["314cea0e-655e-578d-b067-95bf5b16cb93"]}
+[...]
+{"ts":1760001321002,"tool":"record_decision","id":"1e8c0d8c-e476-5c80-8c5a-cdbe261d1564","task":"s20-t02-choose-api-version","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"]}
+[...]
+{"ts":1760001334001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"auth_method","value":"API key in X-Ops-Key header","scope":"global","fact_id":"c30226fc-2b32-5539-9e38-2a7c33585dcf","duplicate_of":null,"superseded":[],"contradicts":["984f762e-88d6-54ff-a7d4-9cd8d024486a"]}
+{"ts":1760001334003,"tool":"record_decision","id":"b1a4bc6c-442e-55de-9ec1-09f6b58ded95","task":"s20-t05-choose-auth","based_on":["984f762e-88d6-54ff-a7d4-9cd8d024486a","c30226fc-2b32-5539-9e38-2a7c33585dcf"]}
+[...]
+{"ts":1760001337001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"database","value":"Riak 23","scope":"global","fact_id":"3feb9534-3d34-5900-84f0-73e95a1532ea","duplicate_of":null,"superseded":[],"contradicts":["7f1d8278-94f2-5c84-948a-e34170fedb65"]}
+{"ts":1760001337003,"tool":"record_decision","id":"1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97","task":"s20-t06-write-db-schema","based_on":["3feb9534-3d34-5900-84f0-73e95a1532ea"]}
+{"ts":1760001342001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"release_channel","value":"general availability","scope":"project:acme-s20","fact_id":"e507c7cc-74bf-53e4-b40b-40037024086b","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001357002,"tool":"record_decision","id":"2f3bfbdb-ff3b-5075-9f34-b47d193db3ef","task":"s20-t09-review-spec","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760001303501,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"purpose","value":"REST service to create, tag and search notes (S20)","scope":"global","fact_id":"b55b96c8-ef25-512e-acde-fa3bb5a37f6c","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760001304501,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v39","scope":"global","fact_id":"314cea0e-655e-578d-b067-95bf5b16cb93","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001319001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v40","scope":"global","fact_id":"94fef2a4-a13b-53ed-9d07-0f8cf862efa6","duplicate_of":null,"superseded":["314cea0e-655e-578d-b067-95bf5b16cb93"],"contradicts":[]}
+[...]
+{"ts":1760001329001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"database","value":"Aurora MySQL 3","scope":"global","fact_id":"7f1d8278-94f2-5c84-948a-e34170fedb65","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760001330001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"auth_method","value":"JWT bearer tokens (ES384, key s20)","scope":"global","fact_id":"984f762e-88d6-54ff-a7d4-9cd8d024486a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001341001,"tool":"assert_fact","subject":"Bolt Billing API S20","predicate":"billing_cycle","value":"biweekly, invoiced on day 20","scope":"project:billing-s20","fact_id":"368a3f28-d754-5731-b810-e2d4d01debbc","duplicate_of":null,"superseded":[],"contradicts":[]}
+

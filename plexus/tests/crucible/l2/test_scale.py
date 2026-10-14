@@ -269,6 +269,13 @@ def test_baselines_end_to_end_with_the_mocked_cli(tmp_path, fake_answers):
         qpath=COMMITTED, run_id="t-pilot2",
     )  # fmt: skip
     assert len(fake_answers.read_text().split()) == 15
+    from plexus.crucible.l2.scale_run import refresh_results
+
+    refresh_results(
+        d / "results.json", COMMITTED
+    )  # no LLM: recomputes the diagnostic from the saved contexts
+    assert "## Failure analysis" in (d / "report.md").read_text(encoding="utf-8")
+    doc = json.loads((d / "results.json").read_text(encoding="utf-8"))
     report = render_scale_report(doc)
     for needle in (
         "## History vs the context budget",

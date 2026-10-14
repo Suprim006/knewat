@@ -1,0 +1,23 @@
+{
+ "qid": "Q23",
+ "arm": "B0",
+ "reply": "{\"answer\": \"b778417b-f0e4-5e04-a289-54778fbb1545\"}",
+ "answer": "b778417b-f0e4-5e04-a289-54778fbb1545",
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 343,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 18897
+ },
+ "cost_usd": 0.0790764,
+ "latency_ms": 7277.9,
+ "duration_api_ms": 5667.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "ee0af548-c326-4263-aeea-3a2548d2f7ae",
+ "key": "619b69a5cc0b08fc5bae7c6382708f32850e380f698a7d611e21b4b28964d3b7"
+}

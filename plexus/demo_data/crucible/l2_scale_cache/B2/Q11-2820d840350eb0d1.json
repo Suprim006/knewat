@@ -1,0 +1,26 @@
+{
+ "qid": "Q11",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"auth_method=API key in X-Partner-Key header\", \"auth_method=JWT bearer tokens (ES384, key s10)\"]}",
+ "answer": [
+  "auth_method=API key in X-Partner-Key header",
+  "auth_method=JWT bearer tokens (ES384, key s10)"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 184,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 4223
+ },
+ "cost_usd": 0.018790400000000002,
+ "latency_ms": 4504.1,
+ "duration_api_ms": 2548.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "485cea6a-b5d7-4190-9ba3-c81993b351d3",
+ "key": "2820d840350eb0d18fac83c93e2031a8ef6ad65d59188e55194dd8bc2ab58517"
+}

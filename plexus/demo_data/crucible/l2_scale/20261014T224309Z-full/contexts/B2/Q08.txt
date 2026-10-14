@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Handoff for task s06-t12-update-endpoints-for-v2 from builder to planner: "S06: Updated for API v12." Artifacts: artifacts/s06/openapi-v2.yaml. Facts: api_version=v12.
+[2] Handoff for task s01-t12-update-endpoints-for-v2 from builder to planner: "S01: Updated for API v2." Artifacts: artifacts/s01/openapi-v2.yaml. Facts: api_version=v2.
+[3] Handoff for task s02-t12-update-endpoints-for-v2 from builder to planner: "S02: Updated for API v4." Artifacts: artifacts/s02/openapi-v2.yaml. Facts: api_version=v4.
+[4] Handoff for task s12-t12-update-endpoints-for-v2 from builder to planner: "S12: Updated for API v24." Artifacts: artifacts/s12/openapi-v2.yaml. Facts: api_version=v24.
+[5] Handoff for task s13-t12-update-endpoints-for-v2 from builder to planner: "S13: Updated for API v26." Artifacts: artifacts/s13/openapi-v2.yaml. Facts: api_version=v26.
+[6] Handoff for task s09-t12-update-endpoints-for-v2 from builder to planner: "S09: Updated for API v18." Artifacts: artifacts/s09/openapi-v2.yaml. Facts: api_version=v18.
+[7] Handoff for task s11-t12-update-endpoints-for-v2 from builder to planner: "S11: Updated for API v22." Artifacts: artifacts/s11/openapi-v2.yaml. Facts: api_version=v22.
+[8] Handoff for task s03-t12-update-endpoints-for-v2 from builder to planner: "S03: Updated for API v6." Artifacts: artifacts/s03/openapi-v2.yaml. Facts: api_version=v6.
+[9] Handoff for task s16-t12-update-endpoints-for-v2 from builder to planner: "S16: Updated for API v32." Artifacts: artifacts/s16/openapi-v2.yaml. Facts: api_version=v32.
+[10] Handoff for task s18-t12-update-endpoints-for-v2 from builder to planner: "S18: Updated for API v36." Artifacts: artifacts/s18/openapi-v2.yaml. Facts: api_version=v36.
+[11] Handoff for task s08-t12-update-endpoints-for-v2 from builder to planner: "S08: Updated for API v16." Artifacts: artifacts/s08/openapi-v2.yaml. Facts: api_version=v16.
+[12] Handoff for task s15-t12-update-endpoints-for-v2 from builder to planner: "S15: Updated for API v30." Artifacts: artifacts/s15/openapi-v2.yaml. Facts: api_version=v30.

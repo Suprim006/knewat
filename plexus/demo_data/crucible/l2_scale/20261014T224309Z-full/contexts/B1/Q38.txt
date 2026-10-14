@@ -1,0 +1,351 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table tasks
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+s08-t10-write-docs,Write documentation (S08),10,93,done,researcher,1760000658000,2,1760000479501,1760000539001
+
+-- table deps
+task_id,dep_id
+s08-t10-write-docs,s08-t09-review-spec
+s08-t11-package-release,s08-t10-write-docs
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+e0d54790-b1ed-50cf-aba0-a3452e33dd46,s08-t01-gather-requirements,file,artifacts/s08/requirements.md,,"S08 requirements: notes CRUD, tags, API version v15",researcher,1760000482502
+6d1008e5-a78c-5d89-a4e8-155444d9548a,s08-t04-survey-infra-security,file,artifacts/s08/constraints.md,,"S08 infra and security constraints: Db2 12, JWT auth",researcher,1760000508002
+d76294c4-c550-5029-845f-880e44cb4bf1,s08-t07-implement-crud-spec,file,artifacts/s08/crud-spec.md,,S08 CRUD spec for the current API version with JWT auth,builder,1760000528001
+f8f155c9-36b4-51a4-a7a0-c13319481564,s08-t08-write-test-plan,file,artifacts/s08/test-plan.md,,S08 test plan for the CRUD endpoints,researcher,1760000532001
+b7ce2593-5cbc-578d-969c-a88212204a64,s08-t10-write-docs,file,artifacts/s08/docs.md,,S08 API documentation,researcher,1760000539001
+9b23678d-08c1-5a60-80fb-42e413e0ccc0,s08-t11-package-release,file,artifacts/s08/release.tar,,S08 release bundle of the Acme Notes API,builder,1760000541001
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,Acme Notes API S01,database,MongoDB 4,global,forgotten,1760000035500,1760000037501
+829390c2-ab74-5246-8ede-795f0315774d,Acme Notes API S02,database,Cassandra 5,global,forgotten,1760000104000,1760000106001
+9bfc1e64-3bac-5fa5-ad23-e26c14efcd47,Acme Notes API S03,database,Couchbase 6,global,forgotten,1760000172500,1760000174501
+21402263-e0ee-5823-9999-b8b0073049d5,Acme Notes API S04,database,DynamoDB 7,global,forgotten,1760000241000,1760000243001
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,Acme Notes API S05,database,Redis 8,global,forgotten,1760000309500,1760000311501
+a358e2a2-9b4c-5143-97ec-721836d2a9de,Acme Notes API S06,database,CouchDB 9,global,forgotten,1760000378000,1760000380001
+cc4ca4b0-4d9e-5305-aeca-1d63e046a297,Acme Notes API S07,database,RethinkDB 10,global,forgotten,1760000446500,1760000448501
+f1e922a8-111f-5bdd-8b14-af19f65ddee6,Acme Notes API S08,purpose,"REST service to create, tag and search notes (S08)",global,active,1760000481500,9999999999999
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,Acme Notes API S08,api_version,v15,global,superseded,1760000482500,1760000497000
+f4918c86-ef7f-50df-94d1-abc537082890,Acme Notes API S08,api_version,v16,global,active,1760000497000,9999999999999
+e5ca0231-f709-5a9b-905f-27706b8cdc3e,Acme Notes API S08,database,Db2 12,global,active,1760000507000,9999999999999
+796aea04-86c3-5458-9108-e6250cae575b,Acme Notes API S08,auth_method,"JWT bearer tokens (PS256, key s08)",global,active,1760000508000,9999999999999
+8d09189a-de26-57cf-9d86-0b803170cfb1,Acme Notes API S08,auth_method,API key in X-Notes-Key header,global,active,1760000512000,9999999999999
+89d0ea3a-71e0-54c0-ad11-ad8dc201b757,Acme Notes API S08,database,Neo4j 11,global,forgotten,1760000515000,1760000517001
+89e9ab1b-d617-5098-adb0-a7aa78a5e724,Bolt Billing API S08,billing_cycle,"biweekly, invoiced on day 8",project:billing-s08,active,1760000519000,9999999999999
+87d2ead0-f00f-5204-8292-58c486e0b01d,Acme Notes API S08,release_channel,private preview,project:acme-s08,active,1760000520000,9999999999999
+627cee86-09ce-53a8-8797-fbf748462ecb,Acme Notes API S09,database,ScyllaDB 12,global,forgotten,1760000583500,1760000585501
+a7c6ea31-4300-5afb-a980-2f6dba60fc95,Acme Notes API S10,database,Riak 13,global,forgotten,1760000652000,1760000654001
+840758d6-b085-5fb7-8439-41ea4d9075e2,Acme Notes API S11,database,MongoDB 14,global,forgotten,1760000720500,1760000722501
+95e1d954-04a9-5d9a-8441-994f908947d4,Acme Notes API S12,database,Cassandra 15,global,forgotten,1760000789000,1760000791001
+89edb49c-4d7d-5da0-b79c-14d927fe6390,Acme Notes API S13,database,Couchbase 16,global,forgotten,1760000857500,1760000859501
+909bf6fb-2c0d-5c9b-a327-e3c3803ff755,Acme Notes API S14,database,DynamoDB 17,global,forgotten,1760000926000,1760000928001
+d90f88cf-844f-53f2-ae23-ee244ac551bf,Acme Notes API S15,database,Redis 18,global,forgotten,1760000994500,1760000996501
+8c0c9c0e-e435-5989-b4d5-0b471560e947,Acme Notes API S16,database,CouchDB 19,global,forgotten,1760001063000,1760001065001
+bc5bb23b-a206-5d2a-a0d1-800573fa5575,Acme Notes API S17,database,RethinkDB 20,global,forgotten,1760001131500,1760001133501
+7a67ca14-839a-5170-9971-a20197810304,Acme Notes API S18,database,Neo4j 21,global,forgotten,1760001200000,1760001202001
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,Acme Notes API S19,database,ScyllaDB 22,global,forgotten,1760001268500,1760001270501
+3feb9534-3d34-5900-84f0-73e95a1532ea,Acme Notes API S20,database,Riak 23,global,forgotten,1760001337000,1760001339001
+
+-- table fact_agents
+fact_id,agent_id,at
+89d0ea3a-71e0-54c0-ad11-ad8dc201b757,planner,1760000515000
+
+-- table fact_links
+src,dst,kind
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,1531c911-182a-5a91-ae0a-1b92e90e2ce5,derived_from
+829390c2-ab74-5246-8ede-795f0315774d,5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a,derived_from
+9bfc1e64-3bac-5fa5-ad23-e26c14efcd47,50a82728-74ce-51ca-8126-1bfcad8093cc,derived_from
+21402263-e0ee-5823-9999-b8b0073049d5,88dae90f-05ce-5028-bc63-af5836789f02,derived_from
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,14284b1e-5c73-5edc-b916-8a8ed5b096c2,derived_from
+a358e2a2-9b4c-5143-97ec-721836d2a9de,c477da62-2474-573b-851d-1e136de0257a,derived_from
+cc4ca4b0-4d9e-5305-aeca-1d63e046a297,c5d7113f-1c71-55f0-9770-7ffee4112b3e,derived_from
+f1e922a8-111f-5bdd-8b14-af19f65ddee6,4f4d6c96-4af2-5b6e-a29c-e6363095dc0c,derived_from
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,8db9312f-53c0-59a9-8018-8c984ab125d7,derived_from
+f4918c86-ef7f-50df-94d1-abc537082890,6e8458f2-1a44-5607-8240-9c18a2c08e4e,derived_from
+e5ca0231-f709-5a9b-905f-27706b8cdc3e,abe9bff6-3960-59bd-bc4f-ccd91bb355d6,derived_from
+796aea04-86c3-5458-9108-e6250cae575b,924612e4-2e2f-5e76-b4c5-b35350f7644c,derived_from
+8d09189a-de26-57cf-9d86-0b803170cfb1,f506859c-7970-51a0-97db-d84207f453f9,derived_from
+89d0ea3a-71e0-54c0-ad11-ad8dc201b757,20d49ab5-015b-5a6b-a5a0-85c90a3f0d76,derived_from
+89d0ea3a-71e0-54c0-ad11-ad8dc201b757,e5ca0231-f709-5a9b-905f-27706b8cdc3e,contradicts
+89e9ab1b-d617-5098-adb0-a7aa78a5e724,8a376dd6-3f68-53af-9c01-c09b0ee2d1aa,derived_from
+627cee86-09ce-53a8-8797-fbf748462ecb,e5611a24-7de2-532c-a909-85db31e7657f,derived_from
+a7c6ea31-4300-5afb-a980-2f6dba60fc95,21c87012-3ab3-5927-9747-7be6156e72ea,derived_from
+840758d6-b085-5fb7-8439-41ea4d9075e2,0b38768f-c32e-5d8e-8ca2-2b38b8239eab,derived_from
+95e1d954-04a9-5d9a-8441-994f908947d4,9aad5fe4-ef32-51c4-80a8-b3cdc43cef96,derived_from
+89edb49c-4d7d-5da0-b79c-14d927fe6390,203c5d63-1133-5029-a45a-d7e225c3d5e5,derived_from
+909bf6fb-2c0d-5c9b-a327-e3c3803ff755,96231bab-e1e8-5422-92f8-27d3f98d3fd9,derived_from
+d90f88cf-844f-53f2-ae23-ee244ac551bf,f5b88b48-3666-511e-9da7-5fde53059225,derived_from
+8c0c9c0e-e435-5989-b4d5-0b471560e947,c9505fea-78a0-575f-b569-0d272e7e74ac,derived_from
+bc5bb23b-a206-5d2a-a0d1-800573fa5575,2b32abee-1156-5b5b-b04d-5b6d42420594,derived_from
+7a67ca14-839a-5170-9971-a20197810304,06de3fcd-ed3b-59e6-a82f-7a56587aaefb,derived_from
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,433f47b1-eac7-5fcc-80a1-9a37cdbed257,derived_from
+3feb9534-3d34-5900-84f0-73e95a1532ea,0d04ac3e-ab11-50fc-8239-48273717b517,derived_from
+
+-- table sources
+id,uri,kind,trust,created_at
+1f13bc4f-1fca-59c1-9909-6abccb791bdc,acme-docs/s01/01_product_brief.md,doc,1.0,1760000001001
+053aefcf-235a-504d-9717-957fd1a2215a,acme-docs/s01/02_api_style_guide_v1.md,doc,1.0,1760000001002
+08921194-59e1-5b7b-9d29-b3db6ba9e3ab,acme-docs/s01/06_api_style_guide_v2.md,doc,1.0,1760000016501
+f2cdeb01-8b98-5c8b-91c8-fa5084ebee10,acme-docs/s01/03_infra_note.md,doc,1.0,1760000026501
+9f419ca1-904b-51dc-aa42-be01587c6e46,acme-docs/s01/04_security_note.md,doc,1.0,1760000026502
+0279cad1-5117-57e4-94a7-2b487b14db9a,acme-docs/s01/05_customer_request.md,chat,0.8,1760000031501
+1531c911-182a-5a91-ae0a-1b92e90e2ce5,acme-docs/s01/07_forum_post_unverified.md,web,0.2,1760000034501
+c9391172-98a0-5227-a802-2562f4b47eaa,billing-docs/s01/01_overview.md,doc,1.0,1760000038501
+6ac9410a-aedf-56e9-9448-fb8cf91b7651,acme-docs/s02/01_product_brief.md,doc,1.0,1760000069501
+b83ab153-22ee-50b3-8961-418c640369fd,acme-docs/s02/02_api_style_guide_v1.md,doc,1.0,1760000069502
+b942a2c4-3fa2-5dbe-9f13-476a31eb2453,acme-docs/s02/06_api_style_guide_v2.md,doc,1.0,1760000085001
+f4de9588-0730-548b-83dc-6624572ec2e9,acme-docs/s02/03_infra_note.md,doc,1.0,1760000095001
+39cb9ae0-2883-5516-aa68-a70780f00db6,acme-docs/s02/04_security_note.md,doc,1.0,1760000095002
+6594f109-e9dc-53da-a746-ad1e08f90b10,acme-docs/s02/05_customer_request.md,chat,0.8,1760000100001
+5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a,acme-docs/s02/07_forum_post_unverified.md,web,0.2,1760000103001
+bece50ec-c6cd-5b1f-8f10-dbabe1ac4693,billing-docs/s02/01_overview.md,doc,1.0,1760000107001
+2cd7752a-5a26-541e-af6a-1eeb3d4049e4,acme-docs/s03/01_product_brief.md,doc,1.0,1760000138001
+a1b92333-9f22-553b-a091-6987afa9f06a,acme-docs/s03/02_api_style_guide_v1.md,doc,1.0,1760000138002
+a3157cf7-c91c-5f87-be04-71e3c929bd80,acme-docs/s03/06_api_style_guide_v2.md,doc,1.0,1760000153501
+45d132f9-8197-5d56-9837-31a9a62d083a,acme-docs/s03/03_infra_note.md,doc,1.0,1760000163501
+06728c2f-ac38-5eff-bfe4-af34004ab853,acme-docs/s03/04_security_note.md,doc,1.0,1760000163502
+2e57ef4b-e590-51a0-bd5c-8399750c5698,acme-docs/s03/05_customer_request.md,chat,0.8,1760000168501
+50a82728-74ce-51ca-8126-1bfcad8093cc,acme-docs/s03/07_forum_post_unverified.md,web,0.2,1760000171501
+a6bbed10-44c3-51f2-8046-e46b23517f91,billing-docs/s03/01_overview.md,doc,1.0,1760000175501
+e0bd7c84-90b5-57d0-b40a-016f212a21ea,acme-docs/s04/01_product_brief.md,doc,1.0,1760000206501
+127f89af-2f69-58ef-9f4e-97156837348a,acme-docs/s04/02_api_style_guide_v1.md,doc,1.0,1760000206502
+33afd039-81e6-5afe-a3ff-d692210600e4,acme-docs/s04/06_api_style_guide_v2.md,doc,1.0,1760000222001
+bc2bd91f-2e50-56fa-92eb-ff29aa467586,acme-docs/s04/03_infra_note.md,doc,1.0,1760000232001
+33596035-df90-506b-bebe-896d5f493856,acme-docs/s04/04_security_note.md,doc,1.0,1760000232002
+89d35c09-4922-529a-9579-aade059c0c0f,acme-docs/s04/05_customer_request.md,chat,0.8,1760000237001
+88dae90f-05ce-5028-bc63-af5836789f02,acme-docs/s04/07_forum_post_unverified.md,web,0.2,1760000240001
+8c0d029a-205a-50ac-8733-3e2980b13f51,billing-docs/s04/01_overview.md,doc,1.0,1760000244001
+befbf972-2c5a-5744-aba1-a643a4c7edf2,acme-docs/s05/01_product_brief.md,doc,1.0,1760000275001
+e866d2c3-18c0-5987-bbb0-925ce526c9e4,acme-docs/s05/02_api_style_guide_v1.md,doc,1.0,1760000275002
+eee47460-6df3-5c18-876c-c4da21de79b1,acme-docs/s05/06_api_style_guide_v2.md,doc,1.0,1760000290501
+9adad08f-65e2-5a9e-978f-66d2a45f7767,acme-docs/s05/03_infra_note.md,doc,1.0,1760000300501
+6cb51554-80b7-5311-aa63-26842afbbf8c,acme-docs/s05/04_security_note.md,doc,1.0,1760000300502
+6549e120-18b1-50cb-a13a-3ccc3a7877cc,acme-docs/s05/05_customer_request.md,chat,0.8,1760000305501
+14284b1e-5c73-5edc-b916-8a8ed5b096c2,acme-docs/s05/07_forum_post_unverified.md,web,0.2,1760000308501
+8bb8e9cd-7f5e-518e-8179-b16b22406edb,billing-docs/s05/01_overview.md,doc,1.0,1760000312501
+9fb044a0-ddc3-570b-8cc6-d13485ca6b65,acme-docs/s06/01_product_brief.md,doc,1.0,1760000343501
+fa6709cb-2c39-53ac-b0be-247d40d19369,acme-docs/s06/02_api_style_guide_v1.md,doc,1.0,1760000343502
+c15bc998-60b5-5fbd-83de-0068f1d0a6ea,acme-docs/s06/06_api_style_guide_v2.md,doc,1.0,1760000359001
+25c69ed9-6900-5a24-9220-b828122c457f,acme-docs/s06/03_infra_note.md,doc,1.0,1760000369001
+1e93d619-1697-50f6-9d74-98340c8d9645,acme-docs/s06/04_security_note.md,doc,1.0,1760000369002
+120b450b-4ed5-5a55-9940-adc6d7047fc4,acme-docs/s06/05_customer_request.md,chat,0.8,1760000374001
+c477da62-2474-573b-851d-1e136de0257a,acme-docs/s06/07_forum_post_unverified.md,web,0.2,1760000377001
+d024116b-844c-58fb-95f9-74cf7c0d7d8d,billing-docs/s06/01_overview.md,doc,1.0,1760000381001
+752dc7ec-dfa2-5397-a300-2a99543010d1,acme-docs/s07/01_product_brief.md,doc,1.0,1760000412001
+8ec6c76b-30af-5963-a883-dc5b07bb74a3,acme-docs/s07/02_api_style_guide_v1.md,doc,1.0,1760000412002
+869f233b-3538-59ce-85e5-df14448ec824,acme-docs/s07/06_api_style_guide_v2.md,doc,1.0,1760000427501
+8fca5de6-eefb-5898-a627-a940668d993b,acme-docs/s07/03_infra_note.md,doc,1.0,1760000437501
+7a3ace3e-26f6-50bf-bee5-64b7c7483084,acme-docs/s07/04_security_note.md,doc,1.0,1760000437502
+b778417b-f0e4-5e04-a289-54778fbb1545,acme-docs/s07/05_customer_request.md,chat,0.8,1760000442501
+c5d7113f-1c71-55f0-9770-7ffee4112b3e,acme-docs/s07/07_forum_post_unverified.md,web,0.2,1760000445501
+561c65eb-d020-5de2-ad93-13e866c81828,billing-docs/s07/01_overview.md,doc,1.0,1760000449501
+4f4d6c96-4af2-5b6e-a29c-e6363095dc0c,acme-docs/s08/01_product_brief.md,doc,1.0,1760000480501
+8db9312f-53c0-59a9-8018-8c984ab125d7,acme-docs/s08/02_api_style_guide_v1.md,doc,1.0,1760000480502
+6e8458f2-1a44-5607-8240-9c18a2c08e4e,acme-docs/s08/06_api_style_guide_v2.md,doc,1.0,1760000496001
+abe9bff6-3960-59bd-bc4f-ccd91bb355d6,acme-docs/s08/03_infra_note.md,doc,1.0,1760000506001
+924612e4-2e2f-5e76-b4c5-b35350f7644c,acme-docs/s08/04_security_note.md,doc,1.0,1760000506002
+f506859c-7970-51a0-97db-d84207f453f9,acme-docs/s08/05_customer_request.md,chat,0.8,1760000511001
+20d49ab5-015b-5a6b-a5a0-85c90a3f0d76,acme-docs/s08/07_forum_post_unverified.md,web,0.2,1760000514001
+8a376dd6-3f68-53af-9c01-c09b0ee2d1aa,billing-docs/s08/01_overview.md,doc,1.0,1760000518001
+f9b4f85c-cfc3-5d36-a2ac-4b8cb21da28a,acme-docs/s09/01_product_brief.md,doc,1.0,1760000549001
+1abe3754-097b-525b-898d-8fcbc775edeb,acme-docs/s09/02_api_style_guide_v1.md,doc,1.0,1760000549002
+a544dc16-5f41-5160-8bff-d71dd5400678,acme-docs/s09/06_api_style_guide_v2.md,doc,1.0,1760000564501
+d74bf2e2-fdfe-5ed4-832c-1e71b2dc93f5,acme-docs/s09/03_infra_note.md,doc,1.0,1760000574501
+8ada797a-e3fc-5439-aac3-8b71257d35c0,acme-docs/s09/04_security_note.md,doc,1.0,1760000574502
+54e63ae0-bede-5abe-8854-35559c106a24,acme-docs/s09/05_customer_request.md,chat,0.8,1760000579501
+e5611a24-7de2-532c-a909-85db31e7657f,acme-docs/s09/07_forum_post_unverified.md,web,0.2,1760000582501
+497f8ed2-fa73-5f05-af5c-569b841c1a13,billing-docs/s09/01_overview.md,doc,1.0,1760000586501
+4cfd52c6-8413-5528-8ef9-2bd7332f17fb,acme-docs/s10/01_product_brief.md,doc,1.0,1760000617501
+38cdc76e-414d-564c-9188-7a6af3010502,acme-docs/s10/02_api_style_guide_v1.md,doc,1.0,1760000617502
+9057dfda-8909-579e-b9f0-0069760a6038,acme-docs/s10/06_api_style_guide_v2.md,doc,1.0,1760000633001
+c2e7dc71-a10d-52c7-ac51-3fce70f0a0ff,acme-docs/s10/03_infra_note.md,doc,1.0,1760000643001
+4cdcd00a-4654-5805-9def-743b2dbec44a,acme-docs/s10/04_security_note.md,doc,1.0,1760000643002
+82f31efd-0cfe-52e7-860b-a65389429cb2,acme-docs/s10/05_customer_request.md,chat,0.8,1760000648001
+21c87012-3ab3-5927-9747-7be6156e72ea,acme-docs/s10/07_forum_post_unverified.md,web,0.2,1760000651001
+ab2c87f0-bf51-58cf-b5a3-0672f747535c,billing-docs/s10/01_overview.md,doc,1.0,1760000655001
+235f1a64-9257-5ead-bece-f4fdfb42a7db,acme-docs/s11/01_product_brief.md,doc,1.0,1760000686001
+86e5bde8-3396-50de-b079-518943120969,acme-docs/s11/02_api_style_guide_v1.md,doc,1.0,1760000686002
+66ae2012-c0b6-586b-b970-aaf97edbbb0c,acme-docs/s11/06_api_style_guide_v2.md,doc,1.0,1760000701501
+2ec25b2e-15fa-56c0-9a1a-4b5d4d0f9dd5,acme-docs/s11/03_infra_note.md,doc,1.0,1760000711501
+23f454f2-2cd6-57ee-a6b0-2bb9c20ca7b5,acme-docs/s11/04_security_note.md,doc,1.0,1760000711502
+90ed1eb4-a29f-550a-a206-c6490ce1088a,acme-docs/s11/05_customer_request.md,chat,0.8,1760000716501
+0b38768f-c32e-5d8e-8ca2-2b38b8239eab,acme-docs/s11/07_forum_post_unverified.md,web,0.2,1760000719501
+2a2784cb-da43-517e-9201-6ebce385ece8,billing-docs/s11/01_overview.md,doc,1.0,1760000723501
+400b94ff-38db-56ae-8bbd-876a5c851ef9,acme-docs/s12/01_product_brief.md,doc,1.0,1760000754501
+11c8e79f-8d95-5601-bf84-6a0c4e09af17,acme-docs/s12/02_api_style_guide_v1.md,doc,1.0,1760000754502
+984fcb0a-5db2-50a7-a217-53cfb5455d54,acme-docs/s12/06_api_style_guide_v2.md,doc,1.0,1760000770001
+f0b0a8a4-3708-5c76-94f1-b0a26acb63e5,acme-docs/s12/03_infra_note.md,doc,1.0,1760000780001
+6a64380c-34c4-5a97-99f4-e01c2af78b8f,acme-docs/s12/04_security_note.md,doc,1.0,1760000780002
+8588540b-401b-5a01-9c56-8ba9b6864274,acme-docs/s12/05_customer_request.md,chat,0.8,1760000785001
+9aad5fe4-ef32-51c4-80a8-b3cdc43cef96,acme-docs/s12/07_forum_post_unverified.md,web,0.2,1760000788001
+da298250-a0d7-52fd-ac5d-3a6472265ed7,billing-docs/s12/01_overview.md,doc,1.0,1760000792001
+d3786390-1dbf-5866-bedc-fa82e6b1b40a,acme-docs/s13/01_product_brief.md,doc,1.0,1760000823001
+5d563c9a-d8a3-54b3-84f4-dbef8f943c1e,acme-docs/s13/02_api_style_guide_v1.md,doc,1.0,1760000823002
+f7afef02-c1c0-54de-8497-6e8c8876109e,acme-docs/s13/06_api_style_guide_v2.md,doc,1.0,1760000838501
+ab00d2a9-10f5-56eb-99ca-94af3ede14c2,acme-docs/s13/03_infra_note.md,doc,1.0,1760000848501
+86813e16-af98-5492-a687-6dbde64fd316,acme-docs/s13/04_security_note.md,doc,1.0,1760000848502
+9cd776e3-669d-5faa-a239-2a19fe736349,acme-docs/s13/05_customer_request.md,chat,0.8,1760000853501
+203c5d63-1133-5029-a45a-d7e225c3d5e5,acme-docs/s13/07_forum_post_unverified.md,web,0.2,1760000856501
+da895333-a26b-5b31-932f-73268bcef106,billing-docs/s13/01_overview.md,doc,1.0,1760000860501
+630cab7f-ca91-5e5b-8ffc-24ecf1f246d3,acme-docs/s14/01_product_brief.md,doc,1.0,1760000891501
+5db5a3c9-a8d8-5095-be9a-984cf39a7448,acme-docs/s14/02_api_style_guide_v1.md,doc,1.0,1760000891502
+84f9416b-d943-5f99-8b02-4de094011157,acme-docs/s14/06_api_style_guide_v2.md,doc,1.0,1760000907001
+bb74b1bc-c777-5356-b576-3c6355324084,acme-docs/s14/03_infra_note.md,doc,1.0,1760000917001
+6ace22dd-9fd8-517d-aa2f-cd1167e5a814,acme-docs/s14/04_security_note.md,doc,1.0,1760000917002
+9d69b057-e672-5f9d-bad8-cb9f7e005ae1,acme-docs/s14/05_customer_request.md,chat,0.8,1760000922001
+96231bab-e1e8-5422-92f8-27d3f98d3fd9,acme-docs/s14/07_forum_post_unverified.md,web,0.2,1760000925001
+3f81fce8-d250-5efe-bc52-13013e1a28df,billing-docs/s14/01_overview.md,doc,1.0,1760000929001
+de782705-393d-577b-9675-cf01af77c7ad,acme-docs/s15/01_product_brief.md,doc,1.0,1760000960001
+6874e4c1-5a5e-5325-aca1-40da0f75530b,acme-docs/s15/02_api_style_guide_v1.md,doc,1.0,1760000960002
+0f430b25-1004-5258-af83-b706946f124b,acme-docs/s15/06_api_style_guide_v2.md,doc,1.0,1760000975501
+598425c6-5edb-53db-8bcc-b3cc2ca273d2,acme-docs/s15/03_infra_note.md,doc,1.0,1760000985501
+cde4e28d-4b99-51ce-af8e-47f6be6af021,acme-docs/s15/04_security_note.md,doc,1.0,1760000985502
+97d55ad1-da58-57d1-8719-54616b0937dc,acme-docs/s15/05_customer_request.md,chat,0.8,1760000990501
+f5b88b48-3666-511e-9da7-5fde53059225,acme-docs/s15/07_forum_post_unverified.md,web,0.2,1760000993501
+a2d55b14-79ae-50e9-af07-06389712ed28,billing-docs/s15/01_overview.md,doc,1.0,1760000997501
+5d0b50ae-f866-5c62-abcc-60597a2913f5,acme-docs/s16/01_product_brief.md,doc,1.0,1760001028501
+4220badb-08ab-5afa-9a27-6f95d3b33f3c,acme-docs/s16/02_api_style_guide_v1.md,doc,1.0,1760001028502
+2eceb1b2-253c-5aea-b9bf-94443ad7d369,acme-docs/s16/06_api_style_guide_v2.md,doc,1.0,1760001044001
+7c00e46c-f53f-5bbe-89fb-21cd7c6143f4,acme-docs/s16/03_infra_note.md,doc,1.0,1760001054001
+8b03f1ce-ba6f-5881-9db3-54dc7695055d,acme-docs/s16/04_security_note.md,doc,1.0,1760001054002
+ee80410d-eea7-52eb-ade0-f2be2fd2b208,acme-docs/s16/05_customer_request.md,chat,0.8,1760001059001
+c9505fea-78a0-575f-b569-0d272e7e74ac,acme-docs/s16/07_forum_post_unverified.md,web,0.2,1760001062001
+9300b701-b80d-564f-83f2-e24e7217b008,billing-docs/s16/01_overview.md,doc,1.0,1760001066001
+48f102e7-bce6-525b-b543-395067fb90ed,acme-docs/s17/01_product_brief.md,doc,1.0,1760001097001
+ca9d44d1-ef72-52df-8cc8-7d4e2e8190d8,acme-docs/s17/02_api_style_guide_v1.md,doc,1.0,1760001097002
+3ce724cf-8c78-5df6-ac55-a51b3d075308,acme-docs/s17/06_api_style_guide_v2.md,doc,1.0,1760001112501
+022eebb0-cce9-53d3-a1ce-57e5920b4480,acme-docs/s17/03_infra_note.md,doc,1.0,1760001122501
+7f819974-6229-571e-a86d-c3093affdf3f,acme-docs/s17/04_security_note.md,doc,1.0,1760001122502
+a7507f29-792e-58b0-a4bd-8e2ca1127943,acme-docs/s17/05_customer_request.md,chat,0.8,1760001127501
+2b32abee-1156-5b5b-b04d-5b6d42420594,acme-docs/s17/07_forum_post_unverified.md,web,0.2,1760001130501
+57a5a080-8ec9-5339-8699-00484b342b6f,billing-docs/s17/01_overview.md,doc,1.0,1760001134501
+035fa372-9b02-5ca4-ac8b-086de9ee632d,acme-docs/s18/01_product_brief.md,doc,1.0,1760001165501
+28cd0fbc-8f79-589d-a39c-7bcbf449d68c,acme-docs/s18/02_api_style_guide_v1.md,doc,1.0,1760001165502
+bf68c6c6-ba99-5030-ac6f-f6afe648acca,acme-docs/s18/06_api_style_guide_v2.md,doc,1.0,1760001181001
+a94d255e-8389-523e-87b6-ede330edc27e,acme-docs/s18/03_infra_note.md,doc,1.0,1760001191001
+2e1b1482-0960-5c29-afcf-ee144db7aeb7,acme-docs/s18/04_security_note.md,doc,1.0,1760001191002
+028ba9b7-6c12-5e69-941b-1df80c0c1f9d,acme-docs/s18/05_customer_request.md,chat,0.8,1760001196001
+06de3fcd-ed3b-59e6-a82f-7a56587aaefb,acme-docs/s18/07_forum_post_unverified.md,web,0.2,1760001199001
+944d2579-e081-58b4-a307-92e33bcbabf5,billing-docs/s18/01_overview.md,doc,1.0,1760001203001
+dcb6a066-7789-5474-a6a4-4d7c56704c93,acme-docs/s19/01_product_brief.md,doc,1.0,1760001234001
+dafcc7e1-ddf1-5675-9c88-9fa8bd5e8d21,acme-docs/s19/02_api_style_guide_v1.md,doc,1.0,1760001234002
+f42421c7-30cb-5940-a03d-e707a7516790,acme-docs/s19/06_api_style_guide_v2.md,doc,1.0,1760001249501
+11821551-c490-517f-965c-e94a52effb27,acme-docs/s19/03_infra_note.md,doc,1.0,1760001259501
+80401274-db22-5422-88b3-2f326993bae1,acme-docs/s19/04_security_note.md,doc,1.0,1760001259502
+286b5282-5143-54de-82ef-62f67b4c57a4,acme-docs/s19/05_customer_request.md,chat,0.8,1760001264501
+433f47b1-eac7-5fcc-80a1-9a37cdbed257,acme-docs/s19/07_forum_post_unverified.md,web,0.2,1760001267501
+68b7e181-14a3-5707-a5a4-8c6ace961663,billing-docs/s19/01_overview.md,doc,1.0,1760001271501
+df71f9f2-f60d-57ea-ade8-138693805032,acme-docs/s20/01_product_brief.md,doc,1.0,1760001302501
+0042c983-67c6-5f1b-867f-ccfb9dd8bc53,acme-docs/s20/02_api_style_guide_v1.md,doc,1.0,1760001302502
+9e9091b0-4fef-57cb-bb7e-313c3aa9d897,acme-docs/s20/06_api_style_guide_v2.md,doc,1.0,1760001318001
+c51fc7a1-395f-5173-8de6-98c16f02fdcf,acme-docs/s20/03_infra_note.md,doc,1.0,1760001328001
+402de8e3-28a6-5757-b250-67e17c1975ce,acme-docs/s20/04_security_note.md,doc,1.0,1760001328002
+6706b1cf-499b-5e4e-b605-38c03014d712,acme-docs/s20/05_customer_request.md,chat,0.8,1760001333001
+0d04ac3e-ab11-50fc-8239-48273717b517,acme-docs/s20/07_forum_post_unverified.md,web,0.2,1760001336001
+0a028c65-53b7-58a8-8306-5fcfe2d64a7c,billing-docs/s20/01_overview.md,doc,1.0,1760001340001
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+1ecc2885-26f6-5914-a67b-ef6c30f16c27,planner,s01-t06-write-db-schema,S01: Evaluate MongoDB 4 as the database (forum post).,1760000035502,1
+c2768527-08b0-597d-a83d-6e5f577abdec,planner,s02-t06-write-db-schema,S02: Evaluate Cassandra 5 as the database (forum post).,1760000104002,1
+e7e5c47b-e9f9-56ff-aa91-d15f746fd0ce,planner,s03-t06-write-db-schema,S03: Evaluate Couchbase 6 as the database (forum post).,1760000172502,1
+3ec33149-f8f9-5802-8f21-98104778f70a,planner,s04-t06-write-db-schema,S04: Evaluate DynamoDB 7 as the database (forum post).,1760000241002,1
+b014b68b-cb82-5a7c-93da-20a91e4ad5c8,planner,s05-t06-write-db-schema,S05: Evaluate Redis 8 as the database (forum post).,1760000309502,1
+b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9,planner,s06-t06-write-db-schema,S06: Evaluate CouchDB 9 as the database (forum post).,1760000378002,1
+08a171d3-d7cf-56b7-bf89-66584f33edf7,planner,s07-t06-write-db-schema,S07: Evaluate RethinkDB 10 as the database (forum post).,1760000446502,1
+9e4af6aa-2f02-52e7-881a-b59decb90332,planner,s08-t06-write-db-schema,S08: Evaluate Neo4j 11 as the database (forum post).,1760000515002,1
+96e9e1aa-20d9-5746-b630-bedb9425649a,planner,s09-t06-write-db-schema,S09: Evaluate ScyllaDB 12 as the database (forum post).,1760000583502,1
+080ac483-a67c-55ac-a6e0-9ce1a6aa1d80,planner,s10-t06-write-db-schema,S10: Evaluate Riak 13 as the database (forum post).,1760000652002,1
+a34874f3-ebe0-52fb-9d27-a7aa14f96d94,planner,s11-t06-write-db-schema,S11: Evaluate MongoDB 14 as the database (forum post).,1760000720502,1
+e58506c9-24f6-5063-be8f-d80e205130dc,planner,s12-t06-write-db-schema,S12: Evaluate Cassandra 15 as the database (forum post).,1760000789002,1
+
+-- table decision_facts
+decision_id,fact_id
+1ecc2885-26f6-5914-a67b-ef6c30f16c27,d04e6e8e-1f06-55a2-a92f-7e931314a9db
+c2768527-08b0-597d-a83d-6e5f577abdec,829390c2-ab74-5246-8ede-795f0315774d
+e7e5c47b-e9f9-56ff-aa91-d15f746fd0ce,9bfc1e64-3bac-5fa5-ad23-e26c14efcd47
+3ec33149-f8f9-5802-8f21-98104778f70a,21402263-e0ee-5823-9999-b8b0073049d5
+b014b68b-cb82-5a7c-93da-20a91e4ad5c8,8b709ed9-81a2-5c6c-801a-bd45c94e7a6d
+b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9,a358e2a2-9b4c-5143-97ec-721836d2a9de
+08a171d3-d7cf-56b7-bf89-66584f33edf7,cc4ca4b0-4d9e-5305-aeca-1d63e046a297
+67edc01c-7910-5aa0-aceb-fdfd0856a6db,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9
+baf11370-e45c-581d-a186-52aefcfb5397,f4918c86-ef7f-50df-94d1-abc537082890
+36705ae7-678a-5284-a7da-9cf7ffa2d0d4,796aea04-86c3-5458-9108-e6250cae575b
+36705ae7-678a-5284-a7da-9cf7ffa2d0d4,8d09189a-de26-57cf-9d86-0b803170cfb1
+9e4af6aa-2f02-52e7-881a-b59decb90332,89d0ea3a-71e0-54c0-ad11-ad8dc201b757
+9e994591-e1e5-5fff-82ca-b14c6eec2ad0,e5ca0231-f709-5a9b-905f-27706b8cdc3e
+66744935-c4fa-5a06-bddd-7835dfc6a7af,f4918c86-ef7f-50df-94d1-abc537082890
+66744935-c4fa-5a06-bddd-7835dfc6a7af,796aea04-86c3-5458-9108-e6250cae575b
+96e9e1aa-20d9-5746-b630-bedb9425649a,627cee86-09ce-53a8-8797-fbf748462ecb
+080ac483-a67c-55ac-a6e0-9ce1a6aa1d80,a7c6ea31-4300-5afb-a980-2f6dba60fc95
+a34874f3-ebe0-52fb-9d27-a7aa14f96d94,840758d6-b085-5fb7-8439-41ea4d9075e2
+e58506c9-24f6-5063-be8f-d80e205130dc,95e1d954-04a9-5d9a-8441-994f908947d4
+e4c1fb22-8f33-5326-b439-096db849e51b,89edb49c-4d7d-5da0-b79c-14d927fe6390
+fb9a364e-958f-53c1-8db7-72cabb71cf6a,909bf6fb-2c0d-5c9b-a327-e3c3803ff755
+a913056a-8c85-5859-a2e2-0bf257ad7506,d90f88cf-844f-53f2-ae23-ee244ac551bf
+a058c6d5-d503-5e8e-99c4-cc338d94e8d6,8c0c9c0e-e435-5989-b4d5-0b471560e947
+d906d405-5d7f-5646-b053-8464e2681021,bc5bb23b-a206-5d2a-a0d1-800573fa5575
+ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2,7a67ca14-839a-5170-9971-a20197810304
+9acc129e-f910-5b32-8f14-80475529c123,e4fcdd43-d040-5571-a6ad-13d72dfaec1f
+1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97,3feb9534-3d34-5900-84f0-73e95a1532ea
+
+-- table handoff_items
+handoff_id,kind,item_id
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,artifact,d76294c4-c550-5029-845f-880e44cb4bf1
+70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b,fact,796aea04-86c3-5458-9108-e6250cae575b
+b5aa54ac-f8db-5fb0-930a-3888c9185415,artifact,9b23678d-08c1-5a60-80fb-42e413e0ccc0
+
+-- table step_reads
+step_id,fact_id
+266,89d0ea3a-71e0-54c0-ad11-ad8dc201b757
+267,89d0ea3a-71e0-54c0-ad11-ad8dc201b757
+
+-- table step_wrote
+step_id,node_id,label,summary
+21,1ecc2885-26f6-5914-a67b-ef6c30f16c27,Decision,S01: Evaluate MongoDB 4 as the database (forum post).
+56,c2768527-08b0-597d-a83d-6e5f577abdec,Decision,S02: Evaluate Cassandra 5 as the database (forum post).
+91,e7e5c47b-e9f9-56ff-aa91-d15f746fd0ce,Decision,S03: Evaluate Couchbase 6 as the database (forum post).
+126,3ec33149-f8f9-5802-8f21-98104778f70a,Decision,S04: Evaluate DynamoDB 7 as the database (forum post).
+161,b014b68b-cb82-5a7c-93da-20a91e4ad5c8,Decision,S05: Evaluate Redis 8 as the database (forum post).
+196,b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9,Decision,S06: Evaluate CouchDB 9 as the database (forum post).
+231,08a171d3-d7cf-56b7-bf89-66584f33edf7,Decision,S07: Evaluate RethinkDB 10 as the database (forum post).
+265,89d0ea3a-71e0-54c0-ad11-ad8dc201b757,Fact,Neo4j 11
+266,9e4af6aa-2f02-52e7-881a-b59decb90332,Decision,S08: Evaluate Neo4j 11 as the database (forum post).
+301,96e9e1aa-20d9-5746-b630-bedb9425649a,Decision,S09: Evaluate ScyllaDB 12 as the database (forum post).
+336,080ac483-a67c-55ac-a6e0-9ce1a6aa1d80,Decision,S10: Evaluate Riak 13 as the database (forum post).
+371,a34874f3-ebe0-52fb-9d27-a7aa14f96d94,Decision,S11: Evaluate MongoDB 14 as the database (forum post).
+406,e58506c9-24f6-5063-be8f-d80e205130dc,Decision,S12: Evaluate Cassandra 15 as the database (forum post).
+441,e4c1fb22-8f33-5326-b439-096db849e51b,Decision,S13: Evaluate Couchbase 16 as the database (forum post).
+476,fb9a364e-958f-53c1-8db7-72cabb71cf6a,Decision,S14: Evaluate DynamoDB 17 as the database (forum post).
+511,a913056a-8c85-5859-a2e2-0bf257ad7506,Decision,S15: Evaluate Redis 18 as the database (forum post).
+546,a058c6d5-d503-5e8e-99c4-cc338d94e8d6,Decision,S16: Evaluate CouchDB 19 as the database (forum post).
+581,d906d405-5d7f-5646-b053-8464e2681021,Decision,S17: Evaluate RethinkDB 20 as the database (forum post).
+616,ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2,Decision,S18: Evaluate Neo4j 21 as the database (forum post).
+651,9acc129e-f910-5b32-8f14-80475529c123,Decision,S19: Evaluate ScyllaDB 22 as the database (forum post).
+686,1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97,Decision,S20: Evaluate Riak 23 as the database (forum post).
+
