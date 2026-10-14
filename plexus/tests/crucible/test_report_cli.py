@@ -103,7 +103,13 @@ def test_unknown_arm_or_test_is_rejected(tmp_path):
         cli.main(["l1", "--tests", "C9", "--out", str(tmp_path)])
 
 
-def test_unreachable_database_exits_2(tmp_path):
+def test_unreachable_database_exits_2(tmp_path, monkeypatch):
+    import redis
+
+    def refuse(*a, **k):
+        raise redis.exceptions.ConnectionError("connection refused")
+
+    monkeypatch.setattr(redis, "Redis", refuse)
     assert cli.main(["l1", "--arms", "P", "--port", "1", "--out", str(tmp_path), "--embedder", "hash"]) == 2
 
 
@@ -143,3 +149,30 @@ def test_rerun_replaces_only_the_named_cells_and_keeps_the_original(tmp_path):
     )
     assert "Re-runs" in (base / "report.md").read_text(encoding="utf-8")
     assert cli.main(["rerun", "--base", str(base), *common[2:]]) == 2  # needs a cell and a reason
+
+
+def test_wait_for_db_waits_while_loading_and_fails_fast_otherwise(monkeypatch):
+    import redis
+
+    calls = {"n": 0}
+
+    class Fake:
+        def __init__(self, *a, **k): ...
+        def ping(self):
+            return True
+
+        def info(self, section):
+            calls["n"] += 1
+            return {"loading": 1 if calls["n"] < 3 else 0}
+
+    monkeypatch.setattr(redis, "Redis", Fake)
+    monkeypatch.setattr(cli.time, "sleep", lambda _: None)
+    assert cli.wait_for_db("h", 1, 30) == "" and calls["n"] == 3
+    calls["n"] = -(10**9)  # never finishes loading
+    assert "still loading" in cli.wait_for_db("h", 1, 0)
+
+    def refuse(*a, **k):
+        raise redis.exceptions.ConnectionError("connection refused")
+
+    monkeypatch.setattr(redis, "Redis", refuse)
+    assert cli.wait_for_db("h", 1, 30) == "connection refused"  # not a loading error: returns at once

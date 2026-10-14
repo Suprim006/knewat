@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import argparse
 import dataclasses
+import os
 import shutil
 import sys
 import tempfile
@@ -119,6 +120,38 @@ def _needs_db(layer: str, l1: L1Config, l4: L4Config) -> bool:
     return bool({a for a in arms if a.startswith("P")})
 
 
+DB_WAIT_S = float(os.environ.get("CRUCIBLE_DB_WAIT_S", "120"))
+
+
+def wait_for_db(host: str, port: int, timeout_s: float) -> str:
+    """Block until the server answers PING *and* has finished loading its dataset (``loading:0``).
+
+    PING succeeds (and a compose healthcheck that only pings goes green) while Redis is still replaying a large AOF,
+    but every command then fails with ``BusyLoadingError``. Waits at most ``timeout_s`` while the server reports
+    loading; any other failure returns at once. Returns "" when ready, else the reason.
+    """
+    import redis
+
+    deadline = time.monotonic() + timeout_s
+    last = ""
+    while True:
+        try:
+            r = redis.Redis(host=host, port=port, socket_timeout=5, decode_responses=True)
+            r.ping()
+            if int(r.info("persistence").get("loading", 0)) == 0:
+                return ""
+            last = "still loading the dataset"
+        except redis.exceptions.BusyLoadingError:
+            last = "still loading the dataset"
+        except Exception as exc:  # noqa: BLE001
+            if "loading" not in str(exc).lower():
+                return str(exc)
+            last = "still loading the dataset"
+        if time.monotonic() >= deadline:
+            return f"{last} after {timeout_s:.0f}s"
+        time.sleep(1.0)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     l1_cfg, l4_cfg = _config(args)
@@ -130,12 +163,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.port:
         env.port = args.port
     if _needs_db(args.layer, l1_cfg, l4_cfg):
-        try:
-            import redis
-
-            redis.Redis(host=env.host, port=env.port, socket_timeout=5).ping()
-        except Exception as exc:  # noqa: BLE001
-            print(f"crucible: FalkorDB is not reachable at {env.host}:{env.port} ({exc})", file=sys.stderr)
+        err = wait_for_db(env.host, env.port, DB_WAIT_S)
+        if err:
+            print(f"crucible: FalkorDB is not usable at {env.host}:{env.port} ({err})", file=sys.stderr)
             return 2
     if args.layer == "rerun":
         if not args.base or not args.cell or not args.reason:
