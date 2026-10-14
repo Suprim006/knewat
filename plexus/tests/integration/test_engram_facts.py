@@ -19,12 +19,18 @@ def test_first_assertion_creates_fact_with_provenance(eng, client, graph, proj):
     ep = eng.remember_episode(s, "user", "we use postgres")
     r = eng.assert_fact("Acme Notes API", "database", "PostgreSQL 16", proj, "a1", episode_id=ep, now=1000)
     assert r["superseded"] == [] and r["duplicate_of"] is None and r["contradicts"] == []
-    f = client.graph(graph).ro_query(
-        "MATCH (f:Fact {id:$id})-[:ABOUT]->(e:Entity), (f)-[:IN_SCOPE]->(s:Scope), (f)-[:ASSERTED_BY]->(a:Agent),"
-        " (f)-[:DERIVED_FROM]->(x:Episode) "
-        "RETURN e.name, s.name, a.id, x.id, f.status, f.valid_from, f.valid_to, f.confidence, f.predicate",
-        {"id": r["fact_id"]},
-    ).result_set
+    f = (
+        client.graph(graph)
+        .ro_query(
+            "MATCH (f:Fact {id:$id})-[:ABOUT]->(e:Entity), (f)-[:IN_SCOPE]->(s:Scope),"
+            " (f)-[:ASSERTED_BY]->(a:Agent),"
+            " (f)-[:DERIVED_FROM]->(x:Episode) "
+            "RETURN e.name, s.name, a.id, x.id, f.status, f.valid_from, f.valid_to,"
+            " f.confidence, f.predicate",
+            {"id": r["fact_id"]},
+        )
+        .result_set
+    )
     assert f == [["Acme Notes API", "acme", "a1", ep, "active", 1000, OPEN, 1.0, "database"]]
 
 
@@ -102,9 +108,14 @@ def test_different_scope_and_predicate_do_not_interact(eng, client, graph, glob,
 def test_confidence_and_source(eng, client, graph, proj):
     client.graph(graph).query("CREATE (:Source {id:'src1', uri:'doc://x', kind:'doc', trust:1.0})")
     r = eng.assert_fact("Acme", "owner", "Alice", proj, "a1", source_id="src1", confidence=0.6, now=5)
-    rows = client.graph(graph).ro_query(
-        "MATCH (f:Fact {id:$id})-[:DERIVED_FROM]->(s:Source) RETURN s.id, f.confidence", {"id": r["fact_id"]}
-    ).result_set
+    rows = (
+        client.graph(graph)
+        .ro_query(
+            "MATCH (f:Fact {id:$id})-[:DERIVED_FROM]->(s:Source) RETURN s.id, f.confidence",
+            {"id": r["fact_id"]},
+        )
+        .result_set
+    )
     assert rows == [["src1", 0.6]]
     # a missing source/episode id is ignored rather than failing the write
     r2 = eng.assert_fact("Acme", "owner", "Bob", proj, "a1", source_id="nope", episode_id="nope", now=6)

@@ -1,4 +1,4 @@
-"""Local CPU embeddings: fastembed ``BAAI/bge-small-en-v1.5`` (384-d). No key, no network after the first download."""
+"""Local CPU embeddings: fastembed bge-small-en-v1.5 (384-d). No key; offline after first download."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def default_cache_dir() -> str:
 
 
 class FastEmbedder:
-    """Lazy-loads the ONNX model once per instance (thread-safe). bge-small output is already L2-normalised."""
+    """Lazy-loads the ONNX model once per instance (thread-safe). Output is already L2-normalised."""
 
     dim = DIM
 

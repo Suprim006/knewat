@@ -37,7 +37,9 @@ def test_episode_chain_order_across_two_sessions(eng, client, graph):
     assert _chain(client, graph, s1) == [f"s1 msg {i}" for i in range(4)]
     assert _chain(client, graph, s2) == [f"s2 msg {i}" for i in range(4)]
     # each chain has exactly one head and one NEXT edge fewer than episodes
-    nxt = client.graph(graph).ro_query("MATCH (:Episode)-[r:NEXT]->(:Episode) RETURN count(r)").result_set[0][0]
+    nxt = (
+        client.graph(graph).ro_query("MATCH (:Episode)-[r:NEXT]->(:Episode) RETURN count(r)").result_set[0][0]
+    )
     assert nxt == 6
 
 
@@ -49,7 +51,9 @@ def test_episode_stores_embedding_step_and_prev(eng, client, graph):
         "MATCH (e:Episode {id:$id}) RETURN e.step, e.role, e.embedding IS NOT NULL", {"id": e1}
     )
     assert r.result_set[0][0] == 7 and r.result_set[0][1] == "user"
-    r = client.graph(graph).ro_query("MATCH (a:Episode {id:$a})-[:NEXT]->(b:Episode {id:$b}) RETURN b.step", {"a": e1, "b": e2})
+    r = client.graph(graph).ro_query(
+        "MATCH (a:Episode {id:$a})-[:NEXT]->(b:Episode {id:$b}) RETURN b.step", {"a": e1, "b": e2}
+    )
     assert r.result_set == [[-1]]
 
 

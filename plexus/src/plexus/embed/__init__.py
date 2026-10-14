@@ -1,4 +1,4 @@
-"""Local embedding models. ``get_embedder()`` picks one by env ``PLEXUS_EMBEDDER`` (``fastembed`` | ``hash``)."""
+"""Local embedding models. ``get_embedder()`` picks one via env ``PLEXUS_EMBEDDER`` (fastembed | hash)."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ def __getattr__(name: str):  # FastEmbedder imports lazily so `import plexus.emb
 
 
 def get_embedder(kind: str | None = None) -> Embedder:
-    """Return the process-wide embedder for ``kind`` (default: env ``PLEXUS_EMBEDDER``, else ``fastembed``)."""
+    """Process-wide embedder for ``kind`` (default: env ``PLEXUS_EMBEDDER``, else ``fastembed``)."""
     kind = (kind or os.environ.get("PLEXUS_EMBEDDER") or "fastembed").lower()
     if kind not in _singletons:
         if kind == "hash":

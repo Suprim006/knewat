@@ -1,4 +1,4 @@
-"""Deterministic, model-free 384-d hashed bag-of-words embedder. Test-only: no semantics beyond word overlap."""
+"""Deterministic, model-free 384-d hashed bag-of-words embedder. Test-only: word overlap, no semantics."""
 
 from __future__ import annotations
 

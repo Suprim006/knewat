@@ -38,7 +38,9 @@ def test_k_limits_results_and_orders_nearest_first(eng, proj):
 
 def test_budget_truncation(eng, proj):
     for i in range(6):
-        eng.assert_fact(f"Service{i}", "note", f"runs on port {8000 + i} with a long description " * 2, proj, "a1", now=10)
+        eng.assert_fact(
+            f"Service{i}", "note", f"runs on port {8000 + i} with a long description " * 2, proj, "a1", now=10
+        )
     full = eng.recall("runs on port", proj, k=6, budget_chars=10_000)
     assert len(full) == 6
     texts = [f["text"] for f in full]

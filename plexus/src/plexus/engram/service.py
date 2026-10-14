@@ -1,6 +1,6 @@
 """Engram service layer: Python wrappers around the named queries in ``queries/engram/``.
 
-Every write is one Cypher statement (atomic; FalkorDB serialises writes per graph). Embeddings are computed here
+Every write is one Cypher statement (atomic; FalkorDB serialises writes per graph). Embeddings are made here
 (local model, no LLM) and passed as parameters. Time is epoch milliseconds; ``now`` is injectable for tests.
 """
 
@@ -121,9 +121,9 @@ class Engram:
         ``entity_threshold``, same kind) -> ``MERGE (e:Entity {norm_name})``.
 
         Race behaviour: the lookups are reads, the create is an atomic MERGE on ``norm_name``. Two concurrent
-        calls with the *same* name converge on one node. Two concurrent calls with *different* spellings of the
-        same thing (a paraphrase) can both miss and create two entities; a later call resolves to the nearest
-        (older) one but the two nodes are not merged.
+        calls with the *same* name converge on one node. Two concurrent calls with *different* spellings of
+        the same thing (a paraphrase) can both miss and create two entities; a later call resolves to the
+        nearest (older) one but the two nodes are not merged.
         """
         norm = normalize(name)
         if not norm:
