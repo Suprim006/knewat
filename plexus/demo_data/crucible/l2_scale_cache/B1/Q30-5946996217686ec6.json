@@ -1,0 +1,30 @@
+{
+ "qid": "Q30",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"purpose=REST service to create, tag and search notes (S15)\", \"api_version=v30\", \"database=SQL Server 2022\", \"auth_method=JWT bearer tokens (ES384, key s15)\", \"auth_method=API key in X-Web-Key header\", \"release_channel=general availability\"]}",
+ "answer": [
+  "purpose=REST service to create, tag and search notes (S15)",
+  "api_version=v30",
+  "database=SQL Server 2022",
+  "auth_method=JWT bearer tokens (ES384, key s15)",
+  "auth_method=API key in X-Web-Key header",
+  "release_channel=general availability"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 354,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 20628
+ },
+ "cost_usd": 0.0861104,
+ "latency_ms": 6025.8,
+ "duration_api_ms": 3907.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "646d52a4-5725-4c6d-b470-283161d67386",
+ "key": "5946996217686ec615f5b6d492954422b5fc91ffd1f470edb4da339da4409714"
+}

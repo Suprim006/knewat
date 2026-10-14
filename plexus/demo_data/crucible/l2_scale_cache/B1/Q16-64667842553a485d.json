@@ -1,0 +1,26 @@
+{
+ "qid": "Q16",
+ "arm": "B1",
+ "reply": "Current api_version fact for S02 is v4 (399e1e16...). Decisions linked to it in decision_facts:\n- 6abda574: \"S02: Adopt style guide v4...\" → name \"s02 adopt style guide\"\n- 7efc5fbb: \"S02: Spec approved: endpoints...\" → name \"s02 spec approved endpoints\"\n\n{\"answer\": [\"s02 adopt style guide\", \"s02 spec approved endpoints\"]}",
+ "answer": [
+  "s02 adopt style guide",
+  "s02 spec approved endpoints"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 151,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 22525
+ },
+ "cost_usd": 0.0916684,
+ "latency_ms": 4644.4,
+ "duration_api_ms": 2540.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "45c9bfaa-5719-4fb3-919a-988fdc294610",
+ "key": "64667842553a485da62af9aa882c19ab6954bfcb6bf9b559fedcb6bc91c3bacf"
+}

@@ -1,0 +1,25 @@
+{
+ "qid": "Q10",
+ "arm": "B1",
+ "reply": "S04 auth_method facts: JWT RS384 valid_from 1760000234000, active, valid_to max → valid at 1760000234500. API key X-Auth-Key valid_from 1760000238000 → not yet valid.\n\n{\"answer\": [\"auth_method=JWT bearer tokens (RS384, key s04)\"]}",
+ "answer": [
+  "auth_method=JWT bearer tokens (RS384, key s04)"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 110,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 21903
+ },
+ "cost_usd": 0.0887704,
+ "latency_ms": 4504.8,
+ "duration_api_ms": 2374.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "47bd0c31-1873-46c8-9b4a-3d3c74e63394",
+ "key": "a164be471381179434c528f1fa3a54e2a71dd1b4888b098c0e458a5c30291524"
+}

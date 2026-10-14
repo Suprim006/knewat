@@ -1,0 +1,171 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"s07-t01-gather-requirements":{"id":"s07-t01-gather-requirements","title":"Gather requirements (S07)","priority":50,"seq":72,"status":"done","claimed_by":"researcher","lease_until":1760000532000,"version":2,"created_at":1760000411001,"done_at":1760000414002,"deps":[],"artifacts":[{"id":"88a3dc45-4998-56d1-bd76-0403b6628ed1","kind":"file","uri":"artifacts/s07/requirements.md","hash":"","summary":"S07 requirements: notes CRUD, tags, API version v13","agent_id":"researcher","created_at":1760000414002}]}}
+{"s07-t02-choose-api-version":{"id":"s07-t02-choose-api-version","title":"Choose API version (S07)","priority":45,"seq":73,"status":"done","claimed_by":"planner","lease_until":1760000536000,"version":2,"created_at":1760000411001,"done_at":1760000417001,"deps":["s07-t01-gather-requirements"],"artifacts":[]}}
+{"s07-t03-design-endpoints":{"id":"s07-t03-design-endpoints","title":"Design endpoints (S07)","priority":40,"seq":74,"status":"done","claimed_by":"researcher","lease_until":1760000543500,"version":3,"created_at":1760000411001,"done_at":1760000425501,"deps":["s07-t02-choose-api-version"],"artifacts":[{"id":"09f557a1-f24a-515a-b6a5-1c451ea2963d","kind":"file","uri":"artifacts/s07/openapi-draft.yaml","hash":"","summary":"S07 endpoint draft for /v13/notes (CRUD)","agent_id":"researcher","created_at":1760000425501}]}}
+[...]
+{"s07-t06-write-db-schema":{"id":"s07-t06-write-db-schema","title":"Write database schema (S07)","priority":25,"seq":77,"status":"done","claimed_by":"builder","lease_until":1760000572500,"version":2,"created_at":1760000411001,"done_at":1760000455501,"deps":["s07-t02-choose-api-version","s07-t04-survey-infra-security"],"artifacts":[{"id":"0740ef8a-7be7-5804-b96b-ac18b7d8ee18","kind":"file","uri":"artifacts/s07/schema.sql","hash":"","summary":"S07 PostgreSQL 15 schema: notes, tags, note_tags","agent_id":"builder","created_at":1760000455501}]}}
+{"s07-t07-implement-crud-spec":{"id":"s07-t07-implement-crud-spec","title":"Implement CRUD spec (S07)","priority":20,"seq":78,"status":"done","claimed_by":"builder","lease_until":1760000577500,"version":2,"created_at":1760000411001,"done_at":1760000459501,"deps":["s07-t03-design-endpoints","s07-t05-choose-auth","s07-t06-write-db-schema"],"artifacts":[{"id":"1fd0fea1-4134-5a70-a173-ddd7cb97836b","kind":"file","uri":"artifacts/s07/crud-spec.md","hash":"","summary":"S07 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000459501}]}}
+[...]
+{"s07-t10-write-docs":{"id":"s07-t10-write-docs","title":"Write documentation (S07)","priority":10,"seq":81,"status":"done","claimed_by":"researcher","lease_until":1760000589500,"version":2,"created_at":1760000411001,"done_at":1760000470501,"deps":["s07-t09-review-spec"],"artifacts":[{"id":"1de553c0-1c48-5f2a-aecd-eacd26f7edab","kind":"file","uri":"artifacts/s07/docs.md","hash":"","summary":"S07 API documentation","agent_id":"researcher","created_at":1760000470501}]}}
+{"s07-t11-package-release":{"id":"s07-t11-package-release","title":"Package release (S07)","priority":5,"seq":82,"status":"done","claimed_by":"builder","lease_until":1760000592500,"version":2,"created_at":1760000411001,"done_at":1760000472502,"deps":["s07-t10-write-docs"],"artifacts":[{"id":"8eb933f0-4509-5a32-88d9-029618f871ae","kind":"file","uri":"artifacts/s07/release.tar","hash":"","summary":"S07 release bundle of the Acme Notes API","agent_id":"builder","created_at":1760000472502}]}}
+{"s07-t12-update-endpoints-for-v2":{"id":"s07-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S07)","priority":60,"seq":83,"status":"done","claimed_by":"builder","lease_until":1760000552500,"version":2,"created_at":1760000431501,"done_at":1760000434501,"deps":["s07-t03-design-endpoints"],"artifacts":[{"id":"26ccd88e-4a22-5b06-b8fc-d53cde49e168","kind":"file","uri":"artifacts/s07/openapi-v2.yaml","hash":"","summary":"S07 endpoint design for /v14/notes","agent_id":"builder","created_at":1760000434501}]}}
+
+=== file: MEMORY.md ===
+- **Acme Notes API S01** auth_method: API key in X-Api-Key header (active, global) <!--{"id":"f5aae893-1530-56f3-8882-3bed05324144","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"auth_method","value":"API key in X-Api-Key header","norm_value":"api key in x-api-key header","scope":"global","status":"active","valid_from":1760000032500,"valid_to":9999999999999,"recorded_at":1760000032500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["0279cad1-5117-57e4-94a7-2b487b14db9a"],"supersedes":[],"contradicts":["2c6740d8-7444-5f79-8d75-ce7112466e7f"]}-->
+[...]
+- **Acme Notes API S02** auth_method: API key in X-Service-Key header (active, global) <!--{"id":"8aa0e063-17d5-5061-922f-ecb6884e4eca","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"auth_method","value":"API key in X-Service-Key header","norm_value":"api key in x-service-key header","scope":"global","status":"active","valid_from":1760000101000,"valid_to":9999999999999,"recorded_at":1760000101000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["6594f109-e9dc-53da-a746-ad1e08f90b10"],"supersedes":[],"contradicts":["adce43a0-b0da-5936-b9e3-11456941bd65"]}-->
+[...]
+- **Acme Notes API S03** auth_method: API key in X-Client-Key header (active, global) <!--{"id":"246b7904-0d0c-53ef-b7a4-974669a37be8","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"auth_method","value":"API key in X-Client-Key header","norm_value":"api key in x-client-key header","scope":"global","status":"active","valid_from":1760000169500,"valid_to":9999999999999,"recorded_at":1760000169500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["2e57ef4b-e590-51a0-bd5c-8399750c5698"],"supersedes":[],"contradicts":["8c782244-d287-5241-97fe-81123ca9a9a9"]}-->
+[...]
+- **Acme Notes API S04** auth_method: API key in X-Auth-Key header (active, global) <!--{"id":"d84cd0fb-8f2d-54be-a05a-23e0a2b00462","entity":"acme notes api s04","entity_name":"Acme Notes API S04","predicate":"auth_method","value":"API key in X-Auth-Key header","norm_value":"api key in x-auth-key header","scope":"global","status":"active","valid_from":1760000238000,"valid_to":9999999999999,"recorded_at":1760000238000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["89d35c09-4922-529a-9579-aade059c0c0f"],"supersedes":[],"contradicts":["6a825d90-ffb7-5427-ba96-9e4db1fb916a"]}-->
+[...]
+- **Acme Notes API S05** auth_method: API key in X-App-Key header (active, global) <!--{"id":"489da596-b3ca-5043-a0ea-5086de9014b6","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"auth_method","value":"API key in X-App-Key header","norm_value":"api key in x-app-key header","scope":"global","status":"active","valid_from":1760000306500,"valid_to":9999999999999,"recorded_at":1760000306500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["6549e120-18b1-50cb-a13a-3ccc3a7877cc"],"supersedes":[],"contradicts":["caaa893a-626f-5079-bebd-835aa31eb750"]}-->
+[...]
+- **Acme Notes API S06** auth_method: API key in X-Access-Key header (active, global) <!--{"id":"df087bdd-00a4-582c-8b35-5ab24374ba4a","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"auth_method","value":"API key in X-Access-Key header","norm_value":"api key in x-access-key header","scope":"global","status":"active","valid_from":1760000375000,"valid_to":9999999999999,"recorded_at":1760000375000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["120b450b-4ed5-5a55-9940-adc6d7047fc4"],"supersedes":[],"contradicts":["a7d999dc-22d8-5a8f-9859-1e0bf1c06070"]}-->
+[...]
+- **Acme Notes API S07** purpose: REST service to create, tag and search notes (S07) (active, global) <!--{"id":"872a25c1-97cc-5676-b4ec-866339fea19e","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"purpose","value":"REST service to create, tag and search notes (S07)","norm_value":"rest service to create, tag and search notes (s07)","scope":"global","status":"active","valid_from":1760000413000,"valid_to":9999999999999,"recorded_at":1760000413000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["752dc7ec-dfa2-5397-a300-2a99543010d1"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S07** api_version: v13 (superseded, global) <!--{"id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"api_version","value":"v13","norm_value":"v13","scope":"global","status":"superseded","valid_from":1760000414000,"valid_to":1760000428500,"recorded_at":1760000414000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8ec6c76b-30af-5963-a883-dc5b07bb74a3"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S07** api_version: v14 (active, global) <!--{"id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"api_version","value":"v14","norm_value":"v14","scope":"global","status":"active","valid_from":1760000428500,"valid_to":9999999999999,"recorded_at":1760000428500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["869f233b-3538-59ce-85e5-df14448ec824"],"supersedes":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S07** auth_method: JWT bearer tokens (ES256, key s07) (active, global) <!--{"id":"9aa3ca0d-ddf3-5024-b383-b632b16c6648","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"auth_method","value":"JWT bearer tokens (ES256, key s07)","norm_value":"jwt bearer tokens (es256, key s07)","scope":"global","status":"active","valid_from":1760000439500,"valid_to":9999999999999,"recorded_at":1760000439500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["7a3ace3e-26f6-50bf-bee5-64b7c7483084"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S07** auth_method: API key in X-Team-Key header (active, global) <!--{"id":"420dbc5d-4360-5896-9a31-6d72eaf60eb9","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"auth_method","value":"API key in X-Team-Key header","norm_value":"api key in x-team-key header","scope":"global","status":"active","valid_from":1760000443500,"valid_to":9999999999999,"recorded_at":1760000443500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["b778417b-f0e4-5e04-a289-54778fbb1545"],"supersedes":[],"contradicts":["9aa3ca0d-ddf3-5024-b383-b632b16c6648"]}-->
+[...]
+- **Bolt Billing API S07** billing_cycle: quarterly, invoiced on day 7 (active, project:billing-s07) <!--{"id":"74f296cb-6df6-5f59-86f6-3dc971410666","entity":"bolt billing api s07","entity_name":"Bolt Billing API S07","predicate":"billing_cycle","value":"quarterly, invoiced on day 7","norm_value":"quarterly, invoiced on day 7","scope":"project:billing-s07","status":"active","valid_from":1760000450500,"valid_to":9999999999999,"recorded_at":1760000450500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["561c65eb-d020-5de2-ad93-13e866c81828"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S07** release_channel: open beta (active, project:acme-s07) <!--{"id":"70905c5f-9ab9-5580-8a79-8aad4b1a6633","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"release_channel","value":"open beta","norm_value":"open beta","scope":"project:acme-s07","status":"active","valid_from":1760000451500,"valid_to":9999999999999,"recorded_at":1760000451500,"confidence":1.0,"asserted_by":["planner"],"derived_from":[],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S08** auth_method: API key in X-Notes-Key header (active, global) <!--{"id":"8d09189a-de26-57cf-9d86-0b803170cfb1","entity":"acme notes api s08","entity_name":"Acme Notes API S08","predicate":"auth_method","value":"API key in X-Notes-Key header","norm_value":"api key in x-notes-key header","scope":"global","status":"active","valid_from":1760000512000,"valid_to":9999999999999,"recorded_at":1760000512000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["f506859c-7970-51a0-97db-d84207f453f9"],"supersedes":[],"contradicts":["796aea04-86c3-5458-9108-e6250cae575b"]}-->
+[...]
+- **Acme Notes API S09** auth_method: API key in X-Gateway-Key header (active, global) <!--{"id":"13efb66e-9d5d-54a9-ae84-c2274ed15e81","entity":"acme notes api s09","entity_name":"Acme Notes API S09","predicate":"auth_method","value":"API key in X-Gateway-Key header","norm_value":"api key in x-gateway-key header","scope":"global","status":"active","valid_from":1760000580500,"valid_to":9999999999999,"recorded_at":1760000580500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["54e63ae0-bede-5abe-8854-35559c106a24"],"supersedes":[],"contradicts":["3a1468b7-0a5c-5b70-9e35-98f20baacab6"]}-->
+[...]
+- **Acme Notes API S10** auth_method: API key in X-Partner-Key header (active, global) <!--{"id":"e2a918a4-327c-555e-ba96-36c9375fea00","entity":"acme notes api s10","entity_name":"Acme Notes API S10","predicate":"auth_method","value":"API key in X-Partner-Key header","norm_value":"api key in x-partner-key header","scope":"global","status":"active","valid_from":1760000649000,"valid_to":9999999999999,"recorded_at":1760000649000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["82f31efd-0cfe-52e7-860b-a65389429cb2"],"supersedes":[],"contradicts":["1957d113-2caf-53d4-a9c9-713c893bed4e"]}-->
+[...]
+- **Acme Notes API S11** auth_method: API key in X-Tenant-Key header (active, global) <!--{"id":"c8c99a70-f727-5676-9ae3-35ab4de58986","entity":"acme notes api s11","entity_name":"Acme Notes API S11","predicate":"auth_method","value":"API key in X-Tenant-Key header","norm_value":"api key in x-tenant-key header","scope":"global","status":"active","valid_from":1760000717500,"valid_to":9999999999999,"recorded_at":1760000717500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["90ed1eb4-a29f-550a-a206-c6490ce1088a"],"supersedes":[],"contradicts":["facb64f3-a7ed-5ee0-859d-5752d670f2c7"]}-->
+[...]
+- **Acme Notes API S12** auth_method: API key in X-Edge-Key header (active, global) <!--{"id":"38c8d041-eef8-59ec-9099-41b2cb46ac35","entity":"acme notes api s12","entity_name":"Acme Notes API S12","predicate":"auth_method","value":"API key in X-Edge-Key header","norm_value":"api key in x-edge-key header","scope":"global","status":"active","valid_from":1760000786000,"valid_to":9999999999999,"recorded_at":1760000786000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["8588540b-401b-5a01-9c56-8ba9b6864274"],"supersedes":[],"contradicts":["c741d5a2-182e-533c-bac5-124f08e9a37a"]}-->
+[...]
+- **Acme Notes API S13** auth_method: API key in X-Core-Key header (active, global) <!--{"id":"e0bfc28b-0c15-5c06-82d1-c39499d7b337","entity":"acme notes api s13","entity_name":"Acme Notes API S13","predicate":"auth_method","value":"API key in X-Core-Key header","norm_value":"api key in x-core-key header","scope":"global","status":"active","valid_from":1760000854500,"valid_to":9999999999999,"recorded_at":1760000854500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["9cd776e3-669d-5faa-a239-2a19fe736349"],"supersedes":[],"contradicts":["281fe1b5-fe2f-570f-b317-b10819b44639"]}-->
+[...]
+- **Acme Notes API S14** auth_method: API key in X-Mobile-Key header (active, global) <!--{"id":"fd06adfe-07c0-53f6-9faf-0642215810b3","entity":"acme notes api s14","entity_name":"Acme Notes API S14","predicate":"auth_method","value":"API key in X-Mobile-Key header","norm_value":"api key in x-mobile-key header","scope":"global","status":"active","valid_from":1760000923000,"valid_to":9999999999999,"recorded_at":1760000923000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["9d69b057-e672-5f9d-bad8-cb9f7e005ae1"],"supersedes":[],"contradicts":["a1585f54-8bb4-5e20-b07a-d2d19e89af89"]}-->
+[...]
+- **Acme Notes API S15** auth_method: API key in X-Web-Key header (active, global) <!--{"id":"87611194-56da-542a-9bce-78206b3ffdb8","entity":"acme notes api s15","entity_name":"Acme Notes API S15","predicate":"auth_method","value":"API key in X-Web-Key header","norm_value":"api key in x-web-key header","scope":"global","status":"active","valid_from":1760000991500,"valid_to":9999999999999,"recorded_at":1760000991500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["97d55ad1-da58-57d1-8719-54616b0937dc"],"supersedes":[],"contradicts":["174dde7f-0a35-54ec-849b-1bb81f3919c9"]}-->
+[...]
+- **Acme Notes API S16** auth_method: API key in X-Batch-Key header (active, global) <!--{"id":"9f3b6391-e763-5939-ae40-d897fb75be2c","entity":"acme notes api s16","entity_name":"Acme Notes API S16","predicate":"auth_method","value":"API key in X-Batch-Key header","norm_value":"api key in x-batch-key header","scope":"global","status":"active","valid_from":1760001060000,"valid_to":9999999999999,"recorded_at":1760001060000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["ee80410d-eea7-52eb-ade0-f2be2fd2b208"],"supersedes":[],"contradicts":["5973c274-277d-5dd2-bd7c-dce1278d8139"]}-->
+[...]
+- **Acme Notes API S17** auth_method: API key in X-Hook-Key header (active, global) <!--{"id":"7f5d1ec6-c136-55f8-b51f-8cf943553a70","entity":"acme notes api s17","entity_name":"Acme Notes API S17","predicate":"auth_method","value":"API key in X-Hook-Key header","norm_value":"api key in x-hook-key header","scope":"global","status":"active","valid_from":1760001128500,"valid_to":9999999999999,"recorded_at":1760001128500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["a7507f29-792e-58b0-a4bd-8e2ca1127943"],"supersedes":[],"contradicts":["d2ef79a9-557b-5225-8093-670c4f36db73"]}-->
+[...]
+- **Acme Notes API S18** auth_method: API key in X-Sync-Key header (active, global) <!--{"id":"7391eb9e-0e08-5a18-b064-95861cfada02","entity":"acme notes api s18","entity_name":"Acme Notes API S18","predicate":"auth_method","value":"API key in X-Sync-Key header","norm_value":"api key in x-sync-key header","scope":"global","status":"active","valid_from":1760001197000,"valid_to":9999999999999,"recorded_at":1760001197000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["028ba9b7-6c12-5e69-941b-1df80c0c1f9d"],"supersedes":[],"contradicts":["eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"]}-->
+[...]
+- **Acme Notes API S19** auth_method: API key in X-Cloud-Key header (active, global) <!--{"id":"48fc4ea1-e142-54b8-909b-1d578b143614","entity":"acme notes api s19","entity_name":"Acme Notes API S19","predicate":"auth_method","value":"API key in X-Cloud-Key header","norm_value":"api key in x-cloud-key header","scope":"global","status":"active","valid_from":1760001265500,"valid_to":9999999999999,"recorded_at":1760001265500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["286b5282-5143-54de-82ef-62f67b4c57a4"],"supersedes":[],"contradicts":["23fa06c9-0de6-5176-a4a8-778840fb69e2"]}-->
+[...]
+- **Acme Notes API S20** auth_method: API key in X-Ops-Key header (active, global) <!--{"id":"c30226fc-2b32-5539-9e38-2a7c33585dcf","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"auth_method","value":"API key in X-Ops-Key header","norm_value":"api key in x-ops-key header","scope":"global","status":"active","valid_from":1760001334000,"valid_to":9999999999999,"recorded_at":1760001334000,"confidence":1.0,"asserted_by":["planner"],"derived_from":["6706b1cf-499b-5e4e-b605-38c03014d712"],"supersedes":[],"contradicts":["984f762e-88d6-54ff-a7d4-9cd8d024486a"]}-->
+
+=== file: decisions.jsonl ===
+{"type":"forget","source_id":"1531c911-182a-5a91-ae0a-1b92e90e2ce5","fact_ids":["d04e6e8e-1f06-55a2-a92f-7e931314a9db"],"at":1760000037501}
+[...]
+{"type":"forget","source_id":"5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a","fact_ids":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000106001}
+[...]
+{"type":"forget","source_id":"50a82728-74ce-51ca-8126-1bfcad8093cc","fact_ids":["9bfc1e64-3bac-5fa5-ad23-e26c14efcd47"],"at":1760000174501}
+[...]
+{"type":"forget","source_id":"88dae90f-05ce-5028-bc63-af5836789f02","fact_ids":["21402263-e0ee-5823-9999-b8b0073049d5"],"at":1760000243001}
+[...]
+{"type":"forget","source_id":"14284b1e-5c73-5edc-b916-8a8ed5b096c2","fact_ids":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000311501}
+[...]
+{"type":"forget","source_id":"c477da62-2474-573b-851d-1e136de0257a","fact_ids":["a358e2a2-9b4c-5143-97ec-721836d2a9de"],"at":1760000380001}
+[...]
+{"type":"decision","id":"dca0a768-44d1-5cd0-b396-d1fab02ce13d","agent":"planner","task":"s07-t02-choose-api-version","text":"S07: Build the Acme Notes API against v13 of the style guide (routes under /v13/).","based_on":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"at":1760000416002}
+{"type":"decision","id":"d189bd53-f00d-527c-9cb8-561862777239","agent":"planner","task":"s07-t02-choose-api-version","text":"S07: Adopt style guide v14: the API version is now v14 (routes under /v14/).","based_on":["a708b29f-1316-57c9-9cd2-e1d93d1fd605"],"at":1760000430501}
+[...]
+{"type":"forget","source_id":"c5d7113f-1c71-55f0-9770-7ffee4112b3e","fact_ids":["cc4ca4b0-4d9e-5305-aeca-1d63e046a297"],"at":1760000448501}
+[...]
+{"type":"forget","source_id":"20d49ab5-015b-5a6b-a5a0-85c90a3f0d76","fact_ids":["89d0ea3a-71e0-54c0-ad11-ad8dc201b757"],"at":1760000517001}
+[...]
+{"type":"forget","source_id":"e5611a24-7de2-532c-a909-85db31e7657f","fact_ids":["627cee86-09ce-53a8-8797-fbf748462ecb"],"at":1760000585501}
+[...]
+{"type":"forget","source_id":"21c87012-3ab3-5927-9747-7be6156e72ea","fact_ids":["a7c6ea31-4300-5afb-a980-2f6dba60fc95"],"at":1760000654001}
+[...]
+{"type":"forget","source_id":"0b38768f-c32e-5d8e-8ca2-2b38b8239eab","fact_ids":["840758d6-b085-5fb7-8439-41ea4d9075e2"],"at":1760000722501}
+[...]
+{"type":"forget","source_id":"9aad5fe4-ef32-51c4-80a8-b3cdc43cef96","fact_ids":["95e1d954-04a9-5d9a-8441-994f908947d4"],"at":1760000791001}
+[...]
+{"type":"forget","source_id":"203c5d63-1133-5029-a45a-d7e225c3d5e5","fact_ids":["89edb49c-4d7d-5da0-b79c-14d927fe6390"],"at":1760000859501}
+[...]
+{"type":"forget","source_id":"96231bab-e1e8-5422-92f8-27d3f98d3fd9","fact_ids":["909bf6fb-2c0d-5c9b-a327-e3c3803ff755"],"at":1760000928001}
+[...]
+{"type":"forget","source_id":"f5b88b48-3666-511e-9da7-5fde53059225","fact_ids":["d90f88cf-844f-53f2-ae23-ee244ac551bf"],"at":1760000996501}
+[...]
+{"type":"forget","source_id":"c9505fea-78a0-575f-b569-0d272e7e74ac","fact_ids":["8c0c9c0e-e435-5989-b4d5-0b471560e947"],"at":1760001065001}
+[...]
+{"type":"forget","source_id":"2b32abee-1156-5b5b-b04d-5b6d42420594","fact_ids":["bc5bb23b-a206-5d2a-a0d1-800573fa5575"],"at":1760001133501}
+[...]
+{"type":"forget","source_id":"06de3fcd-ed3b-59e6-a82f-7a56587aaefb","fact_ids":["7a67ca14-839a-5170-9971-a20197810304"],"at":1760001202001}
+[...]
+{"type":"forget","source_id":"433f47b1-eac7-5fcc-80a1-9a37cdbed257","fact_ids":["e4fcdd43-d040-5571-a6ad-13d72dfaec1f"],"at":1760001270501}
+[...]
+{"type":"forget","source_id":"0d04ac3e-ab11-50fc-8239-48273717b517","fact_ids":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001339001}
+
+=== file: handoffs.jsonl ===
+{"id":"45dd3ffa-7b5c-5cf3-9ab3-cb2f93ebcb83","from":"builder","to":"planner","task":"s07-t12-update-endpoints-for-v2","note":"S07: Updated for API v14.","artifacts":["26ccd88e-4a22-5b06-b8fc-d53cde49e168"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605"],"at":1760000435501}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000419003,"tool":"recall","query":"API version S07","scope":"global","returned":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","872a25c1-97cc-5676-b4ec-866339fea19e","8d2b5d80-fe43-5534-8e8a-955905c4975b"]}
+[...]
+{"ts":1760000432503,"tool":"recall","query":"API version S07","scope":"global","returned":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","872a25c1-97cc-5676-b4ec-866339fea19e","8d2b5d80-fe43-5534-8e8a-955905c4975b"]}
+[...]
+{"ts":1760000435502,"tool":"handoff","id":"45dd3ffa-7b5c-5cf3-9ab3-cb2f93ebcb83","to":"planner","task":"s07-t12-update-endpoints-for-v2","note":"S07: Updated for API v14.","artifacts":["26ccd88e-4a22-5b06-b8fc-d53cde49e168"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605"],"at":1760000435501}
+[...]
+{"ts":1760000457503,"tool":"recall","query":"API version S07","scope":"global","returned":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","420dbc5d-4360-5896-9a31-6d72eaf60eb9","81a13776-eecc-5127-af30-f5e30618d336"]}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000032501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"auth_method","value":"API key in X-Api-Key header","scope":"global","fact_id":"f5aae893-1530-56f3-8882-3bed05324144","duplicate_of":null,"superseded":[],"contradicts":["2c6740d8-7444-5f79-8d75-ce7112466e7f"]}
+[...]
+{"ts":1760000101001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"auth_method","value":"API key in X-Service-Key header","scope":"global","fact_id":"8aa0e063-17d5-5061-922f-ecb6884e4eca","duplicate_of":null,"superseded":[],"contradicts":["adce43a0-b0da-5936-b9e3-11456941bd65"]}
+[...]
+{"ts":1760000169501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"auth_method","value":"API key in X-Client-Key header","scope":"global","fact_id":"246b7904-0d0c-53ef-b7a4-974669a37be8","duplicate_of":null,"superseded":[],"contradicts":["8c782244-d287-5241-97fe-81123ca9a9a9"]}
+[...]
+{"ts":1760000238001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"auth_method","value":"API key in X-Auth-Key header","scope":"global","fact_id":"d84cd0fb-8f2d-54be-a05a-23e0a2b00462","duplicate_of":null,"superseded":[],"contradicts":["6a825d90-ffb7-5427-ba96-9e4db1fb916a"]}
+[...]
+{"ts":1760000306501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"auth_method","value":"API key in X-App-Key header","scope":"global","fact_id":"489da596-b3ca-5043-a0ea-5086de9014b6","duplicate_of":null,"superseded":[],"contradicts":["caaa893a-626f-5079-bebd-835aa31eb750"]}
+[...]
+{"ts":1760000375001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"auth_method","value":"API key in X-Access-Key header","scope":"global","fact_id":"df087bdd-00a4-582c-8b35-5ab24374ba4a","duplicate_of":null,"superseded":[],"contradicts":["a7d999dc-22d8-5a8f-9859-1e0bf1c06070"]}
+[...]
+{"ts":1760000429502,"tool":"recall","query":"API version S07","scope":"global","returned":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","872a25c1-97cc-5676-b4ec-866339fea19e","8d2b5d80-fe43-5534-8e8a-955905c4975b"]}
+[...]
+{"ts":1760000443501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"auth_method","value":"API key in X-Team-Key header","scope":"global","fact_id":"420dbc5d-4360-5896-9a31-6d72eaf60eb9","duplicate_of":null,"superseded":[],"contradicts":["9aa3ca0d-ddf3-5024-b383-b632b16c6648"]}
+[...]
+{"ts":1760000444502,"tool":"complete_task","task":"s07-t05-choose-auth","artifacts":[]}
+[...]
+{"ts":1760000465503,"tool":"recall","query":"API version S07","scope":"global","returned":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","420dbc5d-4360-5896-9a31-6d72eaf60eb9","81a13776-eecc-5127-af30-f5e30618d336"]}
+[...]
+{"ts":1760000512001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"auth_method","value":"API key in X-Notes-Key header","scope":"global","fact_id":"8d09189a-de26-57cf-9d86-0b803170cfb1","duplicate_of":null,"superseded":[],"contradicts":["796aea04-86c3-5458-9108-e6250cae575b"]}
+[...]
+{"ts":1760000580501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"auth_method","value":"API key in X-Gateway-Key header","scope":"global","fact_id":"13efb66e-9d5d-54a9-ae84-c2274ed15e81","duplicate_of":null,"superseded":[],"contradicts":["3a1468b7-0a5c-5b70-9e35-98f20baacab6"]}
+[...]
+{"ts":1760000649001,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"auth_method","value":"API key in X-Partner-Key header","scope":"global","fact_id":"e2a918a4-327c-555e-ba96-36c9375fea00","duplicate_of":null,"superseded":[],"contradicts":["1957d113-2caf-53d4-a9c9-713c893bed4e"]}
+[...]
+{"ts":1760000717501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"auth_method","value":"API key in X-Tenant-Key header","scope":"global","fact_id":"c8c99a70-f727-5676-9ae3-35ab4de58986","duplicate_of":null,"superseded":[],"contradicts":["facb64f3-a7ed-5ee0-859d-5752d670f2c7"]}
+[...]
+{"ts":1760000786001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"auth_method","value":"API key in X-Edge-Key header","scope":"global","fact_id":"38c8d041-eef8-59ec-9099-41b2cb46ac35","duplicate_of":null,"superseded":[],"contradicts":["c741d5a2-182e-533c-bac5-124f08e9a37a"]}
+[...]
+{"ts":1760000854501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"auth_method","value":"API key in X-Core-Key header","scope":"global","fact_id":"e0bfc28b-0c15-5c06-82d1-c39499d7b337","duplicate_of":null,"superseded":[],"contradicts":["281fe1b5-fe2f-570f-b317-b10819b44639"]}
+[...]
+{"ts":1760000923001,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"auth_method","value":"API key in X-Mobile-Key header","scope":"global","fact_id":"fd06adfe-07c0-53f6-9faf-0642215810b3","duplicate_of":null,"superseded":[],"contradicts":["a1585f54-8bb4-5e20-b07a-d2d19e89af89"]}
+[...]
+{"ts":1760000991501,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"auth_method","value":"API key in X-Web-Key header","scope":"global","fact_id":"87611194-56da-542a-9bce-78206b3ffdb8","duplicate_of":null,"superseded":[],"contradicts":["174dde7f-0a35-54ec-849b-1bb81f3919c9"]}
+[...]
+{"ts":1760001060001,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"auth_method","value":"API key in X-Batch-Key header","scope":"global","fact_id":"9f3b6391-e763-5939-ae40-d897fb75be2c","duplicate_of":null,"superseded":[],"contradicts":["5973c274-277d-5dd2-bd7c-dce1278d8139"]}
+[...]
+{"ts":1760001128501,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"auth_method","value":"API key in X-Hook-Key header","scope":"global","fact_id":"7f5d1ec6-c136-55f8-b51f-8cf943553a70","duplicate_of":null,"superseded":[],"contradicts":["d2ef79a9-557b-5225-8093-670c4f36db73"]}
+[...]
+{"ts":1760001197001,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"auth_method","value":"API key in X-Sync-Key header","scope":"global","fact_id":"7391eb9e-0e08-5a18-b064-95861cfada02","duplicate_of":null,"superseded":[],"contradicts":["eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"]}
+[...]
+{"ts":1760001265501,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"auth_method","value":"API key in X-Cloud-Key header","scope":"global","fact_id":"48fc4ea1-e142-54b8-909b-1d578b143614","duplicate_of":null,"superseded":[],"contradicts":["23fa06c9-0de6-5176-a4a8-778840fb69e2"]}
+[...]
+{"ts":1760001334001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"auth_method","value":"API key in X-Ops-Key header","scope":"global","fact_id":"c30226fc-2b32-5539-9e38-2a7c33585dcf","duplicate_of":null,"superseded":[],"contradicts":["984f762e-88d6-54ff-a7d4-9cd8d024486a"]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000424501,"tool":"episode","id":"cecd5680-faf9-5359-85ef-98d8dd09161b","step":null,"text":"S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+[...]
+{"ts":1760000439501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"auth_method","value":"JWT bearer tokens (ES256, key s07)","scope":"global","fact_id":"9aa3ca0d-ddf3-5024-b383-b632b16c6648","duplicate_of":null,"superseded":[],"contradicts":[]}
+

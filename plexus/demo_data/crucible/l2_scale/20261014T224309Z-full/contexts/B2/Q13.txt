@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact api_version=v11 about 'Acme Notes API S06' (scope global; status superseded; valid_from 1760000345500; valid_to 1760000360000); asserted by researcher; source acme-docs/s06/02_api_style_guide_v1.md; superseded by api_version=v12.
+[2] Episode recorded by researcher: "S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[3] Episode recorded by researcher: "S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[4] Fact billing_cycle=weekly, invoiced on day 6 about 'Bolt Billing API S06' (scope project:billing-s06; status active; valid_from 1760000382000; valid_to 9999999999999); asserted by researcher; source billing-docs/s06/01_overview.md.
+[5] Task s06-t05-choose-auth ('Choose authentication (S06)', priority 30) status done, claimed by planner; depends on s06-t04-survey-infra-security; artifacts none.
+[6] Episode recorded by researcher: "S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[7] Fact api_version=v17 about 'Acme Notes API S09' (scope global; status superseded; valid_from 1760000551000; valid_to 1760000565500); asserted by researcher; source acme-docs/s09/02_api_style_guide_v1.md; superseded by api_version=v18.
+[8] Fact purpose=REST service to create, tag and search notes (S06) about 'Acme Notes API S06' (scope global; status active; valid_from 1760000344500; valid_to 9999999999999); asserted by researcher; source acme-docs/s06/01_product_brief.md.
+[9] Episode recorded by researcher: "S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[10] Decision by planner for task s06-t02-choose-api-version: "S06: Adopt style guide v12: the API version is now v12 (routes under /v12/)." Based on facts: api_version=v12.
+[11] Fact api_version=v9 about 'Acme Notes API S05' (scope global; status superseded; valid_from 1760000277000; valid_to 1760000291500); asserted by researcher; source acme-docs/s05/02_api_style_guide_v1.md; superseded by api_version=v10.
+[12] Episode recorded by researcher: "S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."

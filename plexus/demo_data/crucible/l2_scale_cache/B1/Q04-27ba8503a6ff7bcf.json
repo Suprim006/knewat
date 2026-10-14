@@ -1,0 +1,25 @@
+{
+ "qid": "Q04",
+ "arm": "B1",
+ "reply": "{\"answer\": [\"acme-docs/s01/04_security_note.md\"]}",
+ "answer": [
+  "acme-docs/s01/04_security_note.md"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 139,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 21797
+ },
+ "cost_usd": 0.0886364,
+ "latency_ms": 4563.9,
+ "duration_api_ms": 2512.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "f49783c6-aae5-4e56-8c72-6f3b8884faa6",
+ "key": "27ba8503a6ff7bcf12b31a3c3f64e3cb82de8b340a92ad9a6edea32b650b4b68"
+}

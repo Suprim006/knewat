@@ -90,3 +90,46 @@ graph (`tests/crucible/l2/test_plexus_answerer.py`, 43/43).
 
 Not covered: the Procedures family (the backend protocol has no procedure tool); cross-session recall is episodes by
 agent (no sessions in the protocol).
+
+## L2 at scale (`scale_*.py`)
+
+20 sprints of the Acme story in one tenant per arm (history 16.6x / 10.4x the 32k cap for B0 / B1), 40 questions (10 families x 4, one named sprint each), BM25 / vector context selection inside the same 32k cap. Pre-registered in `docs/BASELINE.md` ("L2-scale (pre-registered)" + amendments). The original L2 files above are unchanged except `llm.py`, whose runner takes optional `conventions` / `prompt_version` (defaults keep the L2 cache keys).
+
+| File | Role |
+|---|---|
+| `scale_scenario.py` | `Sprint` (tag, ids, varied values), `play_scale(backend, k)`: k sprints on one clock, one `Ledger` per sprint |
+| `scale_questions.py` | the 40 question slots per sprint, the sprint assignment rule (`assign_sprints`, seed 20261015), YAML dump/load |
+| `scale_contexts.py` | `Bm25`, `b0_scale_context`, `b1_scale_context` (B2 reuses `contexts.B2Index`) |
+| `scale_plexus.py` + `queries/l2scale/` | `ScalePlexusAnswerer`: the L2 answerer with sprint scoping for 9 class-wide ops and one new statement (`visible_facts`) |
+| `scale_run.py` | CLI: `questions`, `run --mode pilot\|full`; writes `demo_data/crucible/l2_scale/<run>/{results.json,report.md,contexts/<arm>/Qnn.txt}`; cache in `l2_scale_cache/` |
+
+```bash
+cd plexus
+docker run -d --name plexus-db-66 -p 127.0.0.1:6366:6379 falkordb/falkordb:6.0.2
+env -u ANTHROPIC_API_KEY uv run python -m plexus.crucible.l2.scale_run run --mode pilot --port 6366 --budget-usd 2
+env -u ANTHROPIC_API_KEY uv run python -m plexus.crucible.l2.scale_run run --mode full  --port 6366 --budget-usd 6   # 36 questions (FULL_DROPPED_IDS removed by the budget rule)
+PLEXUS_TEST_DB_PORT=6366 uv run pytest tests/crucible/l2      # no LLM: the CLI is mocked
+```
+
+### `layers["L2_scale"]` shape
+
+Same envelope as `L2` (`schema_version`, `kind`, `run` with `layers: ["L2_scale"]`, `environment`, `config.l2_scale`, `arms`, `layers`, `summary.l2_scale_accuracy_pct`, `honesty`). `layers.L2_scale`:
+
+```text
+{ title, mode, model, model_ids, context_budget_chars, b2_top_k, budget_usd,
+  history: {sprints, scenario: {tasks, decisions, handoffs, facts, ...}, artifact_chars: {B0,B1,B2},
+            artifact_chars_over_budget: {arm: x_cap}, strata: {early|middle|late: [sprint numbers]}},
+  retrieval: {B0, B1, B2: text, bm25: {k1, b, query}},
+  question_set: {path, sha256, total, asked, ids, sprints: {id: "S07"}, seed},
+  families: {<family>: {title, n}},
+  arms: { <B0|B1|B2|P>: { same as L2 (answerer, completed, accuracy{correct,total,pct,wilson95_pct}, accuracy_whole_reply_json,
+           by_family, errors, unparseable, reply_format, usage, context, questions[]),
+           by_stratum: {early|middle|late: {correct,total,pct}},
+           failure_analysis (baselines): {wrong, call_failed, unparseable, wrong_with_all_evidence_in_context,
+                                          wrong_with_partial_or_no_evidence_in_context,
+                                          median_share_of_shown_lines_from_the_asked_sprint},
+           questions[i] adds: sprint, stratum, shown_units, shown_lines, shown_lines_with_sprint,
+                              evidence_in_context: {found,total}|null } },
+  summary, plexus_changes: [str], notes: [str] }
+```
+`evidence_in_context` is a diagnostic (do all words of each expected item occur anywhere in the shown context), never a score.

@@ -1,0 +1,192 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: MEMORY.md ===
+# Shared team memory
+[...]
+- **Bolt Billing API S01** billing_cycle: monthly, invoiced on day 1 (active, project:billing-s01) <!--{"id":"1cc2d0de-b9b9-581f-8962-8d583b8c0fdb","entity":"bolt billing api s01","entity_name":"Bolt Billing API S01","predicate":"billing_cycle","value":"monthly, invoiced on day 1","norm_value":"monthly, invoiced on day 1","scope":"project:billing-s01","status":"active","valid_from":1760000039500,"valid_to":9999999999999,"recorded_at":1760000039500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["c9391172-98a0-5227-a802-2562f4b47eaa"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S02** billing_cycle: weekly, invoiced on day 2 (active, project:billing-s02) <!--{"id":"3a5f4992-3d29-52f0-8de7-0b5710925d3c","entity":"bolt billing api s02","entity_name":"Bolt Billing API S02","predicate":"billing_cycle","value":"weekly, invoiced on day 2","norm_value":"weekly, invoiced on day 2","scope":"project:billing-s02","status":"active","valid_from":1760000108000,"valid_to":9999999999999,"recorded_at":1760000108000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["bece50ec-c6cd-5b1f-8f10-dbabe1ac4693"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S03** billing_cycle: quarterly, invoiced on day 3 (active, project:billing-s03) <!--{"id":"d91d92d8-9f70-5951-a9f4-0b75f833ff07","entity":"bolt billing api s03","entity_name":"Bolt Billing API S03","predicate":"billing_cycle","value":"quarterly, invoiced on day 3","norm_value":"quarterly, invoiced on day 3","scope":"project:billing-s03","status":"active","valid_from":1760000176500,"valid_to":9999999999999,"recorded_at":1760000176500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a6bbed10-44c3-51f2-8046-e46b23517f91"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S04** billing_cycle: biweekly, invoiced on day 4 (active, project:billing-s04) <!--{"id":"693d6da9-fee9-58ca-8816-10fecff2b269","entity":"bolt billing api s04","entity_name":"Bolt Billing API S04","predicate":"billing_cycle","value":"biweekly, invoiced on day 4","norm_value":"biweekly, invoiced on day 4","scope":"project:billing-s04","status":"active","valid_from":1760000245000,"valid_to":9999999999999,"recorded_at":1760000245000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8c0d029a-205a-50ac-8733-3e2980b13f51"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S05** billing_cycle: monthly, invoiced on day 5 (active, project:billing-s05) <!--{"id":"830e0e56-2b7b-50ec-be73-451989cb507e","entity":"bolt billing api s05","entity_name":"Bolt Billing API S05","predicate":"billing_cycle","value":"monthly, invoiced on day 5","norm_value":"monthly, invoiced on day 5","scope":"project:billing-s05","status":"active","valid_from":1760000313500,"valid_to":9999999999999,"recorded_at":1760000313500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8bb8e9cd-7f5e-518e-8179-b16b22406edb"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S06** billing_cycle: weekly, invoiced on day 6 (active, project:billing-s06) <!--{"id":"7b476e2f-dae4-5ff3-acb4-24ef0025b065","entity":"bolt billing api s06","entity_name":"Bolt Billing API S06","predicate":"billing_cycle","value":"weekly, invoiced on day 6","norm_value":"weekly, invoiced on day 6","scope":"project:billing-s06","status":"active","valid_from":1760000382000,"valid_to":9999999999999,"recorded_at":1760000382000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["d024116b-844c-58fb-95f9-74cf7c0d7d8d"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S06** release_channel: closed beta (active, project:acme-s06) <!--{"id":"f290faec-6971-59de-8164-6ba6aab35ab3","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"release_channel","value":"closed beta","norm_value":"closed beta","scope":"project:acme-s06","status":"active","valid_from":1760000383000,"valid_to":9999999999999,"recorded_at":1760000383000,"confidence":1.0,"asserted_by":["planner"],"derived_from":[],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S07** billing_cycle: quarterly, invoiced on day 7 (active, project:billing-s07) <!--{"id":"74f296cb-6df6-5f59-86f6-3dc971410666","entity":"bolt billing api s07","entity_name":"Bolt Billing API S07","predicate":"billing_cycle","value":"quarterly, invoiced on day 7","norm_value":"quarterly, invoiced on day 7","scope":"project:billing-s07","status":"active","valid_from":1760000450500,"valid_to":9999999999999,"recorded_at":1760000450500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["561c65eb-d020-5de2-ad93-13e866c81828"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S08** billing_cycle: biweekly, invoiced on day 8 (active, project:billing-s08) <!--{"id":"89e9ab1b-d617-5098-adb0-a7aa78a5e724","entity":"bolt billing api s08","entity_name":"Bolt Billing API S08","predicate":"billing_cycle","value":"biweekly, invoiced on day 8","norm_value":"biweekly, invoiced on day 8","scope":"project:billing-s08","status":"active","valid_from":1760000519000,"valid_to":9999999999999,"recorded_at":1760000519000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8a376dd6-3f68-53af-9c01-c09b0ee2d1aa"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S09** billing_cycle: monthly, invoiced on day 9 (active, project:billing-s09) <!--{"id":"6fb8103d-ab8e-5b4f-b696-0a95900ccc04","entity":"bolt billing api s09","entity_name":"Bolt Billing API S09","predicate":"billing_cycle","value":"monthly, invoiced on day 9","norm_value":"monthly, invoiced on day 9","scope":"project:billing-s09","status":"active","valid_from":1760000587500,"valid_to":9999999999999,"recorded_at":1760000587500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["497f8ed2-fa73-5f05-af5c-569b841c1a13"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S10** billing_cycle: weekly, invoiced on day 10 (active, project:billing-s10) <!--{"id":"5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed","entity":"bolt billing api s10","entity_name":"Bolt Billing API S10","predicate":"billing_cycle","value":"weekly, invoiced on day 10","norm_value":"weekly, invoiced on day 10","scope":"project:billing-s10","status":"active","valid_from":1760000656000,"valid_to":9999999999999,"recorded_at":1760000656000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["ab2c87f0-bf51-58cf-b5a3-0672f747535c"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S11** billing_cycle: quarterly, invoiced on day 11 (active, project:billing-s11) <!--{"id":"912de14c-085a-5b4b-817b-8e01357babce","entity":"bolt billing api s11","entity_name":"Bolt Billing API S11","predicate":"billing_cycle","value":"quarterly, invoiced on day 11","norm_value":"quarterly, invoiced on day 11","scope":"project:billing-s11","status":"active","valid_from":1760000724500,"valid_to":9999999999999,"recorded_at":1760000724500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["2a2784cb-da43-517e-9201-6ebce385ece8"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S12** billing_cycle: biweekly, invoiced on day 12 (active, project:billing-s12) <!--{"id":"2a2f20a8-61ae-50c5-abeb-3aad5b02779e","entity":"bolt billing api s12","entity_name":"Bolt Billing API S12","predicate":"billing_cycle","value":"biweekly, invoiced on day 12","norm_value":"biweekly, invoiced on day 12","scope":"project:billing-s12","status":"active","valid_from":1760000793000,"valid_to":9999999999999,"recorded_at":1760000793000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["da298250-a0d7-52fd-ac5d-3a6472265ed7"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S13** billing_cycle: monthly, invoiced on day 13 (active, project:billing-s13) <!--{"id":"fac5fc92-c1d1-5fc1-b074-8bede03f1284","entity":"bolt billing api s13","entity_name":"Bolt Billing API S13","predicate":"billing_cycle","value":"monthly, invoiced on day 13","norm_value":"monthly, invoiced on day 13","scope":"project:billing-s13","status":"active","valid_from":1760000861500,"valid_to":9999999999999,"recorded_at":1760000861500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["da895333-a26b-5b31-932f-73268bcef106"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S14** billing_cycle: weekly, invoiced on day 14 (active, project:billing-s14) <!--{"id":"4363b17f-3322-56a0-8d2b-1b5a1e28f43a","entity":"bolt billing api s14","entity_name":"Bolt Billing API S14","predicate":"billing_cycle","value":"weekly, invoiced on day 14","norm_value":"weekly, invoiced on day 14","scope":"project:billing-s14","status":"active","valid_from":1760000930000,"valid_to":9999999999999,"recorded_at":1760000930000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["3f81fce8-d250-5efe-bc52-13013e1a28df"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S15** billing_cycle: quarterly, invoiced on day 15 (active, project:billing-s15) <!--{"id":"0d12b9f9-5c40-51a6-ac3d-fd07d669faf3","entity":"bolt billing api s15","entity_name":"Bolt Billing API S15","predicate":"billing_cycle","value":"quarterly, invoiced on day 15","norm_value":"quarterly, invoiced on day 15","scope":"project:billing-s15","status":"active","valid_from":1760000998500,"valid_to":9999999999999,"recorded_at":1760000998500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a2d55b14-79ae-50e9-af07-06389712ed28"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S16** billing_cycle: biweekly, invoiced on day 16 (active, project:billing-s16) <!--{"id":"c7e8b034-4761-5a82-8fad-ebc65571848c","entity":"bolt billing api s16","entity_name":"Bolt Billing API S16","predicate":"billing_cycle","value":"biweekly, invoiced on day 16","norm_value":"biweekly, invoiced on day 16","scope":"project:billing-s16","status":"active","valid_from":1760001067000,"valid_to":9999999999999,"recorded_at":1760001067000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["9300b701-b80d-564f-83f2-e24e7217b008"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S17** billing_cycle: monthly, invoiced on day 17 (active, project:billing-s17) <!--{"id":"4490b294-47f7-5bdc-922a-93c3e89025fb","entity":"bolt billing api s17","entity_name":"Bolt Billing API S17","predicate":"billing_cycle","value":"monthly, invoiced on day 17","norm_value":"monthly, invoiced on day 17","scope":"project:billing-s17","status":"active","valid_from":1760001135500,"valid_to":9999999999999,"recorded_at":1760001135500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["57a5a080-8ec9-5339-8699-00484b342b6f"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S18** billing_cycle: weekly, invoiced on day 18 (active, project:billing-s18) <!--{"id":"5ff3ed3c-af3c-500f-93d6-5f4c2cde373f","entity":"bolt billing api s18","entity_name":"Bolt Billing API S18","predicate":"billing_cycle","value":"weekly, invoiced on day 18","norm_value":"weekly, invoiced on day 18","scope":"project:billing-s18","status":"active","valid_from":1760001204000,"valid_to":9999999999999,"recorded_at":1760001204000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["944d2579-e081-58b4-a307-92e33bcbabf5"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S19** billing_cycle: quarterly, invoiced on day 19 (active, project:billing-s19) <!--{"id":"1329b454-6349-510a-bc35-8fcc8867f611","entity":"bolt billing api s19","entity_name":"Bolt Billing API S19","predicate":"billing_cycle","value":"quarterly, invoiced on day 19","norm_value":"quarterly, invoiced on day 19","scope":"project:billing-s19","status":"active","valid_from":1760001272500,"valid_to":9999999999999,"recorded_at":1760001272500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["68b7e181-14a3-5707-a5a4-8c6ace961663"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Bolt Billing API S20** billing_cycle: biweekly, invoiced on day 20 (active, project:billing-s20) <!--{"id":"368a3f28-d754-5731-b810-e2d4d01debbc","entity":"bolt billing api s20","entity_name":"Bolt Billing API S20","predicate":"billing_cycle","value":"biweekly, invoiced on day 20","norm_value":"biweekly, invoiced on day 20","scope":"project:billing-s20","status":"active","valid_from":1760001341000,"valid_to":9999999999999,"recorded_at":1760001341000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["0a028c65-53b7-58a8-8306-5fcfe2d64a7c"],"supersedes":[],"contradicts":[]}-->
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000040501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"release_channel","value":"closed beta","scope":"project:acme-s01","fact_id":"eaf77560-4cef-5eca-b904-e65479ecb272","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000109001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"release_channel","value":"open beta","scope":"project:acme-s02","fact_id":"f388cc5f-a42f-533d-881f-f3c0e3903e3e","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000177501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"release_channel","value":"private preview","scope":"project:acme-s03","fact_id":"7b2ccab8-fe0b-5973-8419-ec7d9ed33a44","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000246001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"release_channel","value":"early access","scope":"project:acme-s04","fact_id":"2debeff6-b858-539e-8c70-f73c0a1ca8c5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000314501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"release_channel","value":"general availability","scope":"project:acme-s05","fact_id":"b5f311d2-6ea7-5e99-90d8-db978bca5428","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000348502,"tool":"complete_task","task":"s06-t02-choose-api-version","artifacts":[]}
+[...]
+{"ts":1760000375001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"auth_method","value":"API key in X-Access-Key header","scope":"global","fact_id":"df087bdd-00a4-582c-8b35-5ab24374ba4a","duplicate_of":null,"superseded":[],"contradicts":["a7d999dc-22d8-5a8f-9859-1e0bf1c06070"]}
+[...]
+{"ts":1760000378001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"database","value":"CouchDB 9","scope":"global","fact_id":"a358e2a2-9b4c-5143-97ec-721836d2a9de","duplicate_of":null,"superseded":[],"contradicts":["1654df3c-dbba-515b-85a1-fb158f3a95b0"]}
+[...]
+{"ts":1760000383001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"release_channel","value":"closed beta","scope":"project:acme-s06","fact_id":"f290faec-6971-59de-8164-6ba6aab35ab3","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000451501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"release_channel","value":"open beta","scope":"project:acme-s07","fact_id":"70905c5f-9ab9-5580-8a79-8aad4b1a6633","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000520001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"release_channel","value":"private preview","scope":"project:acme-s08","fact_id":"87d2ead0-f00f-5204-8292-58c486e0b01d","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000588501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"release_channel","value":"early access","scope":"project:acme-s09","fact_id":"58fc3de5-8126-591d-9708-96b7ec12f196","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000657001,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"release_channel","value":"general availability","scope":"project:acme-s10","fact_id":"9cb66ebf-fe08-5a0d-bb90-075f85ab1605","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000725501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"release_channel","value":"closed beta","scope":"project:acme-s11","fact_id":"8e111424-9735-5695-a76b-90410f7a4818","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000794001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"release_channel","value":"open beta","scope":"project:acme-s12","fact_id":"140e176c-68fd-5743-bc59-eb7d8b0cbd4a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000862501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"release_channel","value":"private preview","scope":"project:acme-s13","fact_id":"49f52e35-8611-555b-99e0-c7accb9cc5e3","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000931001,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"release_channel","value":"early access","scope":"project:acme-s14","fact_id":"240fbc02-c650-5b0b-964d-411a8ef0771e","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000999501,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"release_channel","value":"general availability","scope":"project:acme-s15","fact_id":"dddf3933-ecf8-5793-8e2f-b7467db404ac","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001068001,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"release_channel","value":"closed beta","scope":"project:acme-s16","fact_id":"caff852d-6e06-52c3-9e24-d6119f0977ed","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001136501,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"release_channel","value":"open beta","scope":"project:acme-s17","fact_id":"a493bc4a-c3ab-5c84-a8cc-546bd4ec70ff","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001205001,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"release_channel","value":"private preview","scope":"project:acme-s18","fact_id":"f646a829-19e3-57ce-8aaa-920070d468cd","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001273501,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"release_channel","value":"early access","scope":"project:acme-s19","fact_id":"01b610e4-fd96-5f8a-9f03-4ff7a8df81b7","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001342001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"release_channel","value":"general availability","scope":"project:acme-s20","fact_id":"e507c7cc-74bf-53e4-b40b-40037024086b","duplicate_of":null,"superseded":[],"contradicts":[]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000003001,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v1","scope":"global","fact_id":"2b927606-c02e-5d86-8c84-18c267e87215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000017501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v2","scope":"global","fact_id":"e3d70963-c74e-5c24-9814-4c48b55c84bc","duplicate_of":null,"superseded":["2b927606-c02e-5d86-8c84-18c267e87215"],"contradicts":[]}
+[...]
+{"ts":1760000039501,"tool":"assert_fact","subject":"Bolt Billing API S01","predicate":"billing_cycle","value":"monthly, invoiced on day 1","scope":"project:billing-s01","fact_id":"1cc2d0de-b9b9-581f-8962-8d583b8c0fdb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000071501,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v3","scope":"global","fact_id":"271b3641-7f41-5602-9219-6f7236a6b215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000086001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v4","scope":"global","fact_id":"399e1e16-1b03-5184-b159-958079bedc70","duplicate_of":null,"superseded":["271b3641-7f41-5602-9219-6f7236a6b215"],"contradicts":[]}
+[...]
+{"ts":1760000108001,"tool":"assert_fact","subject":"Bolt Billing API S02","predicate":"billing_cycle","value":"weekly, invoiced on day 2","scope":"project:billing-s02","fact_id":"3a5f4992-3d29-52f0-8de7-0b5710925d3c","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000140001,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v5","scope":"global","fact_id":"fc4e0924-6721-5efd-bd74-45c790960ce6","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000154501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v6","scope":"global","fact_id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","duplicate_of":null,"superseded":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}
+[...]
+{"ts":1760000176501,"tool":"assert_fact","subject":"Bolt Billing API S03","predicate":"billing_cycle","value":"quarterly, invoiced on day 3","scope":"project:billing-s03","fact_id":"d91d92d8-9f70-5951-a9f4-0b75f833ff07","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000208501,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v7","scope":"global","fact_id":"a3e6a516-fc31-5e62-ab92-e9f92abb72e9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000223001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v8","scope":"global","fact_id":"c73b692e-9cd9-58f6-a146-aa387e5d2e33","duplicate_of":null,"superseded":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"contradicts":[]}
+[...]
+{"ts":1760000245001,"tool":"assert_fact","subject":"Bolt Billing API S04","predicate":"billing_cycle","value":"biweekly, invoiced on day 4","scope":"project:billing-s04","fact_id":"693d6da9-fee9-58ca-8816-10fecff2b269","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000277001,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v9","scope":"global","fact_id":"ca0ea7ab-cc37-5143-b241-878499db2bd5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000291501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v10","scope":"global","fact_id":"cbde9957-b402-503b-bef3-f0a0733a8c27","duplicate_of":null,"superseded":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"contradicts":[]}
+[...]
+{"ts":1760000313501,"tool":"assert_fact","subject":"Bolt Billing API S05","predicate":"billing_cycle","value":"monthly, invoiced on day 5","scope":"project:billing-s05","fact_id":"830e0e56-2b7b-50ec-be73-451989cb507e","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000344501,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"purpose","value":"REST service to create, tag and search notes (S06)","scope":"global","fact_id":"ce8520b9-c5e5-58eb-ad66-4494e9f418ca","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000345501,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v11","scope":"global","fact_id":"f91cd115-13a9-5c16-bb96-f8a9c4b990eb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000360001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v12","scope":"global","fact_id":"8d2b5d80-fe43-5534-8e8a-955905c4975b","duplicate_of":null,"superseded":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"contradicts":[]}
+[...]
+{"ts":1760000370001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"database","value":"Oracle 23","scope":"global","fact_id":"1654df3c-dbba-515b-85a1-fb158f3a95b0","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000371001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"auth_method","value":"JWT bearer tokens (RS256, key s06)","scope":"global","fact_id":"a7d999dc-22d8-5a8f-9859-1e0bf1c06070","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000382001,"tool":"assert_fact","subject":"Bolt Billing API S06","predicate":"billing_cycle","value":"weekly, invoiced on day 6","scope":"project:billing-s06","fact_id":"7b476e2f-dae4-5ff3-acb4-24ef0025b065","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000414001,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v13","scope":"global","fact_id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000428501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v14","scope":"global","fact_id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","duplicate_of":null,"superseded":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}
+[...]
+{"ts":1760000450501,"tool":"assert_fact","subject":"Bolt Billing API S07","predicate":"billing_cycle","value":"quarterly, invoiced on day 7","scope":"project:billing-s07","fact_id":"74f296cb-6df6-5f59-86f6-3dc971410666","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000482501,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v15","scope":"global","fact_id":"2d18baf0-1ce3-5f5f-94b3-5d524493d2f9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000497001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v16","scope":"global","fact_id":"f4918c86-ef7f-50df-94d1-abc537082890","duplicate_of":null,"superseded":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"contradicts":[]}
+[...]
+{"ts":1760000519001,"tool":"assert_fact","subject":"Bolt Billing API S08","predicate":"billing_cycle","value":"biweekly, invoiced on day 8","scope":"project:billing-s08","fact_id":"89e9ab1b-d617-5098-adb0-a7aa78a5e724","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000551001,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v17","scope":"global","fact_id":"c591ebd4-30f6-5f5a-bdd3-03a2c78fb133","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000565501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v18","scope":"global","fact_id":"1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","duplicate_of":null,"superseded":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"contradicts":[]}
+[...]
+{"ts":1760000587501,"tool":"assert_fact","subject":"Bolt Billing API S09","predicate":"billing_cycle","value":"monthly, invoiced on day 9","scope":"project:billing-s09","fact_id":"6fb8103d-ab8e-5b4f-b696-0a95900ccc04","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000619501,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"api_version","value":"v19","scope":"global","fact_id":"ae28d59b-3427-5793-b33d-9abfe80363c8","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000634001,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"api_version","value":"v20","scope":"global","fact_id":"9d834c69-70bf-51a2-a771-d04e1f6a0a07","duplicate_of":null,"superseded":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"contradicts":[]}
+[...]
+{"ts":1760000656001,"tool":"assert_fact","subject":"Bolt Billing API S10","predicate":"billing_cycle","value":"weekly, invoiced on day 10","scope":"project:billing-s10","fact_id":"5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000688001,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"api_version","value":"v21","scope":"global","fact_id":"a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000702501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"api_version","value":"v22","scope":"global","fact_id":"6e976d44-c6ad-52c2-918c-f396900cc85e","duplicate_of":null,"superseded":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"contradicts":[]}
+[...]
+{"ts":1760000724501,"tool":"assert_fact","subject":"Bolt Billing API S11","predicate":"billing_cycle","value":"quarterly, invoiced on day 11","scope":"project:billing-s11","fact_id":"912de14c-085a-5b4b-817b-8e01357babce","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000756501,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"api_version","value":"v23","scope":"global","fact_id":"9d31097e-bc44-5443-b9c6-6e15ee7fceba","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000771001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"api_version","value":"v24","scope":"global","fact_id":"9c6f3395-6466-5261-87f5-70fa6df0101e","duplicate_of":null,"superseded":["9d31097e-bc44-5443-b9c6-6e15ee7fceba"],"contradicts":[]}
+[...]
+{"ts":1760000793001,"tool":"assert_fact","subject":"Bolt Billing API S12","predicate":"billing_cycle","value":"biweekly, invoiced on day 12","scope":"project:billing-s12","fact_id":"2a2f20a8-61ae-50c5-abeb-3aad5b02779e","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000825001,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"api_version","value":"v25","scope":"global","fact_id":"a8d569a8-4806-56a9-b86e-f497a45654d5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000839501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"api_version","value":"v26","scope":"global","fact_id":"cf3fd407-5373-5c92-a502-6ca529fefeca","duplicate_of":null,"superseded":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"contradicts":[]}
+[...]
+{"ts":1760000861501,"tool":"assert_fact","subject":"Bolt Billing API S13","predicate":"billing_cycle","value":"monthly, invoiced on day 13","scope":"project:billing-s13","fact_id":"fac5fc92-c1d1-5fc1-b074-8bede03f1284","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000893501,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"api_version","value":"v27","scope":"global","fact_id":"dabba289-f252-508f-9c32-f03223137480","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000930001,"tool":"assert_fact","subject":"Bolt Billing API S14","predicate":"billing_cycle","value":"weekly, invoiced on day 14","scope":"project:billing-s14","fact_id":"4363b17f-3322-56a0-8d2b-1b5a1e28f43a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000998501,"tool":"assert_fact","subject":"Bolt Billing API S15","predicate":"billing_cycle","value":"quarterly, invoiced on day 15","scope":"project:billing-s15","fact_id":"0d12b9f9-5c40-51a6-ac3d-fd07d669faf3","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001067001,"tool":"assert_fact","subject":"Bolt Billing API S16","predicate":"billing_cycle","value":"biweekly, invoiced on day 16","scope":"project:billing-s16","fact_id":"c7e8b034-4761-5a82-8fad-ebc65571848c","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001135501,"tool":"assert_fact","subject":"Bolt Billing API S17","predicate":"billing_cycle","value":"monthly, invoiced on day 17","scope":"project:billing-s17","fact_id":"4490b294-47f7-5bdc-922a-93c3e89025fb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001204001,"tool":"assert_fact","subject":"Bolt Billing API S18","predicate":"billing_cycle","value":"weekly, invoiced on day 18","scope":"project:billing-s18","fact_id":"5ff3ed3c-af3c-500f-93d6-5f4c2cde373f","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001272501,"tool":"assert_fact","subject":"Bolt Billing API S19","predicate":"billing_cycle","value":"quarterly, invoiced on day 19","scope":"project:billing-s19","fact_id":"1329b454-6349-510a-bc35-8fcc8867f611","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001341001,"tool":"assert_fact","subject":"Bolt Billing API S20","predicate":"billing_cycle","value":"biweekly, invoiced on day 20","scope":"project:billing-s20","fact_id":"368a3f28-d754-5731-b810-e2d4d01debbc","duplicate_of":null,"superseded":[],"contradicts":[]}
+

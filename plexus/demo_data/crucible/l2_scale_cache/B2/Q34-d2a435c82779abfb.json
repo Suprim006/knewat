@@ -1,0 +1,23 @@
+{
+ "qid": "Q34",
+ "arm": "B2",
+ "reply": "{\"answer\": \"builder\"}",
+ "answer": "builder",
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 12,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3253
+ },
+ "cost_usd": 0.0131904,
+ "latency_ms": 3608.6,
+ "duration_api_ms": 1608.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "1e838d51-feb4-4d35-a3d4-6e6c66092684",
+ "key": "d2a435c82779abfb10576f3619d056629f700e7f468ef51f72a40cf06409b14d"
+}

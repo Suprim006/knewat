@@ -1,0 +1,25 @@
+{
+ "qid": "Q02",
+ "arm": "B0",
+ "reply": "{\"answer\": [\"database=Couchbase 16\"]}",
+ "answer": [
+  "database=Couchbase 16"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 21,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 20552
+ },
+ "cost_usd": 0.0824764,
+ "latency_ms": 4160.0,
+ "duration_api_ms": 2019.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "00164339-a2bb-41dc-9213-84b185f3592c",
+ "key": "ab2832030a3c64d480bac0b6f1d6d0d2ccc0771dea0dd93bba046eda8d9f5857"
+}

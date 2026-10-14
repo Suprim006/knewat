@@ -1,0 +1,1446 @@
+{
+  "schema_version": 1,
+  "kind": "crucible-results",
+  "run": {
+    "id": "20261014T223746Z-pilot",
+    "started_at": "2026-10-14T22:37:46Z",
+    "finished_at": "2026-10-14T22:40:30Z",
+    "duration_s": 163.9,
+    "quick": true,
+    "command": "python -m plexus.crucible.l2.scale_run run --mode pilot --port 6366 --budget-usd 2",
+    "layers": [
+      "L2_scale"
+    ]
+  },
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "machine": "AMD64",
+    "cpu_count": 12,
+    "in_docker": false,
+    "git_commit": "cba0a5a",
+    "embedder": "fastembed",
+    "falkordb": {
+      "host": "127.0.0.1",
+      "port": 6366,
+      "reachable": true,
+      "redis_version": "8.10.2",
+      "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+      "falkordb_args_env": "",
+      "modules": [
+        {
+          "name": "vectorset",
+          "ver": 1,
+          "path": "",
+          "args": []
+        },
+        {
+          "name": "graph",
+          "ver": 60002,
+          "path": "/var/lib/falkordb/bin/falkordb.so",
+          "args": [
+            "MAX_QUEUED_QUERIES",
+            "25",
+            "TIMEOUT",
+            "1000",
+            "RESULTSET_SIZE",
+            "10000"
+          ]
+        }
+      ],
+      "graph_config": {
+        "TIMEOUT_MAX": 0,
+        "TIMEOUT_DEFAULT": 0,
+        "MAX_QUEUED_QUERIES": 25,
+        "RESULTSET_SIZE": 10000,
+        "QUERY_MEM_CAPACITY": 0,
+        "THREAD_COUNT": 12,
+        "CACHE_SIZE": 25,
+        "OMP_THREAD_COUNT": 12
+      }
+    }
+  },
+  "config": {
+    "arms": [
+      "B0",
+      "B1",
+      "B2",
+      "P"
+    ],
+    "l2_scale": {
+      "mode": "pilot",
+      "model": "sonnet",
+      "context_budget_chars": 32000,
+      "b2_top_k": 12,
+      "budget_usd": 2.0,
+      "question_set": {
+        "path": "plexus/demo_data/crucible/questions_scale.yaml",
+        "sha256": "177d5a0bbbdfa7620b862c1b999e6c6ed006b0fa07d8a82ec7b22ee609c4394b",
+        "total": 40,
+        "asked": 5,
+        "ids": [
+          "Q03",
+          "Q14",
+          "Q21",
+          "Q25",
+          "Q37"
+        ],
+        "sprints": {
+          "Q03": "S20",
+          "Q14": "S08",
+          "Q21": "S20",
+          "Q25": "S05",
+          "Q37": "S03"
+        },
+        "seed": 20261015
+      },
+      "retrieval": {
+        "B0": "BM25 over chunks of the arm's files (task, source entry, MEMORY.md bullet, jsonl line)",
+        "B1": "full schema always; BM25 over rows (own text + one-hop joined text), best rows that fit",
+        "B2": "vector top-12 chunks (local bge-small), unchanged from L2",
+        "bm25": {
+          "k1": 1.5,
+          "b": 0.75,
+          "query": "the question text"
+        }
+      }
+    }
+  },
+  "arms": {
+    "B0": {
+      "label": "Files",
+      "represents": "How Claude Code (CLAUDE.md, auto-memory, agent-team task list) and Hermes (MEMORY.md, kanban, files) coordinate today",
+      "description": "MEMORY.md + JSON task list under inter-process file locks (flock), atomic os.replace writes, append-only per-agent JSONL logs",
+      "isolation": "one directory per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade"
+      ]
+    },
+    "B1": {
+      "label": "SQLite",
+      "represents": "\"Just use a relational database\"",
+      "description": "SQLite in WAL mode, BEGIN IMMEDIATE transactions, FTS5 recall, recursive CTEs for provenance",
+      "isolation": "one SQLite database file per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "knew_at",
+        "why"
+      ]
+    },
+    "B2": {
+      "label": "Vector",
+      "represents": "Retrieval-based memory (Mem0-style)",
+      "description": "Same local bge-small embeddings as Plexus, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
+      "isolation": "one SQLite database file (facts + vectors) per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "semantic_dedupe"
+      ]
+    },
+    "P": {
+      "label": "Plexus",
+      "represents": "Plexus: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
+      "description": "Engram/Relay/Lineage service layer called directly (memory, decision and handoff calls also write Steps and READ/WROTE edges)",
+      "isolation": "one FalkorDB graph per tenant (plexus_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "knew_at",
+        "semantic_dedupe",
+        "why"
+      ]
+    }
+  },
+  "layers": {
+    "L2_scale": {
+      "title": "Provenance and time questions at scale (history >= 10x the context budget)",
+      "mode": "pilot",
+      "model": "sonnet",
+      "model_ids": [
+        "claude-sonnet-5-5"
+      ],
+      "context_budget_chars": 32000,
+      "b2_top_k": 12,
+      "budget_usd": 2.0,
+      "history": {
+        "sprints": 20,
+        "scenario": {
+          "sprints": 20,
+          "agents": [
+            "planner",
+            "researcher",
+            "builder"
+          ],
+          "tasks": 240,
+          "decisions": 120,
+          "handoffs": 80,
+          "facts": 180,
+          "episodes": 80,
+          "sources": 160,
+          "supersedes": 20,
+          "conflicting_pairs": 40,
+          "reclaims": 20,
+          "forgotten_facts": 20
+        },
+        "artifact_chars": {
+          "B0": 532813,
+          "B1": 332599,
+          "B2": 147471
+        },
+        "artifact_chars_over_budget": {
+          "B0": 16.65,
+          "B1": 10.39,
+          "B2": 4.61
+        },
+        "strata": {
+          "early": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "middle": [
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14
+          ],
+          "late": [
+            15,
+            16,
+            17,
+            18,
+            19,
+            20
+          ]
+        }
+      },
+      "retrieval": {
+        "B0": "BM25 over chunks of the arm's files (task, source entry, MEMORY.md bullet, jsonl line)",
+        "B1": "full schema always; BM25 over rows (own text + one-hop joined text), best rows that fit",
+        "B2": "vector top-12 chunks (local bge-small), unchanged from L2",
+        "bm25": {
+          "k1": 1.5,
+          "b": 0.75,
+          "query": "the question text"
+        }
+      },
+      "question_set": {
+        "path": "plexus/demo_data/crucible/questions_scale.yaml",
+        "sha256": "177d5a0bbbdfa7620b862c1b999e6c6ed006b0fa07d8a82ec7b22ee609c4394b",
+        "total": 40,
+        "asked": 5,
+        "ids": [
+          "Q03",
+          "Q14",
+          "Q21",
+          "Q25",
+          "Q37"
+        ],
+        "sprints": {
+          "Q03": "S20",
+          "Q14": "S08",
+          "Q21": "S20",
+          "Q25": "S05",
+          "Q37": "S03"
+        },
+        "seed": 20261015
+      },
+      "families": {
+        "decision_provenance": {
+          "title": "Decision provenance",
+          "n": 1
+        },
+        "supersession": {
+          "title": "Supersession impact",
+          "n": 1
+        },
+        "contradictions": {
+          "title": "Contradictions",
+          "n": 1
+        },
+        "recovery": {
+          "title": "Recovery",
+          "n": 1
+        },
+        "forgetting": {
+          "title": "Forgetting",
+          "n": 1
+        }
+      },
+      "arms": {
+        "B0": {
+          "answerer": "claude -p over BM25-ranked chunks of the arm's files (tasks, MEMORY.md, decisions/handoffs jsonl, sources, logs), 32k chars",
+          "completed": true,
+          "accuracy": {
+            "correct": 4,
+            "total": 5,
+            "pct": 80.0,
+            "wilson95_pct": [
+              37.6,
+              96.4
+            ]
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 0,
+              "total": 1,
+              "pct": 0.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "contradictions": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "reply_format": {
+            "json_only": 5,
+            "prose_then_json": 0,
+            "unparseable": 0,
+            "call_failed": 0
+          },
+          "accuracy_whole_reply_json": {
+            "correct": 4,
+            "total": 5,
+            "pct": 80.0
+          },
+          "usage": {
+            "llm_calls": 5,
+            "calls_run_live": 5,
+            "calls_from_cache": 0,
+            "input_tokens": 10,
+            "output_tokens": 904,
+            "cache_read_input_tokens": 2720,
+            "cache_creation_input_tokens": 94541,
+            "total_tokens": 98175,
+            "tokens_per_question": 19635.0,
+            "cost_usd": 0.3875,
+            "cost_per_question_usd": 0.0775,
+            "latency_ms": {
+              "median": 4855.6,
+              "p95": 8834.3,
+              "total": 27433.4
+            }
+          },
+          "questions": [
+            {
+              "id": "Q03",
+              "family": "decision_provenance",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": false,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)@researcher",
+                "auth_method=API key in X-Ops-Key header@planner"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (ES384, key s20)@researcher"
+              ],
+              "error": "",
+              "tokens": 19742,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 475,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 18721
+              },
+              "cost_usd": 0.079692,
+              "latency_ms": 8834.3,
+              "cached": false,
+              "context_chars": 31944,
+              "artifact_chars": 532813,
+              "truncated": true,
+              "context_sha256": "d9a2a4bab1c966dd",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (ES384, key s20)@researcher\"]}",
+              "reply_format": "json_only",
+              "shown_units": 86,
+              "shown_lines": 87,
+              "shown_lines_with_sprint": 11,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 2
+              }
+            },
+            {
+              "id": "Q14",
+              "family": "supersession",
+              "sprint": "S08",
+              "stratum": "middle",
+              "correct": true,
+              "expected": [
+                "api_version=v16@researcher"
+              ],
+              "got": [
+                "api_version=v16 @ researcher"
+              ],
+              "error": "",
+              "tokens": 19183,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 24,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 18613
+              },
+              "cost_usd": 0.07475,
+              "latency_ms": 4094.5,
+              "cached": false,
+              "context_chars": 31851,
+              "artifact_chars": 532813,
+              "truncated": true,
+              "context_sha256": "0c6981090e92fe78",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"api_version=v16 @ researcher\"]}",
+              "reply_format": "json_only",
+              "shown_units": 89,
+              "shown_lines": 90,
+              "shown_lines_with_sprint": 23,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 1
+              }
+            },
+            {
+              "id": "Q21",
+              "family": "contradictions",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)",
+                "auth_method=API key in X-Ops-Key header"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (ES384, key s20)",
+                "auth_method=API key in X-Ops-Key header"
+              ],
+              "error": "",
+              "tokens": 19572,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 147,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 18879
+              },
+              "cost_usd": 0.077044,
+              "latency_ms": 4855.6,
+              "cached": false,
+              "context_chars": 31779,
+              "artifact_chars": 532813,
+              "truncated": true,
+              "context_sha256": "ba2fe8427fd4a096",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (ES384, key s20)\", \"auth_method=API key in X-Ops-Key header\"]}",
+              "reply_format": "json_only",
+              "shown_units": 100,
+              "shown_lines": 101,
+              "shown_lines_with_sprint": 46,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 2
+              }
+            },
+            {
+              "id": "Q25",
+              "family": "recovery",
+              "sprint": "S05",
+              "stratum": "early",
+              "correct": true,
+              "expected": [
+                "s05-t03-design-endpoints"
+              ],
+              "got": [
+                "s05-t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 18975,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 170,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 18259
+              },
+              "cost_usd": 0.074794,
+              "latency_ms": 4925.1,
+              "cached": false,
+              "context_chars": 31647,
+              "artifact_chars": 532813,
+              "truncated": true,
+              "context_sha256": "f9a1c591d6226358",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"s05-t03-design-endpoints\"]}",
+              "reply_format": "json_only",
+              "shown_units": 101,
+              "shown_lines": 102,
+              "shown_lines_with_sprint": 71,
+              "evidence_in_context": {
+                "found": 1,
+                "total": 1
+              }
+            },
+            {
+              "id": "Q37",
+              "family": "forgetting",
+              "sprint": "S03",
+              "stratum": "early",
+              "correct": true,
+              "expected": [],
+              "got": [],
+              "error": "",
+              "tokens": 20703,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 88,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 20069
+              },
+              "cost_usd": 0.081214,
+              "latency_ms": 4723.9,
+              "cached": false,
+              "context_chars": 31354,
+              "artifact_chars": 532813,
+              "truncated": true,
+              "context_sha256": "ef0f9d173764d1e1",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": []}",
+              "reply_format": "json_only",
+              "shown_units": 165,
+              "shown_lines": 166,
+              "shown_lines_with_sprint": 29,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 0
+              }
+            }
+          ],
+          "context": {
+            "chars_median": 31779,
+            "chars_max": 31944,
+            "artifact_chars": 532813,
+            "questions_truncated": 5
+          },
+          "by_stratum": {
+            "early": {
+              "correct": 2,
+              "total": 2,
+              "pct": 100.0
+            },
+            "middle": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "late": {
+              "correct": 1,
+              "total": 2,
+              "pct": 50.0
+            }
+          },
+          "failure_analysis": {
+            "wrong": 1,
+            "call_failed": 0,
+            "unparseable": 0,
+            "wrong_with_all_evidence_in_context": 0,
+            "wrong_with_partial_or_no_evidence_in_context": 1,
+            "median_share_of_shown_lines_from_the_asked_sprint": 0.256
+          }
+        },
+        "B1": {
+          "answerer": "claude -p over the full schema + BM25-ranked rows (with one-hop joined text) of the arm's SQLite tables as CSV, 32k chars",
+          "completed": true,
+          "accuracy": {
+            "correct": 4,
+            "total": 5,
+            "pct": 80.0,
+            "wilson95_pct": [
+              37.6,
+              96.4
+            ]
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 0,
+              "total": 1,
+              "pct": 0.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "contradictions": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 1,
+          "reply_format": {
+            "json_only": 4,
+            "prose_then_json": 0,
+            "unparseable": 1,
+            "call_failed": 0
+          },
+          "accuracy_whole_reply_json": {
+            "correct": 4,
+            "total": 5,
+            "pct": 80.0
+          },
+          "usage": {
+            "llm_calls": 5,
+            "calls_run_live": 5,
+            "calls_from_cache": 0,
+            "input_tokens": 10,
+            "output_tokens": 785,
+            "cache_read_input_tokens": 2720,
+            "cache_creation_input_tokens": 107571,
+            "total_tokens": 111086,
+            "tokens_per_question": 22217.2,
+            "cost_usd": 0.4384,
+            "cost_per_question_usd": 0.0877,
+            "latency_ms": {
+              "median": 5045.3,
+              "p95": 6867.0,
+              "total": 26895.1
+            }
+          },
+          "questions": [
+            {
+              "id": "Q03",
+              "family": "decision_provenance",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": false,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)@researcher",
+                "auth_method=API key in X-Ops-Key header@planner"
+              ],
+              "got": null,
+              "error": "text after the JSON object",
+              "tokens": 22736,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 439,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 21751
+              },
+              "cost_usd": 0.091452,
+              "latency_ms": 6867.0,
+              "cached": false,
+              "context_chars": 31988,
+              "artifact_chars": 332599,
+              "truncated": true,
+              "context_sha256": "9c2520a9bacdf935",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "```json\n{\"answer\": [\"auth_method=JWT bearer tokens (ES384, key s20)@researcher\"]}\n```\n\nThe decision is linked to two facts. The first is `984f762e`, `auth_method=JWT bearer tokens (ES384, key s20)`, which the researcher asserted. The second is `c30226fc`, which contradicts the first, but it appears in none of the shown rows (not in `facts` or `fact_agents`). Its predicate, value and asserting agent are therefore unknown, and I left it out rather than guess.",
+              "reply_format": "unparseable",
+              "shown_units": 329,
+              "shown_lines": 362,
+              "shown_lines_with_sprint": 19,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 2
+              }
+            },
+            {
+              "id": "Q14",
+              "family": "supersession",
+              "sprint": "S08",
+              "stratum": "middle",
+              "correct": true,
+              "expected": [
+                "api_version=v16@researcher"
+              ],
+              "got": [
+                "api_version=v16 @ researcher"
+              ],
+              "error": "",
+              "tokens": 23583,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 24,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 23013
+              },
+              "cost_usd": 0.09235,
+              "latency_ms": 5156.9,
+              "cached": false,
+              "context_chars": 31965,
+              "artifact_chars": 332599,
+              "truncated": true,
+              "context_sha256": "0658a7ef1abe2030",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"api_version=v16 @ researcher\"]}",
+              "reply_format": "json_only",
+              "shown_units": 409,
+              "shown_lines": 443,
+              "shown_lines_with_sprint": 47,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 1
+              }
+            },
+            {
+              "id": "Q21",
+              "family": "contradictions",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)",
+                "auth_method=API key in X-Ops-Key header"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (ES384, key s20)",
+                "auth_method=API key in X-Ops-Key header"
+              ],
+              "error": "",
+              "tokens": 21397,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 54,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 20797
+              },
+              "cost_usd": 0.083786,
+              "latency_ms": 5045.3,
+              "cached": false,
+              "context_chars": 31986,
+              "artifact_chars": 332599,
+              "truncated": true,
+              "context_sha256": "5208af73dec71fc9",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (ES384, key s20)\", \"auth_method=API key in X-Ops-Key header\"]}",
+              "reply_format": "json_only",
+              "shown_units": 292,
+              "shown_lines": 327,
+              "shown_lines_with_sprint": 79,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 2
+              }
+            },
+            {
+              "id": "Q25",
+              "family": "recovery",
+              "sprint": "S05",
+              "stratum": "early",
+              "correct": true,
+              "expected": [
+                "s05-t03-design-endpoints"
+              ],
+              "got": [
+                "s05-t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 19770,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 168,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 19056
+              },
+              "cost_usd": 0.077962,
+              "latency_ms": 4911.0,
+              "cached": false,
+              "context_chars": 31975,
+              "artifact_chars": 332599,
+              "truncated": true,
+              "context_sha256": "ffc5aca83099b9c6",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"s05-t03-design-endpoints\"]}",
+              "reply_format": "json_only",
+              "shown_units": 286,
+              "shown_lines": 321,
+              "shown_lines_with_sprint": 79,
+              "evidence_in_context": {
+                "found": 1,
+                "total": 1
+              }
+            },
+            {
+              "id": "Q37",
+              "family": "forgetting",
+              "sprint": "S03",
+              "stratum": "early",
+              "correct": true,
+              "expected": [],
+              "got": [],
+              "error": "",
+              "tokens": 23600,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 100,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 22954
+              },
+              "cost_usd": 0.092874,
+              "latency_ms": 4914.9,
+              "cached": false,
+              "context_chars": 31998,
+              "artifact_chars": 332599,
+              "truncated": true,
+              "context_sha256": "2ff77a24273ee5e1",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": []}",
+              "reply_format": "json_only",
+              "shown_units": 314,
+              "shown_lines": 344,
+              "shown_lines_with_sprint": 25,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 0
+              }
+            }
+          ],
+          "context": {
+            "chars_median": 31986,
+            "chars_max": 31998,
+            "artifact_chars": 332599,
+            "questions_truncated": 5
+          },
+          "by_stratum": {
+            "early": {
+              "correct": 2,
+              "total": 2,
+              "pct": 100.0
+            },
+            "middle": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "late": {
+              "correct": 1,
+              "total": 2,
+              "pct": 50.0
+            }
+          },
+          "failure_analysis": {
+            "wrong": 1,
+            "call_failed": 0,
+            "unparseable": 1,
+            "wrong_with_all_evidence_in_context": 0,
+            "wrong_with_partial_or_no_evidence_in_context": 1,
+            "median_share_of_shown_lines_from_the_asked_sprint": 0.106
+          }
+        },
+        "B2": {
+          "answerer": "claude -p over the top-12 retrieved memory chunks (local bge-small embeddings), cap 32k chars",
+          "completed": true,
+          "accuracy": {
+            "correct": 3,
+            "total": 5,
+            "pct": 60.0,
+            "wilson95_pct": [
+              23.1,
+              88.2
+            ]
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 0,
+              "total": 1,
+              "pct": 0.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "contradictions": {
+              "correct": 0,
+              "total": 1,
+              "pct": 0.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "reply_format": {
+            "json_only": 5,
+            "prose_then_json": 0,
+            "unparseable": 0,
+            "call_failed": 0
+          },
+          "accuracy_whole_reply_json": {
+            "correct": 3,
+            "total": 5,
+            "pct": 60.0
+          },
+          "usage": {
+            "llm_calls": 5,
+            "calls_run_live": 5,
+            "calls_from_cache": 0,
+            "input_tokens": 10,
+            "output_tokens": 1194,
+            "cache_read_input_tokens": 2720,
+            "cache_creation_input_tokens": 18801,
+            "total_tokens": 22725,
+            "tokens_per_question": 4545.0,
+            "cost_usd": 0.0874,
+            "cost_per_question_usd": 0.0175,
+            "latency_ms": {
+              "median": 6342.0,
+              "p95": 6738.0,
+              "total": 29246.3
+            }
+          },
+          "questions": [
+            {
+              "id": "Q03",
+              "family": "decision_provenance",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": false,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)@researcher",
+                "auth_method=API key in X-Ops-Key header@planner"
+              ],
+              "got": [
+                "auth_method=JWT bearer tokens (ES384, key s20)@unknown",
+                "auth_method=API key in X-Ops-Key header@unknown"
+              ],
+              "error": "",
+              "tokens": 4976,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 310,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 4120
+              },
+              "cost_usd": 0.019638,
+              "latency_ms": 6738.0,
+              "cached": false,
+              "context_chars": 3442,
+              "artifact_chars": 147471,
+              "truncated": true,
+              "context_sha256": "3f29a79658d6f04d",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"auth_method=JWT bearer tokens (ES384, key s20)@unknown\", \"auth_method=API key in X-Ops-Key header@unknown\"]}",
+              "reply_format": "json_only",
+              "shown_units": 12,
+              "shown_lines": 13,
+              "shown_lines_with_sprint": 1,
+              "evidence_in_context": {
+                "found": 2,
+                "total": 2
+              }
+            },
+            {
+              "id": "Q14",
+              "family": "supersession",
+              "sprint": "S08",
+              "stratum": "middle",
+              "correct": true,
+              "expected": [
+                "api_version=v16@researcher"
+              ],
+              "got": [
+                "api_version=v16 @ researcher"
+              ],
+              "error": "",
+              "tokens": 4586,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 305,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3735
+              },
+              "cost_usd": 0.018048,
+              "latency_ms": 6342.0,
+              "cached": false,
+              "context_chars": 2301,
+              "artifact_chars": 147471,
+              "truncated": true,
+              "context_sha256": "1f4d7fc9123fe193",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"api_version=v16 @ researcher\"]}",
+              "reply_format": "json_only",
+              "shown_units": 12,
+              "shown_lines": 13,
+              "shown_lines_with_sprint": 4,
+              "evidence_in_context": {
+                "found": 1,
+                "total": 1
+              }
+            },
+            {
+              "id": "Q21",
+              "family": "contradictions",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": false,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)",
+                "auth_method=API key in X-Ops-Key header"
+              ],
+              "got": [],
+              "error": "",
+              "tokens": 4667,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 198,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3923
+              },
+              "cost_usd": 0.01773,
+              "latency_ms": 5249.7,
+              "cached": false,
+              "context_chars": 2919,
+              "artifact_chars": 147471,
+              "truncated": true,
+              "context_sha256": "a31616ba72f0c87a",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": []}",
+              "reply_format": "json_only",
+              "shown_units": 12,
+              "shown_lines": 13,
+              "shown_lines_with_sprint": 3,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 2
+              }
+            },
+            {
+              "id": "Q25",
+              "family": "recovery",
+              "sprint": "S05",
+              "stratum": "early",
+              "correct": true,
+              "expected": [
+                "s05-t03-design-endpoints"
+              ],
+              "got": [
+                "s05-t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 4113,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 24,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3543
+              },
+              "cost_usd": 0.01447,
+              "latency_ms": 4190.0,
+              "cached": false,
+              "context_chars": 2403,
+              "artifact_chars": 147471,
+              "truncated": true,
+              "context_sha256": "53944c582642bbc0",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": [\"s05-t03-design-endpoints\"]}",
+              "reply_format": "json_only",
+              "shown_units": 12,
+              "shown_lines": 13,
+              "shown_lines_with_sprint": 1,
+              "evidence_in_context": {
+                "found": 1,
+                "total": 1
+              }
+            },
+            {
+              "id": "Q37",
+              "family": "forgetting",
+              "sprint": "S03",
+              "stratum": "early",
+              "correct": true,
+              "expected": [],
+              "got": [],
+              "error": "",
+              "tokens": 4383,
+              "usage": {
+                "input_tokens": 2,
+                "output_tokens": 357,
+                "cache_read_input_tokens": 544,
+                "cache_creation_input_tokens": 3480
+              },
+              "cost_usd": 0.017548,
+              "latency_ms": 6726.6,
+              "cached": false,
+              "context_chars": 1611,
+              "artifact_chars": 147471,
+              "truncated": true,
+              "context_sha256": "206844bd9ee36572",
+              "model": "claude-sonnet-5-5",
+              "num_turns": 1,
+              "reply": "{\"answer\": []}",
+              "reply_format": "json_only",
+              "shown_units": 12,
+              "shown_lines": 13,
+              "shown_lines_with_sprint": 3,
+              "evidence_in_context": {
+                "found": 0,
+                "total": 0
+              }
+            }
+          ],
+          "context": {
+            "chars_median": 2403,
+            "chars_max": 3442,
+            "artifact_chars": 147471,
+            "questions_truncated": 5
+          },
+          "by_stratum": {
+            "early": {
+              "correct": 2,
+              "total": 2,
+              "pct": 100.0
+            },
+            "middle": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "late": {
+              "correct": 0,
+              "total": 2,
+              "pct": 0.0
+            }
+          },
+          "failure_analysis": {
+            "wrong": 2,
+            "call_failed": 0,
+            "unparseable": 0,
+            "wrong_with_all_evidence_in_context": 1,
+            "wrong_with_partial_or_no_evidence_in_context": 1,
+            "median_share_of_shown_lines_from_the_asked_sprint": 0.231
+          }
+        },
+        "P": {
+          "answerer": "deterministic Cypher against the tenant graph (no LLM), sprint-scoped where a question asks about a whole class",
+          "completed": true,
+          "accuracy": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0,
+            "wilson95_pct": [
+              56.6,
+              100.0
+            ]
+          },
+          "by_family": {
+            "decision_provenance": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "supersession": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "contradictions": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "recovery": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "forgetting": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            }
+          },
+          "errors": 0,
+          "unparseable": 0,
+          "reply_format": null,
+          "accuracy_whole_reply_json": {
+            "correct": 5,
+            "total": 5,
+            "pct": 100.0
+          },
+          "usage": {
+            "llm_calls": 0,
+            "calls_run_live": 0,
+            "calls_from_cache": 0,
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "cache_read_input_tokens": 0,
+            "cache_creation_input_tokens": 0,
+            "total_tokens": 0,
+            "tokens_per_question": 0.0,
+            "cost_usd": 0.0,
+            "cost_per_question_usd": 0.0,
+            "latency_ms": {
+              "median": 9.6,
+              "p95": 25.4,
+              "total": 66.4
+            },
+            "server_ms": {
+              "median": 2.493,
+              "total": 25.21
+            },
+            "statements": 5
+          },
+          "questions": [
+            {
+              "id": "Q03",
+              "family": "decision_provenance",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)@researcher",
+                "auth_method=API key in X-Ops-Key header@planner"
+              ],
+              "got": [
+                "auth_method=API key in X-Ops-Key header@planner",
+                "auth_method=JWT bearer tokens (ES384, key s20)@researcher"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 21.83,
+              "server_ms": 8.518,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q14",
+              "family": "supersession",
+              "sprint": "S08",
+              "stratum": "middle",
+              "correct": true,
+              "expected": [
+                "api_version=v16@researcher"
+              ],
+              "got": [
+                "api_version=v16@researcher"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 25.35,
+              "server_ms": 13.275,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q21",
+              "family": "contradictions",
+              "sprint": "S20",
+              "stratum": "late",
+              "correct": true,
+              "expected": [
+                "auth_method=JWT bearer tokens (ES384, key s20)",
+                "auth_method=API key in X-Ops-Key header"
+              ],
+              "got": [
+                "auth_method=API key in X-Ops-Key header",
+                "auth_method=JWT bearer tokens (ES384, key s20)"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 6.5,
+              "server_ms": 2.493,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q25",
+              "family": "recovery",
+              "sprint": "S05",
+              "stratum": "early",
+              "correct": true,
+              "expected": [
+                "s05-t03-design-endpoints"
+              ],
+              "got": [
+                "s05-t03-design-endpoints"
+              ],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 9.63,
+              "server_ms": 0.69,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            },
+            {
+              "id": "Q37",
+              "family": "forgetting",
+              "sprint": "S03",
+              "stratum": "early",
+              "correct": true,
+              "expected": [],
+              "got": [],
+              "error": "",
+              "tokens": 0,
+              "cost_usd": 0.0,
+              "latency_ms": 3.06,
+              "server_ms": 0.234,
+              "statements": 1,
+              "cached": false,
+              "context_chars": 0,
+              "truncated": false
+            }
+          ],
+          "by_stratum": {
+            "early": {
+              "correct": 2,
+              "total": 2,
+              "pct": 100.0
+            },
+            "middle": {
+              "correct": 1,
+              "total": 1,
+              "pct": 100.0
+            },
+            "late": {
+              "correct": 2,
+              "total": 2,
+              "pct": 100.0
+            }
+          }
+        }
+      },
+      "summary": {
+        "accuracy_pct": {
+          "B0": 80.0,
+          "B1": 80.0,
+          "B2": 60.0,
+          "P": 100.0
+        },
+        "tokens_per_question": {
+          "B0": 19635.0,
+          "B1": 22217.2,
+          "B2": 4545.0,
+          "P": 0.0
+        },
+        "cost_usd": {
+          "B0": 0.3875,
+          "B1": 0.4384,
+          "B2": 0.0874,
+          "P": 0.0
+        },
+        "latency_ms_median": {
+          "B0": 4855.6,
+          "B1": 5045.3,
+          "B2": 6342.0,
+          "P": 9.6
+        }
+      },
+      "plexus_changes": [
+        "Operations whose arguments already name a unique thing (task id, fact label, decision name, subject, source uri) run the unchanged l2 operation with the unchanged statements: decision_facts, decision_fact_agents, decision_sources, handoff_artifacts, handoff_route, handoff_facts, as_of_values, as_of_facts, value_history, decisions_on_fact, superseder, fact_agent, fact_source, fact_scope, blocked_by_failure, direct_dependencies, ready_after, reclaimer, previous_claimer, current_value, scope_leak, episode_agent, remaining_from_source, forgotten_facts.",
+        "Nine operations ask about a whole class (all handoffs to X, all decisions on superseded facts, ...) and are restricted to the sprint named in the question by a Python filter over the rows of the same statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): handoffs_to, handoffs_with_superseded_facts, decisions_on_superseded, decisions_on_forgotten, active_conflicts, active_conflict_agents, reclaimed_tasks, completed_by, episode_count.",
+        "One operation needs one new read-only statement: visible_facts runs queries/l2scale/facts_visible_subject.cypher (l2/facts_visible plus a subject restriction), because the global scope now holds the facts of all 20 sprints.",
+        "No other query was changed; the original plexus_answerer.py and queries/l2/*.cypher are untouched."
+      ],
+      "notes": [
+        "LLM cost of the answers reported here: $0.9133 over 15 claude -p calls (15 run in this invocation for $0.9134; 0 re-used from the on-disk cache demo_data/crucible/l2_scale_cache, where each entry is the original call: tokens, cost and latency in the rows are those original measurements, so 'cached: true' means re-scored, not free of cost).",
+        "Each baseline question is one `claude -p` process (max-turns 3, no tools, context on stdin, ANTHROPIC_API_KEY removed); permission_denials and tool use are checked per call and fail the question.",
+        "Scoring rule for the baselines (decided before the first paid call, = the final L2 rule): the model may reason in prose first, but the reply must END with exactly one {\"answer\": ...} JSON object (no text after it); that object is compared by exact match. `accuracy_whole_reply_json` counts only replies that are nothing but the JSON object.",
+        "PILOT: 5 questions (five families, all three strata); not a result. It only gates the cost of the full run."
+      ]
+    }
+  },
+  "summary": {
+    "l2_scale_accuracy_pct": {
+      "B0": 80.0,
+      "B1": 80.0,
+      "B2": 60.0,
+      "P": 100.0
+    },
+    "headline": [
+      "L2-scale: B0 + claude -p (sonnet) answered 4/5 (80.0%) exactly, 19635 tokens and $0.077 per question.",
+      "L2-scale: B1 + claude -p (sonnet) answered 4/5 (80.0%) exactly, 22217 tokens and $0.088 per question.",
+      "L2-scale: B2 + claude -p (sonnet) answered 3/5 (60.0%) exactly, 4545 tokens and $0.018 per question.",
+      "L2-scale: Plexus (deterministic Cypher) answered 5/5 (100.0%) exactly.",
+      "L2-scale: Plexus beats B0 by 20.0 points.",
+      "L2-scale: Plexus beats B1 by 20.0 points.",
+      "L2-scale: Plexus beats B2 by 40.0 points."
+    ]
+  },
+  "honesty": [
+    "L2-scale: exact-match accuracy over 40 script-derived questions (10 families x 4) about 20 independent sprints of one team history; one scenario family, one model (sonnet), one run per question; no LLM judge. Ground truth is computed from the per-sprint scenario ledgers, not read back from any arm. Pre-registered in docs/BASELINE.md before the first paid call.",
+    "The history is 20 repetitions of the same synthetic story with varied ids and values. Real histories are messier; sprints here do not interact, which favours retrieval (a question names its sprint and a sprint's records share its tag).",
+    "Every question names exactly one sprint, so competent keyword retrieval can find a sprint's records. Questions that aggregate across sprints (the strongest case for a graph) are NOT in this set.",
+    "Baselines are the same unmodified `claude -p --model sonnet` with no tools at the same 32,000-character cap, shown BM25-ranked chunks/rows (B0, B1) or vector top-12 (B2) selected with the question text. The selectors were written once, before any paid call, and not tuned afterwards.",
+    "Arm P answers with hand-written Cypher per question family (the same operations as the 43-question L2 run, with the sprint scoping listed in the results); that engineering effort is part of what P costs and the baselines get no equivalent helper.",
+    "Reply rule for the baselines is the final L2 rule: prose may precede the reply, which must END with one {\"answer\": ...} object; the whole-reply-JSON variant is reported next to it.",
+    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1."
+  ]
+}

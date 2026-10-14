@@ -1,0 +1,27 @@
+{
+ "qid": "Q30",
+ "arm": "B2",
+ "reply": "{\"answer\": [\"purpose=REST service to create, tag and search notes (S15)\", \"api_version=v30\", \"release_channel=general availability\"]}",
+ "answer": [
+  "purpose=REST service to create, tag and search notes (S15)",
+  "api_version=v30",
+  "release_channel=general availability"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 50,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 3915
+ },
+ "cost_usd": 0.0162184,
+ "latency_ms": 4103.0,
+ "duration_api_ms": 2070.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "632bb3a3-0e1e-4d6f-859f-31fe25a282ea",
+ "key": "929bf8292225c30a3b687576bd1dcd75d9a34bbf906da50ec1d114a87f81ea82"
+}

@@ -1,0 +1,23 @@
+{
+ "qid": "Q32",
+ "arm": "B0",
+ "reply": "{\"answer\": \"project:billing-s12\"}",
+ "answer": "project:billing-s12",
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 17,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 18793
+ },
+ "cost_usd": 0.0754004,
+ "latency_ms": 3824.8,
+ "duration_api_ms": 1666.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "permission_denials": [],
+ "tools_used": [],
+ "session_id": "14569249-2ffe-402c-9259-05197c15567f",
+ "key": "4d5448438b098491e9356ef5cbafa68ec64da61f97dff37c1c81482572f22f34"
+}
