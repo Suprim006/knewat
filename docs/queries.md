@@ -45,3 +45,6 @@ Other `//` comment lines in the header or body are free comments and are ignored
 | `relay/heartbeat` | rw | Extend a lease only if `claimed_by = agent AND status = 'claimed'` | Compare-and-set on graph node state. |
 | `relay/task_status` | ro | One task with its direct dependencies and their statuses | One-hop `DEPENDS_ON` traversal. |
 | `relay/agent_exists` | ro | Explains an empty claim result (unknown agent) | Diagnostic id lookup. |
+| `relay/complete_task` | rw | CAS on `claimed_by` + `version`; set `done`, `done_at`, `version+1`; create `Artifact`s with `PRODUCED_BY` | Completion unblocks `DEPENDS_ON` successors; artifacts hang off the producing agent as graph evidence. |
+| `relay/fail_task` | rw | Same CAS, status `failed` and a `fail_reason`; a failed dependency keeps dependents blocked | Failure propagates by traversal (`blocked_by_failure`). |
+| `relay/existing_artifacts` | ro | Which artifact ids exist (explains a rejected complete/fail/handoff) | Diagnostic id lookup. |

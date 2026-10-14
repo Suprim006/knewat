@@ -13,10 +13,11 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
 from plexus.graph.client import GraphClient
-from plexus.relay.errors import DuplicateTask, InvalidDag, UnknownReference
+from plexus.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask, InvalidDag, UnknownReference
 
 MAX_TASKS_PER_CALL = 500
 MAX_EDGES_PER_CALL = 5000
+MAX_ARTIFACTS_PER_CALL = 100
 
 
 def _now_ms() -> int:
@@ -138,6 +139,97 @@ class Relay:
             {"agent": agent_id, "task": task_id, "lease_ms": lease_ms, "now": now},
         )
         return bool(rows)
+
+    # -- completion -------------------------------------------------------------------------------------
+    def complete_task(
+        self,
+        agent_id: str,
+        task_id: str,
+        expected_version: int,
+        artifacts: Sequence[dict[str, Any]] = (),
+        now: int | None = None,
+    ) -> dict[str, Any]:
+        """Mark the task done if ``agent_id`` still holds it at ``expected_version``; record its artifacts.
+
+        Artifacts: ``{id?, kind, uri, hash?, summary?}``. Returns ``{id, status, version, artifact_ids}``.
+        Raises :class:`ClaimConflict` (stale version, wrong owner, not claimed), :class:`UnknownReference`
+        (no such task) or :class:`DuplicateArtifact`; nothing is written then.
+        """
+        return self._finish("relay/complete_task", agent_id, task_id, expected_version, artifacts, now, {})
+
+    def fail_task(
+        self,
+        agent_id: str,
+        task_id: str,
+        expected_version: int,
+        artifacts: Sequence[dict[str, Any]] = (),
+        reason: str = "",
+        now: int | None = None,
+    ) -> dict[str, Any]:
+        """Like :meth:`complete_task` but marks the task failed (downstream tasks stay blocked)."""
+        return self._finish(
+            "relay/fail_task", agent_id, task_id, expected_version, artifacts, now, {"reason": reason}
+        )
+
+    def _finish(
+        self,
+        query: str,
+        agent_id: str,
+        task_id: str,
+        expected_version: int,
+        artifacts: Sequence[dict[str, Any]],
+        now: int | None,
+        extra: dict[str, Any],
+    ) -> dict[str, Any]:
+        if len(artifacts) > MAX_ARTIFACTS_PER_CALL:
+            raise InvalidDag(f"at most {MAX_ARTIFACTS_PER_CALL} artifacts per call, got {len(artifacts)}")
+        rows = [
+            {
+                "id": str(a.get("id") or uuid.uuid4()),
+                "kind": str(a.get("kind") or ""),
+                "uri": str(a.get("uri") or ""),
+                "hash": str(a.get("hash") or ""),
+                "summary": str(a.get("summary") or ""),
+            }
+            for a in artifacts
+        ]
+        ids = [r["id"] for r in rows]
+        if len(set(ids)) != len(ids):
+            raise InvalidDag("duplicate artifact id in call")
+        now = self._clock() if now is None else now
+        res = self.client.rw(
+            self.graph,
+            query,
+            {
+                "agent": agent_id,
+                "task": task_id,
+                "expected_version": expected_version,
+                "artifacts": rows,
+                "artifact_ids": ids,
+                "now": now,
+                **extra,
+            },
+        )
+        if res:
+            return {**dict(res[0]), "artifact_ids": ids}
+        self._explain_rejected_finish(agent_id, task_id, expected_version, ids)
+        raise AssertionError("unreachable")  # pragma: no cover
+
+    def _explain_rejected_finish(self, agent_id: str, task_id: str, expected_version: int, ids: list[str]):
+        st = self.task_status(task_id)
+        if st is None:
+            raise UnknownReference("task", [task_id])
+        if st["status"] != "claimed":
+            raise ClaimConflict(task_id, f"not claimed (status is {st['status']})")
+        if st["claimed_by"] != agent_id:
+            raise ClaimConflict(task_id, f"claimed by {st['claimed_by']}, not {agent_id}")
+        if st["version"] != expected_version:
+            raise ClaimConflict(task_id, f"stale version {expected_version}; current is {st['version']}")
+        have = {r["id"] for r in self.client.ro(self.graph, "relay/existing_artifacts", {"ids": ids})}
+        dup = [i for i in ids if i in have]
+        if dup:
+            raise DuplicateArtifact(dup)
+        raise UnknownReference("agent", [agent_id])
 
     # -- reads ------------------------------------------------------------------------------------------
     def ready_tasks(self, now: int | None = None, limit: int = 100) -> list[dict[str, Any]]:

@@ -35,3 +35,11 @@ class ClaimConflict(RelayError):
         self.task_id = task_id
         self.reason = reason
         super().__init__(f"task {task_id}: {reason}")
+
+
+class DuplicateArtifact(RelayError):
+    """An artifact id in the call already exists, so nothing was written."""
+
+    def __init__(self, ids: list[str]):
+        self.ids = ids
+        super().__init__(f"artifact id(s) already exist: {', '.join(ids)}")

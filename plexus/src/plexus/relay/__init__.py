@@ -2,6 +2,7 @@
 
 from plexus.relay.errors import (
     ClaimConflict,
+    DuplicateArtifact,
     DuplicateTask,
     InvalidDag,
     RelayError,
@@ -12,6 +13,7 @@ from plexus.relay.service import MAX_TASKS_PER_CALL, Relay
 __all__ = [
     "MAX_TASKS_PER_CALL",
     "ClaimConflict",
+    "DuplicateArtifact",
     "DuplicateTask",
     "InvalidDag",
     "Relay",
