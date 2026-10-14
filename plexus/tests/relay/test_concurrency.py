@@ -84,3 +84,86 @@ def test_50_threads_claim_200_tasks_with_zero_double_claims(relay, client, graph
             f"{(N_TASKS + N_THREADS) / secs:.0f} claim calls/s (incl. {N_THREADS} empty), "
             f"0 double claims, tasks/agent min={per_agent[0]} max={per_agent[-1]}"
         )
+
+
+def test_dag_workers_never_run_a_task_before_its_dependencies(relay, client, graph, library):
+    """Layered DAG, 20 workers: no task starts before every task of the previous layer has ended."""
+    layers, width = 5, 12
+    tasks = []
+    for layer in range(layers):
+        for k in range(width):
+            deps = [f"L{layer - 1}-{j}" for j in range(width)] if layer else []
+            tasks.append({"id": f"L{layer}-{k}", "title": "x", "depends_on": deps, "priority": layer})
+    relay.create_tasks(tasks)
+    n_workers = 20
+    for i in range(n_workers):
+        relay.register_agent(f"agent-{i:02d}", f"A{i}", "builder", "thread")
+
+    lock = threading.Lock()
+    events: list[tuple[str, str]] = []  # ("start"|"end", task id) in real time
+    remaining = {"n": layers * width}
+
+    def work(r: Relay, agent: str) -> int:
+        n = 0
+        deadline = time.monotonic() + 120
+        while time.monotonic() < deadline:
+            got = r.claim_next_task(agent, LEASE)
+            if got is None:
+                with lock:
+                    if remaining["n"] == 0:
+                        return n
+                time.sleep(0.005)
+                continue
+            with lock:
+                events.append(("start", got["id"]))
+            with lock:
+                events.append(("end", got["id"]))  # work is instantaneous; completion follows
+            r.complete_task(agent, got["id"], got["version"])
+            with lock:
+                remaining["n"] -= 1
+            n += 1
+        raise TimeoutError("workers did not finish")
+
+    results, errors, secs = _race(library, graph, n_workers, work)
+    assert not errors, errors[:3]
+    assert sum(results.values()) == layers * width
+    started = [t for kind, t in events if kind == "start"]
+    assert len(started) == len(set(started)) == layers * width  # each task started exactly once
+    st = client.graph(graph).ro_query("MATCH (t:Task) RETURN t.status, count(t)").result_set
+    assert st == [["done", layers * width]]
+    # Graph invariant: no task finished before one of its dependencies.
+    bad = (
+        client.graph(graph)
+        .ro_query("MATCH (t:Task)-[:DEPENDS_ON]->(d:Task) WHERE d.done_at > t.done_at RETURN count(*)")
+        .result_set[0][0]
+    )
+    assert bad == 0
+    # Real-time order: 'end' is logged before complete_task, so a layer-n task can only start after
+    # every layer-(n-1) task has been completed in the graph.
+    pos_end = {t: i for i, (kind, t) in enumerate(events) if kind == "end"}
+    for i, (kind, t) in enumerate(events):
+        if kind == "start" and not t.startswith("L0-"):
+            layer = int(t[1 : t.index("-")])
+            assert all(pos_end.get(f"L{layer - 1}-{j}", 10**9) < i for j in range(width)), t
+
+
+def test_many_agents_racing_to_reclaim_one_expired_task_yield_one_winner(
+    relay, client, graph, library, clock
+):
+    relay.register_agent("dead", "dead", "builder", "thread")
+    relay.create_tasks([{"id": "t1", "title": "orphan"}])
+    assert relay.claim_next_task("dead", 1_000, now=1_000)["id"] == "t1"
+    n = 30
+    for i in range(n):
+        relay.register_agent(f"agent-{i:02d}", f"A{i}", "builder", "thread")
+
+    def once(r: Relay, agent: str):
+        return r.claim_next_task(agent, LEASE, now=50_000)  # far past the dead agent's lease
+
+    results, errors, _ = _race(library, graph, n, once)
+    assert not errors, errors[:3]
+    winners = [a for a, got in results.items() if got is not None]
+    assert len(winners) == 1
+    assert results[winners[0]]["reclaimed_from"] == "dead" and results[winners[0]]["version"] == 2
+    edges = client.graph(graph).ro_query("MATCH (a)-[c:CLAIMED]->(:Task {id:'t1'}) RETURN a.id").result_set
+    assert sorted(r[0] for r in edges) == sorted(["dead", winners[0]])
