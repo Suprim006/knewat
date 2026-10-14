@@ -271,6 +271,46 @@ def tenant_point(env: Env, arm: str, tenants: int, cfg: L4Config) -> dict[str, A
 
 
 # ------------------------------------------------------------------------------------------------------------
+# embedder probe: how much of recall latency is the (shared, lock-serialised) embedding model?
+# ------------------------------------------------------------------------------------------------------------
+
+
+def embedder_probe(env: Env, cfg: L4Config) -> list[dict[str, Any]]:
+    """Embed query-sized texts from W threads with no database involved. This is the ceiling for every arm whose
+    recall embeds the query (B2, P, P-mcp): the model instance is shared and its calls are serialised."""
+    from plexus.embed import get_embedder
+
+    emb = get_embedder(env.embedder)
+    emb.embed(["warm up"])
+    out = []
+    for w in sorted({1, 10, max(cfg.workers)}):
+        calls = max(4, min(16, 400 // w))
+        lat: list[list[float]] = [[] for _ in range(w)]
+
+        def worker(i: int, lat=lat, calls=calls) -> None:
+            for k in range(calls):
+                s, p, v = _fact(i * calls + k)
+                t0 = time.perf_counter()
+                emb.embed([f"{s} {p} {v}"])
+                lat[i].append((time.perf_counter() - t0) * 1000.0)
+
+        t0 = time.perf_counter()
+        run_workers(w, worker, timeout=cfg.point_timeout_s)
+        wall = time.perf_counter() - t0
+        flat = [x for ls in lat for x in ls]
+        out.append(
+            {
+                "workers": w,
+                "calls": len(flat),
+                "wall_s": round(wall, 3),
+                "throughput_ops_s": round(len(flat) / wall, 1),
+                **stats(flat),
+            }
+        )
+    return out
+
+
+# ------------------------------------------------------------------------------------------------------------
 # driver
 # ------------------------------------------------------------------------------------------------------------
 
@@ -300,4 +340,7 @@ def run_l4(env: Env, cfg: L4Config, log: Callable[[str], None] = print) -> dict[
             log(
                 f"  L4 tenants {arm:>4} T={t:<3} {p['throughput_ops_s']:>8} ops/s  claim p99={p['claim'].get('p99_ms')} ms"
             )
+    out["embedder_probe"] = embedder_probe(env, cfg)
+    for p in out["embedder_probe"]:
+        log(f"  L4 embedder-only W={p['workers']:<3} {p['throughput_ops_s']:>8} ops/s  p50={p['p50_ms']} ms")
     return out

@@ -122,3 +122,24 @@ def test_plexus_l1_and_ablation_through_the_cli(tmp_path):
     assert s["intact_all_pass"] and s["broken_by_ablation"] == s["capabilities_needing_edges"] > 0
     assert s["controls_unaffected"] == s["controls"] > 0
     assert "Ablation" in report
+
+
+def test_rerun_replaces_only_the_named_cells_and_keeps_the_original(tmp_path):
+    out = tmp_path / "r"
+    common = ["--out", str(out), "--embedder", "hash", "--host", DB_HOST, "--port", str(DB_PORT)]
+    assert cli.main(["l1", "--quick", "--arms", "B1", "--tests", "C1,C6", "--reps", "1", *common]) == 0
+    base = next(d for d in out.iterdir() if d.is_dir())
+    before = json.loads((base / "results.json").read_text(encoding="utf-8"))
+    c6_before = before["layers"]["L1"]["arms"]["B1"]["tests"]["C6"]
+    argv = ["rerun", "--base", str(base), "--cell", "L1:B1:C1", "--reason", "pool was too small", *common[2:]]
+    assert cli.main(argv) == 0
+    after = json.loads((base / "results.json").read_text(encoding="utf-8"))
+    check_schema(after)
+    assert after["layers"]["L1"]["arms"]["B1"]["tests"]["C6"] == c6_before
+    (rr,) = after["run"]["reruns"]
+    assert rr["cells"] == ["L1:B1:C1"] and rr["reason"] == "pool was too small"
+    assert (
+        rr["superseded"][0]["result"]["runs"] == before["layers"]["L1"]["arms"]["B1"]["tests"]["C1"]["runs"]
+    )
+    assert "Re-runs" in (base / "report.md").read_text(encoding="utf-8")
+    assert cli.main(["rerun", "--base", str(base), *common[2:]]) == 2  # needs a cell and a reason

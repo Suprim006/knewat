@@ -17,10 +17,12 @@ available from :meth:`last_server_ms` for the L4 report.
 
 from __future__ import annotations
 
+import os
 import threading
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
+from falkordb import FalkorDB
 from mcp.server.mcpserver.exceptions import ToolError
 
 from plexus.crucible import api
@@ -31,6 +33,27 @@ from plexus.graph.client import GraphClient
 from plexus.graph.tenancy import graph_name
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 from plexus.relay import errors as relay_errors
+
+POOL = int(os.environ.get("CRUCIBLE_POOL", "512"))
+
+
+def _client(host: str | None, port: int | None) -> GraphClient:
+    """A GraphClient whose connection pool fits the benchmark's worker threads.
+
+    redis-py's default pool holds 100 connections, so 200 threads sharing one client fail with
+    ``MaxConnectionsError`` (a client-side limit, not a server one; the MCP server caps concurrent tool calls
+    with its thread limiter). The harness raises the pool; nothing else about the client changes.
+    """
+    c = GraphClient(host=host, port=port)
+    old = c.db
+    c.db = FalkorDB(host=c.host, port=c.port, password=_password(), max_connections=POOL)
+    old.connection.close()
+    return c
+
+
+def _password() -> str | None:
+    return os.environ.get("FALKORDB_PASSWORD") or None
+
 
 TRACKED = frozenset({"assert_fact", "recall", "record_decision", "handoff", "remember_episode"})
 STRIP_BATCH = 5000
@@ -71,7 +94,7 @@ class PlexusBackend:
         self.name = "P" if mode == "service" else "P-mcp"
         self.label = "Plexus" if mode == "service" else "Plexus (MCP path)"
         self._owns_client = client is None
-        self.client = client or GraphClient(host=host or None, port=port or None)
+        self.client = client or _client(host, port)
         self.embedder: Embedder = embedder if isinstance(embedder, Embedder) else get_embedder(embedder)
         self.rt = Runtime(client=self.client, embedder=self.embedder, stdio_tenant=tenant)
         self.ts: TenantState = self.rt.state(tenant)  # applies the schema once

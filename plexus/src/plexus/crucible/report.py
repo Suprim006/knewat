@@ -88,6 +88,25 @@ def render(res: dict[str, Any]) -> str:
         _l4(layers["L4"], w)
     if "ablation" in layers:
         _ablation(layers["ablation"], w)
+    for rr in run.get("reruns", []):
+        w("## Re-runs (cells replaced after the main run)")
+        w("")
+        w(f"- {rr['at']}, commit `{rr.get('git_commit') or 'unknown'}`: {rr['reason']}")
+        w(
+            f"- Replaced cells: {', '.join(rr['cells'])}. The original results are kept in `results.json` under `run.reruns[*].superseded`."
+        )
+        for sup in rr["superseded"]:
+            res_ = sup["result"] or {}
+            if "violations_total" in res_:
+                what = (
+                    f"{res_['runs_passed']}/{res_['runs']} runs passed, violations {res_['violations_total']}"
+                )
+            elif "error_count" in res_:
+                what = f"{res_['error_count']} errors ({'; '.join(res_.get('errors', []))}), {res_['ops']} ops completed"
+            else:
+                what = "no earlier result"
+            w(f"  - was {sup['cell']}: {what}")
+        w("")
     w("## Limits and honesty notes")
     w("")
     for h in res.get("honesty", []):
@@ -332,6 +351,23 @@ def _l4(layer: dict[str, Any], w) -> None:
                 )
             )
             w("")
+    probe = layer.get("embedder_probe")
+    if probe:
+        w("### Embedder alone (no database): the ceiling for recall")
+        w("")
+        w(
+            "Recall embeds the query with one shared bge-small instance whose calls are serialised. With W closed-loop "
+            "workers, latency ~ W / throughput (Little's law), so once that instance saturates, p50 grows linearly with W "
+            "whatever the store behind it does. Compare with the server-side `run_time_ms` above (about 10 ms)."
+        )
+        w("")
+        w(
+            _table(
+                ["Workers", "Embeds/s", "p50 / p95 / p99 (ms)"],
+                [[str(p["workers"]), f"{p['throughput_ops_s']:g}", _lat(p)] for p in probe],
+            )
+        )
+        w("")
     tenants = layer["tenant_sweep"]
     if tenants:
         tarms = list(dict.fromkeys(p["arm"] for p in tenants))

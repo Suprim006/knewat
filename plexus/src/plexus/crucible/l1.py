@@ -32,7 +32,6 @@ from plexus.crucible.harness import (
     Env,
     RunResult,
     aggregate,
-    describe_errors,
     run_workers,
     unsupported_result,
 )
@@ -144,7 +143,7 @@ def c1(run: ArmRun, seed: int, cfg: L1Config, workers: int) -> RunResult:
         "duration_s": round(dur, 3),
         "ops_per_s": round(2 * m / dur, 1) if dur else 0.0,
     }
-    res.errors = describe_errors(errors)
+    res.set_errors(errors)
     return res.finish()
 
 
@@ -273,7 +272,7 @@ def c2(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
         for p in procs.values():
             if p.poll() is None:
                 p.kill()
-    res.errors = describe_errors(errors)
+    res.set_errors(errors)
     return res.finish()
 
 
@@ -360,7 +359,7 @@ def c3(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
         "contradiction_pairs": len(pairs),
         "contradictions_flagged": len(pairs) - missed,
     }
-    res.errors = describe_errors(errors)
+    res.set_errors(errors)
     return res.finish()
 
 
@@ -435,7 +434,7 @@ def c4(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     not_done = sum(1 for t in final.values() if t["status"] != "done")
     res.violations = {"started_before_deps_done": len(early), "tasks_not_completed": not_done}
     res.metrics = {"tasks": total, "edges": sum(len(v) for v in deps_of.values())}
-    res.errors = describe_errors(errors)
+    res.set_errors(errors)
     return res.finish()
 
 
@@ -590,7 +589,7 @@ def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     }
     res.metrics = {"probes": len(probes), "tenant_isolation": 1}
     res.details = {"leaking_probes": probe_log[:10]}
-    res.errors = describe_errors([*errors, *unexpected])
+    res.set_errors([*errors, *unexpected])
     return res.finish()
 
 
@@ -658,7 +657,7 @@ def c6(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     res.violations = {"wrong_version_answers": wrong}
     res.metrics = {"queries": asked}
     res.details = {"examples": bad}
-    res.errors = describe_errors(errors)
+    res.set_errors(errors)
     return res.finish()
 
 
@@ -874,7 +873,7 @@ def c8(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
         "forgotten_expected": len(expected_gone),
         "kept_but_not_found": over_forgotten,
     }
-    res.errors = describe_errors(errors)
+    res.set_errors(errors)
     return res.finish()
 
 
@@ -903,7 +902,8 @@ def run_test(
             except Unsupported as exc:
                 r = unsupported_result(seed, dict(params), exc)
             except Exception as exc:  # noqa: BLE001 - a crashed run is a failed run, recorded, never hidden
-                r = RunResult(seed=seed, params=dict(params), errors=describe_errors([exc]))
+                r = RunResult(seed=seed, params=dict(params))
+                r.set_errors([exc])
                 r.violations["crashed"] = 1
                 r.finish()
             finally:

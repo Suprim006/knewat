@@ -38,7 +38,9 @@ def build_parser() -> argparse.ArgumentParser:
         prog="crucible", description="Plexus Crucible: change only the backend, measure the rest."
     )
     p.add_argument(
-        "layer", choices=("l1", "l4", "ablation", "all"), help="what to run (all = l1 + l4 + ablation)"
+        "layer",
+        choices=("l1", "l4", "ablation", "all", "rerun"),
+        help="what to run (all = l1 + l4 + ablation; rerun = re-execute the --cell cells of --base)",
     )
     p.add_argument("--quick", action="store_true", help="fewer repetitions and workers (CI sizing, < 2 min)")
     p.add_argument(
@@ -59,6 +61,16 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p.add_argument("--host", help="FalkorDB host (default $FALKORDB_HOST or 127.0.0.1)")
     p.add_argument("--port", type=int, help="FalkorDB port (default $FALKORDB_PORT or 6379)")
+    p.add_argument("--base", type=Path, help="rerun: results directory (or results.json) to patch")
+    p.add_argument(
+        "--cell",
+        action="append",
+        default=[],
+        help="rerun: L1:<arm>:<test> | L4:claim:<arm>:<workers> | L4:embedder",
+    )
+    p.add_argument(
+        "--reason", default="", help="rerun: why these cells are re-executed (recorded in the results)"
+    )
     p.add_argument(
         "--work-dir",
         type=Path,
@@ -95,7 +107,7 @@ def _config(args: argparse.Namespace) -> tuple[L1Config, L4Config]:
 
 
 def _needs_db(layer: str, l1: L1Config, l4: L4Config) -> bool:
-    if layer == "ablation":
+    if layer in ("ablation", "rerun"):
         return True
     arms = set()
     if layer in ("l1", "all"):
@@ -125,6 +137,20 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:  # noqa: BLE001
             print(f"crucible: FalkorDB is not reachable at {env.host}:{env.port} ({exc})", file=sys.stderr)
             return 2
+    if args.layer == "rerun":
+        if not args.base or not args.cell or not args.reason:
+            print("crucible rerun needs --base, at least one --cell and a --reason", file=sys.stderr)
+            return 2
+        from plexus.crucible.rerun import rerun
+
+        try:
+            d, _ = rerun(args.base, args.cell, args.reason, env, log=lambda m: print(m, flush=True))
+        finally:
+            if args.work_dir is None:
+                shutil.rmtree(work, ignore_errors=True)
+        print(f"patched: {d / 'results.json'}", flush=True)
+        print(f"report:  {d / 'report.md'}", flush=True)
+        return 0
     started = time.time()
     run_id = R.new_run_id(args.quick)
     command = "crucible " + " ".join(argv if argv is not None else sys.argv[1:])

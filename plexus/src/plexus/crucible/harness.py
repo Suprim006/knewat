@@ -130,12 +130,18 @@ class RunResult:
     passed: bool = True
     unsupported: str = ""
     errors: list[str] = field(default_factory=list)
+    error_total: int = 0  # raw number of exceptions (``errors`` is grouped by message)
     duration_s: float = 0.0
     details: dict[str, Any] = field(default_factory=dict)
 
+    def set_errors(self, excs: Iterable[BaseException]) -> None:
+        excs = list(excs)
+        self.errors = describe_errors(excs)
+        self.error_total = len(excs)
+
     def finish(self) -> RunResult:
         if self.errors:
-            self.violations["errors"] = len(self.errors)
+            self.violations["errors"] = self.error_total or len(self.errors)
         self.passed = not self.unsupported and all(v == 0 for v in self.violations.values())
         return self
 
@@ -154,14 +160,13 @@ class RunResult:
 
 
 def describe_errors(errors: Iterable[BaseException], limit: int = 5) -> list[str]:
-    seen: list[str] = []
+    """Distinct messages with how many times each occurred, e.g. ``'X: boom (x100)'``."""
+    counts: dict[str, int] = {}
     for e in errors:
         msg = f"{type(e).__name__}: {e}"[:300]
-        if msg not in seen:
-            seen.append(msg)
-        if len(seen) >= limit:
-            break
-    return seen
+        counts[msg] = counts.get(msg, 0) + 1
+    ranked = sorted(counts.items(), key=lambda kv: -kv[1])[:limit]
+    return [m if n == 1 else f"{m} (x{n})" for m, n in ranked]
 
 
 def unsupported_result(seed: int, params: dict[str, Any], exc: Unsupported) -> RunResult:
