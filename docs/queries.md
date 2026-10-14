@@ -65,3 +65,41 @@ Other `//` comment lines in the header or body are free comments and are ignored
 | `relay/record_decision` | rw | Create `Decision` with `DECIDED`, `FOR`, and all-or-nothing `BASED_ON` facts (fact count compared in the same statement) | Decisions link to the exact facts they rest on; `why(decision)` walks `BASED_ON`. |
 | `relay/blocked_by_failure` | ro | Not-done tasks reachable by `(t)<-[:DEPENDS_ON*1..10]-(x)`, with shortest distance | Transitive dependency traversal. |
 | `relay/missing_refs` | ro | Which agent/task/fact/artifact ids exist (explains a rejected handoff or decision) | Diagnostic id lookups. |
+
+## Lineage queries (`queries/lineage/`)
+
+Python entry point: `plexus.lineage.Lineage(client, graph)`; the pure result-shaping helpers are in `plexus/lineage/explain.py`.
+
+**Design decision: how writes and reads attach to Steps.** Lineage uses the *simpler alternative*: a separate
+`lineage/link_step` statement (`link_step` / `link_assert_result` in Python) that the tool layer calls right after
+an Engram/Relay write, plus `record_recall` which attaches its own `READ` edges. No Engram/Relay query was touched.
+- *Trade-off:* the preferred tail fragment would make "write + `WROTE` edge" one atomic statement. It would require
+  editing about ten queries owned by other modules (each with different result shapes), which collides with the
+  parallel work on the MCP layer. The two-statement version can lose the edge if the process dies between the
+  statements (the fact exists, the step does not point at it). That is acceptable here: the loss is one provenance edge,
+  never a memory, and `link_step` is idempotent (`MERGE`) so a retry repairs it.
+- Nothing is lost in the other direction: `link_step` is all-or-nothing (it writes no edge if any id is unknown).
+- `Engram.assert_fact(step=...)` / `log_procedure_run(step=...)` keep their reserved argument unused.
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `lineage/create_source` | rw | `MERGE (Source {uri})`, refresh kind/trust, return its id | Provenance anchor: facts point at it with `DERIVED_FROM`, which forget/quarantine traverse. |
+| `lineage/record_step` | rw | One statement: create the agent's next `Step` (`BY`, `NEXT` from its latest step), idempotent per (agent, n), refuses out-of-order n | The chain tail is found by index lookup on `Step(n)`, the `NEXT` edge appended atomically. |
+| `lineage/link_step` | rw | `(Step)-[:READ]->(Fact)` and `(Step)-[:WROTE]->(Fact\|Decision\|Handoff\|Task)`; all ids matched first, counts compared, so a bad id writes nothing | The edges are what `who_knew` / `knew_at` / quarantine traverse. |
+| `lineage/existing_ids` | ro | Which ids exist as Step/Fact/Decision/Handoff/Task (explains a rejected link or recall record) | Diagnostic id lookup, one index-backed branch per label. |
+| `lineage/link_derived` | rw | `(Fact)-[:DERIVED_FROM]->(Source\|Episode\|Fact)`, all-or-nothing | Derivation edges are the paths the cascade follows. |
+| `lineage/record_recall` | rw | One statement: `Recall` + `BY` + `IN_STEP` + `RETURNED{rank,score}` per fact + `(Step)-[:READ]->(Fact)` | Stores the recall as graph structure so `why_recalled` is a traversal, not a log lookup. |
+| `lineage/why_edges` | ro | Provenance subgraph of a Decision or Fact as a flat edge list (UNION of bounded branches): `DECIDED`, `FOR`, `BASED_ON`, `ASSERTED_BY`, `ABOUT`, `IN_SCOPE`, `DERIVED_FROM*1..3`, Session/agent behind an episode, `SUPERSEDES`/`CONTRADICTS`/`DUPLICATES`, writing Steps and their agents | Variable-length path from decision to fact to agent/step/source; this is the "why" answer. |
+| `lineage/node_info` | ro | Display properties (no embeddings) for a list of ids, one index-backed branch per label | Property fetch for the nodes `why_edges` found, so the View can label them. |
+| `lineage/why_recalled` | ro | A stored `Recall` with every `RETURNED` fact (rank, score) and its entity, asserting agents, one-hop `DERIVED_FROM`, scope | Traverses the edges `record_recall` stored. |
+| `lineage/who_knew` | ro | Agents whose Steps `READ` a fact (step n, time, via which recalls), plus asserters and writing steps | `READ` edges from Steps, one hop each way. |
+| `lineage/knew_at` | ro | Time machine: facts an agent READ at or before step N that were still valid at that step's time, plus what its Steps WROTE | Step chain + `READ`/`WROTE` edges + validity window on the Fact. |
+| `lineage/as_of` | ro | The fact valid at time t for (subject, predicate), nearest scope first (`INHERITS*0..3`) | Entity -> `ABOUT` -> Fact with a validity-window filter and scope traversal. |
+| `lineage/forget_source` | rw | One statement: facts reaching a Source via `DERIVED_FROM*1..5` -> `status='forgotten'`, `valid_to=min(valid_to, now)`; `BASED_ON` decisions flagged; `CARRIES` handoffs reported; bounded by `limit` (<= 5000, applied before the SET) | The cascade is a reverse variable-length traversal from the source; it removes the derived facts from recall in one atomic write. |
+| `lineage/quarantine` | rw | Stretch. Same traversal, `status='quarantined'` (reversible, `prior_status` kept); returns the blast radius: reading Steps/agents, `BASED_ON` decisions, `CARRIES` handoffs | Blast radius = traversal from poisoned facts back out through `READ`, `BASED_ON`, `CARRIES`. |
+| `lineage/release_quarantine` | rw | Stretch. Restores `prior_status` of quarantined facts under a Source | Same cascade traversal, reversed write. |
+
+Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query comments where relevant):
+- `WITH a, x + collect(y) AS z` (a list expression that mixes a grouping key with an aggregate) returns `null`; put the `collect` in its own `WITH` first.
+- After `WITH sc, min(length(p)) AS hops`, a later `MATCH (f)-[:IN_SCOPE]->(sc)` on the aggregated node returned no rows. `as_of` collects `{id, hops}` maps and filters on `fs.id` instead.
+- A comment line indented by two or more spaces after the header is read as a continuation of the previous header value (including `mode`), so free comments in `.cypher` files use a single space after `//`.
