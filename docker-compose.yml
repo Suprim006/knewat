@@ -1,5 +1,7 @@
 # Plexus: local stack. Requires Docker. Copy .env.example to .env to override defaults.
-# Do NOT run this on port 6379 on the dev machine (falkordb-dev uses it): use FALKORDB_PORT=63NN.
+# Do NOT run this on port 6379 / 3000 on the dev machine (falkordb-dev uses them). Every host port is configurable:
+#   COMPOSE_PROJECT_NAME=plexus-int FALKORDB_PORT=6377 FALKORDB_BROWSER_PORT=3077 PLEXUS_API_PORT=18080 \
+#   PLEXUS_MCP_PORT=18765 docker compose -p plexus-int up -d falkordb plexus-api plexus-mcp
 name: plexus
 
 services:
@@ -9,7 +11,7 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:${FALKORDB_PORT:-6379}:6379"
-      - "127.0.0.1:3000:3000" # FalkorDB Browser (raw graph view)
+      - "127.0.0.1:${FALKORDB_BROWSER_PORT:-3000}:3000" # FalkorDB Browser (raw graph view)
     environment:
       # AOF on; never evict (allkeys-lru can evict whole graphs).
       REDIS_ARGS: "--appendonly yes --maxmemory-policy noeviction"
@@ -36,7 +38,7 @@ services:
       FALKORDB_HOST: falkordb
       FALKORDB_PORT: "6379"
       PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
-    ports: ["127.0.0.1:8765:8765"]
+    ports: ["127.0.0.1:${PLEXUS_MCP_PORT:-8765}:8765"]
     volumes:
       - plexus_fastembed:/opt/fastembed # seeded from the model baked into the image
     healthcheck:
@@ -60,7 +62,7 @@ services:
       PLEXUS_API_PORT: "8080"
       PLEXUS_CORS_ORIGINS: ${PLEXUS_CORS_ORIGINS:-http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173}
       # PLEXUS_RESULTS_PATH: /data/results.json # Crucible results for GET /api/results
-    ports: ["127.0.0.1:8080:8080"]
+    ports: ["127.0.0.1:${PLEXUS_API_PORT:-8080}:8080"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8080/healthz', timeout=3)"]
       interval: 10s
