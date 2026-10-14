@@ -146,3 +146,88 @@ def test_delete_session_drops_pin_and_healthz(http, new_tenant):
     assert mw.pins[sid] == a
     http.delete(f"/mcp/t/{a}", headers=ha)
     assert sid not in mw.pins
+
+
+# ---------------------------------------------------------------- P5C-03 / D6: pinning fails closed
+def test_evicted_pin_fails_closed_instead_of_open(http, new_tenant):
+    a, evil = new_tenant(), new_tenant()
+    http.app.max_pins = 1
+    first = _open(http, f"/mcp/t/{a}")
+    _open(http, f"/mcp/t/{a}")  # a second session evicts the first pin
+    assert first["mcp-session-id"] not in http.app.pins
+    for tenant in (evil, a):  # a replay under ANY tenant is refused, never forwarded
+        r = _call(http, f"/mcp/t/{tenant}", first, "start_session", {"agent_id": "x"})
+        assert r.status_code == 404, tenant
+        assert "session" in r.json()["error"]
+
+
+def test_unknown_session_id_is_refused(http, new_tenant):
+    a = new_tenant()
+    h = {**HDR, "mcp-session-id": "0" * 32, "mcp-protocol-version": "2025-06-18"}
+    r = _call(http, f"/mcp/t/{a}", h, "start_session", {"agent_id": "x"})
+    assert r.status_code == 404
+
+
+def test_pins_are_evicted_least_recently_used(http, new_tenant):
+    a = new_tenant()
+    http.app.max_pins = 2
+    s1 = _open(http, f"/mcp/t/{a}")
+    s2 = _open(http, f"/mcp/t/{a}")
+    assert _call(http, f"/mcp/t/{a}", s1, "start_session", {"agent_id": "x"}).status_code == 200  # touch s1
+    s3 = _open(http, f"/mcp/t/{a}")  # evicts the least recently used: s2, not the active s1
+    pins = http.app.pins
+    assert s1["mcp-session-id"] in pins and s3["mcp-session-id"] in pins
+    assert s2["mcp-session-id"] not in pins
+
+
+# ---------------------------------------------------------------- P5C-02: hostile header bytes
+class _Probe:
+    def __init__(self):
+        self.status = None
+        self.body = b""
+        self.forwarded = False
+
+    async def app(self, scope, receive, send):
+        self.forwarded = True
+
+    async def send(self, msg):
+        if msg["type"] == "http.response.start":
+            self.status = msg["status"]
+        else:
+            self.body += msg.get("body", b"")
+
+
+@pytest.mark.parametrize(
+    ("path", "headers", "needle"),
+    [
+        ("/mcp", [(b"x-plexus-tenant", b"ab\xffcd")], b"invalid tenant"),
+        ("/mcp/t/okten", [(b"mcp-session-id", b"ab\xffcd")], b"invalid session id"),
+        ("/mcp/t/okten", [(b"x-plexus-tenant", b"\xc3\x28")], b"invalid tenant"),
+    ],
+)
+async def test_non_utf8_headers_get_a_400_not_a_500(path, headers, needle):
+    from plexus.mcp.http import TenantPathMiddleware
+
+    probe = _Probe()
+    mw = TenantPathMiddleware(probe.app)
+    scope = {"type": "http", "path": path, "method": "POST", "headers": headers}
+
+    async def receive():
+        return {"type": "http.request", "body": b""}
+
+    await mw(scope, receive, probe.send)
+    assert probe.status == 400 and needle in probe.body and not probe.forwarded
+
+
+# ---------------------------------------------------------------- C-11: /healthz?deep=1 reaches the database
+def test_healthz_deep_pings_the_database(http, client, monkeypatch):
+    assert http.get("/healthz").json() == {"status": "ok"}
+    assert http.get("/healthz", params={"deep": "1"}).json() == {"status": "ok"}
+
+    def down():
+        raise OSError("db down")
+
+    monkeypatch.setattr(client, "ping", down)
+    assert http.get("/healthz").status_code == 200  # shallow stays static: liveness
+    r = http.get("/healthz", params={"deep": "1"})
+    assert r.status_code == 503 and r.json() == {"status": "unavailable"}

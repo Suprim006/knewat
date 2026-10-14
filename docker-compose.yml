@@ -23,11 +23,13 @@ services:
     volumes:
       - plexus_data:/var/lib/falkordb/data
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      # PING answers while Redis is still replaying the AOF (-LOADING); healthy means loading has finished.
+      # '^loading:0' and not 'loading:0': INFO also prints async_loading:0.
+      test: ["CMD-SHELL", "redis-cli INFO persistence | grep -q '^loading:0'"]
       interval: 5s
       timeout: 3s
-      retries: 12
-      start_period: 5s
+      retries: 24
+      start_period: 60s
 
   # --- Plexus product services (P2-E) ---------------------------------------------------------------
   plexus-mcp: # MCP server, streamable HTTP. Tenant bound per connection: http://127.0.0.1:8765/mcp/t/<tenant>
@@ -40,11 +42,12 @@ services:
       FALKORDB_HOST: falkordb
       FALKORDB_PORT: "6379"
       PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
+      PLEXUS_DB_POOL: ${PLEXUS_DB_POOL:-256} # connections per process; callers beyond it wait (30 s), not fail
     ports: ["127.0.0.1:${PLEXUS_MCP_PORT:-8765}:8765"]
     volumes:
       - plexus_fastembed:/opt/fastembed # seeded from the model baked into the image
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8765/healthz', timeout=3)"]
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8765/healthz?deep=1', timeout=3)"]
       interval: 10s
       timeout: 5s
       retries: 6
@@ -66,7 +69,7 @@ services:
       # PLEXUS_RESULTS_PATH: /data/results.json # Crucible results for GET /api/results
     ports: ["127.0.0.1:${PLEXUS_API_PORT:-8080}:8080"]
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8080/healthz', timeout=3)"]
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8080/healthz?deep=1', timeout=3)"]
       interval: 10s
       timeout: 5s
       retries: 6

@@ -26,12 +26,14 @@ class FakeLineage:
         return {"subject": subject, "t": t}
 
 
-async def test_no_lineage_module_no_lineage_tools(server):
-    if lineage_available():
-        pytest.skip("real plexus.lineage is installed (covered by the orchestrator's post-merge run)")
-    async with Client(server) as c:
+async def test_no_lineage_module_no_lineage_tools(monkeypatch, client, tenant):
+    monkeypatch.setitem(sys.modules, "plexus.lineage", None)  # `import plexus.lineage` now fails
+    assert not lineage_available()
+    rt = Runtime(client=client, embedder=HashEmbedder(), stdio_tenant=tenant)
+    async with Client(build_server(rt)) as c:
         names = {t.name for t in (await c.list_tools()).tools}
     assert not names & {"why", "why_recalled", "who_knew", "knew_at", "as_of", "forget_source"}
+    assert {"assert_fact", "recall", "create_tasks"} <= names
 
 
 async def test_lineage_tools_registered_from_available_methods(monkeypatch, client, tenant):

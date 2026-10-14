@@ -7,60 +7,59 @@ installed) attaches the call to the agent's ``Step``: ``WROTE`` for what it crea
 facts it looked at (``Outcome.read_ids`` / ``Outcome.assert_result`` / ``Outcome.after``).
 """
 
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from mcp.server.mcpserver import Context, MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
-from pydantic import BaseModel, Field
+from pydantic import Field
 
+from plexus.mcp.limits import (
+    MAX_ID,
+    MAX_INT,
+    MAX_LIST,
+    AgentId,
+    EpochMs,
+    IdStr,
+    LeaseMs,
+    Name,
+    NameReq,
+    ScopeArg,
+    Short,
+    Step,
+    StrictModel,
+    TextReq,
+    Title,
+    Value,
+    Version,
+)
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 
-AgentId = Annotated[
-    str,
-    Field(
-        description="Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
-        min_length=1,
-    ),
-]
-Step = Annotated[
-    int | None,
-    Field(
-        description="Optional: your own step counter (1, 2, 3...); calls with the same step share one step. "
-        "If omitted, every call becomes the next step automatically. Never go backwards."
-    ),
-]
-ScopeArg = Annotated[
-    str,
-    Field(
-        description="Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' "
-        "(project/user scopes also see 'global'), or a scope id."
-    ),
-]
-LeaseMs = Annotated[
-    int,
-    Field(
-        description="Lease length in milliseconds. Heartbeat before it runs out or others may take the task.",
-        gt=0,
-    ),
-]
+MAX_TASKS = 200
+Role = Literal["user", "assistant", "tool", "note"]
 
 
-class TaskSpec(BaseModel):
-    title: str = Field(description="Short imperative task title.")
-    id: str | None = Field(default=None, description="Optional stable id; generated if omitted.")
-    priority: int = Field(default=0, description="Higher is claimed first.")
-    depends_on: list[str] = Field(
+class TaskSpec(StrictModel):
+    title: Title = Field(description="Short imperative task title.")
+    id: Annotated[str | None, Field(min_length=1, max_length=MAX_ID)] = Field(
+        default=None, description="Optional stable id; generated if omitted."
+    )
+    priority: Annotated[int, Field(ge=-MAX_INT, le=MAX_INT)] = Field(
+        default=0, description="Higher is claimed first."
+    )
+    depends_on: Annotated[list[IdStr], Field(max_length=MAX_LIST)] = Field(
         default_factory=list,
         description="Ids of tasks that must be 'done' first (in this batch or already existing).",
     )
 
 
-class ArtifactSpec(BaseModel):
-    kind: str = Field(description="e.g. 'file', 'url', 'report'.")
-    uri: str = Field(description="Where the artifact lives (path or URL).")
-    id: str | None = Field(default=None, description="Optional id; generated if omitted.")
-    hash: str = Field(default="", description="Optional content hash, so others can verify it.")
-    summary: str = Field(default="", description="One line describing the artifact.")
+class ArtifactSpec(StrictModel):
+    kind: Name = Field(description="e.g. 'file', 'url', 'report'.")
+    uri: Short = Field(description="Where the artifact lives (path or URL).")
+    id: Annotated[str | None, Field(min_length=1, max_length=MAX_ID)] = Field(
+        default=None, description="Optional id; generated if omitted."
+    )
+    hash: Name = Field(default="", description="Optional content hash, so others can verify it.")
+    summary: Value = Field(default="", description="One line describing the artifact.")
 
 
 def _fact_ref(fid: str) -> tuple[str, str]:
@@ -81,9 +80,9 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         agent_id: AgentId,
         ctx: Context,
         agent_role: Annotated[
-            str, Field(description="Your role, e.g. 'planner', 'researcher', 'builder'.")
+            Name, Field(description="Your role, e.g. 'planner', 'researcher', 'builder'.")
         ] = "",
-        harness: Annotated[str, Field(description="What runs you, e.g. 'claude-code'.")] = "",
+        harness: Annotated[Name, Field(description="What runs you, e.g. 'claude-code'.")] = "",
         step: Step = None,
     ) -> dict[str, Any]:
         """Begin a memory session. Call this FIRST in every run. It registers you as an agent and returns a
@@ -103,13 +102,13 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def remember_episode(
         agent_id: AgentId,
-        session_id: Annotated[str, Field(description="The session_id returned by start_session.")],
+        session_id: Annotated[IdStr, Field(description="The session_id returned by start_session.")],
         text: Annotated[
-            str, Field(description="What happened / was said, in your own words. Keep it factual.")
+            TextReq, Field(description="What happened / was said, in your own words. Keep it factual.")
         ],
         ctx: Context,
         role: Annotated[
-            str, Field(description="Who is speaking: 'user', 'assistant', 'tool' or 'note'.")
+            Role, Field(description="Who is speaking: 'user', 'assistant', 'tool' or 'note'.")
         ] = "note",
         step: Step = None,
     ) -> dict[str, Any]:
@@ -130,20 +129,24 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def assert_fact(
         agent_id: AgentId,
-        subject: Annotated[str, Field(description="What the fact is about, e.g. 'API' or 'Acme Notes API'.")],
-        predicate: Annotated[str, Field(description="The attribute, e.g. 'version', 'database', 'owner'.")],
-        value: Annotated[str, Field(description="The value, e.g. 'v1'.")],
+        subject: Annotated[
+            NameReq, Field(description="What the fact is about, e.g. 'API' or 'Acme Notes API'.")
+        ],
+        predicate: Annotated[
+            NameReq, Field(description="The attribute, e.g. 'version', 'database', 'owner'.")
+        ],
+        value: Annotated[Value, Field(description="The value, e.g. 'v1'.")],
         ctx: Context,
         scope: ScopeArg = "global",
         source_id: Annotated[
-            str | None,
+            IdStr | None,
             Field(
                 description="Optional Source id (from add_source) this fact comes from. The fact is linked to "
                 "it, so it can be explained with why() and removed with forget_source / quarantine_source."
             ),
         ] = None,
         episode_id: Annotated[
-            str | None, Field(description="Optional episode_id that evidences this fact.")
+            IdStr | None, Field(description="Optional episode_id that evidences this fact.")
         ] = None,
         confidence: Annotated[float, Field(ge=0.0, le=1.0, description="How sure you are, 0..1.")] = 1.0,
         supersede: Annotated[
@@ -151,7 +154,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
             Field(description="True to replace the current value even if another agent asserted it."),
         ] = False,
         subject_kind: Annotated[
-            str, Field(description="Entity kind, e.g. 'thing', 'person', 'service'.")
+            Name, Field(description="Entity kind, e.g. 'thing', 'person', 'service'.")
         ] = "thing",
         step: Step = None,
     ) -> dict[str, Any]:
@@ -187,12 +190,12 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def recall(
         agent_id: AgentId,
-        query: Annotated[str, Field(description="Natural-language question or topic, e.g. 'API version'.")],
+        query: Annotated[Value, Field(description="Natural-language question or topic, e.g. 'API version'.")],
         ctx: Context,
         scope: ScopeArg = "global",
         k: Annotated[int, Field(ge=1, le=50, description="Max number of facts to return.")] = 8,
         as_of: Annotated[
-            int | None,
+            EpochMs | None,
             Field(
                 description="Epoch milliseconds: answer as the world was then (includes since-replaced values)."
             ),
@@ -208,7 +211,9 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         facts came back, in this order."""
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            sid = ts.scope_id(scope, m)
+            sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
+            if sid is None:
+                return Outcome({"facts": [], "count": 0, "scope_id": None})
             hits = ts.engram(m).recall(query, sid, k=k, as_of=as_of, budget_chars=budget_chars)
             for h in hits:
                 h["score"] = round(h["score"], 4)
@@ -223,8 +228,8 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def fact_history(
         agent_id: AgentId,
-        subject: Annotated[str, Field(description="Subject of the fact, e.g. 'API'.")],
-        predicate: Annotated[str, Field(description="Attribute, e.g. 'version'.")],
+        subject: Annotated[NameReq, Field(description="Subject of the fact, e.g. 'API'.")],
+        predicate: Annotated[NameReq, Field(description="Attribute, e.g. 'version'.")],
         ctx: Context,
         scope: ScopeArg = "global",
         step: Step = None,
@@ -233,7 +238,10 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         asserted each. Use it to see how a fact changed over time."""
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            rows = ts.engram(m).fact_history(subject, predicate, ts.scope_id(scope, m))
+            sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
+            if sid is None:
+                return Outcome({"history": [], "count": 0})
+            rows = ts.engram(m).fact_history(subject, predicate, sid)
             return Outcome({"history": [dict(r) for r in rows], "count": len(rows)})
 
         return await rt.call(ctx.headers, "fact_history", agent_id, step, work)
@@ -243,15 +251,18 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     async def log_procedure_run(
         agent_id: AgentId,
         procedure_name: Annotated[
-            str, Field(description="Name of the method you used, e.g. 'run-tests-then-fix'.")
+            NameReq, Field(description="Name of the method you used, e.g. 'run-tests-then-fix'.")
         ],
-        task_type: Annotated[str, Field(description="Kind of task it was applied to, e.g. 'bugfix'.")],
+        task_type: Annotated[NameReq, Field(description="Kind of task it was applied to, e.g. 'bugfix'.")],
         success: Annotated[bool, Field(description="Did it work?")],
         ctx: Context,
-        task_id: Annotated[str | None, Field(description="Optional Relay task id this run was for.")] = None,
-        notes: Annotated[str, Field(description="What happened, one or two lines.")] = "",
+        task_id: Annotated[
+            IdStr | None, Field(description="Optional Relay task id this run was for (must exist).")
+        ] = None,
+        notes: Annotated[Value, Field(description="What happened, one or two lines.")] = "",
         steps: Annotated[
-            list[str] | None, Field(description="Optional ordered list of the procedure's steps.")
+            list[Short] | None,
+            Field(description="Optional ordered list of the procedure's steps.", max_length=MAX_LIST),
         ] = None,
         step: Step = None,
     ) -> dict[str, Any]:
@@ -259,6 +270,8 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         success rates that best_procedure uses to recommend what to try."""
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            if task_id is not None and ts.relay(m).task_status(task_id) is None:
+                raise ToolError(f"log_procedure_run: unknown task id: {task_id}")
             rid = ts.engram(m).log_procedure_run(
                 procedure_name, task_type, agent_id, success, task_id, notes, steps=steps, step=step
             )
@@ -269,10 +282,10 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def best_procedure(
         agent_id: AgentId,
-        task_type: Annotated[str, Field(description="Kind of task, e.g. 'bugfix'.")],
+        task_type: Annotated[NameReq, Field(description="Kind of task, e.g. 'bugfix'.")],
         ctx: Context,
         min_runs: Annotated[
-            int, Field(ge=1, description="Ignore procedures tried fewer times than this.")
+            int, Field(ge=1, le=MAX_INT, description="Ignore procedures tried fewer times than this.")
         ] = 1,
         limit: Annotated[int, Field(ge=1, le=20)] = 5,
         step: Step = None,
@@ -290,9 +303,9 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     async def register_agent(
         agent_id: AgentId,
         ctx: Context,
-        name: Annotated[str, Field(description="Display name (defaults to agent_id).")] = "",
-        role: Annotated[str, Field(description="e.g. 'planner', 'researcher', 'builder'.")] = "",
-        harness: Annotated[str, Field(description="e.g. 'claude-code'.")] = "",
+        name: Annotated[Name, Field(description="Display name (defaults to agent_id).")] = "",
+        role: Annotated[Name, Field(description="e.g. 'planner', 'researcher', 'builder'.")] = "",
+        harness: Annotated[Name, Field(description="e.g. 'claude-code'.")] = "",
         step: Step = None,
     ) -> dict[str, Any]:
         """Register (or refresh) yourself as a team member so you can claim tasks and receive handoffs. Needed
@@ -308,7 +321,12 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     async def create_tasks(
         agent_id: AgentId,
         tasks: Annotated[
-            list[TaskSpec], Field(description="The task graph to create (max 500 tasks).", min_length=1)
+            list[TaskSpec],
+            Field(
+                description=f"The task graph to create (max {MAX_TASKS} tasks).",
+                min_length=1,
+                max_length=MAX_TASKS,
+            ),
         ],
         ctx: Context,
         step: Step = None,
@@ -344,7 +362,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def heartbeat(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="The task you claimed.")],
+        task_id: Annotated[IdStr, Field(description="The task you claimed.")],
         ctx: Context,
         lease_ms: LeaseMs = 60_000,
         step: Step = None,
@@ -360,11 +378,12 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def complete_task(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="The task you claimed.")],
-        expected_version: Annotated[int, Field(description="The 'version' returned by claim_next_task.")],
+        task_id: Annotated[IdStr, Field(description="The task you claimed.")],
+        expected_version: Annotated[Version, Field(description="The 'version' returned by claim_next_task.")],
         ctx: Context,
         artifacts: Annotated[
-            list[ArtifactSpec], Field(description="What you produced (files, URLs, reports).")
+            list[ArtifactSpec],
+            Field(description="What you produced (files, URLs, reports).", max_length=MAX_LIST),
         ] = [],  # noqa: B006
         step: Step = None,
     ) -> dict[str, Any]:
@@ -384,11 +403,14 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def fail_task(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="The task you claimed.")],
-        expected_version: Annotated[int, Field(description="The 'version' returned by claim_next_task.")],
+        task_id: Annotated[IdStr, Field(description="The task you claimed.")],
+        expected_version: Annotated[Version, Field(description="The 'version' returned by claim_next_task.")],
         ctx: Context,
-        reason: Annotated[str, Field(description="Why it failed.")] = "",
-        artifacts: Annotated[list[ArtifactSpec], Field(description="Any partial output worth keeping.")] = [],  # noqa: B006
+        reason: Annotated[Value, Field(description="Why it failed.")] = "",
+        artifacts: Annotated[
+            list[ArtifactSpec],
+            Field(description="Any partial output worth keeping.", max_length=MAX_LIST),
+        ] = [],  # noqa: B006
         step: Step = None,
     ) -> dict[str, Any]:
         """Mark a claimed task failed. Tasks that depend on it stay blocked (see blocked_by_failure)."""
@@ -410,7 +432,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def reopen_task(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="A task that is currently 'failed'.")],
+        task_id: Annotated[IdStr, Field(description="A task that is currently 'failed'.")],
         ctx: Context,
         step: Step = None,
     ) -> dict[str, Any]:
@@ -427,12 +449,16 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def handoff(
         agent_id: AgentId,
-        to_agent: Annotated[str, Field(description="Agent id receiving the work (must be registered).")],
-        task_id: Annotated[str, Field(description="The task this handoff is about.")],
-        note: Annotated[str, Field(description="What the next agent needs to know.")],
+        to_agent: Annotated[IdStr, Field(description="Agent id receiving the work (must be registered).")],
+        task_id: Annotated[IdStr, Field(description="The task this handoff is about.")],
+        note: Annotated[TextReq, Field(description="What the next agent needs to know.")],
         ctx: Context,
-        artifact_ids: Annotated[list[str], Field(description="Artifacts you hand over.")] = [],  # noqa: B006
-        fact_ids: Annotated[list[str], Field(description="Facts (evidence) you hand over.")] = [],  # noqa: B006
+        artifact_ids: Annotated[
+            list[IdStr], Field(description="Artifacts you hand over.", max_length=MAX_LIST)
+        ] = [],  # noqa: B006
+        fact_ids: Annotated[
+            list[IdStr], Field(description="Facts (evidence) you hand over.", max_length=MAX_LIST)
+        ] = [],  # noqa: B006
         step: Step = None,
     ) -> dict[str, Any]:
         """Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything
@@ -448,7 +474,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     async def verify_artifact(
         agent_id: AgentId,
         artifact_id: Annotated[
-            str, Field(description="Artifact to verify, e.g. after checking it yourself.")
+            IdStr, Field(description="Artifact to verify, e.g. after checking it yourself.")
         ],
         ctx: Context,
         step: Step = None,
@@ -464,12 +490,15 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def record_decision(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="The task the decision is for.")],
-        text: Annotated[str, Field(description="The decision and its reason, in one or two sentences.")],
+        task_id: Annotated[IdStr, Field(description="The task the decision is for.")],
+        text: Annotated[TextReq, Field(description="The decision and its reason, in one or two sentences.")],
         ctx: Context,
         based_on_fact_ids: Annotated[
-            list[str],
-            Field(description="Facts (from recall) this decision rests on, so it can be explained later."),
+            list[IdStr],
+            Field(
+                description="Facts (from recall) this decision rests on, so it can be explained later.",
+                max_length=MAX_LIST,
+            ),
         ] = [],  # noqa: B006
         step: Step = None,
     ) -> dict[str, Any]:
@@ -501,7 +530,7 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def task_status(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="Task id.")],
+        task_id: Annotated[IdStr, Field(description="Task id.")],
         ctx: Context,
         step: Step = None,
     ) -> dict[str, Any]:
@@ -518,13 +547,15 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
     @tool
     async def blocked_by_failure(
         agent_id: AgentId,
-        task_id: Annotated[str, Field(description="The failed (or stuck) task.")],
+        task_id: Annotated[IdStr, Field(description="The failed (or stuck) task.")],
         ctx: Context,
         step: Step = None,
     ) -> dict[str, Any]:
         """List every unfinished task that transitively depends on this one (what a failure is blocking)."""
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            if ts.relay(m).task_status(task_id) is None:
+                raise ToolError(f"blocked_by_failure: unknown task id: {task_id}")
             ids = ts.relay(m).blocked_by_failure(task_id)
             return Outcome({"blocked": ids, "count": len(ids)})
 

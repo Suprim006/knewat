@@ -4,7 +4,8 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -12,12 +13,15 @@
         "kind": {
           "default": "doc",
           "description": "'doc', 'web', 'chat', 'note', 'tool'... (free text).",
+          "maxLength": 512,
           "title": "Kind",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -25,12 +29,13 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "text": {
           "anyOf": [
             {
+              "maxLength": 100000,
               "type": "string"
             },
             {
@@ -43,6 +48,8 @@
         },
         "title": {
           "description": "Short name of the source, e.g. 'Acme API design doc'.",
+          "maxLength": 2000,
+          "minLength": 1,
           "title": "Title",
           "type": "string"
         },
@@ -57,6 +64,7 @@
         "uri": {
           "anyOf": [
             {
+              "maxLength": 2000,
               "type": "string"
             },
             {
@@ -81,25 +89,31 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "predicate": {
           "description": "Fact attribute.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Predicate",
           "type": "string"
         },
         "scope": {
           "default": "global",
-          "description": "Scope id (default: global).",
+          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "maxLength": 512,
           "title": "Scope",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -107,16 +121,20 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "subject": {
           "description": "Fact subject.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Subject",
           "type": "string"
         },
         "t": {
           "description": "Epoch milliseconds.",
+          "maximum": 9999999999999,
+          "minimum": 0,
           "title": "T",
           "type": "integer"
         }
@@ -137,6 +155,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -152,6 +171,8 @@
         "episode_id": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
               "type": "string"
             },
             {
@@ -164,18 +185,23 @@
         },
         "predicate": {
           "description": "The attribute, e.g. 'version', 'database', 'owner'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Predicate",
           "type": "string"
         },
         "scope": {
           "default": "global",
           "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "maxLength": 512,
           "title": "Scope",
           "type": "string"
         },
         "source_id": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
               "type": "string"
             },
             {
@@ -189,6 +215,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -201,12 +229,15 @@
         },
         "subject": {
           "description": "What the fact is about, e.g. 'API' or 'Acme Notes API'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Subject",
           "type": "string"
         },
         "subject_kind": {
           "default": "thing",
           "description": "Entity kind, e.g. 'thing', 'person', 'service'.",
+          "maxLength": 512,
           "title": "Subject Kind",
           "type": "string"
         },
@@ -218,6 +249,7 @@
         },
         "value": {
           "description": "The value, e.g. 'v1'.",
+          "maxLength": 20000,
           "title": "Value",
           "type": "string"
         }
@@ -238,6 +270,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -252,6 +285,7 @@
         "min_runs": {
           "default": 1,
           "description": "Ignore procedures tried fewer times than this.",
+          "maximum": 2147483647,
           "minimum": 1,
           "title": "Min Runs",
           "type": "integer"
@@ -259,6 +293,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -271,6 +307,8 @@
         },
         "task_type": {
           "description": "Kind of task, e.g. 'bugfix'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Task Type",
           "type": "string"
         }
@@ -289,6 +327,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -296,6 +335,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -308,6 +349,8 @@
         },
         "task_id": {
           "description": "The failed (or stuck) task.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         }
@@ -326,20 +369,24 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "lease_ms": {
           "default": 60000,
-          "description": "Lease length in milliseconds. Heartbeat before it runs out or others may take the task.",
+          "description": "Lease length in milliseconds (max 86 400 000 = 1 day). Heartbeat before it runs out or others may take the task.",
           "exclusiveMinimum": 0,
+          "maximum": 86400000,
           "title": "Lease Ms",
           "type": "integer"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -363,16 +410,20 @@
     "inputSchema": {
       "$defs": {
         "ArtifactSpec": {
+          "additionalProperties": false,
           "properties": {
             "hash": {
               "default": "",
               "description": "Optional content hash, so others can verify it.",
+              "maxLength": 512,
               "title": "Hash",
               "type": "string"
             },
             "id": {
               "anyOf": [
                 {
+                  "maxLength": 128,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -385,17 +436,20 @@
             },
             "kind": {
               "description": "e.g. 'file', 'url', 'report'.",
+              "maxLength": 512,
               "title": "Kind",
               "type": "string"
             },
             "summary": {
               "default": "",
               "description": "One line describing the artifact.",
+              "maxLength": 20000,
               "title": "Summary",
               "type": "string"
             },
             "uri": {
               "description": "Where the artifact lives (path or URL).",
+              "maxLength": 2000,
               "title": "Uri",
               "type": "string"
             }
@@ -411,6 +465,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -421,17 +476,22 @@
           "items": {
             "$ref": "#/$defs/ArtifactSpec"
           },
+          "maxItems": 200,
           "title": "Artifacts",
           "type": "array"
         },
         "expected_version": {
           "description": "The 'version' returned by claim_next_task.",
+          "maximum": 2147483647,
+          "minimum": 0,
           "title": "Expected Version",
           "type": "integer"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -444,6 +504,8 @@
         },
         "task_id": {
           "description": "The task you claimed.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         }
@@ -462,18 +524,24 @@
     "inputSchema": {
       "$defs": {
         "TaskSpec": {
+          "additionalProperties": false,
           "properties": {
             "depends_on": {
               "description": "Ids of tasks that must be 'done' first (in this batch or already existing).",
               "items": {
+                "maxLength": 128,
+                "minLength": 1,
                 "type": "string"
               },
+              "maxItems": 200,
               "title": "Depends On",
               "type": "array"
             },
             "id": {
               "anyOf": [
                 {
+                  "maxLength": 128,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -487,11 +555,15 @@
             "priority": {
               "default": 0,
               "description": "Higher is claimed first.",
+              "maximum": 2147483647,
+              "minimum": -2147483647,
               "title": "Priority",
               "type": "integer"
             },
             "title": {
               "description": "Short imperative task title.",
+              "maxLength": 2000,
+              "minLength": 1,
               "title": "Title",
               "type": "string"
             }
@@ -506,6 +578,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -513,6 +586,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -524,10 +599,11 @@
           "title": "Step"
         },
         "tasks": {
-          "description": "The task graph to create (max 500 tasks).",
+          "description": "The task graph to create (max 200 tasks).",
           "items": {
             "$ref": "#/$defs/TaskSpec"
           },
+          "maxItems": 200,
           "minItems": 1,
           "title": "Tasks",
           "type": "array"
@@ -547,24 +623,30 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "predicate": {
           "description": "Attribute, e.g. 'version'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Predicate",
           "type": "string"
         },
         "scope": {
           "default": "global",
           "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "maxLength": 512,
           "title": "Scope",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -577,6 +659,8 @@
         },
         "subject": {
           "description": "Subject of the fact, e.g. 'API'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Subject",
           "type": "string"
         }
@@ -595,16 +679,20 @@
     "inputSchema": {
       "$defs": {
         "ArtifactSpec": {
+          "additionalProperties": false,
           "properties": {
             "hash": {
               "default": "",
               "description": "Optional content hash, so others can verify it.",
+              "maxLength": 512,
               "title": "Hash",
               "type": "string"
             },
             "id": {
               "anyOf": [
                 {
+                  "maxLength": 128,
+                  "minLength": 1,
                   "type": "string"
                 },
                 {
@@ -617,17 +705,20 @@
             },
             "kind": {
               "description": "e.g. 'file', 'url', 'report'.",
+              "maxLength": 512,
               "title": "Kind",
               "type": "string"
             },
             "summary": {
               "default": "",
               "description": "One line describing the artifact.",
+              "maxLength": 20000,
               "title": "Summary",
               "type": "string"
             },
             "uri": {
               "description": "Where the artifact lives (path or URL).",
+              "maxLength": 2000,
               "title": "Uri",
               "type": "string"
             }
@@ -643,6 +734,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -653,23 +745,29 @@
           "items": {
             "$ref": "#/$defs/ArtifactSpec"
           },
+          "maxItems": 200,
           "title": "Artifacts",
           "type": "array"
         },
         "expected_version": {
           "description": "The 'version' returned by claim_next_task.",
+          "maximum": 2147483647,
+          "minimum": 0,
           "title": "Expected Version",
           "type": "integer"
         },
         "reason": {
           "default": "",
           "description": "Why it failed.",
+          "maxLength": 20000,
           "title": "Reason",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -682,6 +780,8 @@
         },
         "task_id": {
           "description": "The task you claimed.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         }
@@ -700,19 +800,24 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "source_id": {
           "description": "Source whose derived facts should be forgotten.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Source Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -720,7 +825,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -738,6 +843,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -746,8 +852,11 @@
           "default": [],
           "description": "Artifacts you hand over.",
           "items": {
+            "maxLength": 128,
+            "minLength": 1,
             "type": "string"
           },
+          "maxItems": 200,
           "title": "Artifact Ids",
           "type": "array"
         },
@@ -755,19 +864,26 @@
           "default": [],
           "description": "Facts (evidence) you hand over.",
           "items": {
+            "maxLength": 128,
+            "minLength": 1,
             "type": "string"
           },
+          "maxItems": 200,
           "title": "Fact Ids",
           "type": "array"
         },
         "note": {
           "description": "What the next agent needs to know.",
+          "maxLength": 100000,
+          "minLength": 1,
           "title": "Note",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -780,11 +896,15 @@
         },
         "task_id": {
           "description": "The task this handoff is about.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         },
         "to_agent": {
           "description": "Agent id receiving the work (must be registered).",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "To Agent",
           "type": "string"
         }
@@ -805,20 +925,24 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "lease_ms": {
           "default": 60000,
-          "description": "Lease length in milliseconds. Heartbeat before it runs out or others may take the task.",
+          "description": "Lease length in milliseconds (max 86 400 000 = 1 day). Heartbeat before it runs out or others may take the task.",
           "exclusiveMinimum": 0,
+          "maximum": 86400000,
           "title": "Lease Ms",
           "type": "integer"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -831,6 +955,8 @@
         },
         "task_id": {
           "description": "The task you claimed.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         }
@@ -848,7 +974,8 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -856,6 +983,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -863,16 +992,20 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "step_n": {
           "description": "The step number.",
+          "maximum": 2147483647,
+          "minimum": 0,
           "title": "Step N",
           "type": "integer"
         },
         "subject_agent": {
           "description": "The agent whose knowledge to reconstruct.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Subject Agent",
           "type": "string"
         }
@@ -892,6 +1025,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -899,17 +1033,22 @@
         "notes": {
           "default": "",
           "description": "What happened, one or two lines.",
+          "maxLength": 20000,
           "title": "Notes",
           "type": "string"
         },
         "procedure_name": {
           "description": "Name of the method you used, e.g. 'run-tests-then-fix'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Procedure Name",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -924,8 +1063,10 @@
           "anyOf": [
             {
               "items": {
+                "maxLength": 2000,
                 "type": "string"
               },
+              "maxItems": 200,
               "type": "array"
             },
             {
@@ -944,6 +1085,8 @@
         "task_id": {
           "anyOf": [
             {
+              "maxLength": 128,
+              "minLength": 1,
               "type": "string"
             },
             {
@@ -951,11 +1094,13 @@
             }
           ],
           "default": null,
-          "description": "Optional Relay task id this run was for.",
+          "description": "Optional Relay task id this run was for (must exist).",
           "title": "Task Id"
         },
         "task_type": {
           "description": "Kind of task it was applied to, e.g. 'bugfix'.",
+          "maxLength": 512,
+          "minLength": 1,
           "title": "Task Type",
           "type": "string"
         }
@@ -975,19 +1120,24 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "source_id": {
           "description": "The suspected (poisoned or wrong) source.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Source Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -995,7 +1145,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1013,6 +1163,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1027,6 +1178,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1051,6 +1204,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1058,6 +1212,8 @@
         "as_of": {
           "anyOf": [
             {
+              "maximum": 9999999999999,
+              "minimum": 0,
               "type": "integer"
             },
             {
@@ -1086,18 +1242,22 @@
         },
         "query": {
           "description": "Natural-language question or topic, e.g. 'API version'.",
+          "maxLength": 20000,
           "title": "Query",
           "type": "string"
         },
         "scope": {
           "default": "global",
           "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "maxLength": 512,
           "title": "Scope",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1123,6 +1283,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1131,14 +1292,19 @@
           "default": [],
           "description": "Facts (from recall) this decision rests on, so it can be explained later.",
           "items": {
+            "maxLength": 128,
+            "minLength": 1,
             "type": "string"
           },
+          "maxItems": 200,
           "title": "Based On Fact Ids",
           "type": "array"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1151,11 +1317,15 @@
         },
         "task_id": {
           "description": "The task the decision is for.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         },
         "text": {
           "description": "The decision and its reason, in one or two sentences.",
+          "maxLength": 100000,
+          "minLength": 1,
           "title": "Text",
           "type": "string"
         }
@@ -1175,6 +1345,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1182,24 +1353,29 @@
         "harness": {
           "default": "",
           "description": "e.g. 'claude-code'.",
+          "maxLength": 512,
           "title": "Harness",
           "type": "string"
         },
         "name": {
           "default": "",
           "description": "Display name (defaults to agent_id).",
+          "maxLength": 512,
           "title": "Name",
           "type": "string"
         },
         "role": {
           "default": "",
           "description": "e.g. 'planner', 'researcher', 'builder'.",
+          "maxLength": 512,
           "title": "Role",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1223,19 +1399,24 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "source_id": {
           "description": "A source previously passed to quarantine_source.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Source Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1243,7 +1424,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1261,6 +1442,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1268,17 +1450,27 @@
         "role": {
           "default": "note",
           "description": "Who is speaking: 'user', 'assistant', 'tool' or 'note'.",
+          "enum": [
+            "user",
+            "assistant",
+            "tool",
+            "note"
+          ],
           "title": "Role",
           "type": "string"
         },
         "session_id": {
           "description": "The session_id returned by start_session.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Session Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1291,6 +1483,8 @@
         },
         "text": {
           "description": "What happened / was said, in your own words. Keep it factual.",
+          "maxLength": 100000,
+          "minLength": 1,
           "title": "Text",
           "type": "string"
         }
@@ -1310,6 +1504,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1317,6 +1512,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1329,6 +1526,8 @@
         },
         "task_id": {
           "description": "A task that is currently 'failed'.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         }
@@ -1347,6 +1546,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1354,18 +1554,22 @@
         "agent_role": {
           "default": "",
           "description": "Your role, e.g. 'planner', 'researcher', 'builder'.",
+          "maxLength": 512,
           "title": "Agent Role",
           "type": "string"
         },
         "harness": {
           "default": "",
           "description": "What runs you, e.g. 'claude-code'.",
+          "maxLength": 512,
           "title": "Harness",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1390,6 +1594,7 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
@@ -1397,6 +1602,8 @@
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1409,6 +1616,8 @@
         },
         "task_id": {
           "description": "Task id.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Task Id",
           "type": "string"
         }
@@ -1427,18 +1636,23 @@
       "properties": {
         "agent_id": {
           "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "artifact_id": {
           "description": "Artifact to verify, e.g. after checking it yourself.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Artifact Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1463,19 +1677,24 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "fact_id": {
           "description": "A fact id.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Fact Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1483,7 +1702,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1500,19 +1719,24 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "node_id": {
           "description": "A decision id or a fact id.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Node Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1520,7 +1744,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1537,19 +1761,24 @@
     "inputSchema": {
       "properties": {
         "agent_id": {
-          "description": "Your stable agent id.",
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
         },
         "recall_id": {
           "description": "A recall id.",
+          "maxLength": 128,
+          "minLength": 1,
           "title": "Recall Id",
           "type": "string"
         },
         "step": {
           "anyOf": [
             {
+              "maximum": 2147483647,
+              "minimum": 1,
               "type": "integer"
             },
             {
@@ -1557,7 +1786,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },

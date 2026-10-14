@@ -115,7 +115,7 @@ def _sse_events(text: str) -> list[dict]:
 
 def test_sse_replays_from_after_and_closes_at_max_events(api, seeded):
     t = seeded["tenant"]
-    r = api.get(f"/api/{t}/stream", params={"after": 0, "max_events": 3, "poll_ms": 20})
+    r = api.get(f"/api/{t}/stream", params={"after": 0, "max_events": 3, "poll_ms": 200})
     assert r.status_code == 200 and r.headers["content-type"].startswith("text/event-stream")
     evs = _sse_events(r.text)
     assert [e["tool"] for e in evs] == ["start_session", "remember_episode", "assert_fact"]
@@ -146,7 +146,7 @@ async def test_sse_yields_events_that_land_while_connected(client, seeded):
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://test") as hc:
         w = asyncio.create_task(writer())
         async with hc.stream(
-            "GET", f"/api/{t}/stream", params={"after": last, "max_events": 1, "poll_ms": 50}
+            "GET", f"/api/{t}/stream", params={"after": last, "max_events": 1, "poll_ms": 200}
         ) as resp:
             body = ""
             async for chunk in resp.aiter_text():

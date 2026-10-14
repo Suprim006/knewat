@@ -8,8 +8,10 @@ exposing Cypher text.
 
 from __future__ import annotations
 
+import contextlib
 import importlib
 import logging
+import os
 import re
 import threading
 import time
@@ -19,17 +21,19 @@ from typing import Any
 
 import anyio
 from mcp.server.mcpserver.exceptions import ToolError
-from redis.exceptions import RedisError
+from redis.exceptions import RedisError, ResponseError
 
 from plexus.audit import record_tool_call
 from plexus.audit.recorder import Ref
 from plexus.embed import Embedder
 from plexus.engram import Engram
+from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient, Rows
 from plexus.graph.queries import QueryError
 from plexus.graph.schema import apply_schema
 from plexus.graph.tenancy import graph_name
 from plexus.mcp.embedding import CheckedEmbedder, make_embedder
+from plexus.mcp.limits import MAX_NAME
 from plexus.relay import Relay, RelayError
 
 log = logging.getLogger("plexus.mcp")  # stderr only: stdout is the stdio protocol channel
@@ -40,6 +44,7 @@ WROTE_LABELS = frozenset(
 )  # nodes a Step can WROTE besides Facts (see link_step)
 HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
 LINK_CHUNK = 200  # ids per link_step call (lineage.MAX_LINK_IDS)
+SCHEMA_RECHECK_S = 5.0  # how often a tenant's indexes are re-verified (env PLEXUS_SCHEMA_RECHECK_S)
 _UUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 
 
@@ -114,6 +119,7 @@ class TenantState:
     embedder: Embedder
     _scopes: dict[str, str] = field(default_factory=dict)
     _lock: threading.Lock = field(default_factory=threading.Lock)
+    verified_at: float = field(default_factory=time.monotonic)  # last time the graph's schema was seen intact
 
     def engram(self, m: MeteredClient) -> Engram:
         return Engram(m, self.graph, self.embedder)  # type: ignore[arg-type]
@@ -126,30 +132,46 @@ class TenantState:
         cls = lineage_class()
         return None if cls is None else cls(m, self.graph)
 
-    def scope_id(self, spec: str, m: MeteredClient) -> str:
+    def scope_id(self, spec: str, m: MeteredClient, *, create: bool = True) -> str | None:
         """Resolve a scope spec to a Scope id: ``global`` | ``project:<name>`` | ``user:<name>`` | a scope id.
 
-        Named scopes are created on first use (idempotent MERGE); ``project:`` and ``user:`` scopes inherit
-        ``global``. A raw id is passed through (the service layer rejects an unknown one).
+        With ``create=True`` (writes) named scopes are created on first use (idempotent MERGE); ``project:`` and
+        ``user:`` scopes inherit ``global``, and a raw id is passed through (the service layer rejects an unknown
+        one). With ``create=False`` (reads) nothing is ever written: the scope is looked up, and ``None`` is
+        returned when it does not exist, so a typo or a probe cannot grow the graph.
         """
         spec = (spec or "global").strip()
-        if _UUID.fullmatch(spec):
+        if len(spec) > MAX_NAME:
+            raise ToolError(f"invalid scope: too long (max {MAX_NAME} characters)")
+        raw = _UUID.fullmatch(spec) is not None
+        if raw and create:
             return spec
         with self._lock:
             hit = self._scopes.get(spec)
         if hit:
             return hit
         kind, _, name = spec.partition(":")
-        eng = self.engram(m)
-        if spec == "global":
-            sid = eng.create_scope("global", "global")
-        elif kind in ("project", "user") and name.strip():
-            parent = self.scope_id("global", m)
-            sid = eng.create_scope(kind, name.strip(), inherits=[parent])
-        else:
+        name = name.strip()
+        if not raw and spec != "global" and not (kind in ("project", "user") and name):
             raise ToolError(
-                f"invalid scope '{spec}': use 'global', 'project:<name>', 'user:<name>' or a scope id"
+                f"invalid scope '{spec[:80]}': use 'global', 'project:<name>', 'user:<name>' or a scope id"
             )
+        if not create:
+            if raw:
+                rows = m.ro(self.graph, "view/scope_lookup", {"id": spec, "kind": "", "name": ""})
+            else:
+                k, n = ("global", "global") if spec == "global" else (kind, name)
+                rows = m.ro(self.graph, "view/scope_lookup", {"id": "", "kind": k, "name": n})
+            if not rows:
+                return None
+            sid = rows[0]["id"]
+        else:
+            eng = self.engram(m)
+            if spec == "global":
+                sid = eng.create_scope("global", "global")
+            else:
+                parent = self.scope_id("global", m)
+                sid = eng.create_scope(kind, name, inherits=[parent])
         with self._lock:
             self._scopes[spec] = sid
         return sid
@@ -163,8 +185,15 @@ class Runtime:
         client: GraphClient | None = None,
         embedder: Embedder | None = None,
         stdio_tenant: str | None = None,
+        schema_recheck_s: float | None = None,
     ):
         self.client = client or GraphClient()
+        self.schema_recheck_s = (
+            schema_recheck_s
+            if schema_recheck_s is not None
+            else float(os.environ.get("PLEXUS_SCHEMA_RECHECK_S") or SCHEMA_RECHECK_S)
+        )
+        self._agent_locks: dict[tuple[str, str], list] = {}  # (tenant, agent) -> [lock, users]
         self._embedder = (
             embedder
             if embedder is None or isinstance(embedder, CheckedEmbedder)
@@ -193,18 +222,62 @@ class Runtime:
         return tenant
 
     def state(self, tenant: str) -> TenantState:
-        """TenantState for ``tenant``; the first use applies the schema (idempotent) under a lock."""
+        """TenantState for ``tenant``; the first use applies the schema (idempotent) under a lock.
+
+        The state is not trusted forever: every ``schema_recheck_s`` seconds the graph's indexes are looked at
+        again, and if the graph was deleted or replaced under a running server (a demo reset, a restore) the
+        schema is re-applied and the cached scope ids are dropped, so the tenant heals itself.
+        """
         ts = self._tenants.get(tenant)
-        if ts is not None:
+        if ts is not None and time.monotonic() - ts.verified_at < self.schema_recheck_s:
             return ts
         with self._lock:
             ts = self._tenants.get(tenant)
-            if ts is None:
-                graph = graph_name(tenant)
-                apply_schema(self.client, graph)
-                ts = TenantState(tenant, graph, self.client, self.embedder)
-                self._tenants[tenant] = ts
+            now = time.monotonic()
+            if ts is not None and now - ts.verified_at < self.schema_recheck_s:
+                return ts
+            if ts is not None and self._schema_intact(ts.graph):
+                ts.verified_at = now
+                return ts
+            if ts is not None:
+                log.warning("tenant %s: graph or schema is gone; re-applying the schema", tenant)
+            graph = graph_name(tenant)
+            apply_schema(self.client, graph)
+            ts = TenantState(tenant, graph, self.client, self.embedder)
+            self._tenants[tenant] = ts
             return ts
+
+    def _schema_intact(self, graph: str) -> bool:
+        try:
+            return bool(self.client.ro(graph, "view/indexes"))
+        except ResponseError:  # "empty key": the graph no longer exists
+            return False
+
+    def invalidate(self, tenant: str) -> None:
+        """Forget a tenant's cached state; the next :meth:`state` re-applies the schema."""
+        with self._lock:
+            self._tenants.pop(tenant, None)
+
+    @contextlib.asynccontextmanager
+    async def _agent_lock(self, tenant: str, agent_id: str):
+        """Serialise the calls of ONE agent (parallel tool calls are normal for Claude Code).
+
+        Step numbers and their ``at`` stamps are then assigned in call-start order and recorded in the same
+        order, so ``n`` and ``at`` always agree and an explicit ``step`` is never remapped by a race.
+        Different agents never wait for each other.
+        """
+        key = (tenant, agent_id)
+        entry = self._agent_locks.get(key)
+        if entry is None:
+            entry = self._agent_locks[key] = [anyio.Lock(), 0]
+        entry[1] += 1
+        try:
+            async with entry[0]:
+                yield
+        finally:
+            entry[1] -= 1
+            if entry[1] == 0:
+                self._agent_locks.pop(key, None)
 
     # -- the tool wrapper ----------------------------------------------------------------------------------
     async def call(
@@ -220,23 +293,39 @@ class Runtime:
             raise ToolError("agent_id is required")
         tenant = self.tenant_of(headers)
         try:
-            return await anyio.to_thread.run_sync(self._run, tenant, tool, agent_id, step, fn)
+            async with self._agent_lock(tenant, agent_id):
+                started = time.time_ns() // 1_000_000  # taken inside the lock: n and at agree
+                return await anyio.to_thread.run_sync(self._run, tenant, tool, agent_id, step, fn, started)
         except ToolError:
             raise
         except Exception as exc:
             raise _to_tool_error(tool, exc) from None
 
-    def _run(self, tenant, tool, agent_id, step, fn) -> dict[str, Any]:
+    def _run(self, tenant, tool, agent_id, step, fn, started: int) -> dict[str, Any]:
         ts = self.state(tenant)
-        m = MeteredClient(self.client)
-        started = time.time_ns() // 1_000_000
-        out = fn(ts, m)
+        for attempt in (0, 1):
+            m = MeteredClient(self.client)
+            try:
+                out = fn(ts, m)
+                break
+            except Exception as exc:
+                if attempt == 0 and _is_stale_graph(exc):
+                    # the graph was replaced under us: nothing was written (the failure is the first read or an
+                    # all-or-nothing write), so rebuild the tenant state and run the tool once more
+                    log.warning(
+                        "tenant %s: stale cached state (%s); retrying once", tenant, type(exc).__name__
+                    )
+                    self.invalidate(tenant)
+                    ts = self.state(tenant)
+                    continue
+                raise
         # The Step is opened only after the tool succeeded (a rejected call leaves no Step and registers no
         # agent), but stamped with the time the call started: "what the agent knew at this step" is then the
         # state it acted on, not the state after its own write.
-        step_id = self._open_step(ts, agent_id, step, started)
+        degraded: list[str] = []
+        step_id = self._open_step(ts, agent_id, step, started, degraded)
         data = dict(out.data)
-        extra = self._attach(ts, step_id, out)
+        extra = self._attach(ts, step_id, out, degraded)
         data.update(extra)
         # nodes the Lineage hook created (e.g. the Recall record) are CREATED by this ToolCall too
         created = [
@@ -259,10 +348,17 @@ class Runtime:
             )
         except Exception:  # the tool's own write already happened; never fail the call over the audit row
             log.exception("audit: could not record ToolCall for %s", tool)
+            data["audit_degraded"] = True
+        if degraded:
+            data["lineage_degraded"] = (
+                True  # the write succeeded but its Step / WROTE / READ edges are incomplete
+            )
         return data
 
     # -- Lineage hook -------------------------------------------------------------------------------------
-    def _open_step(self, ts: TenantState, agent_id: str, step: int | None, at: int) -> str | None:
+    def _open_step(
+        self, ts: TenantState, agent_id: str, step: int | None, at: int, degraded: list[str]
+    ) -> str | None:
         """The agent's Step for this call (get-or-create by (agent, n)); ``None`` without Lineage.
 
         An explicit ``step`` is respected (the same ``n`` always maps to the same Step). Without one the next
@@ -282,9 +378,12 @@ class Runtime:
                 return lin.record_step(agent_id, None, at)
         except Exception:
             log.exception("lineage: could not record a Step for %s", agent_id)
+            degraded.append("step")
             return None
 
-    def _attach(self, ts: TenantState, step_id: str | None, out: Outcome) -> dict[str, Any]:
+    def _attach(
+        self, ts: TenantState, step_id: str | None, out: Outcome, degraded: list[str]
+    ) -> dict[str, Any]:
         """Attach WROTE / READ edges and run the tool's ``after`` hook. Never fails the call."""
         extra: dict[str, Any] = {}
         if step_id is None:
@@ -294,23 +393,40 @@ class Runtime:
             return extra
         wrote = _ids(i for label, i in (*out.created, *out.updated) if label in WROTE_LABELS)
         read = _ids(out.read_ids)
-        try:
+
+        def link() -> None:
             if out.assert_result is not None:
                 lin.link_assert_result(step_id, out.assert_result)
             for i in range(0, max(len(wrote), len(read)), LINK_CHUNK):
                 lin.link_step(step_id, wrote_ids=wrote[i : i + LINK_CHUNK], read_ids=read[i : i + LINK_CHUNK])
+
+        try:
+            try:
+                link()
+            except (RedisError, OSError):  # transient: every link statement is idempotent, so try once more
+                log.warning("lineage: retrying link_step for %s", step_id)
+                link()
         except Exception:
             log.exception("lineage: could not link step %s", step_id)
+            degraded.append("link")
         if out.after is not None:
             try:
                 extra = out.after(lin, step_id) or {}
             except Exception:
                 log.exception("lineage: after-hook failed for step %s", step_id)
+                degraded.append("after")
         return extra
 
 
 def _ids(values: Iterable[str]) -> list[str]:
     return list(dict.fromkeys(v for v in values if v))
+
+
+def _is_stale_graph(exc: Exception) -> bool:
+    """True for the two failures a deleted / replaced tenant graph produces under a cached TenantState."""
+    if isinstance(exc, ResponseError):
+        return "empty key" in str(exc).lower()
+    return isinstance(exc, UnknownReference) and exc.kind == "scope"
 
 
 def _to_tool_error(tool: str, exc: Exception) -> ToolError:

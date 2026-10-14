@@ -9,7 +9,9 @@ import sys
 import threading
 
 from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 from mcp.server.transport_security import TransportSecuritySettings
+from pydantic import ValidationError
 
 from plexus.mcp.http import TenantPathMiddleware
 from plexus.mcp.lineage_tools import register_lineage
@@ -24,9 +26,39 @@ INSTRUCTIONS = (
 )
 
 
+MAX_ERRORS_SHOWN = 4
+
+
+def validation_message(tool: str, exc: ValidationError) -> str:
+    """One short line for an LLM: ``recall: k: Input should be greater than or equal to 1; query: Field required``.
+
+    No pydantic model names, no documentation URLs and never the rejected value (it can be 100 kB).
+    """
+    parts: list[str] = []
+    for err in exc.errors(include_url=False, include_context=False, include_input=False):
+        field = ".".join(str(p) for p in err["loc"])
+        msg = str(err["msg"]).removeprefix("Value error, ").strip()
+        parts.append(f"{field}: {msg}" if field else msg)
+    shown = "; ".join(parts[:MAX_ERRORS_SHOWN])
+    more = len(parts) - MAX_ERRORS_SHOWN
+    return f"{tool}: {shown}" + (f" (+{more} more)" if more > 0 else "")
+
+
+class PlexusServer(MCPServer):
+    """MCPServer that reports argument-validation failures as one short line instead of a pydantic dump."""
+
+    async def call_tool(self, name, arguments, context=None):
+        try:
+            return await super().call_tool(name, arguments, context)
+        except ToolError as exc:
+            if isinstance(exc.__cause__, ValidationError):
+                raise ToolError(validation_message(name, exc.__cause__)) from exc.__cause__
+            raise
+
+
 def build_server(rt: Runtime) -> MCPServer:
     """An MCPServer with every available tool registered (Lineage tools only if ``plexus.lineage`` exists)."""
-    mcp = MCPServer("plexus", instructions=INSTRUCTIONS, log_level="WARNING")
+    mcp = PlexusServer("plexus", instructions=INSTRUCTIONS, log_level="WARNING")
     register_engram_relay(mcp, rt)
     register_lineage(mcp, rt)
     return mcp
@@ -53,7 +85,8 @@ def build_http_app(rt: Runtime, allowed_hosts: list[str] | None = None):
     )
     mcp = build_server(rt)
     return TenantPathMiddleware(
-        mcp.streamable_http_app(streamable_http_path="/mcp", transport_security=security)
+        mcp.streamable_http_app(streamable_http_path="/mcp", transport_security=security),
+        health=lambda: rt.client.ping(),
     )
 
 
