@@ -129,7 +129,8 @@ async def test_engram_flow_and_toolcall_audit(server, client, tenant):
     by = {x["tool"]: x for x in calls}
     assert by["start_session"]["links"].count("CREATED:Session") == 1
     assert "CREATED:Episode" in by["remember_episode"]["links"]
-    assert by["recall"]["wrote"] is False and by["recall"]["links"] == []
+    # recall changes no memory, but its Recall record is a node the call created
+    assert by["recall"]["wrote"] is True and by["recall"]["links"] == ["CREATED:Recall"]
     assert by["recall"]["q"] == "engram/recall" and by["recall"]["ms"] > 0
     second = [x for x in calls if x["tool"] == "assert_fact"]
     assert any("UPDATED:Fact" in x["links"] for x in second)  # the superseded fact

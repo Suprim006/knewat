@@ -38,6 +38,7 @@ TENANT_HEADER = "x-plexus-tenant"
 WROTE_LABELS = frozenset(
     {"Decision", "Handoff", "Task"}
 )  # nodes a Step can WROTE besides Facts (see link_step)
+HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
 LINK_CHUNK = 200  # ids per link_step call (lineage.MAX_LINK_IDS)
 _UUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 
@@ -235,7 +236,13 @@ class Runtime:
         # state it acted on, not the state after its own write.
         step_id = self._open_step(ts, agent_id, step, started)
         data = dict(out.data)
-        data.update(self._attach(ts, step_id, out))
+        extra = self._attach(ts, step_id, out)
+        data.update(extra)
+        # nodes the Lineage hook created (e.g. the Recall record) are CREATED by this ToolCall too
+        created = [
+            *out.created,
+            *((label, extra[key]) for key, label in HOOK_NODE_KEYS.items() if key in extra),
+        ]
         try:
             data["tool_call_id"] = record_tool_call(
                 self.client,
@@ -245,10 +252,10 @@ class Runtime:
                 step_id,
                 m.query_name or tool,
                 m.run_time_ms,
-                out.created,
+                created,
                 out.updated,
                 step=step,
-                wrote=bool(m.writes),
+                wrote=bool(m.writes) or len(created) > len(out.created),
             )
         except Exception:  # the tool's own write already happened; never fail the call over the audit row
             log.exception("audit: could not record ToolCall for %s", tool)

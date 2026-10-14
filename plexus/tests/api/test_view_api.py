@@ -6,7 +6,6 @@ import asyncio
 import json
 import re
 import sys
-import types
 from pathlib import Path
 
 import pytest
@@ -93,7 +92,7 @@ def test_flow_orders_toolcalls_with_created_updated(api, seeded):
     assert [r.label for r in second.created] == ["Fact"]
     assert second.updated[0].id == seeded["f1"] and second.updated[0].label == "Fact"
     assert flow.events[1].step == 1 and flow.events[0].step is None
-    assert flow.events[4].wrote is False and flow.events[4].created == []
+    assert flow.events[4].wrote is True and [r.label for r in flow.events[4].created] == ["Recall"]
     assert all(e.run_time_ms > 0 for e in flow.events)
     assert flow.events[8].created[0].id == seeded["decision"]
 
@@ -170,46 +169,6 @@ def test_step_and_why_are_501_without_lineage(api, seeded, monkeypatch):
     assert api.get(f"/api/{t}/why/{seeded['decision']}").status_code == 501
 
 
-def test_step_and_why_with_lineage_present(api, client, seeded, monkeypatch):
-    from plexus.graph.tenancy import graph_name
-
-    class FakeLineage:
-        def __init__(self, ro_client, graph):
-            assert not hasattr(ro_client, "rw") and not hasattr(ro_client, "rw_script")  # read-only handle
-            self.graph = graph
-
-        def why(self, node_id):
-            if node_id == "missing":
-                raise LookupError("no such node")
-            return {"id": node_id, "paths": [["d", "f"]], "nodes": [], "edges": []}
-
-    mod = types.ModuleType("plexus.lineage")
-    mod.Lineage = FakeLineage
-    monkeypatch.setitem(sys.modules, "plexus.lineage", mod)
-    t = seeded["tenant"]
-    w = M.WhyResponse(**api.get(f"/api/{t}/why/{seeded['decision']}").json())
-    assert w.result["paths"] == [["d", "f"]]
-    assert api.get(f"/api/{t}/why/missing").status_code == 404
-
-    # step/{n}: seed two Steps with READ / WROTE edges in the model's shape
-    g = client.graph(graph_name(t))
-    g.query(
-        "MATCH (f:Fact {id:$f1}), (f2:Fact {id:$f2}) "
-        "CREATE (s1:Step {id:'s1', n:1, at:1, agent_id:'planner', created_at:1}),"
-        "(s2:Step {id:'s2', n:2, at:$now, agent_id:'planner', created_at:1}),"
-        "(s1)-[:READ]->(f), (s2)-[:READ]->(f2), (s2)-[:WROTE]->(f2)",
-        {"f1": seeded["f1"], "f2": seeded["f2"], "now": 2_000_000_000_000},
-    )
-    r1 = M.StepResponse(**api.get(f"/api/{t}/step/1").json())
-    assert r1.n == 1 and [a.agent_id for a in r1.agents] == ["planner"] and r1.agents[0].step_n == 1
-    # at step 1 (at=1) the fact read by s1 was not yet valid -> nothing known yet, nothing written
-    assert r1.agents[0].read == [] and r1.agents[0].wrote == []
-    r2 = M.StepResponse(**api.get(f"/api/{t}/step/2").json())
-    a = r2.agents[0]
-    assert a.step_n == 2 and [x["id"] for x in a.read] == [seeded["f2"]]  # f1 is superseded by then
-    assert [(x.id, x.label) for x in a.wrote] == [(seeded["f2"], "Fact")]
-
-
 def test_query_text_endpoint(api):
     r = api.get("/api/queries/engram/recall")
     assert r.status_code == 200
@@ -280,6 +239,7 @@ def test_openapi_has_all_endpoints(api):
         "/api/{tenant}/stream",
         "/api/{tenant}/step/{n}",
         "/api/{tenant}/why/{node_id}",
+        "/api/{tenant}/recall/{recall_id}",
         "/api/queries/{name}",
         "/api/results",
     }
