@@ -29,6 +29,8 @@ uv run plexus demo inventory --tenant demo                   # node / edge count
 uv run plexus demo list                                      # the recordings
 uv run plexus demo replay acme-claude-sonnet --tenant demo --reset   # restore a recording and verify its counts
 uv run plexus demo live --claude --model sonnet --tenant demo_claude --reset --run-name my-run   # spends subscription
+uv run plexus demo ablation --tenant demo                    # cut the edges in a copy and show what breaks (below)
+uv run plexus mcp-config --tenant demo                       # an MCP config for Claude Code for this checkout (docs/mcp.md)
 ```
 
 `--tenant` is the graph `plexus_t_<tenant>` (`^[a-z0-9_]{1,48}$`). `live` refuses a tenant that already has data unless
@@ -164,6 +166,39 @@ RETURN a.value, x.id, b.value, y.id   // API key (planner) vs JWT (researcher)
 
 **What would quarantine have cost?** run with `--poison-at 40`, then read the `quarantine` event printed by the CLI
 (`blast_radius`: fact ids, readers, decision ids).
+
+## Ablation demo (`plexus demo ablation`)
+
+"Does the product still work if you take the graph's edges away?" Run it on a tenant that holds a finished run
+(for example `uv run plexus demo replay acme-claude-sonnet --tenant demo` first):
+
+```bash
+uv run plexus demo ablation --tenant demo           # keeps the stripped copy as tenant 'demo_ablated'; add --drop to remove it, --json for machines
+```
+
+It `GRAPH.COPY`s `plexus_t_demo` to `plexus_t_demo_ablated`, deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM` and `READ` there
+(the bounded `crucible/strip_edges` query), and runs the same probes on both graphs. Read-only probes (`why`, `knew_at`,
+`who_knew`) run on the two graphs directly. Probes that write (claims, `forget_source`) run on throw-away copies of both, with the
+tasks put back to `open`, and those copies are dropped at the end. The original tenant is never written: node and edge counts are
+compared before and after and the command exits 1 if they differ (it also exits 1 if a feature does not work on the intact graph,
+if an edge-dependent feature does not break, or if a control breaks). Output on `acme-claude-sonnet`:
+
+```text
+Feature                     Needs         Intact (demo)                                                           Edges removed (demo_ablated)
+why(decision)               BASED_ON      works: 3 supporting fact(s), 2 agent(s), 3 source(s)                    BROKEN: 0 supporting fact(s), 1 agent(s), 0 source(s)
+knew_at(agent, step)        READ          works: 5 fact(s) read by builder (step 83)                              BROKEN: 0 fact(s) read by builder (step 83)
+who_knew(fact)              READ          works: 3 agent(s) read it                                               BROKEN: 0 agent(s) read it
+dependency-aware claim      DEPENDS_ON    works: 1 task(s) claimable on a fresh board, 0 with unmet dependencies  BROKEN: 12 task(s) claimable on a fresh board, 11 with unmet dependencies
+blocked_by_failure(task)    DEPENDS_ON    works: 11 task(s) blocked behind t01-gather-requirements                BROKEN: 0 task(s) blocked behind t01-gather-requirements
+forget by source (cascade)  DERIVED_FROM  works: forgot 1 fact(s), flagged 2 decision(s)                          BROKEN: forgot 0 fact(s), flagged 0 decision(s)
+exclusive claims            (control)     works: 1 claim(s), 0 claimed twice                                      works: 12 claim(s), 0 claimed twice
+supersession history        (control)     works: 1 SUPERSEDES edges                                               works: 1 SUPERSEDES edges
+6 of 6 edge-dependent features break; 2 of 2 controls are unaffected
+```
+
+Open tenant `demo_ablated` in the View next to `demo` to see the same graph without the four edge types. This is the live
+counterpart of the Crucible ablation numbers (`docs/BASELINE.md`, `layers.ablation` in the Results page). Code:
+`plexus/src/plexus/demo/ablation.py`, queries `plexus/queries/demo/`, test `plexus/tests/demo/test_ablation.py`.
 
 ## Recordings
 

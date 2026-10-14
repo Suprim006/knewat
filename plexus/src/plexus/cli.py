@@ -1,4 +1,5 @@
-"""``plexus`` command line: ``plexus demo seed | live | record | replay | inventory | list``.
+"""``plexus`` command line: ``plexus demo seed | live | record | replay | inventory | list | ablation`` and
+``plexus mcp-config``.
 
 Connection settings come from the usual env vars (``FALKORDB_HOST``, ``FALKORDB_PORT``, ``FALKORDB_PASSWORD``).
 """
@@ -162,6 +163,40 @@ def cmd_list(a: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_ablation(a: argparse.Namespace) -> int:
+    """Copy the tenant, cut DEPENDS_ON / BASED_ON / DERIVED_FROM / READ in the copy, probe both side by side."""
+    import json
+
+    from plexus.demo.ablation import format_report, run_ablation, to_dict
+
+    graph_name(a.tenant)
+    client = _client()
+    report = run_ablation(client, a.tenant, drop=a.drop, log=(lambda _m: None) if a.json else print)
+    print(json.dumps(to_dict(report), indent=2) if a.json else "\n" + format_report(report))
+    return 0 if report.as_expected else 1
+
+
+def cmd_mcp_config(a: argparse.Namespace) -> int:
+    """Print (or write) an MCP config for this checkout: stdio via the venv's plexus-mcp, or streamable HTTP."""
+    import json
+    from pathlib import Path
+
+    from plexus.demo.orchestrator import build_http_mcp_config, build_mcp_config
+
+    graph_name(a.tenant)  # validates the tenant name
+    try:
+        cfg = build_http_mcp_config(a.http, a.tenant) if a.http else build_mcp_config(a.tenant, a.mcp_command)
+    except ValueError as exc:
+        raise SystemExit(str(exc)) from None
+    text = json.dumps(cfg, indent=2)
+    if a.out:
+        Path(a.out).write_text(text + "\n", encoding="utf-8", newline="\n")
+        print(f"wrote {a.out}", file=sys.stderr)
+    else:
+        print(text)
+    return 0
+
+
 # ------------------------------------------------------------------------------------------------ parser
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="plexus", description="Plexus command line")
@@ -235,6 +270,29 @@ def build_parser() -> argparse.ArgumentParser:
 
     s = ds.add_parser("list", help="list the recordings")
     s.set_defaults(fn=cmd_list)
+
+    s = ds.add_parser(
+        "ablation",
+        help="copy a tenant, cut DEPENDS_ON/BASED_ON/DERIVED_FROM/READ in the copy and show what breaks",
+    )
+    tenant_arg(s)
+    s.add_argument("--drop", action="store_true", help="drop the <tenant>_ablated copy afterwards")
+    s.add_argument("--json", action="store_true", help="print the result as JSON")
+    s.set_defaults(fn=cmd_ablation)
+
+    m = sub.add_parser(
+        "mcp-config",
+        help="print an MCP config for Claude Code (stdio via this checkout's venv, or --http URL)",
+    )
+    tenant_arg(m)
+    m.add_argument(
+        "--http", metavar="URL", help="streamable-HTTP endpoint (e.g. http://127.0.0.1:8765) instead of stdio"
+    )
+    m.add_argument(
+        "--mcp-command", help="stdio: path of plexus-mcp (default: the venv script next to python)"
+    )
+    m.add_argument("--out", metavar="FILE", help="write the config to FILE instead of printing it")
+    m.set_defaults(fn=cmd_mcp_config)
     return p
 
 

@@ -25,15 +25,24 @@ deep form.
 
 ## Claude Code
 
-Local, stdio: `plexus.mcp.json` at the repo root. It is **per machine**: it hard-codes the absolute path of this
-checkout's venv script, so edit the paths for your checkout (it is not generated). It points straight at the
-venv script (`plexus/.venv/Scripts/plexus-mcp.exe`, run `uv sync` first) for the fastest start-up. A `uv run` variant
-(slower, and Claude's first `ToolSearch` can run while the server is still `pending`):
-`"command": "uv", "args": ["run", "--directory", "<abs>/plexus", "plexus-mcp", "--transport", "stdio", "--tenant", "demo"]`.
+Local, stdio, generated for your checkout (fastest start-up; it names the `plexus-mcp` script of the venv that runs the command):
+
+```bash
+cd plexus && uv sync                                              # once
+FALKORDB_PORT=6379 uv run plexus mcp-config --tenant demo --out ../mcp.local.json   # or omit --out to print it
+uv run plexus mcp-config --tenant demo --http http://127.0.0.1:8765                  # streamable-HTTP variant instead
+```
+
+The command reads `FALKORDB_HOST` / `FALKORDB_PORT` / `PLEXUS_EMBEDDER` from the environment and writes them into the config's
+`env`. `plexus.mcp.json` at the repo root is only a **portable template**: it contains no machine path, starts the server with
+`uv run --directory plexus plexus-mcp ...` (relative to the directory Claude Code is started in, so start it from the repo root),
+tenant `demo` and port 6379. It is slower to start than the generated config (Claude's first `ToolSearch` can run while the
+server is still `pending`), which is why headless runs should use the generated file. Copy it and edit `--tenant` / the port, or
+generate one with `plexus mcp-config`. `tests/demo/test_mcp_config.py` fails if a machine path ever gets committed into it.
 Headless:
 
 ```bash
-env -u ANTHROPIC_API_KEY claude -p "<task>" --mcp-config <abs>/plexus.mcp.json --strict-mcp-config \
+env -u ANTHROPIC_API_KEY claude -p "<task>" --mcp-config <abs>/mcp.local.json --strict-mcp-config \
   --allowedTools "mcp__plexus__*" --model haiku --max-turns 8 --output-format stream-json --verbose
 ```
 

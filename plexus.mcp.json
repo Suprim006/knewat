@@ -1,13 +1,8 @@
 {
   "mcpServers": {
     "plexus": {
-      "command": "C:/Change_folder_after_HDD/falkordb/plexus/.venv/Scripts/plexus-mcp.exe",
-      "args": [
-        "--transport",
-        "stdio",
-        "--tenant",
-        "demo"
-      ],
+      "command": "uv",
+      "args": ["run", "--directory", "plexus", "plexus-mcp", "--transport", "stdio", "--tenant", "demo"],
       "env": {
         "FALKORDB_HOST": "127.0.0.1",
         "FALKORDB_PORT": "6379"

@@ -132,3 +132,12 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 |---|---|---|---|
 | `crucible/list_tasks` | ro | Every task with its state, claimer and version | The L1 harness counts double claims, lost updates and orphans from this. |
 | `crucible/strip_edges` | rw | **Ablation only (D-001):** deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM` and `READ` in bounded batches | Measures which capabilities break without the edges. 7 of 7 break; 5 of 5 controls are unaffected (`docs/BASELINE.md`). |
+
+## Demo queries (`queries/demo/`, `plexus demo ablation` only; not used by the product)
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `demo/ablation_targets` | ro | Picks the probe targets on the intact tenant: the Decision with most `BASED_ON` facts, the agent with most `READ` edges, the Source whose forgetting reaches most decisions/facts (`DERIVED_FROM*1..5` then `BASED_ON`), the root Task with most dependents | The picks *are* edge counts and variable-length traversals; on the stripped copy they would all be empty. |
+| `demo/ablation_task_deps` | ro | Every task with the ids it depends on | Ground truth for the dependency-aware-claim probe (`DEPENDS_ON` read on the intact tenant). |
+| `demo/ablation_reset_tasks` | rw | Sets every task of a **scratch copy** back to `open` so a finished recording has something to claim | Bounded write (`LIMIT`); never run on a real tenant, only on the throw-away copies the command drops. |
+
