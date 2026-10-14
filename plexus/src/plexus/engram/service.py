@@ -12,6 +12,8 @@ import time
 import uuid
 from typing import Any
 
+from redis.exceptions import ResponseError
+
 from plexus.embed import Embedder, embed_checked, get_embedder
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
@@ -372,23 +374,44 @@ class Engram:
         default is "now" with active facts only. The text budget is applied here: results are kept in rank
         order until ``budget_chars`` is spent (the first result is truncated rather than dropped).
         Returns data only; recording a ``Recall`` node is Lineage's job.
+
+        ``k`` is clamped to 50 and ``budget_chars`` to 20,000. FalkorDB's vector search has **no
+        pre-filter**: scope, status and validity are applied after the index returns its nearest nodes, so
+        out-of-scope or superseded facts can crowd the target out. Recall therefore starts with ``4*k``
+        nodes and, while fewer than ``k`` rows survive the filters, retries with 4x more (up to 512). Beyond
+        that cap a fact is only found if its ``value`` shares a keyword with the query (full-text union,
+        which filters before its limit). Cost: an empty/short result on a large graph runs up to 3 queries.
         """
         if k <= 0:
             return []
+        k = min(k, MAX_K)
+        budget_chars = min(budget_chars, MAX_BUDGET_CHARS)
         t = as_of if as_of is not None else _now_ms()
-        rows = self.client.ro(
-            self.graph,
-            "engram/recall",
-            {
-                "q": self.embedder.embed([query])[0],
-                "scope_id": scope_id,
-                "over": k * OVERFETCH,
-                "k": k,
-                "t": t,
-                "statuses": ["active"] if as_of is None else ["active", "superseded"],
-                "boost": EXPAND_BOOST,
-            },
-        )
+        statuses = ["active"] if as_of is None else ["active", "superseded"]
+        q = self._embed([query])[0]
+        kw_ids = self._keyword_ids(query, scope_id, k, t, statuses)
+        over = max(k * OVERFETCH, 1)
+        while True:
+            over = min(over, MAX_OVER)
+            rows = self.client.ro(
+                self.graph,
+                "engram/recall",
+                {
+                    "q": q,
+                    "scope_id": scope_id,
+                    "over": over,
+                    "k": k,
+                    "t": t,
+                    "statuses": statuses,
+                    "boost": EXPAND_BOOST,
+                    "sibs": SIBLINGS_PER_ENTITY,
+                    "kw_ids": kw_ids,
+                },
+            )
+            # Stop: enough rows, the index is exhausted (returned fewer nodes than asked for), or the cap is hit.
+            if len(rows) >= k or over >= MAX_OVER or (rows and rows[0]["raw"] < over):
+                break
+            over *= RETRY_FACTOR
         out: list[dict[str, Any]] = []
         used = 0
         for r in rows:
@@ -422,6 +445,21 @@ class Engram:
             if used >= budget_chars:
                 break
         return out
+
+    def _keyword_ids(self, query: str, scope_id: str, k: int, t: int, statuses: list[str]) -> list[str]:
+        """Ids of in-scope valid facts whose ``value`` contains a query word (full-text index, OR)."""
+        words = list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
+        if not words:
+            return []
+        try:
+            rows = self.client.ro(
+                self.graph,
+                "engram/recall_keywords",
+                {"text": "|".join(words), "scope_id": scope_id, "k": k, "t": t, "statuses": statuses},
+            )
+        except ResponseError:  # e.g. every word is a stopword for the index: the vector side still answers
+            return []
+        return [r["id"] for r in rows]
 
     # -- procedures ------------------------------------------------------------------------------------
 

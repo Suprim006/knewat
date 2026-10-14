@@ -27,6 +27,7 @@ def test_every_engram_query_loads_and_modes():
     ro = {n for n in names if lib.get(n).mode == "ro"}
     assert ro == {
         "engram/recall",
+        "engram/recall_keywords",
         "engram/fact_history",
         "engram/best_procedure",
         "engram/find_entity_exact",
