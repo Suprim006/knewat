@@ -12,6 +12,8 @@
 //   otherwise  -> closing   = current facts asserted only by this agent, or all of them when supersede=true
 //                 clashing  = the remaining current facts (other agents' view)
 //                 new Fact; closing get valid_to=now,status='superseded' + (new)-[:SUPERSEDES]->(old); clashing get (new)-[:CONTRADICTS]->(old) and stay active
+// FalkorDB 6.0.2 gotcha: two CASE-wrapped list comprehensions with a nested pattern comprehension in ONE WITH return wrong (empty/duplicated) lists,
+// so closing and clashing are projected in separate WITH clauses.
 // source_id / episode_id are '' when absent. Source nodes are Lineage's: the DERIVED_FROM edge is only made if the node exists.
 // Lineage tail: everything that follows the FOREACH is a plain RETURN; to log a Step, put `MATCH (st:Step {id: $step_id})` before the
 //   FOREACHes and add `CREATE (st)-[:WROTE]->(nf)` inside the new-fact FOREACH (and `(st)-[:READ]->(x)` for dup/closing), then keep the RETURN.
@@ -24,19 +26,20 @@ OPTIONAL MATCH (src:Source {id: $source_id})
 OPTIONAL MATCH (f:Fact {subject_id: $entity_id, predicate: $predicate, status: 'active', valid_to: $open_to})-[:IN_SCOPE]->(sc)
 WITH ag, e, sc, ep, src, collect(f) AS cur
 WITH ag, e, sc, ep, src, cur,
-     head([x IN cur WHERE x.norm_value = $norm_value]
-          + [x IN cur WHERE vec.cosineDistance(x.value_embedding, vecf32($value_emb)) <= $dup_threshold]) AS dup
-WITH ag, e, sc, ep, src, dup,
+     head([xe IN cur WHERE xe.norm_value = $norm_value]
+          + [xn IN cur WHERE vec.cosineDistance(xn.value_embedding, vecf32($value_emb)) <= $dup_threshold]) AS dup
+WITH ag, e, sc, ep, src, cur, dup,
      CASE WHEN dup IS NULL THEN
-       [x IN cur WHERE $supersede OR all(a IN [(x)-[:ASSERTED_BY]->(o:Agent) | o.id] WHERE a = $agent_id)]
-     ELSE [] END AS closing,
+       [xc IN cur WHERE $supersede OR all(ac IN [(xc)-[:ASSERTED_BY]->(oc:Agent) | oc.id] WHERE ac = $agent_id)]
+     ELSE [] END AS closing
+WITH ag, e, sc, ep, src, dup, closing,
      CASE WHEN dup IS NULL THEN
-       [x IN cur WHERE NOT ($supersede OR all(a IN [(x)-[:ASSERTED_BY]->(o:Agent) | o.id] WHERE a = $agent_id))]
+       [xk IN cur WHERE NOT ($supersede OR all(ak IN [(xk)-[:ASSERTED_BY]->(ok:Agent) | ok.id] WHERE ak = $agent_id))]
      ELSE [] END AS clashing
 FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
   MERGE (d)-[:ASSERTED_BY]->(ag)
-  FOREACH (x IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | MERGE (d)-[:DERIVED_FROM]->(x))
-  FOREACH (x IN CASE WHEN src IS NULL THEN [] ELSE [src] END | MERGE (d)-[:DERIVED_FROM]->(x)))
+  FOREACH (de IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | MERGE (d)-[:DERIVED_FROM]->(de))
+  FOREACH (ds IN CASE WHEN src IS NULL THEN [] ELSE [src] END | MERGE (d)-[:DERIVED_FROM]->(ds)))
 FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   CREATE (nf:Fact {id: $fact_id, subject_id: $entity_id, predicate: $predicate, value: $value, norm_value: $norm_value,
                    valid_from: $now, valid_to: $open_to, recorded_at: $now, created_at: $now, status: 'active',
@@ -44,11 +47,11 @@ FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   CREATE (nf)-[:ABOUT]->(e)
   CREATE (nf)-[:IN_SCOPE]->(sc)
   CREATE (nf)-[:ASSERTED_BY]->(ag)
-  FOREACH (x IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | CREATE (nf)-[:DERIVED_FROM]->(x))
-  FOREACH (x IN CASE WHEN src IS NULL THEN [] ELSE [src] END | CREATE (nf)-[:DERIVED_FROM]->(x))
+  FOREACH (ne IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | CREATE (nf)-[:DERIVED_FROM]->(ne))
+  FOREACH (ns IN CASE WHEN src IS NULL THEN [] ELSE [src] END | CREATE (nf)-[:DERIVED_FROM]->(ns))
   FOREACH (c IN closing | SET c.valid_to = $now, c.status = 'superseded' CREATE (nf)-[:SUPERSEDES]->(c))
   FOREACH (c IN clashing | CREATE (nf)-[:CONTRADICTS]->(c)))
 RETURN CASE WHEN dup IS NULL THEN $fact_id ELSE dup.id END AS fact_id,
        dup.id AS duplicate_of,
-       [x IN closing | x.id] AS superseded,
-       [x IN clashing | x.id] AS contradicts
+       [rc IN closing | rc.id] AS superseded,
+       [rk IN clashing | rk.id] AS contradicts
