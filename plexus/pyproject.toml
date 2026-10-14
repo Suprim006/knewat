@@ -6,6 +6,7 @@ requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
 dependencies = [
     "falkordb>=1.2",
+    "fastembed>=0.9.0",
     "pydantic>=2",
 ]
 
@@ -37,4 +38,5 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 markers = [
     "integration: needs a running FalkorDB (PLEXUS_TEST_DB_PORT, default 6310)",
+    "slow: loads the fastembed model (needs ~130 MB cache; first run downloads it)",
 ]
