@@ -1,0 +1,40 @@
+[project]
+name = "plexus"
+version = "0.1.0"
+description = "Plexus: a shared graph brain (memory + coordination) for AI agent teams, on FalkorDB."
+requires-python = ">=3.12,<3.13"
+license = { text = "MIT" }
+dependencies = [
+    "falkordb>=1.2",
+    "pydantic>=2",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.8",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/plexus"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+markers = [
+    "integration: needs a running FalkorDB (PLEXUS_TEST_DB_PORT, default 6310)",
+]

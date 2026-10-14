@@ -20,3 +20,8 @@ plexus-view/dist/
 .DS_Store
 # research ledgers
 docs/research/.ledger.json
+
+# Plexus (P0)
+plexus/.venv/
+plexus/.pytest_cache/
+plexus/.ruff_cache/

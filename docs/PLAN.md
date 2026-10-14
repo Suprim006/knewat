@@ -97,7 +97,7 @@ falkordb/                      ← git root (repo name: plexus)
 | `Scope` | `id, kind: user\|project\|global, name` | Engram |
 | `Session` | `id, agent_id, started_at, ended_at` | Engram |
 | `Episode` | `id, role, text, at, step, embedding` | Engram |
-| `Entity` | `id, name, kind, embedding` | Engram |
+| `Entity` | `id, name, norm_name (lower-cased, whitespace-collapsed; MERGE key), kind, embedding` | Engram |
 | `Fact` | `id, subject_id, predicate, value, valid_from, valid_to(OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten, confidence, embedding` | Engram |
 | `Source` | `id, uri, kind, trust` | Lineage |
 | `Procedure` | `id, name, task_type, steps_json` | Engram |
@@ -108,6 +108,7 @@ falkordb/                      ← git root (repo name: plexus)
 | `Decision` | `id, text, at` | Relay |
 | `Step` | `id, n, at, agent_id` | Lineage |
 | `ToolCall` | `id, tool, at, agent_id, query_name, run_time_ms, wrote` | audit (feeds the View) |
+| `Recall` | `id, at, query, scope_id, agent_id, k` | Lineage (the record behind `why_recalled`) |
 
 **Edges:**
 - **Engram:**
@@ -130,6 +131,7 @@ falkordb/                      ← git root (repo name: plexus)
   - `(Artifact)-[:PRODUCED_BY]->(Agent)`
   - `(Artifact)-[:VERIFIED_BY]->(Agent)`
 - **Lineage and audit:**
+  - `(Recall)-[:RETURNED {rank, score}]->(Fact)`, `(Recall)-[:BY]->(Agent)`, `(Recall)-[:IN_STEP]->(Step)`
   - `(Step)-[:BY]->(Agent)`
   - `(Step)-[:READ]->(Fact)`, `(Step)-[:WROTE]->(Fact|Decision|Handoff|Task)`
   - `(Step)-[:NEXT]->(Step)`
@@ -137,7 +139,7 @@ falkordb/                      ← git root (repo name: plexus)
   - `(ToolCall)-[:CREATED|UPDATED]->(any)`
 
 **Indexes and constraints** (`queries/schema/*.cypher`, idempotent):
-- **Range indexes:** `id` on every label; `Fact(subject_id)`, `Fact(predicate)`, `Fact(valid_to)`, `Fact(status)`; `Task(status)`; `Step(n)`; `ToolCall(at)`.
+- **Range indexes:** `id` on every label; `Entity(norm_name)`; `Fact(subject_id)`, `Fact(predicate)`, `Fact(valid_to)`, `Fact(status)`; `Task(status)`; `Step(n)`; `ToolCall(at)`.
 - **Full-text:** `Entity.name`, `Fact.value`, `Episode.text`.
 - **Vector** (384, cosine): `Entity.embedding`, `Fact.embedding`, `Episode.embedding`.
 - **UNIQUE constraints:** `id` on `Task`, `Fact`, `Agent`, `Decision`, `Handoff`. Wait until the constraint reports `OPERATIONAL`.

@@ -1,0 +1,53 @@
+# Plexus: local stack. Requires Docker. Copy .env.example to .env to override defaults.
+# Do NOT run this on port 6379 on the dev machine (falkordb-dev uses it): use FALKORDB_PORT=63NN.
+name: plexus
+
+services:
+  falkordb:
+    image: falkordb/falkordb:6.0.2
+    container_name: plexus-falkordb
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${FALKORDB_PORT:-6379}:6379"
+      - "127.0.0.1:3000:3000" # FalkorDB Browser (raw graph view)
+    environment:
+      # AOF on; never evict (allkeys-lru can evict whole graphs).
+      REDIS_ARGS: "--appendonly yes --maxmemory-policy noeviction"
+      # Names verified against GRAPH.CONFIG GET * on 6.0.2 (all accepted).
+      # The image default TIMEOUT 1000 / MAX_QUEUED_QUERIES 25 / RESULTSET_SIZE 10000 bites under load.
+      FALKORDB_ARGS: "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456"
+    volumes:
+      - plexus_data:/var/lib/falkordb/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+
+  # --- Later phases (stubs) ---------------------------------------------------
+  # plexus-mcp:   # P2: MCP server (streamable HTTP), tenant bound per connection
+  #   build: ./plexus
+  #   depends_on:
+  #     falkordb: { condition: service_healthy }
+  #   environment:
+  #     FALKORDB_HOST: falkordb
+  #     FALKORDB_PORT: "6379"
+  #   ports: ["127.0.0.1:8765:8765"]
+  #
+  # plexus-api:   # P2: read-only View API (FastAPI + SSE)
+  #   build: ./plexus
+  #   depends_on:
+  #     falkordb: { condition: service_healthy }
+  #   environment:
+  #     FALKORDB_HOST: falkordb
+  #     FALKORDB_PORT: "6379"
+  #   ports: ["127.0.0.1:8766:8766"]
+  #
+  # plexus-view:  # P1/P3: React + Cytoscape demonstrator (static build behind nginx)
+  #   build: ./plexus-view
+  #   depends_on: [plexus-api]
+  #   ports: ["127.0.0.1:5173:80"]
+
+volumes:
+  plexus_data:
