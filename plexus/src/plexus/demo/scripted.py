@@ -35,8 +35,7 @@ class Caller:
     async def __call__(self, tool: str, **args: Any) -> dict[str, Any]:
         w = self.w
         if w.should_kill(self.agent):
-            task = w.holds.pop(self.agent)
-            raise AgentKilled(self.agent, task)
+            raise AgentKilled(self.agent, w.released(self.agent) or "")
         await w.pace()
         step = w.count_call(self.agent, tool)
         res = await self.client.call_tool(tool, {"agent_id": self.agent, "step": step, **args})
@@ -45,9 +44,9 @@ class Caller:
             raise ToolFailed(f"{tool} (agent {self.agent}, step {step}): {text}")
         data = json.loads(text)
         if tool == "claim_next_task" and data.get("task"):
-            w.holds[self.agent] = data["task"]["id"]
+            w.claimed(self.agent, data["task"]["id"])
         elif tool in ("complete_task", "fail_task"):
-            w.holds.pop(self.agent, None)
+            w.released(self.agent)
         return data
 
 

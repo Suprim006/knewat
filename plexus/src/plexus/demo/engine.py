@@ -58,6 +58,7 @@ class World:
     events: list[dict[str, Any]] = field(default_factory=list)
     calls: list[dict[str, Any]] = field(default_factory=list)  # {step, agent, tool}
     holds: dict[str, str] = field(default_factory=dict)  # agent -> task id it has claimed and not finished
+    since_claim: dict[str, int] = field(default_factory=dict)  # agent -> calls made since its claim
     dead: set[str] = field(default_factory=set)
     pending: list[Turn] = field(default_factory=list)
     turns: list[Turn] = field(default_factory=list)
@@ -76,6 +77,8 @@ class World:
 
     def count_call(self, agent: str, tool: str) -> int:
         self.step += 1
+        if agent in self.holds:
+            self.since_claim[agent] = self.since_claim.get(agent, 0) + 1
         rec = {"step": self.step, "agent": agent, "tool": tool}
         self.calls.append(rec)
         if self.on_call is not None:
@@ -83,12 +86,21 @@ class World:
         return self.step
 
     # -- fault hooks ---------------------------------------------------------------------------------------
+    def claimed(self, agent: str, task_id: str) -> None:
+        self.holds[agent] = task_id
+        self.since_claim[agent] = 0
+
+    def released(self, agent: str) -> str | None:
+        self.since_claim.pop(agent, None)
+        return self.holds.pop(agent, None)
+
     def should_kill(self, agent: str) -> bool:
-        """True (once) if ``agent`` is the builder, holds a claimed task and the kill step has been reached."""
+        """True (once) if the builder holds a claimed task, has worked on it, and the kill step has been reached."""
         f = self.faults
         if (
             agent != BUILDER
             or agent not in self.holds
+            or self.since_claim.get(agent, 0) < f.kill_after_calls
             or not f.due("kill_builder", f.kill_builder_at, self.step)
         ):
             return False

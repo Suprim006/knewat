@@ -88,13 +88,14 @@ def cmd_live(a: argparse.Namespace) -> int:
         )
     from plexus.demo.scripted import run_scripted
 
+    a.tenant = a.tenant or DEFAULT_TENANT
     client = _client()
     _prepare_tenant(client, a.tenant, a.reset)
     faults = FaultScript(
         kill_builder_at=None if a.no_faults else a.kill_at,
         publish_v2_at=None if a.no_faults else a.v2_at,
         poison_at=a.poison_at,
-        builder_lease_ms=a.lease_ms,
+        builder_lease_ms=a.lease_ms or 3000,
     )
     pace = STEP_SECONDS / a.speed if a.speed > 0 else 0.0
 
@@ -179,7 +180,7 @@ def build_parser() -> argparse.ArgumentParser:
     s.set_defaults(fn=cmd_seed)
 
     s = ds.add_parser("live", help="run the scenario live: scripted agents or real claude -p agents")
-    tenant_arg(s)
+    tenant_arg(s, None)
     mode = s.add_mutually_exclusive_group()
     mode.add_argument(
         "--scripted", action="store_true", help="deterministic non-LLM agents through the MCP tools"
@@ -198,7 +199,15 @@ def build_parser() -> argparse.ArgumentParser:
         "--poison-at", type=int, default=None, help="(stretch) inject the poisoned forum post from this step"
     )
     s.add_argument("--no-faults", action="store_true", help="scripted: run without the kill and v2 faults")
-    s.add_argument("--lease-ms", type=int, default=3000, help="the builder's lease (default 3000 ms)")
+    s.add_argument(
+        "--lease-ms",
+        type=int,
+        default=None,
+        help="the builder's lease (default 3000 ms scripted, 45000 claude)",
+    )
+    s.add_argument(
+        "--stop-after-turns", type=int, default=None, help="claude: stop after N agent turns (a cheap pilot)"
+    )
     s.add_argument("--record", metavar="RUN", help="after the run, record it as demo_data/recordings/RUN")
     s.add_argument("--model", default="sonnet", help="claude: model alias (default sonnet)")
     s.add_argument("--max-turns", type=int, default=25, help="claude: max turns per agent turn (default 25)")

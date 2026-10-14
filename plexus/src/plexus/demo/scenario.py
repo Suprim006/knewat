@@ -167,6 +167,7 @@ class FaultScript:
     publish_v2_at: int | None = 20
     poison_at: int | None = None
     builder_lease_ms: int = 3000
+    kill_after_calls: int = 1  # the builder must have made this many calls on the task before it can die
     reclaimer: str = "researcher"
     fired: dict[str, int] = field(default_factory=dict)  # fault name -> step it fired at
 
