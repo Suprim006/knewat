@@ -25,3 +25,4 @@ docs/research/.ledger.json
 plexus/.venv/
 plexus/.pytest_cache/
 plexus/.ruff_cache/
+.venv-gate/
