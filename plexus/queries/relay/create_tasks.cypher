@@ -7,7 +7,7 @@
 // Guard: no task id may exist yet, and every dependency outside the batch ($ext_dep_ids) must exist.
 // The guard yields an empty $tasks to UNWIND (so nothing is created) rather than filtering rows, because an
 // aggregation with no grouping key always returns one row.
-// $tasks items: {id, title, priority}. $edges items: {i, j, dep}: task index i depends on task index j in the
+// $tasks items: {id, title, priority, seq}; seq is the input position (FIFO tie-break within a batch). $edges items: {i, j, dep}: task index i depends on task index j in the
 // same batch (j >= 0), or on the already-existing task id `dep` (j = -1, dep != ''). Caller bounds both
 // (<= 500 tasks). Edges use list indexes because nodes created earlier in the same statement are NOT yet
 // matchable by MATCH (verified on 6.0.2) but are usable through the collected list.
@@ -19,7 +19,7 @@ WITH CASE WHEN size(existing) = 0 AND size(found_ext) = size($ext_dep_ids) THEN 
 UNWIND to_create AS row
 CREATE (t:Task {
   id: row.id, title: row.title, status: 'open', priority: row.priority,
-  lease_until: 0, claimed_by: '', version: 0, done_at: 0, created_at: $now
+  lease_until: 0, claimed_by: '', version: 0, done_at: 0, created_at: $now, seq: row.seq
 })
 WITH collect(t) AS created
 UNWIND $edges AS e

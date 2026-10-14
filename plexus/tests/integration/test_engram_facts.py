@@ -117,9 +117,10 @@ def test_confidence_and_source(eng, client, graph, proj):
         .result_set
     )
     assert rows == [["src1", 0.6]]
-    # a missing source/episode id is ignored rather than failing the write
-    r2 = eng.assert_fact("Acme", "owner", "Bob", proj, "a1", source_id="nope", episode_id="nope", now=6)
-    assert r2["superseded"] == [r["fact_id"]]
+    # a missing source/episode id is an error (P1-10) and writes nothing
+    with pytest.raises(LookupError):
+        eng.assert_fact("Acme", "owner", "Bob", proj, "a1", source_id="nope", episode_id="nope", now=6)
+    assert [f[1] for f in _facts(client, graph)] == ["Alice"]
 
 
 def test_unknown_scope_raises_and_writes_no_fact(eng, client, graph):

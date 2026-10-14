@@ -12,19 +12,29 @@ import time
 import uuid
 from typing import Any
 
-from plexus.embed import Embedder, get_embedder
+from redis.exceptions import ResponseError
+
+from plexus.embed import Embedder, embed_checked, get_embedder
+from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
 
 OPEN = 9_999_999_999_999  # open-ended valid_to (FalkorDB cannot store null)
 NO_STEP = -1  # Episode.step when the caller has no step
 
-ENTITY_NEAR = 0.15  # cosine distance: entity-name vector match
-FACT_DUP = 0.08  # cosine distance: value paraphrase duplicate
+ENTITY_NEAR = 0.10  # cosine distance: entity-name vector match (and the numeric tokens must agree)
+FACT_DUP = 0.08  # cosine distance: value paraphrase duplicate (and the numeric tokens must agree)
 FULLTEXT_JACCARD = 0.6  # token overlap needed to accept a full-text entity hit
 EXPAND_BOOST = 0.05  # rank bonus for sibling facts reached through the ABOUT entity
-OVERFETCH = 4  # vector seeds fetched = k * OVERFETCH
+OVERFETCH = 4  # first vector fetch = k * OVERFETCH; each retry multiplies by RETRY_FACTOR
+RETRY_FACTOR = 4
+MAX_OVER = 512  # hard cap on the vector fetch size
+MAX_K = 50  # recall clamps k to this
+MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
+SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
+MAX_KEYWORDS = 10  # distinct query words sent to the Fact.value full-text index
 
 _WORD = re.compile(r"[^\W_]+", re.UNICODE)
+_NUMBER = re.compile(r"\d+(?:\.\d+)*")  # 16, 8080, 1.2.3 (a trailing '.' is not part of the number)
 
 
 def normalize(text: str) -> str:
@@ -48,6 +58,22 @@ def _jaccard(a: set[str], b: set[str]) -> float:
     return len(a & b) / len(a | b) if (a | b) else 0.0
 
 
+def numeric_tokens(text: str) -> list[str]:
+    """Sorted multiset of the numbers / version strings in ``text``.
+
+    ``'v1.2.3 on 8080'`` -> ``['1.2.3', '8080']``.
+
+    Embeddings barely move when one digit changes, so two values or entity names are only treated as the same
+    thing when this multiset is identical (P1-01, P1-04).
+    """
+    return sorted(_NUMBER.findall(text))
+
+
+def token_key(text: str) -> str:
+    """:func:`numeric_tokens` joined by spaces; stored as ``Fact.value_tokens`` and compared by equality."""
+    return " ".join(numeric_tokens(text))
+
+
 def fact_text(entity_name: str, predicate: str, value: str) -> str:
     return f"{entity_name} {predicate}: {value}"
 
@@ -69,6 +95,10 @@ class Engram:
         self.embedder = embedder or get_embedder()
         self.entity_threshold = entity_threshold
         self.dup_threshold = dup_threshold
+
+    def _embed(self, texts: list[str]) -> list[list[float]]:
+        """Embed ``texts`` and refuse a vector that is not 384 floats (FalkorDB would store it silently)."""
+        return embed_checked(self.embedder, texts)
 
     # -- sessions and episodes -------------------------------------------------------------------------
 
@@ -105,7 +135,7 @@ class Engram:
                 "text": text,
                 "step": NO_STEP if step is None else step,
                 "now": now if now is not None else _now_ms(),
-                "emb": self.embedder.embed([text])[0],
+                "emb": self._embed([text])[0],
             },
         )
         if not rows:
@@ -133,6 +163,7 @@ class Engram:
         if hit:
             return {**hit[0], "created": False, "matched_by": "exact"}
 
+        num_key = token_key(name)  # entities that differ only in numbers/versions are different things
         q_tokens = set(_tokens(name))
         if q_tokens:
             cands = self.client.ro(
@@ -142,7 +173,7 @@ class Engram:
             )
             best, best_j = None, 0.0
             for c in cands:
-                if c["kind"] != kind:
+                if c["kind"] != kind or token_key(c["name"]) != num_key:
                     continue
                 j = _jaccard(q_tokens, set(_tokens(c["norm_name"] or c["name"])))
                 if j >= FULLTEXT_JACCARD and j > best_j:
@@ -156,10 +187,14 @@ class Engram:
                     "matched_by": "fulltext",
                 }
 
-        emb = self.embedder.embed([name])[0]
+        emb = self._embed([name])[0]
         near = self.client.ro(self.graph, "engram/find_entity_vector", {"emb": emb, "k": 3})
         for c in near:
-            if c["kind"] == kind and c["distance"] <= self.entity_threshold:
+            if (
+                c["kind"] == kind
+                and c["distance"] <= self.entity_threshold
+                and token_key(c["name"]) == num_key
+            ):
                 return {
                     "id": c["id"],
                     "name": c["name"],
@@ -242,7 +277,15 @@ class Engram:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
         Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id}``. For a duplicate no fact is
-        created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY`` edge).
+        created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
+        and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
+
+        A value is a duplicate only if its normalised text is equal, or its embedding is within
+        ``dup_threshold`` **and** its numeric/version tokens are identical (``16`` != ``15``, ``v1.2.3`` !=
+        ``v1.2.4``); anything else follows the update / contradiction path.
+
+        Raises :class:`UnknownReference` (a ``LookupError``) and writes nothing if the scope, or a given
+        ``episode_id`` / ``source_id``, does not exist.
         The classification and the writes happen in one Cypher statement (``engram/assert_fact``); the
         entity resolution before it is a separate (idempotent) step.
         """
@@ -252,7 +295,8 @@ class Engram:
             raise ValueError("predicate and value must not be empty")
         t = now if now is not None else _now_ms()
         entity = self.resolve_entity_ex(subject, subject_kind, now=t)
-        text_emb, value_emb = self.embedder.embed([fact_text(entity["name"], pred, value), value])
+        text_emb, value_emb = self._embed([fact_text(entity["name"], pred, value), value])
+        episode_id, source_id = episode_id or "", source_id or ""
         rows = self.client.rw(
             self.graph,
             "engram/assert_fact",
@@ -261,10 +305,11 @@ class Engram:
                 "predicate": pred,
                 "value": " ".join(value.split()),
                 "norm_value": norm_value,
+                "value_tokens": token_key(value),
                 "scope_id": scope_id,
                 "agent_id": agent_id,
-                "source_id": source_id or "",
-                "episode_id": episode_id or "",
+                "source_id": source_id,
+                "episode_id": episode_id,
                 "confidence": float(confidence),
                 "supersede": bool(supersede),
                 "now": t,
@@ -276,7 +321,7 @@ class Engram:
             },
         )
         if not rows:
-            raise LookupError(f"scope '{scope_id}' does not exist")
+            self._explain_rejected_assert(scope_id, episode_id, source_id)
         r = rows[0]
         return {
             "fact_id": r["fact_id"],
@@ -285,6 +330,20 @@ class Engram:
             "contradicts": list(r["contradicts"]),
             "entity_id": entity["id"],
         }
+
+    def _explain_rejected_assert(self, scope_id: str, episode_id: str, source_id: str) -> None:
+        have = self.client.ro(
+            self.graph,
+            "engram/missing_refs",
+            {"scope_id": scope_id, "episode_id": episode_id, "source_id": source_id},
+        )[0]
+        if not have["scopes"]:
+            raise UnknownReference("scope", [scope_id])
+        if episode_id and not have["episodes"]:
+            raise UnknownReference("episode", [episode_id])
+        if source_id and not have["sources"]:
+            raise UnknownReference("source", [source_id])
+        raise RuntimeError("assert_fact rejected although every referenced id exists")  # pragma: no cover
 
     def fact_history(self, subject: str, predicate: str, scope_id: str) -> list[dict[str, Any]]:
         """All versions of (subject, predicate) in a scope, oldest first (does not create the entity)."""
@@ -315,23 +374,44 @@ class Engram:
         default is "now" with active facts only. The text budget is applied here: results are kept in rank
         order until ``budget_chars`` is spent (the first result is truncated rather than dropped).
         Returns data only; recording a ``Recall`` node is Lineage's job.
+
+        ``k`` is clamped to 50 and ``budget_chars`` to 20,000. FalkorDB's vector search has **no
+        pre-filter**: scope, status and validity are applied after the index returns its nearest nodes, so
+        out-of-scope or superseded facts can crowd the target out. Recall therefore starts with ``4*k``
+        nodes and, while fewer than ``k`` rows survive the filters, retries with 4x more (up to 512). Beyond
+        that cap a fact is only found if its ``value`` shares a keyword with the query (full-text union,
+        which filters before its limit). Cost: an empty/short result on a large graph runs up to 3 queries.
         """
         if k <= 0:
             return []
+        k = min(k, MAX_K)
+        budget_chars = min(budget_chars, MAX_BUDGET_CHARS)
         t = as_of if as_of is not None else _now_ms()
-        rows = self.client.ro(
-            self.graph,
-            "engram/recall",
-            {
-                "q": self.embedder.embed([query])[0],
-                "scope_id": scope_id,
-                "over": k * OVERFETCH,
-                "k": k,
-                "t": t,
-                "statuses": ["active"] if as_of is None else ["active", "superseded"],
-                "boost": EXPAND_BOOST,
-            },
-        )
+        statuses = ["active"] if as_of is None else ["active", "superseded"]
+        q = self._embed([query])[0]
+        kw_ids = self._keyword_ids(query, scope_id, k, t, statuses)
+        over = max(k * OVERFETCH, 1)
+        while True:
+            over = min(over, MAX_OVER)
+            rows = self.client.ro(
+                self.graph,
+                "engram/recall",
+                {
+                    "q": q,
+                    "scope_id": scope_id,
+                    "over": over,
+                    "k": k,
+                    "t": t,
+                    "statuses": statuses,
+                    "boost": EXPAND_BOOST,
+                    "sibs": SIBLINGS_PER_ENTITY,
+                    "kw_ids": kw_ids,
+                },
+            )
+            # Stop: enough rows, index exhausted (returned fewer nodes than asked for), or cap hit.
+            if len(rows) >= k or over >= MAX_OVER or (rows and rows[0]["raw"] < over):
+                break
+            over *= RETRY_FACTOR
         out: list[dict[str, Any]] = []
         used = 0
         for r in rows:
@@ -365,6 +445,21 @@ class Engram:
             if used >= budget_chars:
                 break
         return out
+
+    def _keyword_ids(self, query: str, scope_id: str, k: int, t: int, statuses: list[str]) -> list[str]:
+        """Ids of in-scope valid facts whose ``value`` contains a query word (full-text index, OR)."""
+        words = list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
+        if not words:
+            return []
+        try:
+            rows = self.client.ro(
+                self.graph,
+                "engram/recall_keywords",
+                {"text": "|".join(words), "scope_id": scope_id, "k": k, "t": t, "statuses": statuses},
+            )
+        except ResponseError:  # e.g. every word is a stopword for the index: the vector side still answers
+            return []
+        return [r["id"] for r in rows]
 
     # -- procedures ------------------------------------------------------------------------------------
 

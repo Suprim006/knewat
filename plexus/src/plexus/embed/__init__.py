@@ -4,10 +4,19 @@ from __future__ import annotations
 
 import os
 
-from plexus.embed.base import DIM, Embedder
+from plexus.embed.base import DIM, Embedder, EmbeddingDimensionError, check_dim, embed_checked
 from plexus.embed.hash_embedder import HashEmbedder
 
-__all__ = ["DIM", "Embedder", "FastEmbedder", "HashEmbedder", "get_embedder"]
+__all__ = [
+    "DIM",
+    "Embedder",
+    "EmbeddingDimensionError",
+    "FastEmbedder",
+    "HashEmbedder",
+    "check_dim",
+    "embed_checked",
+    "get_embedder",
+]
 
 _singletons: dict[str, Embedder] = {}
 
