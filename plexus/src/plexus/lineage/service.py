@@ -11,6 +11,7 @@ import uuid
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
+from plexus.engram import normalize
 from plexus.graph.client import GraphClient
 from plexus.lineage import explain
 
@@ -242,3 +243,127 @@ class Lineage:
     def _node_info(self, ids: Iterable[str]) -> dict[str, dict[str, Any]]:
         rows = self.client.ro(self.graph, "lineage/node_info", {"ids": sorted(set(ids))})
         return {r["id"]: dict(r) for r in rows}
+
+    def why_recalled(self, recall_id: str, *, max_elements: int = MAX_WHY_ELEMENTS) -> dict[str, Any]:
+        """Explain a stored recall: what it returned, in which order, and the provenance of each fact.
+
+        Returns ``{recall: {id, query, at, k, scope_id, agent_id, step}, results: [{rank, score, fact_id,
+        props, entity, asserted_by, derived_from, scope}], nodes, edges, truncated}``. ``results`` are in
+        rank order and match what ``record_recall`` stored. ``nodes`` + ``edges`` are capped at
+        ``max_elements`` (lowest ranked results are cut first; ``results`` is cut with them). Raises
+        :class:`UnknownNode`.
+        """
+        rows = self.client.ro(
+            self.graph, "lineage/why_recalled", {"recall_id": recall_id, "limit": MAX_RECALL_RESULTS}
+        )
+        if not rows:
+            raise UnknownNode(f"no recall with id '{recall_id}'")
+        head = rows[0]
+        step = head["step"][0] if head["step"] else None
+        recall = {
+            "id": head["recall_id"],
+            "query": head["query"],
+            "at": head["at"],
+            "k": head["k"],
+            "scope_id": head["scope_id"],
+            "agent_id": head["agent_id"],
+            "step": step,
+        }
+        results = [explain.recall_result(r) for r in rows if r["fact_id"] is not None]
+        nodes, edges, results, truncated = explain.recall_graph(recall, results, max_elements)
+        info = self._node_info(n["id"] for n in nodes)
+        for n in nodes:
+            n["props"] = explain.clean(info[n["id"]]["props"]) if n["id"] in info else {}
+        return {"recall": recall, "results": results, "nodes": nodes, "edges": edges, "truncated": truncated}
+
+    # -- who knew what, when --------------------------------------------------------------------------
+    def who_knew(self, fact_id: str, *, limit: int = 200) -> dict[str, Any]:
+        """Agents whose Steps READ the fact (oldest first), and who asserted / wrote it.
+
+        Returns ``{fact_id, asserted_by: [agent ids], written_by: [{step_id, n, at, agent_id}], readers:
+        [{agent_id, step_id, step_n, at, recall_ids}], agents: [agent ids that read it]}``. Raises
+        :class:`UnknownNode` for an unknown fact.
+        """
+        rows = self.client.ro(self.graph, "lineage/who_knew", {"fact_id": fact_id, "limit": limit})
+        if not rows:
+            raise UnknownNode(f"no fact with id '{fact_id}'")
+        head = rows[0]
+        readers = [
+            {
+                "agent_id": r["agent_id"],
+                "step_id": r["step_id"],
+                "step_n": r["step_n"],
+                "at": r["step_at"],
+                "recall_ids": sorted(r["recall_ids"]),
+            }
+            for r in rows
+            if r["step_id"] is not None
+        ]
+        return {
+            "fact_id": fact_id,
+            "asserted_by": sorted(head["asserted_by"]),
+            "written_by": sorted(head["written_by"], key=lambda w: (w["at"], w["n"])),
+            "readers": readers,
+            "agents": sorted({r["agent_id"] for r in readers}),
+        }
+
+    def knew_at(self, agent_id: str, step_n: int, *, limit: int = 200) -> dict[str, Any]:
+        """What ``agent_id`` knew at step ``step_n``.
+
+        ``facts``: facts its steps READ up to that step that were valid at that step's time (so a fact read
+        earlier but superseded or forgotten since is gone); ``wrote``: everything its steps WROTE up to then.
+        The cut is the agent's latest step with ``n <= step_n`` (``None`` values when it has none).
+        Returns ``{agent_id, step_n, at, facts: [...], wrote: [...]}``.
+        """
+        rows = self.client.ro(
+            self.graph, "lineage/knew_at", {"agent_id": agent_id, "n": step_n, "limit": limit}
+        )
+        out: dict[str, Any] = {"agent_id": agent_id, "step_n": None, "at": None, "facts": [], "wrote": []}
+        for r in rows:
+            out["step_n"], out["at"] = r["at_step"], r["at_time"]
+            if r["kind"] == "read":
+                out["facts"].append(
+                    {
+                        "fact_id": r["id"],
+                        "entity": r["entity"],
+                        "predicate": r["predicate"],
+                        "value": r["value"],
+                        "status": r["status"],
+                        "valid_from": r["valid_from"],
+                        "valid_to": r["valid_to"],
+                        "read_at_step": r["step_n"],
+                    }
+                )
+            else:
+                out["wrote"].append(
+                    {"id": r["id"], "label": r["label"], "summary": r["summary"], "step_n": r["step_n"]}
+                )
+        return out
+
+    def as_of(self, subject: str, predicate: str, t: int, scope_id: str) -> dict[str, Any] | None:
+        """The fact for (subject, predicate) that was valid at ``t`` in ``scope_id`` (or a scope it inherits).
+
+        The subject is resolved by its normalised name (exact match, as ``Engram.fact_history``). Returns the
+        best match (nearest scope, then latest ``valid_from``) with ``also_valid`` listing any other fact
+        valid at the same time (a contradiction), or ``None`` if nothing was valid then. Forgotten and
+        quarantined facts never answer.
+        """
+        rows = self.client.ro(
+            self.graph,
+            "lineage/as_of",
+            {
+                "norm_subject": normalize(subject),
+                "predicate": normalize(predicate),
+                "t": int(t),
+                "scope_id": scope_id,
+                "limit": 20,
+            },
+        )
+        if not rows:
+            return None
+        best = dict(rows[0])
+        best["subject"] = subject
+        best["predicate"] = normalize(predicate)
+        best["at"] = int(t)
+        best["also_valid"] = [dict(r) for r in rows[1:]]
+        return best

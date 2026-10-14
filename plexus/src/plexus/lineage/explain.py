@@ -164,3 +164,64 @@ def paths_from(
 
     walk(root, [], {root})
     return paths
+
+
+def recall_result(row: Mapping[str, Any]) -> dict[str, Any]:
+    """One ``lineage/why_recalled`` row -> one result entry."""
+    return {
+        "rank": row["rank"],
+        "score": row["score"],
+        "fact_id": row["fact_id"],
+        "props": clean(
+            {
+                "predicate": row["predicate"],
+                "value": row["value"],
+                "status": row["status"],
+                "valid_from": row["valid_from"],
+                "valid_to": row["valid_to"],
+            }
+        ),
+        "entity": row["entity"][0] if row["entity"] else None,
+        "asserted_by": sorted(row["asserted_by"]),
+        "derived_from": sorted(row["derived_from"], key=lambda d: d["id"]),
+        "scope": row["scope"][0] if row["scope"] else None,
+    }
+
+
+def recall_graph(
+    recall: Mapping[str, Any], results: list[dict[str, Any]], max_elements: int
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], bool]:
+    """Flat nodes/edges for a recall, adding results in rank order while the element cap allows.
+
+    Returns ``(nodes, edges, kept results, truncated)``. Node props are filled in by the caller.
+    """
+    nodes: dict[str, str] = {recall["id"]: "Recall"}
+    edges: list[dict[str, Any]] = []
+
+    def add(src: str, src_label: str, rel: str, dst: str, dst_label: str, **props: Any) -> None:
+        nodes.setdefault(src, src_label)
+        nodes.setdefault(dst, dst_label)
+        edges.append({"from": src, "rel": rel, "to": dst, **({"props": props} if props else {})})
+
+    add(recall["id"], "Recall", "BY", recall["agent_id"], "Agent")
+    if recall.get("step"):
+        add(recall["id"], "Recall", "IN_STEP", recall["step"]["id"], "Step")
+    kept: list[dict[str, Any]] = []
+    truncated = False
+    for res in results:
+        trial_nodes, trial_edges = dict(nodes), list(edges)
+        add(recall["id"], "Recall", "RETURNED", res["fact_id"], "Fact", rank=res["rank"], score=res["score"])
+        if res["entity"]:
+            add(res["fact_id"], "Fact", "ABOUT", res["entity"]["id"], "Entity")
+        for agent in res["asserted_by"]:
+            add(res["fact_id"], "Fact", "ASSERTED_BY", agent, "Agent")
+        for d in res["derived_from"]:
+            add(res["fact_id"], "Fact", "DERIVED_FROM", d["id"], d["label"])
+        if res["scope"]:
+            add(res["fact_id"], "Fact", "IN_SCOPE", res["scope"]["id"], "Scope")
+        if len(nodes) + len(edges) > max_elements:
+            nodes, edges = trial_nodes, trial_edges
+            truncated = True
+            break
+        kept.append(res)
+    return [{"id": i, "label": lab} for i, lab in nodes.items()], edges, kept, truncated
