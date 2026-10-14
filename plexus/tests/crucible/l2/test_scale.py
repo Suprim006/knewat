@@ -65,6 +65,17 @@ def test_forty_questions_ten_families_four_each(truth):
         assert q.text.startswith(f"In sprint {tag.upper()}: ")
 
 
+def test_budget_reduction_drops_four_non_pilot_questions_one_per_family(truth):
+    import random
+
+    from plexus.crucible.l2.scale_run import FULL_DROPPED_IDS
+
+    _, qs = truth
+    fams = random.Random(20261016).sample(list(FAMILIES), 4)
+    assert sorted([q.id for q in qs if q.family == f][3] for f in fams) == sorted(FULL_DROPPED_IDS)
+    assert not set(FULL_DROPPED_IDS) & set(PILOT_IDS)
+
+
 def test_sprints_are_sampled_across_the_history(truth):
     sl, qs = truth
     k = len(sl.sprints)

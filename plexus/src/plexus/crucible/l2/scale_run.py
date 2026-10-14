@@ -54,6 +54,9 @@ ARMS = ("B0", "B1", "B2", "P")
 PROMPT_VERSION = "l2-scale-v1"
 # pre-registered pilot: five families, all three strata (early / middle / late), fixed before any paid call
 PILOT_IDS = ("Q03", "Q14", "Q21", "Q25", "Q37")
+# budget rule applied (BASELINE amendment 1): the pilot projected $7.31 for 40 questions, so the full run asks 36:
+# the 4th question of 4 families drawn with random.Random(20261016).sample(families, 4)
+FULL_DROPPED_IDS = ("Q12", "Q20", "Q28", "Q36")
 _lines = CONVENTIONS.split("\n")
 CONVENTIONS_SCALE = "\n".join([*_lines[:-1], CONVENTIONS_SCALE_EXTRA, _lines[-1]])
 
@@ -65,7 +68,7 @@ ANSWERERS_SCALE = {
 }
 PLEXUS_CHANGES = [
     "Operations whose arguments already name a unique thing (task id, fact label, decision name, subject, source uri) run the unchanged l2 operation with the unchanged statements: decision_facts, decision_fact_agents, decision_sources, handoff_artifacts, handoff_route, handoff_facts, as_of_values, as_of_facts, value_history, decisions_on_fact, superseder, fact_agent, fact_source, fact_scope, blocked_by_failure, direct_dependencies, ready_after, reclaimer, previous_claimer, current_value, scope_leak, episode_agent, remaining_from_source, forgotten_facts.",
-    "Ten operations ask about a whole class (all handoffs to X, all decisions on superseded facts, ...) and are restricted to the sprint named in the question by a Python filter over the rows of the same statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): handoffs_to, handoffs_with_superseded_facts, decisions_on_superseded, decisions_on_forgotten, active_conflicts, active_conflict_agents, reclaimed_tasks, completed_by, episode_count.",
+    "Nine operations ask about a whole class (all handoffs to X, all decisions on superseded facts, ...) and are restricted to the sprint named in the question by a Python filter over the rows of the same statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): handoffs_to, handoffs_with_superseded_facts, decisions_on_superseded, decisions_on_forgotten, active_conflicts, active_conflict_agents, reclaimed_tasks, completed_by, episode_count.",
     "One operation needs one new read-only statement: visible_facts runs queries/l2scale/facts_visible_subject.cypher (l2/facts_visible plus a subject restriction), because the global scope now holds the facts of all 20 sprints.",
     "No other query was changed; the original plexus_answerer.py and queries/l2/*.cypher are untouched.",
 ]
@@ -518,7 +521,9 @@ def run_scale(
     work = Path(tempfile.mkdtemp(prefix="crucible-l2s-"))
     all_qs = load_scale_questions(qpath)
     ref, _ = check_scale_questions(all_qs, work / "ref", k)
-    ids = question_ids or (PILOT_IDS if mode == "pilot" else tuple(q.id for q in all_qs))
+    ids = question_ids or (
+        PILOT_IDS if mode == "pilot" else tuple(q.id for q in all_qs if q.id not in FULL_DROPPED_IDS)
+    )
     qs = [q for q in all_qs if q.id in ids]
     log(
         f"L2-scale {mode}: {len(qs)} questions, {k} sprints, arms {','.join(arms)}, model {model}, budget {budget_usd}"
