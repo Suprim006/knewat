@@ -20,7 +20,7 @@ file as work happens, not at the end.
 | P0 core | Sonnet subagent `P0-core`: `docker-compose.yml` (FalkorDB 6.0.2 with verified `FALKORDB_ARGS`), `plexus/` uv project (graph client with sync and asyncio variants, tenancy, query-library loader, idempotent schema applier), schema `.cypher` files, 55 tests, `scripts/agent_db.sh`, `docs/graph-model.md`, `docs/queries.md`, this file, README stub. Orchestrator: spec, review, commit | _TBD: owner review of graph model v1 and schema files before the freeze_ |
 | P1 | Sonnet subagents `P1-A Engram` and `P1-B Relay` (service code, `.cypher` queries, 149 tests incl. 50-thread no-double-claim). An independent Sonnet **reviewer** found 2 blockers, 2 majors and 8 minors, each verified with probes. Sonnet subagent `P1-fix` fixed all 12 test-first (313 tests on main after the merge). Orchestrator: specs, gates, merges, fix decisions | _TBD_ |
 | P2 | Sonnet subagents `P2-D Lineage` (provenance, time travel, forget/quarantine), `P2-E` (MCP server stdio+HTTP with tenant pinning, ToolCall audit, read-only View API, Dockerfile/compose) and `P2-int` (Lineage wired into the tool layer). Claude Code headless smoke runs (haiku) as an MCP client | _TBD_ |
-| P3 | _TBD_ | _TBD_ |
+| P3 | Sonnet subagents `P3-F` (Acme Notes scenario, scripted agents, the `claude -p` orchestrator, recorder/replay, CLI) and `P3-G` (View: Flow, Time Machine, Why, Explorer upgrades, ablation toggle, Inventory, Results). **Claude Code (sonnet/haiku) as the demo agents:** one pilot plus one full recorded run (`demo_data/recordings/acme-claude-sonnet`, 16 processes, $0.70 notional) | _TBD_ |
 | P4 | _TBD_ | _TBD_ |
 | P5 | _TBD_ | _TBD_ |
 | P6 | _TBD_ | _TBD_ |

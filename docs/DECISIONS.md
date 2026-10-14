@@ -185,3 +185,15 @@ Full plan: `docs/BASELINE.md`. Statements about the real Claude Code or Hermes p
 - Graph names are `plexus_t_<tenant>` with `[a-z0-9_]` only. Test graphs are `test_<uuid>`.
 
 **Why.** Tenant isolation is enforced at the connection layer and backed by one graph per tenant, plus ACL in deployment.
+
+**Verified (S1).** Both transports work with unmodified Claude Code 2.1.296. In stateful HTTP mode the SDK checks the tenant per request, so a session id could be replayed against another tenant path. Plexus therefore pins session id → tenant and returns 403 on a mismatch.
+
+## D-010 — Demo runs: scripted for the public demo, real Claude runs recorded and replayed
+2026-10-15 · **accepted**
+
+**Decision.**
+- **Scripted runs:** the public demo and the View's live mode use deterministic **scripted agents** that call the same MCP tools in-process, so they leave the same `ToolCall`s and `Step`s as real agents.
+- **Real runs:** `claude -p` (sonnet, plus haiku for pilots) runs on the owner's subscription with `--strict-mcp-config`, no built-in tools, `ANTHROPIC_API_KEY` unset, and `permission_denials`/`is_error` checked. Real runs are **recorded** (`GRAPH.COPY` → `DUMP`, plus meta and sanitised transcripts) and **replayed** with `RESTORE`; 6.0.2 round-trips vectors and indexes.
+- **Turns are sequential:** real agent turns run one at a time, and the scheduler picks the top ready task for the matching role. `claim_next_task` has no role filter, so concurrent turns would claim other roles' tasks. Concurrency is measured in Crucible instead.
+
+**Why.** It is reproducible and free for the public site (D-003: no LLM on the public site). It is honest about what a real model did, because the recording is the real graph. The first full real run cost about $0.70 (16 processes, 83 steps, 0 denials).
