@@ -8,9 +8,10 @@ from plexus.relay.errors import (
     RelayError,
     UnknownReference,
 )
-from plexus.relay.service import MAX_TASKS_PER_CALL, Relay
+from plexus.relay.service import MAX_LEASE_MS, MAX_TASKS_PER_CALL, Relay
 
 __all__ = [
+    "MAX_LEASE_MS",
     "MAX_TASKS_PER_CALL",
     "ClaimConflict",
     "DuplicateArtifact",

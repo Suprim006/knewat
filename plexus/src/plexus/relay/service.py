@@ -21,10 +21,17 @@ MAX_ARTIFACTS_PER_CALL = 100
 MAX_REFS_PER_CALL = 100
 MAX_BLOCKED_DEPTH = 10  # blocked_by_failure: BFS levels
 MAX_BLOCKED_NODES = 5000  # blocked_by_failure: distinct tasks returned
+MAX_LEASE_MS = 24 * 3600 * 1000  # longest lease a claim / heartbeat may ask for (24 h)
 
 
 def _now_ms() -> int:
     return int(time.time() * 1000)
+
+
+def _check_lease(lease_ms: int) -> None:
+    """Reject a lease outside 1 ms..24 h: now + lease_ms must not overflow int64 or lock a task for good."""
+    if not 0 < lease_ms <= MAX_LEASE_MS:
+        raise ValueError(f"lease_ms must be between 1 and {MAX_LEASE_MS} (24 h)")
 
 
 def _check_acyclic(deps: dict[str, list[str]]) -> None:
@@ -126,8 +133,7 @@ class Relay:
         ('' unless an expired lease was taken over).
         Raises :class:`UnknownReference` if the agent is not registered.
         """
-        if lease_ms <= 0:
-            raise ValueError("lease_ms must be positive")
+        _check_lease(lease_ms)
         now = self._clock() if now is None else now
         rows = self.client.rw(
             self.graph, "relay/claim_next_task", {"agent": agent_id, "lease_ms": lease_ms, "now": now}
@@ -143,8 +149,7 @@ class Relay:
 
         False if the caller is not the current claimer.
         """
-        if lease_ms <= 0:
-            raise ValueError("lease_ms must be positive")
+        _check_lease(lease_ms)
         now = self._clock() if now is None else now
         rows = self.client.rw(
             self.graph,
