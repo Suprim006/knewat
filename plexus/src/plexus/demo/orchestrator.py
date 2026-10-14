@@ -478,7 +478,11 @@ class ClaudeDriver:
         }
 
     def transcripts(self) -> dict[str, str]:
-        return {f"{r.index:02d}-{r.agent}-{r.name}.jsonl": r.transcript for r in self.reports if r.transcript}
+        return {
+            f"{r.index:02d}-{r.agent}-{r.name}.jsonl": sanitize_transcript(r.transcript, self.cfg.workdir)
+            for r in self.reports
+            if r.transcript
+        }
 
 
 async def _kill(proc: asyncio.subprocess.Process) -> None:

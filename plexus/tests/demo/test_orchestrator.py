@@ -152,3 +152,14 @@ def test_each_prompt_carries_the_shared_step_counter(client):
     assert "step=17 on your first call" in orch.init_prompt(w)
     sp = orch.special_prompt(w, Turn("special", "researcher", "ingest-v2"), orch.TeamState())
     assert "step=17" in sp and "06_api_style_guide_v2" in sp and "do NOT call claim_next_task" in sp
+
+
+def test_recorded_transcripts_contain_no_local_paths(tmp_path):
+    cfg = orch.ClaudeConfig(workdir=tmp_path, mcp_config=tmp_path / "m.json")
+    d = orch.ClaudeDriver(cfg)
+    line = json.dumps(
+        {"type": "system", "subtype": "init", "cwd": str(tmp_path), "plugins": [{"path": str(Path.home())}]}
+    )
+    d.reports.append(orch.TurnReport(1, "planner", "init", "init", transcript=line + "\n"))
+    out = d.transcripts()["01-planner-init.jsonl"]
+    assert str(tmp_path) not in out and str(Path.home()) not in out and "plugins" not in out

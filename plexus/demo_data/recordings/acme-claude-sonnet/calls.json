@@ -1,0 +1,417 @@
+[
+ {
+  "step": 1,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 2,
+  "agent": "planner",
+  "tool": "create_tasks"
+ },
+ {
+  "step": 3,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 4,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 5,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 6,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 7,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 8,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 9,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 10,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 11,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 12,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 13,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 14,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 15,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 16,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 17,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 18,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 19,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 20,
+  "agent": "researcher",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 21,
+  "agent": "researcher",
+  "tool": "recall"
+ },
+ {
+  "step": 22,
+  "agent": "researcher",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 23,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 24,
+  "agent": "researcher",
+  "tool": "handoff"
+ },
+ {
+  "step": 25,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 26,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 27,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 28,
+  "agent": "researcher",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 29,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 30,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 31,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 32,
+  "agent": "planner",
+  "tool": "create_tasks"
+ },
+ {
+  "step": 33,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 34,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 35,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 36,
+  "agent": "builder",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 37,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 38,
+  "agent": "builder",
+  "tool": "handoff"
+ },
+ {
+  "step": 39,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 40,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 41,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 42,
+  "agent": "researcher",
+  "tool": "add_source"
+ },
+ {
+  "step": 43,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 44,
+  "agent": "researcher",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 45,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 46,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 47,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 48,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 49,
+  "agent": "planner",
+  "tool": "add_source"
+ },
+ {
+  "step": 50,
+  "agent": "planner",
+  "tool": "assert_fact"
+ },
+ {
+  "step": 51,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 52,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 53,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 54,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 55,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 56,
+  "agent": "builder",
+  "tool": "remember_episode"
+ },
+ {
+  "step": 57,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 58,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 59,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 60,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 61,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 62,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 63,
+  "agent": "builder",
+  "tool": "handoff"
+ },
+ {
+  "step": 64,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 65,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 66,
+  "agent": "researcher",
+  "tool": "recall"
+ },
+ {
+  "step": 67,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 68,
+  "agent": "planner",
+  "tool": "start_session"
+ },
+ {
+  "step": 69,
+  "agent": "planner",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 70,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 71,
+  "agent": "planner",
+  "tool": "recall"
+ },
+ {
+  "step": 72,
+  "agent": "planner",
+  "tool": "verify_artifact"
+ },
+ {
+  "step": 73,
+  "agent": "planner",
+  "tool": "record_decision"
+ },
+ {
+  "step": 74,
+  "agent": "planner",
+  "tool": "complete_task"
+ },
+ {
+  "step": 75,
+  "agent": "researcher",
+  "tool": "start_session"
+ },
+ {
+  "step": 76,
+  "agent": "researcher",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 77,
+  "agent": "researcher",
+  "tool": "recall"
+ },
+ {
+  "step": 78,
+  "agent": "researcher",
+  "tool": "complete_task"
+ },
+ {
+  "step": 79,
+  "agent": "builder",
+  "tool": "start_session"
+ },
+ {
+  "step": 80,
+  "agent": "builder",
+  "tool": "claim_next_task"
+ },
+ {
+  "step": 81,
+  "agent": "builder",
+  "tool": "recall"
+ },
+ {
+  "step": 82,
+  "agent": "builder",
+  "tool": "complete_task"
+ },
+ {
+  "step": 83,
+  "agent": "builder",
+  "tool": "handoff"
+ }
+]

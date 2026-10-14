@@ -53,3 +53,43 @@ def test_replay_refuses_to_overwrite_without_reset(client, scripted_run, demo_te
 def test_bad_run_names_are_rejected(client, tmp_path):
     with pytest.raises(ValueError):
         record_run(client, "x", "../evil", root=tmp_path)
+
+
+def _committed_runs():
+    from plexus.demo.scenario import recordings_dir
+
+    return sorted(p.parent.name for p in recordings_dir().glob("*/meta.json"))
+
+
+def test_committed_recordings_exist():
+    runs = _committed_runs()
+    assert "acme-scripted" in runs and "acme-claude-sonnet" in runs and "pilot-haiku" in runs
+
+
+@pytest.mark.parametrize("run", _committed_runs())
+def test_committed_recordings_replay_to_their_recorded_counts(client, demo_tenants, run):
+    """Every recording shipped in demo_data/recordings restores on this FalkorDB and matches its meta.json."""
+    from plexus.demo.recorder import load_meta
+
+    meta = load_meta(run)
+    tenant = demo_tenants()
+    res = replay(client, run, tenant)
+    assert res["matches"], (res["inventory"], meta["inventory"])
+    assert res["inventory"]["total_nodes"] == meta["inventory"]["total_nodes"] > 0
+    if meta["mode"] == "claude":
+        assert meta["permission_denials"] == []
+        assert not (meta["status"] == "aborted")
+    # the restored graph answers the aha query: the builder is the claimer on the killed task, someone else reclaimed
+    if run != "pilot-haiku":
+        r = rows(
+            client,
+            tenant,
+            "MATCH (a:Agent)-[c:CLAIMED]->(:Task {id:'t03-design-endpoints'}) RETURN a.id, c.reclaimed_from ORDER BY c.at",
+        )
+        assert r == [["builder", ""], ["researcher", "builder"]]
+        assert rows(
+            client,
+            tenant,
+            "MATCH (:Fact {predicate:'api_version', value:'v2'})-[:SUPERSEDES]->(o:Fact) RETURN o.value",
+        ) == [["v1"]]
+        assert rows(client, tenant, "MATCH (:Fact)-[:CONTRADICTS]->(:Fact) RETURN count(*)")[0][0] == 1
