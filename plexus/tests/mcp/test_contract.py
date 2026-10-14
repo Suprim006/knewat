@@ -30,6 +30,7 @@ ENGRAM_RELAY_TOOLS = {
     "handoff",
     "verify_artifact",
     "record_decision",
+    "reopen_task",
     "ready_tasks",
     "task_status",
     "blocked_by_failure",
@@ -55,8 +56,18 @@ async def test_tool_list_and_schema_snapshot(server):
     }
     names = set(got)
     assert ENGRAM_RELAY_TOOLS <= names
-    lineage_tools = {"why", "why_recalled", "who_knew", "knew_at", "as_of", "forget_source"}
-    assert names - ENGRAM_RELAY_TOOLS <= lineage_tools, "unexpected extra tools"
+    lineage_tools = {
+        "why",
+        "why_recalled",
+        "who_knew",
+        "knew_at",
+        "as_of",
+        "add_source",
+        "forget_source",
+        "quarantine_source",
+        "release_quarantine",
+    }
+    assert names - ENGRAM_RELAY_TOOLS == lineage_tools, "unexpected or missing tools"
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name
@@ -118,7 +129,8 @@ async def test_engram_flow_and_toolcall_audit(server, client, tenant):
     by = {x["tool"]: x for x in calls}
     assert by["start_session"]["links"].count("CREATED:Session") == 1
     assert "CREATED:Episode" in by["remember_episode"]["links"]
-    assert by["recall"]["wrote"] is False and by["recall"]["links"] == []
+    # recall changes no memory, but its Recall record is a node the call created
+    assert by["recall"]["wrote"] is True and by["recall"]["links"] == ["CREATED:Recall"]
     assert by["recall"]["q"] == "engram/recall" and by["recall"]["ms"] > 0
     second = [x for x in calls if x["tool"] == "assert_fact"]
     assert any("UPDATED:Fact" in x["links"] for x in second)  # the superseded fact

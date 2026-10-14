@@ -268,6 +268,66 @@
       "title": "LabelInventory",
       "type": "object"
     },
+    "LineageEdge": {
+      "description": "Stored direction from -[rel]-> to; props carries e.g. RETURNED's rank and score.",
+      "properties": {
+        "from": {
+          "title": "From",
+          "type": "string"
+        },
+        "props": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Props"
+        },
+        "rel": {
+          "title": "Rel",
+          "type": "string"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "rel",
+        "to"
+      ],
+      "title": "LineageEdge",
+      "type": "object"
+    },
+    "LineageNode": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "props": {
+          "additionalProperties": true,
+          "title": "Props",
+          "type": "object"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "LineageNode",
+      "type": "object"
+    },
     "NodeRef": {
       "properties": {
         "id": {
@@ -328,6 +388,147 @@
       "title": "QueryText",
       "type": "object"
     },
+    "RecallHit": {
+      "properties": {
+        "asserted_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Asserted By",
+          "type": "array"
+        },
+        "derived_from": {
+          "items": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "title": "Derived From",
+          "type": "array"
+        },
+        "entity": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "props": {
+          "additionalProperties": true,
+          "title": "Props",
+          "type": "object"
+        },
+        "rank": {
+          "title": "Rank",
+          "type": "integer"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        },
+        "score": {
+          "title": "Score",
+          "type": "number"
+        }
+      },
+      "required": [
+        "rank",
+        "score",
+        "fact_id",
+        "props",
+        "asserted_by",
+        "derived_from"
+      ],
+      "title": "RecallHit",
+      "type": "object"
+    },
+    "RecallInfo": {
+      "properties": {
+        "agent_id": {
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "at": {
+          "title": "At",
+          "type": "integer"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "k": {
+          "title": "K",
+          "type": "integer"
+        },
+        "query": {
+          "title": "Query",
+          "type": "string"
+        },
+        "scope_id": {
+          "title": "Scope Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "{id, n, at} of the Step it ran in.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "id",
+        "query",
+        "at",
+        "k",
+        "scope_id",
+        "agent_id"
+      ],
+      "title": "RecallInfo",
+      "type": "object"
+    },
+    "RecallResponse": {
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "result": {
+          "$ref": "#/$defs/WhyRecalledResult"
+        }
+      },
+      "required": [
+        "id",
+        "result"
+      ],
+      "title": "RecallResponse",
+      "type": "object"
+    },
     "StepAgent": {
       "properties": {
         "agent_id": {
@@ -335,10 +536,9 @@
           "type": "string"
         },
         "read": {
-          "description": "Facts read, valid at step_at: id, predicate, value, status, valid_from, valid_to.",
+          "description": "Facts read by then that were valid at step_at.",
           "items": {
-            "additionalProperties": true,
-            "type": "object"
+            "$ref": "#/$defs/StepFact"
           },
           "title": "Read",
           "type": "array"
@@ -354,7 +554,7 @@
         },
         "wrote": {
           "items": {
-            "$ref": "#/$defs/NodeRef"
+            "$ref": "#/$defs/StepWrote"
           },
           "title": "Wrote",
           "type": "array"
@@ -368,6 +568,105 @@
         "wrote"
       ],
       "title": "StepAgent",
+      "type": "object"
+    },
+    "StepFact": {
+      "description": "A fact an agent had read by the step and that was still valid then (``Lineage.knew_at``).",
+      "properties": {
+        "entity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Entity"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "predicate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Predicate"
+        },
+        "read_at_step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The agent's first step that read it.",
+          "title": "Read At Step"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Status"
+        },
+        "valid_from": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid From"
+        },
+        "valid_to": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Valid To"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        }
+      },
+      "required": [
+        "id"
+      ],
+      "title": "StepFact",
       "type": "object"
     },
     "StepResponse": {
@@ -389,6 +688,50 @@
         "agents"
       ],
       "title": "StepResponse",
+      "type": "object"
+    },
+    "StepWrote": {
+      "description": "A node the agent's steps wrote (Fact, Decision, Handoff or Task) up to the step.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "title": "Label",
+          "type": "string"
+        },
+        "step_n": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The agent's step that wrote it.",
+          "title": "Step N"
+        },
+        "summary": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Summary"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "title": "StepWrote",
       "type": "object"
     },
     "TenantInfo": {
@@ -480,6 +823,19 @@
           "description": "Lineage Step node id, if the call is attached to one.",
           "title": "Step Id"
         },
+        "step_n": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "That Step's number in its agent's chain (the step slider's value).",
+          "title": "Step N"
+        },
         "tool": {
           "title": "Tool",
           "type": "string"
@@ -512,6 +868,168 @@
       "title": "ToolCallEvent",
       "type": "object"
     },
+    "WhyFact": {
+      "properties": {
+        "asserted_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Asserted By",
+          "type": "array"
+        },
+        "contradicted_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicted By",
+          "type": "array"
+        },
+        "contradicts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Contradicts",
+          "type": "array"
+        },
+        "derived_from_facts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Derived From Facts",
+          "type": "array"
+        },
+        "episodes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Episodes",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "props": {
+          "additionalProperties": true,
+          "title": "Props",
+          "type": "object"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "superseded_by": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Superseded By",
+          "type": "array"
+        },
+        "supersedes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Supersedes",
+          "type": "array"
+        },
+        "written_by_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Written By Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "props",
+        "asserted_by",
+        "sources",
+        "episodes",
+        "derived_from_facts",
+        "supersedes",
+        "superseded_by",
+        "contradicts",
+        "contradicted_by",
+        "written_by_steps"
+      ],
+      "title": "WhyFact",
+      "type": "object"
+    },
+    "WhyHop": {
+      "properties": {
+        "from": {
+          "title": "From",
+          "type": "string"
+        },
+        "rel": {
+          "title": "Rel",
+          "type": "string"
+        },
+        "reverse": {
+          "description": "True when the edge is stored `to -> from`.",
+          "title": "Reverse",
+          "type": "boolean"
+        },
+        "to": {
+          "title": "To",
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "rel",
+        "to",
+        "reverse"
+      ],
+      "title": "WhyHop",
+      "type": "object"
+    },
+    "WhyRecalledResult": {
+      "description": "``Lineage.why_recalled``: a stored Recall with the facts it returned, in rank order.",
+      "properties": {
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/LineageEdge"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/LineageNode"
+          },
+          "title": "Nodes",
+          "type": "array"
+        },
+        "recall": {
+          "$ref": "#/$defs/RecallInfo"
+        },
+        "results": {
+          "items": {
+            "$ref": "#/$defs/RecallHit"
+          },
+          "title": "Results",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "recall",
+        "results",
+        "nodes",
+        "edges",
+        "truncated"
+      ],
+      "title": "WhyRecalledResult",
+      "type": "object"
+    },
     "WhyResponse": {
       "properties": {
         "id": {
@@ -519,8 +1037,7 @@
           "type": "string"
         },
         "result": {
-          "description": "Lineage `why` result: paths plus flat nodes/edges (shape owned by plexus.lineage).",
-          "title": "Result"
+          "$ref": "#/$defs/WhyResult"
         }
       },
       "required": [
@@ -529,8 +1046,100 @@
       ],
       "title": "WhyResponse",
       "type": "object"
+    },
+    "WhyResult": {
+      "description": "``Lineage.why``: the facts a decision (or fact) rests on, their evidence, and the paths to it.",
+      "properties": {
+        "agents": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Agents",
+          "type": "array"
+        },
+        "edges": {
+          "items": {
+            "$ref": "#/$defs/LineageEdge"
+          },
+          "title": "Edges",
+          "type": "array"
+        },
+        "episodes": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Episodes",
+          "type": "array"
+        },
+        "facts": {
+          "items": {
+            "$ref": "#/$defs/WhyFact"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "kind": {
+          "description": "Decision | Fact",
+          "title": "Kind",
+          "type": "string"
+        },
+        "nodes": {
+          "items": {
+            "$ref": "#/$defs/LineageNode"
+          },
+          "title": "Nodes",
+          "type": "array"
+        },
+        "paths": {
+          "items": {
+            "items": {
+              "$ref": "#/$defs/WhyHop"
+            },
+            "type": "array"
+          },
+          "title": "Paths",
+          "type": "array"
+        },
+        "root": {
+          "title": "Root",
+          "type": "string"
+        },
+        "sources": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Sources",
+          "type": "array"
+        },
+        "steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "truncated": {
+          "title": "Truncated",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "root",
+        "kind",
+        "facts",
+        "agents",
+        "sources",
+        "episodes",
+        "steps",
+        "paths",
+        "nodes",
+        "edges",
+        "truncated"
+      ],
+      "title": "WhyResult",
+      "type": "object"
     }
   },
-  "description": "Generated by plexus.api.export_schema. Endpoints: GET /api/tenants -> TenantsResponse; /api/{tenant}/inventory -> InventoryResponse; /api/{tenant}/graph -> GraphResponse; /api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); /api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody.",
+  "description": "Generated by plexus.api.export_schema. Endpoints: GET /api/tenants -> TenantsResponse; /api/{tenant}/inventory -> InventoryResponse; /api/{tenant}/graph -> GraphResponse; /api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); /api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/{tenant}/recall/{id} -> RecallResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody.",
   "title": "Plexus View API response models"
 }

@@ -76,6 +76,7 @@ def _event(row: dict[str, Any]) -> M.ToolCallEvent:
         wrote=bool(row["wrote"]),
         step=None if step is None or step < 0 else step,
         step_id=row["step_id"],
+        step_n=row["step_n"],
         created=[M.NodeRef(**x) for x in row["created"]],
         updated=[M.NodeRef(**x) for x in row["updated"]],
     )
@@ -244,36 +245,79 @@ def create_app(client: GraphClient | None = None, results_path: str | None = Non
         except ImportError:
             raise HTTPException(501, "Lineage is not installed in this deployment") from None
 
+    def lineage(tenant: str):
+        """A ``Lineage`` bound to the tenant graph over the read-only client (it cannot write)."""
+        cls = getattr(lineage_module(), "Lineage", None)
+        if cls is None:
+            raise HTTPException(501, "this Lineage build has no Lineage class")
+        return cls(ro_client, graph_of(tenant))
+
+    def explain(tenant: str, method: str, arg: Any, model: Any, ident: str):
+        lin = lineage(tenant)
+        if not hasattr(lin, method):
+            raise HTTPException(501, f"this Lineage build has no {method}()")
+        try:
+            result = getattr(lin, method)(arg)
+        except (LookupError, ValueError) as exc:
+            raise HTTPException(404, str(exc)) from None
+        except ResponseError as exc:
+            if "empty key" in str(exc).lower() or "not exist" in str(exc).lower():
+                raise HTTPException(404, f"unknown tenant '{tenant}'") from None
+            log.exception("%s failed", method)
+            raise HTTPException(502, "the graph database rejected the query") from None
+        except (RedisError, OSError):
+            log.exception("database unreachable")
+            raise HTTPException(503, "graph database unavailable") from None
+        return model(id=ident, result=json.loads(json.dumps(result, default=str)))
+
     @app.get("/api/{tenant}/step/{n}", response_model=M.StepResponse)
     def step(tenant: str, n: int):
-        lineage_module()
-        rows = run(tenant, "view/knew_at", {"n": n})
-        return M.StepResponse(
-            n=n,
-            agents=[
+        """What each agent knew and wrote at its latest step <= n: ``Lineage.knew_at`` per agent."""
+        lin = lineage(tenant)
+        agents: list[M.StepAgent] = []
+        for row in run(tenant, "view/step_agents", {"n": n}):
+            try:
+                k = lin.knew_at(row["agent_id"], n)
+            except (RedisError, OSError):
+                log.exception("database unreachable")
+                raise HTTPException(503, "graph database unavailable") from None
+            if k["step_n"] is None:
+                continue
+            agents.append(
                 M.StepAgent(
-                    agent_id=r["agent_id"],
-                    step_n=r["step_n"],
-                    step_at=r["step_at"],
-                    read=r["read"] or [],
-                    wrote=[M.NodeRef(**x) for x in r["wrote"] or []],
+                    agent_id=k["agent_id"],
+                    step_n=k["step_n"],
+                    step_at=k["at"],
+                    read=[
+                        M.StepFact(
+                            id=f["fact_id"],
+                            entity=f["entity"],
+                            predicate=f["predicate"],
+                            value=f["value"],
+                            status=f["status"],
+                            valid_from=f["valid_from"],
+                            valid_to=f["valid_to"],
+                            read_at_step=f["read_at_step"],
+                        )
+                        for f in k["facts"]
+                    ],
+                    wrote=[
+                        M.StepWrote(id=w["id"], label=w["label"], summary=w["summary"], step_n=w["step_n"])
+                        for w in k["wrote"]
+                    ],
                 )
-                for r in rows
-            ],
-        )
+            )
+        return M.StepResponse(n=n, agents=agents)
 
     @app.get("/api/{tenant}/why/{node_id}", response_model=M.WhyResponse)
     def why(tenant: str, node_id: str):
-        mod = lineage_module()
-        cls = getattr(mod, "Lineage", None)
-        if cls is None or not hasattr(cls, "why"):
-            raise HTTPException(501, "this Lineage build has no why()")
-        lineage = cls(ro_client, graph_of(tenant))  # a client that cannot write
-        try:
-            result = lineage.why(node_id)
-        except (LookupError, ValueError) as exc:
-            raise HTTPException(404, str(exc)) from None
-        return M.WhyResponse(id=node_id, result=json.loads(json.dumps(result, default=str)))
+        """``Lineage.why`` for a decision or fact id."""
+        return explain(tenant, "why", node_id, M.WhyResponse, node_id)
+
+    @app.get("/api/{tenant}/recall/{recall_id}", response_model=M.RecallResponse)
+    def recall_record(tenant: str, recall_id: str):
+        """``Lineage.why_recalled`` for a recall id (the recall tool returns it as ``recall_id``)."""
+        return explain(tenant, "why_recalled", recall_id, M.RecallResponse, recall_id)
 
     return app
 

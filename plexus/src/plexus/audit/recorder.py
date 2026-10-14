@@ -26,6 +26,8 @@ LINKABLE_LABELS = frozenset(
         "Run",
         "Agent",
         "Procedure",
+        "Source",
+        "Recall",
     }
 )
 

@@ -1,6 +1,83 @@
 {
+  "add_source": {
+    "description": "Register WHERE knowledge comes from (a document, web page, chat or note) and get a source_id.\n            Pass that source_id to assert_fact for every fact you take from it: the fact then points back at the\n            source, why() can show it, and forget_source / quarantine_source can remove or isolate everything\n            that came from it. Safe to repeat: the same uri returns the same source_id.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "kind": {
+          "default": "doc",
+          "description": "'doc', 'web', 'chat', 'note', 'tool'... (free text).",
+          "title": "Kind",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional excerpt or the pasted content.",
+          "title": "Text"
+        },
+        "title": {
+          "description": "Short name of the source, e.g. 'Acme API design doc'.",
+          "title": "Title",
+          "type": "string"
+        },
+        "trust": {
+          "default": 1.0,
+          "description": "How far this source is trusted, 0..1.",
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Trust",
+          "type": "number"
+        },
+        "uri": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where it lives (URL or path). The same uri always gives the same source id. Omit for a pasted note: an id is derived from the title and text.",
+          "title": "Uri"
+        }
+      },
+      "required": [
+        "agent_id",
+        "title"
+      ],
+      "title": "add_sourceArguments",
+      "type": "object"
+    }
+  },
   "as_of": {
-    "description": "The value a (subject, predicate) had at time t.",
+    "description": "The value a (subject, predicate) had at time t (epoch ms), or null if it had none yet. Forgotten\n            and quarantined facts never answer.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -106,7 +183,7 @@
             }
           ],
           "default": null,
-          "description": "Optional Source id this fact comes from.",
+          "description": "Optional Source id (from add_source) this fact comes from. The fact is linked to it, so it can be explained with why() and removed with forget_source / quarantine_source.",
           "title": "Source Id"
         },
         "step": {
@@ -119,7 +196,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "subject": {
@@ -189,7 +266,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_type": {
@@ -226,7 +303,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -270,7 +347,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -362,7 +439,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -443,7 +520,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "tasks": {
@@ -495,7 +572,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "subject": {
@@ -600,7 +677,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -619,7 +696,7 @@
     }
   },
   "forget_source": {
-    "description": "Forget a source and every fact derived from it (cascade). Decisions based on them are flagged.",
+    "description": "Permanently forget a source and every fact derived from it (cascade): they stop appearing in\n            recall and as_of. Decisions that rested on them are flagged, not deleted. Returns the affected\n            fact_ids, decision_ids and handoff_ids. Use quarantine_source instead if you are unsure (it can be\n            undone).",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -698,7 +775,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -749,7 +826,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -767,7 +844,7 @@
     }
   },
   "knew_at": {
-    "description": "What a given agent knew (facts read and still valid) and wrote up to step N.",
+    "description": "Time machine: what a given agent knew at its step N (the facts it had read that were still valid\n            then) and everything it had written by then.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -840,7 +917,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "steps": {
@@ -893,6 +970,43 @@
       "type": "object"
     }
   },
+  "quarantine_source": {
+    "description": "Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,\n            but nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which\n            agents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on\n            them, so you know what to re-check.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "The suspected (poisoned or wrong) source.",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "source_id"
+      ],
+      "title": "quarantine_sourceArguments",
+      "type": "object"
+    }
+  },
   "ready_tasks": {
     "description": "List tasks that could be claimed right now (dependencies done), best first, without claiming any.",
     "inputSchema": {
@@ -920,7 +1034,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -932,7 +1046,7 @@
     }
   },
   "recall": {
-    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\n        before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\n        and a 'path' showing where it came from.",
+    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\n        before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\n        and a 'path' showing where it came from. Also returns recall_id: pass it to why_recalled to see why these\n        facts came back, in this order.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -991,7 +1105,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1032,7 +1146,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -1093,7 +1207,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1101,6 +1215,43 @@
         "agent_id"
       ],
       "title": "register_agentArguments",
+      "type": "object"
+    }
+  },
+  "release_quarantine": {
+    "description": "Undo quarantine_source: the source's facts get their previous status back and show up in recall\n            again. Use it when the source turned out to be fine. Returns the restored fact_ids.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "A source previously passed to quarantine_source.",
+          "title": "Source Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "source_id"
+      ],
+      "title": "release_quarantineArguments",
       "type": "object"
     }
   },
@@ -1135,7 +1286,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "text": {
@@ -1150,6 +1301,43 @@
         "text"
       ],
       "title": "remember_episodeArguments",
+      "type": "object"
+    }
+  },
+  "reopen_task": {
+    "description": "Retry a failed task: it becomes 'open' again so it can be claimed (by anyone, including you). Fails\n        if the task is not failed. Tasks that depend on it stay blocked until it is done again. Returns the new\n        status and version.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "task_id": {
+          "description": "A task that is currently 'failed'.",
+          "title": "Task Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "task_id"
+      ],
+      "title": "reopen_taskArguments",
       "type": "object"
     }
   },
@@ -1185,7 +1373,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1216,7 +1404,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         },
         "task_id": {
@@ -1258,7 +1446,7 @@
             }
           ],
           "default": null,
-          "description": "Optional: your own step counter (1, 2, 3...) so the time machine can show what you knew.",
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
           "title": "Step"
         }
       },
@@ -1271,7 +1459,7 @@
     }
   },
   "who_knew": {
-    "description": "Which agents asserted or read a fact, and at which step.",
+    "description": "Which agents asserted, wrote or READ a fact, and at which step: who knew this, and since when.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1308,7 +1496,7 @@
     }
   },
   "why": {
-    "description": "Explain WHY: the graph paths from a decision (or fact) to the facts, agents, steps and sources\n            it rests on.",
+    "description": "Explain WHY a decision was made (or where a fact comes from): the graph paths from a decision_id\n            or fact_id to the facts it rests on, who asserted them, their sources, and the steps that wrote them.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1345,7 +1533,7 @@
     }
   },
   "why_recalled": {
-    "description": "Explain why a past recall returned the facts it did (ranks, scores, provenance).",
+    "description": "Explain why a past recall returned the facts it did. The recall_id comes from the recall tool's\n            result. Gives the query, each returned fact in rank order with its score, and where it came from.",
     "inputSchema": {
       "properties": {
         "agent_id": {
