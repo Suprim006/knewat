@@ -32,6 +32,7 @@ def test_every_engram_query_loads_and_modes():
         "engram/find_entity_exact",
         "engram/find_entity_fulltext",
         "engram/find_entity_vector",
+        "engram/missing_refs",
     }
     # R: one statement per operation
     assert all(len(lib.get(n).statements) == 1 for n in names)
