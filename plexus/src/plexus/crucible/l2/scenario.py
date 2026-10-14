@@ -20,7 +20,11 @@ timestamps in ``assert_fact`` / ``claim_next_task`` and the time-travel question
 
 from __future__ import annotations
 
+import contextlib
+import importlib
 import re
+import uuid
+from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
@@ -55,6 +59,50 @@ class Clock:
     def tick(self, n: int = 1) -> int:
         self.t += TICK * n
         return self.t
+
+
+_PATCHED_MODULES = (
+    "plexus.crucible.util",
+    "plexus.crucible.backends.files",
+    "plexus.crucible.backends.sqlite",
+    "plexus.crucible.backends.vector",
+)
+
+
+@contextlib.contextmanager
+def deterministic(clock: Clock) -> Iterator[None]:
+    """Make the file/SQLite/vector arms reproducible while the script plays.
+
+    Their ids come from ``uuid4`` and their log/row timestamps from the wall clock, so two plays of the same script
+    would give different bytes and an LLM answer cache keyed on the context could never hit. Inside this block
+    ``new_id`` yields a fixed sequence of UUIDs and ``now_ms`` follows the script clock (``clock.t`` plus a counter
+    that restarts at every tick), so the same script always writes the same artifacts. The patch is local to the
+    backend modules' names; no backend file is edited. The Plexus arm keeps its own ids (nothing LLM-facing reads it).
+    """
+    counter = {"id": 0, "ms": 0, "last": None}
+
+    def new_id() -> str:
+        counter["id"] += 1
+        return str(uuid.uuid5(uuid.NAMESPACE_URL, f"plexus-crucible-l2/{counter['id']}"))
+
+    def now_ms() -> int:
+        if counter["last"] != clock.t:
+            counter["last"], counter["ms"] = clock.t, 0
+        counter["ms"] += 1
+        return clock.t + counter["ms"]
+
+    saved: list[tuple[Any, str, Any]] = []
+    for name in _PATCHED_MODULES:
+        mod = importlib.import_module(name)
+        for attr, fn in (("new_id", new_id), ("now_ms", now_ms)):
+            if hasattr(mod, attr):
+                saved.append((mod, attr, getattr(mod, attr)))
+                setattr(mod, attr, fn)
+    try:
+        yield
+    finally:
+        for mod, attr, old in reversed(saved):
+            setattr(mod, attr, old)
 
 
 @dataclass
@@ -488,33 +536,34 @@ def play(backend: CoordinationBackend, scenario: Scenario | None = None) -> Ledg
     sc = scenario or load_scenario()
     r = _Run(backend, sc, getattr(backend, "name", ""))
     led = r.led
-    for agent, role in ROLES.items():
-        backend.register_agent(agent, role)
-    led.agents = list(ROLES)
-    for kind, agent, name, reclaim_from in TURNS:
-        led.turns.append({"kind": kind, "agent": agent, "name": name, "reclaim_from": reclaim_from})
-        if kind == "init":
-            backend.create_tasks([t.spec() for t in sc.tasks])
-            led.tasks += [
-                {"id": t.id, "title": t.title, "priority": t.priority, "depends_on": list(t.depends_on)}
-                for t in sc.tasks
-            ]
-        elif kind == "special":
-            _SPECIALS[name](r, agent)
-        elif name == "t03-design-endpoints" and not reclaim_from:
-            # the builder claims t03, makes one call, then dies with its lease left to expire
-            got = r.claim(agent, name, BUILDER_LEASE_MS)
-            r.recall(agent, "API version")
-            r.event("kill_builder", agent=agent, task=name, lease_until=got["lease_until"])
-        elif name == "t03-design-endpoints":
-            lease_until = led.claims[-1]["lease_until"]
-            r.clock.t = lease_until + TICK // 2  # the scheduler waits for the lease to expire
-            r.claim(agent, name, OPEN_LEASE_MS, now=r.clock.tick())
-            r.event("reclaim", task=name, agent=agent, reclaimed_from=reclaim_from)
-            _t03(r, agent, {"id": name, "version": r.claimed[agent]["version"]}, reclaim_from)
-        else:
-            t = r.claim(agent, name, OPEN_LEASE_MS)
-            _TASKS[name](r, agent, t)
+    with deterministic(r.clock):
+        for agent, role in ROLES.items():
+            backend.register_agent(agent, role)
+        led.agents = list(ROLES)
+        for kind, agent, name, reclaim_from in TURNS:
+            led.turns.append({"kind": kind, "agent": agent, "name": name, "reclaim_from": reclaim_from})
+            if kind == "init":
+                backend.create_tasks([t.spec() for t in sc.tasks])
+                led.tasks += [
+                    {"id": t.id, "title": t.title, "priority": t.priority, "depends_on": list(t.depends_on)}
+                    for t in sc.tasks
+                ]
+            elif kind == "special":
+                _SPECIALS[name](r, agent)
+            elif name == "t03-design-endpoints" and not reclaim_from:
+                # the builder claims t03, makes one call, then dies with its lease left to expire
+                got = r.claim(agent, name, BUILDER_LEASE_MS)
+                r.recall(agent, "API version")
+                r.event("kill_builder", agent=agent, task=name, lease_until=got["lease_until"])
+            elif name == "t03-design-endpoints":
+                lease_until = led.claims[-1]["lease_until"]
+                r.clock.t = lease_until + TICK // 2  # the scheduler waits for the lease to expire
+                r.claim(agent, name, OPEN_LEASE_MS, now=r.clock.tick())
+                r.event("reclaim", task=name, agent=agent, reclaimed_from=reclaim_from)
+                _t03(r, agent, {"id": name, "version": r.claimed[agent]["version"]}, reclaim_from)
+            else:
+                t = r.claim(agent, name, OPEN_LEASE_MS)
+                _TASKS[name](r, agent, t)
     # the clock reading the questions refer to as "the end"
     led.marks["end"] = r.clock.t + TICK
     return led

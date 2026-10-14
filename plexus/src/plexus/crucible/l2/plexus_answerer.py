@@ -125,14 +125,18 @@ class PlexusAnswerer:
 
     # -- time travel -----------------------------------------------------------------------------------------------------
     def _op_as_of_values(self, subject: str, predicate: str, t: int) -> list[str]:
-        return [r["value"] for r in self.run("fact_as_of", norm_subject=_norm(subject), predicate=predicate, t=t)]
+        return [
+            r["value"] for r in self.run("fact_as_of", norm_subject=_norm(subject), predicate=predicate, t=t)
+        ]
 
     def _op_as_of_facts(self, subject: str, predicate: str, t: int) -> list[str]:
         rows = self.run("fact_as_of", norm_subject=_norm(subject), predicate=predicate, t=t)
         return [_label(r["predicate"], r["value"]) for r in rows]
 
     def _op_value_history(self, subject: str, predicate: str) -> list[str]:
-        return [r["value"] for r in self.run("fact_versions", norm_subject=_norm(subject), predicate=predicate)]
+        return [
+            r["value"] for r in self.run("fact_versions", norm_subject=_norm(subject), predicate=predicate)
+        ]
 
     # -- facts -----------------------------------------------------------------------------------------------------------------
     def _fact(self, label: str) -> dict[str, Any]:
@@ -149,7 +153,9 @@ class PlexusAnswerer:
 
     def _op_decisions_on_fact(self, fact: str) -> list[str]:
         predicate, _, value = fact.partition("=")
-        return [decision_label(r["text"]) for r in self.run("decisions_on_fact", predicate=predicate, value=value)]
+        return [
+            decision_label(r["text"]) for r in self.run("decisions_on_fact", predicate=predicate, value=value)
+        ]
 
     def _op_superseder(self, fact: str) -> list[str]:
         out = []
@@ -184,7 +190,9 @@ class PlexusAnswerer:
 
     def _op_active_conflict_agents(self) -> list[str]:
         return [
-            f"{_label(r['predicate'], r['value'])}@{a}" for r in self.run("active_conflicts") for a in r["asserted_by"]
+            f"{_label(r['predicate'], r['value'])}@{a}"
+            for r in self.run("active_conflicts")
+            for a in r["asserted_by"]
         ]
 
     # -- recovery ----------------------------------------------------------------------------------------------------------------------------
@@ -195,7 +203,9 @@ class PlexusAnswerer:
         return next(r["agent"] for r in self.run("claims") if r["task_id"] == task and r["reclaimed_from"])
 
     def _op_previous_claimer(self, task: str) -> str:
-        return next(r["reclaimed_from"] for r in self.run("claims") if r["task_id"] == task and r["reclaimed_from"])
+        return next(
+            r["reclaimed_from"] for r in self.run("claims") if r["task_id"] == task and r["reclaimed_from"]
+        )
 
     def _op_completed_by(self, agent: str) -> list[str]:
         return [

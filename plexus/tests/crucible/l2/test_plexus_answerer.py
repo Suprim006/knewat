@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 
 import pytest
+
 from plexus.crucible.l2.plexus_answerer import QUERIES_ROOT, PlexusAnswerer
 from plexus.crucible.l2.questions import build_questions, score
 from plexus.crucible.l2.scenario import play
