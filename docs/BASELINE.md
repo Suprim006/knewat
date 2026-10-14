@@ -128,3 +128,53 @@ Usage notes:
 - Pro/Max limits are shared with normal Claude chat.
 - Use Sonnet or Haiku for agents and `--max-turns` caps.
 - Check account usage after the pilot. Unverified reports say headless use draws a separate credit pool.
+
+## Results (Crucible L1 + L4 + ablation, first full run)
+
+Source of truth: `plexus/src/plexus/crucible/results/20261014T204729Z/{results.json,report.md}` (also `latest.json`).
+Run inside the compose network (`docker compose -p plexus-bench --profile bench run --rm crucible all`), FalkorDB 6.0.2 with
+`FALKORDB_ARGS` = `TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456`
+(the effective module config is recorded in the results). 10 seeded repetitions per test case; counts are summed over runs.
+Synthetic data, scripted workers (threads; C2's victims are processes killed with SIGKILL), one machine, one model of embeddings.
+Plexus here means the service layer (`P`) and the same layer through the MCP runtime's Step + ToolCall writes (`P-mcp`).
+
+**L1 correctness: all four arms (B0 files, B1 SQLite, B2 vector, P Plexus) pass C1-C8 with 0 violations.**
+Plexus does not beat the baselines on claims, leases, dependency ordering, as-of queries, tenant probes or forgetting;
+a competently built file store (flock + atomic replace) or SQLite (BEGIN IMMEDIATE) ties it. The only differences measured:
+
+* **C7 paraphrases** (12 pairs x 10 runs): B0 and B1 store every paraphrase pair as two facts (0% caught, they only dedupe on
+  normalised equality); B2 and P catch the punctuation/case and lightly reworded pairs and miss the heavy rewordings
+  (25% overall miss, 30 of 120 pairs). Concurrency adds no extra misses in any arm. No arm merged distinct facts.
+* **C2 kill the claimer:** every arm reclaimed every orphaned task, slowest 1.27-1.52 s after the kill against a 2.0 s bar.
+* **Capabilities** the baselines lack: B0 and B2 raise `Unsupported` for `why` and `knew_at` (L2 asks an LLM instead); B1 implements them
+  with SQL (steps/recursive CTE), so provenance questions need L2 to separate the arms.
+* **Ablation (D-001):** deleting `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM` and `READ` breaks 7 of 7 capabilities that use them (dependency-aware
+  claims, blocked_by_failure, `why` for decisions and facts, `knew_at`, `who_knew`, cascading forget); 5 of 5 control capabilities
+  (as-of, recall, contradiction flags, supersession, exclusive claims) are unaffected. Re-running C4 and C8 with the edges stripped gives
+  181 tasks started before their dependencies finished and 60 forgotten facts still returned (0 and 0 intact).
+
+**L4 performance** (client p50 / p99 of `claim`, ms; throughput = claim+heartbeat+complete ops/s):
+
+| Arm | 1 worker | 10 | 50 | 100 | 200 |
+|---|---|---|---|---|---|
+| B0 files | 1.6 / 4.0 (569/s) | 18 / 30 (534/s) | 267 / 525 (167/s) | 931 / 1294 (102/s) | 2459 / 3885 (73/s) |
+| B1 SQLite | 0.1 / 0.2 (17169/s) | 0.1 / 89 (3725/s) | 0.3 / 567 (1656/s) | 0.5 / 1688 (1480/s) | 0.8 / 2178 (1456/s) |
+| P Plexus | 1.8 / 2.8 (668/s) | 5.5 / 16 (1780/s) | 50 / 140 (1028/s) | 156 / 356 (679/s) | 571 / 1863 (373/s) |
+| P-mcp | 8.4 / 11.6 (123/s) | 37 / 48 (258/s) | 239 / 287 (228/s) | 621 / 828 (173/s) | 1622 / 2345 (153/s) |
+
+* Plexus server-side `run_time_ms` for a claim is 0.5 ms at 1 worker and 3.6 ms at 200 (p50); the rest of the client latency is queueing
+  (FalkorDB serialises writes per graph) and the client's GIL. **B1 SQLite is faster than Plexus at every worker count on claims**
+  (median), but its p99 under write contention is 0.2-2.2 s because SQLite's busy handler has no fair queue.
+* One graph vs several tenants (50 workers, claim+complete): Plexus 678 ops/s on 1 graph, 1025 on 4, 1174 on 16 (+73%); B1 1103 / 1480 / 500
+  (16 SQLite files with 50 writers each contend on the disk, so more tenants did not help there).
+* Recall (300 facts, embedding included): bounded by the shared embedding model, about 47 embeds/s for any worker count >= 10. P recall
+  is 36-60 ops/s, P-mcp 13-28 ops/s; at 200 workers client p50 is about 8 s (P) and 7 s (P-mcp) while server-side time is ~10 ms:
+  that is the closed-loop queue (workers / throughput). P-mcp's Step + ToolCall writes cost 2-3x at 1-50 workers; at 100-200 workers both are at the
+  embedder ceiling and the audit writes are not the limiter. B1 (BM25, no embeddings) recalls at 350-525 ops/s.
+* Numbers are not directly comparable across arms beyond what each row says: B0/B1/B2 are in-process libraries, the Plexus arms cross a container network to FalkorDB.
+
+**Re-run note:** the first pass of `L1:P:C1` (200 workers) and `L4:claim` P / P-mcp at 200 workers hit a harness bug (redis-py's 100-connection
+pool shared by 200 threads: `MaxConnectionsError`, 100 failed calls per run, 0 double claims / 0 lost updates). The pool is now 512 and only those
+cells were re-run; the original results are kept under `run.reruns[*].superseded` in `results.json` and listed in `report.md`.
+
+Not measured here: L2 (provenance questions), L3 (LLM agents). Limits: see `report.md` "Limits and honesty notes".
