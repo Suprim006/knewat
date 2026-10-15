@@ -8,6 +8,10 @@ MATCH (n:Agent) WITH count(n) AS n WHERE n > 0 RETURN 'Agent' AS label, n
 UNION ALL
 MATCH (n:Artifact) WITH count(n) AS n WHERE n > 0 RETURN 'Artifact' AS label, n
 UNION ALL
+MATCH (n:Change) WITH count(n) AS n WHERE n > 0 RETURN 'Change' AS label, n
+UNION ALL
+MATCH (n:CodeAnchor) WITH count(n) AS n WHERE n > 0 RETURN 'CodeAnchor' AS label, n
+UNION ALL
 MATCH (n:Decision) WITH count(n) AS n WHERE n > 0 RETURN 'Decision' AS label, n
 UNION ALL
 MATCH (n:Entity) WITH count(n) AS n WHERE n > 0 RETURN 'Entity' AS label, n

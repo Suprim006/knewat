@@ -1,5 +1,93 @@
 {
   "$defs": {
+    "DocChange": {
+      "properties": {
+        "anchor": {
+          "title": "Anchor",
+          "type": "string"
+        },
+        "at": {
+          "title": "At",
+          "type": "integer"
+        },
+        "change_id": {
+          "title": "Change Id",
+          "type": "string"
+        },
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Paths",
+          "type": "array"
+        }
+      },
+      "required": [
+        "change_id",
+        "commit",
+        "at",
+        "paths",
+        "anchor"
+      ],
+      "title": "DocChange",
+      "type": "object"
+    },
+    "DocRow": {
+      "properties": {
+        "changes": {
+          "items": {
+            "$ref": "#/$defs/DocChange"
+          },
+          "title": "Changes",
+          "type": "array"
+        },
+        "latest": {
+          "title": "Latest",
+          "type": "integer"
+        },
+        "source_id": {
+          "title": "Source Id",
+          "type": "string"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "uri": {
+          "title": "Uri",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "uri",
+        "title",
+        "latest",
+        "changes"
+      ],
+      "title": "DocRow",
+      "type": "object"
+    },
+    "DocsToUpdateResponse": {
+      "properties": {
+        "docs": {
+          "items": {
+            "$ref": "#/$defs/DocRow"
+          },
+          "title": "Docs",
+          "type": "array"
+        }
+      },
+      "required": [
+        "docs"
+      ],
+      "title": "DocsToUpdateResponse",
+      "type": "object"
+    },
     "EdgeInventory": {
       "properties": {
         "count": {
@@ -103,7 +191,7 @@
               }
             ]
           },
-          "description": "Whitelisted display properties; nulls dropped; embeddings never sent.",
+          "description": "Whitelisted display properties; nulls dropped; embeddings never sent. Fact nodes always carry verify_state ('verified' | 'suspect'), suspect_since (epoch ms, 0 = never), surprise (0..1), pinned and status (active | superseded | dormant | forgotten | quarantined), with defaults for facts written before P7; and, unless PLEXUS_FORGETTING=off, activation (float, omitted when -inf) and protected (bool).",
           "title": "Props",
           "type": "object"
         }
@@ -196,6 +284,24 @@
     },
     "InventoryResponse": {
       "properties": {
+        "changes": {
+          "default": 0,
+          "description": "Change nodes (code changes reported to mark_changed).",
+          "title": "Changes",
+          "type": "integer"
+        },
+        "code_anchors": {
+          "default": 0,
+          "description": "CodeAnchor nodes (files and Python symbols facts are anchored to).",
+          "title": "Code Anchors",
+          "type": "integer"
+        },
+        "dormant_facts": {
+          "default": 0,
+          "description": "Facts a memory_sweep moved to status 'dormant'.",
+          "title": "Dormant Facts",
+          "type": "integer"
+        },
         "edge_types": {
           "items": {
             "$ref": "#/$defs/EdgeInventory"
@@ -223,6 +329,18 @@
         },
         "nodes_total": {
           "title": "Nodes Total",
+          "type": "integer"
+        },
+        "pinned_facts": {
+          "default": 0,
+          "description": "Facts pinned with pin_fact.",
+          "title": "Pinned Facts",
+          "type": "integer"
+        },
+        "suspect_facts": {
+          "default": 0,
+          "description": "Active facts that are suspect now: verify_state = 'suspect' or a review date that has passed.",
+          "title": "Suspect Facts",
           "type": "integer"
         },
         "tenant": {
@@ -326,6 +444,146 @@
         "label"
       ],
       "title": "LineageNode",
+      "type": "object"
+    },
+    "MemoryStrengthResponse": {
+      "description": "``Activation.strength``: why a fact ranks where it does. Reading it does not count as a use.",
+      "properties": {
+        "a0": {
+          "description": "The neutral activation: the multiplier is half way between floor and 1 there.",
+          "title": "A0",
+          "type": "number"
+        },
+        "activation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "null when the fact has no usable events (A = -inf).",
+          "title": "Activation"
+        },
+        "counts": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Events considered, by kind (create, reassert, decision, handoff, use, recall, verified).",
+          "title": "Counts",
+          "type": "object"
+        },
+        "created_at": {
+          "title": "Created At",
+          "type": "integer"
+        },
+        "decay": {
+          "title": "Decay",
+          "type": "number"
+        },
+        "events_considered": {
+          "title": "Events Considered",
+          "type": "integer"
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "floor": {
+          "title": "Floor",
+          "type": "number"
+        },
+        "forgetting": {
+          "description": "False when PLEXUS_FORGETTING=off: recall ignores activation (this is still computed).",
+          "title": "Forgetting",
+          "type": "boolean"
+        },
+        "last_recall": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Recall"
+        },
+        "last_use": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Use"
+        },
+        "multiplier": {
+          "title": "Multiplier",
+          "type": "number"
+        },
+        "pinned": {
+          "title": "Pinned",
+          "type": "boolean"
+        },
+        "protect_reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Protect Reasons",
+          "type": "array"
+        },
+        "protected": {
+          "title": "Protected",
+          "type": "boolean"
+        },
+        "status": {
+          "title": "Status",
+          "type": "string"
+        },
+        "surprise": {
+          "title": "Surprise",
+          "type": "number"
+        },
+        "suspect_since": {
+          "title": "Suspect Since",
+          "type": "integer"
+        },
+        "verify_state": {
+          "title": "Verify State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "status",
+        "activation",
+        "a0",
+        "multiplier",
+        "floor",
+        "decay",
+        "protected",
+        "protect_reasons",
+        "pinned",
+        "surprise",
+        "created_at",
+        "verify_state",
+        "suspect_since",
+        "counts",
+        "events_considered",
+        "explanation",
+        "forgetting"
+      ],
+      "title": "MemoryStrengthResponse",
       "type": "object"
     },
     "NodeRef": {
@@ -868,6 +1126,161 @@
       "title": "ToolCallEvent",
       "type": "object"
     },
+    "VerifyChange": {
+      "properties": {
+        "at": {
+          "title": "At",
+          "type": "integer"
+        },
+        "change_id": {
+          "title": "Change Id",
+          "type": "string"
+        },
+        "commit": {
+          "title": "Commit",
+          "type": "string"
+        },
+        "paths": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Paths",
+          "type": "array"
+        }
+      },
+      "required": [
+        "change_id",
+        "commit",
+        "at",
+        "paths"
+      ],
+      "title": "VerifyChange",
+      "type": "object"
+    },
+    "VerifyQueueResponse": {
+      "properties": {
+        "rows": {
+          "description": "Ordered by decisions_count DESC, activation DESC, suspect_since ASC (activation only when forgetting is on).",
+          "items": {
+            "$ref": "#/$defs/VerifyRow"
+          },
+          "title": "Rows",
+          "type": "array"
+        }
+      },
+      "required": [
+        "rows"
+      ],
+      "title": "VerifyQueueResponse",
+      "type": "object"
+    },
+    "VerifyRow": {
+      "description": "A fact to re-check (``Staleness.facts_to_verify``), with its activation when forgetting is on.",
+      "properties": {
+        "activation": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Absent (null) when forgetting is off or the fact has no usable events.",
+          "title": "Activation"
+        },
+        "anchors": {
+          "description": "path#symbol of the anchors, then the uris of the Sources it derives from.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Anchors",
+          "type": "array"
+        },
+        "change": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/VerifyChange"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "decisions_count": {
+          "description": "Decisions (not flagged) that rest on the fact.",
+          "title": "Decisions Count",
+          "type": "integer"
+        },
+        "entity": {
+          "title": "Entity",
+          "type": "string"
+        },
+        "fact_id": {
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "predicate": {
+          "title": "Predicate",
+          "type": "string"
+        },
+        "protected": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Absent (null) when forgetting is off.",
+          "title": "Protected"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        },
+        "scope_id": {
+          "title": "Scope Id",
+          "type": "string"
+        },
+        "suspect_since": {
+          "title": "Suspect Since",
+          "type": "integer"
+        },
+        "value": {
+          "title": "Value",
+          "type": "string"
+        },
+        "verify_after": {
+          "title": "Verify After",
+          "type": "integer"
+        },
+        "verify_state": {
+          "description": "'suspect' (code changed) or 'verified' (only a review date passed).",
+          "title": "Verify State",
+          "type": "string"
+        }
+      },
+      "required": [
+        "fact_id",
+        "entity",
+        "predicate",
+        "value",
+        "scope_id",
+        "verify_state",
+        "suspect_since",
+        "verify_after",
+        "reason",
+        "decisions_count",
+        "anchors"
+      ],
+      "title": "VerifyRow",
+      "type": "object"
+    },
     "WhyFact": {
       "properties": {
         "asserted_by": {
@@ -1140,6 +1553,6 @@
       "type": "object"
     }
   },
-  "description": "Generated by plexus.api.export_schema. Endpoints: GET /api/tenants -> TenantsResponse; /api/{tenant}/inventory -> InventoryResponse; /api/{tenant}/graph -> GraphResponse; /api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); /api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/{tenant}/recall/{id} -> RecallResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody.",
+  "description": "Generated by plexus.api.export_schema. Endpoints: GET /api/tenants -> TenantsResponse; /api/{tenant}/inventory -> InventoryResponse; /api/{tenant}/graph -> GraphResponse; /api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); /api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/{tenant}/recall/{id} -> RecallResponse; /api/{tenant}/verify-queue -> VerifyQueueResponse; /api/{tenant}/docs-to-update -> DocsToUpdateResponse; /api/{tenant}/memory-strength/{fact_id} -> MemoryStrengthResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody.",
   "title": "Plexus View API response models"
 }

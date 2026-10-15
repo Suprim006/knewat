@@ -9,11 +9,7 @@ from plexus.graph.queries import QueryLibrary
 
 ROOT = Path(__file__).resolve().parents[2]
 QUERIES_MD = (ROOT / "docs" / "queries.md").read_text(encoding="utf-8")
-# graph-model.md is owned by the orchestrator; the v1.1 (P7) additions are documented in docs/staleness.md
-# until they are merged into it, and count as "documented" here.
-MODEL_MD = (ROOT / "docs" / "graph-model.md").read_text(encoding="utf-8") + (
-    ROOT / "docs" / "staleness.md"
-).read_text(encoding="utf-8")
+MODEL_MD = (ROOT / "docs" / "graph-model.md").read_text(encoding="utf-8")  # the single source (P7 folded in)
 
 
 def test_every_query_in_the_library_is_listed_in_docs_queries_md():
@@ -33,7 +29,7 @@ def test_docs_queries_md_names_no_query_that_does_not_exist():
 def test_graph_model_mentions_every_indexed_label_and_property():
     idx = (ROOT / "plexus" / "queries" / "schema" / "indexes.cypher").read_text(encoding="utf-8")
     pairs = re.findall(r"CREATE INDEX FOR \(n:(\w+)\) ON \(n\.(\w+)\)", idx)
-    assert len(pairs) >= 44
+    assert len(pairs) >= 50
     assert [lab for lab in {lab for lab, _ in pairs} if lab not in MODEL_MD] == []
     # a property is documented either as `Label.prop` or in a row that says it is on every label
     undocumented = [

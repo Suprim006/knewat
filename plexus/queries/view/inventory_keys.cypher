@@ -7,6 +7,10 @@ MATCH (n:Agent) WITH n LIMIT $sample UNWIND keys(n) AS k RETURN 'Agent' AS label
 UNION ALL
 MATCH (n:Artifact) WITH n LIMIT $sample UNWIND keys(n) AS k RETURN 'Artifact' AS label, collect(DISTINCT k) AS keys
 UNION ALL
+MATCH (n:Change) WITH n LIMIT $sample UNWIND keys(n) AS k RETURN 'Change' AS label, collect(DISTINCT k) AS keys
+UNION ALL
+MATCH (n:CodeAnchor) WITH n LIMIT $sample UNWIND keys(n) AS k RETURN 'CodeAnchor' AS label, collect(DISTINCT k) AS keys
+UNION ALL
 MATCH (n:Decision) WITH n LIMIT $sample UNWIND keys(n) AS k RETURN 'Decision' AS label, collect(DISTINCT k) AS keys
 UNION ALL
 MATCH (n:Entity) WITH n LIMIT $sample UNWIND keys(n) AS k RETURN 'Entity' AS label, collect(DISTINCT k) AS keys
