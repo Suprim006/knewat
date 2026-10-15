@@ -1,9 +1,9 @@
 """Slice 7: concurrent ``mark_changed`` and ``assert_fact`` / ``anchor_fact`` on the same files.
 
 Writes are serialised per graph and every call is one statement, so each call is atomic. The test checks the
-consequences: no errors, one anchor per path, one Change per effective call (no duplicates), every pre-existing fact
-anchored to a changed file is suspect, and a fact that is not suspect was anchored after the last change touching its
-file.
+consequences: no errors, one anchor per path, one Change per effective call (no duplicates), every old
+fact anchored to a changed file is suspect, and a fact that is not suspect was anchored after the last change
+touching its file.
 """
 
 from __future__ import annotations
