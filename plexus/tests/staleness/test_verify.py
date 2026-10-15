@@ -292,3 +292,27 @@ def test_a_small_correction_of_a_long_fact_is_recorded_not_swallowed_as_a_paraph
     assert out["outcome"] == "changed" and out["new_fact_id"] != f
     rows = cypher(client, graph, "MATCH (x:Fact) RETURN x.id, x.status, x.value ORDER BY x.recorded_at")
     assert [(r[1], r[2]) for r in rows] == [("superseded", LONG_OLD), ("active", LONG_NEW)]
+
+
+# -- P7-08: backdate only to a Change newer than the last confirmation ----------------------------------
+def test_backdate_ignores_a_change_the_fact_was_confirmed_after(
+    stale, suspect, mem, lin, client, graph, clock
+):
+    """suspect: Change at 1_500_000; confirmed at 2_000_000; found false at 2_500_000."""
+    stale.verify_fact(suspect, True, agent_id="bob")  # confirmed at 2_000_000 (clock)
+    clock.t = 2_500_000
+    out = stale.verify_fact(suspect, False, new_value="45 seconds", agent_id="carol")
+    assert out["valid_to"] == 2_500_000  # not the Change time (1_500_000): the old value was confirmed since
+    assert _fact(client, graph, suspect)["valid_to"] == 2_500_000
+    assert _fact(client, graph, out["new_fact_id"])["valid_from"] == 2_500_000
+    confirmed_window = lin.as_of("Payments", "timeout", 2_200_000, mem.proj)
+    assert confirmed_window["value"] == "30 seconds"
+    assert lin.as_of("Payments", "timeout", 2_600_000, mem.proj)["value"] == "45 seconds"
+
+
+def test_backdate_still_uses_a_change_that_came_after_the_confirmation(stale, suspect, clock):
+    stale.verify_fact(suspect, True, agent_id="bob")  # confirmed at 2_000_000
+    stale.mark_changed([{"path": P, "new_hash": "h2"}], commit="c3", at=2_300_000)  # suspects it again
+    clock.t = 2_500_000
+    out = stale.verify_fact(suspect, False, new_value="45 seconds", agent_id="carol")
+    assert out["valid_to"] == 2_300_000

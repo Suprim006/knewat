@@ -3,11 +3,11 @@
 // params: old_id:str, new_id:str, backdate:bool, agent_id:str, commit:str, evidence:str, now:int, reason:str, max_flag:int
 // returns: valid_to (the old fact's end now), change_at (the SUSPECTED Change time used, or the old valid_to when none applied), decision_ids (flagged, at most max_flag). Zero rows = old or new fact missing.
 // mode: rw
-// Backdating (only when $backdate, i.e. the new fact is brand new and the old one was its only predecessor): bt = the newest Change that SUSPECTED the old fact with at < now. It applies only if old.valid_from < bt < old.valid_to, so valid_to never moves before valid_from and the two windows stay contiguous (new.valid_from = old.valid_to = bt). recorded_at is untouched: it stays the time Plexus learned the value (Graphiti's two timelines).
+// Backdating (only when $backdate, i.e. the new fact is brand new and the old one was its only predecessor): bt = the newest Change that SUSPECTED the old fact with at < now and at > the old fact's last confirmation (verified_at; P7-08: a value confirmed after the Change was true after it, so the window may not end before the confirmation). It applies only if old.valid_from < bt < old.valid_to, so valid_to never moves before valid_from and the two windows stay contiguous (new.valid_from = old.valid_to = bt). recorded_at is untouched: it stays the time Plexus learned the value (Graphiti's two timelines).
 // Flagging is the forget_source convention: flagged=true and flag_reason; a decision that is already flagged keeps its first reason. The Decisions of a single fact are few; the list is cut at max_flag.
 MATCH (old:Fact {id: $old_id}), (nw:Fact {id: $new_id})
 OPTIONAL MATCH (ch:Change)-[:SUSPECTED]->(old)
-WITH old, nw, max(CASE WHEN ch.at < $now THEN ch.at END) AS cat
+WITH old, nw, max(CASE WHEN ch.at < $now AND ch.at > coalesce(old.verified_at, 0) THEN ch.at END) AS cat
 WITH old, nw, cat,
      CASE WHEN $backdate AND cat IS NOT NULL AND cat > old.valid_from AND cat < old.valid_to THEN cat ELSE old.valid_to END AS bt
 OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(old)

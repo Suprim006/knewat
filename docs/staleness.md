@@ -85,7 +85,7 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
   that is not suspect (it refreshes `verified_at`). A passed review date is consumed.
 - `still_true=false` needs `new_value`. The existing supersede path (`Engram.assert_fact(supersede=True)`) creates the
   new fact, then one statement (`staleness/backdate`) sets `old.valid_to = new.valid_from =` **the time of the newest
-  `Change` that suspected the old fact** (event time), keeps `recorded_at` as the time Plexus learned it (two timelines),
+  `Change` that suspected the old fact and is newer than its last confirmation** (event time; a value an agent confirmed after the change was true after it, so the window never ends before the confirmation), keeps `recorded_at` as the time Plexus learned it (two timelines),
   marks the old fact verified (`VERIFIED_BY {outcome:'changed'}`), and flags the decisions that rested on it
   (`flagged=true`, `flag_reason='fact changed: <id>'`, the `forget_source` convention). The backdate applies only when it
   falls strictly inside the old fact's window, so `valid_to` never moves before `valid_from`. `as_of` before the change
