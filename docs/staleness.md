@@ -24,7 +24,7 @@ merged into `docs/graph-model.md`.)
 | `CodeAnchor` | `id` (`'anc:' + sha1(path#symbol)[:16]`), `repo`, `path` (canonical), `symbol` (`''` = whole file), `hash`, `kind` (`file`/`function`/`class`), `updated_at`, `created_at` |
 | `Change` | `id`, `commit`, `at`, `paths` (JSON list), `agent_id`, `created_at` |
 
-Indexes added (range): `CodeAnchor.id`, `CodeAnchor.path`, `Change.id`, `Change.at`, `Fact.verify_state`.
+Indexes added (range): `CodeAnchor.id`, `CodeAnchor.path`, `Change.id`, `Change.at`, `Fact.verify_state`, `Fact.verify_after` (the last one is not in the contract list: it makes the review-date branch of the suspect scan a range seek instead of a scan of every fact).
 
 | Edge | Meaning |
 |---|---|
