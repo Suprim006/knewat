@@ -199,24 +199,20 @@ def cmd_mcp_config(a: argparse.Namespace) -> int:
 
 
 # ------------------------------------------------------------------------------------------------ parser
-def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="plexus", description="Plexus command line")
-    sub = p.add_subparsers(dest="group", required=True)
-    demo = sub.add_parser("demo", help="the Acme Notes API demo scenario")
-    ds = demo.add_subparsers(dest="cmd", required=True)
+def _tenant_arg(sp: argparse.ArgumentParser, default: str | None = DEFAULT_TENANT) -> None:
+    sp.add_argument("--tenant", default=default, help=f"tenant (graph plexus_t_<tenant>), default '{default}'")
 
-    def tenant_arg(sp: argparse.ArgumentParser, default: str = DEFAULT_TENANT) -> None:
-        sp.add_argument(
-            "--tenant", default=default, help=f"tenant (graph plexus_t_<tenant>), default '{default}'"
-        )
 
+def _add_seed(ds) -> None:
     s = ds.add_parser("seed", help="apply the schema and register the starting documents as Sources")
-    tenant_arg(s)
+    _tenant_arg(s)
     s.add_argument("--reset", action="store_true", help="drop the tenant's graph first")
     s.set_defaults(fn=cmd_seed)
 
+
+def _add_live(ds) -> None:
     s = ds.add_parser("live", help="run the scenario live: scripted agents or real claude -p agents")
-    tenant_arg(s, None)
+    _tenant_arg(s, None)
     mode = s.add_mutually_exclusive_group()
     mode.add_argument(
         "--scripted", action="store_true", help="deterministic non-LLM agents through the MCP tools"
@@ -253,20 +249,24 @@ def build_parser() -> argparse.ArgumentParser:
     )
     s.set_defaults(fn=cmd_live)
 
+
+def _add_record_replay(ds) -> None:
     s = ds.add_parser("record", help="record a tenant's graph as demo_data/recordings/<run>")
     s.add_argument("run")
-    tenant_arg(s)
+    _tenant_arg(s)
     s.add_argument("--mode", default="scripted", choices=["scripted", "claude"])
     s.set_defaults(fn=cmd_record)
 
     s = ds.add_parser("replay", help="restore a recording into a tenant and verify its inventory")
     s.add_argument("run", help="recording name (see 'plexus demo list')")
-    tenant_arg(s)
+    _tenant_arg(s)
     s.add_argument("--reset", action="store_true", help="overwrite the tenant if it has data")
     s.set_defaults(fn=cmd_replay)
 
+
+def _add_inspect(ds) -> None:
     s = ds.add_parser("inventory", help="node and edge counts of a tenant")
-    tenant_arg(s)
+    _tenant_arg(s)
     s.set_defaults(fn=cmd_inventory)
 
     s = ds.add_parser("list", help="list the recordings")
@@ -276,16 +276,28 @@ def build_parser() -> argparse.ArgumentParser:
         "ablation",
         help="copy a tenant, cut DEPENDS_ON/BASED_ON/DERIVED_FROM/READ in the copy and show what breaks",
     )
-    tenant_arg(s)
+    _tenant_arg(s)
     s.add_argument("--drop", action="store_true", help="drop the <tenant>_ablated copy afterwards")
     s.add_argument("--json", action="store_true", help="print the result as JSON")
     s.set_defaults(fn=cmd_ablation)
 
+
+def _add_demo_commands(sub) -> None:
+    """``plexus demo seed | live | record | replay | inventory | list | ablation``."""
+    demo = sub.add_parser("demo", help="the Acme Notes API demo scenario")
+    ds = demo.add_subparsers(dest="cmd", required=True)
+    _add_seed(ds)
+    _add_live(ds)
+    _add_record_replay(ds)
+    _add_inspect(ds)
+
+
+def _add_mcp_config(sub) -> None:
     m = sub.add_parser(
         "mcp-config",
         help="print an MCP config for Claude Code (stdio via this checkout's venv, or --http URL)",
     )
-    tenant_arg(m)
+    _tenant_arg(m)
     m.add_argument(
         "--http", metavar="URL", help="streamable-HTTP endpoint (e.g. http://127.0.0.1:8765) instead of stdio"
     )
@@ -294,6 +306,13 @@ def build_parser() -> argparse.ArgumentParser:
     )
     m.add_argument("--out", metavar="FILE", help="write the config to FILE instead of printing it")
     m.set_defaults(fn=cmd_mcp_config)
+
+
+def build_parser() -> argparse.ArgumentParser:
+    p = argparse.ArgumentParser(prog="plexus", description="Plexus command line")
+    sub = p.add_subparsers(dest="group", required=True)
+    _add_demo_commands(sub)
+    _add_mcp_config(sub)
     add_code_commands(sub)  # P7-J: plexus code scan | baseline | hook-claude | hook-git | hook-run
     return p
 
