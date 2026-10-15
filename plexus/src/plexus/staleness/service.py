@@ -598,7 +598,7 @@ class Staleness:
         )
 
     def docs_to_update(self, since: int = 0, limit: int = 50, *, per_doc: int = 10) -> list[dict[str, Any]]:
-        """Doc Sources that ``DESCRIBES`` code a Change touched after ``since`` and were not edited since.
+        """Doc Sources that ``DESCRIBES`` code touched by a Change at or after ``since``, not edited since.
 
         Each row: ``{source_id, uri, title, latest, changes: [{change_id, commit, at, paths, anchor}]}``,
         newest change first. A doc whose own file was reported to ``mark_changed`` after the code change drops
