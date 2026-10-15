@@ -9,6 +9,7 @@ import { agentIdsOf, diffAgent, isEmptyDiff } from '../lib/timeMachine';
 import type { KnowledgeDiff } from '../lib/timeMachine';
 import { useAsync } from '../lib/useAsync';
 import { useFlowFeed } from '../lib/useFlowFeed';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 const PLAY_MS = 900;
 const DEBOUNCE_MS = 120;
@@ -240,11 +241,7 @@ export function TimeMachine() {
         it <b>wrote</b>. Step numbers count per agent, so “step 4” is each agent’s fourth call.
       </p>
 
-      {feed.error && (
-        <div className="banner error" role="alert">
-          Could not load the step range: {feed.error}
-        </div>
-      )}
+      {feed.error && <ErrorBanner>Could not load the step range: {feed.error}</ErrorBanner>}
       {feed.loaded && maxStep === 0 && !feed.error && (
         <p className="muted">
           No agent steps yet. Steps appear once agents call the MCP tools (each call is a Lineage{' '}
@@ -286,9 +283,9 @@ export function TimeMachine() {
       )}
 
       {now.error && (
-        <div className="banner error" role="alert">
+        <ErrorBanner>
           Could not load step {at}: {now.error.message}
-        </div>
+        </ErrorBanner>
       )}
       <div className={`agent-grid${pending ? ' pending' : ''}`} data-testid="agent-grid" aria-busy={pending}>
         {agents.map((id) => {

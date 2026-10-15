@@ -7,6 +7,7 @@ import { formatProp } from '../lib/labels';
 import { SUSPECT_GLYPH } from '../lib/memory';
 import { useAsync } from '../lib/useAsync';
 import type { AsyncState } from '../lib/useAsync';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 const DASH = '—';
 const LIMIT = 200;
@@ -20,9 +21,9 @@ function Failure({ what, error }: { what: string; error: Error }) {
       <p className="muted">The {what} is not available on this server (it predates staleness tracking).</p>
     );
   return (
-    <div className="banner error" role="alert">
+    <ErrorBanner>
       Could not load the {what}: {error.message}
-    </div>
+    </ErrorBanner>
   );
 }
 

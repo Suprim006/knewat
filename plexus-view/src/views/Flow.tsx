@@ -9,6 +9,7 @@ import { REPLAY_SPEEDS, agentColor, formatClock, replayDelay } from '../lib/flow
 import { labelColor } from '../lib/labels';
 import { useAsync } from '../lib/useAsync';
 import { useFlowFeed } from '../lib/useFlowFeed';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 interface Replay {
   source: FlowEvent[];
@@ -213,11 +214,7 @@ export function Flow() {
         </div>
       </header>
 
-      {feed.error && (
-        <div className="banner error" role="alert">
-          Could not load the flow: {feed.error}
-        </div>
-      )}
+      {feed.error && <ErrorBanner>Could not load the flow: {feed.error}</ErrorBanner>}
       {feed.loaded && feed.events.length === 0 && !feed.error && (
         <p className="muted">No tool calls yet. Events appear here as agents call the MCP server.</p>
       )}

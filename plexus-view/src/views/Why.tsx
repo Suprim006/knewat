@@ -8,6 +8,7 @@ import { formatProp, labelColor, displayName } from '../lib/labels';
 import { useAsync } from '../lib/useAsync';
 import { layoutWhy, pathTo } from '../lib/whyLayout';
 import type { Props } from '../api';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 const LATEST = 'latest';
 
@@ -103,11 +104,7 @@ export function Why() {
           No decisions or facts in this tenant yet. Once an agent records one, it shows up here.
         </p>
       )}
-      {why.error && (
-        <div className="banner error" role="alert">
-          {describeError(why.error)}
-        </div>
-      )}
+      {why.error && <ErrorBanner>{describeError(why.error)}</ErrorBanner>}
       {why.loading && subject && !why.error && <p className="muted">Tracing {subject}…</p>}
 
       {result && layout && (
