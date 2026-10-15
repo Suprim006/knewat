@@ -84,6 +84,70 @@
       "type": "object"
     }
   },
+  "anchor_fact": {
+    "description": "Tie a fact to the code it is about (a file, or a Python function / class). When that code changes, the\n        fact becomes SUSPECT and shows up in facts_to_verify. Facts derived from a Source whose uri is a file path\n        are tied to that file automatically; use this for precision (one function) or for facts with no Source.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "The fact that depends on this code.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "hash": {
+          "default": "",
+          "description": "Optional hash of that code now (stored only if none is stored yet).",
+          "maxLength": 128,
+          "title": "Hash",
+          "type": "string"
+        },
+        "path": {
+          "description": "Absolute path of the file the fact is about (e.g. C:/repo/app/payments.py).",
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "symbol": {
+          "default": "",
+          "description": "Optional Python function / class, dotted: 'PaymentService.create'. '' = whole file.",
+          "maxLength": 512,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id",
+        "path"
+      ],
+      "title": "anchor_factArguments",
+      "type": "object"
+    }
+  },
   "as_of": {
     "description": "The value a (subject, predicate) had at time t (epoch ms), or null if it had none yet. Forgotten\n            and quarantined facts never answer.",
     "inputSchema": {
@@ -617,6 +681,120 @@
       "type": "object"
     }
   },
+  "describe_code": {
+    "description": "Record that a document (a Source) describes a piece of code. When the code changes, docs_to_update lists\n        the document so it can be brought up to date.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "hash": {
+          "default": "",
+          "description": "Optional hash of that code now.",
+          "maxLength": 128,
+          "title": "Hash",
+          "type": "string"
+        },
+        "path": {
+          "description": "Absolute path of the code file it describes.",
+          "maxLength": 1024,
+          "minLength": 1,
+          "title": "Path",
+          "type": "string"
+        },
+        "source_id": {
+          "description": "The doc Source (from add_source) that describes the code.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "symbol": {
+          "default": "",
+          "description": "Optional function / class; '' = whole file.",
+          "maxLength": 512,
+          "title": "Symbol",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "source_id",
+        "path"
+      ],
+      "title": "describe_codeArguments",
+      "type": "object"
+    }
+  },
+  "docs_to_update": {
+    "description": "List documents that describe code which has changed since the document was last edited (see\n        describe_code), newest change first, with the commits and paths that changed.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "description": "Max documents to return.",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "since": {
+          "default": 0,
+          "description": "Only changes after this time (epoch ms).",
+          "maximum": 9999999999999,
+          "minimum": 0,
+          "title": "Since",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "docs_to_updateArguments",
+      "type": "object"
+    }
+  },
   "fact_history": {
     "description": "List every value a (subject, predicate) has had in a scope, oldest first, with validity windows and who\n        asserted each. Use it to see how a fact changed over time.",
     "inputSchema": {
@@ -671,6 +849,55 @@
         "predicate"
       ],
       "title": "fact_historyArguments",
+      "type": "object"
+    }
+  },
+  "facts_to_verify": {
+    "description": "List the memories that may be stale: facts whose code changed since they were last verified, or whose\n        review date passed, most important first (decisions that depend on them, then oldest suspicion). Re-check\n        the ones you are about to rely on, then call verify_fact.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "limit": {
+          "default": 50,
+          "description": "Max facts to return.",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "scope": {
+          "default": "",
+          "description": "Optional: only this scope ('global', 'project:<name>', 'user:<name>') and what it inherits. Default: every scope.",
+          "maxLength": 512,
+          "title": "Scope",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "facts_to_verifyArguments",
       "type": "object"
     }
   },
@@ -1115,6 +1342,131 @@
       "type": "object"
     }
   },
+  "mark_changed": {
+    "description": "Report that code changed (normally called by the git post-commit / Claude Code edit hooks, see\n        `plexus code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay\n        recallable but are flagged. A first sighting of a file with no old_hash is just a baseline. Returns the\n        suspect fact_ids, the decisions built on them, and the docs that describe the changed code. If truncated\n        is true, call again with the same arguments (and the returned 'at') to continue.",
+    "inputSchema": {
+      "$defs": {
+        "ChangeSpec": {
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "file",
+                    "function",
+                    "class"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "description": "Optional: 'class' for a class symbol (default: function / file).",
+              "title": "Kind"
+            },
+            "new_hash": {
+              "default": "",
+              "description": "Hash of the file / symbol now. '' means it no longer exists.",
+              "maxLength": 128,
+              "title": "New Hash",
+              "type": "string"
+            },
+            "old_hash": {
+              "default": "",
+              "description": "Hash before the change, if you know it. Used only when Plexus has no hash stored yet.",
+              "maxLength": 128,
+              "title": "Old Hash",
+              "type": "string"
+            },
+            "path": {
+              "description": "Absolute path of the changed file (any slash style; it is normalised).",
+              "maxLength": 1024,
+              "minLength": 1,
+              "title": "Path",
+              "type": "string"
+            },
+            "symbol": {
+              "default": "",
+              "description": "'' for the whole file, else a dotted name like 'PaymentService.create'.",
+              "maxLength": 512,
+              "title": "Symbol",
+              "type": "string"
+            }
+          },
+          "required": [
+            "path"
+          ],
+          "title": "ChangeSpec",
+          "type": "object"
+        }
+      },
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "at": {
+          "anyOf": [
+            {
+              "maximum": 9999999999999,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When the change happened (epoch ms); default now.",
+          "title": "At"
+        },
+        "changes": {
+          "description": "The files / symbols whose content changed.",
+          "items": {
+            "$ref": "#/$defs/ChangeSpec"
+          },
+          "maxItems": 200,
+          "minItems": 1,
+          "title": "Changes",
+          "type": "array"
+        },
+        "commit": {
+          "default": "",
+          "description": "Commit id, or '' for a working-tree edit.",
+          "maxLength": 512,
+          "title": "Commit",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "changes"
+      ],
+      "title": "mark_changedArguments",
+      "type": "object"
+    }
+  },
   "quarantine_source": {
     "description": "Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,\n            but nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which\n            agents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on\n            them, so you know what to re-check.",
     "inputSchema": {
@@ -1540,6 +1892,56 @@
       "type": "object"
     }
   },
+  "set_review_date": {
+    "description": "Give a fact a review date. After that time it appears in facts_to_verify, so facts that no code change\n        can invalidate (a deployed URL, an account, a client request) are re-checked on a schedule.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "A fact that is not about code (a URL, account, request).",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "verify_after": {
+          "description": "Epoch ms after which the fact must be re-checked. 9999999999999 clears it.",
+          "maximum": 9999999999999,
+          "minimum": 0,
+          "title": "Verify After",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id",
+        "verify_after"
+      ],
+      "title": "set_review_dateArguments",
+      "type": "object"
+    }
+  },
   "start_session": {
     "description": "Begin a memory session. Call this FIRST in every run. It registers you as an agent and returns a\n        session_id that you pass to remember_episode. Safe to call again in a later run: memory persists across\n        sessions.",
     "inputSchema": {
@@ -1669,6 +2071,75 @@
         "artifact_id"
       ],
       "title": "verify_artifactArguments",
+      "type": "object"
+    }
+  },
+  "verify_fact": {
+    "description": "Record the outcome of re-checking a suspect fact (see facts_to_verify). still_true=true marks it\n        verified. still_true=false needs new_value: the new value is asserted, the old one is superseded as of the\n        moment the code changed (history stays correct), and decisions that rested on the old value are flagged.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "commit": {
+          "default": "",
+          "description": "Optional commit id you verified against.",
+          "maxLength": 512,
+          "title": "Commit",
+          "type": "string"
+        },
+        "evidence": {
+          "default": "",
+          "description": "Optional: where you checked (an absolute file path or URL becomes a Source) or a note.",
+          "maxLength": 2000,
+          "title": "Evidence",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "The suspect fact you re-checked.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "new_value": {
+          "default": "",
+          "description": "Required when still_true is false: the value it has now.",
+          "maxLength": 20000,
+          "title": "New Value",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "still_true": {
+          "description": "True if it still holds, false if it changed.",
+          "title": "Still True",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id",
+        "still_true"
+      ],
+      "title": "verify_factArguments",
       "type": "object"
     }
   },

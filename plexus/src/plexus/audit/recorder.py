@@ -28,6 +28,8 @@ LINKABLE_LABELS = frozenset(
         "Procedure",
         "Source",
         "Recall",
+        "Change",  # P7-J staleness
+        "CodeAnchor",
     }
 )
 

@@ -141,3 +141,26 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 | `demo/ablation_task_deps` | ro | Every task with the ids it depends on | Ground truth for the dependency-aware-claim probe (`DEPENDS_ON` read on the intact tenant). |
 | `demo/ablation_reset_tasks` | rw | Sets every task of a **scratch copy** back to `open` so a finished recording has something to claim | Bounded write (`LIMIT`); never run on a real tenant, only on the throw-away copies the command drops. |
 
+
+## Staleness queries (`queries/staleness/`, P7-J; see `docs/staleness.md`)
+
+Python entry point: `plexus.staleness.Staleness(client, graph, engram=...)`. Code changes make facts *suspect*; an agent re-verifies them.
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `staleness/upsert_anchor` | rw | One statement: `MERGE (CodeAnchor {id})` (id = `anc:` + sha1 of `path#symbol`), then `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` and/or `(Source)-[:DESCRIBES]->(CodeAnchor)`. A given fact / source id that does not exist yields no row and writes nothing | The link between memory and code is an edge, so "which facts does this file affect" is one hop. |
+| `staleness/mark_changed` | rw | One bounded statement (<= 200 entries, <= 2000 facts): classify each entry as changed (stored hash, else the caller's `old_hash`, differs from `new_hash`; a first sighting without `old_hash` is a baseline), find the active Facts `ANCHORED_TO` a changed anchor or `DERIVED_FROM*1..5` a Source whose uri is a changed file, set `verify_state='suspect'` / `suspect_since`, create one `Change` with `TOUCHED` and `SUSPECTED` edges, and return the decisions `BASED_ON` the suspects and the docs that `DESCRIBES` the changed anchors | The impact of a code change is a traversal: code -> anchored / derived facts -> decisions built on them, plus doc -> code. When more than the limit is affected the hashes are not advanced and the same call continues with the same deterministic Change. |
+| `staleness/fact_for_verify` | ro | One fact with its subject entity, scope, status and validity window | The read `verify_fact` needs before it supersedes: subject and scope come from `ABOUT` / `IN_SCOPE`. |
+| `staleness/source_by_uri` | ro | Existing `Source` by uri | `verify_fact` reuses a Source as evidence instead of overwriting its kind / trust. |
+| `staleness/verify_confirm` | rw | `verify_state='verified'`, `verified_at`, consume a passed `verify_after`, `CREATE (Fact)-[:VERIFIED_BY {at, commit, outcome:'confirmed'}]->(Agent)` (zero rows = unknown fact, nothing written) | Each verification is its own edge, so repeated checks are separate events (activation weights them, D-012). |
+| `staleness/backdate` | rw | After `verify_fact` asserted the new value: `old.valid_to = new.valid_from =` the newest `SUSPECTED` Change time (guarded: strictly inside the old window, so windows stay contiguous), mark the old fact verified, `VERIFIED_BY {outcome:'changed'}`, flag the `Decision`s `BASED_ON` the old fact | Event time comes from the `Change` node the suspicion was recorded on; `recorded_at` is untouched (two timelines). |
+| `staleness/suspect_ids` | ro | Ids of active facts with `verify_state='suspect'` or `verify_after <= now` (two index-backed branches, `UNION`) | The contract's suspect rule. |
+| `staleness/facts_to_verify` | ro | Enrich suspect ids: subject / predicate / value, newest `SUSPECTED` Change (the reason), non-flagged `BASED_ON` decision count, anchors; optional scope filter through `INHERITS*0..3`; ordered by decisions then oldest suspicion | "Which memories do I re-check first": ordered by the decisions that rest on them (a traversal), activation is applied on top by the Python layer. |
+| `staleness/set_review_date` | rw | Set / clear `verify_after` on a fact that is not about code | Review dates cover facts no code change can invalidate (a deployed URL, an account). |
+| `staleness/docs_to_update` | ro | Doc `Source`s that `DESCRIBES` an anchor a `Change` `TOUCHED` after `since` and were not `TOUCHED` themselves afterwards, with the change commits / paths | doc -> code -> change is a three-hop traversal; a doc edited after the change drops off because its own `TOUCHED` edge is newer. |
+| `staleness/tracked_paths` | ro | Source uris and CodeAnchor paths (`UNION`) | `plexus code baseline` (client side, direct database read) hashes the files of a repository the graph already knows about. |
+
+FalkorDB 6.0.2 quirks hit in `staleness/*` (kept in the query comments):
+- `staleness/mark_changed`: a `WHERE` attached to an `OPTIONAL MATCH` that follows aggregations evaluated as false for a node that exists (even `WHERE x.uri = x.uri`); the filter is a `CASE` in the next `WITH` instead.
+- `staleness/facts_to_verify`: `WITH collect(..) AS sids` followed by `UNWIND` / `MATCH` returned no rows when the list was empty; the scope test is a pattern predicate `(:Scope {id})-[:INHERITS*0..3]->(sc)` in a `WITH ... WHERE` instead.
+- `staleness/backdate`: `MERGE` before an `OPTIONAL MATCH` is rejected ("A WITH clause is required to introduce MATCH after an updating clause"): reads first, `MERGE` after.

@@ -13,6 +13,16 @@ from plexus.graph.tenancy import graph_name
 
 SNAPSHOT = Path(__file__).parent / "snapshots" / "tools.json"
 
+STALENESS_TOOLS = {
+    "anchor_fact",
+    "describe_code",
+    "mark_changed",
+    "verify_fact",
+    "facts_to_verify",
+    "docs_to_update",
+    "set_review_date",
+}
+
 ENGRAM_RELAY_TOOLS = {
     "start_session",
     "remember_episode",
@@ -67,7 +77,8 @@ async def test_tool_list_and_schema_snapshot(server):
         "quarantine_source",
         "release_quarantine",
     }
-    assert names - ENGRAM_RELAY_TOOLS == lineage_tools, "unexpected or missing tools"
+    assert STALENESS_TOOLS <= names
+    assert names - ENGRAM_RELAY_TOOLS - STALENESS_TOOLS == lineage_tools, "unexpected or missing tools"
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name

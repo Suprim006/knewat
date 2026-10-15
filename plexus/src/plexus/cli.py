@@ -11,6 +11,7 @@ import asyncio
 import sys
 from collections.abc import Sequence
 
+from plexus.codescan.cli import add_code_commands
 from plexus.demo.scenario import FaultScript, load_scenario
 from plexus.graph.client import GraphClient
 from plexus.graph.tenancy import graph_name
@@ -293,6 +294,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     m.add_argument("--out", metavar="FILE", help="write the config to FILE instead of printing it")
     m.set_defaults(fn=cmd_mcp_config)
+    add_code_commands(sub)  # P7-J: plexus code scan | baseline | hook-claude | hook-git | hook-run
     return p
 
 
