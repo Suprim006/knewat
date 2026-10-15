@@ -50,7 +50,7 @@ class ChangeSpec(StrictModel):
         default="", description="'' for the whole file, else a dotted name like 'PaymentService.create'."
     )
     new_hash: HashStr = Field(
-        default="", description="Hash of the file / symbol now. '' means it no longer exists."
+        description="Hash of the file / symbol now (required). Send '' explicitly when it no longer exists."
     )
     old_hash: HashStr = Field(
         default="",

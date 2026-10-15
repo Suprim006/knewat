@@ -117,6 +117,8 @@ async def test_errors_are_clear_and_nothing_is_written(server, client, tenant):
         assert "absolute" in await err(
             c, "mark_changed", agent_id="a", changes=[{"path": "x.py", "new_hash": "h"}]
         )
+        # P7-09: an omitted new_hash is a validation error, never a silent "file deleted"
+        assert "new_hash" in await err(c, "mark_changed", agent_id="a", changes=[{"path": P}])
         assert "no-such-fact" in await err(
             c, "verify_fact", agent_id="a", fact_id="no-such-fact", still_true=True
         )

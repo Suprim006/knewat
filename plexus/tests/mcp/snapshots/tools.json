@@ -1382,8 +1382,7 @@
               "title": "Kind"
             },
             "new_hash": {
-              "default": "",
-              "description": "Hash of the file / symbol now. '' means it no longer exists.",
+              "description": "Hash of the file / symbol now (required). Send '' explicitly when it no longer exists.",
               "maxLength": 128,
               "title": "New Hash",
               "type": "string"
@@ -1411,7 +1410,8 @@
             }
           },
           "required": [
-            "path"
+            "path",
+            "new_hash"
           ],
           "title": "ChangeSpec",
           "type": "object"
