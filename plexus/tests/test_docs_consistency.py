@@ -55,3 +55,16 @@ def test_env_example_lists_the_codescan_client_variables():
     env = (ROOT / ".env.example").read_text(encoding="utf-8")
     for name in ("PLEXUS_TENANT", "PLEXUS_URL"):
         assert name in env, f"{name} is read by plexus.codescan but missing from .env.example"
+
+
+# -- P7-14 ----------------------------------------------------------------------------------------------
+def test_forgetting_md_multiplier_at_a0_matches_the_default_floor():
+    from plexus.activation import Settings
+    from plexus.activation.model import multiplier
+
+    st = Settings()
+    want = f"{multiplier(st.neutral, st.neutral, st.floor):.2f}"
+    text = (ROOT / "docs" / "forgetting.md").read_text(encoding="utf-8")
+    (line,) = [ln for ln in text.splitlines() if ln.startswith("* A fact at `A₀` gets multiplier")]
+    assert f"multiplier `{want}`" in line, f"default floor {st.floor}: the multiplier at A0 is {want}: {line}"
+    assert f"`{st.floor}` by default" in line

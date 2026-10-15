@@ -27,7 +27,7 @@ final = relevance × ( floor + (1 − floor) · σ(A − A₀) )                
 
 * The sum runs over the fact's **newest K = 50** events. `rank` is the cosine distance after the sibling boost.
 * `A₀` (neutral) is the activation of a fact created once, one day ago: `ln(86400^−0.5) = −5.68`.
-* A fact at `A₀` gets multiplier `0.75`; far above it, `1.0`; far below it, the floor (`0.9` by default).
+* A fact at `A₀` gets multiplier `0.95` (`floor + (1 − floor) / 2`, i.e. `(1 + floor) / 2`); far above it, `1.0`; far below it, the floor (`0.9` by default).
 * Protected facts use `max(A, A₀)`, so they are never ranked below neutral.
 * **Exact keyword hit:** a fact that the full-text index returned *and* whose value contains every query keyword
   (words of ≥ 3 characters, at most 10) has multiplier 1.
