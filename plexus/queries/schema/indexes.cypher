@@ -9,6 +9,8 @@
 // Step(n) and ToolCall(at) serve time-travel and the flow feed. Each property is its own single-property index (there are no
 // composite indexes). Step(agent_id) serves record_step / knew_at; Source(uri), Scope(name) and Procedure(task_type) serve
 // the MERGE keys of create_source / create_scope / log_procedure_run and the best_procedure filter (P5 review Q4).
+// P7-J staleness (graph model v1.1): CodeAnchor(id, path) serve the anchor MERGE and the file-level symbol lookup, Change(id, at) the
+// change feed (docs_to_update), Fact(verify_state) the suspect scan (facts_to_verify). Range indexes only; apply_schema stays idempotent.
 // created_at on all 16 labels serves view/subgraph (the Explorer's label / time-window filter): one index range seek per label
 // instead of an All Node Scan of the graph (P5-int Q5).
 CREATE INDEX FOR (n:Agent) ON (n.id);
@@ -54,4 +56,9 @@ CREATE INDEX FOR (n:Session) ON (n.created_at);
 CREATE INDEX FOR (n:Source) ON (n.created_at);
 CREATE INDEX FOR (n:Step) ON (n.created_at);
 CREATE INDEX FOR (n:Task) ON (n.created_at);
-CREATE INDEX FOR (n:ToolCall) ON (n.created_at)
+CREATE INDEX FOR (n:ToolCall) ON (n.created_at);
+CREATE INDEX FOR (n:CodeAnchor) ON (n.id);
+CREATE INDEX FOR (n:CodeAnchor) ON (n.path);
+CREATE INDEX FOR (n:Change) ON (n.id);
+CREATE INDEX FOR (n:Change) ON (n.at);
+CREATE INDEX FOR (n:Fact) ON (n.verify_state)

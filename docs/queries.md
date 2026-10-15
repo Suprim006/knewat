@@ -141,3 +141,11 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 | `demo/ablation_task_deps` | ro | Every task with the ids it depends on | Ground truth for the dependency-aware-claim probe (`DEPENDS_ON` read on the intact tenant). |
 | `demo/ablation_reset_tasks` | rw | Sets every task of a **scratch copy** back to `open` so a finished recording has something to claim | Bounded write (`LIMIT`); never run on a real tenant, only on the throw-away copies the command drops. |
 
+
+## Staleness queries (`queries/staleness/`, P7-J; see `docs/staleness.md`)
+
+Python entry point: `plexus.staleness.Staleness(client, graph, engram=...)`. Code changes make facts *suspect*; an agent re-verifies them.
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `staleness/upsert_anchor` | rw | One statement: `MERGE (CodeAnchor {id})` (id = `anc:` + sha1 of `path#symbol`), then `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` and/or `(Source)-[:DESCRIBES]->(CodeAnchor)`. A given fact / source id that does not exist yields no row and writes nothing | The link between memory and code is an edge, so "which facts does this file affect" is one hop. |
