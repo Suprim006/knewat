@@ -135,3 +135,21 @@ ids are 1..128 chars. `/stream`: `poll_ms` is at least 200, at most `PLEXUS_API_
 (the next gets **429**), and subscribers polling the same `(tenant, after)` share one `view/flow` read per 150 ms. `GET /healthz?deep=1`
 also pings FalkorDB (503 when it is down). `inventory` counts nodes and edges per graph-model label/type in O(labels); if the graph
 holds a label or type the model does not list, it falls back to a full scan.
+
+## Memory-strength tools (P7-K, `plexus/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
+
+Five more tools, registered by `register_memory` (the "29 tools" above counts Engram, Relay and Lineage). Forgetting
+lowers a fact's **rank only**; none of these deletes anything.
+
+| Tool | Arguments (besides `agent_id`, `step`) | Result |
+|---|---|---|
+| `pin_fact` / `unpin_fact` | `fact_id` | `{fact_id, pinned}`. A pinned fact is never ranked below neutral and never swept. |
+| `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, …}}`. Read-only: no `READ` edge, so asking is not using. |
+| `memory_sweep` | `scope='global'`, `threshold=None` (−50..50), `dry_run=true`, `limit=200` (1..200) | `{sweep: {threshold, dry_run, scanned, candidates:[{fact_id, text, activation}], would_move, moved, skipped, truncated}}`. Moves to `dormant` only with `dry_run=false`; protected and suspect facts are never moved. |
+| `restore_fact` | `fact_id` | `{fact_id, restored, status, was}`; a fact that is not dormant is left alone. |
+
+`recall` gains `include_dormant: bool = false` and `forgetting: bool | null = null` (null = the server default,
+`PLEXUS_FORGETTING`). Each fact in the result also carries `surprise`, `activation`, `protected` (both `null` when
+forgetting is off), `verify_state`, `suspect_since` and `suspect_reason`. `assert_fact` returns `surprise`.
+Audit: `pin_fact`, `unpin_fact`, `restore_fact` and a real `memory_sweep` record `UPDATED` edges to the facts they
+changed; `ToolCall.query_name` of a forgetting-on `recall` is now its last read, `activation/activation`.

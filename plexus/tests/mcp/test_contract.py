@@ -67,7 +67,8 @@ async def test_tool_list_and_schema_snapshot(server):
         "quarantine_source",
         "release_quarantine",
     }
-    assert names - ENGRAM_RELAY_TOOLS == lineage_tools, "unexpected or missing tools"
+    memory_tools = {"pin_fact", "unpin_fact", "memory_strength", "memory_sweep", "restore_fact"}  # P7-K
+    assert names - ENGRAM_RELAY_TOOLS == lineage_tools | memory_tools, "unexpected or missing tools"
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name

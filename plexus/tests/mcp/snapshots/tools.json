@@ -1115,6 +1115,160 @@
       "type": "object"
     }
   },
+  "memory_strength": {
+    "description": "Show how strongly a fact ranks in recall and why: its activation (from creation, re-assertions,\n        decisions, handoffs, uses, recalls and verifications), the neutral level, the ranking multiplier (never\n        below the floor), why it is protected, and a one-line explanation. Read-only: asking does not count as\n        using the fact.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "The fact to inspect.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id"
+      ],
+      "title": "memory_strengthArguments",
+      "type": "object"
+    }
+  },
+  "memory_sweep": {
+    "description": "Tidy a scope: list (dry_run=true, the default) or move to 'dormant' (dry_run=false) the faintest facts\n        that nothing depends on. Never deletes. Facts a decision rests on, a handoff carries, that are pinned,\n        contradicted, superseding, from a high-trust source, or suspect are never touched. Dormant facts are hidden\n        from recall unless include_dormant=true; restore_fact undoes it.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "dry_run": {
+          "default": true,
+          "description": "True (default) only lists what would move. False moves them to 'dormant'.",
+          "title": "Dry Run",
+          "type": "boolean"
+        },
+        "limit": {
+          "default": 200,
+          "description": "Most facts to list or move.",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "scope": {
+          "default": "global",
+          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "maxLength": 512,
+          "title": "Scope",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "threshold": {
+          "anyOf": [
+            {
+              "maximum": 50.0,
+              "minimum": -50.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Activation below which an unprotected fact counts as faded. Default: the neutral level minus 2 (about a 60-day-old fact nobody has used).",
+          "title": "Threshold"
+        }
+      },
+      "required": [
+        "agent_id"
+      ],
+      "title": "memory_sweepArguments",
+      "type": "object"
+    }
+  },
+  "pin_fact": {
+    "description": "Pin a fact you know must stay prominent (a hard requirement, an owner decision). A pinned fact is never\n        ranked below a neutral fact in recall and is never moved to dormant by memory_sweep. Undo with unpin_fact.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "The fact to protect from fading (from recall or assert_fact).",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id"
+      ],
+      "title": "pin_factArguments",
+      "type": "object"
+    }
+  },
   "quarantine_source": {
     "description": "Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,\n            but nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which\n            agents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on\n            them, so you know what to re-check.",
     "inputSchema": {
@@ -1559,6 +1713,48 @@
       "type": "object"
     }
   },
+  "restore_fact": {
+    "description": "Bring a fact that memory_sweep moved to 'dormant' back to active, exactly as it was. A fact that is not\n        dormant is left alone (restored=false).",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "A dormant fact to bring back.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id"
+      ],
+      "title": "restore_factArguments",
+      "type": "object"
+    }
+  },
   "start_session": {
     "description": "Begin a memory session. Call this FIRST in every run. It registers you as an agent and returns a\n        session_id that you pass to remember_episode. Safe to call again in a later run: memory persists across\n        sessions.",
     "inputSchema": {
@@ -1646,6 +1842,48 @@
         "task_id"
       ],
       "title": "task_statusArguments",
+      "type": "object"
+    }
+  },
+  "unpin_fact": {
+    "description": "Remove the pin from a fact. It may still be protected for other reasons (a decision rests on it, a\n        handoff carries it...): memory_strength lists them.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "fact_id": {
+          "description": "The fact to stop protecting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Fact Id",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "fact_id"
+      ],
+      "title": "unpin_factArguments",
       "type": "object"
     }
   },
