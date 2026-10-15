@@ -141,3 +141,11 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 | `demo/ablation_task_deps` | ro | Every task with the ids it depends on | Ground truth for the dependency-aware-claim probe (`DEPENDS_ON` read on the intact tenant). |
 | `demo/ablation_reset_tasks` | rw | Sets every task of a **scratch copy** back to `open` so a finished recording has something to claim | Bounded write (`LIMIT`); never run on a real tenant, only on the throw-away copies the command drops. |
 
+
+## Activation queries (`queries/activation/`, P7-K; D-012, `docs/forgetting.md`)
+
+Changed existing queries: `engram/assert_fact` now takes `novelty`, `surprise_supersede`, `surprise_contradict` and stores `Fact.surprise` in the same statement; `lineage/record_recall` and `lineage/link_step` stamp `READ {via, at}` (`link_step` takes `via`, default `'use'`).
+
+| Name | Mode | Purpose | Why it's a graph query |
+|---|---|---|---|
+| `activation/novelty` | ro | Write-time surprise: the 5 nearest **active** facts of the scope to a new fact's text embedding (vector fetch of 20, scope and status tested after it). The wrapper turns the nearest distance into `min(0.5, max(0, 1 - maxcos))` | Novelty is relative to what the scope already holds: a vector-index read joined to `IN_SCOPE`. |

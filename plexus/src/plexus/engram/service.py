@@ -15,6 +15,7 @@ from typing import Any
 
 from redis.exceptions import ResponseError
 
+from plexus.activation import model as act
 from plexus.embed import Embedder, embed_checked, get_embedder
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
@@ -292,7 +293,9 @@ class Engram:
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
-        Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id}``. For a duplicate no fact is
+        Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id, surprise}``. ``surprise`` is the
+        value stored on the new fact (0.9 contradiction, 0.6 supersede, else novelty in 0..0.5; ``None`` for a
+        duplicate, which stores nothing). For a duplicate no fact is
         created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
         and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
 
@@ -319,6 +322,7 @@ class Engram:
             before_create=lambda: self._check_refs(scope_id, episode_id, source_id),
         )
         text_emb, value_emb = self._embed([fact_text(entity["name"], pred, value), value])
+        novelty = self._novelty(text_emb, scope_id)
         rows = self.client.rw(
             self.graph,
             "engram/assert_fact",
@@ -340,6 +344,9 @@ class Engram:
                 "emb": text_emb,
                 "value_emb": value_emb,
                 "dup_threshold": self.dup_threshold,
+                "novelty": novelty,
+                "surprise_supersede": act.SURPRISE_SUPERSEDE,
+                "surprise_contradict": act.SURPRISE_CONTRADICT,
             },
         )
         if not rows:
@@ -352,7 +359,17 @@ class Engram:
             "duplicate_of": r["duplicate_of"],
             "contradicts": list(r["contradicts"]),
             "entity_id": entity["id"],
+            "surprise": r["surprise"],
         }
+
+    def _novelty(self, text_emb: list[float], scope_id: str) -> float:
+        """Write-time novelty: one bounded vector read (k=5 nearest active facts of the scope)."""
+        near = self.client.ro(
+            self.graph,
+            "activation/novelty",
+            {"q": text_emb, "scope_id": scope_id, "over": act.NOVELTY_OVER, "k": act.NOVELTY_K},
+        )
+        return act.novelty(near[0]["distance"] if near else None)
 
     def _check_refs(self, scope_id: str, episode_id: str, source_id: str) -> None:
         """Raise :class:`UnknownReference` for the first scope / episode / source id that does not exist."""

@@ -65,6 +65,9 @@ def _assert_params(**over):
         "emb": [0.05] * 384,
         "value_emb": [0.05] * 384,
         "dup_threshold": 0.08,
+        "novelty": 0.5,
+        "surprise_supersede": 0.6,
+        "surprise_contradict": 0.9,
     }
     p.update(over)
     return p

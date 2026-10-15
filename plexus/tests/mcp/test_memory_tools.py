@@ -54,3 +54,14 @@ async def test_recall_makes_read_via_recall_and_a_decision_makes_a_use(server, c
             f=f["fact_id"],
         )
         assert used and used[0][0] == "use" and used[0][1] > 0
+
+
+# ---------------------------------------------------------------- slice 2: surprise
+async def test_assert_fact_output_carries_surprise(server, client, tenant):
+    async with Client(server) as c:
+        a = await ok(c, "assert_fact", agent_id="a", subject="API", predicate="version", value="v1")
+        assert a["surprise"] == 0.5
+        b = await ok(c, "assert_fact", agent_id="b", subject="API", predicate="version", value="v2")
+        assert b["contradicts"] == [a["fact_id"]] and b["surprise"] == 0.9
+        dup = await ok(c, "assert_fact", agent_id="c", subject="API", predicate="version", value="v2")
+        assert dup["duplicate_of"] == b["fact_id"] and dup["surprise"] is None
