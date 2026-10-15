@@ -27,8 +27,25 @@ def default_url() -> str:
     return os.environ.get("PLEXUS_URL") or DEFAULT_URL
 
 
+def tenant_path(base: str, tenant: str) -> str:
+    """``<base>/mcp/t/<tenant>``: the tenant's MCP endpoint below ``base`` (a URL, or just its path)."""
+    return f"{base.rstrip('/')}/mcp/t/{tenant}"
+
+
 def endpoint(url: str, tenant: str) -> str:
-    return f"{url.rstrip('/')}/mcp/t/{tenant}"
+    return tenant_path(url, tenant)
+
+
+def tool_arguments(agent_id: str, args: dict[str, Any]) -> dict[str, Any]:
+    """The arguments of a tool call: the caller's own, with ``agent_id`` filled in unless they set it."""
+    return {"agent_id": agent_id, **args}
+
+
+def tool_result(tool: str, text: str, is_error: bool) -> dict[str, Any]:
+    """The JSON a tool call returned; a tool error becomes :class:`McpCallError` (the server's message)."""
+    if is_error:
+        raise McpCallError(text or f"{tool} failed")
+    return json.loads(text)
 
 
 class Session:
@@ -39,11 +56,8 @@ class Session:
         self.agent_id = agent_id
 
     async def call(self, tool: str, /, **args: Any) -> dict[str, Any]:
-        res = await self._c.call_tool(tool, {"agent_id": self.agent_id, **args})
-        text = res.content[0].text if res.content else ""
-        if res.is_error:
-            raise McpCallError(text or f"{tool} failed")
-        return json.loads(text)
+        res = await self._c.call_tool(tool, tool_arguments(self.agent_id, args))
+        return tool_result(tool, res.content[0].text if res.content else "", res.is_error)
 
 
 def run_session[T](

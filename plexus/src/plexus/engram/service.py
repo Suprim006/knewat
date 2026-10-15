@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import json
 import re
-import time
-import uuid
 from collections.abc import Callable
 from typing import Any
 
@@ -19,11 +17,13 @@ from plexus.activation import model as act
 from plexus.activation.rank import rerank
 from plexus.activation.service import Activation
 from plexus.activation.settings import Settings
+from plexus.common import OPEN, check_between, normalize
+from plexus.common import new_id as _new_id
+from plexus.common import now_ms as _now_ms  # module attribute: crucible's l5 pins it to fake the clock
 from plexus.embed import Embedder, embed_checked, get_embedder
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
 
-OPEN = 9_999_999_999_999  # open-ended valid_to (FalkorDB cannot store null)
 NO_STEP = -1  # Episode.step when the caller has no step
 
 ENTITY_NEAR = 0.10  # cosine distance: entity-name vector match (and the numeric tokens must agree)
@@ -42,19 +42,6 @@ MAX_HISTORY = 10_000  # fact_history ceiling: versions of ONE entity+predicate i
 
 _WORD = re.compile(r"[^\W_]+", re.UNICODE)
 _NUMBER = re.compile(r"\d+(?:\.\d+)*")  # 16, 8080, 1.2.3 (a trailing '.' is not part of the number)
-
-
-def normalize(text: str) -> str:
-    """Case-folded, whitespace-collapsed form used as the entity MERGE key and for value equality."""
-    return " ".join(text.split()).casefold()
-
-
-def _now_ms() -> int:
-    return time.time_ns() // 1_000_000
-
-
-def _new_id() -> str:
-    return str(uuid.uuid4())
 
 
 def _tokens(text: str) -> list[str]:
@@ -84,6 +71,17 @@ def token_key(text: str) -> str:
 def _query_words(query: str) -> list[str]:
     """The query words the full-text side searches for (>= 3 characters, at most ``MAX_KEYWORDS``)."""
     return list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
+
+
+def _entity_match(row: dict[str, Any], matched_by: str) -> dict[str, Any]:
+    """The ``resolve_entity_ex`` result for an existing entity found by ``matched_by``."""
+    return {
+        "id": row["id"],
+        "name": row["name"],
+        "kind": row["kind"],
+        "created": False,
+        "matched_by": matched_by,
+    }
 
 
 def fact_text(entity_name: str, predicate: str, value: str) -> str:
@@ -182,49 +180,18 @@ class Engram:
         if not norm:
             raise ValueError("entity name must not be empty")
 
-        hit = self.client.ro(self.graph, "engram/find_entity_exact", {"norm_name": norm})
-        if hit:
-            return {**hit[0], "created": False, "matched_by": "exact"}
+        exact = self.client.ro(self.graph, "engram/find_entity_exact", {"norm_name": norm})
+        if exact:
+            return {**exact[0], "created": False, "matched_by": "exact"}
 
         num_key = token_key(name)  # entities that differ only in numbers/versions are different things
-        q_tokens = set(_tokens(name))
-        if q_tokens:
-            cands = self.client.ro(
-                self.graph,
-                "engram/find_entity_fulltext",
-                {"q": " ".join(sorted(q_tokens)), "limit": 5},
-            )
-            best, best_j = None, 0.0
-            for c in cands:
-                if c["kind"] != kind or token_key(c["name"]) != num_key:
-                    continue
-                j = _jaccard(q_tokens, set(_tokens(c["norm_name"] or c["name"])))
-                if j >= FULLTEXT_JACCARD and j > best_j:
-                    best, best_j = c, j
-            if best:
-                return {
-                    "id": best["id"],
-                    "name": best["name"],
-                    "kind": best["kind"],
-                    "created": False,
-                    "matched_by": "fulltext",
-                }
-
+        hit = self._match_entity_fulltext(name, kind, num_key)
+        if hit:
+            return hit
         emb = self._embed([name])[0]
-        near = self.client.ro(self.graph, "engram/find_entity_vector", {"emb": emb, "k": 3})
-        for c in near:
-            if (
-                c["kind"] == kind
-                and c["distance"] <= self.entity_threshold
-                and token_key(c["name"]) == num_key
-            ):
-                return {
-                    "id": c["id"],
-                    "name": c["name"],
-                    "kind": c["kind"],
-                    "created": False,
-                    "matched_by": "vector",
-                }
+        hit = self._match_entity_vector(emb, kind, num_key)
+        if hit:
+            return hit
 
         if before_create is not None:
             before_create()
@@ -248,6 +215,37 @@ class Engram:
             "created": bool(r["created"]),
             "matched_by": "new" if r["created"] else "exact",
         }
+
+    def _match_entity_fulltext(self, name: str, kind: str, num_key: str) -> dict[str, Any] | None:
+        """The best same-kind full-text hit with token Jaccard >= ``FULLTEXT_JACCARD``, else ``None``."""
+        q_tokens = set(_tokens(name))
+        if not q_tokens:
+            return None
+        cands = self.client.ro(
+            self.graph,
+            "engram/find_entity_fulltext",
+            {"q": " ".join(sorted(q_tokens)), "limit": 5},
+        )
+        best, best_j = None, 0.0
+        for c in cands:
+            if c["kind"] != kind or token_key(c["name"]) != num_key:
+                continue
+            j = _jaccard(q_tokens, set(_tokens(c["norm_name"] or c["name"])))
+            if j >= FULLTEXT_JACCARD and j > best_j:
+                best, best_j = c, j
+        return _entity_match(best, "fulltext") if best else None
+
+    def _match_entity_vector(self, emb: list[float], kind: str, num_key: str) -> dict[str, Any] | None:
+        """The first same-kind entity within ``entity_threshold`` with equal numeric tokens, else ``None``."""
+        near = self.client.ro(self.graph, "engram/find_entity_vector", {"emb": emb, "k": 3})
+        for c in near:
+            if (
+                c["kind"] == kind
+                and c["distance"] <= self.entity_threshold
+                and token_key(c["name"]) == num_key
+            ):
+                return _entity_match(c, "vector")
+        return None
 
     def resolve_entity(self, name: str, kind: str = "thing", *, now: int | None = None) -> str:
         """Entity id for ``name`` (existing or newly created). See :meth:`resolve_entity_ex`."""
@@ -405,8 +403,7 @@ class Engram:
 
         At most ``limit`` (1..10,000, default 200) versions: the **newest** ones, oldest first.
         """
-        if not 0 < limit <= MAX_HISTORY:
-            raise ValueError(f"limit must be between 1 and {MAX_HISTORY}")
+        check_between("limit", limit, MAX_HISTORY)
         hit = self.client.ro(self.graph, "engram/find_entity_exact", {"norm_name": normalize(subject)})
         if not hit:
             return []
@@ -470,11 +467,33 @@ class Engram:
             statuses = ["active", "dormant"] if include_dormant else ["active"]
         settings = Settings.from_env()
         rerank_on = as_of is None and (settings.forgetting if forgetting is None else forgetting)
-        want = k
-        if rerank_on:
-            k = min(2 * k, 2 * MAX_K)  # candidates; the cut back to `want` happens after the re-ranking
+        # With re-ranking, fetch 2*k candidates; the cut back to `k` happens after the re-ranking.
+        fetch_k = min(2 * k, 2 * MAX_K) if rerank_on else k
         q = self._embed([query])[0]
-        kw_ids = self._keyword_ids(query, scope_id, k, t, statuses)
+        kw_ids = self._keyword_ids(query, scope_id, fetch_k, t, statuses)
+        rows = self._fetch_candidates(q, scope_id, fetch_k, t, statuses, kw_ids)
+        acts: dict[str, Any] = {}
+        if rerank_on:
+            acts = Activation(self.client, self.graph, settings).compute([r["fact_id"] for r in rows], t)
+            ranked = rerank(
+                rows,
+                acts,
+                settings=settings,
+                k=k,
+                kw_ids=set(kw_ids),
+                words=_query_words(query),
+            )
+            rows = [x.row for x in ranked]
+        return self._apply_budget(rows, acts, t, budget_chars)
+
+    def _fetch_candidates(
+        self, q: list[float], scope_id: str, k: int, t: int, statuses: list[str], kw_ids: list[str]
+    ) -> list[dict[str, Any]]:
+        """The ``engram/recall`` rows for ``q``: an adaptive over-fetch of the (pre-filter-less) vector index.
+
+        Starts with ``k * OVERFETCH`` nodes and, while fewer than ``k`` rows survive the scope / status /
+        validity filters, retries with ``RETRY_FACTOR`` times more, up to ``MAX_OVER``.
+        """
         over = max(k * OVERFETCH, 1)
         while True:
             over = min(over, MAX_OVER)
@@ -495,20 +514,13 @@ class Engram:
             )
             # Stop: enough rows, index exhausted (returned fewer nodes than asked for), or cap hit.
             if len(rows) >= k or over >= MAX_OVER or (rows and rows[0]["raw"] < over):
-                break
+                return rows
             over *= RETRY_FACTOR
-        acts: dict[str, Any] = {}
-        if rerank_on:
-            acts = Activation(self.client, self.graph, settings).compute([r["fact_id"] for r in rows], t)
-            ranked = rerank(
-                rows,
-                acts,
-                settings=settings,
-                k=want,
-                kw_ids=set(kw_ids),
-                words=_query_words(query),
-            )
-            rows = [x.row for x in ranked]
+
+    def _apply_budget(
+        self, rows: list[dict[str, Any]], acts: dict[str, Any], t: int, budget_chars: int
+    ) -> list[dict[str, Any]]:
+        """Shape ranked rows into recall results, kept in order until ``budget_chars`` of text is spent."""
         suspects = [r["fact_id"] for r in rows if r["verify_state"] == "suspect"]
         reasons = self._suspect_reasons(suspects) if suspects else {}
         out: list[dict[str, Any]] = []
@@ -518,36 +530,41 @@ class Engram:
             if used + len(text) > budget_chars:
                 if out:
                     break
-                text = text[: max(budget_chars - 1, 0)] + "\u2026"  # first hit alone exceeds the budget
+                text = text[: max(budget_chars - 1, 0)] + "…"  # first hit alone exceeds the budget
             used += len(text)
-            path: list[dict[str, Any]] = [
-                {"rel": "ABOUT", "label": "Entity", "id": r["entity_id"], "name": r["entity_name"]},
-                {"rel": "IN_SCOPE", "label": "Scope", "id": r["scope_id"]},
-            ]
-            path += [{"rel": "DERIVED_FROM", "label": d["label"], "id": d["id"]} for d in r["derived_from"]]
-            path += [{"rel": "ASSERTED_BY", "label": "Agent", "id": a} for a in r["asserted_by"]]
-            out.append(
-                {
-                    "fact_id": r["fact_id"],
-                    "text": text,
-                    "score": r["score"],
-                    "path": path,
-                    "entity": r["entity_name"],
-                    "predicate": r["predicate"],
-                    "value": r["value"],
-                    "status": r["status"],
-                    "valid_from": r["valid_from"],
-                    "valid_to": r["valid_to"],
-                    "via": r["via"],
-                    "surprise": r["surprise"],
-                    "activation": None if r["fact_id"] not in acts else acts[r["fact_id"]].activation,
-                    "protected": acts[r["fact_id"]].protected if r["fact_id"] in acts else None,
-                    **self._suspect_fields(r, t, reasons),
-                }
-            )
+            out.append(self._recall_item(r, text, acts, t, reasons))
             if used >= budget_chars:
                 break
         return out
+
+    def _recall_item(
+        self, r: dict[str, Any], text: str, acts: dict[str, Any], t: int, reasons: dict[str, str]
+    ) -> dict[str, Any]:
+        """One recall result: the row's fields, its provenance ``path`` and (when ranked) its activation."""
+        path: list[dict[str, Any]] = [
+            {"rel": "ABOUT", "label": "Entity", "id": r["entity_id"], "name": r["entity_name"]},
+            {"rel": "IN_SCOPE", "label": "Scope", "id": r["scope_id"]},
+        ]
+        path += [{"rel": "DERIVED_FROM", "label": d["label"], "id": d["id"]} for d in r["derived_from"]]
+        path += [{"rel": "ASSERTED_BY", "label": "Agent", "id": a} for a in r["asserted_by"]]
+        fa = acts.get(r["fact_id"])
+        return {
+            "fact_id": r["fact_id"],
+            "text": text,
+            "score": r["score"],
+            "path": path,
+            "entity": r["entity_name"],
+            "predicate": r["predicate"],
+            "value": r["value"],
+            "status": r["status"],
+            "valid_from": r["valid_from"],
+            "valid_to": r["valid_to"],
+            "via": r["via"],
+            "surprise": r["surprise"],
+            "activation": None if fa is None else fa.activation,
+            "protected": None if fa is None else fa.protected,
+            **self._suspect_fields(r, t, reasons),
+        }
 
     def _suspect_reasons(self, fact_ids: list[str]) -> dict[str, str]:
         """Why each (stored-)suspect fact is doubted: the newest ``SUSPECTED`` Change, as one line."""

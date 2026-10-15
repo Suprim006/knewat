@@ -18,7 +18,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 from urllib.parse import urlsplit
 
-from plexus.codescan.client import McpCallError
+from plexus.codescan.client import McpCallError, tenant_path, tool_arguments, tool_result
 
 PROTOCOL_VERSION = "2025-06-18"
 
@@ -31,7 +31,7 @@ class FastSession:
         if parts.scheme not in ("http", "https") or not parts.hostname:
             raise McpCallError(f"bad Plexus url '{url[:80]}'")
         self.url = url
-        self.path = f"{parts.path.rstrip('/')}/mcp/t/{tenant}"
+        self.path = tenant_path(parts.path, tenant)
         self.agent_id = agent_id
         self.deadline = deadline
         cls = http.client.HTTPSConnection if parts.scheme == "https" else http.client.HTTPConnection
@@ -104,7 +104,7 @@ class FastSession:
                 "jsonrpc": "2.0",
                 "id": self._next_id,
                 "method": "tools/call",
-                "params": {"name": tool, "arguments": {"agent_id": self.agent_id, **args}},
+                "params": {"name": tool, "arguments": tool_arguments(self.agent_id, args)},
             }
         )
         if status != 200:
@@ -114,9 +114,7 @@ class FastSession:
             raise McpCallError(str(msg["error"].get("message", msg["error"]))[:300])
         result = msg["result"]
         text = result["content"][0]["text"] if result.get("content") else ""
-        if result.get("isError"):
-            raise McpCallError(text or f"{tool} failed")
-        return json.loads(text)
+        return tool_result(tool, text, bool(result.get("isError")))
 
     def close(self) -> None:
         try:

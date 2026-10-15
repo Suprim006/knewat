@@ -7,11 +7,10 @@ precise error.
 
 from __future__ import annotations
 
-import time
-import uuid
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
+from plexus.common import new_id, now_ms, unique
 from plexus.graph.client import GraphClient
 from plexus.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask, InvalidDag, UnknownReference
 
@@ -22,10 +21,6 @@ MAX_REFS_PER_CALL = 100
 MAX_BLOCKED_DEPTH = 10  # blocked_by_failure: BFS levels
 MAX_BLOCKED_NODES = 5000  # blocked_by_failure: distinct tasks returned
 MAX_LEASE_MS = 24 * 3600 * 1000  # longest lease a claim / heartbeat may ask for (24 h)
-
-
-def _now_ms() -> int:
-    return int(time.time() * 1000)
 
 
 def _check_lease(lease_ms: int) -> None:
@@ -60,7 +55,7 @@ def _check_acyclic(deps: dict[str, list[str]]) -> None:
 class Relay:
     """Coordination operations on one tenant graph."""
 
-    def __init__(self, client: GraphClient, graph: str, clock: Callable[[], int] = _now_ms):
+    def __init__(self, client: GraphClient, graph: str, clock: Callable[[], int] = now_ms):
         self.client = client
         self.graph = graph
         self._clock = clock
@@ -89,7 +84,7 @@ class Relay:
         rows: list[dict[str, Any]] = []
         deps: dict[str, list[str]] = {}
         for item in tasks:
-            tid = str(item.get("id") or uuid.uuid4())
+            tid = str(item.get("id") or new_id())
             if tid in deps:
                 raise InvalidDag(f"duplicate task id in batch: {tid}")
             depends = list(dict.fromkeys(str(d) for d in item.get("depends_on") or ()))
@@ -223,7 +218,7 @@ class Relay:
             raise InvalidDag(f"at most {MAX_ARTIFACTS_PER_CALL} artifacts per call, got {len(artifacts)}")
         rows = [
             {
-                "id": str(a.get("id") or uuid.uuid4()),
+                "id": str(a.get("id") or new_id()),
                 "kind": str(a.get("kind") or ""),
                 "uri": str(a.get("uri") or ""),
                 "hash": str(a.get("hash") or ""),
@@ -285,9 +280,9 @@ class Relay:
         All-or-nothing: raises :class:`UnknownReference` (and writes nothing) if either agent, the task, or
         any artifact/fact id does not exist.
         """
-        arts, facts = _ids(artifact_ids), _ids(fact_ids)
+        arts, facts = unique(artifact_ids), unique(fact_ids)
         _bound_refs(arts, facts)
-        hid = str(uuid.uuid4())
+        hid = new_id()
         rows = self.client.rw(
             self.graph,
             "relay/handoff",
@@ -326,9 +321,9 @@ class Relay:
         now: int | None = None,
     ) -> str:
         """Record a Decision BASED_ON facts; returns its id. If any fact id is unknown, nothing is written."""
-        facts = _ids(based_on_fact_ids)
+        facts = unique(based_on_fact_ids)
         _bound_refs([], facts)
-        did = str(uuid.uuid4())
+        did = new_id()
         rows = self.client.rw(
             self.graph,
             "relay/record_decision",
@@ -411,10 +406,6 @@ class Relay:
             raise DuplicateTask(dup)
         missing = [i for i in ext if i not in have]
         raise UnknownReference("dependency task", missing)
-
-
-def _ids(values: Iterable[str] | None) -> list[str]:
-    return list(dict.fromkeys(values or ()))
 
 
 def _bound_refs(*lists: list[str]) -> None:
