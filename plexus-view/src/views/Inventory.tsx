@@ -5,6 +5,7 @@ import { useApi, useTenant } from '../app/context';
 import { LABEL_MODULES, MODULE_ORDER, displayName, labelColor } from '../lib/labels';
 import { SUMMARY_LABELS, summarize } from '../lib/summary';
 import { useAsync } from '../lib/useAsync';
+import { ErrorBanner } from '../components/ErrorBanner';
 
 const SAMPLES_PER_LABEL = 3;
 
@@ -131,9 +132,7 @@ export function Inventory() {
     return (
       <section className="page">
         <h1>Inventory</h1>
-        <div className="banner error" role="alert">
-          Could not load the inventory: {inv.error.message}
-        </div>
+        <ErrorBanner>Could not load the inventory: {inv.error.message}</ErrorBanner>
       </section>
     );
   }
