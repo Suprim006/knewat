@@ -76,7 +76,8 @@ def test_one_hop_expansion_boosts_sibling_facts_on_same_entity(eng, proj):
     eng.assert_fact("Zed", "tool", "hammer", proj, "a1", now=10)
     # Both "Acme database" and "Zed owner" share exactly one token with the query; the boost for being a
     # sibling of the best hit (same ABOUT entity) ranks the Acme fact above the Zed one.
-    got = eng.recall("Acme owner alice", proj, k=2)
+    # retrieval order only: with forgetting on, a more surprising fact (carol) can outrank the sibling (P7-K)
+    got = eng.recall("Acme owner alice", proj, k=2, forgetting=False)
     assert [g["value"] for g in got] == ["alice", "postgres"]
     assert got[0]["via"] is None
 

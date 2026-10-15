@@ -52,6 +52,10 @@ def test_server_exposes_the_plexus_tool_names_and_arguments():
     for name in TOOLS:
         mine = set(tools[name].input_schema["properties"])
         theirs = set(real[name]["inputSchema"]["properties"])
+        if (
+            name == "recall"
+        ):  # P7-K: optional Plexus-only arguments (activation forgetting); baselines have none
+            theirs -= {"include_dormant", "forgetting"}
         assert mine == theirs, (name, mine ^ theirs)
 
 
