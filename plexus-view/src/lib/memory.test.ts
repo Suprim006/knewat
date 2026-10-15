@@ -43,14 +43,24 @@ describe('isSuspectAt', () => {
 describe('suspectReason', () => {
   it('names the change when the code moved and the date when a review date passed', () => {
     expect(suspectReason({ verify_state: 'suspect', suspect_since: T })).toMatch(/^changed code .*2026/);
-    expect(suspectReason({ verify_state: 'verified', verify_after: T })).toMatch(/^review date passed .*2026/);
+    expect(suspectReason({ verify_state: 'verified', verify_after: T })).toMatch(
+      /^review date passed .*2026/,
+    );
   });
 });
 
 describe('factMemory', () => {
   it('reads the badges from a fact', () => {
     const m = factMemory(
-      { verify_state: 'suspect', suspect_since: T - 1, pinned: true, status: 'dormant', activation: -1.5, protected: true, surprise: 0.8 },
+      {
+        verify_state: 'suspect',
+        suspect_since: T - 1,
+        pinned: true,
+        status: 'dormant',
+        activation: -1.5,
+        protected: true,
+        surprise: 0.8,
+      },
       T,
     );
     expect(m).toMatchObject({
@@ -72,7 +82,11 @@ describe('factMemory', () => {
     });
   });
   it('prefers a reason from the verify queue over the generic one', () => {
-    const m = factMemory({ verify_state: 'suspect', suspect_since: 1 }, T, 'changed in a1b2c3d (app/auth.py)');
+    const m = factMemory(
+      { verify_state: 'suspect', suspect_since: 1 },
+      T,
+      'changed in a1b2c3d (app/auth.py)',
+    );
     expect(m.reason).toBe('changed in a1b2c3d (app/auth.py)');
   });
 });
@@ -134,9 +148,9 @@ describe('memoryNodeData', () => {
 
 describe('strengthCounts', () => {
   it('summarises the events as "n kind" in the order of the contract and drops zeros', () => {
-    expect(strengthCounts({ create: 1, reassert: 0, decision: 2, use: 3, recall: 0, verified: 1, handoff: 0 })).toBe(
-      '1 creation, 2 decisions, 3 uses, 1 verification',
-    );
+    expect(
+      strengthCounts({ create: 1, reassert: 0, decision: 2, use: 3, recall: 0, verified: 1, handoff: 0 }),
+    ).toBe('1 creation, 2 decisions, 3 uses, 1 verification');
     expect(strengthCounts({})).toBe('no events');
   });
 });

@@ -8,14 +8,7 @@
  * Synthetic data only.
  */
 import { OPEN } from '../api/types';
-import type {
-  DocRow,
-  GraphEdge,
-  GraphNode,
-  MemoryStrength,
-  Props,
-  VerifyRow,
-} from '../api/types';
+import type { DocRow, GraphEdge, GraphNode, MemoryStrength, Props, VerifyRow } from '../api/types';
 import type { AcmeDataset } from './acme';
 import { T0, stepTime } from './acme';
 import { isSuspectAt, medianActivation, sigmoid } from '../lib/memory';
@@ -119,7 +112,11 @@ export function applyP7(base: AcmeDataset): AcmeDataset {
     }),
   ];
 
-  const edge = (type: string, s: string, t: string): GraphEdge => ({ type, source: idOf(s), target: idOf(t) });
+  const edge = (type: string, s: string, t: string): GraphEdge => ({
+    type,
+    source: idOf(s),
+    target: idOf(t),
+  });
   const extraEdges: GraphEdge[] = [
     edge('ANCHORED_TO', 'f.jwt', 'anc.jwt'),
     edge('ANCHORED_TO', 'f.mw', 'anc.mw'),
@@ -164,10 +161,22 @@ function protectReasons(edges: readonly GraphEdge[], id: string, pinned: boolean
     edges.filter(pick).map(label).slice(0, 1);
   return [
     ...(pinned ? ['pinned'] : []),
-    ...first((e) => e.type === 'BASED_ON' && e.target === id, (e) => `decision:${e.source}`),
-    ...first((e) => e.type === 'CARRIES' && e.target === id, (e) => `handoff:${e.source}`),
-    ...first((e) => e.type === 'SUPERSEDES' && e.source === id, (e) => `supersedes:${e.target}`),
-    ...first((e) => e.type === 'CONTRADICTS' && (e.source === id || e.target === id), (e) => `contradicts:${e.source === id ? e.target : e.source}`),
+    ...first(
+      (e) => e.type === 'BASED_ON' && e.target === id,
+      (e) => `decision:${e.source}`,
+    ),
+    ...first(
+      (e) => e.type === 'CARRIES' && e.target === id,
+      (e) => `handoff:${e.source}`,
+    ),
+    ...first(
+      (e) => e.type === 'SUPERSEDES' && e.source === id,
+      (e) => `supersedes:${e.target}`,
+    ),
+    ...first(
+      (e) => e.type === 'CONTRADICTS' && (e.source === id || e.target === id),
+      (e) => `contradicts:${e.source === id ? e.target : e.source}`,
+    ),
   ];
 }
 
@@ -217,7 +226,9 @@ export function verifyQueue(d: AcmeDataset, now: number, limit = 50): VerifyRow[
           .filter((e) => e.type === 'ANCHORED_TO' && e.source === f.id)
           .map((e) => anchorLabel(byId.get(e.target)!)),
         ...d.edges
-          .filter((e) => e.type === 'DERIVED_FROM' && e.source === f.id && byId.get(e.target)?.label === 'Source')
+          .filter(
+            (e) => e.type === 'DERIVED_FROM' && e.source === f.id && byId.get(e.target)?.label === 'Source',
+          )
           .map((e) => String(byId.get(e.target)!.props.uri)),
       ];
       const changed = f.props.verify_state === 'suspect' && chg;
@@ -230,13 +241,16 @@ export function verifyQueue(d: AcmeDataset, now: number, limit = 50): VerifyRow[
         verify_state: String(f.props.verify_state),
         suspect_since: Number(f.props.suspect_since),
         verify_after: Number(f.props.verify_after),
-        reason: changed
-          ? `changed in ${chg.props.commit} (${paths(chg)[0] ?? ''})`
-          : 'review date passed',
+        reason: changed ? `changed in ${chg.props.commit} (${paths(chg)[0] ?? ''})` : 'review date passed',
         decisions_count: d.edges.filter((e) => e.type === 'BASED_ON' && e.target === f.id).length,
         anchors,
         change: changed
-          ? { change_id: chg.id, commit: String(chg.props.commit), at: Number(chg.props.at), paths: paths(chg) }
+          ? {
+              change_id: chg.id,
+              commit: String(chg.props.commit),
+              at: Number(chg.props.at),
+              paths: paths(chg),
+            }
           : null,
         activation: typeof f.props.activation === 'number' ? f.props.activation : null,
         protected: typeof f.props.protected === 'boolean' ? f.props.protected : null,

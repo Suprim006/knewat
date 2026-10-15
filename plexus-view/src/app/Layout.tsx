@@ -8,6 +8,7 @@ const NAV: { to: string; label: string; end?: boolean }[] = [
   { to: '/flow', label: 'Flow' },
   { to: '/time', label: 'Time Machine' },
   { to: '/why/latest', label: 'Why' },
+  { to: '/verify', label: 'Verify' },
   { to: '/inventory', label: 'Inventory' },
   { to: '/results', label: 'Results' },
 ];

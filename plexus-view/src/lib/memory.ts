@@ -18,7 +18,11 @@ export const activationOpacity = (activation: number, a0: number): number =>
   MIN_OPACITY + (1 - MIN_OPACITY) * sigmoid(activation - a0);
 
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null);
-const when = (ms: number): string => new Date(ms).toISOString().replace('T', ' ').replace(/:\d\d\.\d+Z$/, 'Z');
+const when = (ms: number): string =>
+  new Date(ms)
+    .toISOString()
+    .replace('T', ' ')
+    .replace(/:\d\d\.\d+Z$/, 'Z');
 
 /** Facts the staleness rule applies to: a superseded or forgotten fact is not worth re-checking. */
 const rated = (p: Props): boolean => p.status !== 'superseded' && p.status !== 'forgotten';

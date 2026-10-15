@@ -38,8 +38,12 @@ describe('Explorer legend for staleness and forgetting', () => {
     expect(within(legend).getByTestId('legend-dormant')).toHaveTextContent(/dashed/i);
     expect(within(legend).getByTestId('legend-dormant')).toHaveTextContent(/dormant/i);
     expect(within(legend).getByTestId('legend-faded')).toHaveTextContent(/opacity|faded/i);
-    expect(within(legend).getByTestId('legend-dormant').querySelector('[data-testid=legend-count]')).toHaveTextContent('3');
-    expect(within(legend).getByTestId('legend-pinned').querySelector('[data-testid=legend-count]')).toHaveTextContent('2');
+    expect(
+      within(legend).getByTestId('legend-dormant').querySelector('[data-testid=legend-count]'),
+    ).toHaveTextContent('3');
+    expect(
+      within(legend).getByTestId('legend-pinned').querySelector('[data-testid=legend-count]'),
+    ).toHaveTextContent('2');
   });
 
   it('shows an empty state for a tenant with no staleness or forgetting data', async () => {
@@ -79,9 +83,15 @@ describe('Node panel: memory strength', () => {
     const user = userEvent.setup();
     renderApp('/', p7Api());
     await loaded();
-    const panel = await openFact(user, 'language: Python 3.12 with FastAPI', /language: Python 3\.12 with FastAPI/);
+    const panel = await openFact(
+      user,
+      'language: Python 3.12 with FastAPI',
+      /language: Python 3\.12 with FastAPI/,
+    );
     const strength = await within(panel).findByRole('region', { name: 'Memory strength' });
-    await waitFor(() => expect(within(strength).getByTestId('strength-protected')).toHaveTextContent(/pinned/));
+    await waitFor(() =>
+      expect(within(strength).getByTestId('strength-protected')).toHaveTextContent(/pinned/),
+    );
     expect(within(panel).getByTestId('badge-pinned')).toHaveTextContent('📌 pinned');
     expect(within(strength).getByTestId('strength-verify')).toHaveTextContent(/verified/i);
     expect(within(panel).queryByRole('link', { name: /needs verification/i })).not.toBeInTheDocument();

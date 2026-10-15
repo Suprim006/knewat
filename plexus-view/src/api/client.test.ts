@@ -60,11 +60,7 @@ describe('createHttpApi', () => {
       (a) => a.docsToUpdate('acme', { since: 5, limit: 10 }),
       'http://api/api/acme/docs-to-update?since=5&limit=10',
     ],
-    [
-      'memoryStrength',
-      (a) => a.memoryStrength('acme', 'f/1'),
-      'http://api/api/acme/memory-strength/f%2F1',
-    ],
+    ['memoryStrength', (a) => a.memoryStrength('acme', 'f/1'), 'http://api/api/acme/memory-strength/f%2F1'],
   ];
   it.each(cases)('%s requests the right URL', async (_name, call, expected) => {
     const f = fakeFetch();

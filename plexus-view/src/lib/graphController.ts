@@ -415,7 +415,9 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
    * the Facts on the canvas. Cheap (one pass); runs after every change to the node set or their properties.
    */
   function applyMemory(): void {
-    const all = cy.nodes().map((n) => ({ id: n.id(), label: String(n.data('label')), props: n.data('props') as Props }));
+    const all = cy
+      .nodes()
+      .map((n) => ({ id: n.id(), label: String(n.data('label')), props: n.data('props') as Props }));
     const a0 = givenA0 ?? medianActivation(all);
     const t = now();
     const counts: MemoryCounts = { suspect: 0, pinned: 0, dormant: 0, faded: 0 };

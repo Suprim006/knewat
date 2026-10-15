@@ -73,7 +73,10 @@ describe('graph controller: staleness and forgetting markers', () => {
     c.setActivationCenter(3);
     expect(node(c, 'f.jwt').data('opacity')).toBeCloseTo(activationOpacity(1.4, 3), 10);
     c.setActivationCenter(null);
-    expect(node(c, 'f.jwt').data('opacity')).toBeCloseTo(activationOpacity(1.4, medianActivation(data.nodes)!), 10);
+    expect(node(c, 'f.jwt').data('opacity')).toBeCloseTo(
+      activationOpacity(1.4, medianActivation(data.nodes)!),
+      10,
+    );
   });
 
   it('does not touch the opacity of nodes with no activation (old tenants, other labels)', () => {

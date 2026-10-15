@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { formatProp, labelColor } from '../lib/labels';
 import { factMemory, PIN_GLYPH, SUSPECT_GLYPH } from '../lib/memory';
+import { useNow } from '../lib/useNow';
 import { MemoryStrengthSection } from './MemoryStrength';
 import type { NeighborInfo, NodeDescription } from '../lib/graphController';
 
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClose }: Props) {
+  const now = useNow();
   if (!node) {
     return (
       <aside className="panel side" aria-label="Node details">
@@ -23,7 +25,7 @@ export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClos
     );
   }
   const keys = Object.keys(node.props).filter((k) => k !== 'embedding');
-  const mem = node.label === 'Fact' ? factMemory(node.props, Date.now()) : null;
+  const mem = node.label === 'Fact' ? factMemory(node.props, now) : null;
   const groups = new Map<string, NeighborInfo[]>();
   for (const n of node.neighbors) {
     const k = `${n.direction === 'out' ? '→' : '←'} ${n.type}`;

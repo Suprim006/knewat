@@ -6,6 +6,7 @@ import { formatProp } from '../lib/labels';
 import type { Props } from '../api';
 import { factMemory, hasMemoryData, strengthCounts } from '../lib/memory';
 import { useAsync } from '../lib/useAsync';
+import { useNow } from '../lib/useNow';
 
 const fmt = (v: number | null | undefined, digits = 2): string =>
   typeof v === 'number' && Number.isFinite(v) ? v.toFixed(digits) : '—';
@@ -30,7 +31,8 @@ export function MemoryStrengthSection({ factId, props }: SectionProps) {
   const api = useApi();
   const { tenant } = useTenant();
   const present = hasMemoryData(props);
-  const mem = factMemory(props, Date.now());
+  const now = useNow();
+  const mem = factMemory(props, now);
 
   const loadStrength = useCallback(
     () => (present && tenant ? api.memoryStrength(tenant, factId) : Promise.resolve(undefined)),
@@ -107,9 +109,7 @@ export function MemoryStrengthSection({ factId, props }: SectionProps) {
           <dd data-testid="strength-verify">
             {mem.suspect ? 'suspect' : verifyState}
             {mem.suspect && since > 0 && <span> since {formatProp('suspect_since', since)}</span>}
-            {mem.suspect && (
-              <span className="muted"> · {row?.reason ?? mem.reason}</span>
-            )}
+            {mem.suspect && <span className="muted"> · {row?.reason ?? mem.reason}</span>}
             {change && (
               <span className="muted">
                 {' '}
