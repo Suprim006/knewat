@@ -148,10 +148,10 @@ memory **suspect**, never false: it stays recallable, and the agent re-checks it
 
 | Tool | Arguments (besides `agent_id`, `step`) | What it does |
 |---|---|---|
-| `anchor_fact` | `fact_id`, `path`, `symbol=''`, `hash=''` | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` for a file or a Python function / class. Unknown fact: error, nothing written. |
+| `anchor_fact` | `fact_id`, `path`, `symbol=''`, `hash=''` | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` for a file or a Python function / class. A `hash` that differs from the anchor's stored hash makes the fact suspect (`suspect: true`, `change_id`). Unknown fact: error, nothing written. |
 | `describe_code` | `source_id`, `path`, `symbol=''`, `hash=''` | `(Source)-[:DESCRIBES]->(CodeAnchor)`: this doc describes this code. |
 | `mark_changed` | `changes=[{path, symbol='', new_hash, old_hash='', kind?}]` (1..200), `commit=''`, `at=null` | The hook entry point. Active facts anchored to (or derived from a Source at) a changed file / symbol become `suspect`; returns `change_id`, `suspect_fact_ids`, `decisions` (+ `decisions_total`), `docs_to_update`, `unchanged`, `truncated`. A first sighting without `old_hash` is a baseline. |
-| `verify_fact` | `fact_id`, `still_true`, `new_value=''`, `evidence=''`, `commit=''` | Confirmed: `verified`. Changed: the new value is asserted (supersede), the old fact ends at the time of the code change, decisions on the old fact are flagged. |
+| `verify_fact` | `fact_id`, `still_true`, `new_value=''`, `evidence=''`, `commit=''` | Confirmed: `verified`. Changed: the new value is asserted (supersede), the old fact ends at the time of the code change, decisions on the old fact are flagged. If the backdate fails twice the result has `verify_degraded: true`; calling it again with the same `new_value` finishes the job. |
 | `facts_to_verify` | `scope=''`, `limit=50` | Suspect facts (changed code or a passed review date), ordered by live decisions, then activation, then age; each row has reason, anchors, decision count and (forgetting on) `activation`, `protected`. |
 | `docs_to_update` | `since=0`, `limit=50` | Docs that describe code changed after the doc was last edited, with the commits / paths. |
 | `set_review_date` | `fact_id`, `verify_after` (epoch ms) | Review date for facts no code change can invalidate; once passed the fact is suspect. |
