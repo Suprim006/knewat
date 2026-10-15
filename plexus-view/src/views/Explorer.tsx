@@ -2,22 +2,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { connectFlowStream } from '../api';
 import type { FlowEvent } from '../api';
 import { useApi, useTenant } from '../app/context';
+import { LiveFeed } from '../components/explorer/LiveFeed';
+import { SearchBox } from '../components/explorer/SearchBox';
+import { ViewControls } from '../components/explorer/ViewControls';
 import { FilterPanel } from '../components/FilterPanel';
 import { GraphCanvas } from '../components/GraphCanvas';
 import { NodePanel } from '../components/NodePanel';
-import { AblationPanel } from '../components/AblationPanel';
 import { MemoryLegend } from '../components/MemoryLegend';
 import { ABLATED_EDGE_TYPES, effectiveHiddenEdges } from '../lib/ablation';
-import { formatClock } from '../lib/flow';
-import { DEFAULT_HIDDEN_EDGE_TYPES, DEFAULT_HIDDEN_LABELS, MODULE_COLORS, labelColor } from '../lib/labels';
+import { errorMessage } from '../lib/errors';
+import { DEFAULT_HIDDEN_EDGE_TYPES, DEFAULT_HIDDEN_LABELS } from '../lib/labels';
 import type { ColorMode } from '../lib/labels';
 import type { Counts, GraphController } from '../lib/graphController';
 import { EMPTY_MEMORY_COUNTS } from '../lib/memory';
 import type { MemoryCounts } from '../lib/memory';
+import { GRAPH_LIMIT, useLiveIngest, useReplay } from '../lib/useLiveGraph';
 
-const GRAPH_LIMIT = 2000;
-const REPLAY_EVENTS = 24;
-const REPLAY_INTERVAL_MS = 700;
 const EMPTY_COUNTS: Counts = { visibleNodes: 0, totalNodes: 0, visibleEdges: 0, totalEdges: 0 };
 
 interface Stats {
@@ -50,7 +50,6 @@ export function Explorer() {
   const [sel, setSel] = useState<{ tenant: string; id: string } | null>(null);
   const [feed, setFeed] = useState<FlowEvent[]>([]);
   const [streamStatus, setStreamStatus] = useState('');
-  const [replay, setReplay] = useState<{ tenant: string; done: number; total: number } | null>(null);
 
   const filtersRef = useRef<{ hiddenLabels: ReadonlySet<string>; hiddenEdgeTypes: ReadonlySet<string> }>({
     hiddenLabels,
@@ -59,11 +58,6 @@ export function Explorer() {
   const queryRef = useRef('');
   const colorRef = useRef<ColorMode>('label');
   const lastAtRef = useRef(0);
-  const replayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const ingestQueue = useRef<Promise<void>>(Promise.resolve());
-  /** Live-read state of the current (controller, tenant); replaced on switch so a stale read cannot touch it. */
-  const liveRead = useRef({ running: false, dirty: false });
-  const [liveError, setLiveError] = useState<{ tenant: string; message: string } | null>(null);
 
   const selectedId = sel && sel.tenant === tenant ? sel.id : null;
   const ready = !!ctl && loaded?.tenant === tenant && !loaded.error;
@@ -103,7 +97,7 @@ export function Explorer() {
         refresh(ctl);
       })
       .catch((e: unknown) => {
-        if (live) setLoaded({ tenant, error: e instanceof Error ? e.message : String(e) });
+        if (live) setLoaded({ tenant, error: errorMessage(e) });
       });
     return () => {
       live = false;
@@ -132,70 +126,9 @@ export function Explorer() {
     ctl?.select(selectedId);
   }, [ctl, selectedId, rev]);
 
-  /* a new controller or tenant starts a fresh live-read state (an old read finishing must not touch it) */
-  useEffect(() => {
-    liveRead.current = { running: false, dirty: false };
-  }, [ctl, tenant]);
-
-  /*
-   * A flow event arrived (SSE, or the fixture replay). The API cannot fetch nodes by id, and a
-   * `since`/`until` window on created_at would drop the edges that join new nodes to older ones, so we
-   * re-read the (bounded) subgraph and let `addLive` add only what is new: no relayout, new nodes seeded
-   * next to a neighbour.
-   *
-   * Live events are coalesced: at most one read is in flight; events that arrive meanwhile only set a
-   * `dirty` flag, and one trailing read picks up everything they changed. A burst of N calls therefore
-   * costs two reads, not N. A failed read is shown (not swallowed) and the next event retries.
-   *
-   * The replay passes `until` (caps the read at the event's time so nodes appear one event at a time);
-   * those reads are deliberately one per event, in order.
-   */
-  const ingest = useCallback(
-    (ev: FlowEvent, until?: number): Promise<void> => {
-      if (!ctl) return Promise.resolve();
-      setFeed((f) => [ev, ...f].slice(0, 6));
-      lastAtRef.current = Math.max(lastAtRef.current, ev.at);
-      const known = (id: string) => ctl.cy.getElementById(id).nonempty();
-      const touchesNew = ev.created.some((r) => !known(r.id)) || ev.updated.length > 0;
-      if (!touchesNew && until === undefined) return Promise.resolve();
-
-      const state = liveRead.current;
-      const read = async (cap?: number) => {
-        const g = await api.graph(tenant, { limit: GRAPH_LIMIT, until: cap });
-        if (liveRead.current !== state) return; // tenant or controller changed while reading
-        ctl.addLive(g.nodes, g.edges);
-        ctl.updateProps(g.nodes);
-        if (g.a0 !== undefined) ctl.setActivationCenter(g.a0);
-        setLiveError(null);
-        refresh(ctl);
-      };
-      if (until !== undefined) {
-        const run = () => read(until);
-        ingestQueue.current = ingestQueue.current.then(run).catch(() => undefined);
-        return ingestQueue.current;
-      }
-      if (state.running) {
-        state.dirty = true;
-        return Promise.resolve();
-      }
-      state.running = true;
-      void (async () => {
-        try {
-          do {
-            state.dirty = false;
-            await read();
-          } while (state.dirty && liveRead.current === state);
-        } catch (e) {
-          if (liveRead.current === state)
-            setLiveError({ tenant, message: e instanceof Error ? e.message : String(e) });
-        } finally {
-          state.running = false;
-        }
-      })();
-      return Promise.resolve();
-    },
-    [ctl, api, tenant, refresh],
-  );
+  const live = { ctl, api, tenant, refresh, lastAtRef, setFeed };
+  const { ingest, liveError } = useLiveIngest(live);
+  const replay = useReplay(live, ingest);
 
   /* live mode: SSE with reconnection */
   useEffect(() => {
@@ -209,47 +142,6 @@ export function Explorer() {
       onEvent: (ev) => void ingest(ev),
     });
   }, [api, tenant, ready, ingest]);
-
-  /* stop any running replay when the tenant or controller changes */
-  useEffect(
-    () => () => {
-      if (replayTimer.current) clearTimeout(replayTimer.current);
-      replayTimer.current = null;
-    },
-    [tenant, ctl],
-  );
-
-  const startReplay = async () => {
-    if (!ctl) return;
-    const events = (await api.flow(tenant)).events.slice(-REPLAY_EVENTS);
-    const first = events[0];
-    if (!first) return;
-    ctl.removeCreatedSince(first.at);
-    lastAtRef.current = first.at - 1;
-    setFeed([]);
-    refresh(ctl);
-    const total = events.length;
-    const tick = (i: number) => {
-      const ev = events[i];
-      if (!ev) {
-        setReplay(null);
-        return;
-      }
-      replayTimer.current = setTimeout(() => {
-        void ingest(ev, ev.at).then(() => {
-          setReplay({ tenant, done: i + 1, total });
-          tick(i + 1);
-        });
-      }, REPLAY_INTERVAL_MS);
-    };
-    setReplay({ tenant, done: 0, total });
-    tick(0);
-  };
-  const stopReplay = () => {
-    if (replayTimer.current) clearTimeout(replayTimer.current);
-    replayTimer.current = null;
-    setReplay(null);
-  };
 
   const pushFilters = (labels: ReadonlySet<string>, edgeTypes: ReadonlySet<string>, ablate: boolean) => {
     filtersRef.current = { hiddenLabels: labels, hiddenEdgeTypes: effectiveHiddenEdges(edgeTypes, ablate) };
@@ -304,111 +196,27 @@ export function Explorer() {
     .map((id) => ctl?.describe(id))
     .filter((d) => d != null);
   const c = stats.counts;
-  const replaying = replay !== null && replay.tenant === tenant;
 
   return (
     <section className="explorer">
       <aside className="panel filters" aria-label="Filters">
-        <div className="search">
-          <input
-            type="search"
-            placeholder="Search nodes (name, text, value)…"
-            aria-label="Search nodes"
-            value={query}
-            onChange={(e) => onQuery(e.target.value)}
-          />
-          {query.trim() && (
-            <div className="search-results" aria-live="polite">
-              <div className="muted">
-                {results.length} match{results.length === 1 ? '' : 'es'}
-              </div>
-              <ul>
-                {names.map((d) => (
-                  <li key={d.id}>
-                    <button type="button" className="link" onClick={() => jumpTo(d.id)}>
-                      <span className="dot" style={{ background: labelColor(d.label) }} />
-                      {d.name}
-                      <span className="muted"> · {d.label}</span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-        <section aria-labelledby="view-h" className="view-controls">
-          <h3 id="view-h">View</h3>
-          <label className="inline">
-            Colour by
-            <select
-              aria-label="Colour by"
-              value={colorMode}
-              onChange={(e) => onColorMode(e.target.value as ColorMode)}
-            >
-              <option value="label">node label</option>
-              <option value="module">module</option>
-            </select>
-          </label>
-          {colorMode === 'module' && (
-            <ul className="module-legend" data-testid="module-legend">
-              {Object.entries(MODULE_COLORS).map(([m, c]) => (
-                <li key={m}>
-                  <span className="dot" style={{ background: c }} /> {m}
-                </li>
-              ))}
-            </ul>
-          )}
-          {bounds && bounds[0] < bounds[1] && (
-            <fieldset className="time-range" data-testid="time-range">
-              <legend>Time range (created)</legend>
-              <label>
-                From
-                <input
-                  type="range"
-                  aria-label="Time range from"
-                  min={bounds[0]}
-                  max={bounds[1]}
-                  value={range?.[0] ?? bounds[0]}
-                  onChange={(e) => {
-                    const hi = range?.[1] ?? bounds[1];
-                    onRange([Math.min(Number(e.target.value), hi), hi]);
-                  }}
-                />
-                <output>{formatClock(range?.[0] ?? bounds[0])}</output>
-              </label>
-              <label>
-                To
-                <input
-                  type="range"
-                  aria-label="Time range to"
-                  min={bounds[0]}
-                  max={bounds[1]}
-                  value={range?.[1] ?? bounds[1]}
-                  onChange={(e) => {
-                    const lo = range?.[0] ?? bounds[0];
-                    onRange([lo, Math.max(Number(e.target.value), lo)]);
-                  }}
-                />
-                <output>{formatClock(range?.[1] ?? bounds[1])}</output>
-              </label>
-              {range && (
-                <button type="button" className="link" onClick={() => onRange(null)}>
-                  reset
-                </button>
-              )}
-            </fieldset>
-          )}
-          <label className="check ablation-toggle">
-            <input
-              type="checkbox"
-              checked={ablation}
-              onChange={(e) => onAblation(e.target.checked)}
-              aria-label="Ablation: hide DEPENDS_ON, BASED_ON, DERIVED_FROM and READ"
-            />
-            <span className="check-name">Ablation view</span>
-          </label>
-          {ablation && <AblationPanel counts={stats.edges} />}
-        </section>
+        <SearchBox
+          query={query}
+          onQuery={onQuery}
+          matchCount={results.length}
+          matches={names}
+          onJump={jumpTo}
+        />
+        <ViewControls
+          colorMode={colorMode}
+          onColorMode={onColorMode}
+          bounds={bounds}
+          range={range}
+          onRange={onRange}
+          ablation={ablation}
+          onAblation={onAblation}
+          edgeCounts={stats.edges}
+        />
         <MemoryLegend counts={stats.memory} />
         <FilterPanel
           labelCounts={stats.labels}
@@ -418,30 +226,14 @@ export function Explorer() {
           forcedEdgeTypes={ablation ? ABLATED_EDGE_TYPES : []}
           onChange={onFilters}
         />
-        <section aria-labelledby="live-h" className="live">
-          <h3 id="live-h">Live feed</h3>
-          {streamStatus && <div className="muted">stream: {streamStatus}</div>}
-          {fixtureMode && (
-            <button
-              type="button"
-              className="btn small"
-              onClick={replaying ? stopReplay : () => void startReplay()}
-            >
-              {replaying ? `Stop replay (${replay.done}/${replay.total})` : '▶ Replay last events as live'}
-            </button>
-          )}
-          <ul className="feed">
-            {feed.map((e) => (
-              <li key={e.id}>
-                <span className="mono">{e.tool}</span>
-                <span className="muted">
-                  {' '}
-                  +{e.created.length} ~{e.updated.length}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <LiveFeed
+          feed={feed}
+          streamStatus={streamStatus}
+          replayable={fixtureMode}
+          replay={replay.replay}
+          onStartReplay={() => void replay.start()}
+          onStopReplay={replay.stop}
+        />
       </aside>
 
       <div className="canvas-wrap">
