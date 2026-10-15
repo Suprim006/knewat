@@ -288,3 +288,12 @@ judgement. **Rejected alternatives:**
 mainstream product keeps. It is deterministic, and decision-supporting facts are protected, which is the failure mode
 the research warns about. It is honest about the benefit: **less noise and cost, not better accuracy, unless measured.**
 P7 measures it with a pre-registered Crucible layer before any claim is made.
+
+**Amendment 2026-10-16 (after Crucible L5b).** The pre-registered run at the default floor 0.5 **failed** its own
+criteria: recall@5 fell from 98.6% to 73–75% and 7–8 of 80 critical probes were outranked (none were swept; nothing
+was deleted). Cause: among near-identical facts in one scope, the activation multiplier (0.5–1.0) moves a popular or
+protected twin more than the tiny relevance gap, so popularity outranks relevance. A post-hoc sweep showed floor 0.9
+keeps every critical probe and 96.4% recall@5 while still cutting noise (23% → 14%). **Decision:** the default floor is
+`PLEXUS_ACT_FLOOR=0.9`, confirmed by a second, pre-registered run (`docs/BASELINE.md`, L5b confirmatory). The
+`memory_sweep` is lossy for cold-but-true facts in this benchmark (cold@5 ~35–70%) and stays optional, dry-run by
+default and reversible. Protection prevents sweeping, not outranking: the docs say so.
