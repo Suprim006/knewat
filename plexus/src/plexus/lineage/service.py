@@ -7,7 +7,7 @@ use ``ro``. Time is epoch ms; ``clock`` / ``now`` are injectable for tests.
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any
+from typing import Any, NoReturn
 
 from plexus.common import check_between, new_id, normalize, now_ms, unique
 from plexus.graph.client import GraphClient
@@ -144,10 +144,13 @@ class Lineage:
             {"step_id": step_id, "read_ids": read, "wrote_ids": wrote, "via": via},
         )
         if not rows:
-            wanted = [step_id, *wrote, *read]
-            have = {r["id"] for r in self.client.ro(self.graph, "lineage/existing_ids", {"ids": wanted})}
-            raise UnknownStep(f"unknown id(s): {', '.join(i for i in wanted if i not in have)}")
+            self._raise_unknown([step_id, *wrote, *read])
         return {"read": rows[0]["n_read"], "wrote": rows[0]["n_wrote"]}
+
+    def _raise_unknown(self, wanted: list[str]) -> NoReturn:
+        """Raise :class:`UnknownStep` naming the ids in ``wanted`` that no node carries."""
+        have = {r["id"] for r in self.client.ro(self.graph, "lineage/existing_ids", {"ids": wanted})}
+        raise UnknownStep(f"unknown id(s): {', '.join(i for i in wanted if i not in have)}")
 
     # -- derivation and recall records ------------------------------------------------------------------
     def derive_from(self, fact_id: str, from_ids: Iterable[str]) -> int:
@@ -213,9 +216,7 @@ class Lineage:
             },
         )
         if not res:
-            wanted = ([step_id] if step_id else []) + [r["fact_id"] for r in rows]
-            have = {r["id"] for r in self.client.ro(self.graph, "lineage/existing_ids", {"ids": wanted})}
-            raise UnknownStep(f"unknown id(s): {', '.join(i for i in wanted if i not in have)}")
+            self._raise_unknown(([step_id] if step_id else []) + [r["fact_id"] for r in rows])
         return recall_id
 
     def link_assert_result(self, step_id: str, result: dict[str, Any]) -> dict[str, int]:

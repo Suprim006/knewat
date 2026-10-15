@@ -200,7 +200,9 @@ def cmd_mcp_config(a: argparse.Namespace) -> int:
 
 # ------------------------------------------------------------------------------------------------ parser
 def _tenant_arg(sp: argparse.ArgumentParser, default: str | None = DEFAULT_TENANT) -> None:
-    sp.add_argument("--tenant", default=default, help=f"tenant (graph plexus_t_<tenant>), default '{default}'")
+    sp.add_argument(
+        "--tenant", default=default, help=f"tenant (graph plexus_t_<tenant>), default '{default}'"
+    )
 
 
 def _add_seed(ds) -> None:
