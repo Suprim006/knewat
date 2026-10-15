@@ -3,7 +3,7 @@
 // params: source_id:str, now:int, limit:int, max_detail:int
 // returns: fact_ids (facts changed), reads [{agent_id, step_id, n, at, fact_id}] (earliest first, at most max_detail), reads_total, agent_ids (every agent that read one; never cut), decision_ids (at most max_detail), decisions_total, handoff_ids (at most max_detail), handoffs_total, truncated (true when `limit` facts were hit: call again). Zero rows = no such Source.
 // mode: rw
-// Only facts with status 'active' or 'superseded' are touched; the old status is kept in prior_status so lineage/release_quarantine can restore it. Decisions and handoffs are reported, not modified.
+// Only facts with status 'active', 'superseded' or 'dormant' are touched (a dormant fact is quarantined too, and released back to dormant, P7-int); the old status is kept in prior_status so lineage/release_quarantine can restore it. Decisions and handoffs are reported, not modified.
 // The write is bounded by $limit (callers use <= 5000), applied BEFORE the SET because LIMIT does not stop eager writes.
 // The response is bounded (P5 review Q11): reads / decision_ids / handoff_ids are cut at max_detail (callers use <= 5000), the *_total counts and agent_ids are exact.
 // Plan shape (P5 review Q3): the cascade is expanded level by level FROM the Source (five fixed one-hop OPTIONAL MATCHes, each driven by the
@@ -26,7 +26,7 @@ UNWIND CASE WHEN size(l4) = 0 THEN [null] ELSE l4 END AS x4
 OPTIONAL MATCH (n5:Fact)-[:DERIVED_FROM]->(x4)
 WITH src, l1, l2, l3, l4, collect(DISTINCT n5) AS l5
 WITH src, l1 + l2 + l3 + l4 + l5 AS reach
-WITH src, [r IN reach WHERE r.status IN ['active', 'superseded']] AS cand
+WITH src, [r IN reach WHERE r.status IN ['active', 'superseded', 'dormant']] AS cand
 UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs

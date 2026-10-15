@@ -3,6 +3,7 @@
 // params: source_id:str, now:int, limit:int, reason:str, max_detail:int
 // returns: fact_ids (facts changed by this call), decision_ids (decisions flagged; at most max_detail listed), decisions_total, handoff_ids (handoffs that CARRY a forgotten fact, reported only; at most max_detail listed), handoffs_total, truncated (true when `limit` facts were hit: call again to continue). Zero rows = no such Source.
 // mode: rw
+// A 'dormant' fact (moved by memory_sweep) is forgotten too, so restore_fact cannot bring it back (P7-int).
 // Idempotent: facts that are already 'forgotten' are skipped, so a second call changes nothing. The write is bounded by $limit (callers use <= 5000) because LIMIT does not stop eager writes: it is applied BEFORE the SET.
 // A fact derived from several sources is forgotten as soon as ANY of them is forgotten (forget is strict; quarantine is the reversible variant).
 // The decision / handoff lists in the response are cut at max_detail (the totals are exact); every affected decision is still flagged.
@@ -26,7 +27,7 @@ UNWIND CASE WHEN size(l4) = 0 THEN [null] ELSE l4 END AS x4
 OPTIONAL MATCH (n5:Fact)-[:DERIVED_FROM]->(x4)
 WITH src, l1, l2, l3, l4, collect(DISTINCT n5) AS l5
 WITH src, l1 + l2 + l3 + l4 + l5 AS reach
-WITH src, [r IN reach WHERE r.status IN ['active', 'superseded', 'quarantined']] AS cand
+WITH src, [r IN reach WHERE r.status IN ['active', 'superseded', 'quarantined', 'dormant']] AS cand
 UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs

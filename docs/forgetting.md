@@ -84,8 +84,11 @@ Reported as `protected: true`; they use `max(A, A₀)` in recall and are never s
 * the start of a `SUPERSEDES` edge, or either end of a `CONTRADICTS` edge;
 * derived (`DERIVED_FROM`, up to 3 hops) from a Source with `trust = 'high'`.
 
-`Source.trust` is a **float** today (`create_source` writes `1.0`); only the string `'high'` (P7-J) protects, so
-nothing is protected by trust until J lands.
+`Source.trust` is the **string** `'normal'` or `'high'` (P7-int decision): only `'high'` protects. `add_source` /
+`create_source` accept `'normal'`, `'high'`, or (for older clients) a number 0..1, which never had an effect and now means
+*no opinion*: a new source is `'normal'`, an existing one keeps its trust (so a plain re-registration does not demote a
+`'high'` source). Data written before P7 holds a float (1.0); it reads as `'normal'` and is rewritten as such the next
+time the source is registered.
 
 ## Settings
 
@@ -123,9 +126,10 @@ hidden from `recall` unless `include_dormant=true`.
 * Activation is computed from the newest 50 events, so a very heavily used fact does not keep growing.
 * A fact that a sweep parked is **not "current"** for `assert_fact`: asserting the same value again creates a new
   active fact rather than reviving the dormant one (restore it first if that is what you want).
-* `forget_source` and `quarantine_source` only touch `active`/`superseded` facts, so a dormant fact derived from a
-  forgotten source stays dormant (and `restore_fact` could bring it back). See the report; the fix is one word in
-  those two queries, which this branch does not own.
+* `forget_source` and `quarantine_source` also reach `dormant` facts (P7-int), so a dormant fact derived from a forgotten
+  source becomes `forgotten` and `restore_fact` leaves it alone; a quarantined dormant fact is released back to
+  `dormant`. `restore_fact` also refuses (leaves dormant) a dormant fact derived from a forgotten or quarantined fact,
+  which guards data swept before that rule.
 * The sweep scans at most 5000 facts of a scope per call; the report says `scan_truncated`.
 * Two multiple-counting effects are deliberate (decision = `BASED_ON` + `READ use`; a new agent's duplicate
   assert = `ASSERTED_BY` + `READ use`).

@@ -259,7 +259,8 @@ class Activation:
     def restore(self, fact_id: str) -> dict[str, Any] | None:
         """Bring a dormant fact back to its previous status. ``None`` if there is no such fact.
 
-        A fact that is not dormant is left alone and reported with ``restored = False``.
+        A fact that is not dormant is left alone and reported with ``restored = False``; so is a dormant fact
+        derived from a forgotten or quarantined fact (it stays dormant).
         """
         rows = self.client.rw(self.graph, "activation/restore", {"fact_id": fact_id})
         if not rows:
@@ -267,7 +268,7 @@ class Activation:
         r = rows[0]
         return {
             "fact_id": r["id"],
-            "restored": r["was"] == "dormant",
+            "restored": r["was"] == "dormant" and r["status"] != "dormant",
             "status": r["status"],
             "was": r["was"],
         }
