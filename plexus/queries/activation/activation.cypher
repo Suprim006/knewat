@@ -1,7 +1,7 @@
 // name: activation/activation
 // purpose: Gather, for up to 200 facts, the access events and protection inputs that the Python activation model (plexus.activation) turns into A(f) (D-012). Nothing is computed or written here.
 // params: fact_ids:list[str], now:int, events:int
-// returns: one row per existing fact id: id, status, created_at, surprise (0 when absent), pinned (false when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), reads [{k:'use'|'recall', t}] (newest `events` READ edges with t <= now), asserted_at [ms] (every ASSERTED_BY edge), decisions [{id, t, flagged}] (BASED_ON), handoffs [{id, t}] (CARRIES), verified_at [ms] (VERIFIED_BY), supersedes [ids] (outgoing SUPERSEDES, at most 3), contradicts [ids] (CONTRADICTS either way, at most 3), sources [{id, trust}] (Sources reached by DERIVED_FROM 1..3 hops)
+// returns: one row per existing fact id: id, status, created_at, entity (the ABOUT entity's name), predicate, value, surprise (0 when absent), pinned (false when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), reads [{k:'use'|'recall', t}] (newest `events` READ edges with t <= now), asserted_at [ms] (every ASSERTED_BY edge), decisions [{id, t, flagged}] (BASED_ON), handoffs [{id, t}] (CARRIES), verified_at [ms] (VERIFIED_BY), supersedes [ids] (outgoing SUPERSEDES, at most 3), contradicts [ids] (CONTRADICTS either way, at most 3), sources [{id, trust}] (Sources reached by DERIVED_FROM 1..3 hops)
 // mode: ro
 
 // Event sources (all edges Plexus already writes; docs/P7-contract.md gives the weights, which the model applies):
@@ -19,7 +19,8 @@
 // A fact id that does not exist gives no row. Facts are looked up one id at a time (`{id: fid}` is an index seek).
 UNWIND $fact_ids AS fid
 MATCH (f:Fact {id: fid})
-WITH f,
+OPTIONAL MATCH (f)-[:ABOUT]->(e:Entity)
+WITH f, e.name AS entity,
      [(f)-[a:ASSERTED_BY]->(:Agent) | a.at] AS asserted_at,
      [(d:Decision)-[:BASED_ON]->(f) | {id: d.id, t: d.created_at, flagged: coalesce(d.flagged, false)}] AS decisions,
      [(h:Handoff)-[:CARRIES]->(f) | {id: h.id, t: h.created_at}] AS handoffs,
@@ -28,13 +29,13 @@ WITH f,
      [(f)-[:CONTRADICTS]-(p:Fact) | p.id][0..3] AS contradicts,
      [(f)-[:DERIVED_FROM*1..3]->(src:Source) | {id: src.id, trust: src.trust}] AS sources
 OPTIONAL MATCH (s:Step)-[r:READ]->(f)
-WITH f, asserted_at, decisions, handoffs, verified_at, supersedes, contradicts, sources,
+WITH f, entity, asserted_at, decisions, handoffs, verified_at, supersedes, contradicts, sources,
      CASE WHEN coalesce(r.at, s.at) <= $now THEN coalesce(r.at, s.at) ELSE null END AS t,
      CASE WHEN r.via = 'use' THEN 'use' ELSE 'recall' END AS k
 ORDER BY t DESC
-WITH f, asserted_at, decisions, handoffs, verified_at, supersedes, contradicts, sources,
+WITH f, entity, asserted_at, decisions, handoffs, verified_at, supersedes, contradicts, sources,
      collect(CASE WHEN t IS NULL THEN null ELSE {k: k, t: t} END)[0..$events] AS reads
-RETURN f.id AS id, f.status AS status, f.created_at AS created_at,
+RETURN f.id AS id, f.status AS status, f.created_at AS created_at, entity, f.predicate AS predicate, f.value AS value,
        coalesce(f.surprise, 0.0) AS surprise,
        coalesce(f.pinned, false) AS pinned,
        coalesce(f.verify_state, 'verified') AS verify_state,

@@ -231,3 +231,53 @@ def test_a_restored_fact_is_recalled_again_and_dormant_is_hidden_meanwhile(act, 
     assert "Thing faint note: unused and old" in [
         h["text"] for h in eng.recall("faint unused old", scope, k=20)
     ]
+
+
+# ------------------------------------------------ the in-statement protection re-check, rule by rule
+def _old(eng, scope, name, value, agent="alice", at=NOW - 400 * DAY_MS):
+    return eng.assert_fact(f"Thing {name}", "note", value, scope, agent, now=at)["fact_id"]
+
+
+def test_apply_skips_each_kind_of_protected_fact_and_moves_a_plain_one(act, eng, lin, scope, client, graph):
+    plain = _old(eng, scope, "plain", "nothing protects it")
+    a = _old(eng, scope, "clash", "alice says 80")
+    b = eng.assert_fact("Thing clash", "note", "bob says 8080", scope, "bob", now=NOW - 399 * DAY_MS)[
+        "fact_id"
+    ]
+    src = lin.create_source("https://docs.example/x", kind="doc", trust=1.0, now=1)
+    trusted = eng.assert_fact(
+        "Thing doc", "note", "from a trusted doc", scope, "alice", source_id=src, now=NOW - 400 * DAY_MS
+    )
+    write(client, graph, "MATCH (s:Source {id:$s}) SET s.trust = 'high'", s=src)
+    cases = {"contradicted-old": a, "contradicting-new": b, "trusted": trusted["fact_id"]}
+    for name, fid in cases.items():
+        assert act.apply_sweep([fid], NOW) == [], name
+    assert act.apply_sweep([plain], NOW) == [plain]
+    for fid in cases.values():
+        assert status(client, graph, fid) == "active"
+
+
+def test_a_flagged_decision_no_longer_protects(act, eng, relay, scope, client, graph):
+    f = _old(eng, scope, "decided", "a decision used to rest on it")
+    relay.register_agent("alice", "alice", "x", "t")
+    relay.create_tasks([{"id": "t1", "title": "ship"}])
+    d = relay.record_decision("alice", "t1", "rely", [f], now=NOW - 400 * DAY_MS)
+    assert act.apply_sweep([f], NOW) == []
+    write(client, graph, "MATCH (d:Decision {id:$d}) SET d.flagged = true", d=d)
+    assert [c["fact_id"] for c in act.sweep(scope, 100.0)["candidates"]] == [f]
+    assert act.apply_sweep([f], NOW) == [f]
+
+
+def test_apply_is_bounded_by_the_ids_it_is_given(act, w, client, graph):
+    before = cypher(client, graph, "MATCH (f:Fact {status:'dormant'}) RETURN count(f)")[0][0]
+    act.apply_sweep([w.faint], NOW)
+    assert cypher(client, graph, "MATCH (f:Fact {status:'dormant'}) RETURN count(f)")[0][0] == before + 1
+
+
+def test_limits_are_validated(act, w):
+    with pytest.raises(ValueError, match="limit"):
+        act.sweep(w.scope, limit=0)
+    with pytest.raises(ValueError, match="limit"):
+        act.sweep(w.scope, limit=201)
+    with pytest.raises(ValueError, match="scan"):
+        act.sweep(w.scope, scan=0)
