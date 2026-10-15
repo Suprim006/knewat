@@ -78,5 +78,11 @@
     ],
     "permission_denials": 0,
     "scenario": "scratch clone of pv-core-api; normalize_method edited (imepay alias removed); plexus code baseline + scan; facts_to_verify -> Read -> verify_fact(changed) -> docs_to_update"
-  }
+  },
+  "status": "completed",
+  "error": "",
+  "permission_denials": [],
+  "model": "sonnet",
+  "claude_turns": 10,
+  "total_cost_usd": 0.2165
 }

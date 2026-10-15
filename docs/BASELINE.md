@@ -420,3 +420,31 @@ Written and committed **before the confirmatory run**. Reason: the pre-registere
 4. `on+sweep` is allowed to lose recall (the sweep hides cold real facts by design); this is reported, not a criterion.
 
 **What would count as failure:** criterion 1 not met (then 0.9 is not a safe default and the owner is told so), or criterion 2 not met (then it is reported as a cost, and the default is still the owner's call). Either outcome is written below the result without changing these criteria.
+
+
+### L5b confirmatory result (floor 0.9, one run)
+
+Source: `plexus/demo_data/crucible/l5/20261015T205321Z-floor09/` (`results.json`, `report.md`); code `92c9bd7` (clean tree); default settings, no environment override; K = 20, N = 5, seed 20261016, fastembed, 0 LLM calls.
+
+| Mode | recall@1 | recall@3 | recall@5 | critical@5 | cold@5 | noise share | chars / recall | critical loss |
+|---|---|---|---|---|---|---|---|---|
+| off | 75.7% | 97.1% | 98.6% | 97.5% | 100% | 24.0% | 325 | n/a |
+| on (floor 0.9) | 63.6% | 93.6% | 96.4% | 97.5% | 94.1% | 15.1% | 285 | **0** |
+| on+sweep | 63.6% | 87.9% | 88.6% | 97.5% | 72.5% | 9.9% | 272 | **0** |
+
+The sweep moved 174 facts to dormant: 0 critical, 0 hot, 14 cold real, 160 noise; `Fact` nodes 480 before and after; no critical fact among the dry-run candidates.
+
+| Criterion (pre-registered) | Result |
+|---|---|
+| Critical-probe loss = 0 in `on` and `on+sweep` (hard) | **PASS** (0, 0) |
+| No critical fact swept (hard) | **PASS** (0) |
+| Fact count unchanged (hard) | **PASS** (480/480) |
+| recall@5 of `on` within 0.03 of `off` | **PASS** (96.4% against 98.6%: 2.2 points below) |
+| Noise share of `on` lower than `off` | **PASS** (24.0% -> 15.1%; 9.9% after a sweep) |
+
+All four hypotheses held. Reading, without softening:
+- The default floor of 0.9 is confirmed on the pre-registered criteria, in one run. The floor-0.9 post-hoc run before it gave the same recall@5 (96.4%) and critical loss (0): the two agree, and the confirmatory run is not a lucky draw on the headline numbers. (One run; ids are random, so the second digit can move.)
+- **It is not free.** recall@1 falls from 75.7% to 63.6% (12 points): when two near-identical facts compete, the more used one is now first more often than the relevant one. recall@5 falls 2.2 points (cold@5 100% -> 94.1%: 3 of 51 cold facts leave the top 5). The noise share of what is returned falls by a third (24.0% -> 15.1%), not by the more than half seen at floor 0.5, because the gentler floor removes less. An agent that reads only the first row is worse off; one that reads five is nearly unaffected.
+- **The sweep stays lossy.** `on+sweep` recall@5 is 88.6% (cold@5 72.5%): a sweep hides exactly the unprotected facts nobody has used for 90 days, which includes 14 real cold facts and 160 noise facts. It never touched a critical or hot fact and is reversible (`restore_fact`), but it is not an accuracy-neutral tidy-up, and it stays optional and dry-run by default.
+- The post-hoc diagnostic still shows protected (critical) and hot twins as the main displacers (`on`: critical 82, hot 7, noise 0); the floor limits how far they can lift themselves, it does not remove the effect.
+- Limits as before: one synthetic scenario of near-identical sprints, template noise, simulated reads, fact-lookup probes only, one run.

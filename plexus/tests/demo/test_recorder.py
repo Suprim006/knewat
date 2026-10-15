@@ -80,7 +80,19 @@ def test_committed_recordings_replay_to_their_recorded_counts(client, demo_tenan
         assert meta["permission_denials"] == []
         assert not (meta["status"] == "aborted")
     # the restored graph answers the aha query: the builder is the claimer on the killed task, someone else reclaimed
-    if run != "pilot-haiku":
+    if run == "physio-stale-sonnet":
+        # the P7 real run: one fact superseded at the change time, 1 Change SUSPECTED it, nothing left suspect
+        assert (
+            rows(
+                client,
+                tenant,
+                "MATCH (f:Fact {status:'superseded'}) WHERE f.predicate = 'payment gateways' RETURN count(f)",
+            )[0][0]
+            == 1
+        )
+        assert rows(client, tenant, "MATCH (:Change)-[:SUSPECTED]->(:Fact) RETURN count(*)")[0][0] == 1
+        assert rows(client, tenant, "MATCH (f:Fact {verify_state:'suspect'}) RETURN count(f)")[0][0] == 0
+    elif run != "pilot-haiku":
         r = rows(
             client,
             tenant,

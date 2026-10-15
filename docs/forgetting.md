@@ -27,7 +27,7 @@ final = relevance × ( floor + (1 − floor) · σ(A − A₀) )                
 
 * The sum runs over the fact's **newest K = 50** events. `rank` is the cosine distance after the sibling boost.
 * `A₀` (neutral) is the activation of a fact created once, one day ago: `ln(86400^−0.5) = −5.68`.
-* A fact at `A₀` gets multiplier `0.75`; far above it, `1.0`; far below it, `0.5` (the floor).
+* A fact at `A₀` gets multiplier `0.75`; far above it, `1.0`; far below it, the floor (`0.9` by default).
 * Protected facts use `max(A, A₀)`, so they are never ranked below neutral.
 * **Exact keyword hit:** a fact that the full-text index returned *and* whose value contains every query keyword
   (words of ≥ 3 characters, at most 10) has multiplier 1.
@@ -97,7 +97,7 @@ time the source is registered.
 | `PLEXUS_FORGETTING` | `on` | `off` = recall is exactly the earlier retrieval order. `recall(forgetting=…)` overrides it. |
 | `PLEXUS_ACT_DECAY` | `0.5` | `d` |
 | `PLEXUS_ACT_A0` | −5.68 (1 day) | neutral activation |
-| `PLEXUS_ACT_FLOOR` | `0.5` | lowest multiplier |
+| `PLEXUS_ACT_FLOOR` | `0.9` | lowest multiplier. At `0.5` popular near-twin facts outranked the relevant one (Crucible L5b); `0.9` is the confirmed default |
 | `PLEXUS_ACT_EVENTS` | `50` | `K`, newest events counted (1..200) |
 
 Bad values fail loudly (`ValueError`), they are not silently defaulted.
@@ -119,10 +119,11 @@ hidden from `recall` unless `include_dormant=true`.
 
 ## Honest limits (what this does *not* claim)
 
+* **Ranking-only forgetting at floor 0.9 is the default. The sweep is lossy for cold real facts and stays optional, dry-run by default, and reversible.** Measured (Crucible L5b, `docs/BASELINE.md`): at the first default, floor 0.5, recall@5 fell from 98.6% to 73-75% on a 20-sprint history of near-identical facts and 7-8 of 80 critical probes were outranked by popular twins (so the default was changed). At floor 0.9 (confirmatory, pre-registered, one run): critical loss 0, recall@5 96.4% against 98.6% with forgetting off, recall@1 63.6% against 75.7% (the more used of two near-identical facts is first more often), noise share 24.0% -> 15.1%. After a real sweep recall@5 is 88.6% (cold facts that nobody used for 90 days are what a sweep hides: 14 cold real facts and 160 noise facts moved; 0 critical); read the dry run first, `restore_fact` undoes it, and `PLEXUS_FORGETTING=off` restores the earlier retrieval order exactly.
 * **It is a ranking and a tidy-up, not an accuracy gain.** The research found decay changes accuracy by ~0–1 points
-  and can hurt when an old fact is needed; the benefit is less noise and cost. P7 plans a pre-registered Crucible
-  layer before any accuracy claim is made. No such claim is made here.
-* The weights, the 0.3, the floor and `A₀ − 2` are defaults chosen from the literature, not tuned on Plexus data.
+  and can hurt when an old fact is needed; the benefit is less noise and cost. The pre-registered Crucible L5 ran
+  (`docs/BASELINE.md`): at floor 0.9 recall@5 is 2.2 points below forgetting off in the confirmatory run; no accuracy claim is made.
+* The weights, the 0.3 and `A₀ − 2` are defaults chosen from the literature, not tuned on Plexus data. The floor (0.9) was chosen after the first L5b run failed at 0.5 and then confirmed in a separate pre-registered run (`docs/BASELINE.md`); it is tuned on one synthetic scenario.
 * Activation is computed from the newest 50 events, so a very heavily used fact does not keep growing.
 * A fact that a sweep parked is **not "current"** for `assert_fact`: asserting the same value again creates a new
   active fact rather than reviving the dormant one (restore it first if that is what you want).
