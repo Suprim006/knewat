@@ -70,8 +70,9 @@ class Activation:
     def compute(self, fact_ids: Iterable[str], now: int | None = None) -> dict[str, FactActivation]:
         """Activation, protection and events for ``fact_ids`` (any number; queried 200 at a time).
 
-        Unknown ids are absent from the result. A suspect fact (``verify_state = 'suspect'``) ignores the
-        ``recall`` events after its ``suspect_since``: being surfaced does not strengthen a doubted fact.
+        Unknown ids are absent from the result. ``recall`` events that happened while the fact was doubted
+        (``READ.suspect``: the contract rule at the time of the READ) do not count: being surfaced does not
+        strengthen a doubted fact, and verifying it later does not undo that.
         """
         t = self._clock() if now is None else now
         ids = unique(fact_ids)
@@ -86,16 +87,32 @@ class Activation:
                 out[r["id"]] = self._one(r, t)
         return out
 
+    @staticmethod
+    def _doubted(read: Mapping[str, Any], r: Mapping[str, Any]) -> bool:
+        """Was the fact suspect (contract rule) when this recall READ happened?
+
+        ``READ.suspect`` records it at write time (edges since P7-04). The fact's current state also counts,
+        so a back-dated doubt (``mark_changed`` at a commit time earlier than the recall) and edges written
+        before the flag existed are covered: suspect since before the read, or a review date at or before it.
+        """
+        if read["s"] == 1:
+            return True
+        late = r["verify_state"] == "suspect" and read["t"] > r["suspect_since"]
+        return late or r["verify_after"] <= read["t"]
+
     def _one(self, r: Mapping[str, Any], now: int) -> FactActivation:
         created = int(r["created_at"])
         events = [Event("create", created, _WEIGHTS["create"])]
-        events += [Event(e["k"], e["t"], _WEIGHTS[e["k"]]) for e in r["reads"]]
+        # a doubted fact is not strengthened by being surfaced: recalls taken while suspect do not count
+        events += [
+            Event(e["k"], e["t"], _WEIGHTS[e["k"]])
+            for e in r["reads"]
+            if not (e["k"] == "recall" and self._doubted(e, r))
+        ]
         events += [Event("reassert", t, _WEIGHTS["reassert"]) for t in r["asserted_at"] if created < t <= now]
         events += [Event("decision", d["t"], _WEIGHTS["decision"]) for d in r["decisions"] if d["t"] <= now]
         events += [Event("handoff", h["t"], _WEIGHTS["handoff"]) for h in r["handoffs"] if h["t"] <= now]
         events += [Event("verified", t, _WEIGHTS["verified"]) for t in r["verified_at"] if t <= now]
-        if r["verify_state"] == "suspect":  # a doubted fact is not strengthened by being surfaced
-            events = [e for e in events if not (e.kind == "recall" and e.t > r["suspect_since"])]
         events.sort(key=lambda e: e.t, reverse=True)
         events = events[: self.settings.events]
         reasons: list[str] = []

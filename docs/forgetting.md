@@ -72,7 +72,9 @@ vector index has no scope pre-filter, so 20 are fetched and filtered to the scop
 A fact is *suspect* if `verify_state = 'suspect'` or `verify_after` has passed (P7 contract). Recall still
 **returns** it, with `verify_state`, `suspect_since` and `suspect_reason` (`changed in <commit or 'working tree'>
 (<first path>)`, `review date passed`, or `marked suspect`). A suspect fact is **not strengthened by recall**:
-`recall` events after `suspect_since` are ignored. A `use` still counts.
+a `recall` READ written while the fact was suspect (`READ.suspect`, the contract rule at the READ's time, so also a passed
+review date) is ignored, and stays ignored after the fact is verified again; a back-dated doubt (`suspect_since` before the
+read) and READ edges that have no flag are judged by the fact's current state. A `use` still counts.
 
 ## Protected facts
 

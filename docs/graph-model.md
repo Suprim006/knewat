@@ -101,7 +101,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Relay | `(Artifact)-[:PRODUCED_BY]->(Agent)` | |
 | Relay | `(Artifact)-[:VERIFIED_BY]->(Agent)` | |
 | Lineage | `(Step)-[:BY]->(Agent)` | |
-| Lineage | `(Step)-[:READ]->(Fact)` | P7: `via: recall\|use, at` |
+| Lineage | `(Step)-[:READ]->(Fact)` | P7: `via: recall\|use, at, suspect` |
 | Lineage | `(Step)-[:WROTE]->(Fact\|Decision\|Handoff\|Task)` | |
 | Lineage | `(Step)-[:NEXT]->(Step)` | |
 | audit | `(ToolCall)-[:IN_STEP]->(Step)` | |
@@ -202,6 +202,7 @@ D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/s
 | `Source` | `content_hash`, `commit`, `repo` | `''` | hash of the file the `uri` names and the commit that last reported it (`mark_changed`) |
 | `Source` | `trust` is the **string** `'normal'` or `'high'` | `'normal'` | `'high'` protects the facts derived from it. Data written before P7 holds a float (1.0); any float reads as `'normal'` |
 | `READ` edge | `via` `'recall'\|'use'`, `at` | `'recall'`; the Step's `at` | being *shown* a fact is weighed less than *using* it (weights 0.3 vs 1) |
+| `READ` edge | `suspect` (bool, written by `record_recall`) | unknown | the fact was suspect (contract rule) when the recall happened; such a recall never counts, even after the fact is verified |
 | `VERIFIED_BY` edge | `outcome`, `commit`, `evidence` (on Fact→Agent edges) | | the audit of a re-check; it counts as a weight-2 activation event |
 | `CodeAnchor`, `Change` | nodes (tables above) | | the code a fact is about, and the code change that made facts suspect |
 | `ANCHORED_TO`, `DESCRIBES`, `TOUCHED`, `SUSPECTED` | edges (table above) | | fact→code, doc→code, change→code/doc, change→fact |
