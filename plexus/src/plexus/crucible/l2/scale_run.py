@@ -43,7 +43,7 @@ from plexus.crucible.l2.scale_questions import (
     scale_summary,
 )
 from plexus.crucible.l2.scale_scenario import ScaleLedger, play_scale
-from plexus.crucible.util import percentile
+from plexus.crucible.util import fmt_ms, iso_utc, percentile, run_stamp
 
 K_SPRINTS = 20
 QUESTIONS_PATH = DEMO_DATA / "questions_scale.yaml"
@@ -361,8 +361,8 @@ def scale_results_doc(
         "kind": "crucible-results",
         "run": {
             "id": run_id,
-            "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
-            "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(finished)),
+            "started_at": iso_utc(started),
+            "finished_at": iso_utc(finished),
             "duration_s": round(finished - started, 1),
             "quick": layer["mode"] == "pilot",
             "command": command,
@@ -395,8 +395,6 @@ def scale_results_doc(
 
 
 # ------------------------------------------------------------------------------------------------ report
-def _fmt_ms(ms: float) -> str:
-    return f"{ms:.1f} ms" if ms < 1000 else f"{ms / 1000:.2f} s"
 
 
 def render_scale_report(doc: dict[str, Any]) -> str:
@@ -463,7 +461,7 @@ def render_scale_report(doc: dict[str, Any]) -> str:
         c = arms[a].get("context", {})
         w.append(
             f"| {a} | {u['tokens_per_question']:.0f} | ${u['cost_per_question_usd']:.4f} | ${u['cost_usd']:.3f} | "
-            f"{_fmt_ms(u['latency_ms']['median'])} | {c.get('chars_median', '-')} |"
+            f"{fmt_ms(u['latency_ms']['median'])} | {c.get('chars_median', '-')} |"
         )
     w.append("\n## Failure analysis\n")
     for a in order:
@@ -518,7 +516,7 @@ def run_scale(
     run_id: str | None = None, keep_graph: bool = False,
 ) -> tuple[dict[str, Any], Path]:  # fmt: skip
     started = time.time()
-    run_id = run_id or time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + f"-{mode}"
+    run_id = run_id or run_stamp() + f"-{mode}"
     work = Path(tempfile.mkdtemp(prefix="crucible-l2s-"))
     all_qs = load_scale_questions(qpath)
     ref, _ = check_scale_questions(all_qs, work / "ref", k)

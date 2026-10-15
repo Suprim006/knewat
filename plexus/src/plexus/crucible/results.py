@@ -33,6 +33,7 @@ from typing import Any
 from plexus.crucible import environment
 from plexus.crucible.config import L1Config, L4Config
 from plexus.crucible.l1 import TESTS
+from plexus.crucible.util import iso_utc, run_stamp
 
 SCHEMA_VERSION = 1
 
@@ -78,7 +79,7 @@ def default_results_dir() -> Path:
 
 
 def new_run_id(quick: bool) -> str:
-    return time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + ("-quick" if quick else "")
+    return run_stamp() + ("-quick" if quick else "")
 
 
 def arms_section(arms: Sequence[str]) -> dict[str, Any]:
@@ -205,8 +206,8 @@ def assemble(
         "kind": "crucible-results",
         "run": {
             "id": run_id,
-            "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
-            "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(finished)),
+            "started_at": iso_utc(started),
+            "finished_at": iso_utc(finished),
             "duration_s": round(finished - started, 1),
             "quick": quick,
             "command": command,

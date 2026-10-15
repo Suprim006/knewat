@@ -11,7 +11,6 @@ Cell syntax (``--cell``, repeatable):  ``L1:<arm>:<test>``  e.g. ``L1:P:C1``;  `
 from __future__ import annotations
 
 import json
-import time
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -20,6 +19,7 @@ from plexus.crucible import environment
 from plexus.crucible import results as R
 from plexus.crucible.config import L1Config, L4Config
 from plexus.crucible.harness import Env
+from plexus.crucible.util import iso_utc
 
 
 def _tuples(d: dict[str, Any]) -> dict[str, Any]:
@@ -75,7 +75,7 @@ def rerun(
     res["environment"]["falkordb_rerun"] = environment.falkordb_info(env.host, env.port)
     res["run"].setdefault("reruns", []).append(
         {
-            "at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "at": iso_utc(),
             "reason": reason,
             "cells": cells,
             "git_commit": environment.git_commit(),
