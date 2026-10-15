@@ -5,3 +5,6 @@ Dockerfile
 .dockerignore
 *.local
 docs/screenshots
+# local env files must never reach the image (a dev .env with VITE_FIXTURES=1 made the container serve fixtures)
+.env
+.env.*
