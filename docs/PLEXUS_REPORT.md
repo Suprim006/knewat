@@ -22,9 +22,10 @@ Every number below comes from a file in this repo. The source is named next to e
 4. [Methodology: how it was built](#4-methodology-how-it-was-built)
 5. [Methodology: how it was measured (Crucible)](#5-methodology-how-it-was-measured-crucible)
 6. [Findings](#6-findings)
-7. [Shortcomings and limits](#7-shortcomings-and-limits)
-8. [What we would do next](#8-what-we-would-do-next)
-9. [Where to find everything](#9-where-to-find-everything)
+7. [Memory that notices change, and forgetting (P7)](#7-memory-that-notices-change-and-forgetting-p7)
+8. [Shortcomings and limits](#8-shortcomings-and-limits)
+9. [What we would do next](#9-what-we-would-do-next)
+10. [Where to find everything](#10-where-to-find-everything)
 
 ---
 
@@ -105,7 +106,7 @@ We saw several of these gaps while building Plexus with a multi-agent setup (Her
 
 ### 2.1 In one paragraph
 
-Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **29 tools**. Each tool is
+Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **41 tools**. Each tool is
 **one deterministic, parameterised Cypher query** (or a short fixed sequence of them) against a **FalkorDB graph per
 tenant**:
 - every memory, task, claim, handoff and decision is a node;
@@ -122,6 +123,8 @@ via fastembed, int8 ONNX on CPU), so it needs no API key and has no running cost
 | **Engram** | Memory: episodic (sessions → episode chains), semantic (scoped facts about entities with validity windows), procedural (procedures → runs with success rates) | G2, G3, G4, G5, G7 | `start_session`, `remember_episode`, `assert_fact`, `recall`, `fact_history`, `log_procedure_run`, `best_procedure` |
 | **Relay** | Coordination: dependency-aware atomic claims with leases, heartbeats, complete/fail with version checks, handoffs carrying artifacts and facts, decisions linked to their evidence | G1, G2 | `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`, `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` |
 | **Lineage** | Provenance and time: steps per agent, READ/WROTE edges, recall records, "why", "who knew", "what did X know at step N", "as of T", forgetting by source, quarantine | G6 | `add_source`, `why`, `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine` |
+| **Staleness** (P7) | Memory that notices change: facts anchored to files and Python symbols become **suspect** when the code changes (a Claude Code hook or git hook reports hashes); the agent re-verifies and the old fact is closed at the change's time | G3 (code ↔ memory drift) | `anchor_fact`, `describe_code`, `mark_changed`, `verify_fact`, `facts_to_verify`, `docs_to_update`, `set_review_date`; CLI `plexus code scan\|baseline\|hook-claude\|hook-git` |
+| **Forgetting** (P7) | Activation-based ranking (ACT-R power-law decay over the use history already in the graph) with write-time surprise; facts fade in rank, never deleted; decision-supporting facts protected | memory hygiene (noise, growth) | `pin_fact`, `unpin_fact`, `memory_strength`, `memory_sweep` (dry-run, reversible), `restore_fact`; `recall(forgetting=…)` |
 | **Audit** | Every tool call becomes a `ToolCall` node linked to its step and to every node it created or updated | feeds the viewer; makes the system observable | (automatic) |
 | **Crucible** | The benchmark: the same tool API over four backends, then correctness, provenance, end-to-end and performance layers | G8 | `crucible` CLI |
 | **plexus-view** | A read-only React + Cytoscape viewer: Explorer, Flow, Time Machine, Why, Inventory, Results | makes the memory visible | (web UI) |
@@ -136,7 +139,7 @@ flowchart LR
     A3[Claude Code: builder]
     A4[any MCP client]
   end
-  A1 & A2 & A3 & A4 -->|MCP stdio or HTTP, tenant bound per connection| MCP[Plexus MCP server: 29 tools]
+  A1 & A2 & A3 & A4 -->|MCP stdio or HTTP, tenant bound per connection| MCP[Plexus MCP server: 41 tools]
   MCP -->|"parameterised Cypher (one statement per write)"| FDB[(FalkorDB 6.0.2: one graph per tenant)]
   MCP --> EMB[local embedder bge-small, CPU]
   API[View API, FastAPI, read-only] -->|GRAPH.RO_QUERY only| FDB
@@ -177,8 +180,8 @@ Restart the MCP server and nothing is lost. Point it at an empty graph and the t
 
 | | Count | Details |
 |---|---|---|
-| Node labels | 16 | `Agent`, `Scope`, `Session`, `Episode`, `Entity`, `Fact`, `Source`, `Procedure`, `Run`, `Task`, `Handoff`, `Artifact`, `Decision`, `Step`, `ToolCall`, `Recall` |
-| Edge types | about 30 | listed below by module |
+| Node labels | 18 | `Agent`, `Scope`, `Session`, `Episode`, `Entity`, `Fact`, `Source`, `Procedure`, `Run`, `Task`, `Handoff`, `Artifact`, `Decision`, `Step`, `ToolCall`, `Recall`, `CodeAnchor`, `Change` (v1.1) |
+| Edge types | about 35 | listed below by module |
 
 Full tables are in `docs/graph-model.md`; the edge types by module:
 
@@ -188,6 +191,7 @@ Full tables are in `docs/graph-model.md`; the edge types by module:
 | Relay | `DEPENDS_ON`, `CLAIMED {at, lease_until, reclaimed_from}`, `FROM`, `TO`, `CARRIES`, `DECIDED`, `BASED_ON`, `PRODUCED_BY`, `VERIFIED_BY {at, independent}`, `(Artifact)-[:FOR]->(Task)` |
 | Lineage | `(Step)-[:BY]->(Agent)`, `(Step)-[:READ]->(Fact)`, `(Step)-[:WROTE]->(…)`, `(Step)-[:NEXT]->(Step)`, `(Recall)-[:RETURNED {rank, score}]->(Fact)` |
 | Audit | `(ToolCall)-[:IN_STEP]->(Step)`, `(ToolCall)-[:CREATED\|UPDATED]->(any)` |
+| Staleness (v1.1) | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)`, `(Source)-[:DESCRIBES]->(CodeAnchor)`, `(Change)-[:TOUCHED]->(CodeAnchor\|Source)`, `(Change)-[:SUSPECTED]->(Fact)`, `(Fact)-[:VERIFIED_BY {at, commit, outcome}]->(Agent)`; `READ` gains `{via: recall\|use, at}` |
 
 **Indexes:**
 - range indexes on `id` and `created_at` for all 16 labels;
@@ -216,10 +220,13 @@ Full tables are in `docs/graph-model.md`; the edge types by module:
 | **as_of(subject, predicate, T)** | The fact whose `[valid_from, valid_to)` contains T. | `queries/lineage/as_of.cypher` |
 | **forget_source / quarantine** | Expand five fixed one-hop levels of `DERIVED_FROM` from the `Source`, mark every derived fact forgotten or quarantined, and flag (not delete) every `Decision` `BASED_ON` them. Quarantine also reports the blast radius: agents that READ them, and handoffs that CARRIES them. Quarantine is reversible. | `queries/lineage/forget_source.cypher`, `quarantine.cypher` |
 | **blocked_by_failure(task)** | Breadth-first search over `DEPENDS_ON` (10 levels, 5,000 tasks). | `queries/relay/dependents_of.cypher` |
+| **mark_changed** | One bounded statement: compare the hashes of ≤ 200 anchors, create a `Change`, mark the active and dormant facts anchored to the changed code (directly, or through `DERIVED_FROM*1..5` from a `Source` whose uri is the changed file) `suspect`, and return the decisions `BASED_ON` them and the docs that `DESCRIBES` that code. Idempotent on unchanged hashes. | `queries/staleness/mark_changed.cypher` |
+| **verify_fact (changed)** | The supersede path, then a backdate: the old fact's `valid_to` becomes the `Change.at` (event time), `recorded_at` stays (record time), dependent decisions are flagged. | `queries/staleness/backdate.cypher` |
+| **Activation** | Gather each fact's last 50 use events (creation, re-assert, `BASED_ON`, `CARRIES`, `READ {via}`, `VERIFIED_BY`) and its protection edges in one read; ACT-R `A = ln Σ w·Δt^-0.5` is computed in Python and blended into recall as `relevance × (0.9 + 0.1·σ(A − A₀))`. | `queries/activation/activation.cypher` |
 | **Tenant isolation** | One graph per tenant: `plexus_t_<tenant>`. No query can cross graphs. | `plexus/src/plexus/graph/tenancy.py` |
 | **Live flow** | `ToolCall` → `CREATED`/`UPDATED` edges, ordered by an indexed `at`. | `queries/view/flow.cypher` |
 
-69 named `.cypher` files are listed in `docs/queries.md`. A test (`tests/test_docs_consistency.py`) fails if a query file
+93 named `.cypher` files are listed in `docs/queries.md`. A test (`tests/test_docs_consistency.py`) fails if a query file
 is missing from it.
 
 ### 3.4 The proof: cut the edges and the features break (ablation)
@@ -257,7 +264,7 @@ the missing relationships, not by a broken copy.
 ### 4.1 Process
 
 - **Timeline:** built inside the hackathon window, from the first commit (Oct 15 00:17 NPT) through phases P0–P6,
-  with 146+ commits.
+  with 231+ commits.
 - **Pre-window work:** before the window opened, only notes, research and design were written (rule R5).
 - **Plan and decisions:** the plan is `docs/PLAN.md`, and 10 decisions with their reasoning are in `docs/DECISIONS.md`.
 
@@ -270,6 +277,10 @@ the missing relationships, not by a broken copy.
 | P4 | Crucible: backends, L1, L4, ablation ‖ L2 questions, L3 pilot; then the pre-registered L2-at-scale run | results committed with configs and seeds |
 | P5 | Four independent read-only reviewers → three fix branches → integration pass | **Ready for testing**: 869 Python + 150 viewer tests, fresh-clone end-to-end |
 | P6 | One-container deployment (512 MB checked), README, video script, blog draft | 40/40 deploy checks; 278 README checks |
+| P7 | Staleness (J) ‖ activation forgetting (K) ‖ viewer (L) → integration (int) with a pre-registered Crucible L5 and a real Claude run on a copy of the owner's physiotherapy-project graph | 1168 tests; L5 results committed; independent review → 14 findings fixed |
+| P8 | Structure and readability pass with zero behaviour change: four disjoint-scope agents (MCP layer, services/API/CLI, Crucible/demo, viewer) | MCP snapshot and API schema byte-identical; HTML of the viewer pages byte-identical; all suites green |
+
+Current size: 22,785 lines of Python in `plexus/src` and 8,770 of TypeScript in `plexus-view/src`; 93 query files; 41 tools; 1229 Python and 223 viewer tests.
 
 ### 4.2 Engineering rules we held to
 
@@ -556,9 +567,91 @@ The most consequential:
 
 ---
 
-## 7. Shortcomings and limits
+## 7. Memory that notices change, and forgetting (P7)
 
-### 7.1 About the claims
+Built after the first version of this report, from two questions the owner asked while testing Plexus on a real
+project: *"if code changes but its documentation doesn't, does Plexus notice?"* and *"can memories fade like human
+memories, with surprising ones kept?"* The design is in `docs/DECISIONS.md` D-011 and D-012; the research behind it
+(109 cited sources) is in `docs/research/forgetting-A-science-and-papers.md` and `forgetting-B-products.md`.
+
+### 7.1 What the research said
+
+- **No evidence that forgetting improves accuracy.** Removing the decay term changed accuracy by 0–1 point in the
+  systems that measured it (MemTier, ZenBrain, HeLa-Mem); decay *hurt* when an old fact was needed (ScrubJay on
+  MemoryAgentBench). Its real benefits are less noise and bounded growth.
+- **Human forgetting follows a power law** (ACT-R base-level activation `B = ln Σ t_k^-d`, `d ≈ 0.5`), not the
+  exponential most agent products call "the Ebbinghaus curve". The difference is the fat tail: a 30-day-old use still
+  counts 18% of a 1-day-old one under the power law, 3% under Generative Agents' exponential.
+- **Surprise raises confidence, not accuracy** (flashbulb memories). A salience boost must never be read as truth.
+- **Products mostly re-rank or soft-hide**, and several advertised decay features aren't implemented (Cognee, MemOS).
+  The user complaints on record are about *stale memories with no freshness signal*, not about over-forgetting.
+
+### 7.2 What was built
+
+| | Staleness (D-011) | Forgetting (D-012) |
+|---|---|---|
+| Trigger | A Claude Code `PostToolUse` hook on Edit/Write, or a git `post-commit` hook, runs `plexus code scan`: it hashes changed files and Python functions/classes (via `ast`) and calls `mark_changed` | Nothing is written on read; activation is computed at query time from the use events the graph already records |
+| What happens | Facts anchored to the changed code (or derived from a `Source` whose uri is the changed file) become **suspect**: still recalled, flagged with the commit and path. The decisions built on them and the docs that describe that code are listed | Recall multiplies relevance by `0.9 + 0.1·σ(A − A₀)`; surprising facts (a supersede 0.6, a cross-agent contradiction 0.9, novelty up to 0.5) start with extra pseudo-accesses |
+| Resolution | The agent reads the code and calls `verify_fact`: confirmed → `VERIFIED_BY` (weight-2 event); changed → supersede with the old fact's `valid_to` = the change's time while `recorded_at` stays (two timelines, as in Graphiti) | Protected facts (`BASED_ON` by a decision, carried by a handoff, in a `SUPERSEDES`/`CONTRADICTS` chain, pinned, or from a high-trust source) never fall below neutral; `as_of`, `why`, `knew_at`, `fact_history` ignore activation |
+| Deletion | Never | Never by decay. `memory_sweep` (dry-run by default, reversible with `restore_fact`) moves unprotected faded facts to `dormant` |
+| Viewer | ⚠ suspect badge with reason, a **Verify** page (queue + docs to update) | pin glyph, dashed outline for dormant, opacity by activation, a "Memory strength" panel that explains the number |
+
+### 7.3 What was measured (Crucible L5, pre-registered, no LLM)
+
+**L5a staleness** (60 facts, 21 commits, edits of eight kinds):
+
+| Arm | Precision | Recall | Stale facts returned unflagged |
+|---|---|---|---|
+| Symbol-level anchors | **100%** | **100%** | 0 |
+| File-level anchors | 15% | 100% | 0 |
+| No anchors (today's tools) | n/a | 0% | 19 of 19 |
+
+Symbol anchoring is exact; file-level is safe but noisy (every edit to a file flags all facts about it); without
+anchors every stale fact comes back looking current.
+
+**L5b forgetting** (the L2-scale history plus decaying noise, a simulated 90 days of reads, 80 "critical" probes =
+decision-supporting facts read once 90 days ago):
+
+| | recall@5 | critical probes lost | noise share of results | cold-but-true facts in top 5 |
+|---|---|---|---|---|
+| Forgetting off | 98.6% | — | 24.0% | 100% |
+| **On, floor 0.5 (first default)** | **73–75%** | **7–8 of 80** | 10% | 45% |
+| On, floor 0.9 (confirmatory, now the default) | 96.4% | **0** | 15.1% | 94% |
+| On + sweep, floor 0.9 | 88.6% | 0 (none swept) | 9.9% | 72% |
+
+The first pre-registered run **failed its own criteria**. Among near-identical facts (20 sprints telling the same
+story), a popular or protected twin from another sprint was lifted past the relevant fact, because the 0.5–1.0
+multiplier moves it more than the tiny relevance gap. Nothing was deleted and no critical fact was swept, but
+protection stops sweeping, not outranking. A post-hoc floor sweep pointed at 0.9; a second, pre-registered
+confirmatory run at 0.9 passed all criteria (D-012 amendment). Costs that remain, stated in `docs/forgetting.md`:
+recall@1 drops 12 points when twins compete; the sweep hides cold-but-true facts and stays optional.
+
+**Real run.** On a copy of the owner's physiotherapy-project graph (42 facts) and a scratch clone of its API repo:
+one edit to `normalize_method` in `gateway.py` → the hook flagged 1 fact, 3 dependent decisions and the README →
+`claude -p` (Sonnet, 5 turns, 21 s, $0.04) called `facts_to_verify`, read the code, called `verify_fact(changed)` with
+the corrected value and named the README and an unregistered `AGENTS.md` as docs to update. The old fact closed at
+the change's time, the new one is current, and the first run exposed a bug (`verify_fact` treated the corrected
+clause as a paraphrase duplicate), fixed with a regression test. Recording: `demo_data/recordings/physio-stale-sonnet/`.
+
+### 7.4 Review and cleanup (P8)
+
+An independent reviewer found 14 issues (4 major, 0 blockers), mostly the new `dormant` status interacting with
+older paths (`mark_changed` and `assert_fact` ignoring dormant facts; `verify_fact`'s two-statement failure state;
+a label scan in `facts_to_verify`). All were fixed test-first. Then four agents refactored the code base with a
+zero-behaviour-change rule: the MCP snapshot, the View API schema and the rendered viewer HTML were checked
+byte-identical before and after.
+
+| Before → after | |
+|---|---|
+| `mcp/tools.py::register_engram_relay` 521 lines | one `ToolTable` pattern; each tool a flat function; modules ≤ 300 lines |
+| `api/view_api.py::create_app` 305 lines | 35 lines + five routers (`routes_core/graph/flow/lineage/staleness`) |
+| `crucible/l1.py` cases c2/c5 122/129 lines | 37/24 lines; shared harness; `backends/base.py` for identical checks |
+| `graphController.ts` 834, `Results.tsx` 729, `Explorer.tsx` 500 lines | 421 / 104 / 292 lines; style/layout/data/selection modules; per-layer components |
+| 8 copies of `OPEN`/`now_ms`/`new_id`/`normalize` | one `plexus/common.py` |
+
+## 8. Shortcomings and limits
+
+### 8.1 About the claims
 
 - **Plexus is not more correct than a well-built SQL or file backend** at claims, leases, dependencies, as-of queries,
   tenant isolation or forgetting (L1 tie).
@@ -569,7 +662,7 @@ The most consequential:
   p = 0.125) is within noise. Only the B2 gap is clearly significant.
 - **L3 showed no separation,** and Plexus agents spent more tokens.
 
-### 7.2 About the benchmark design
+### 8.2 About the benchmark design
 
 - **Synthetic data, one scenario family,** repeated in L2-scale as 20 near-identical sprints that don't interact.
 - **Favours retrieval:** every L2-scale question names its sprint, and a sprint's records share its tag.
@@ -586,7 +679,7 @@ The most consequential:
 - **`latest-all.json` mixes runs** from different moments: L1/L4 from the first compose run, L2 and L2-scale from
   later runs. The file records which.
 
-### 7.3 About the product
+### 8.3 About the product
 
 - **Write throughput per tenant is bounded** by FalkorDB's per-graph write serialisation. Hot tenants need to be spread
   across graphs; one busy team graph has a ceiling (373 claims/s at 200 workers in our run).
@@ -614,6 +707,11 @@ The most consequential:
   - `knew_at` uses a fact's current `valid_to`, which is correct for supersession but, after forgetting, rewrites
     history to the forget time;
   - cascades are bounded (5 hops of `DERIVED_FROM`, 3 hops for `why`).
+- **Staleness only covers what is anchored.** Facts nobody linked to code (and languages other than Python, which get
+  file-level anchors only) are flagged coarsely or not at all; the hook must be installed per repo.
+- **Forgetting is a ranking heuristic with literature defaults.** The floor had to be raised after the first
+  pre-registered run failed; recall@1 still drops when near-twin facts compete; the sweep is lossy. It brings less
+  noise, not better accuracy.
 - **Procedural memory has no viewer page** and isn't exercised in the recorded demo.
 - **Explorer limits:**
   - the viewer reads at most the newest 2,000 nodes per request;
@@ -621,9 +719,9 @@ The most consequential:
   - the unfiltered Explorer query got slightly slower after indexing (3.8 → 5.8 ms at 4.2k nodes), while filtered
     reads got faster.
 
-### 7.4 About the evidence and the process
+### 8.4 About the evidence and the process
 
-- **Real Claude Code coverage:** only 11 of the 29 tools have been driven by real `claude -p`. All 29 have MCP
+- **Real Claude Code coverage:** only 14 of the 41 tools have been driven by real `claude -p` (11 in the Acme runs, 3 more in the physio staleness run). All 41 have MCP
   contract tests, and a guard fails if a new tool lacks one.
 - **Reproducing the benchmark** takes separate commands, deliberately (L1/L4 vs the LLM layers), so a re-run can't
   spend the subscription by accident. LLM answers are cached, so re-scoring is free.
@@ -633,12 +731,14 @@ The most consequential:
   subscription. That is enough for pilots and single runs, not for repeated-measures statistics.
 - **AI-written, owner-reviewed:** most code was written by AI subagents. The owner's line-by-line review of the graph
   model and queries is tracked in `docs/AI_USAGE.md` and wasn't complete at the time of writing.
+- **L5 used one scenario family and one run per setting** (ids are random, so second digits move); the real staleness
+  run is a single demonstration, not a benchmark.
 - **One FalkorDB version:** everything was verified on 6.0.2 only. Several documented features behave differently or
   are missing there (§6.9).
 
 ---
 
-## 8. What we would do next
+## 9. What we would do next
 
 1. **Measure the case the graph should win:** cross-project questions such as "which decisions across all sprints
    relied on a fact from source S" or "which agents ever read a fact that was later quarantined". Pre-register them.
@@ -646,17 +746,19 @@ The most consequential:
    context, and the MAST metrics.
 3. **Slim the tool output:** cap recall paths and `why` detail by default, to close the token gap seen in L3.
 4. **Add a no-audit read path,** so public read-only tenants can serve `recall`/`why` to visitors' agents.
-5. **Make provenance writes atomic:** fold the `link_step` tail into each write statement where FalkorDB's planner
-   allows.
+5. **Make provenance and `verify_fact` writes atomic:** fold the `link_step` tail and the backdate into the write
+   statement where FalkorDB's planner allows.
 6. **Batch embeddings or move the embedder to its own service,** to lift the recall ceiling.
 7. **Add authentication** (per-tenant tokens) before any non-demo deployment.
 8. **Add a procedures view,** and run procedural memory in the demo scenario.
-9. **Shard hot tenants:** route a busy team across several graphs (per project), since throughput scaled +73% across
+9. **Symbol anchors for TypeScript and Dart** (tree-sitter), so the exact flagging seen for Python covers the
+   other repos.
+10. **Shard hot tenants:** route a busy team across several graphs (per project), since throughput scaled +73% across
    graphs.
 
 ---
 
-## 9. Where to find everything
+## 10. Where to find everything
 
 | Topic | File |
 |---|---|
@@ -669,6 +771,8 @@ The most consequential:
 | Benchmark methodology, pre-registration, results | `docs/BASELINE.md`, `plexus/src/plexus/crucible/results/latest-all.json` |
 | Ready-for-testing evidence and the manual test checklist | `docs/TESTING.md` |
 | Demo modes, recording, replay, ablation | `docs/demo.md` |
+| Staleness and forgetting: design, hooks, limits, the real run | `docs/staleness.md`, `docs/forgetting.md`, D-011/D-012 |
+| Forgetting research (cited) | `docs/research/forgetting-A-science-and-papers.md`, `forgetting-B-products.md` |
 | Deployment | `docs/deploy.md`, `render.yaml`, `deploy/` |
 | FalkorDB 6.0.2 behaviour vs the docs | `docs/reference/FALKORDB_REFERENCE.md` |
 | Landscape research (cited) | `docs/research/landscape/*.md`, `docs/research/PROJECT_IDEAS.md` |
