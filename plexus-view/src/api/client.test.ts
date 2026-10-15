@@ -48,6 +48,23 @@ describe('createHttpApi', () => {
       'http://api/api/queries/relay/claim_next_task',
     ],
     ['results', (a) => a.results(), 'http://api/api/results'],
+    ['verifyQueue', (a) => a.verifyQueue('acme'), 'http://api/api/acme/verify-queue'],
+    [
+      'verifyQueue (scope, limit)',
+      (a) => a.verifyQueue('acme', { scopeId: 'sc 1', limit: 20 }),
+      'http://api/api/acme/verify-queue?scope_id=sc%201&limit=20',
+    ],
+    ['docsToUpdate', (a) => a.docsToUpdate('acme'), 'http://api/api/acme/docs-to-update'],
+    [
+      'docsToUpdate (since, limit)',
+      (a) => a.docsToUpdate('acme', { since: 5, limit: 10 }),
+      'http://api/api/acme/docs-to-update?since=5&limit=10',
+    ],
+    [
+      'memoryStrength',
+      (a) => a.memoryStrength('acme', 'f/1'),
+      'http://api/api/acme/memory-strength/f%2F1',
+    ],
   ];
   it.each(cases)('%s requests the right URL', async (_name, call, expected) => {
     const f = fakeFetch();
