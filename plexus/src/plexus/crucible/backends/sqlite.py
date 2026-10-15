@@ -21,10 +21,30 @@ from typing import Any
 
 from plexus.crucible.api import (
     OPEN,
-    ClaimConflict,
     UnknownReference,
     Unsupported,
     valid_tenant,
+)
+from plexus.crucible.backends.base import (
+    MAX_BASED_ON,  # noqa: F401  (re-exported: it used to be defined here)
+    MAX_RECALL_K,
+    artifact_specs,
+    assert_result,
+    check_completable,
+    check_lease,
+    check_source_uri,
+    claim_result,
+    complete_result,
+    decision_facts,
+    external_deps,
+    new_task_ids,
+    prepare_assertion,
+    query_words,
+    raise_missing_deps,
+    recall_hit,
+    task_deps,
+    task_status_view,
+    unique,
 )
 from plexus.crucible.util import (
     classify,
@@ -34,7 +54,6 @@ from plexus.crucible.util import (
     now_ms,
     scope_chain,
     token_key,
-    words,
 )
 
 SCHEMA = """
@@ -84,7 +103,6 @@ CREATE INDEX IF NOT EXISTS step_wrote_step ON step_wrote(step_id);
 """
 
 FTS_SCHEMA = "CREATE VIRTUAL TABLE IF NOT EXISTS facts_fts USING fts5(text, fact_id UNINDEXED)"
-MAX_BASED_ON = 100
 
 
 class SqliteBackend:
@@ -197,8 +215,7 @@ class SqliteBackend:
         return None
 
     def add_source(self, uri: str, kind: str = "doc", trust: float = 1.0) -> str:
-        if not uri.strip():
-            raise ValueError("source uri must not be empty")
+        check_source_uri(uri)
         with self._tx() as c:
             row = c.execute("SELECT id FROM sources WHERE uri=?", (uri,)).fetchone()
             if row:
@@ -236,12 +253,8 @@ class SqliteBackend:
         supersede: bool = False,
         now: int | None = None,
     ) -> dict[str, Any]:
-        entity, pred, norm_value = normalize(subject), normalize(predicate), normalize(value)
-        if not entity or not pred or not norm_value:
-            raise ValueError("subject, predicate and value must not be empty")
-        scope_chain(scope)  # validates the scope spec
-        t = now if now is not None else now_ms()
-        origins = [x for x in dict.fromkeys([*([source_id] if source_id else []), *derived_from])]
+        asn = prepare_assertion(subject, predicate, value, scope, source_id, derived_from, now, now_ms)
+        entity, pred, norm_value, t, origins = asn.entity, asn.predicate, asn.norm_value, asn.t, asn.origins
         prepared = self._prepare_fact(
             " ".join(subject.split()), pred, value
         )  # embeddings happen outside the txn
@@ -269,12 +282,7 @@ class SqliteBackend:
                         (dup["id"], f["id"]),
                     )
                 self._reads(c, step, [dup["id"], *(f["id"] for f in closing)])
-                return {
-                    "fact_id": dup["id"],
-                    "duplicate_of": dup["id"],
-                    "superseded": [f["id"] for f in closing],
-                    "contradicts": [],
-                }
+                return assert_result(dup["id"], dup["id"], closing, [])
             fid = new_id()
             name_row = c.execute("SELECT entity_name FROM facts WHERE entity=? LIMIT 1", (entity,)).fetchone()
             ename = name_row["entity_name"] if name_row else " ".join(subject.split())
@@ -307,12 +315,7 @@ class SqliteBackend:
             self._index_fact(c, fid, fact_text(ename, pred, value), prepared)
             self._wrote(c, step, fid, "Fact", " ".join(value.split()))
             self._reads(c, step, [*(f["id"] for f in closing), *(f["id"] for f in clashing)])
-            return {
-                "fact_id": fid,
-                "duplicate_of": None,
-                "superseded": [f["id"] for f in closing],
-                "contradicts": [f["id"] for f in clashing],
-            }
+            return assert_result(fid, None, closing, clashing)
 
     @staticmethod
     def _check_origins(c: sqlite3.Connection, source_id: str | None, derived_from: Sequence[str]) -> None:
@@ -361,9 +364,9 @@ class SqliteBackend:
     ) -> list[dict[str, Any]]:
         if k <= 0:
             return []
-        k = min(k, 50)
+        k = min(k, MAX_RECALL_K)
         clause, args, t = self._visible_clause(scope, as_of)
-        qwords = list(dict.fromkeys(w for w in words(query) if len(w) >= 2))[:10]
+        qwords = query_words(query)
         hits: list[dict[str, Any]] = []
         if qwords:
             match = " OR ".join('"' + w.replace('"', "") + '"' for w in qwords)
@@ -380,15 +383,15 @@ class SqliteBackend:
 
     @staticmethod
     def _hit(r: sqlite3.Row) -> dict[str, Any]:
-        return {
-            "fact_id": r["id"],
-            "text": fact_text(r["entity_name"], r["predicate"], r["value"]),
-            "entity": r["entity_name"],
-            "predicate": r["predicate"],
-            "value": r["value"],
-            "status": r["status"],
-            "score": float(r["score"]),
-        }
+        return recall_hit(
+            r["id"],
+            fact_text(r["entity_name"], r["predicate"], r["value"]),
+            r["entity_name"],
+            r["predicate"],
+            r["value"],
+            r["status"],
+            float(r["score"]),
+        )
 
     def _log_recall(self, agent_id: str, hits: Sequence[dict[str, Any]]) -> None:
         """Record the recall as a step with READ edges (what lets ``knew_at`` answer later)."""
@@ -495,9 +498,7 @@ class SqliteBackend:
     def create_tasks(self, tasks: Sequence[dict[str, Any]]) -> list[str]:
         if not tasks:
             return []
-        ids = [str(t.get("id") or new_id()) for t in tasks]
-        if len(set(ids)) != len(ids):
-            raise ValueError("duplicate task id in batch")
+        ids = new_task_ids(tasks, new_id)
         t0 = now_ms()
         with self._tx() as c:
             existing = {
@@ -506,32 +507,27 @@ class SqliteBackend:
             }
             if existing:
                 raise ValueError(f"task id(s) already exist: {', '.join(sorted(existing))}")
-            ext = sorted(
-                {str(d) for t in tasks for d in (t.get("depends_on") or ()) if str(d) not in set(ids)}
-            )
+            ext = external_deps(tasks, ids)
             if ext:
                 have = {
                     r["id"]
                     for r in c.execute(f"SELECT id FROM tasks WHERE id IN ({','.join('?' * len(ext))})", ext)
                 }
-                missing = [d for d in ext if d not in have]
-                if missing:
-                    raise UnknownReference(f"unknown dependency task id(s): {', '.join(missing)}")
+                raise_missing_deps([d for d in ext if d not in have])
             base = c.execute("SELECT COALESCE(MAX(seq),-1)+1 AS s FROM tasks").fetchone()["s"]
             for i, (tid, t) in enumerate(zip(ids, tasks, strict=True)):
                 c.execute(
                     "INSERT INTO tasks(id, title, priority, seq, status, created_at) VALUES(?,?,?,?, 'open', ?)",
                     (tid, str(t["title"]), int(t.get("priority", 0)), base + i, t0),
                 )
-                for d in dict.fromkeys(str(x) for x in (t.get("depends_on") or ())):
+                for d in task_deps(t):
                     c.execute("INSERT INTO deps(task_id, dep_id) VALUES(?,?)", (tid, d))
         return ids
 
     def claim_next_task(
         self, agent_id: str, lease_ms: int = 60_000, now: int | None = None
     ) -> dict[str, Any] | None:
-        if lease_ms <= 0:
-            raise ValueError("lease_ms must be positive")
+        check_lease(lease_ms)
         t = now if now is not None else now_ms()
         with self._tx() as c:
             if not c.execute("SELECT 1 FROM agents WHERE id=?", (agent_id,)).fetchone():
@@ -550,18 +546,10 @@ class SqliteBackend:
                 "UPDATE tasks SET status='claimed', claimed_by=?, lease_until=?, version=version+1 WHERE id=?",
                 (agent_id, t + lease_ms, row["id"]),
             )
-            return {
-                "id": row["id"],
-                "title": row["title"],
-                "priority": row["priority"],
-                "version": row["version"] + 1,
-                "lease_until": t + lease_ms,
-                "reclaimed_from": row["claimed_by"],
-            }
+            return claim_result(row, row["version"] + 1, t + lease_ms, row["claimed_by"])
 
     def heartbeat(self, agent_id: str, task_id: str, lease_ms: int = 60_000, now: int | None = None) -> bool:
-        if lease_ms <= 0:
-            raise ValueError("lease_ms must be positive")
+        check_lease(lease_ms)
         t = now if now is not None else now_ms()
         with self._tx() as c:
             cur = c.execute(
@@ -573,38 +561,18 @@ class SqliteBackend:
     def complete_task(
         self, agent_id: str, task_id: str, expected_version: int, artifacts: Sequence[dict[str, Any]] = ()
     ) -> dict[str, Any]:
-        arts = [
-            {
-                "id": str(a.get("id") or new_id()),
-                **{k: str(a.get(k) or "") for k in ("kind", "uri", "hash", "summary")},
-            }
-            for a in artifacts
-        ]
+        arts = artifact_specs(artifacts, new_id)
         t = now_ms()
         with self._tx() as c:
             row = c.execute("SELECT status, claimed_by, version FROM tasks WHERE id=?", (task_id,)).fetchone()
-            if row is None:
-                raise UnknownReference(f"unknown task id(s): {task_id}")
-            if row["status"] != "claimed":
-                raise ClaimConflict(f"task {task_id}: not claimed (status is {row['status']})")
-            if row["claimed_by"] != agent_id:
-                raise ClaimConflict(f"task {task_id}: claimed by {row['claimed_by']}, not {agent_id}")
-            if row["version"] != expected_version:
-                raise ClaimConflict(
-                    f"task {task_id}: stale version {expected_version}; current is {row['version']}"
-                )
+            check_completable(task_id, agent_id, expected_version, row)
             c.execute("UPDATE tasks SET status='done', done_at=?, version=version+1 WHERE id=?", (t, task_id))
             for a in arts:
                 c.execute(
                     "INSERT INTO artifacts(id, task_id, kind, uri, hash, summary, agent_id, created_at) VALUES(?,?,?,?,?,?,?,?)",
                     (a["id"], task_id, a["kind"], a["uri"], a["hash"], a["summary"], agent_id, t),
                 )
-            return {
-                "id": task_id,
-                "status": "done",
-                "version": expected_version + 1,
-                "artifact_ids": [a["id"] for a in arts],
-            }
+            return complete_result(task_id, expected_version, arts)
 
     def handoff(
         self,
@@ -615,7 +583,7 @@ class SqliteBackend:
         artifact_ids: Iterable[str] = (),
         fact_ids: Iterable[str] = (),
     ) -> str:
-        arts, facts = list(dict.fromkeys(artifact_ids)), list(dict.fromkeys(fact_ids))
+        arts, facts = unique(artifact_ids), unique(fact_ids)
         hid, t = new_id(), now_ms()
         with self._tx() as c:
             self._require(c, "agents", [agent_id, to_agent])
@@ -638,9 +606,7 @@ class SqliteBackend:
     def record_decision(
         self, agent_id: str, task_id: str, text: str, based_on_fact_ids: Iterable[str] = ()
     ) -> str:
-        facts = list(dict.fromkeys(based_on_fact_ids))
-        if len(facts) > MAX_BASED_ON:
-            raise ValueError(f"at most {MAX_BASED_ON} referenced ids")
+        facts = decision_facts(based_on_fact_ids)
         did, t = new_id(), now_ms()
         with self._tx() as c:
             self._require(c, "agents", [agent_id])
@@ -679,15 +645,7 @@ class SqliteBackend:
                 "SELECT p.id, p.status FROM deps d JOIN tasks p ON p.id=d.dep_id WHERE d.task_id=? ORDER BY p.id",
                 (task_id,),
             ).fetchall()
-        return {
-            "id": r["id"],
-            "title": r["title"],
-            "status": r["status"],
-            "claimed_by": r["claimed_by"],
-            "version": r["version"],
-            "lease_until": r["lease_until"],
-            "dependencies": [{"id": d["id"], "status": d["status"]} for d in deps],
-        }
+        return task_status_view(r, deps)
 
     def list_tasks(self) -> list[dict[str, Any]]:
         with self._conn() as c:

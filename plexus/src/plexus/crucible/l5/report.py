@@ -14,6 +14,7 @@ from typing import Any
 
 from plexus.crucible.l5.forgetting import run_forgetting
 from plexus.crucible.l5.staleness import run_staleness
+from plexus.crucible.util import iso_utc, run_stamp
 from plexus.embed import get_embedder
 from plexus.graph.client import GraphClient
 
@@ -97,7 +98,7 @@ def run_all(
     started = time.time()
     res: dict[str, Any] = {
         "layer": "L5",
-        "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
+        "started_at": iso_utc(started),
         "embedder": type(embedder).__name__,
         "git_commit": os.environ.get("CRUCIBLE_GIT_COMMIT") or _git_head(),
         "llm_calls": 0,
@@ -109,7 +110,7 @@ def run_all(
         res["forgetting"] = run_forgetting(client, embedder, sprints, noise)
     res["criteria"] = criteria(res, margin)
     res["seconds"] = round(time.time() - started, 1)
-    out = out_root / (time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(started)) + (f"-{tag}" if tag else ""))
+    out = out_root / (run_stamp(started) + (f"-{tag}" if tag else ""))
     out.mkdir(parents=True, exist_ok=True)
     (out / "results.json").write_text(json.dumps(res, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (out / "report.md").write_text(render_report(res), encoding="utf-8")

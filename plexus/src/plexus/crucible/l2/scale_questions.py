@@ -21,6 +21,7 @@ from plexus.crucible.l2.questions import (
     _dedupe,
     _downstream,
     _facts_at,
+    load_questions,
 )
 from plexus.crucible.l2.scale_scenario import ScaleLedger, Sprint
 from plexus.crucible.l2.scenario import Ledger, decision_label
@@ -45,34 +46,44 @@ def _only(xs: list[Any], what: str) -> Any:
     return xs[0]
 
 
-def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
-    """The 40 question slots for one sprint, in family order (4 per family)."""
-    pre = f"In sprint {sp.tag}: "
-    subj = sp.subject
-    out: list[Spec] = []
+class _SprintBuilder:
+    """State shared by the per-family spec builders of one sprint: its ledger, the specs so far, and the facts,
+    decisions and tasks that several families refer to."""
+
+    def __init__(self, sp: Sprint, led: Ledger):
+        self.sp, self.led = sp, led
+        self.out: list[Spec] = []
+        self.subj = sp.subject
+        self.v_old, self.v_new = led.fact(f"api_version={sp.v_old}"), led.fact(f"api_version={sp.v_new}")
+        self.jwt, self.key = led.fact(f"auth_method={sp.jwt}"), led.fact(f"auth_method={sp.apikey}")
+        self.poison, self.db = led.fact(f"database={sp.poison}"), led.fact(f"database={sp.db}")
+        assert self.poison["contradicts"] == [self.db["label"]]
+        self.superseded = {
+            f["label"] for f in led.facts if any(f["label"] in g["superseded"] for g in led.facts)
+        }
+        self.forgotten = _dedupe(x for fg in led.forgotten for x in fg["fact_labels"])
+        self.src_forum = led.forgotten[0]["source_uri"]
+        self.d_jwt, self.d_poison = (
+            led.decision(decision_label(sp.d_jwt)),
+            led.decision(decision_label(sp.d_poison)),
+        )
+        self.by = {f["label"]: f["agent"] for f in led.facts}
+        self.src_of = {f["label"]: f["source_uri"] for f in led.facts}
+        self.h3 = led.handoff(sp.tid("t03-design-endpoints"))
+        self.h7 = led.handoff(sp.tid("t07-implement-crud-spec"))
+        self.marks = led.marks
+        self.reclaimed = [c for c in led.claims if c["reclaimed_from"]]
+        self.t3 = sp.tid("t03-design-endpoints")
 
     def add(
-        family: str, text: str, fmt: str, kind: str, item: str, answer: Any, op: str, **args: Any
+        self, family: str, text: str, fmt: str, kind: str, item: str, answer: Any, op: str, **args: Any
     ) -> None:
-        out.append((family, pre + text, fmt, kind, item, answer, op, {**args, "sprint": sp.low}))
+        pre = f"In sprint {self.sp.tag}: "
+        self.out.append((family, pre + text, fmt, kind, item, answer, op, {**args, "sprint": self.sp.low}))
 
-    v_old, v_new = led.fact(f"api_version={sp.v_old}"), led.fact(f"api_version={sp.v_new}")
-    jwt, key = led.fact(f"auth_method={sp.jwt}"), led.fact(f"auth_method={sp.apikey}")
-    poison, db = led.fact(f"database={sp.poison}"), led.fact(f"database={sp.db}")
-    assert poison["contradicts"] == [db["label"]]
-    superseded = {f["label"] for f in led.facts if any(f["label"] in g["superseded"] for g in led.facts)}
-    forgotten = _dedupe(x for fg in led.forgotten for x in fg["fact_labels"])
-    src_forum = led.forgotten[0]["source_uri"]
-    d_jwt, d_poison = led.decision(decision_label(sp.d_jwt)), led.decision(decision_label(sp.d_poison))
-    by = {f["label"]: f["agent"] for f in led.facts}
-    src_of = {f["label"]: f["source_uri"] for f in led.facts}
-    h3 = led.handoff(sp.tid("t03-design-endpoints"))
-    h7 = led.handoff(sp.tid("t07-implement-crud-spec"))
-    marks = led.marks
-    reclaimed = [c for c in led.claims if c["reclaimed_from"]]
-    t3 = sp.tid("t03-design-endpoints")
 
-    # ---- decision provenance
+def _decision_provenance(s: _SprintBuilder) -> None:
+    add, d_jwt, d_poison, by, src_of = s.add, s.d_jwt, s.d_poison, s.by, s.src_of
     fam = "decision_provenance"
     add(fam, f'Which facts was the decision "{d_jwt["text"]}" based on?', FMT_FACTS, "set", "fact",
         d_jwt["fact_labels"], "decision_facts", decision=d_jwt["label"])  # fmt: skip
@@ -85,7 +96,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         "a JSON list of source uris", "set", "source", _dedupe(src_of[x] for x in d_jwt["fact_labels"]),
         "decision_sources", decision=d_jwt["label"])  # fmt: skip
 
-    # ---- handoffs
+
+def _handoffs(s: _SprintBuilder) -> None:
+    led, add, superseded, h3, h7, t3 = s.led, s.add, s.superseded, s.h3, s.h7, s.t3
     fam = "handoffs"
     add(fam, f"What artifacts (uris) did the handoff for task {t3} carry?", "a JSON list of artifact uris", "set",
         "artifact", h3["artifacts"], "handoff_artifacts", task=t3)  # fmt: skip
@@ -98,7 +111,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         [h["task_id"] for h in led.handoffs if superseded & set(h["fact_labels"])],
         "handoffs_with_superseded_facts")  # fmt: skip
 
-    # ---- time travel
+
+def _time_travel(s: _SprintBuilder) -> None:
+    led, subj, add, sp, v_old, v_new, marks = s.led, s.subj, s.add, s.sp, s.v_old, s.v_new, s.marks
     fam = "time_travel"
     t = marks["after_v1"]
     add(fam, f"What value of the fact `api_version` of subject '{subj}' (global scope) was valid at t={t} "
@@ -116,7 +131,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         "a JSON list of values, oldest first", "ordered", "value", [v_old["value"], v_new["value"]],
         "value_history", subject=subj, predicate="api_version")  # fmt: skip
 
-    # ---- supersession impact
+
+def _supersession(s: _SprintBuilder) -> None:
+    led, subj, add, v_old, v_new, superseded = s.led, s.subj, s.add, s.v_old, s.v_new, s.superseded
     fam = "supersession"
     add(fam, "Which decisions were based on a fact that was later superseded?", "a JSON list of decision names",
         "set", "decision", _decisions_on(led, superseded), "decisions_on_superseded")  # fmt: skip
@@ -129,7 +146,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         "a JSON list of decision names", "set", "decision", _decisions_on(led, {v_new["label"]}),
         "decisions_on_fact", fact=v_new["label"])  # fmt: skip
 
-    # ---- dependencies
+
+def _dependencies(s: _SprintBuilder) -> None:
+    led, add, sp = s.led, s.add, s.sp
     fam = "dependencies"
     for name in ("t03-design-endpoints", "t09-review-spec"):
         tid = sp.tid(name)
@@ -144,7 +163,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         "set", "task", [x["id"] for x in led.tasks if x["depends_on"] and set(x["depends_on"]) <= {t1}],
         "ready_after", done=[t1])  # fmt: skip
 
-    # ---- contradictions
+
+def _contradictions(s: _SprintBuilder) -> None:
+    add, jwt, key = s.add, s.jwt, s.key
     fam = "contradictions"
     add(fam, "Which current facts conflict with each other (same subject and predicate, different values)?",
         FMT_FACTS, "set", "fact", [jwt["label"], key["label"]], "active_conflicts")  # fmt: skip
@@ -156,7 +177,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
     add(fam, f"Which agent asserted the fact `{jwt['label']}`?", "one agent id", "value", "agent", jwt["agent"],
         "fact_agent", fact=jwt["label"])  # fmt: skip
 
-    # ---- recovery
+
+def _recovery(s: _SprintBuilder) -> None:
+    led, add, reclaimed, t3 = s.led, s.add, s.reclaimed, s.t3
     fam = "recovery"
     add(fam, "Which tasks were reclaimed after the agent holding them stopped (its lease expired)?",
         "a JSON list of task ids", "set", "task", [c["task_id"] for c in reclaimed], "reclaimed_tasks")  # fmt: skip
@@ -167,7 +190,17 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
     add(fam, "Which tasks did the builder complete?", "a JSON list of task ids", "set", "task",
         [c["task_id"] for c in led.completions if c["agent"] == "builder"], "completed_by", agent="builder")  # fmt: skip
 
-    # ---- memory currency and scope
+
+def _memory_scope(s: _SprintBuilder) -> None:
+    led, subj, add, sp, v_new, superseded, forgotten = (
+        s.led,
+        s.subj,
+        s.add,
+        s.sp,
+        s.v_new,
+        s.superseded,
+        s.forgotten,
+    )
     fam = "memory_scope"
     add(fam, f"What is the current value of `api_version` for '{subj}'?", "one value", "value", "value",
         v_new["value"], "current_value", subject=subj, predicate="api_version")  # fmt: skip
@@ -184,7 +217,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         "one scope name such as global or project:<name>", "value", "scope", bill["scope"], "fact_scope",
         fact=bill["label"])  # fmt: skip
 
-    # ---- cross-session recall (episodes)
+
+def _episodes(s: _SprintBuilder) -> None:
+    led, add, sp, t3 = s.led, s.add, s.sp, s.t3
     fam = "episodes"
 
     def ep(substr: str) -> dict[str, Any]:
@@ -200,7 +235,9 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
     add(fam, f"Which agent recorded the episode about taking over {t3} after the previous owner's lease expired?",
         "one agent id", "value", "agent", e3["agent"], "episode_agent", contains=f"{sp.tag}: Took over")  # fmt: skip
 
-    # ---- forgetting
+
+def _forgetting(s: _SprintBuilder) -> None:
+    led, add, poison, forgotten, src_forum = s.led, s.add, s.poison, s.forgotten, s.src_forum
     fam = "forgetting"
     add(fam, f"After forgetting the source {src_forum}, which facts derived from it are still current?",
         FMT_FACTS + " (an empty list if none)", "set", "fact", [], "remaining_from_source", source=src_forum)  # fmt: skip
@@ -210,7 +247,25 @@ def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
         "set", "decision", _decisions_on(led, set(forgotten)), "decisions_on_forgotten")  # fmt: skip
     add(fam, f"Which agent asserted the fact `{poison['label']}` that was later forgotten?", "one agent id",
         "value", "agent", poison["agent"], "fact_agent", fact=poison["label"])  # fmt: skip
-    return out
+
+
+def sprint_specs(sp: Sprint, led: Ledger) -> list[Spec]:
+    """The 40 question slots for one sprint, in family order (4 per family)."""
+    s = _SprintBuilder(sp, led)
+    for family in (
+        _decision_provenance,
+        _handoffs,
+        _time_travel,
+        _supersession,
+        _dependencies,
+        _contradictions,
+        _recovery,
+        _memory_scope,
+        _episodes,
+        _forgetting,
+    ):
+        family(s)
+    return s.out
 
 
 def assign_sprints(k: int, n_questions: int, seed: int = SEED) -> list[int]:
@@ -267,10 +322,8 @@ def dump_scale_questions(qs: list[Question], sl: ScaleLedger, path: Path) -> Non
 
 
 def load_scale_questions(path: Path) -> list[Question]:
-    import yaml
-
-    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return [Question.from_json(d) for d in doc["questions"]]
+    """Same file layout as :func:`plexus.crucible.l2.questions.load_questions` (a ``questions`` list)."""
+    return load_questions(path)
 
 
 def generate_scale(root: str | Path, k: int) -> tuple[ScaleLedger, list[Question]]:

@@ -27,6 +27,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 
 from plexus.crucible import api
 from plexus.crucible.api import ClaimConflict, UnknownReference
+from plexus.crucible.backends.base import claim_result, list_row, recall_hit, task_status_view
 from plexus.embed import Embedder, get_embedder
 from plexus.engram.errors import UnknownReference as EngramUnknown
 from plexus.graph.client import GraphClient
@@ -227,15 +228,15 @@ class PlexusBackend:
 
         d = self._call("recall", agent_id, work)
         return [
-            {
-                "fact_id": h["fact_id"],
-                "text": h["text"],
-                "entity": h["entity"],
-                "predicate": h["predicate"],
-                "value": h["value"],
-                "status": h["status"],
-                "score": float(h["score"]),
-            }
+            recall_hit(
+                h["fact_id"],
+                h["text"],
+                h["entity"],
+                h["predicate"],
+                h["value"],
+                h["status"],
+                float(h["score"]),
+            )
             for h in d["facts"]
         ]
 
@@ -313,14 +314,7 @@ class PlexusBackend:
         t = self._call("claim_next_task", agent_id, work)["task"]
         if t is None:
             return None
-        return {
-            "id": t["id"],
-            "title": t["title"],
-            "priority": t["priority"],
-            "version": t["version"],
-            "lease_until": t["lease_until"],
-            "reclaimed_from": t["reclaimed_from"],
-        }
+        return claim_result(t, t["version"], t["lease_until"], t["reclaimed_from"])
 
     def heartbeat(self, agent_id: str, task_id: str, lease_ms: int = 60_000, now: int | None = None) -> bool:
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
@@ -373,19 +367,11 @@ class PlexusBackend:
         st = self.ts.relay(MeteredClient(self.client)).task_status(task_id)
         if st is None:
             return None
-        return {
-            "id": st["id"],
-            "title": st["title"],
-            "status": st["status"],
-            "claimed_by": st["claimed_by"],
-            "version": st["version"],
-            "lease_until": st["lease_until"],
-            "dependencies": [dict(d) for d in st["dependencies"]],
-        }
+        return task_status_view(st, st["dependencies"])
 
     def list_tasks(self) -> list[dict[str, Any]]:
         rows = self.client.ro(self.graph, "crucible/list_tasks", {"limit": 100_000})
-        return [{k: r[k] for k in ("id", "status", "claimed_by", "version", "lease_until")} for r in rows]
+        return [list_row(r) for r in rows]
 
     def blocked_by_failure(self, task_id: str) -> list[str]:
         return self.ts.relay(MeteredClient(self.client)).blocked_by_failure(task_id)

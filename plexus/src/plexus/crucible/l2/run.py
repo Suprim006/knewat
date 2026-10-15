@@ -42,7 +42,7 @@ from plexus.crucible.l2.questions import (
     score,
 )
 from plexus.crucible.l2.scenario import Ledger, play
-from plexus.crucible.util import percentile
+from plexus.crucible.util import fmt_ms, iso_utc, percentile, run_stamp
 
 PKG = Path(__file__).resolve()
 DEMO_DATA = PKG.parents[4] / "demo_data" / "crucible"
@@ -360,8 +360,8 @@ def results_doc(
         "kind": "crucible-results",
         "run": {
             "id": run_id,
-            "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
-            "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(finished)),
+            "started_at": iso_utc(started),
+            "finished_at": iso_utc(finished),
             "duration_s": round(finished - started, 1),
             "quick": layer["mode"] == "pilot",
             "command": command,
@@ -406,8 +406,6 @@ def merge_into(base: dict[str, Any], l2_doc: dict[str, Any]) -> dict[str, Any]:
 
 
 # ------------------------------------------------------------------------------------------------ report
-def _fmt_ms(ms: float) -> str:
-    return f"{ms:.1f} ms" if ms < 1000 else f"{ms / 1000:.2f} s"
 
 
 def render_report(doc: dict[str, Any]) -> str:
@@ -451,7 +449,7 @@ def render_report(doc: dict[str, Any]) -> str:
         u = arms[a]["usage"]
         c = arms[a].get("context", {})
         w.append(f"| {a} | {u['tokens_per_question']:.0f} | ${u['cost_per_question_usd']:.4f} | ${u['cost_usd']:.3f} | "
-                 f"{_fmt_ms(u['latency_ms']['median'])} | {c.get('chars_median', '-')} | {c.get('questions_truncated', '-')} |")  # fmt: skip
+                 f"{fmt_ms(u['latency_ms']['median'])} | {c.get('chars_median', '-')} | {c.get('questions_truncated', '-')} |")  # fmt: skip
     w.append("\n## Wrong answers\n")
     any_wrong = False
     for a in order:
@@ -490,7 +488,7 @@ def run_l2(
     qpath: Path = QUESTIONS_PATH, run_id: str | None = None, keep_graph: bool = False,
 ) -> tuple[dict[str, Any], Path]:  # fmt: skip
     started = time.time()
-    run_id = run_id or time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + f"-{mode}"
+    run_id = run_id or run_stamp() + f"-{mode}"
     work = Path(tempfile.mkdtemp(prefix="crucible-l2-"))
     all_qs = load_questions(qpath)
     ref_led, _ = check_questions(all_qs, work / "ref")

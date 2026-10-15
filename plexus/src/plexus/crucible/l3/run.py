@@ -25,6 +25,7 @@ from typing import Any
 from plexus.crucible import results as H
 from plexus.crucible.api import BackendSpec
 from plexus.crucible.backends import open_backend
+from plexus.crucible.util import iso_utc, run_stamp
 from plexus.demo.engine import World
 from plexus.demo.engine import run as run_engine
 from plexus.demo.orchestrator import (
@@ -398,7 +399,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     a = ap.parse_args(argv)
     started = time.time()
-    run_id = time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + "-pilot"
+    run_id = run_stamp() + "-pilot"
     work = Path(tempfile.mkdtemp(prefix="crucible-l3-"))
     arms: dict[str, Any] = {}
     spent = 0.0
@@ -432,8 +433,8 @@ def main(argv: list[str] | None = None) -> int:
     }
     doc = {
         "schema_version": H.SCHEMA_VERSION, "kind": "crucible-results",
-        "run": {"id": run_id, "started_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(started)),
-                "finished_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "duration_s": round(time.time() - started, 1),
+        "run": {"id": run_id, "started_at": iso_utc(started),
+                "finished_at": iso_utc(), "duration_s": round(time.time() - started, 1),
                 "quick": True, "command": "python -m plexus.crucible.l3.run " + " ".join(argv if argv is not None else sys.argv[1:]),
                 "layers": ["L3"]},
         "config": {"arms": list(arms), "l3": {"model": a.model, "max_turns": a.max_turns, "runs_per_arm": 1}},

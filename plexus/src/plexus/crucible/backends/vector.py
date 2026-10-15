@@ -19,6 +19,7 @@ from typing import Any
 import numpy as np
 
 from plexus.crucible.api import Unsupported
+from plexus.crucible.backends.base import MAX_RECALL_K, recall_hit
 from plexus.crucible.backends.sqlite import SqliteBackend
 from plexus.crucible.util import fact_text, token_key
 from plexus.embed import Embedder, embed_checked, get_embedder
@@ -110,7 +111,7 @@ class VectorBackend(SqliteBackend):
     ) -> list[dict[str, Any]]:
         if k <= 0:
             return []
-        k = min(k, 50)
+        k = min(k, MAX_RECALL_K)
         clause, args, _ = self._visible_clause(scope, as_of)
         q = self._embed([query])[0]
         with self._conn() as c:
@@ -127,16 +128,17 @@ class VectorBackend(SqliteBackend):
         hits = []
         for i in order:
             r = rows[int(i)]
+            text = fact_text(r["entity_name"], r["predicate"], r["value"])
             hits.append(
-                {
-                    "fact_id": r["id"],
-                    "text": fact_text(r["entity_name"], r["predicate"], r["value"]),
-                    "entity": r["entity_name"],
-                    "predicate": r["predicate"],
-                    "value": r["value"],
-                    "status": r["status"],
-                    "score": float(dist[int(i)]),
-                }
+                recall_hit(
+                    r["id"],
+                    text,
+                    r["entity_name"],
+                    r["predicate"],
+                    r["value"],
+                    r["status"],
+                    float(dist[int(i)]),
+                )
             )
         return hits
 

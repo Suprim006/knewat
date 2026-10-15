@@ -19,12 +19,15 @@ __all__ = [
     "FileLock",
     "classify",
     "fact_text",
+    "fmt_ms",
+    "iso_utc",
     "keyword_score",
     "new_id",
     "normalize",
     "now_ms",
     "numeric_tokens",
     "percentile",
+    "run_stamp",
     "scope_chain",
     "token_key",
     "words",
@@ -39,6 +42,20 @@ def now_ms() -> int:
 
 def new_id() -> str:
     return str(uuid.uuid4())
+
+
+def iso_utc(ts: float | None = None) -> str:
+    """``2026-10-14T21:36:03Z`` for the epoch time ``ts`` (now when omitted)."""
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts))
+
+
+def run_stamp(ts: float | None = None) -> str:
+    """``20261014T213603Z``: the UTC timestamp that prefixes result directories and run ids."""
+    return time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(ts))
+
+
+def fmt_ms(ms: float) -> str:
+    return f"{ms:.1f} ms" if ms < 1000 else f"{ms / 1000:.2f} s"
 
 
 def words(text: str) -> list[str]:

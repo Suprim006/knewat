@@ -209,25 +209,33 @@ def _decisions_on(led: Ledger, labels: set[str]) -> list[str]:
     return [d["label"] for d in led.decisions if labels & set(d["fact_labels"])]
 
 
-def build_questions(led: Ledger) -> list[Question]:
-    qs: list[Question] = []
-    subj = led.subject
+class _Builder:
+    """State shared by the per-family question builders: the ledger, the questions so far, and the facts that
+    several families refer to. Ids are assigned in order (``Q01``, ``Q02``, ...) as questions are added."""
+
+    def __init__(self, led: Ledger):
+        self.led = led
+        self.qs: list[Question] = []
+        self.subj = led.subject
+        self.v1, self.v2 = led.fact("api_version=v1"), led.fact("api_version=v2")
+        self.jwt = led.fact("auth_method=JWT bearer tokens (RS256)")
+        self.key = led.fact("auth_method=API key in X-Api-Key header")
+        self.mongo = led.fact("database=MongoDB 4")
+        self.pg = led.fact("database=PostgreSQL 16")
+        self.superseded = {
+            f["label"] for f in led.facts if any(f["label"] in g["superseded"] for g in led.facts)
+        }
+        self.forgotten = _dedupe(x for fg in led.forgotten for x in fg["fact_labels"])
+        self.fmt_facts = 'a JSON list of fact names, e.g. ["predicate=value"]'
 
     def add(
-        family: str, text: str, fmt: str, kind: str, item: str, answer: Any, op: str, **args: Any
+        self, family: str, text: str, fmt: str, kind: str, item: str, answer: Any, op: str, **args: Any
     ) -> None:
-        qs.append(Question(f"Q{len(qs) + 1:02d}", family, text, fmt, kind, item, answer, op, args))
+        self.qs.append(Question(f"Q{len(self.qs) + 1:02d}", family, text, fmt, kind, item, answer, op, args))
 
-    v1, v2 = led.fact("api_version=v1"), led.fact("api_version=v2")
-    jwt = led.fact("auth_method=JWT bearer tokens (RS256)")
-    key = led.fact("auth_method=API key in X-Api-Key header")
-    mongo = led.fact("database=MongoDB 4")
-    pg = led.fact("database=PostgreSQL 16")
-    superseded = {f["label"] for f in led.facts if any(f["label"] in g["superseded"] for g in led.facts)}
-    forgotten = _dedupe(x for fg in led.forgotten for x in fg["fact_labels"])
-    src_forum = led.forgotten[0]["source_uri"]
 
-    # ---- decision provenance ---------------------------------------------------------------------------
+def _decision_provenance(b: _Builder) -> None:
+    led, add, fmt_facts = b.led, b.add, b.fmt_facts
     d_jwt = led.decision("use jwt bearer tokens")
     d_v1 = led.decision("build the acme notes")
     d_ok = led.decision("spec approved endpoints schema")
@@ -256,7 +264,9 @@ def build_questions(led: Ledger) -> list[Question]:
     )  # fmt: skip
     assert d_pg["agent"] == "builder"
 
-    # ---- handoffs --------------------------------------------------------------------------------------
+
+def _handoffs(b: _Builder) -> None:
+    led, add, fmt_facts, superseded = b.led, b.add, b.fmt_facts, b.superseded
     h3, h7 = led.handoff("t03-design-endpoints"), led.handoff("t07-implement-crud-spec")
     add(
         "handoffs", "What artifacts (uris) did the handoff for task t03-design-endpoints carry?",
@@ -282,7 +292,9 @@ def build_questions(led: Ledger) -> list[Question]:
         [h["task_id"] for h in led.handoffs if superseded & set(h["fact_labels"])], "handoffs_with_superseded_facts",
     )  # fmt: skip
 
-    # ---- time travel ---------------------------------------------------------------------------------------
+
+def _time_travel(b: _Builder) -> None:
+    led, add, subj, fmt_facts, v1, v2 = b.led, b.add, b.subj, b.fmt_facts, b.v1, b.v2
     marks = led.marks
     for mark, pred, what in (
         ("after_v1", "api_version", "just after it was first asserted and before anything newer"),
@@ -312,7 +324,9 @@ def build_questions(led: Ledger) -> list[Question]:
         subject=subj, predicate="api_version",
     )  # fmt: skip
 
-    # ---- supersession impact -------------------------------------------------------------------------------------
+
+def _supersession(b: _Builder) -> None:
+    led, add, v1, v2, superseded = b.led, b.add, b.v1, b.v2, b.superseded
     add(
         "supersession", "Which decisions were based on a fact that was later superseded?",
         "a JSON list of decision names", "set", "decision", _decisions_on(led, superseded), "decisions_on_superseded",
@@ -332,7 +346,9 @@ def build_questions(led: Ledger) -> list[Question]:
         "decisions_on_fact", fact=v2["label"],
     )  # fmt: skip
 
-    # ---- dependencies ----------------------------------------------------------------------------------------------
+
+def _dependencies(b: _Builder) -> None:
+    led, add = b.led, b.add
     for tid in ("t03-design-endpoints", "t06-write-db-schema", "t09-review-spec"):
         add(
             "dependencies", f"Which tasks are blocked (directly or transitively) if {tid} fails?",
@@ -351,7 +367,9 @@ def build_questions(led: Ledger) -> list[Question]:
         "ready_after", done=["t01-gather-requirements"],
     )  # fmt: skip
 
-    # ---- contradictions -----------------------------------------------------------------------------------------------
+
+def _contradictions(b: _Builder) -> None:
+    add, fmt_facts, jwt, key, mongo, pg = b.add, b.fmt_facts, b.jwt, b.key, b.mongo, b.pg
     add(
         "contradictions", "Which current facts conflict with each other (same subject and predicate, different values)?",
         fmt_facts, "set", "fact", [jwt["label"], key["label"]], "active_conflicts",
@@ -367,7 +385,9 @@ def build_questions(led: Ledger) -> list[Question]:
     )  # fmt: skip
     assert mongo["contradicts"] == [pg["label"]]
 
-    # ---- recovery ----------------------------------------------------------------------------------------------------
+
+def _recovery(b: _Builder) -> None:
+    led, add = b.led, b.add
     reclaimed = [c for c in led.claims if c["reclaimed_from"]]
     add(
         "recovery", "Which tasks were reclaimed after the agent holding them stopped (its lease expired)?",
@@ -387,7 +407,10 @@ def build_questions(led: Ledger) -> list[Question]:
         "completed_by", agent="builder",
     )  # fmt: skip
 
-    # ---- memory currency and scope -----------------------------------------------------------------------------------------
+
+def _memory_scope(b: _Builder) -> None:
+    led, add, subj, fmt_facts, v2, pg = b.led, b.add, b.subj, b.fmt_facts, b.v2, b.pg
+    superseded, forgotten = b.superseded, b.forgotten
     add(
         "memory_scope", f"What is the current value of `api_version` for '{subj}'?",
         "one value", "value", "value", v2["value"], "current_value", subject=subj, predicate="api_version",
@@ -414,7 +437,9 @@ def build_questions(led: Ledger) -> list[Question]:
         "one scope name such as global or project:<name>", "value", "scope", bill["scope"], "fact_scope", fact=bill["label"],
     )  # fmt: skip
 
-    # ---- cross-session recall (episodes) -----------------------------------------------------------------------------------------
+
+def _episodes(b: _Builder) -> None:
+    led, add = b.led, b.add
     ep_v1 = next(e for e in led.episodes if "v1 is withdrawn" in e["text"])
     ep_pg = next(e for e in led.episodes if "PostgreSQL 16" in e["text"])
     add(
@@ -430,7 +455,10 @@ def build_questions(led: Ledger) -> list[Question]:
         "an integer", "int", "value", sum(e["agent"] == "builder" for e in led.episodes), "episode_count", agent="builder",
     )  # fmt: skip
 
-    # ---- forgetting -------------------------------------------------------------------------------------------------------------------
+
+def _forgetting(b: _Builder) -> None:
+    led, add, fmt_facts, forgotten = b.led, b.add, b.fmt_facts, b.forgotten
+    src_forum = led.forgotten[0]["source_uri"]
     add(
         "forgetting", f"After forgetting the source {src_forum}, which facts derived from it are still current?",
         fmt_facts + " (an empty list if none)", "set", "fact", [], "remaining_from_source", source=src_forum,
@@ -444,7 +472,24 @@ def build_questions(led: Ledger) -> list[Question]:
         "a JSON list of decision names", "set", "decision", _decisions_on(led, set(forgotten)),
         "decisions_on_forgotten",
     )  # fmt: skip
-    return qs
+
+
+def build_questions(led: Ledger) -> list[Question]:
+    b = _Builder(led)
+    for family in (
+        _decision_provenance,
+        _handoffs,
+        _time_travel,
+        _supersession,
+        _dependencies,
+        _contradictions,
+        _recovery,
+        _memory_scope,
+        _episodes,
+        _forgetting,
+    ):
+        family(b)
+    return b.qs
 
 
 # ------------------------------------------------------------------------------------------------ files

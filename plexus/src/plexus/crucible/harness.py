@@ -139,6 +139,21 @@ class RunResult:
         self.errors = describe_errors(excs)
         self.error_total = len(excs)
 
+    def conclude(
+        self,
+        violations: dict[str, int],
+        metrics: dict[str, Any],
+        *,
+        details: dict[str, Any] | None = None,
+        errors: Iterable[BaseException] = (),
+    ) -> RunResult:
+        """Record what a case measured and finish: the usual last step of a test function."""
+        self.violations, self.metrics = violations, metrics
+        if details is not None:
+            self.details = details
+        self.set_errors(errors)
+        return self.finish()
+
     def finish(self) -> RunResult:
         if self.errors:
             self.violations["errors"] = self.error_total or len(self.errors)
