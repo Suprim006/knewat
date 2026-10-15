@@ -268,3 +268,76 @@ Failure analysis (from `report.md`, the saved contexts and the cached replies):
 - Dependencies Q17 (blocked if `s11-t03-design-endpoints` fails): B0 and B1 listed 3 of 6 downstream tasks (missed the transitive chain t09 -> t10 -> t11); for B1 all six task ids were in the context, so this one is a model reasoning error, not a retrieval miss. B2 returned an empty list.
 - B2: 13 wrong, 11 of them with words of an expected item missing from the 12 retrieved chunks (empty lists, one side of a conflict, a count of 1 instead of 2), 1 with the evidence present (Q03 answered `@unknown` agents); the 13th is the count question Q35, which has no checkable evidence.
 - Limits that may flatter the baselines: every question names its sprint and a sprint's records share its tag; sprints do not interact; no question aggregates across sprints. Limits that may flatter Plexus: hand-written Cypher per question family, scoped by sprint with the changes listed above. One model, one run per question, 36 questions, synthetic data.
+
+
+## L5 pre-registration (staleness and forgetting; written before the first L5 run)
+
+Written and committed **before any L5 measurement is run**. LLM calls in L5: **0** by design (every number below comes from deterministic code; the one real Claude Code run of P7-int is a separate demonstration, not an L5 result). Code that this text describes: `plexus/src/plexus/crucible/l5.py` (committed after this text; the tiny test `plexus/tests/crucible/test_l5.py` may run before the full run, because it only checks that the harness works at a toy size and records no result). Branch `p7-int`.
+
+### L5a: staleness (`mark_changed`)
+
+**Question.** When code changes, does Plexus flag exactly the facts whose code changed, and does recall then return no stale fact unflagged? How much does the anchor granularity matter?
+
+**Repo (scripted, temporary git repo, seed 20261016).** 12 Python modules `mod00.py`..`mod11.py`, 5 functions each (`f0`..`f4`), so 60 functions; each function has a one-line docstring and returns a literal (`return 30`). **One initial commit and 20 change commits** (21 commits). Each change commit applies one of these edit kinds; every kind appears at least once and the order is drawn with `random.Random(20261016)`:
+
+| Kind | Edit | Ground truth |
+|---|---|---|
+| value | change the returned literal of 1-3 functions | those functions changed |
+| sibling | change one function and, in the same file, a second one | both changed |
+| docstring | edit the docstring of one function | that function changed (its text changed) |
+| add | add a new function to a file (nothing anchors to it) | none changed |
+| module-comment | edit a comment outside every function | none changed |
+| whitespace | add trailing whitespace to lines inside a function | none changed (the symbol hash normalises it; the file hash does not) |
+| reorder | swap the position of two functions in a file | none changed |
+| delete | delete one function | that function changed (gone) |
+
+**Ground truth.** Computed independently of `plexus.codescan`: for every commit, the set of the 60 functions whose source segment (`ast.get_source_segment`, de-indented, trailing whitespace stripped, CRLF normalised) differs between the parent and the commit, or that exist in only one of them. The script's own edit log is checked against it (a mismatch fails the run).
+
+**Facts.** 60 facts, one per function: subject `modNN.fK`, predicate `returns`, value = the literal at the initial commit. Global scope, asserted through `Engram.assert_fact`. The fact value is not updated when the code changes (the measurement is about flagging, not about agents re-writing facts).
+
+**Arms** (each in its own tenant graph, same repo, same commits):
+
+| Arm | Anchors | Entries sent to `mark_changed` per commit |
+|---|---|---|
+| S symbol | `anchor_fact(file, symbol)` for each fact | every file entry and every symbol entry of the changed files (the real client behaviour, `workflow.commit_groups`) |
+| F file | `anchor_fact(file)` | file-level entries only (a client that does not parse symbols) |
+| N none | no anchors, no sources | the same entries as S (nothing to hit) |
+
+A baseline hash is established first (the initial commit is sent as a baseline), then each commit is sent with its commit time as `at`. After each commit, the facts that arm flagged are re-confirmed with `verify_fact(still_true=True)` so every commit is measured on its own.
+
+**Measured per arm.** Over the 20 commits: true positives (flagged and in the ground truth), false positives (flagged, not in it), false negatives (in the ground truth, not flagged); **precision** = TP/(TP+FP) and **recall** = TP/(TP+FN) (`n/a` when the denominator is 0); and **stale facts returned unflagged**: for each fact in a commit's ground truth, `Engram.recall("modNN.fK returns", k=3)` after that commit counts it when the fact is returned with `verify_state != 'suspect'`. The number of ground-truth facts over the 20 commits is reported so the counts can be read.
+
+**Hypothesis (stated before seeing any result).** S: precision 1.00, recall 1.00, unflagged 0. F: recall 1.00 (a changed function always changes its file), precision well below 1 because any edit flags the other four facts of the file, and the `add`, `module-comment`, `whitespace` and `reorder` commits flag five facts each for nothing; I expect precision between 0.15 and 0.45 and unflagged 0. N: recall 0, unflagged = every ground-truth fact. **Pass criterion: unflagged = 0 for S and F** (hard). If S shows any false positive or negative, that is a bug or a normalisation difference to be explained, not hidden.
+
+**Limits (repeated in the results).** Synthetic code where every fact is exactly about one function and the fact value is the literal; real facts are looser (a fact "payments time out after 30 s" depends on code its author may not have anchored). The measurement says the mechanism flags what changed; it does not say what fraction of real stale knowledge Plexus covers (that depends on facts being anchored, by `anchor_fact` or implicitly through a Source's file uri). No LLM is involved, so nothing here says an agent will act on the flags (that is the real run).
+
+### L5b: forgetting (activation ranking), forgetting on vs off
+
+**Question.** With many plausible but unused facts around, does activation ranking keep the right facts reachable, reduce the share of noise in what recall returns, and keep rarely used but critical facts? Forgetting lowers rank only; "does not delete" is tested by the fact count being equal before and after.
+
+**History.** The L2-scale history of `plexus.crucible.l2.scale_scenario.play_scale`, **K = 20 sprints**, into one tenant of the Plexus arm (embedder: the local fastembed model, as the other Crucible runs). Real facts are those the script asserted.
+
+**Noise.** For every distinct subject that has a real fact, **N noise facts** in the same scope, asserted by the agent `noise-agent` through `Engram.assert_fact` (no supersede), with predicates drawn from `review_note, todo, meeting_comment, tmp_setting, old_estimate, retro_item, ticket_ref, cleanup_hint` and values from templates that mention the subject and the real predicate word (for example "api_version mentioned in standup, check again after the release"). **N = 5 is the primary run; N = 15 is the stress run** (only if time allows; whichever is run is reported). Created at times drawn uniformly over the history window. "Decaying": 30% of the noise facts get 1-3 reads, all inside the first 30 days of the 90-day window and none afterwards; 70% are never read.
+
+**Simulated 90 days.** Virtual now `V = (real clock at the start of the run) + 90 days`; the engine's clock is replaced by `V` for recall and for the sweep (nothing is waited for). Reads are `(Step)-[:READ {via, at}]->(Fact)` edges placed at chosen times in `[V - 90 d, V]`:
+- **hot set H**: a seeded 15% of the real active facts that are not critical; on each of the 90 days 3-8 of them are read, `via='use'` with probability 0.5, else `'recall'`;
+- **critical set C**: the real facts that a Decision is `BASED_ON` (not flagged); each is read **exactly once, at `V - 90 d`** (`via='use'`), never again;
+- all other real facts (cold): never read.
+Random seed 20261016 for all draws.
+
+**Probes.** One per real active fact: query `"<subject> <predicate>"`, in the fact's scope, ground truth = that fact's id. Classes: critical, hot, cold. `k = 5` is primary (`k = 1, 3` reported), `budget_chars = 20000` (no truncation).
+
+**Modes.** `off` (`forgetting=False`), `on` (`forgetting=True`, nothing swept), `on+sweep` (a real `memory_sweep(dry_run=False)` of every sprint scope first, then recall with `forgetting=True`).
+
+**Measured per mode.** recall@k of the ground-truth fact per class and overall; **noise share** = noise rows / rows returned; **chars per recall** = summed `len(text)` of returned rows (the unit of tokens; no tokenizer involved); **critical-probe loss** = critical probes found at k=5 in `off` and missed in the mode; facts moved to dormant by the sweep, by class (critical / hot / cold real, noise); the dry-run candidate list's overlap with critical facts; and the number of Fact nodes before and after (must be equal).
+
+**Pass criteria (fixed now).**
+1. **Critical-probe loss = 0** in `on` and `on+sweep`, and no critical fact moved to dormant (hard).
+2. **Fact count unchanged** by the sweep (hard).
+3. **Non-inferiority:** overall recall@5 of `on` is not more than 0.02 below `off`. If it is, that is reported as harm, not as a pass.
+4. **Noise reduced:** the noise share of `on` or `on+sweep` is lower than `off`. If not, it is reported as "no reduction".
+Accuracy unchanged is a valid outcome and is reported as such.
+
+**Hypothesis (stated before seeing any result).** recall@5 within ±0.01 between `off` and `on` (the ranking multiplier is bounded to [0.5, 1]; the relevance gap between the target and noise is usually larger); noise share of `on` lower than `off` by a small relative amount (5-25%); `on+sweep` lower again (dormant noise is not returned at all) at a recall within 0.02 of `off`; chars per recall nearly equal for `off` and `on` (k rows are returned either way; only which rows changes); critical loss 0 because every critical fact is protected by its Decision. A possible failure that would count as a finding: cold, non-critical real facts (never read in 90 days) lose rank against noise that was read early, which would lower cold-class recall@5 in `on` and `on+sweep`; the per-class numbers are reported so this is visible.
+
+**Limits (repeated in the results).** One synthetic scenario repeated 20 times; noise is generated from templates, so it is more regular than real clutter; the read schedule is simulated, not observed; the probes are fact lookups (the part of the L2-scale question set that is about stored facts), not the full 36 questions, which are answered by hand-written Cypher and do not call `recall`. No LLM is involved, so this says nothing about the answer quality of an agent.
