@@ -88,10 +88,20 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
   falls strictly inside the old fact's window, so `valid_to` never moves before `valid_from`. `as_of` before the change
   returns the old value, after it the new one. `evidence` that is an absolute path or a URL becomes (or reuses) a `Source`
   the new fact derives from, which makes it implicitly anchored to that file; any other text is stored on the edge.
-- The two statements are not atomic together. If the second fails the new value is still recorded, only not backdated.
+- **Known non-atomic path.** `verify_fact(still_true=false)` is two statements: the supersede (`assert_fact`) and then
+  `staleness/backdate`. FalkorDB has no multi-statement transaction, and the supersede path is shared with `assert_fact`,
+  so it was not rewritten. If the second statement fails (or the process dies between them): the new value is recorded
+  and is the current fact (nothing wrong is served), but the old fact keeps `valid_to = <time of the supersede>` instead of
+  the time of the code change, stays `verify_state='suspect'` with no `VERIFIED_BY` edge, and the decisions that rested on
+  it are **not flagged**. The old fact is no longer current, so it has left `facts_to_verify` and `verify_fact` refuses it
+  (`superseded`); there is no automatic repair. The symptoms are findable (`superseded` + `suspect` facts, decisions
+  `BASED_ON` them that are not flagged, visible in `why` and the View) and
+  `tests/staleness/test_verify.py::test_a_failure_between_the_two_statements_*` pins exactly this state.
 
 Other work lists: `facts_to_verify` (suspect or past review date, ordered by non-flagged decisions that depend on the
-fact, then oldest suspicion; `Staleness(rank=...)` is the hook where activation ordering from D-012 plugs in),
+fact, then activation (D-012, the fact agents actually use first; each row carries `activation` and `protected`), then
+oldest suspicion; with `PLEXUS_FORGETTING=off` the activation step and fields are dropped; `Staleness(rank=...)` replaces
+the ordering),
 `docs_to_update` (docs describing code that changed after the doc's own last `TOUCHED`), `set_review_date` (for facts no
 code change can invalidate: a deployed URL, an account, a client request).
 
@@ -165,4 +175,5 @@ already there, and replaces its own block on a re-run. A failing scan never fail
 - **Detection is only as good as the hooks.** An edit made while no hook runs and no scan is done is noticed at the next
   scan of a later commit (the stored hash differs), not at the moment it happened; its `Change.at` is then the later time.
 - `facts_to_verify` ranks at most 5000 suspect ids; `docs_to_update` keeps up to 10 changes per doc.
-- The audit rows (`ToolCall`) and Steps record the tools; the View API does not know the `Change` / `CodeAnchor` labels yet.
+- The audit rows (`ToolCall`) and Steps record the tools. The View API shows `Change` / `CodeAnchor` nodes, the Fact fields and
+  `/verify-queue`, `/docs-to-update` (see `docs/view-api.schema.json`).

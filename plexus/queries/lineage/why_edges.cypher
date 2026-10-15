@@ -7,6 +7,7 @@
 // Decision edges: DECIDED, FOR (Task), BASED_ON, (Step)-[:WROTE]->, and the writing Step's agent.
 // Per base fact: ASSERTED_BY, ABOUT, IN_SCOPE, DERIVED_FROM*1..3 (Episode | Source | Fact; with the asserting agent of derived facts and the Session/agent behind an Episode),
 // SUPERSEDES / CONTRADICTS / DUPLICATES neighbours (both directions), and the Step(s) that WROTE it with their agent.
+// P7-int: the Changes that SUSPECTED a base fact (Change -> Fact) and the agents that VERIFIED_BY it (Fact -> Agent), so "why is this decision at risk" is this one query.
 // Every branch is capped by $limit rows, and a base fact's neighbourhood is bounded by the fixed hop limits above, so the result is bounded.
 MATCH (a:Agent)-[:DECIDED]->(d:Decision {id: $id})
 RETURN a.id AS s, 'Agent' AS sl, 'DECIDED' AS rel, d.id AS t, 'Decision' AS tl, 1 AS prio LIMIT $limit
@@ -125,3 +126,21 @@ UNWIND base AS f
 MATCH (st:Step)-[:WROTE]->(f)
 MATCH (st)-[:BY]->(a:Agent)
 RETURN st.id AS s, 'Step' AS sl, 'BY' AS rel, a.id AS t, 'Agent' AS tl, 2 AS prio LIMIT $limit
+UNION
+OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
+WITH collect(bf) AS bfs
+OPTIONAL MATCH (f0:Fact {id: $id})
+WITH bfs, collect(f0) AS f0s
+WITH bfs + f0s AS base
+UNWIND base AS f
+MATCH (ch:Change)-[:SUSPECTED]->(f)
+RETURN ch.id AS s, 'Change' AS sl, 'SUSPECTED' AS rel, f.id AS t, 'Fact' AS tl, 2 AS prio LIMIT $limit
+UNION
+OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
+WITH collect(bf) AS bfs
+OPTIONAL MATCH (f0:Fact {id: $id})
+WITH bfs, collect(f0) AS f0s
+WITH bfs + f0s AS base
+UNWIND base AS f
+MATCH (f)-[:VERIFIED_BY]->(a:Agent)
+RETURN DISTINCT f.id AS s, 'Fact' AS sl, 'VERIFIED_BY' AS rel, a.id AS t, 'Agent' AS tl, 2 AS prio LIMIT $limit

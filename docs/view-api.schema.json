@@ -1348,6 +1348,22 @@
           "title": "Supersedes",
           "type": "array"
         },
+        "suspected_by": {
+          "description": "Change ids that made this fact suspect (P7).",
+          "items": {
+            "type": "string"
+          },
+          "title": "Suspected By",
+          "type": "array"
+        },
+        "verified_by": {
+          "description": "Agents that re-checked this fact (P7).",
+          "items": {
+            "type": "string"
+          },
+          "title": "Verified By",
+          "type": "array"
+        },
         "written_by_steps": {
           "items": {
             "type": "string"
