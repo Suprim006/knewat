@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { formatProp, labelColor } from '../lib/labels';
+import { factMemory, PIN_GLYPH, SUSPECT_GLYPH } from '../lib/memory';
+import { MemoryStrengthSection } from './MemoryStrength';
 import type { NeighborInfo, NodeDescription } from '../lib/graphController';
 
 interface Props {
@@ -21,6 +23,7 @@ export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClos
     );
   }
   const keys = Object.keys(node.props).filter((k) => k !== 'embedding');
+  const mem = node.label === 'Fact' ? factMemory(node.props, Date.now()) : null;
   const groups = new Map<string, NeighborInfo[]>();
   for (const n of node.neighbors) {
     const k = `${n.direction === 'out' ? '→' : '←'} ${n.type}`;
@@ -37,6 +40,25 @@ export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClos
         </button>
       </div>
       <h2 className="side-title">{node.name}</h2>
+      {mem && (mem.suspect || mem.pinned || mem.dormant) && (
+        <ul className="mem-badges" aria-label="Memory state">
+          {mem.suspect && (
+            <li className="mem-badge suspect" data-testid="badge-suspect" title={mem.reason}>
+              {SUSPECT_GLYPH} suspect
+            </li>
+          )}
+          {mem.pinned && (
+            <li className="mem-badge pinned" data-testid="badge-pinned">
+              {PIN_GLYPH} pinned
+            </li>
+          )}
+          {mem.dormant && (
+            <li className="mem-badge dormant" data-testid="badge-dormant">
+              dormant
+            </li>
+          )}
+        </ul>
+      )}
       <div className="actions-row">
         {(node.label === 'Decision' || node.label === 'Fact') && (
           <Link className="btn small" to={`/why/${encodeURIComponent(node.id)}`}>
@@ -49,6 +71,7 @@ export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClos
           </button>
         )}
       </div>
+      {node.label === 'Fact' && <MemoryStrengthSection factId={node.id} props={node.props} />}
       <h3>Properties</h3>
       <dl className="props">
         <dt>id</dt>

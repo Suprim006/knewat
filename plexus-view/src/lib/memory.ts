@@ -70,6 +70,10 @@ export function factMemory(p: Props, t: number, reason?: string): FactMemory {
   };
 }
 
+/** True when the node carries any P7 field, i.e. the tenant has staleness / forgetting data. */
+export const hasMemoryData = (p: Props): boolean =>
+  ['activation', 'verify_state', 'pinned', 'surprise'].some((k) => p[k] !== undefined);
+
 /** Median activation of the Facts that report one (the fade centre when the API sends no A0); null if none. */
 export function medianActivation(nodes: readonly GraphNode[]): number | null {
   const a = nodes
