@@ -169,15 +169,17 @@ class Staleness:
         repo: str = "",
         now: int | None = None,
     ) -> dict[str, Any]:
-        """Record code changes; the active facts that depend on a changed file / symbol become suspect.
+        """Record code changes; active and dormant facts that depend on a changed file or symbol turn suspect.
 
         ``changes`` is ``[{path, symbol='', new_hash, old_hash='', kind?}]`` (at most 200). An entry is
         *changed* when the hash stored for its anchor (or, when none is stored yet, ``old_hash``) differs from
         ``new_hash``; a first sighting without ``old_hash`` is a baseline and marks nothing. ``new_hash=''``
         means the file / symbol is gone. A file-level change covers the symbol anchors of that file only when
         the batch has no symbol entries for it. Affected facts: those ``ANCHORED_TO`` a changed anchor, plus
-        those ``DERIVED_FROM*1..5`` a ``Source`` whose uri is the changed (canonical) path. Only ``active``
-        facts. Returns ``{change_id, at, changed, unchanged, suspect_fact_ids, decisions, decisions_total,
+        those ``DERIVED_FROM*1..5`` a ``Source`` whose uri is the changed (canonical) path.
+        Dormant facts (moved by a sweep) are marked too, so restoring one brings it back suspect; they are not
+        listed in ``suspect_fact_ids``, which names the active ones. Returns ``{change_id, at, changed,
+        unchanged, suspect_fact_ids, decisions, decisions_total,
         docs_to_update, truncated}``. ``change_id`` is ``None`` when nothing changed (no Change is created).
 
         At most ``limit`` (<= 2000) facts are marked per call. When more are affected ``truncated`` is true

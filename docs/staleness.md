@@ -62,7 +62,8 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
    for implicit anchoring, on the `Source`'s `content_hash`) differs from `new_hash`. When nothing is stored yet, the
    caller's `old_hash` stands in. **A first sighting without `old_hash` is a baseline**: it is recorded and marks
    nothing. `new_hash = ''` means the file / symbol is gone.
-2. **Which facts?** Active facts only: those `ANCHORED_TO` a changed anchor, plus those that reach a `Source` whose
+2. **Which facts?** Active and dormant facts (a fact a sweep moved to `dormant` is doubted too, so a `restore_fact`
+   brings it back as suspect; `suspect_fact_ids` and `facts_to_verify` list the active ones only): those `ANCHORED_TO` a changed anchor, plus those that reach a `Source` whose
    `uri` is a changed file through `DERIVED_FROM*1..5` (zero effort: the physio graph's `CLAUDE.md` / `README.md`
    facts are covered as soon as the file is baselined). A file-level change also covers the symbol anchors of that file,
    but **only when the call has no symbol entries for it**; the client sends every symbol of a parseable Python file, so
