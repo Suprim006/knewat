@@ -45,6 +45,9 @@ WROTE_LABELS = frozenset(
 )  # nodes a Step can WROTE besides Facts (see link_step)
 HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
 LINK_CHUNK = 200  # ids per link_step call (lineage.MAX_LINK_IDS)
+AUXILIARY_PREFIX = (
+    "activation/"  # reads under this prefix never name a ToolCall when the tool ran another read
+)
 SCHEMA_RECHECK_S = 5.0  # how often a tenant's indexes are re-verified (env PLEXUS_SCHEMA_RECHECK_S)
 _UUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 
@@ -89,9 +92,17 @@ class MeteredClient:
 
     @property
     def query_name(self) -> str:
-        """The write query if there was one (the last), else the last read query."""
+        """The write query if there was one (the last), else the last *main* read query.
+
+        ``activation/*`` reads are auxiliary (they re-rank or annotate what the tool's own query found), so a
+        forgetting-on ``recall`` is recorded as ``engram/recall``. A tool that only runs activation reads
+        (``memory_strength``) still reports the last of them.
+        """
         if self.writes:
             return self.writes[-1]
+        main = [q for q in self.queries if not q.startswith(AUXILIARY_PREFIX)]
+        if main:
+            return main[-1]
         return self.queries[-1] if self.queries else ""
 
 

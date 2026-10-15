@@ -144,8 +144,8 @@ async def test_engram_flow_and_toolcall_audit(server, client, tenant):
     assert "CREATED:Episode" in by["remember_episode"]["links"]
     # recall changes no memory, but its Recall record is a node the call created
     assert by["recall"]["wrote"] is True and by["recall"]["links"] == ["CREATED:Recall"]
-    # P7-K: the last read of a forgetting-on recall is the activation lookup, so that is the query name now
-    assert by["recall"]["q"] in ("engram/recall", "activation/activation") and by["recall"]["ms"] > 0
+    # the ToolCall names the main query (the activation lookup of a forgetting-on recall is an auxiliary read)
+    assert by["recall"]["q"] == "engram/recall" and by["recall"]["ms"] > 0
     second = [x for x in calls if x["tool"] == "assert_fact"]
     assert any("UPDATED:Fact" in x["links"] for x in second)  # the superseded fact
     assert all(x["agent"] == "smoke" for x in calls)
