@@ -91,15 +91,18 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
   falls strictly inside the old fact's window, so `valid_to` never moves before `valid_from`. `as_of` before the change
   returns the old value, after it the new one. `evidence` that is an absolute path or a URL becomes (or reuses) a `Source`
   the new fact derives from, which makes it implicitly anchored to that file; any other text is stored on the edge.
-- **Known non-atomic path.** `verify_fact(still_true=false)` is two statements: the supersede (`assert_fact`) and then
-  `staleness/backdate`. FalkorDB has no multi-statement transaction, and the supersede path is shared with `assert_fact`,
-  so it was not rewritten. If the second statement fails (or the process dies between them): the new value is recorded
-  and is the current fact (nothing wrong is served), but the old fact keeps `valid_to = <time of the supersede>` instead of
-  the time of the code change, stays `verify_state='suspect'` with no `VERIFIED_BY` edge, and the decisions that rested on
-  it are **not flagged**. The old fact is no longer current, so it has left `facts_to_verify` and `verify_fact` refuses it
-  (`superseded`); there is no automatic repair. The symptoms are findable (`superseded` + `suspect` facts, decisions
-  `BASED_ON` them that are not flagged, visible in `why` and the View) and
-  `tests/staleness/test_verify.py::test_a_failure_between_the_two_statements_*` pins exactly this state.
+- **Non-atomic path, made fail-safe (P7-03).** `verify_fact(still_true=false)` is two write statements: the supersede
+  (`assert_fact`, shared with the engram, which owns it) and then `staleness/backdate`. FalkorDB has no multi-statement
+  transaction, so they stay two, but they are ordered so that a failure leaves a state that is consistent and can be
+  finished: (1) the backdate point is **read first** (`staleness/backdate_point`; if the read fails nothing was written and
+  the old value is still current); (2) the supersede; (3) `staleness/backdate`, **retried once** on a connection / server
+  error. If both attempts fail, the new value is still recorded and current, the old fact keeps `valid_to = <time of the
+  supersede>`, stays `verify_state='suspect'` with no `VERIFIED_BY` edge and its decisions are not flagged, **but** it carries
+  `verify_degraded = true` and the result says `verify_degraded: true`. Calling `verify_fact(old_id, still_true=false,
+  new_value=<same value>)` again then finishes the job (backdate, `VERIFIED_BY`, decision flags; the flag is cleared and no
+  third fact is created); a different `new_value` is refused. The degraded facts are findable with
+  `MATCH (f:Fact {verify_degraded: true}) RETURN f.id`. If even the flag cannot be written (database down) the call raises.
+  `tests/staleness/test_verify.py` injects the faults (a client that fails the read, one backdate, both backdates).
 
 Other work lists: `facts_to_verify` (suspect or past review date, ordered by non-flagged decisions that depend on the
 fact, then activation (D-012, the fact agents actually use first; each row carries `activation` and `protected`), then

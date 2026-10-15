@@ -14,6 +14,8 @@ import re
 from collections.abc import Callable, Sequence
 from typing import Any
 
+from redis.exceptions import RedisError
+
 from plexus.activation import Activation, Settings
 from plexus.codescan.paths import anchor_id, canonical_path
 from plexus.common import OPEN, check_between, normalize, now_ms
@@ -271,18 +273,28 @@ class Staleness:
         'confirmed'}``; fine on a fact that is not suspect, it refreshes ``verified_at``). A review date
         (``verify_after``) that has passed is consumed.
 
-        Not true any more: ``new_value`` is required (``ValueError`` otherwise, nothing written). The existing
-        supersede path creates the new fact (``Engram.assert_fact(..., supersede=True)``); then ONE statement
-        (``staleness/backdate``) puts the old fact's ``valid_to`` and the new fact's ``valid_from`` at the
-        time of the newest ``Change`` that suspected the old fact (event time; ``recorded_at`` stays the time
-        Plexus learned the value), marks the old fact verified, adds ``VERIFIED_BY {outcome:'changed'}``,
-        flags the Decisions ``BASED_ON`` the old fact (``flag_reason = 'fact changed: <id>'``). The two are
-        not atomic together: if the second fails the new value is still correctly recorded, only not
-        backdated. ``evidence`` that is an absolute path or URL becomes (or reuses) a ``Source`` the new fact
-        is ``DERIVED_FROM``; any other text is kept on the edge. A new value equal to the old one counts as
-        confirmed. Only a current (``active``) fact can be changed.
+        Not true any more: ``new_value`` is required (``ValueError`` otherwise, nothing written).
+        The backdate point is READ first (``staleness/backdate_point``: a failing read writes
+        nothing); then the existing supersede path creates the new fact (``Engram.assert_fact(...,
+        supersede=True)``); then ONE statement (``staleness/backdate``) puts the old fact's
+        ``valid_to`` and the new fact's ``valid_from`` at the time of the newest ``Change`` that
+        suspected the old fact and is newer than its last confirmation (event time; ``recorded_at``
+        stays the time Plexus learned the value), marks the old fact verified, adds ``VERIFIED_BY
+        {outcome:'changed'}`` and flags the Decisions ``BASED_ON`` the old fact (``flag_reason =
+        'fact changed: <id>'``).
 
-        Returns ``{fact_id, outcome, flagged_decisions, new_fact_id?, valid_to?}``. Raises
+        The supersede and the backdate are not atomic together (FalkorDB has no multi-statement
+        transaction): a failed backdate is retried once; if that fails too the new value is still
+        recorded, the old fact gets ``verify_degraded = true`` and the result carries
+        ``verify_degraded: True`` (``valid_to`` then is the supersede time and no decisions are
+        flagged). Calling ``verify_fact`` again on the old fact with the same ``new_value`` finishes
+        the job.
+
+        ``evidence`` that is an absolute path or URL becomes (or reuses) a ``Source`` the new fact
+        is ``DERIVED_FROM``; any other text is kept on the edge. A new value equal to the old one
+        counts as confirmed. Only a current (``active``) fact can be changed.
+
+        Returns ``{fact_id, outcome, flagged_decisions, new_fact_id?, valid_to?, verify_degraded?}``. Raises
         :class:`LookupError` (unknown fact) and :class:`ValueError`.
         """
         t = self._t(now)
@@ -296,6 +308,8 @@ class Staleness:
         if still_true or normalize(new_value) == old["norm_value"]:
             return self._confirm_fact(fact_id, agent_id, commit, note, t)
         if old["status"] != "active":
+            if old["verify_degraded"] and old["successors"]:
+                return self._finish_degraded(old, fact_id, new_value, agent_id, commit, note, t)
             raise ValueError(
                 f"fact '{fact_id}' is {old['status']}, not current: verify the fact that replaced it"
             )
@@ -317,6 +331,43 @@ class Staleness:
         )
         return {"fact_id": fact_id, "outcome": "confirmed", "flagged_decisions": []}
 
+    def _change_point(self, fact_id: str, t: int) -> int:
+        """The event time the old fact's window may end at (``-1`` = none); a read, so it runs first."""
+        rows = self.client.ro(self.graph, "staleness/backdate_point", {"old_id": fact_id, "now": t})
+        return int(rows[0]["change_at"]) if rows else -1
+
+    def _backdate(
+        self,
+        old_id: str,
+        new_id: str,
+        backdate: bool,
+        change_at: int,
+        agent_id: str,
+        commit: str,
+        note: str,
+        t: int,
+    ) -> dict[str, Any] | None:
+        """Run ``staleness/backdate``; one retry after a connection / server error. ``None`` = both failed."""
+        params = {
+            "old_id": old_id,
+            "new_id": new_id,
+            "backdate": backdate,
+            "change_at": change_at,
+            "agent_id": agent_id,
+            "commit": commit,
+            "evidence": note[:MAX_EVIDENCE],
+            "now": t,
+            "reason": f"fact changed: {old_id}",
+            "max_flag": MAX_FLAGGED,
+        }
+        for _attempt in range(2):
+            try:
+                rows = self.client.rw(self.graph, "staleness/backdate", params)
+            except (RedisError, OSError):
+                continue
+            return rows[0]
+        return None
+
     def _replace_fact(
         self,
         old: dict[str, Any],
@@ -327,8 +378,14 @@ class Staleness:
         note: str,
         t: int,
     ) -> dict[str, Any]:
-        """Supersede ``old`` with ``new_value`` (Engram), then backdate and flag in one statement."""
+        """Supersede ``old`` with ``new_value`` (Engram), then backdate and flag in one statement.
+
+        Ordered so that a failure leaves a state that can be found and finished: the backdate point is READ
+        first (a failing read writes nothing), then the supersede, then the backdate, retried once. If both
+        attempts fail the old fact gets ``verify_degraded = true`` and the result says so.
+        """
         source_id = self._evidence_source(note, t)
+        change_at = self._change_point(fact_id, t)
         r = self._engram_().assert_fact(
             old["subject"],
             old["predicate"],
@@ -342,26 +399,70 @@ class Staleness:
             dup_threshold=-1.0,  # a corrected value is never a paraphrase of the old one (real run)
         )
         new_id = r["fact_id"]
-        res = self.client.rw(
-            self.graph,
-            "staleness/backdate",
-            {
-                "old_id": fact_id,
-                "new_id": new_id,
-                "backdate": r["duplicate_of"] is None and r["superseded"] == [fact_id],
-                "agent_id": agent_id,
-                "commit": commit,
-                "evidence": note[:MAX_EVIDENCE],
-                "now": t,
-                "reason": f"fact changed: {fact_id}",
-                "max_flag": MAX_FLAGGED,
-            },
+        b = self._backdate(
+            fact_id,
+            new_id,
+            r["duplicate_of"] is None and r["superseded"] == [fact_id],
+            change_at,
+            agent_id,
+            commit,
+            note,
+            t,
         )
-        b = res[0]
+        if b is None:
+            return self._degraded(fact_id, new_id, max(t, old["valid_from"]))
         return {
             "fact_id": fact_id,
             "outcome": "changed",
             "new_fact_id": new_id,
+            "valid_to": b["valid_to"],
+            "flagged_decisions": sorted(b["decision_ids"]),
+        }
+
+    def _degraded(self, fact_id: str, new_id: str, valid_to: int) -> dict[str, Any]:
+        """The supersede happened but the backdate did not: flag the old fact so the gap can be found."""
+        try:
+            self.client.rw(self.graph, "staleness/mark_degraded", {"fact_id": fact_id})
+        except (RedisError, OSError) as exc:  # the database is gone: nothing more can be recorded
+            raise RuntimeError(
+                f"fact '{fact_id}' was superseded by '{new_id}' but the verification could not be completed "
+                "or flagged; call verify_fact again with the same new_value"
+            ) from exc
+        return {
+            "fact_id": fact_id,
+            "outcome": "changed",
+            "new_fact_id": new_id,
+            "valid_to": valid_to,
+            "flagged_decisions": [],
+            "verify_degraded": True,
+        }
+
+    def _finish_degraded(
+        self,
+        old: dict[str, Any],
+        fact_id: str,
+        new_value: str,
+        agent_id: str,
+        commit: str,
+        note: str,
+        t: int,
+    ) -> dict[str, Any]:
+        """Finish a verification that superseded the fact but could not backdate it (``verify_degraded``)."""
+        succ = next((s for s in old["successors"] if s["norm_value"] == normalize(new_value)), None)
+        if succ is None:
+            shown = ", ".join(f"'{s['norm_value']}'" for s in old["successors"])
+            raise ValueError(
+                f"fact '{fact_id}' was already replaced by {shown} (its verification is unfinished): "
+                "call verify_fact again with that value"
+            )
+        change_at = self._change_point(fact_id, t)
+        b = self._backdate(fact_id, succ["id"], True, change_at, agent_id, commit, note, t)
+        if b is None:
+            raise RuntimeError(f"could not finish the verification of fact '{fact_id}': the database refused")
+        return {
+            "fact_id": fact_id,
+            "outcome": "changed",
+            "new_fact_id": succ["id"],
             "valid_to": b["valid_to"],
             "flagged_decisions": sorted(b["decision_ids"]),
         }
