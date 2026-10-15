@@ -298,6 +298,7 @@ class Engram:
         supersede: bool = False,
         subject_kind: str = "thing",
         step: int | None = None,  # noqa: ARG002 - reserved: Lineage appends the Step edges to the statement
+        dup_threshold: float | None = None,
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
@@ -306,6 +307,10 @@ class Engram:
         duplicate, which stores nothing). For a duplicate no fact is
         created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
         and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
+
+        ``dup_threshold`` overrides the service's paraphrase threshold for this call (a negative value turns
+        the paraphrase check off, so only an equal normalised value is a duplicate; ``verify_fact`` uses it,
+        because an agent that corrects a clause of a long fact means a different fact).
 
         A value is a duplicate only if its normalised text is equal, or its embedding is within
         ``dup_threshold`` **and** its numeric/version tokens are identical (``16`` != ``15``, ``v1.2.3`` !=
@@ -351,7 +356,7 @@ class Engram:
                 "fact_id": _new_id(),
                 "emb": text_emb,
                 "value_emb": value_emb,
-                "dup_threshold": self.dup_threshold,
+                "dup_threshold": self.dup_threshold if dup_threshold is None else dup_threshold,
                 "novelty": novelty,
                 "surprise_supersede": act.SURPRISE_SUPERSEDE,
                 "surprise_contradict": act.SURPRISE_CONTRADICT,

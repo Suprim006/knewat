@@ -183,6 +183,10 @@ class WhyFact(BaseModel):
     contradicts: list[str]
     contradicted_by: list[str]
     written_by_steps: list[str]
+    suspected_by: list[str] = Field(
+        default_factory=list, description="Change ids that made this fact suspect (P7)."
+    )
+    verified_by: list[str] = Field(default_factory=list, description="Agents that re-checked this fact (P7).")
 
 
 class WhyResult(BaseModel):

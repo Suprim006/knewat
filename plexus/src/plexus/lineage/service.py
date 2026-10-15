@@ -25,6 +25,21 @@ MAX_SOURCE_TEXT = 2000
 MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
 
 
+TRUSTS = ("normal", "high")
+
+
+def normalize_trust(trust: str | float | None) -> str:
+    """``'normal'`` | ``'high'``, or ``''`` for "not given" (None or a legacy number): the query parameter."""
+    if trust is None or isinstance(trust, (int, float)):  # a number is the legacy 0..1 float: no opinion
+        return ""
+    value = str(trust).strip().lower()
+    if value == "":
+        return ""
+    if value not in TRUSTS:
+        raise ValueError(f"trust must be 'normal' or 'high', not {trust!r}")
+    return value
+
+
 class LineageError(Exception):
     """Base class for lineage errors."""
 
@@ -79,7 +94,7 @@ class Lineage:
         self,
         uri: str,
         kind: str = "doc",
-        trust: float = 1.0,
+        trust: str | float | None = None,
         *,
         source_id: str | None = None,
         title: str = "",
@@ -89,6 +104,9 @@ class Lineage:
         """MERGE a ``Source`` by ``uri`` (idempotent) and return its id. Pass it to ``Engram.assert_fact``.
 
         ``title`` / ``text`` are optional display properties (text is cut to 2000 chars).
+        ``trust`` is ``'normal'`` or ``'high'`` (``'high'`` protects the facts derived from the source from
+        fading, D-012). ``None`` or a number (the old 0..1 float, which never had an effect) means *no
+        opinion*: a new source is ``'normal'`` and an existing one keeps its trust.
         """
         if not uri.strip():
             raise ValueError("source uri must not be empty")
@@ -99,7 +117,7 @@ class Lineage:
                 "source_id": source_id or _new_id(),
                 "uri": uri,
                 "kind": kind,
-                "trust": float(trust),
+                "trust": normalize_trust(trust),
                 "title": title,
                 "text": text[:MAX_SOURCE_TEXT],
                 "now": self._t(now),

@@ -30,6 +30,72 @@ Plexus tool is a deterministic Cypher query. Only synthetic data is used (a fict
 | Memory updates over time | Validity windows (`valid_from`/`valid_to`), `SUPERSEDES`, `CONTRADICTS` and duplicate detection at write time, "as of T" queries, forget-by-source and quarantine | View: Time Machine, Explorer · MCP: `assert_fact`, `as_of`, `fact_history`, `forget_source`, `quarantine_source` |
 | Explainability | `why(decision)` and `why_recalled` return graph paths (decision → facts → agent → step → source); `knew_at(agent, step)`; `who_knew(fact)` | View: Why, Time Machine · MCP: `why`, `why_recalled`, `who_knew`, `knew_at` |
 
+## Memory that notices change
+
+Agent memory goes stale silently: a fact written when `payments.py` used eSewa is still "true" a month after someone
+rewrote it. Plexus ties facts to code and tells the agent which ones to re-check, instead of waiting for the agent to be wrong.
+
+- **A code change makes a fact *suspect*, never false.** A fact is `ANCHORED_TO` a `CodeAnchor` (a file, or a Python
+  function / class found with `ast`; other languages are file level only). `mark_changed` hashes the code, creates a `Change`
+  and marks the active facts of every changed anchor `suspect` in one Cypher statement. A fact that derives from a `Source`
+  whose uri is a changed file is suspect too, with no `anchor_fact` call (the zero-effort path). A review date
+  (`set_review_date`) does the same for facts no code change can invalidate (a deployed URL).
+- **Recall still returns suspect facts**, flagged: `verify_state: suspect`, `suspect_since`, `suspect_reason: "changed in abc123
+  (app/services/payments.py)"`. Nothing is hidden or dropped.
+- **An agent re-checks and records the outcome.** `facts_to_verify` lists the work (most decisions at risk first, then the most
+  used fact, then the oldest suspicion). `verify_fact(still_true, new_value, evidence)` confirms the fact, or supersedes it **at
+  the time of the code change** (so `as_of` before / after the change returns the old / new value), and flags the decisions
+  that rested on the old value. `docs_to_update` lists the docs that `DESCRIBE` code that changed after the doc was edited.
+- **One query answers "why is this decision at risk"**: `why(decision)` includes the `Change`s that `SUSPECTED` the facts it
+  rests on and the agents that `VERIFIED_BY` them.
+
+Tools (7): `anchor_fact`, `describe_code`, `mark_changed`, `verify_fact`, `facts_to_verify`, `docs_to_update`,
+`set_review_date` ([`docs/mcp.md`](docs/mcp.md), [`docs/staleness.md`](docs/staleness.md)).
+
+Wiring it to a repository (runs on the developer machine; the server never reads your files):
+
+```bash
+plexus code baseline --repo ~/work/pv-core-api --tenant physio      # once: record today's hashes
+plexus code hook-git --repo ~/work/pv-core-api --tenant physio       # a post-commit hook (never fails a commit)
+plexus code hook-claude --tenant physio                              # prints a Claude Code PostToolUse hook for .claude/settings.json
+plexus code scan --repo ~/work/pv-core-api --tenant physio --paths app/services/payments.py   # a one-off scan
+```
+
+Honest claims. **Measured** (Crucible L5a, 60 facts, 21 commits of a scripted repo, no LLM): symbol-level anchors flag exactly
+the facts whose function changed (19 of 19, 0 false flags); file-level anchors miss none but only 15% of their flags are right (the
+rest are functions that did not change); without anchors all 19 stale facts come back looking current; stale facts returned
+unflagged: 0 for both anchored arms ([`docs/BASELINE.md`](docs/BASELINE.md), "L5 results"). **Demonstrated** (one real Claude Code
+run on a scratch copy of a real backend, [`docs/staleness.md`](docs/staleness.md), "Real run"): the agent used only the tools to
+find the stale fact, read the code, record the corrected value, and name the doc to update. The run also found a bug (a
+corrected clause of a long fact was swallowed as a paraphrase duplicate), now fixed with a test. **Not claimed:** that
+agents verify well in general, or that facts nobody anchored are covered; `verify_fact` is two statements and is not atomic
+(a failure between them is documented and pinned by a test).
+
+## Forgetting
+
+Memory that only grows gets noisy. Plexus ranks facts by how much they are used, and **never deletes anything because of
+age**. `A(f) = ln(sum of w * t^-0.5)` over a fact's events (created, re-asserted, a decision rests on it, a handoff carries it,
+used `weight 1`, merely recalled `0.3`, verified `2`; the newest 50 events; surprising facts start higher). Recall
+multiplies relevance by `floor + (1 - floor) * sigmoid(A - A0)` (default floor 0.9), so a fact nobody uses ranks lower and is
+still returned. Facts a decision rests on, a handoff carries, a human pinned, that supersede or contradict another, or that
+come from a `trust: high` source are *protected*: they never fade in a sweep. A suspect fact is not strengthened by being
+recalled.
+
+Tools (5): `pin_fact`, `unpin_fact`, `memory_strength` (why a fact ranks where it does, read-only), `memory_sweep` (dry run by
+default; moves faint unprotected non-suspect facts to `dormant`, hidden from recall unless `include_dormant`), `restore_fact`;
+`recall` gains `include_dormant` and `forgetting`. Settings: `PLEXUS_FORGETTING=on|off`, `PLEXUS_ACT_DECAY`, `PLEXUS_ACT_A0`,
+`PLEXUS_ACT_FLOOR`, `PLEXUS_ACT_EVENTS` ([`.env.example`](.env.example), [`docs/forgetting.md`](docs/forgetting.md)).
+
+Honest claims. **This is a ranking and a tidy-up, not an accuracy feature, and it has a cost.** Ranking-only forgetting at
+`PLEXUS_ACT_FLOOR=0.9` is the default; the sweep is optional, dry-run by default and reversible. Crucible L5b (20 near-identical
+sprints, 140 real facts, 300 decaying noise facts, 90 simulated days of reads, no LLM, [`docs/BASELINE.md`](docs/BASELINE.md)): our first
+default, floor 0.5, **failed** its pre-registered criterion (recall@5 98.6% -> 73-75%, 7-8 of 80 "read once, 90 days ago, a
+decision rests on it" probes outranked by popular near-twins from other sprints), so it was changed to 0.9 and re-tested as a new
+pre-registered run. At 0.9: critical probes lost 0, recall@5 96.4% against 98.6% with forgetting off, recall@1 63.6% against 75.7%,
+noise share of what recall returns 24.0% -> 15.1%, nothing deleted (fact count equal, 0 of 80 critical facts swept). A real sweep
+lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days (14 real ones in the run); read the dry run first,
+`restore_fact` undoes it. One synthetic scenario, one confirmatory run: a hypothesis for your data, not a promise.
+
 ## Architecture
 
 ```mermaid
@@ -42,7 +108,7 @@ flowchart LR
     end
     subgraph plexus["plexus (Python, no LLM)"]
         MCP["MCP server<br/>stdio or streamable HTTP<br/>tenant bound to the connection"]
-        TOOLS["tool layer: 29 tools<br/>Engram, Relay, Lineage<br/>one parameterised Cypher statement each"]
+        TOOLS["tool layer: 41 tools<br/>Engram, Relay, Lineage, staleness, forgetting<br/>one parameterised Cypher statement each"]
         API["View API<br/>read-only"]
     end
     DB[("FalkorDB 6.0.2<br/>one graph per tenant")]
@@ -139,7 +205,7 @@ The recorded real run holds 247 nodes and 708 edges (14 labels, 26 relationship 
 ## The Cypher queries the product depends on
 
 Every statement lives in a named, parameterised file under [`plexus/queries/<area>/<name>.cypher`](plexus/queries/) with a
-header (purpose, params, returns, mode) and is loaded by name; 69 files in all. The complete index with a "why it is a graph
+header (purpose, params, returns, mode) and is loaded by name; 90 files in all. The complete index with a "why it is a graph
 query" for each is [`docs/queries.md`](docs/queries.md). The ones the product cannot work without:
 
 | Query | What it does | Why it is a graph query |
@@ -307,7 +373,7 @@ with the full L2 and L2-scale runs by `python -m plexus.crucible.combine`), moun
 
 ### Bring your own agent
 
-Any MCP client can connect. The server has 29 tools (`start_session`, `assert_fact`, `recall`, `claim_next_task`,
+Any MCP client can connect. The server has 41 tools (`start_session`, `assert_fact`, `recall`, `claim_next_task`,
 `record_decision`, `why`, `knew_at`, ...; the list is in [`docs/mcp.md`](docs/mcp.md)). Every tool takes an `agent_id`; the
 tenant is part of the connection, never an argument.
 
@@ -361,7 +427,7 @@ bash ../scripts/agent_db.sh rm 10
 
 ```text
 plexus/                  the product (Python 3.12, uv)
-  queries/<area>/*.cypher  every Cypher statement, named and parameterised (69 files)
+  queries/<area>/*.cypher  every Cypher statement, named and parameterised (90 files)
   src/plexus/            graph (client, schema, tenancy), engram, relay, lineage, audit, mcp, api, embed, demo, crucible
   demo_data/             the Acme scenario, recordings (acme-claude-sonnet, acme-scripted, pilot-haiku), Crucible questions and caches
   tests/                 pytest against throw-away graphs
@@ -375,9 +441,9 @@ docker-compose.yml       FalkorDB 6.0.2, plexus-api, plexus-mcp, plexus-view, pl
 ## Testing
 
 [`docs/TESTING.md`](docs/TESTING.md) has the Definition of Ready for Testing with evidence and a step-by-step manual
-checklist. At the last full run, 869 Python tests and 150 View tests passed (plus 34 unit tests for the deploy guard), and
+checklist. At the last full run, 1168 Python tests and 150 View tests passed (plus 34 unit tests for the deploy guard), and
 `ruff` and the View's lint and typecheck were clean; tests that need a database use their own throw-away graphs. Known gaps
-are listed there too: for example, a real Claude Code run has driven only 11 of the 29 tools (all 29 have an MCP contract
+are listed there too: for example, a real Claude Code run has driven only 14 of the 41 tools (11 in the Acme run, 3 more in the P7 physio run; all 41 have an MCP contract
 test), and the L1/L4 benchmark and the LLM arms are separate commands. `python scripts/verify_readme.py` checks that every
 link in this README, the video script and the blog draft resolves and that the quoted numbers still match the results files.
 

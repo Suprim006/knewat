@@ -54,12 +54,26 @@
           "type": "string"
         },
         "trust": {
-          "default": 1.0,
-          "description": "How far this source is trusted, 0..1.",
-          "maximum": 1.0,
-          "minimum": 0.0,
-          "title": "Trust",
-          "type": "number"
+          "anyOf": [
+            {
+              "enum": [
+                "normal",
+                "high"
+              ],
+              "type": "string"
+            },
+            {
+              "maximum": 1.0,
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "'high' for a source you fully trust: facts derived from it are protected from fading in recall. 'normal' (default). A number 0..1 is accepted for older clients and means 'normal'; leaving it out keeps the trust an existing source already has.",
+          "title": "Trust"
         },
         "uri": {
           "anyOf": [

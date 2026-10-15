@@ -117,7 +117,7 @@ def test_strength_reports_the_computation_and_a_one_line_explanation(act, w):
     assert s["fact_id"] == w.used and s["status"] == "active" and s["protected"] is False
     assert s["a0"] == pytest.approx(neutral_activation())
     assert s["activation"] > s["a0"] - 1  # an hour-old use dominates
-    assert 0.5 <= s["multiplier"] <= 1.0 and s["floor"] == 0.5
+    assert 0.9 <= s["multiplier"] <= 1.0 and s["floor"] == 0.9  # the default floor
     assert (s["counts"]["use"], s["counts"]["recall"]) == (1, 0)
     assert s["last_use"] == NOW - 3_600_000
     assert "used 1x" in s["explanation"] and "last use 1 hour ago" in s["explanation"]

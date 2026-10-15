@@ -59,13 +59,17 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 ## Tools
 
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
-29 tools:
+41 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools and 5 memory-strength tools (the two
+sections after this list).
 - **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure`.
 - **Lineage** (registered when `plexus.lineage` is installed; see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
   `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`.
+
+`add_source` takes `trust='normal'|'high'` (default: keep the source's trust, new = `normal`); `'high'` protects the facts
+derived from it from fading (`docs/forgetting.md`). A number 0..1 is still accepted and means `normal`.
 
 **Steps and provenance:** after a call succeeds, the runtime opens or reuses a Lineage `Step` per (agent, n), chained
 by `NEXT`, and stores its id on `ToolCall.step_id`.
@@ -148,7 +152,7 @@ memory **suspect**, never false: it stays recallable, and the agent re-checks it
 | `describe_code` | `source_id`, `path`, `symbol=''`, `hash=''` | `(Source)-[:DESCRIBES]->(CodeAnchor)`: this doc describes this code. |
 | `mark_changed` | `changes=[{path, symbol='', new_hash, old_hash='', kind?}]` (1..200), `commit=''`, `at=null` | The hook entry point. Active facts anchored to (or derived from a Source at) a changed file / symbol become `suspect`; returns `change_id`, `suspect_fact_ids`, `decisions` (+ `decisions_total`), `docs_to_update`, `unchanged`, `truncated`. A first sighting without `old_hash` is a baseline. |
 | `verify_fact` | `fact_id`, `still_true`, `new_value=''`, `evidence=''`, `commit=''` | Confirmed: `verified`. Changed: the new value is asserted (supersede), the old fact ends at the time of the code change, decisions on the old fact are flagged. |
-| `facts_to_verify` | `scope=''`, `limit=50` | Suspect facts (changed code or a passed review date), decisions-first, with reason, anchors and decision count. |
+| `facts_to_verify` | `scope=''`, `limit=50` | Suspect facts (changed code or a passed review date), ordered by live decisions, then activation, then age; each row has reason, anchors, decision count and (forgetting on) `activation`, `protected`. |
 | `docs_to_update` | `since=0`, `limit=50` | Docs that describe code changed after the doc was last edited, with the commits / paths. |
 | `set_review_date` | `fact_id`, `verify_after` (epoch ms) | Review date for facts no code change can invalidate; once passed the fact is suspect. |
 
@@ -156,7 +160,7 @@ Audit: facts a call made suspect or verified are `UPDATED` edges of the ToolCall
 `CodeAnchor` is a `CREATED` edge. `facts_to_verify` adds no `READ` edges (a suspect fact is not strengthened by being listed).
 ## Memory-strength tools (P7-K, `plexus/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
 
-Five more tools, registered by `register_memory` (the "29 tools" above counts Engram, Relay and Lineage). Forgetting
+Five more tools, registered by `register_memory` (the 41 tools above are 29 + 7 staleness + these 5). Forgetting
 lowers a fact's **rank only**; none of these deletes anything.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
@@ -170,4 +174,4 @@ lowers a fact's **rank only**; none of these deletes anything.
 `PLEXUS_FORGETTING`). Each fact in the result also carries `surprise`, `activation`, `protected` (both `null` when
 forgetting is off), `verify_state`, `suspect_since` and `suspect_reason`. `assert_fact` returns `surprise`.
 Audit: `pin_fact`, `unpin_fact`, `restore_fact` and a real `memory_sweep` record `UPDATED` edges to the facts they
-changed; `ToolCall.query_name` of a forgetting-on `recall` is now its last read, `activation/activation`.
+changed; `ToolCall.query_name` of a forgetting-on `recall` is still `engram/recall`: `activation/*` reads are auxiliary and never name a call that ran another read.

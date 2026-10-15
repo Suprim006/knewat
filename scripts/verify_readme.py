@@ -11,7 +11,7 @@ Checked documents: README.md, docs/VIDEO_SCRIPT.md, docs/BLOG_DRAFT.md. Standard
 3. Mermaid: each block starts with a known diagram type (and is parsed by mermaid when PLEXUS_MERMAID_DIR is set).
 4. Numbers: every figure quoted from a source must appear in that source file (and, where the source is the results JSON, equal
    the JSON's value) and in the document that quotes it.
-5. Queries: every linked .cypher exists and has a row in docs/queries.md; the "69 files" claim equals the real file count.
+5. Queries: every linked .cypher exists and has a row in docs/queries.md; the "90 files" claim equals the real file count.
 6. Video script: beats are contiguous, end by 3:00, narration is <= 25 words per beat; every id exists in the recording
    transcripts; every (step, agent, tool) claim matches the recording's calls.json.
 """
@@ -199,10 +199,10 @@ def numbers() -> None:
         ("graph cap", deploy, "at most 50 tenant graphs", readme, "50 tenant graphs"),
         ("idle sweep", deploy, "no MCP traffic for 24 h", readme, "deleted after 24 h"),
         ("fresh clone time", testing, "**216 s**", readme, "216 s"),
-        ("python tests", testing, "**869 passed**", readme, "869 Python tests"),
+        ("python tests", testing, "**1168 passed**", readme, "1168 Python tests"),
         ("view tests", testing, "**150 passed**", readme, "150 View tests"),
         ("guard tests", deploy, "(34, no database)", readme, "34 unit tests for the deploy guard"),
-        ("tools driven by real run", testing, "11 distinct tools", readme, "only 11 of the 29 tools"),
+        ("tools driven by real run", testing, "11 distinct tools", readme, "only 14 of the 41 tools"),
         ("recording counts", demo, "| `acme-claude-sonnet` | 16 `claude -p` (sonnet) | 247 | 708 |", readme, "247 nodes, 708 edges"),
         ("blog 36 of 36", baseline, "P answered 36/36" if "P answered 36/36" in baseline else "Plexus answered 36/36", blog, "Plexus scored 36 of 36, SQLite 32, files 30"),
     ]
@@ -222,10 +222,10 @@ def numbers() -> None:
 
     # (d) counts derived from the tree
     n_cypher = len(list((ROOT / "plexus/queries").rglob("*.cypher")))
-    check(n_cypher == 69, f"plexus/queries has {n_cypher} .cypher files, README says 69")
-    check("69 files" in readme, "README does not state 69 query files")
+    check(n_cypher == 90, f"plexus/queries has {n_cypher} .cypher files, README says 90")
+    check("90 files" in readme, "README does not state 90 query files")
     mcp_tools = len(re.findall(r"^\s*- \*\*(?:Engram|Relay|Lineage)", read("docs/mcp.md"), flags=re.M))
-    check("29 tools" in read("docs/mcp.md") and "29 tools" in readme and mcp_tools == 3, "29 tools claim not in docs/mcp.md and README")
+    check("41 tools" in read("docs/mcp.md") and "41 tools" in readme and mcp_tools == 3, "41 tools claim not in docs/mcp.md and README")
     print("ok    numbers checked against latest-all.json, the recording and the cited docs")
 
 

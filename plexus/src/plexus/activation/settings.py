@@ -1,7 +1,7 @@
 """Activation settings, read from the environment (defaults in brackets).
 
 ``PLEXUS_ACT_DECAY`` [0.5] · ``PLEXUS_ACT_A0`` [activation of a fact created once, one day ago] ·
-``PLEXUS_ACT_FLOOR`` [0.5] · ``PLEXUS_ACT_EVENTS`` [50] · ``PLEXUS_FORGETTING`` [on] (``on``/``off``).
+``PLEXUS_ACT_FLOOR`` [0.9] · ``PLEXUS_ACT_EVENTS`` [50] · ``PLEXUS_FORGETTING`` [on] (``on``/``off``).
 """
 
 from __future__ import annotations
@@ -21,7 +21,8 @@ _OFF = {"off", "0", "false", "no"}
 class Settings:
     decay: float = 0.5
     a0: float | None = None  # None = the activation of a fact created once, 1 day ago
-    floor: float = 0.5
+    # 0.5 let popular near-twin facts outrank the relevant one (Crucible L5b); 0.9 kept the critical probes
+    floor: float = 0.9
     events: int = 50
     forgetting: bool = True
 
@@ -53,7 +54,7 @@ class Settings:
             return cls(
                 decay=float(get("PLEXUS_ACT_DECAY") or 0.5),
                 a0=float(v) if (v := get("PLEXUS_ACT_A0")) is not None else None,
-                floor=float(get("PLEXUS_ACT_FLOOR") or 0.5),
+                floor=float(get("PLEXUS_ACT_FLOOR") or 0.9),
                 events=int(get("PLEXUS_ACT_EVENTS") or 50),
                 forgetting=flag in _ON,
             )

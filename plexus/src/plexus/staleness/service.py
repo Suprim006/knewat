@@ -9,11 +9,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import time
 from collections.abc import Callable, Sequence
 from typing import Any
 
+from plexus.activation import Activation, Settings
 from plexus.codescan.paths import anchor_id, canonical_path
 from plexus.engram import OPEN, Engram, normalize
 from plexus.graph.client import GraphClient
@@ -49,12 +51,14 @@ class Staleness:
         engram: Engram | None = None,
         clock: Callable[[], int] = _now_ms,
         rank: Callable[[list[dict[str, Any]]], list[dict[str, Any]]] | None = None,
+        forgetting: bool | None = None,
     ):
         self.client = client
         self.graph = graph
         self._engram = engram
         self._clock = clock
-        self._rank = rank  # integration hook: D-012 activation ordering for facts_to_verify
+        self._rank = rank  # replaces the default ordering when given
+        self._forgetting = forgetting  # None = PLEXUS_FORGETTING (default on)
 
     def _t(self, now: int | None) -> int:
         return self._clock() if now is None else int(now)
@@ -314,6 +318,7 @@ class Staleness:
             now=t,
             supersede=True,
             subject_kind=old["subject_kind"] or "thing",
+            dup_threshold=-1.0,  # a corrected value is never a paraphrase of the old one (real run)
         )
         new_id = r["fact_id"]
         res = self.client.rw(
@@ -386,8 +391,12 @@ class Staleness:
         to a scope and the scopes it inherits (``''`` = all). Each row: ``{fact_id, entity, predicate, value,
         scope_id, verify_state, suspect_since, verify_after, reason, decisions_count, anchors, change}``.
         ``reason`` is ``'changed in <commit or working tree> (<first path>)'`` or ``'review date passed'``.
-        Ordered by ``decisions_count`` DESC (non-flagged decisions on it), then ``suspect_since`` ASC; an
-        optional ``rank`` callable given to the constructor re-orders the rows (activation, D-012).
+        Ordered by ``decisions_count`` DESC (non-flagged decisions on it), then ``activation`` DESC
+        (D-012: the fact people actually use first), then ``suspect_since`` ASC. With forgetting on each row
+        also carries ``activation`` (float, ``None`` without usable events) and ``protected``; with forgetting
+        off the rows have neither and the order is ``decisions_count`` DESC, ``suspect_since`` ASC. Reading
+        the list does not strengthen the facts. An optional ``rank`` callable given to the constructor
+        replaces the ordering.
         """
         if not 0 < limit <= MAX_LIST:
             raise ValueError(f"limit must be between 1 and {MAX_LIST}")
@@ -437,7 +446,35 @@ class Staleness:
             )
         if self._rank is not None:
             out = self._rank(out)
+        elif self._use_activation():
+            out = self._order_by_activation(out, t)
         return out[:limit]
+
+    def _use_activation(self) -> bool:
+        if self._forgetting is not None:
+            return self._forgetting
+        return Settings.from_env().forgetting
+
+    def _order_by_activation(self, rows: list[dict[str, Any]], now: int) -> list[dict[str, Any]]:
+        """Add ``activation`` / ``protected`` to the rows and order them (decisions, activation, age)."""
+        act = Activation(self.client, self.graph, clock=self._clock).compute(
+            [r["fact_id"] for r in rows], now
+        )
+        for r in rows:
+            fa = act.get(r["fact_id"])
+            finite = fa is not None and math.isfinite(fa.activation)
+            r["activation"] = float(fa.activation) if fa is not None and finite else None
+            r["protected"] = bool(fa.protected) if fa is not None else False
+        floor = float("-inf")
+        return sorted(
+            rows,
+            key=lambda r: (
+                -r["decisions_count"],
+                -(r["activation"] if r["activation"] is not None else floor),
+                r["suspect_since"],
+                r["fact_id"],
+            ),
+        )
 
     def docs_to_update(self, since: int = 0, limit: int = 50, *, per_doc: int = 10) -> list[dict[str, Any]]:
         """Doc Sources that ``DESCRIBES`` code a Change touched after ``since`` and were not edited since.

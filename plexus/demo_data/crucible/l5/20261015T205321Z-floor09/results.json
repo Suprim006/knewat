@@ -1,0 +1,225 @@
+{
+  "criteria": [
+    {
+      "hard": true,
+      "id": "L5b critical-probe loss = 0 (on, on+sweep)",
+      "ok": true,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "L5b no critical fact moved to dormant",
+      "ok": true,
+      "value": 0
+    },
+    {
+      "hard": true,
+      "id": "L5b fact count unchanged by the sweep",
+      "ok": true,
+      "value": [
+        480,
+        480
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b recall@5 of 'on' within 0.03 of 'off'",
+      "ok": true,
+      "value": [
+        0.9857142857142858,
+        0.9642857142857143
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b noise share reduced",
+      "ok": true,
+      "value": [
+        0.24,
+        0.09857142857142857
+      ]
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "forgetting": {
+    "classes": {
+      "cold": 51,
+      "critical": 80,
+      "hot": 9
+    },
+    "config": {
+      "days": 90,
+      "embedder": "FastEmbedder",
+      "ks": [
+        1,
+        3,
+        5
+      ],
+      "noise_per_subject": 5,
+      "seed": 20261016,
+      "sprints": 20
+    },
+    "history": {
+      "agents": [
+        "planner",
+        "researcher",
+        "builder"
+      ],
+      "conflicting_pairs": 40,
+      "decisions": 120,
+      "episodes": 80,
+      "facts": 180,
+      "forgotten_facts": 20,
+      "handoffs": 80,
+      "real_active_facts": 140,
+      "reclaims": 20,
+      "sources": 160,
+      "sprints": 20,
+      "supersedes": 20,
+      "tasks": 240
+    },
+    "modes": {
+      "off": {
+        "chars_per_recall": 325.45714285714286,
+        "noise_share": 0.24,
+        "ranked_above_target": {
+          "cold": 4,
+          "critical": 42,
+          "hot": 1,
+          "noise": 2
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.7571428571428571,
+            "recall@3": 0.9714285714285714,
+            "recall@5": 0.9857142857142858
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.9411764705882353,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6125,
+            "recall@3": 0.95,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700
+      },
+      "on": {
+        "chars_per_recall": 285.0285714285714,
+        "critical_probe_loss": 0,
+        "noise_share": 0.15142857142857144,
+        "ranked_above_target": {
+          "cold": 1,
+          "critical": 82,
+          "hot": 7
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.6357142857142857,
+            "recall@3": 0.9357142857142857,
+            "recall@5": 0.9642857142857143
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.6666666666666666,
+            "recall@3": 0.8823529411764706,
+            "recall@5": 0.9411764705882353
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.575,
+            "recall@3": 0.9625,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700
+      },
+      "on+sweep": {
+        "chars_per_recall": 271.6,
+        "critical_probe_loss": 0,
+        "noise_share": 0.09857142857142857,
+        "ranked_above_target": {
+          "cold": 8,
+          "critical": 97,
+          "hot": 18
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.6357142857142857,
+            "recall@3": 0.8785714285714286,
+            "recall@5": 0.8857142857142857
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.6666666666666666,
+            "recall@3": 0.7254901960784313,
+            "recall@5": 0.7254901960784313
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.575,
+            "recall@3": 0.9625,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700
+      }
+    },
+    "noise_facts": 300,
+    "reads": {
+      "critical_reads": 80,
+      "hot_facts": 9,
+      "read_edges": 739
+    },
+    "seconds": {
+      "noise": 8.4,
+      "play": 19.9
+    },
+    "sweep": {
+      "dry_run_critical_candidates": 0,
+      "fact_nodes_after": 480,
+      "fact_nodes_before": 480,
+      "moved_by_class": {
+        "cold_real": 14,
+        "critical": 0,
+        "hot": 0,
+        "noise": 160
+      },
+      "moved_total": 174
+    }
+  },
+  "git_commit": "92c9bd7",
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 39.6,
+  "started_at": "2026-10-15T20:53:21Z"
+}

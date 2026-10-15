@@ -13,7 +13,7 @@ MAX_WHY_PATHS = 50
 MAX_PATH_HOPS = 5
 
 # Nodes a path never walks out of (keeps paths readable, no hopping through hubs such as an Agent).
-_TERMINAL = frozenset({"Agent", "Entity", "Scope", "Source", "Task"})
+_TERMINAL = frozenset({"Agent", "Change", "Entity", "Scope", "Source", "Task"})
 _FACT_OUTER_RELS = frozenset({"ASSERTED_BY", "DERIVED_FROM"})
 
 
@@ -98,6 +98,8 @@ def summarise(
             "contradicts": outs(f, "CONTRADICTS"),
             "contradicted_by": ins(f, "CONTRADICTS"),
             "written_by_steps": ins(f, "WROTE"),
+            "suspected_by": ins(f, "SUSPECTED"),
+            "verified_by": outs(f, "VERIFIED_BY"),
         }
         for f in base
     ]

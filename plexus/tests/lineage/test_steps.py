@@ -44,7 +44,7 @@ def test_create_source_is_idempotent_by_uri(lin, client, graph):
     s3 = lin.create_source("https://other.example/x")
     assert s1 == s2 != s3
     q = "MATCH (s:Source {id:$i}) RETURN s.uri, s.kind, s.trust"
-    assert cypher(client, graph, q, i=s1) == [["https://docs.example/pg", "url", 0.5]]
+    assert cypher(client, graph, q, i=s1) == [["https://docs.example/pg", "url", "normal"]]
     assert cypher(client, graph, "MATCH (s:Source) WHERE s.new IS NOT NULL RETURN count(s)") == [[0]]
 
 
