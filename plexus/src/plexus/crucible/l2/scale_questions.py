@@ -21,6 +21,7 @@ from plexus.crucible.l2.questions import (
     _dedupe,
     _downstream,
     _facts_at,
+    load_questions,
 )
 from plexus.crucible.l2.scale_scenario import ScaleLedger, Sprint
 from plexus.crucible.l2.scenario import Ledger, decision_label
@@ -321,10 +322,8 @@ def dump_scale_questions(qs: list[Question], sl: ScaleLedger, path: Path) -> Non
 
 
 def load_scale_questions(path: Path) -> list[Question]:
-    import yaml
-
-    doc = yaml.safe_load(path.read_text(encoding="utf-8"))
-    return [Question.from_json(d) for d in doc["questions"]]
+    """Same file layout as :func:`plexus.crucible.l2.questions.load_questions` (a ``questions`` list)."""
+    return load_questions(path)
 
 
 def generate_scale(root: str | Path, k: int) -> tuple[ScaleLedger, list[Question]]:
