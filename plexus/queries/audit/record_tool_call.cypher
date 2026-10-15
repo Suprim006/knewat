@@ -33,7 +33,9 @@ OPTIONAL MATCH (n11:Agent {id: l.id}) WHERE l.label = 'Agent'
 OPTIONAL MATCH (n12:Procedure {id: l.id}) WHERE l.label = 'Procedure'
 OPTIONAL MATCH (n13:Source {id: l.id}) WHERE l.label = 'Source'
 OPTIONAL MATCH (n14:Recall {id: l.id}) WHERE l.label = 'Recall'
-WITH tc, l, coalesce(n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14) AS n
+OPTIONAL MATCH (n15:Change {id: l.id}) WHERE l.label = 'Change'
+OPTIONAL MATCH (n16:CodeAnchor {id: l.id}) WHERE l.label = 'CodeAnchor'
+WITH tc, l, coalesce(n1, n2, n3, n4, n5, n6, n7, n8, n9, n10, n11, n12, n13, n14, n15, n16) AS n
 FOREACH (_ IN CASE WHEN n IS NOT NULL AND l.rel = 'C' THEN [1] ELSE [] END | CREATE (tc)-[:CREATED]->(n))
 FOREACH (_ IN CASE WHEN n IS NOT NULL AND l.rel = 'U' THEN [1] ELSE [] END | CREATE (tc)-[:UPDATED]->(n))
 RETURN tc.id AS id, sum(CASE WHEN n IS NOT NULL THEN 1 ELSE 0 END) AS links

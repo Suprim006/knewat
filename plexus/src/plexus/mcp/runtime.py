@@ -35,6 +35,7 @@ from plexus.graph.tenancy import graph_name
 from plexus.mcp.embedding import CheckedEmbedder, make_embedder
 from plexus.mcp.limits import MAX_NAME
 from plexus.relay import Relay, RelayError
+from plexus.staleness import Staleness  # P7-J
 
 log = logging.getLogger("plexus.mcp")  # stderr only: stdout is the stdio protocol channel
 
@@ -131,6 +132,11 @@ class TenantState:
         """A ``Lineage`` for this tenant, or ``None`` when ``plexus.lineage`` is not installed."""
         cls = lineage_class()
         return None if cls is None else cls(m, self.graph)
+
+    # -- P7-J staleness wiring (kept apart from the services above) --------------------------------------
+    def staleness(self, m: MeteredClient) -> Staleness:
+        """The staleness service for this tenant (uses the tenant's embedder for ``verify_fact``)."""
+        return Staleness(m, self.graph, engram=self.engram(m))  # type: ignore[arg-type]
 
     def scope_id(self, spec: str, m: MeteredClient, *, create: bool = True) -> str | None:
         """Resolve a scope spec to a Scope id: ``global`` | ``project:<name>`` | ``user:<name>`` | a scope id.

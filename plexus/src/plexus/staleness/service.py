@@ -97,7 +97,14 @@ class Staleness:
         if not rows:
             return None
         r = rows[0]
-        return {"anchor_id": r["anchor_id"], "path": cpath, "symbol": symbol, "kind": kind, "hash": r["hash"]}
+        return {
+            "anchor_id": r["anchor_id"],
+            "path": cpath,
+            "symbol": symbol,
+            "kind": kind,
+            "hash": r["hash"],
+            "created": bool(r["created"]),
+        }
 
     def anchor_fact(
         self,

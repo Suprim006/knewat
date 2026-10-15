@@ -135,3 +135,22 @@ ids are 1..128 chars. `/stream`: `poll_ms` is at least 200, at most `PLEXUS_API_
 (the next gets **429**), and subscribers polling the same `(tenant, after)` share one `view/flow` read per 150 ms. `GET /healthz?deep=1`
 also pings FalkorDB (503 when it is down). `inventory` counts nodes and edges per graph-model label/type in O(labels); if the graph
 holds a label or type the model does not list, it falls back to a full scan.
+
+## Staleness tools (P7-J, 7 tools; see `docs/staleness.md`)
+
+Registered by `plexus/mcp/staleness_tools.py` (`register_staleness`), so the server now exposes 36 tools. Changing code makes a
+memory **suspect**, never false: it stays recallable, and the agent re-checks it. Paths are normalised to the canonical form
+(absolute, `/`, upper-case drive); a relative path is an error. Limits: ids <= 128, paths <= 1024, hashes <= 128, <= 200 changes.
+
+| Tool | Arguments (besides `agent_id`, `step`) | What it does |
+|---|---|---|
+| `anchor_fact` | `fact_id`, `path`, `symbol=''`, `hash=''` | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` for a file or a Python function / class. Unknown fact: error, nothing written. |
+| `describe_code` | `source_id`, `path`, `symbol=''`, `hash=''` | `(Source)-[:DESCRIBES]->(CodeAnchor)`: this doc describes this code. |
+| `mark_changed` | `changes=[{path, symbol='', new_hash, old_hash='', kind?}]` (1..200), `commit=''`, `at=null` | The hook entry point. Active facts anchored to (or derived from a Source at) a changed file / symbol become `suspect`; returns `change_id`, `suspect_fact_ids`, `decisions` (+ `decisions_total`), `docs_to_update`, `unchanged`, `truncated`. A first sighting without `old_hash` is a baseline. |
+| `verify_fact` | `fact_id`, `still_true`, `new_value=''`, `evidence=''`, `commit=''` | Confirmed: `verified`. Changed: the new value is asserted (supersede), the old fact ends at the time of the code change, decisions on the old fact are flagged. |
+| `facts_to_verify` | `scope=''`, `limit=50` | Suspect facts (changed code or a passed review date), decisions-first, with reason, anchors and decision count. |
+| `docs_to_update` | `since=0`, `limit=50` | Docs that describe code changed after the doc was last edited, with the commits / paths. |
+| `set_review_date` | `fact_id`, `verify_after` (epoch ms) | Review date for facts no code change can invalidate; once passed the fact is suspect. |
+
+Audit: facts a call made suspect or verified are `UPDATED` edges of the ToolCall and `WROTE` edges of the Step; a created `Change` /
+`CodeAnchor` is a `CREATED` edge. `facts_to_verify` adds no `READ` edges (a suspect fact is not strengthened by being listed).
