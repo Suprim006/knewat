@@ -125,18 +125,29 @@ class Lineage:
         return r["step_id"]
 
     def link_step(
-        self, step_id: str, wrote_ids: Iterable[str] = (), read_ids: Iterable[str] = ()
+        self,
+        step_id: str,
+        wrote_ids: Iterable[str] = (),
+        read_ids: Iterable[str] = (),
+        *,
+        via: str = "use",
     ) -> dict[str, int]:
         """Attach ``(Step)-[:WROTE]->(Fact|Decision|Handoff|Task)`` and ``(Step)-[:READ]->(Fact)`` edges.
 
         All-or-nothing; raises :class:`UnknownStep` (nothing written) if the step or any id is unknown.
-        Returns ``{"read": n, "wrote": n}``.
+        Returns ``{"read": n, "wrote": n}``. The READ edges get ``via`` (default ``'use'``: the agent acted on
+        or cited the fact; ``'recall'`` only surfaced it) and ``at`` = the step's time; ``'use'`` is never
+        downgraded (D-012).
         """
+        if via not in ("use", "recall"):
+            raise ValueError("via must be 'use' or 'recall'")
         wrote, read = _ids(wrote_ids), _ids(read_ids)
         if len(wrote) > MAX_LINK_IDS or len(read) > MAX_LINK_IDS:
             raise ValueError(f"at most {MAX_LINK_IDS} ids per list")
         rows = self.client.rw(
-            self.graph, "lineage/link_step", {"step_id": step_id, "read_ids": read, "wrote_ids": wrote}
+            self.graph,
+            "lineage/link_step",
+            {"step_id": step_id, "read_ids": read, "wrote_ids": wrote, "via": via},
         )
         if not rows:
             wanted = [step_id, *wrote, *read]

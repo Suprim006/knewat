@@ -78,7 +78,9 @@ async def test_tool_list_and_schema_snapshot(server):
         "release_quarantine",
     }
     assert STALENESS_TOOLS <= names
-    assert names - ENGRAM_RELAY_TOOLS - STALENESS_TOOLS == lineage_tools, "unexpected or missing tools"
+    memory_tools = {"pin_fact", "unpin_fact", "memory_strength", "memory_sweep", "restore_fact"}  # P7-K
+    extra = names - ENGRAM_RELAY_TOOLS - STALENESS_TOOLS
+    assert extra == lineage_tools | memory_tools, "unexpected or missing tools"
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name
@@ -142,7 +144,8 @@ async def test_engram_flow_and_toolcall_audit(server, client, tenant):
     assert "CREATED:Episode" in by["remember_episode"]["links"]
     # recall changes no memory, but its Recall record is a node the call created
     assert by["recall"]["wrote"] is True and by["recall"]["links"] == ["CREATED:Recall"]
-    assert by["recall"]["q"] == "engram/recall" and by["recall"]["ms"] > 0
+    # P7-K: the last read of a forgetting-on recall is the activation lookup, so that is the query name now
+    assert by["recall"]["q"] in ("engram/recall", "activation/activation") and by["recall"]["ms"] > 0
     second = [x for x in calls if x["tool"] == "assert_fact"]
     assert any("UPDATED:Fact" in x["links"] for x in second)  # the superseded fact
     assert all(x["agent"] == "smoke" for x in calls)

@@ -4,6 +4,8 @@
 //   fact_ids:list[str], results:list[map]
 // returns: id, returned (number of facts linked). Zero rows = step_id is non-empty but unknown, or some fact id does not exist; nothing written.
 // mode: rw
+// READ provenance (D-012): the READ edge is created with via='recall' (surfaced, not acted on; weight 0.3 in the activation) and at=$now. One READ per (step, fact):
+// on a re-MERGE a 'use' stays a 'use' and `at` moves forward. Edges written before P7 have no via/at and count as 'recall' at the Step's time.
 // step_id is '' when the caller has no Step (then no IN_STEP / READ edges). results = [{fact_id, rank, score}], fact_ids = their de-duplicated ids (<= 200).
 // The facts are matched first and their count compared with size($fact_ids) so a bad id writes nothing (same pattern as relay/handoff);
 // the Agent MERGE comes after that guard, so a rejected call does not leave a new Agent behind (P5 review Q8).
@@ -22,5 +24,9 @@ FOREACH (row IN $results |
   FOREACH (x IN [y IN fs WHERE y.id = row.fact_id] |
     CREATE (r)-[:RETURNED {rank: row.rank, score: row.score}]->(x)))
 FOREACH (s IN CASE WHEN st IS NULL THEN [] ELSE [st] END |
-  FOREACH (x IN fs | MERGE (s)-[:READ]->(x)))
+  FOREACH (x IN fs |
+    MERGE (s)-[rd:READ]->(x)
+      ON CREATE SET rd.via = 'recall', rd.at = $now
+      ON MATCH SET rd.via = CASE WHEN rd.via = 'use' THEN 'use' ELSE 'recall' END,
+                   rd.at = CASE WHEN coalesce(rd.at, 0) > $now THEN rd.at ELSE $now END))
 RETURN r.id AS id, size(fs) AS returned

@@ -203,20 +203,45 @@ def register_engram_relay(mcp: MCPServer, rt: Runtime) -> list[str]:
         budget_chars: Annotated[
             int, Field(ge=50, le=20000, description="Rough cap on total returned text.")
         ] = 2000,
+        include_dormant: Annotated[
+            bool,
+            Field(
+                description="True to also search facts a memory_sweep moved to 'dormant' (hidden by default)."
+            ),
+        ] = False,
+        forgetting: Annotated[
+            bool | None,
+            Field(
+                description="False = rank by relevance only; True = also by how much a fact is used; "
+                "null = the server default (on)."
+            ),
+        ] = None,
         step: Step = None,
     ) -> dict[str, Any]:
         """Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this
         before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window
-        and a 'path' showing where it came from. Also returns recall_id: pass it to why_recalled to see why these
-        facts came back, in this order."""
+        and a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little
+        higher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is
+        'suspect' (its code or review date changed: verify before relying on it) and 'protected'. Also returns
+        recall_id: pass it to why_recalled to see why these facts came back, in this order."""
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
             sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
             if sid is None:
                 return Outcome({"facts": [], "count": 0, "scope_id": None})
-            hits = ts.engram(m).recall(query, sid, k=k, as_of=as_of, budget_chars=budget_chars)
+            hits = ts.engram(m).recall(
+                query,
+                sid,
+                k=k,
+                as_of=as_of,
+                budget_chars=budget_chars,
+                include_dormant=include_dormant,
+                forgetting=forgetting,
+            )
             for h in hits:
                 h["score"] = round(h["score"], 4)
+                if h["activation"] is not None:
+                    h["activation"] = round(h["activation"], 3)
 
             def record(lin, step_id: str | None) -> dict[str, Any]:
                 return {"recall_id": lin.record_recall(agent_id, step_id, query, sid, k, hits)}

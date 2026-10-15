@@ -2,8 +2,8 @@
 // purpose: ONE atomic statement: classify the new assertion against the current facts of the same entity+predicate+scope (duplicate / supersede / contradiction), then write it with provenance.
 // params: entity_id:str, predicate:str, value:str, norm_value:str, value_tokens:str, scope_id:str, agent_id:str,
 //   source_id:str, episode_id:str, confidence:float, supersede:bool, now:int, open_to:int,
-//   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float
-// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids); no row when the entity, scope, or a given episode/source does not exist (nothing is written, not even the Agent)
+//   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float, novelty:float, surprise_supersede:float, surprise_contradict:float
+// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing); no row when the entity, scope, or a given episode/source does not exist (nothing is written, not even the Agent)
 // mode: rw
 
 // Rules, evaluated on facts with status='active' and valid_to=open_to in the same scope:
@@ -26,6 +26,9 @@
 // entity's id (this query is the only writer of Facts), so the edge is equivalent.
 // FalkorDB 6.0.2 gotcha: two CASE-wrapped list comprehensions with a nested pattern comprehension in ONE WITH return wrong (empty/duplicated) lists,
 // so closing and clashing are projected in separate WITH clauses.
+// Surprise (D-012), stored once on the new Fact: contradicting another agent's current fact = $surprise_contradict (0.9); closing (superseding) a current
+// fact = $surprise_supersede (0.6); otherwise $novelty (the caller's single vector read, activation/novelty: min(0.5, max(0, 1 - max cosine)), 0.5 for the
+// first fact of a scope). It is decided here because only this statement knows whether the write supersedes or contradicts.
 // source_id / episode_id are '' when absent. A given id that does not resolve yields no row (the guard sits before the Agent MERGE).
 // Lineage tail: everything that follows the FOREACH is a plain RETURN; to log a Step, put `MATCH (st:Step {id: $step_id})` before the
 //   FOREACHes and add `CREATE (st)-[:WROTE]->(nf)` inside the new-fact FOREACH (and `(st)-[:READ]->(x)` for dup/closing), then keep the RETURN.
@@ -50,6 +53,10 @@ WITH ag, e, sc, ep, src, dup, closing, ts,
      CASE WHEN dup IS NULL THEN
        [xk IN cur WHERE NOT ($supersede OR all(ak IN [(xk)-[:ASSERTED_BY]->(ok:Agent) | ok.id] WHERE ak = $agent_id))]
      ELSE [] END AS clashing
+WITH ag, e, sc, ep, src, dup, closing, ts, clashing,
+     CASE WHEN size(clashing) > 0 THEN $surprise_contradict
+          WHEN size(closing) > 0 THEN $surprise_supersede
+          ELSE $novelty END AS sp
 FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
   MERGE (d)-[da:ASSERTED_BY]->(ag)
     ON CREATE SET da.at = $now
@@ -59,7 +66,7 @@ FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
 FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   CREATE (nf:Fact {id: $fact_id, subject_id: $entity_id, predicate: $predicate, value: $value, norm_value: $norm_value,
                    value_tokens: $value_tokens, valid_from: ts, valid_to: $open_to, recorded_at: $now, created_at: $now,
-                   status: 'active', confidence: $confidence, embedding: vecf32($emb), value_embedding: vecf32($value_emb)})
+                   status: 'active', confidence: $confidence, surprise: sp, embedding: vecf32($emb), value_embedding: vecf32($value_emb)})
   CREATE (nf)-[:ABOUT]->(e)
   CREATE (nf)-[:IN_SCOPE]->(sc)
   CREATE (nf)-[:ASSERTED_BY {at: $now}]->(ag)
@@ -70,4 +77,5 @@ FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
 RETURN CASE WHEN dup IS NULL THEN $fact_id ELSE dup.id END AS fact_id,
        dup.id AS duplicate_of,
        [rc IN closing | rc.id] AS superseded,
-       [rk IN clashing | rk.id] AS contradicts
+       [rk IN clashing | rk.id] AS contradicts,
+       CASE WHEN dup IS NULL THEN sp ELSE null END AS surprise

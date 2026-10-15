@@ -15,6 +15,7 @@ from pydantic import ValidationError
 
 from plexus.mcp.http import TenantPathMiddleware
 from plexus.mcp.lineage_tools import register_lineage
+from plexus.mcp.memory_tools import register_memory
 from plexus.mcp.runtime import Runtime
 from plexus.mcp.staleness_tools import register_staleness
 from plexus.mcp.tools import register_engram_relay
@@ -63,6 +64,7 @@ def build_server(rt: Runtime) -> MCPServer:
     register_engram_relay(mcp, rt)
     register_lineage(mcp, rt)
     register_staleness(mcp, rt)
+    register_memory(mcp, rt)
     return mcp
 
 
