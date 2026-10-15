@@ -5,6 +5,10 @@ fresh tenant, counts violations exactly, and cleans up. Workers are threads shar
 thread has its own DB connection / file descriptors) except C2, whose victims are real OS processes killed with
 SIGKILL. Concurrency is real but not deterministic; what is fixed by the seed is the workload (task priorities, DAG
 shape, fact values, query times).
+
+Every case has the same shape, so the shared parts live in small helpers (``_begin``, ``_register``,
+``_tasks_by_id``, ``RunResult.conclude``) and a case is only its scenario: set up the workload, run the workers,
+count the violations.
 """
 
 from __future__ import annotations
@@ -16,7 +20,8 @@ import sys
 import threading
 import time
 from collections import defaultdict
-from collections.abc import Callable
+from collections.abc import Callable, Iterable, Sequence
+from dataclasses import dataclass
 from typing import Any
 
 from plexus.crucible.api import (
@@ -87,22 +92,55 @@ def _wall() -> float:
     return time.monotonic()
 
 
+# -- shared case plumbing --------------------------------------------------------------------------------------
+
+
+def _begin(run: ArmRun, tag: str, seed: int, params: dict[str, Any]) -> tuple[RunResult, Any]:
+    """The result record and a fresh tenant store for one case."""
+    return RunResult(seed=seed, params=params), run.open(tag)
+
+
+def _register(b: Any, names: Iterable[str], role: str = "") -> None:
+    for n in names:
+        b.register_agent(n, role)
+
+
+def _tasks_by_id(b: Any) -> dict[str, dict[str, Any]]:
+    return {t["id"]: t for t in b.list_tasks()}
+
+
 # ============================================================================================================
 # C1: claim race
 # ============================================================================================================
 
 
+def _c1_lost_updates(
+    ids: Sequence[str],
+    conflicts: Sequence[str],
+    completed: dict[str, list[str]],
+    final: dict[str, dict[str, Any]],
+) -> int:
+    """Rejected completions, plus completions that disagree with the store (twice, or acknowledged but not shown)."""
+    lost = len(conflicts)
+    for t in ids:
+        f = final.get(t)
+        ok_done = len(completed[t])
+        if ok_done > 1 or (ok_done == 1 and (f is None or f["status"] != "done" or f["version"] != 2)):
+            lost += 1  # completed twice, or a completion the store does not show
+        elif ok_done == 0 and f is not None and f["status"] == "done":
+            lost += 1  # done in the store, but no worker's completion was acknowledged
+    return lost
+
+
 def c1(run: ArmRun, seed: int, cfg: L1Config, workers: int) -> RunResult:
     m = cfg.c1_tasks
-    res = RunResult(seed=seed, params={"workers": workers, "tasks": m})
-    b = run.open("c1")
+    res, b = _begin(run, "c1", seed, {"workers": workers, "tasks": m})
     rng = random.Random(seed)
     b.create_tasks(
         [{"id": f"t{i:04d}", "title": f"task {i}", "priority": rng.randint(0, 3)} for i in range(m)]
     )
     names = [f"w{i:03d}" for i in range(workers)]
-    for n in names:
-        b.register_agent(n, "worker")
+    _register(b, names, "worker")
     claims: dict[str, list[tuple[str, int]]] = defaultdict(list)
     completed: dict[str, list[str]] = defaultdict(list)
     conflicts: list[str] = []
@@ -125,31 +163,151 @@ def c1(run: ArmRun, seed: int, cfg: L1Config, workers: int) -> RunResult:
     t0 = _wall()
     errors = run_workers(workers, worker)
     dur = _wall() - t0
-    final = {t["id"]: t for t in b.list_tasks()}
     ids = [f"t{i:04d}" for i in range(m)]
-    double = sum(1 for t in ids if len(claims[t]) > 1)
-    lost = len(conflicts)
-    for t in ids:
-        f = final.get(t)
-        ok_done = len(completed[t])
-        if ok_done > 1 or (ok_done == 1 and (f is None or f["status"] != "done" or f["version"] != 2)):
-            lost += 1  # completed twice, or a completion the store does not show
-        elif ok_done == 0 and f is not None and f["status"] == "done":
-            lost += 1  # done in the store, but no worker's completion was acknowledged
-    never = sum(1 for t in ids if not claims[t])
-    res.violations = {"double_claims": double, "lost_updates": lost, "never_claimed": never}
-    res.metrics = {
-        "claims": sum(len(v) for v in claims.values()),
-        "duration_s": round(dur, 3),
-        "ops_per_s": round(2 * m / dur, 1) if dur else 0.0,
-    }
-    res.set_errors(errors)
-    return res.finish()
+    return res.conclude(
+        violations={
+            "double_claims": sum(1 for t in ids if len(claims[t]) > 1),
+            "lost_updates": _c1_lost_updates(ids, conflicts, completed, _tasks_by_id(b)),
+            "never_claimed": sum(1 for t in ids if not claims[t]),
+        },
+        metrics={
+            "claims": sum(len(v) for v in claims.values()),
+            "duration_s": round(dur, 3),
+            "ops_per_s": round(2 * m / dur, 1) if dur else 0.0,
+        },
+        errors=errors,
+    )
 
 
 # ============================================================================================================
 # C2: kill the claimer
 # ============================================================================================================
+
+
+def _readline(p: subprocess.Popen[str], timeout: float) -> str:
+    out: list[str] = []
+
+    def reader() -> None:
+        assert p.stdout is not None
+        out.append(p.stdout.readline().strip())
+
+    t = threading.Thread(target=reader, daemon=True)
+    t.start()
+    t.join(timeout)
+    return out[0] if out else ""
+
+
+def _start_victims(
+    spec: Any, victims: Sequence[str], cfg: L1Config, procs: dict[str, subprocess.Popen[str]]
+) -> dict[str, str]:
+    """Start one victim process per name, each of which claims the next ready task; returns {victim: task id}."""
+    held: dict[str, str] = {}
+    for v in victims:  # one at a time: each victim takes the next ready task
+        p = subprocess.Popen(
+            [
+                sys.executable,
+                "-m",
+                "plexus.crucible.victim",
+                json.dumps(spec.to_json()),
+                v,
+                str(cfg.c2_lease_ms),
+                str(cfg.c2_heartbeat_ms),
+            ],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+        )
+        procs[v] = p
+        line = _readline(p, 90.0)
+        if not line.startswith("CLAIMED"):
+            raise RuntimeError(f"victim {v} did not claim a task: {line!r}")
+        held[v] = line.split()[1]
+    return held
+
+
+def _run_survivors(
+    b: Any, survivors: Sequence[str], cfg: L1Config, t_kill: float
+) -> tuple[list[tuple[str, str, str, float]], dict[str, int]]:
+    """Survivors claim and complete tasks until all are done or the deadline passes.
+
+    Returns the claims ``(task, agent, reclaimed_from, t_claim)`` and the completion count per task.
+    """
+    claims: list[tuple[str, str, str, float]] = []
+    completions: dict[str, int] = defaultdict(int)
+    lock = threading.Lock()
+    stop = threading.Event()
+
+    def survivor(i: int) -> None:
+        name = survivors[i]
+        while not stop.is_set():
+            t = b.claim_next_task(name, cfg.c2_lease_ms)
+            if t is None:
+                time.sleep(cfg.c2_poll_ms / 1000)
+                continue
+            with lock:
+                claims.append((t["id"], name, t["reclaimed_from"], _wall()))
+            time.sleep(0.003)
+            try:
+                b.complete_task(name, t["id"], t["version"])
+                with lock:
+                    completions[t["id"]] += 1
+            except ClaimConflict:
+                pass
+
+    threads = [threading.Thread(target=survivor, args=(i,), daemon=True) for i in range(len(survivors))]
+    for t in threads:
+        t.start()
+    deadline = t_kill + (cfg.c2_lease_ms / 1000) * 3 + 20
+    while _wall() < deadline:
+        with lock:
+            if len(completions) >= cfg.c2_tasks:
+                break
+        time.sleep(0.05)
+    stop.set()
+    for t in threads:
+        t.join(timeout=30)
+    return claims, completions
+
+
+def _c2_measure(
+    cfg: L1Config,
+    held: dict[str, str],
+    claims: Sequence[tuple[str, str, str, float]],
+    completions: dict[str, int],
+    final: dict[str, dict[str, Any]],
+    t_kill: float,
+) -> tuple[dict[str, int], dict[str, Any]]:
+    """Violations and metrics: how late each victim's task was reclaimed, by whom, and what was left behind."""
+    delays: list[float] = []
+    wrong_reclaimer = late = 0
+    bar_ms = cfg.c2_lease_ms + cfg.c2_heartbeat_ms
+    for v, tid in held.items():
+        mine = [c for c in claims if c[0] == tid]
+        if not mine:
+            continue
+        _, _, reclaimed_from, t_claim = mine[0]
+        delay = (t_claim - t_kill) * 1000
+        delays.append(delay)
+        if reclaimed_from != v:
+            wrong_reclaimer += 1
+        if delay > bar_ms:
+            late += 1
+    victim_tasks = set(held.values())
+    orphans = sum(1 for tid in held.values() if final.get(tid, {}).get("status") != "done")
+    other_stuck = sum(1 for tid, f in final.items() if tid not in victim_tasks and f["status"] != "done")
+    violations = {
+        "orphaned_tasks": orphans + other_stuck,
+        "reclaimed_late": late,
+        "wrong_reclaimer": wrong_reclaimer,
+        "double_completions": sum(1 for n in completions.values() if n > 1),
+    }
+    metrics = {
+        "reclaim_delay_ms_max": round(max(delays), 1) if delays else -1,
+        "reclaim_delay_ms_min": round(min(delays), 1) if delays else -1,
+        "reclaim_bar_ms": bar_ms,
+        "reclaimed": len(delays),
+    }
+    return violations, metrics
 
 
 def c2(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
@@ -168,104 +326,19 @@ def c2(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     b.create_tasks([{"id": f"t{i:03d}", "title": f"task {i}"} for i in range(cfg.c2_tasks)])
     victims = [f"victim{i}" for i in range(cfg.c2_victims)]
     procs: dict[str, subprocess.Popen[str]] = {}
-    held: dict[str, str] = {}
     errors: list[BaseException] = []
     try:
-        for v in victims:  # one at a time: each victim takes the next ready task
-            p = subprocess.Popen(
-                [
-                    sys.executable,
-                    "-m",
-                    "plexus.crucible.victim",
-                    json.dumps(spec.to_json()),
-                    v,
-                    str(cfg.c2_lease_ms),
-                    str(cfg.c2_heartbeat_ms),
-                ],
-                stdout=subprocess.PIPE,
-                stderr=subprocess.DEVNULL,
-                text=True,
-            )
-            procs[v] = p
-            line = _readline(p, 90.0)
-            if not line.startswith("CLAIMED"):
-                raise RuntimeError(f"victim {v} did not claim a task: {line!r}")
-            held[v] = line.split()[1]
+        held = _start_victims(spec, victims, cfg, procs)
         time.sleep(cfg.c2_heartbeat_ms * 1.5 / 1000)  # let each victim heartbeat at least once
         survivors = [f"survivor{i}" for i in range(cfg.c2_survivors)]
-        for s in survivors:
-            b.register_agent(s, "worker")
-        claims: list[tuple[str, str, str, float]] = []  # (task, agent, reclaimed_from, t_claim)
-        completions: dict[str, int] = defaultdict(int)
-        lock = threading.Lock()
-        stop = threading.Event()
-        victim_tasks = set(held.values())
-
-        def survivor(i: int) -> None:
-            name = survivors[i]
-            while not stop.is_set():
-                t = b.claim_next_task(name, cfg.c2_lease_ms)
-                if t is None:
-                    time.sleep(cfg.c2_poll_ms / 1000)
-                    continue
-                with lock:
-                    claims.append((t["id"], name, t["reclaimed_from"], _wall()))
-                time.sleep(0.003)
-                try:
-                    b.complete_task(name, t["id"], t["version"])
-                    with lock:
-                        completions[t["id"]] += 1
-                except ClaimConflict:
-                    pass
-
+        _register(b, survivors, "worker")
         t_kill = _wall()
         for p in procs.values():
             p.kill()  # SIGKILL / TerminateProcess: no cleanup runs
         for p in procs.values():
             p.wait(timeout=30)
-        threads = [threading.Thread(target=survivor, args=(i,), daemon=True) for i in range(len(survivors))]
-        for t in threads:
-            t.start()
-        deadline = t_kill + (cfg.c2_lease_ms / 1000) * 3 + 20
-        total = cfg.c2_tasks
-        while _wall() < deadline:
-            with lock:
-                if len(completions) >= total:
-                    break
-            time.sleep(0.05)
-        stop.set()
-        for t in threads:
-            t.join(timeout=30)
-        final = {t["id"]: t for t in b.list_tasks()}
-        delays: list[float] = []
-        wrong_reclaimer = late = 0
-        bar_ms = cfg.c2_lease_ms + cfg.c2_heartbeat_ms
-        for v, tid in held.items():
-            mine = [c for c in claims if c[0] == tid]
-            if not mine:
-                continue
-            _, _, reclaimed_from, t_claim = mine[0]
-            delay = (t_claim - t_kill) * 1000
-            delays.append(delay)
-            if reclaimed_from != v:
-                wrong_reclaimer += 1
-            if delay > bar_ms:
-                late += 1
-        orphans = sum(1 for tid in held.values() if final.get(tid, {}).get("status") != "done")
-        other_stuck = sum(1 for tid, f in final.items() if tid not in victim_tasks and f["status"] != "done")
-        double_done = sum(1 for n in completions.values() if n > 1)
-        res.violations = {
-            "orphaned_tasks": orphans + other_stuck,
-            "reclaimed_late": late,
-            "wrong_reclaimer": wrong_reclaimer,
-            "double_completions": double_done,
-        }
-        res.metrics = {
-            "reclaim_delay_ms_max": round(max(delays), 1) if delays else -1,
-            "reclaim_delay_ms_min": round(min(delays), 1) if delays else -1,
-            "reclaim_bar_ms": bar_ms,
-            "reclaimed": len(delays),
-        }
+        claims, completions = _run_survivors(b, survivors, cfg, t_kill)
+        res.violations, res.metrics = _c2_measure(cfg, held, claims, completions, _tasks_by_id(b), t_kill)
     except BaseException as exc:  # noqa: BLE001
         errors.append(exc)
     finally:
@@ -274,19 +347,6 @@ def c2(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
                 p.kill()
     res.set_errors(errors)
     return res.finish()
-
-
-def _readline(p: subprocess.Popen[str], timeout: float) -> str:
-    out: list[str] = []
-
-    def reader() -> None:
-        assert p.stdout is not None
-        out.append(p.stdout.readline().strip())
-
-    t = threading.Thread(target=reader, daemon=True)
-    t.start()
-    t.join(timeout)
-    return out[0] if out else ""
 
 
 # ============================================================================================================
@@ -311,13 +371,11 @@ CONFLICT_VALUES = [
 
 def c3(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     n_same, n_conf = cfg.c3_same_value_agents, min(cfg.c3_conflicting_agents, len(CONFLICT_VALUES))
-    res = RunResult(seed=seed, params={"same_value_agents": n_same, "conflicting_agents": n_conf})
-    b = run.open("c3")
+    res, b = _begin(run, "c3", seed, {"same_value_agents": n_same, "conflicting_agents": n_conf})
     rng = random.Random(seed)
     same_agents = [f"s{i:02d}" for i in range(n_same)]
     conf_agents = [f"c{i:02d}" for i in range(n_conf)]
-    for a in [*same_agents, *conf_agents]:
-        b.register_agent(a)
+    _register(b, [*same_agents, *conf_agents])
     spellings = ["PostgreSQL 16", "postgresql 16", "PostgreSQL  16", "POSTGRESQL 16"]
     jobs: list[tuple[str, str]] = [(a, rng.choice(spellings)) for a in same_agents]
     jobs += [(a, CONFLICT_VALUES[i]) for i, a in enumerate(conf_agents)]
@@ -347,20 +405,21 @@ def c3(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     missed = sum(1 for p in pairs if p not in flagged)
     pg = next((f for f in active if normalize(f["value"]) == "postgresql 16"), None)
     lost_endorsements = len(set(same_agents) - set(pg["asserted_by"])) if pg else n_same
-    res.violations = {
-        "duplicate_facts": duplicates,
-        "contradictions_missed": missed,
-        "lost_endorsements": lost_endorsements,
-        "wrong_active_count": abs(len(active) - expected_active),
-    }
-    res.metrics = {
-        "active_facts": len(active),
-        "expected_active": expected_active,
-        "contradiction_pairs": len(pairs),
-        "contradictions_flagged": len(pairs) - missed,
-    }
-    res.set_errors(errors)
-    return res.finish()
+    return res.conclude(
+        violations={
+            "duplicate_facts": duplicates,
+            "contradictions_missed": missed,
+            "lost_endorsements": lost_endorsements,
+            "wrong_active_count": abs(len(active) - expected_active),
+        },
+        metrics={
+            "active_facts": len(active),
+            "expected_active": expected_active,
+            "contradiction_pairs": len(pairs),
+            "contradictions_flagged": len(pairs) - missed,
+        },
+        errors=errors,
+    )
 
 
 # ============================================================================================================
@@ -368,11 +427,10 @@ def c3(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
 # ============================================================================================================
 
 
-def c4(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
-    layers = cfg.c4_layers
-    res = RunResult(seed=seed, params={"layers": list(layers), "workers": cfg.c4_workers})
-    b = run.open("c4")
-    rng = random.Random(seed)
+def _build_dag(
+    layers: Sequence[int], rng: random.Random
+) -> tuple[list[dict[str, Any]], dict[str, list[str]]]:
+    """Layered DAG (fan-out 3, a few diamonds): the task specs and each task's dependency ids."""
     ids: list[list[str]] = [[f"L{d}-{i:03d}" for i in range(n)] for d, n in enumerate(layers)]
     tasks: list[dict[str, Any]] = []
     deps_of: dict[str, list[str]] = {}
@@ -387,11 +445,17 @@ def c4(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
                         deps.append(other)
             deps_of[tid] = deps
             tasks.append({"id": tid, "title": tid, "priority": rng.randint(0, 2), "depends_on": deps})
+    return tasks, deps_of
+
+
+def c4(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
+    layers = cfg.c4_layers
+    res, b = _begin(run, "c4", seed, {"layers": list(layers), "workers": cfg.c4_workers})
+    tasks, deps_of = _build_dag(layers, random.Random(seed))
     b.create_tasks(tasks)
     total = len(tasks)
     names = [f"w{i:02d}" for i in range(cfg.c4_workers)]
-    for n in names:
-        b.register_agent(n)
+    _register(b, names)
     t_claimed: dict[str, float] = {}
     t_complete_start: dict[str, float] = {}
     post_claim_bad: list[str] = []
@@ -430,12 +494,12 @@ def c4(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
         for d in deps:
             if tid in t_claimed and d in t_complete_start and t_claimed[tid] < t_complete_start[d]:
                 early.add(tid)  # claimed before its dependency had even begun to complete
-    final = {t["id"]: t for t in b.list_tasks()}
-    not_done = sum(1 for t in final.values() if t["status"] != "done")
-    res.violations = {"started_before_deps_done": len(early), "tasks_not_completed": not_done}
-    res.metrics = {"tasks": total, "edges": sum(len(v) for v in deps_of.values())}
-    res.set_errors(errors)
-    return res.finish()
+    not_done = sum(1 for t in _tasks_by_id(b).values() if t["status"] != "done")
+    return res.conclude(
+        violations={"started_before_deps_done": len(early), "tasks_not_completed": not_done},
+        metrics={"tasks": total, "edges": sum(len(v) for v in deps_of.values())},
+        errors=errors,
+    )
 
 
 # ============================================================================================================
@@ -462,10 +526,20 @@ def _snapshot(b: Any, subjects: list[str], predicate: str) -> list[Any]:
     return snap
 
 
-def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
-    res = RunResult(seed=seed, params={"workers": cfg.c5_workers, "injections": len(INJECTIONS)})
-    a = run.open("c5a")
-    bt = run.open("c5b")
+@dataclass
+class _TenantB:
+    """Everything tenant B owns: what the probes from tenant A must never be able to see or change."""
+
+    tenant: str
+    marker: str
+    subjects: list[str]
+    fact_ids: list[str]
+    decision_id: str
+    source_id: str
+    ids: list[str]  # every B id, to look for in A's answers
+
+
+def _seed_tenant_b(bt: Any, seed: int) -> _TenantB:
     marker = f"SECRET-B-{seed}"
     subjects = [f"Secret-Project-B-{i}" for i in range(4)]
     bt.register_agent("bob")
@@ -481,18 +555,14 @@ def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     )
     b_dec = bt.record_decision("bob", "b-task-1", f"{marker} decision", b_fact_ids[:2])
     b_ids = [*b_fact_ids, "b-task-0", "b-task-1", "b-task-2", "b-art-1", b_dec, src_b, *done["artifact_ids"]]
-    before = _snapshot(bt, subjects, "codename")
+    return _TenantB(bt.tenant, marker, subjects, b_fact_ids, b_dec, src_b, b_ids)
 
-    a.register_agent("alice")
-    a.create_tasks([{"id": f"a-task-{i}", "title": f"a task {i}"} for i in range(5)])
-    a_fact = a.assert_fact("alice", "A public project", "codename", "daffodil")["fact_id"]
 
-    def leaked(obj: Any) -> int:
-        text = json.dumps(obj, default=str)
-        return int(marker in text) + sum(1 for i in [*b_ids, bt.tenant] if i in text)  # type: ignore[attr-defined]
-
+def _c5_probes(run: ArmRun, a: Any, tb: _TenantB) -> list[tuple[str, Callable[[], Any]]]:
+    """Every way tenant A's connection might read or change B's data (each must be refused or come back empty)."""
+    marker, b_fact_ids = tb.marker, tb.fact_ids
     probes: list[tuple[str, Callable[[], Any]]] = []
-    for s in subjects:
+    for s in tb.subjects:
         probes += [
             (f"recall:{s}", lambda s=s: a.recall("alice", f"{s} codename {marker}", k=20)),
             (f"recall-project:{s}", lambda s=s: a.recall("alice", s, scope="project:b", k=20)),
@@ -511,32 +581,27 @@ def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
         ]
     probes += [
         ("handoff:b-art", lambda: a.handoff("alice", "alice", "a-task-0", "n", artifact_ids=["b-art-1"])),
-        ("why:b-decision", lambda: a.why(b_dec)),
+        ("why:b-decision", lambda: a.why(tb.decision_id)),
         ("why:b-fact", lambda: a.why(b_fact_ids[0])),
-        ("forget:b-source", lambda: a.forget_source(src_b)),
-        ("assert-with-b-source", lambda: a.assert_fact("alice", "x", "y", "z", source_id=src_b)),
+        ("forget:b-source", lambda: a.forget_source(tb.source_id)),
+        ("assert-with-b-source", lambda: a.assert_fact("alice", "x", "y", "z", source_id=tb.source_id)),
         ("derive-from-b-fact", lambda: a.assert_fact("alice", "x", "y2", "z2", derived_from=[b_fact_ids[0]])),
         ("claim", lambda: a.claim_next_task("alice", 600_000)),
         ("list_tasks", lambda: a.list_tasks()),
         ("knew_at:bob", lambda: a.knew_at("bob", 100)),
     ]
     for guess in (
-        f"plexus_t_{bt.tenant}",  # type: ignore[attr-defined]
-        f"../{bt.tenant}",  # type: ignore[attr-defined]
-        f"{bt.tenant}/../x",  # type: ignore[attr-defined]
-        bt.tenant.upper(),  # type: ignore[attr-defined]
-        f"{bt.tenant} ",  # type: ignore[attr-defined]
+        f"plexus_t_{tb.tenant}",
+        f"../{tb.tenant}",
+        f"{tb.tenant}/../x",
+        tb.tenant.upper(),
+        f"{tb.tenant} ",
         "a'); MATCH (n) DETACH DELETE n //",
-        "..\\..\\" + bt.tenant,  # type: ignore[attr-defined]
+        "..\\..\\" + tb.tenant,
     ):
-        probes.append((f"open-tenant:{guess[:30]}", lambda g=guess: _guess_tenant(run, g, marker, b_ids)))
+        probes.append((f"open-tenant:{guess[:30]}", lambda g=guess: _guess_tenant(run, g, marker, tb.ids)))
     if hasattr(a, "rt"):  # Plexus: the tenant is bound to the connection, a header must not rebind it
-        probes.append(
-            (
-                "header-spoof",
-                lambda: a.rt.tenant_of({"x-plexus-tenant": bt.tenant}),  # type: ignore[attr-defined]
-            )
-        )
+        probes.append(("header-spoof", lambda: a.rt.tenant_of({"x-plexus-tenant": tb.tenant})))
     for inj in INJECTIONS:
         probes += [
             (f"inj-assert:{inj[:12]}", lambda inj=inj: a.assert_fact("alice", inj, inj, inj)),
@@ -550,10 +615,32 @@ def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
             ),
             (f"inj-scope:{inj[:12]}", lambda inj=inj: a.recall("alice", "q", scope=f"project:{inj}")),
         ]
+    return probes
+
+
+def _guess_tenant(run: ArmRun, guess: str, marker: str, b_ids: list[str]) -> Any:
+    """Try to address B's store by a guessed tenant name; whatever it returns must hold none of B's data."""
+    g = run.open("guess", tenant=guess)  # InvalidTenant for anything that is not a plain tenant name
+    return {
+        "recall": g.recall("alice", f"Secret-Project-B {marker}", k=20),
+        "tasks": g.list_tasks(),
+        "facts": g.facts("Secret-Project-B-0", "codename"),
+    }
+
+
+def _run_probes(
+    probes: list[tuple[str, Callable[[], Any]]], tb: _TenantB, workers: int
+) -> tuple[list[BaseException], list[BaseException], int, list[tuple[str, int]]]:
+    """Run every probe on a worker pool. Returns (worker errors, unexpected probe errors, leaked rows, leak log)."""
+
+    def leaked(obj: Any) -> int:
+        text = json.dumps(obj, default=str)
+        return int(tb.marker in text) + sum(1 for i in [*tb.ids, tb.tenant] if i in text)
+
     n_leaked = 0
     unexpected: list[BaseException] = []
     lock = threading.Lock()
-    queue = list(enumerate(probes))
+    queue = list(probes)
     probe_log: list[tuple[str, int]] = []
 
     def worker(_: int) -> None:
@@ -562,7 +649,7 @@ def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
             with lock:
                 if not queue:
                     return
-                _, (name, fn) = queue.pop()
+                name, fn = queue.pop()
             try:
                 out = fn()
             except DENIED:
@@ -577,30 +664,34 @@ def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
                     n_leaked += k
                     probe_log.append((name, k))
 
-    errors = run_workers(cfg.c5_workers, worker)
-    after = _snapshot(bt, subjects, "codename")
-    cross_writes = int(before != after)
+    errors = run_workers(workers, worker)
+    return errors, unexpected, n_leaked, probe_log
+
+
+def c5(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
+    res, a = _begin(run, "c5a", seed, {"workers": cfg.c5_workers, "injections": len(INJECTIONS)})
+    bt = run.open("c5b")
+    tb = _seed_tenant_b(bt, seed)
+    before = _snapshot(bt, tb.subjects, "codename")
+
+    a.register_agent("alice")
+    a.create_tasks([{"id": f"a-task-{i}", "title": f"a task {i}"} for i in range(5)])
+    a_fact = a.assert_fact("alice", "A public project", "codename", "daffodil")["fact_id"]
+
+    probes = _c5_probes(run, a, tb)
+    errors, unexpected, n_leaked, probe_log = _run_probes(probes, tb, cfg.c5_workers)
+    after = _snapshot(bt, tb.subjects, "codename")
     a_ok = a.facts("A public project", "codename")
-    own_intact = int(not a_ok or a_ok[0]["fact_id"] != a_fact)
-    res.violations = {
-        "rows_leaked": n_leaked,
-        "cross_tenant_writes": cross_writes,
-        "own_data_damaged": own_intact,
-    }
-    res.metrics = {"probes": len(probes), "tenant_isolation": 1}
-    res.details = {"leaking_probes": probe_log[:10]}
-    res.set_errors([*errors, *unexpected])
-    return res.finish()
-
-
-def _guess_tenant(run: ArmRun, guess: str, marker: str, b_ids: list[str]) -> Any:
-    """Try to address B's store by a guessed tenant name; whatever it returns must hold none of B's data."""
-    g = run.open("guess", tenant=guess)  # InvalidTenant for anything that is not a plain tenant name
-    return {
-        "recall": g.recall("alice", f"Secret-Project-B {marker}", k=20),
-        "tasks": g.list_tasks(),
-        "facts": g.facts("Secret-Project-B-0", "codename"),
-    }
+    return res.conclude(
+        violations={
+            "rows_leaked": n_leaked,
+            "cross_tenant_writes": int(before != after),
+            "own_data_damaged": int(not a_ok or a_ok[0]["fact_id"] != a_fact),
+        },
+        metrics={"probes": len(probes), "tenant_isolation": 1},
+        details={"leaking_probes": probe_log[:10]},
+        errors=[*errors, *unexpected],
+    )
 
 
 # ============================================================================================================
@@ -608,14 +699,8 @@ def _guess_tenant(run: ArmRun, guess: str, marker: str, b_ids: list[str]) -> Any
 # ============================================================================================================
 
 
-def c6(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
-    res = RunResult(
-        seed=seed,
-        params={"subjects": cfg.c6_subjects, "versions": cfg.c6_versions, "queries": cfg.c6_queries},
-    )
-    b = run.open("c6")
-    rng = random.Random(seed)
-    b.register_agent("writer")
+def _c6_truth(cfg: L1Config, rng: random.Random) -> dict[str, list[tuple[int, str]]]:
+    """Per subject, the (time, value) versions that will be written, oldest first."""
     base = 1_700_000_000_000 + rng.randint(0, 10**6)
     truth: dict[str, list[tuple[int, str]]] = {}
     for s in range(cfg.c6_subjects):
@@ -624,6 +709,27 @@ def c6(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
             vers.append((t, f"build {k + 1}.{s}.{rng.randint(10, 99)}"))
             t += 1000 + rng.randint(0, 400)
         truth[f"Service-{s}"] = vers
+    return truth
+
+
+def _value_at(versions: list[tuple[int, str]], t: int) -> str | None:
+    cur = None
+    for vt, v in versions:
+        if vt <= t:
+            cur = v
+    return cur
+
+
+def c6(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
+    res, b = _begin(
+        run,
+        "c6",
+        seed,
+        {"subjects": cfg.c6_subjects, "versions": cfg.c6_versions, "queries": cfg.c6_queries},
+    )
+    rng = random.Random(seed)
+    b.register_agent("writer")
+    truth = _c6_truth(cfg, rng)
 
     def write(i: int) -> None:
         for s in range(i, cfg.c6_subjects, cfg.c6_workers):
@@ -634,36 +740,30 @@ def c6(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     errors = run_workers(cfg.c6_workers, write)
     wrong = asked = 0
     bad: list[Any] = []
-
-    def expected(subject: str, t: int) -> str | None:
-        cur = None
-        for vt, v in truth[subject]:
-            if vt <= t:
-                cur = v
-        return cur
-
     for subject, vers in truth.items():
         times = [vt for vt, _ in vers]
         qs = [rng.randint(times[0] - 700, times[-1] + 2500) for _ in range(cfg.c6_queries - 2)]
         qs += [times[0], times[-1]]  # exact boundaries
         for q in qs:
             got = b.as_of(subject, "release", q)
-            exp = expected(subject, q)
+            exp = _value_at(vers, q)
             asked += 1
             if (got["value"] if got else None) != exp:
                 wrong += 1
                 if len(bad) < 3:
                     bad.append({"subject": subject, "t": q, "expected": exp, "got": got and got["value"]})
-    res.violations = {"wrong_version_answers": wrong}
-    res.metrics = {"queries": asked}
-    res.details = {"examples": bad}
-    res.set_errors(errors)
-    return res.finish()
+    return res.conclude(
+        violations={"wrong_version_answers": wrong},
+        metrics={"queries": asked},
+        details={"examples": bad},
+        errors=errors,
+    )
 
 
 # ============================================================================================================
 # C7: paraphrases
 # ============================================================================================================
+
 
 # (subject, predicate, value A, value B): the same statement in different words. 'kind' says how different.
 PARAPHRASES: list[tuple[str, str, str, str, str]] = [
@@ -745,8 +845,7 @@ def _run_pairs(b: Any, pairs: list[tuple[str, str, str, str]], concurrent: bool,
         agents = [f"pa{i:02d}", f"pb{i:02d}"]
         rng.shuffle(agents)
         jobs += [(agents[0], subject, predicate, va), (agents[1], subject, predicate, vb)]
-    for ag, *_ in jobs:
-        b.register_agent(ag)
+    _register(b, [ag for ag, *_ in jobs])
     order = list(range(len(jobs)))
     if concurrent:
         rng.shuffle(order)
@@ -775,66 +874,92 @@ def c7(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     miss_seq, miss_conc = sum(1 for c in seq[:n] if c > 1), sum(1 for c in conc[:n] if c > 1)
     false_seq = sum(1 for c in seq[n:] if c < 2)
     false_conc = sum(1 for c in conc[n:] if c < 2)
-    res.violations = {
-        "extra_duplicates_under_concurrency": max(0, miss_conc - miss_seq),
-        "false_merges": false_seq + false_conc,
-    }
     by_kind: dict[str, list[int]] = defaultdict(lambda: [0, 0])
     for (_, _, _, _, kind), c in zip(corpus, seq[:n], strict=True):
         by_kind[kind][0] += 1
         by_kind[kind][1] += int(c > 1)
-    res.metrics = {
-        "pairs": n,
-        "misses_sequential": miss_seq,
-        "misses_concurrent": miss_conc,
-        "miss_rate_sequential": round(miss_seq / n, 3),
-        "miss_rate_concurrent": round(miss_conc / n, 3),
-    }
-    res.details = {"misses_by_kind": {k: {"pairs": v[0], "missed": v[1]} for k, v in by_kind.items()}}
-    return res.finish()
+    return res.conclude(
+        violations={
+            "extra_duplicates_under_concurrency": max(0, miss_conc - miss_seq),
+            "false_merges": false_seq + false_conc,
+        },
+        metrics={
+            "pairs": n,
+            "misses_sequential": miss_seq,
+            "misses_concurrent": miss_conc,
+            "miss_rate_sequential": round(miss_seq / n, 3),
+            "miss_rate_concurrent": round(miss_conc / n, 3),
+        },
+        details={"misses_by_kind": {k: {"pairs": v[0], "missed": v[1]} for k, v in by_kind.items()}},
+    )
 
 
 # ============================================================================================================
 # C8: forget by source
 # ============================================================================================================
 
+_HANDBOOK_TOPICS = [
+    "vacation",
+    "expenses",
+    "security",
+    "onboarding",
+    "travel",
+    "equipment",
+    "holidays",
+    "benefits",
+]
+
+
+def _c8_write_facts(b: Any, cfg: L1Config, sources: Sequence[str]) -> dict[str, dict[str, Any]]:
+    """Facts per source plus second-order digests derived from each source's first fact.
+
+    Returns ``{fact_id: {query, root (source index), subject, predicate}}``.
+    """
+    facts: dict[str, dict[str, Any]] = {}
+
+    def add(si: int, subj: str, pred: str, val: str, **link: Any) -> None:
+        fid = b.assert_fact("curator", subj, pred, val, **link)["fact_id"]
+        facts[fid] = {"query": f"{subj} {pred} {val}", "root": si, "subject": subj, "predicate": pred}
+
+    for si, sid in enumerate(sources):
+        for k in range(cfg.c8_facts_per_source):
+            topic = _HANDBOOK_TOPICS[k % len(_HANDBOOK_TOPICS)]
+            add(
+                si,
+                f"Handbook {si} {topic} rule {k}",
+                f"{topic} guideline {si}-{k}",
+                f"item {si}.{k} says {topic} approval is required",
+                source_id=sid,
+            )
+        # second-order facts derived from the first fact of this source (not linked to the source directly)
+        first = next(f for f, v in facts.items() if v["root"] == si)
+        for k in range(2):
+            add(
+                si,
+                f"Summary {si}",
+                f"digest point {k}",
+                f"digest {si}.{k} summarises handbook {si}",
+                derived_from=[first],
+            )
+    return facts
+
 
 def c8(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
-    res = RunResult(
-        seed=seed,
-        params={
+    res, b = _begin(
+        run,
+        "c8",
+        seed,
+        {
             "sources": cfg.c8_sources,
             "facts_per_source": cfg.c8_facts_per_source,
             "forgotten_sources": cfg.c8_forgotten_sources,
         },
     )
-    b = run.open("c8")
     rng = random.Random(seed)
     b.register_agent("curator")
     sources = [b.add_source(f"doc://handbook-{i}") for i in range(cfg.c8_sources)]
     forget_idx = set(rng.sample(range(cfg.c8_sources), cfg.c8_forgotten_sources))
-    facts: dict[str, dict[str, Any]] = {}  # fact_id -> {query, derived_from_source}
-    topics = ["vacation", "expenses", "security", "onboarding", "travel", "equipment", "holidays", "benefits"]
-    for si, sid in enumerate(sources):
-        for k in range(cfg.c8_facts_per_source):
-            topic = topics[k % len(topics)]
-            subj, pred, val = (
-                f"Handbook {si} {topic} rule {k}",
-                f"{topic} guideline {si}-{k}",
-                f"item {si}.{k} says {topic} approval is required",
-            )
-            fid = b.assert_fact("curator", subj, pred, val, source_id=sid)["fact_id"]
-            facts[fid] = {"query": f"{subj} {pred} {val}", "root": si, "subject": subj, "predicate": pred}
-        # second-order facts derived from the first fact of this source (not linked to the source directly)
-        first = next(f for f, v in facts.items() if v["root"] == si)
-        for k in range(2):
-            subj, pred, val = (
-                f"Summary {si}",
-                f"digest point {k}",
-                f"digest {si}.{k} summarises handbook {si}",
-            )
-            fid = b.assert_fact("curator", subj, pred, val, derived_from=[first])["fact_id"]
-            facts[fid] = {"query": f"{subj} {pred} {val}", "root": si, "subject": subj, "predicate": pred}
+    facts = _c8_write_facts(b, cfg, sources)
     expected_gone = {f for f, v in facts.items() if v["root"] in forget_idx}
     expected_kept = set(facts) - expected_gone
     for f in list(facts)[:3]:  # sanity: before forgetting, probes find their facts
@@ -867,19 +992,27 @@ def c8(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
         mine = [f for f in b.facts(v["subject"], v["predicate"]) if f["fact_id"] == fid]
         if not mine or mine[0]["status"] == "active":
             not_marked += 1
-    res.violations = {"derived_facts_still_returned": len(returned), "not_marked_forgotten": not_marked}
-    res.metrics = {
-        "facts": len(facts),
-        "forgotten_expected": len(expected_gone),
-        "kept_but_not_found": over_forgotten,
-    }
-    res.set_errors(errors)
-    return res.finish()
+    return res.conclude(
+        violations={"derived_facts_still_returned": len(returned), "not_marked_forgotten": not_marked},
+        metrics={
+            "facts": len(facts),
+            "forgotten_expected": len(expected_gone),
+            "kept_but_not_found": over_forgotten,
+        },
+        errors=errors,
+    )
 
 
-# ============================================================================================================
-# driver
-# ============================================================================================================
+CASES: dict[str, Callable[..., RunResult]] = {
+    "C1": c1,
+    "C2": c2,
+    "C3": c3,
+    "C4": c4,
+    "C5": c5,
+    "C6": c6,
+    "C7": c7,
+    "C8": c8,
+}
 
 
 def _cases(test: str, cfg: L1Config) -> list[dict[str, Any]]:
@@ -891,7 +1024,7 @@ def _cases(test: str, cfg: L1Config) -> list[dict[str, Any]]:
 def run_test(
     env: Env, arm: str, test: str, cfg: L1Config, log: Callable[[str], None] = print
 ) -> dict[str, Any]:
-    fn = {"C1": c1, "C2": c2, "C3": c3, "C4": c4, "C5": c5, "C6": c6, "C7": c7, "C8": c8}[test]
+    fn = CASES[test]
     runs: list[RunResult] = []
     for params in _cases(test, cfg):
         for seed in cfg.seeds:
