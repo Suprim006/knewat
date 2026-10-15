@@ -158,6 +158,7 @@ Python entry point: `plexus.staleness.Staleness(client, graph, engram=...)`. Cod
 | `staleness/facts_to_verify` | ro | Enrich suspect ids: subject / predicate / value, newest `SUSPECTED` Change (the reason), non-flagged `BASED_ON` decision count, anchors; optional scope filter through `INHERITS*0..3`; ordered by decisions then oldest suspicion | "Which memories do I re-check first": ordered by the decisions that rest on them (a traversal), activation is applied on top by the Python layer. |
 | `staleness/set_review_date` | rw | Set / clear `verify_after` on a fact that is not about code | Review dates cover facts no code change can invalidate (a deployed URL, an account). |
 | `staleness/docs_to_update` | ro | Doc `Source`s that `DESCRIBES` an anchor a `Change` `TOUCHED` after `since` and were not `TOUCHED` themselves afterwards, with the change commits / paths | doc -> code -> change is a three-hop traversal; a doc edited after the change drops off because its own `TOUCHED` edge is newer. |
+| `staleness/tracked_paths` | ro | Source uris and CodeAnchor paths (`UNION`) | `plexus code baseline` (client side, direct database read) hashes the files of a repository the graph already knows about. |
 
 FalkorDB 6.0.2 quirks hit in `staleness/*` (kept in the query comments):
 - `staleness/mark_changed`: a `WHERE` attached to an `OPTIONAL MATCH` that follows aggregations evaluated as false for a node that exists (even `WHERE x.uri = x.uri`); the filter is a `CASE` in the next `WITH` instead.
