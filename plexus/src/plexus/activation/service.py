@@ -254,18 +254,24 @@ class Activation:
         """Bring a dormant fact back to its previous status. ``None`` if there is no such fact.
 
         A fact that is not dormant is left alone and reported with ``restored = False``; so is a dormant fact
-        derived from a forgotten or quarantined fact (it stays dormant).
+        derived from a forgotten or quarantined fact (it stays dormant), and one that a newer active fact of
+        the same entity, predicate and scope has replaced (``reason = 'already_superseded'``,
+        ``superseded_by`` lists the newer facts; a recorded ``CONTRADICTS`` does not block).
         """
         rows = self.client.rw(self.graph, "activation/restore", {"fact_id": fact_id})
         if not rows:
             return None
         r = rows[0]
-        return {
+        out: dict[str, Any] = {
             "fact_id": r["id"],
             "restored": r["was"] == "dormant" and r["status"] != "dormant",
             "status": r["status"],
             "was": r["was"],
         }
+        if r["superseded_by"]:  # a newer current fact exists: reviving this one would give two live values
+            out["reason"] = "already_superseded"
+            out["superseded_by"] = list(r["superseded_by"])
+        return out
 
 
 def _ago(ms: int) -> str:

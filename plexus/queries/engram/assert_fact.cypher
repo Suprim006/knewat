@@ -6,7 +6,9 @@
 // returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing); no row when the entity, scope, or a given episode/source does not exist (nothing is written, not even the Agent)
 // mode: rw
 
-// Rules, evaluated on facts with status='active' and valid_to=open_to in the same scope:
+// Rules, evaluated on facts with status 'active' or 'dormant' and valid_to=open_to in the same scope (P7-02: a fact a sweep moved to
+// 'dormant' is still the current value of its entity+predicate, so a new value closes or contradicts it like any other; a duplicate
+// of a dormant fact wakes it instead of creating a twin: status = prior_status, prior_status / dormant_at removed):
 //   dup        = first current fact with the same norm_value, else with value_tokens equal (the sorted multiset of
 //                numeric/version tokens, e.g. '16' vs '15', 'v1' vs 'v2' differ) AND value_emb within dup_threshold
 //                (cosine distance). Embeddings alone cannot tell 'v1.2.3' from 'v1.2.4' (P1-01), so the tokens must agree.
@@ -35,7 +37,8 @@
 MATCH (e:Entity {id: $entity_id}), (sc:Scope {id: $scope_id})
 OPTIONAL MATCH (ep:Episode {id: $episode_id})
 OPTIONAL MATCH (src:Source {id: $source_id})
-OPTIONAL MATCH (e)<-[:ABOUT]-(f:Fact {predicate: $predicate, status: 'active', valid_to: $open_to})-[:IN_SCOPE]->(sc)
+OPTIONAL MATCH (e)<-[:ABOUT]-(f:Fact {predicate: $predicate, valid_to: $open_to})-[:IN_SCOPE]->(sc)
+WHERE f.status IN ['active', 'dormant']
 WITH e, sc, ep, src, collect(f) AS cur
 WHERE ($episode_id = '' OR ep IS NOT NULL) AND ($source_id = '' OR src IS NOT NULL)
 MERGE (ag:Agent {id: $agent_id})
@@ -60,6 +63,9 @@ WITH ag, e, sc, ep, src, dup, closing, ts, clashing,
 FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
   MERGE (d)-[da:ASSERTED_BY]->(ag)
     ON CREATE SET da.at = $now
+  FOREACH (dw IN CASE WHEN d.status = 'dormant' THEN [d] ELSE [] END |
+    SET dw.status = coalesce(dw.prior_status, 'active')
+    REMOVE dw.prior_status, dw.dormant_at)
   FOREACH (de IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | MERGE (d)-[:DERIVED_FROM]->(de))
   FOREACH (ds IN CASE WHEN src IS NULL THEN [] ELSE [src] END | MERGE (d)-[:DERIVED_FROM]->(ds))
   FOREACH (c IN closing | SET c.valid_to = ts, c.status = 'superseded' MERGE (d)-[:SUPERSEDES]->(c)))

@@ -168,7 +168,7 @@ lowers a fact's **rank only**; none of these deletes anything.
 | `pin_fact` / `unpin_fact` | `fact_id` | `{fact_id, pinned}`. A pinned fact is never ranked below neutral and never swept. |
 | `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, …}}`. Read-only: no `READ` edge, so asking is not using. |
 | `memory_sweep` | `scope='global'`, `threshold=None` (−50..50), `dry_run=true`, `limit=200` (1..200) | `{sweep: {threshold, dry_run, scanned, candidates:[{fact_id, text, activation}], would_move, moved, skipped, truncated}}`. Moves to `dormant` only with `dry_run=false`; protected and suspect facts are never moved. |
-| `restore_fact` | `fact_id` | `{fact_id, restored, status, was}`; a fact that is not dormant is left alone. |
+| `restore_fact` | `fact_id` | `{fact_id, restored, status, was}` (+ `reason: 'already_superseded'`, `superseded_by` when a newer active fact blocks it); a fact that is not dormant is left alone. |
 
 `recall` gains `include_dormant: bool = false` and `forgetting: bool | null = null` (null = the server default,
 `PLEXUS_FORGETTING`). Each fact in the result also carries `surprise`, `activation`, `protected` (both `null` when

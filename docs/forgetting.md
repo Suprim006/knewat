@@ -125,8 +125,11 @@ hidden from `recall` unless `include_dormant=true`.
   (`docs/BASELINE.md`): at floor 0.9 recall@5 is 2.2 points below forgetting off in the confirmatory run; no accuracy claim is made.
 * The weights, the 0.3 and `A₀ − 2` are defaults chosen from the literature, not tuned on Plexus data. The floor (0.9) was chosen after the first L5b run failed at 0.5 and then confirmed in a separate pre-registered run (`docs/BASELINE.md`); it is tuned on one synthetic scenario.
 * Activation is computed from the newest 50 events, so a very heavily used fact does not keep growing.
-* A fact that a sweep parked is **not "current"** for `assert_fact`: asserting the same value again creates a new
-  active fact rather than reviving the dormant one (restore it first if that is what you want).
+* A fact that a sweep parked is still **current** for `assert_fact` (P7-02): a new value supersedes it (or, from another
+  agent without `supersede`, contradicts it) like an active fact, and asserting the same value again wakes it
+  (`status = prior_status`) instead of creating a twin. `restore_fact` refuses (`reason: 'already_superseded'`,
+  `superseded_by`) a dormant fact for which a newer active fact of the same entity, predicate and scope already exists
+  (data from before this rule); a recorded `CONTRADICTS` does not block a restore.
 * `forget_source` and `quarantine_source` also reach `dormant` facts (P7-int), so a dormant fact derived from a forgotten
   source becomes `forgotten` and `restore_fact` leaves it alone; a quarantined dormant fact is released back to
   `dormant`. `restore_fact` also refuses (leaves dormant) a dormant fact derived from a forgotten or quarantined fact,
