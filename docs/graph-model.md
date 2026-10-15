@@ -10,38 +10,38 @@ Every node has `id` (UUID string) and `created_at` (epoch ms). Embeddings are `v
 
 ```mermaid
 erDiagram
-    Agent ||--o{ Session : HAD
-    Session ||--o{ Episode : HAS_EPISODE
-    Episode ||--o| Episode : NEXT
-    Fact }o--|| Entity : ABOUT
+    Agent ||--o{ Session : "HAD"
+    Session ||--o{ Episode : "HAS_EPISODE"
+    Episode ||--o| Episode : "NEXT"
+    Fact }o--|| Entity : "ABOUT"
     Fact }o--o{ Episode : "DERIVED_FROM"
     Fact }o--o{ Source : "DERIVED_FROM"
     Fact }o--o{ Fact : "DERIVED_FROM / SUPERSEDES / DUPLICATES / CONTRADICTS"
-    Fact }o--|| Scope : IN_SCOPE
-    Scope }o--o| Scope : INHERITS
-    Fact }o--|| Agent : ASSERTED_BY
-    Procedure ||--o{ Run : USED_IN
-    Run }o--|| Agent : BY
-    Run }o--|| Task : FOR
-    Task }o--o{ Task : DEPENDS_ON
+    Fact }o--|| Scope : "IN_SCOPE"
+    Scope }o--o| Scope : "INHERITS"
+    Fact }o--|| Agent : "ASSERTED_BY"
+    Procedure ||--o{ Run : "USED_IN"
+    Run }o--|| Agent : "BY"
+    Run }o--|| Task : "FOR"
+    Task }o--o{ Task : "DEPENDS_ON"
     Agent ||--o{ Task : "CLAIMED {at, lease_until}"
-    Handoff }o--|| Agent : FROM
-    Handoff }o--|| Agent : TO
-    Handoff }o--|| Task : FOR
-    Handoff }o--o{ Artifact : CARRIES
-    Handoff }o--o{ Fact : CARRIES
-    Agent ||--o{ Decision : DECIDED
-    Decision }o--o{ Fact : BASED_ON
-    Decision }o--|| Task : FOR
-    Artifact }o--|| Agent : PRODUCED_BY
-    Artifact }o--o{ Agent : VERIFIED_BY
-    Step }o--|| Agent : BY
-    Step }o--o{ Fact : READ
+    Handoff }o--|| Agent : "FROM"
+    Handoff }o--|| Agent : "TO"
+    Handoff }o--|| Task : "FOR"
+    Handoff }o--o{ Artifact : "CARRIES"
+    Handoff }o--o{ Fact : "CARRIES"
+    Agent ||--o{ Decision : "DECIDED"
+    Decision }o--o{ Fact : "BASED_ON"
+    Decision }o--|| Task : "FOR"
+    Artifact }o--|| Agent : "PRODUCED_BY"
+    Artifact }o--o{ Agent : "VERIFIED_BY"
+    Step }o--|| Agent : "BY"
+    Step }o--o{ Fact : "READ"
     Step }o--o{ Fact : "WROTE (also Decision, Handoff, Task)"
-    Step ||--o| Step : NEXT
-    ToolCall }o--|| Step : IN_STEP
-    Recall }o--o{ Fact : RETURNED
-    Recall }o--|| Agent : BY
+    Step ||--o| Step : "NEXT"
+    ToolCall }o--|| Step : "IN_STEP"
+    Recall }o--o{ Fact : "RETURNED"
+    Recall }o--|| Agent : "BY"
     ToolCall }o--o{ Fact : "CREATED / UPDATED (any node)"
 ```
 
