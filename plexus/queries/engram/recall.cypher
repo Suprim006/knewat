@@ -1,9 +1,11 @@
 // name: engram/recall
 // purpose: Hybrid recall in ONE read: vector (+ keyword) seeds over Fact.embedding, scope-inheritance + validity-window + status filter, 1-hop ABOUT-entity expansion to sibling facts (boosted, capped), nearest first, with provenance for the why-path.
 // params: q:list[float], scope_id:str, over:int, k:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str]
-// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids]
+// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent)
 // mode: ro
 
+// P7 (D-012): the statuses list is a parameter: ['active'] by default, + 'dormant' with include_dormant, + 'superseded' and 'dormant' for as_of. The extra row fields are plain
+// properties of the matched fact (read with coalesce, absent on facts written before P7); the activation re-ranking happens in Python on these rows (plexus.activation.rank).
 // Scopes searched: the given scope plus everything it INHERITS (<=3 hops). Facts are valid at t when valid_from <= t < valid_to.
 // Seeds: the top `over` nearest facts of the WHOLE graph plus the facts in kw_ids (full-text hits from engram/recall_keywords),
 // then filtered. LIMITATION: FalkorDB's vector procedure has no pre-filter, so scope/status/validity are applied AFTER the
@@ -55,6 +57,8 @@ MATCH (n)-[:IN_SCOPE]->(ns:Scope)
 RETURN n.id AS fact_id, en.id AS entity_id, en.name AS entity_name, n.predicate AS predicate, n.value AS value,
        n.status AS status, n.confidence AS confidence, n.valid_from AS valid_from, n.valid_to AS valid_to,
        ns.id AS scope_id, dist AS score, rank, CASE WHEN isseed = 1 THEN null ELSE head(vias) END AS via, raw,
+       coalesce(n.surprise, 0.0) AS surprise, coalesce(n.verify_state, 'verified') AS verify_state,
+       coalesce(n.suspect_since, 0) AS suspect_since, coalesce(n.verify_after, 9999999999999) AS verify_after,
        [(n)-[:DERIVED_FROM]->(d) | {id: d.id, label: labels(d)[0]}] AS derived_from,
        [(n)-[:ASSERTED_BY]->(ag:Agent) | ag.id] AS asserted_by
 ORDER BY rank ASC

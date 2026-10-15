@@ -92,9 +92,13 @@ def test_k_and_budget_are_clamped(eng, proj, monkeypatch):
 
     monkeypatch.setattr(eng.client, "ro", spy)
     eng.assert_fact("Acme", "owner", "alice", proj, "a1", now=10)
-    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000)
+    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=False)  # retrieval only
     assert all(p["k"] == svc.MAX_K == 50 for p in seen)
     assert svc.MAX_BUDGET_CHARS == 20_000
+    assert all(p["over"] <= svc.MAX_OVER for p in seen)
+    seen.clear()
+    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=True)  # P7-K: 2k candidates
+    assert all(p["k"] == 2 * svc.MAX_K for p in seen)
     assert all(p["over"] <= svc.MAX_OVER for p in seen)
 
 

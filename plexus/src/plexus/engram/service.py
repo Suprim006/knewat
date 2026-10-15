@@ -16,6 +16,9 @@ from typing import Any
 from redis.exceptions import ResponseError
 
 from plexus.activation import model as act
+from plexus.activation.rank import rerank
+from plexus.activation.service import Activation
+from plexus.activation.settings import Settings
 from plexus.embed import Embedder, embed_checked, get_embedder
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
@@ -76,6 +79,11 @@ def numeric_tokens(text: str) -> list[str]:
 def token_key(text: str) -> str:
     """:func:`numeric_tokens` joined by spaces; stored as ``Fact.value_tokens`` and compared by equality."""
     return " ".join(numeric_tokens(text))
+
+
+def _query_words(query: str) -> list[str]:
+    """The query words the full-text side searches for (>= 3 characters, at most ``MAX_KEYWORDS``)."""
+    return list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
 
 
 def fact_text(entity_name: str, predicate: str, value: str) -> str:
@@ -419,8 +427,20 @@ class Engram:
         k: int = 8,
         as_of: int | None = None,
         budget_chars: int = 2000,
+        *,
+        include_dormant: bool = False,
+        forgetting: bool | None = None,
     ) -> list[dict[str, Any]]:
-        """Top-``k`` facts for ``query`` in ``scope_id`` (and the scopes it inherits), nearest first.
+        """Top-``k`` facts for ``query`` in ``scope_id`` (and the scopes it inherits), best first.
+
+        **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
+        not ``off``) and no ``as_of``, ``2*k`` candidates are fetched and re-ranked by ``relevance x (floor +
+        (1 - floor) x sigmoid(A - A0))`` (``plexus.activation.rank``), then cut to ``k``; the rows gain
+        ``activation`` and ``protected``. With it off, or with ``as_of``, the order is exactly the vector /
+        keyword rank order of earlier versions and those two fields are ``None``. Rows always carry
+        ``surprise``, ``verify_state`` (``suspect`` when marked so or when the review date has passed),
+        ``suspect_since`` and ``suspect_reason``. ``include_dormant`` adds facts a sweep moved to ``dormant``;
+        ``as_of`` always includes them (forgetting never changes history).
 
         ``as_of`` (epoch ms) returns what was valid at that time, including since-superseded versions; the
         default is "now" with active facts only. The text budget is applied here: results are kept in rank
@@ -439,7 +459,15 @@ class Engram:
         k = min(k, MAX_K)
         budget_chars = min(budget_chars, MAX_BUDGET_CHARS)
         t = as_of if as_of is not None else _now_ms()
-        statuses = ["active"] if as_of is None else ["active", "superseded"]
+        if as_of is not None:
+            statuses = ["active", "superseded", "dormant"]
+        else:
+            statuses = ["active", "dormant"] if include_dormant else ["active"]
+        settings = Settings.from_env()
+        rerank_on = as_of is None and (settings.forgetting if forgetting is None else forgetting)
+        want = k
+        if rerank_on:
+            k = min(2 * k, 2 * MAX_K)  # candidates; the cut back to `want` happens after the re-ranking
         q = self._embed([query])[0]
         kw_ids = self._keyword_ids(query, scope_id, k, t, statuses)
         over = max(k * OVERFETCH, 1)
@@ -464,6 +492,20 @@ class Engram:
             if len(rows) >= k or over >= MAX_OVER or (rows and rows[0]["raw"] < over):
                 break
             over *= RETRY_FACTOR
+        acts: dict[str, Any] = {}
+        if rerank_on:
+            acts = Activation(self.client, self.graph, settings).compute([r["fact_id"] for r in rows], t)
+            ranked = rerank(
+                rows,
+                acts,
+                settings=settings,
+                k=want,
+                kw_ids=set(kw_ids),
+                words=_query_words(query),
+            )
+            rows = [x.row for x in ranked]
+        suspects = [r["fact_id"] for r in rows if r["verify_state"] == "suspect"]
+        reasons = self._suspect_reasons(suspects) if suspects else {}
         out: list[dict[str, Any]] = []
         used = 0
         for r in rows:
@@ -492,15 +534,52 @@ class Engram:
                     "valid_from": r["valid_from"],
                     "valid_to": r["valid_to"],
                     "via": r["via"],
+                    "surprise": r["surprise"],
+                    "activation": None if r["fact_id"] not in acts else acts[r["fact_id"]].activation,
+                    "protected": acts[r["fact_id"]].protected if r["fact_id"] in acts else None,
+                    **self._suspect_fields(r, t, reasons),
                 }
             )
             if used >= budget_chars:
                 break
         return out
 
+    def _suspect_reasons(self, fact_ids: list[str]) -> dict[str, str]:
+        """Why each (stored-)suspect fact is doubted: the newest ``SUSPECTED`` Change, as one line."""
+        out: dict[str, str] = {}
+        for r in self.client.ro(self.graph, "activation/suspect_reason", {"fact_ids": fact_ids}):
+            if not r["has_change"]:
+                out[r["fact_id"]] = "marked suspect"
+                continue
+            try:
+                paths = json.loads(r["paths"]) if r["paths"] else []
+            except ValueError:
+                paths = []
+            first = paths[0] if isinstance(paths, list) and paths else ""
+            where = r["commit"] or "working tree"
+            out[r["fact_id"]] = f"changed in {where} ({first})" if first else f"changed in {where}"
+        return out
+
+    @staticmethod
+    def _suspect_fields(r: dict[str, Any], t: int, reasons: dict[str, str]) -> dict[str, Any]:
+        """``verify_state`` / ``suspect_since`` / ``suspect_reason`` using the contract's suspect rule."""
+        if r["verify_state"] == "suspect":
+            return {
+                "verify_state": "suspect",
+                "suspect_since": r["suspect_since"],
+                "suspect_reason": reasons.get(r["fact_id"], "marked suspect"),
+            }
+        if r["verify_after"] <= t:
+            return {
+                "verify_state": "suspect",
+                "suspect_since": r["verify_after"],
+                "suspect_reason": "review date passed",
+            }
+        return {"verify_state": "verified", "suspect_since": 0, "suspect_reason": None}
+
     def _keyword_ids(self, query: str, scope_id: str, k: int, t: int, statuses: list[str]) -> list[str]:
         """Ids of in-scope valid facts whose ``value`` contains a query word (full-text index, OR)."""
-        words = list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
+        words = _query_words(query)
         if not words:
             return []
         try:
