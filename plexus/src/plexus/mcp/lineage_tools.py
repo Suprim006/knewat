@@ -36,7 +36,7 @@ from plexus.mcp.toolkit import ToolTable
 
 log = logging.getLogger("plexus.mcp")
 
-LINEAGE_TOOLS = ToolTable(doc_indent=12)
+LINEAGE_TOOLS = ToolTable()
 tool = LINEAGE_TOOLS
 
 

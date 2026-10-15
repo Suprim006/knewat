@@ -48,14 +48,10 @@ class ToolDef:
 class ToolTable:
     """The tools of one module, in definition order; :meth:`register` publishes them on an ``MCPServer``.
 
-    ``doc_indent`` is the number of spaces the published description keeps in front of every docstring line after
-    the first. The tool snapshot (``tests/mcp/snapshots/tools.json``) was recorded with the descriptions of the
-    original nested definitions, whose continuation lines were indented that deep, and the snapshot is part of the
-    contract; flat functions therefore re-indent their docstrings to reproduce it exactly.
+    A tool's published description is its (cleaned) docstring.
     """
 
-    def __init__(self, doc_indent: int = 8):
-        self.doc_indent = doc_indent
+    def __init__(self):
         self._defs: list[ToolDef] = []
 
     def __call__(self, work: WorkFn) -> WorkFn:
@@ -82,7 +78,7 @@ class ToolTable:
         for d in self._defs:
             if d.requires is not None and available is not None and d.requires not in available:
                 continue
-            mcp.tool()(_handler(rt, d.work, self.doc_indent))
+            mcp.tool()(_handler(rt, d.work))
             names.append(d.name)
         return names
 
@@ -95,7 +91,7 @@ def _check_signature(work: WorkFn) -> None:
         raise TypeError(f"{work.__name__}: a tool takes agent_id and step, and never declares '{_CTX}'")
 
 
-def _handler(rt: Runtime, work: WorkFn, doc_indent: int):
+def _handler(rt: Runtime, work: WorkFn):
     """The async function FastMCP registers for ``work``.
 
     FastMCP derives the input schema from the handler's signature and finds the ``Context`` parameter from its
@@ -117,13 +113,7 @@ def _handler(rt: Runtime, work: WorkFn, doc_indent: int):
 
     handler.__name__ = handler.__qualname__ = name
     handler.__module__ = work.__module__
-    handler.__doc__ = _describe(work.__doc__, doc_indent)
+    handler.__doc__ = inspect.cleandoc(work.__doc__ or "")
     handler.__signature__ = sig.replace(parameters=params, return_annotation=_RESULT)  # type: ignore[attr-defined]
     handler.__annotations__ = {p.name: p.annotation for p in params} | {"return": _RESULT}
     return handler
-
-
-def _describe(doc: str | None, indent: int) -> str:
-    """The published description: the docstring with continuation lines indented ``indent`` spaces."""
-    lines = inspect.cleandoc(doc or "").split("\n")
-    return "\n".join(lines[:1] + [" " * indent + ln if ln else ln for ln in lines[1:]])

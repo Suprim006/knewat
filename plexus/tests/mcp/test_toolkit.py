@@ -10,7 +10,7 @@ import pytest
 from mcp import Client
 from plexus.mcp import lineage_tools, memory_tools, staleness_tools, tools_engram, tools_relay
 from plexus.mcp.limits import StrictModel
-from plexus.mcp.toolkit import ToolTable, _describe
+from plexus.mcp.toolkit import ToolTable
 from plexus.mcp.tools import register_engram_relay
 
 TABLES = [
@@ -105,7 +105,11 @@ def test_requires_gates_a_tool_on_the_available_methods():
     assert table.register(PlexusServer("t2"), None) == ["gated"]  # type: ignore[arg-type]
 
 
-def test_description_keeps_the_recorded_continuation_indent():
-    doc = "First line\n    second line\n\n    third line"
-    assert _describe(doc, 8) == "First line\n        second line\n\n        third line"
-    assert _describe(None, 8) == ""
+async def test_description_is_the_cleaned_docstring(server):
+    """Published descriptions are dedented docstrings: no indentation carried over from the source file."""
+    async with Client(server) as c:
+        tools = (await c.list_tools()).tools
+    for t in tools:
+        desc = t.description or ""
+        assert desc and desc == desc.strip(), t.name
+        assert not any(ln.startswith("    ") for ln in desc.split("\n")), t.name

@@ -14,6 +14,8 @@ from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from plexus.common import OPEN  # "open-ended" epoch ms; also the upper bound for any caller-supplied time
+
 MAX_ID = 128
 MAX_NAME = 512
 MAX_TITLE = 2_000
@@ -22,7 +24,6 @@ MAX_TEXT = 100_000
 MAX_LIST = 200
 MAX_INT = 2**31 - 1
 MAX_LEASE_MS = 86_400_000  # one day
-OPEN = 9_999_999_999_999  # "open-ended" epoch ms; also the upper bound for any caller-supplied time
 
 AgentId = Annotated[
     str,

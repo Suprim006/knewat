@@ -1,6 +1,6 @@
 {
   "add_source": {
-    "description": "Register WHERE knowledge comes from (a document, web page, chat or note) and get a source_id.\n            Pass that source_id to assert_fact for every fact you take from it: the fact then points back at the\n            source, why() can show it, and forget_source / quarantine_source can remove or isolate everything\n            that came from it. Safe to repeat: the same uri returns the same source_id.",
+    "description": "Register WHERE knowledge comes from (a document, web page, chat or note) and get a source_id.\nPass that source_id to assert_fact for every fact you take from it: the fact then points back at the\nsource, why() can show it, and forget_source / quarantine_source can remove or isolate everything\nthat came from it. Safe to repeat: the same uri returns the same source_id.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -99,7 +99,7 @@
     }
   },
   "anchor_fact": {
-    "description": "Tie a fact to the code it is about (a file, or a Python function / class). When that code changes, the\n        fact becomes SUSPECT and shows up in facts_to_verify. Facts derived from a Source whose uri is a file path\n        are tied to that file automatically; use this for precision (one function) or for facts with no Source.",
+    "description": "Tie a fact to the code it is about (a file, or a Python function / class). When that code changes, the\nfact becomes SUSPECT and shows up in facts_to_verify. Facts derived from a Source whose uri is a file path\nare tied to that file automatically; use this for precision (one function) or for facts with no Source.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -163,7 +163,7 @@
     }
   },
   "as_of": {
-    "description": "The value a (subject, predicate) had at time t (epoch ms), or null if it had none yet. Forgotten\n            and quarantined facts never answer.",
+    "description": "The value a (subject, predicate) had at time t (epoch ms), or null if it had none yet. Forgotten\nand quarantined facts never answer.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -228,7 +228,7 @@
     }
   },
   "assert_fact": {
-    "description": "Store a durable fact (subject, predicate, value) in shared memory. A new value for the same\n        subject+predicate closes the old one (your own earlier value is superseded; a different agent's value is\n        reported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns\n        'duplicate_of'. Returns fact_id, superseded[], duplicate_of, contradicts[].",
+    "description": "Store a durable fact (subject, predicate, value) in shared memory. A new value for the same\nsubject+predicate closes the old one (your own earlier value is superseded; a different agent's value is\nreported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns\n'duplicate_of'. Returns fact_id, superseded[], duplicate_of, contradicts[].",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -442,7 +442,7 @@
     }
   },
   "claim_next_task": {
-    "description": "Atomically claim the highest-priority task that is ready (all dependencies done). No two agents can win\n        the same task. Returns {task: null} when nothing is ready. Keep the 'version' for complete_task/fail_task and\n        call heartbeat while working.",
+    "description": "Atomically claim the highest-priority task that is ready (all dependencies done). No two agents can win\nthe same task. Returns {task: null} when nothing is ready. Keep the 'version' for complete_task/fail_task and\ncall heartbeat while working.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -484,7 +484,7 @@
     }
   },
   "complete_task": {
-    "description": "Mark a claimed task done and attach the artifacts you produced. Fails with a conflict if you no longer\n        hold the task at that version (someone else reclaimed it). Completing unblocks dependent tasks.",
+    "description": "Mark a claimed task done and attach the artifacts you produced. Fails with a conflict if you no longer\nhold the task at that version (someone else reclaimed it). Completing unblocks dependent tasks.",
     "inputSchema": {
       "$defs": {
         "ArtifactSpec": {
@@ -598,7 +598,7 @@
     }
   },
   "create_tasks": {
-    "description": "Create a batch of tasks with dependencies (a DAG) in one atomic step: all are created or none. A task\n        becomes claimable once everything in its depends_on is done. Returns the task ids in input order.",
+    "description": "Create a batch of tasks with dependencies (a DAG) in one atomic step: all are created or none. A task\nbecomes claimable once everything in its depends_on is done. Returns the task ids in input order.",
     "inputSchema": {
       "$defs": {
         "TaskSpec": {
@@ -696,7 +696,7 @@
     }
   },
   "describe_code": {
-    "description": "Record that a document (a Source) describes a piece of code. When the code changes, docs_to_update lists\n        the document so it can be brought up to date.",
+    "description": "Record that a document (a Source) describes a piece of code. When the code changes, docs_to_update lists\nthe document so it can be brought up to date.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -760,7 +760,7 @@
     }
   },
   "docs_to_update": {
-    "description": "List documents that describe code which has changed since the document was last edited (see\n        describe_code), newest change first, with the commits and paths that changed.",
+    "description": "List documents that describe code which has changed since the document was last edited (see\ndescribe_code), newest change first, with the commits and paths that changed.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -810,7 +810,7 @@
     }
   },
   "fact_history": {
-    "description": "List every value a (subject, predicate) has had in a scope, oldest first, with validity windows and who\n        asserted each. Use it to see how a fact changed over time.",
+    "description": "List every value a (subject, predicate) has had in a scope, oldest first, with validity windows and who\nasserted each. Use it to see how a fact changed over time.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -867,7 +867,7 @@
     }
   },
   "facts_to_verify": {
-    "description": "List the memories that may be stale: facts whose code changed since they were last verified, or whose\n        review date passed, most important first (decisions that depend on them, then oldest suspicion). Re-check\n        the ones you are about to rely on, then call verify_fact.",
+    "description": "List the memories that may be stale: facts whose code changed since they were last verified, or whose\nreview date passed, most important first (decisions that depend on them, then oldest suspicion). Re-check\nthe ones you are about to rely on, then call verify_fact.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1037,7 +1037,7 @@
     }
   },
   "forget_source": {
-    "description": "Permanently forget a source and every fact derived from it (cascade): they stop appearing in\n            recall and as_of. Decisions that rested on them are flagged, not deleted. Returns the affected\n            fact_ids, decision_ids and handoff_ids. Use quarantine_source instead if you are unsure (it can be\n            undone).",
+    "description": "Permanently forget a source and every fact derived from it (cascade): they stop appearing in\nrecall and as_of. Decisions that rested on them are flagged, not deleted. Returns the affected\nfact_ids, decision_ids and handoff_ids. Use quarantine_source instead if you are unsure (it can be\nundone).",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1079,7 +1079,7 @@
     }
   },
   "handoff": {
-    "description": "Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything\n        referenced must exist, otherwise nothing is written.",
+    "description": "Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything\nreferenced must exist, otherwise nothing is written.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1211,7 +1211,7 @@
     }
   },
   "knew_at": {
-    "description": "Time machine: what a given agent knew at its step N (the facts it had read that were still valid\n            then) and everything it had written by then.",
+    "description": "Time machine: what a given agent knew at its step N (the facts it had read that were still valid\nthen) and everything it had written by then.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1261,7 +1261,7 @@
     }
   },
   "log_procedure_run": {
-    "description": "Record that you applied a named procedure to a kind of task and whether it worked. Over time this builds\n        success rates that best_procedure uses to recommend what to try.",
+    "description": "Record that you applied a named procedure to a kind of task and whether it worked. Over time this builds\nsuccess rates that best_procedure uses to recommend what to try.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1357,7 +1357,7 @@
     }
   },
   "mark_changed": {
-    "description": "Report that code changed (normally called by the git post-commit / Claude Code edit hooks, see\n        `plexus code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay\n        recallable but are flagged. A first sighting of a file with no old_hash is just a baseline. Returns the\n        suspect fact_ids, the decisions built on them, and the docs that describe the changed code. If truncated\n        is true, call again with the same arguments (and the returned 'at') to continue.",
+    "description": "Report that code changed (normally called by the git post-commit / Claude Code edit hooks, see\n`plexus code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay\nrecallable but are flagged. A first sighting of a file with no old_hash is just a baseline. Returns the\nsuspect fact_ids, the decisions built on them, and the docs that describe the changed code. If truncated\nis true, call again with the same arguments (and the returned 'at') to continue.",
     "inputSchema": {
       "$defs": {
         "ChangeSpec": {
@@ -1482,7 +1482,7 @@
     }
   },
   "memory_strength": {
-    "description": "Show how strongly a fact ranks in recall and why: its activation (from creation, re-assertions,\n        decisions, handoffs, uses, recalls and verifications), the neutral level, the ranking multiplier (never\n        below the floor), why it is protected, and a one-line explanation. Read-only: asking does not count as\n        using the fact.",
+    "description": "Show how strongly a fact ranks in recall and why: its activation (from creation, re-assertions,\ndecisions, handoffs, uses, recalls and verifications), the neutral level, the ranking multiplier (never\nbelow the floor), why it is protected, and a one-line explanation. Read-only: asking does not count as\nusing the fact.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1524,7 +1524,7 @@
     }
   },
   "memory_sweep": {
-    "description": "Tidy a scope: list (dry_run=true, the default) or move to 'dormant' (dry_run=false) the faintest facts\n        that nothing depends on. Never deletes. Facts a decision rests on, a handoff carries, that are pinned,\n        contradicted, superseding, from a high-trust source, or suspect are never touched. Dormant facts are hidden\n        from recall unless include_dormant=true; restore_fact undoes it.",
+    "description": "Tidy a scope: list (dry_run=true, the default) or move to 'dormant' (dry_run=false) the faintest facts\nthat nothing depends on. Never deletes. Facts a decision rests on, a handoff carries, that are pinned,\ncontradicted, superseding, from a high-trust source, or suspect are never touched. Dormant facts are hidden\nfrom recall unless include_dormant=true; restore_fact undoes it.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1594,7 +1594,7 @@
     }
   },
   "pin_fact": {
-    "description": "Pin a fact you know must stay prominent (a hard requirement, an owner decision). A pinned fact is never\n        ranked below a neutral fact in recall and is never moved to dormant by memory_sweep. Undo with unpin_fact.",
+    "description": "Pin a fact you know must stay prominent (a hard requirement, an owner decision). A pinned fact is never\nranked below a neutral fact in recall and is never moved to dormant by memory_sweep. Undo with unpin_fact.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1636,7 +1636,7 @@
     }
   },
   "quarantine_source": {
-    "description": "Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,\n            but nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which\n            agents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on\n            them, so you know what to re-check.",
+    "description": "Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,\nbut nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which\nagents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on\nthem, so you know what to re-check.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1719,7 +1719,7 @@
     }
   },
   "recall": {
-    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\n        before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\n        and a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little\n        higher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is\n        'suspect' (its code or review date changed: verify before relying on it) and 'protected'. Also returns\n        recall_id: pass it to why_recalled to see why these facts came back, in this order.",
+    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\nbefore acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\nand a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little\nhigher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is\n'suspect' (its code or review date changed: verify before relying on it) and 'protected'. Also returns\nrecall_id: pass it to why_recalled to see why these facts came back, in this order.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1817,7 +1817,7 @@
     }
   },
   "record_decision": {
-    "description": "Log a decision you made and the facts it is based on. Later anyone can ask WHY it was made. All fact ids\n        must exist or nothing is written.",
+    "description": "Log a decision you made and the facts it is based on. Later anyone can ask WHY it was made. All fact ids\nmust exist or nothing is written.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1879,7 +1879,7 @@
     }
   },
   "register_agent": {
-    "description": "Register (or refresh) yourself as a team member so you can claim tasks and receive handoffs. Needed\n        before claim_next_task unless you already called start_session.",
+    "description": "Register (or refresh) yourself as a team member so you can claim tasks and receive handoffs. Needed\nbefore claim_next_task unless you already called start_session.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1934,7 +1934,7 @@
     }
   },
   "release_quarantine": {
-    "description": "Undo quarantine_source: the source's facts get their previous status back and show up in recall\n            again. Use it when the source turned out to be fine. Returns the restored fact_ids.",
+    "description": "Undo quarantine_source: the source's facts get their previous status back and show up in recall\nagain. Use it when the source turned out to be fine. Returns the restored fact_ids.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1976,7 +1976,7 @@
     }
   },
   "remember_episode": {
-    "description": "Append an episode (one event of the conversation or work log) to your session's timeline. Use it for\n        raw history (\"user asked X\", \"I tried Y and it failed\"). For durable knowledge use assert_fact instead.",
+    "description": "Append an episode (one event of the conversation or work log) to your session's timeline. Use it for\nraw history (\"user asked X\", \"I tried Y and it failed\"). For durable knowledge use assert_fact instead.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2038,7 +2038,7 @@
     }
   },
   "reopen_task": {
-    "description": "Retry a failed task: it becomes 'open' again so it can be claimed (by anyone, including you). Fails\n        if the task is not failed. Tasks that depend on it stay blocked until it is done again. Returns the new\n        status and version.",
+    "description": "Retry a failed task: it becomes 'open' again so it can be claimed (by anyone, including you). Fails\nif the task is not failed. Tasks that depend on it stay blocked until it is done again. Returns the new\nstatus and version.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2080,7 +2080,7 @@
     }
   },
   "restore_fact": {
-    "description": "Bring a fact that memory_sweep moved to 'dormant' back to active, exactly as it was. A fact that is not\n        dormant is left alone (restored=false).",
+    "description": "Bring a fact that memory_sweep moved to 'dormant' back to active, exactly as it was. A fact that is not\ndormant is left alone (restored=false).",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2122,7 +2122,7 @@
     }
   },
   "set_review_date": {
-    "description": "Give a fact a review date. After that time it appears in facts_to_verify, so facts that no code change\n        can invalidate (a deployed URL, an account, a client request) are re-checked on a schedule.",
+    "description": "Give a fact a review date. After that time it appears in facts_to_verify, so facts that no code change\ncan invalidate (a deployed URL, an account, a client request) are re-checked on a schedule.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2172,7 +2172,7 @@
     }
   },
   "start_session": {
-    "description": "Begin a memory session. Call this FIRST in every run. It registers you as an agent and returns a\n        session_id that you pass to remember_episode. Safe to call again in a later run: memory persists across\n        sessions.",
+    "description": "Begin a memory session. Call this FIRST in every run. It registers you as an agent and returns a\nsession_id that you pass to remember_episode. Safe to call again in a later run: memory persists across\nsessions.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2262,7 +2262,7 @@
     }
   },
   "unpin_fact": {
-    "description": "Remove the pin from a fact. It may still be protected for other reasons (a decision rests on it, a\n        handoff carries it...): memory_strength lists them.",
+    "description": "Remove the pin from a fact. It may still be protected for other reasons (a decision rests on it, a\nhandoff carries it...): memory_strength lists them.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2346,7 +2346,7 @@
     }
   },
   "verify_fact": {
-    "description": "Record the outcome of re-checking a suspect fact (see facts_to_verify). still_true=true marks it\n        verified. still_true=false needs new_value: the new value is asserted, the old one is superseded as of the\n        moment the code changed (history stays correct), and decisions that rested on the old value are flagged.",
+    "description": "Record the outcome of re-checking a suspect fact (see facts_to_verify). still_true=true marks it\nverified. still_true=false needs new_value: the new value is asserted, the old one is superseded as of the\nmoment the code changed (history stays correct), and decisions that rested on the old value are flagged.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2457,7 +2457,7 @@
     }
   },
   "why": {
-    "description": "Explain WHY a decision was made (or where a fact comes from): the graph paths from a decision_id\n            or fact_id to the facts it rests on, who asserted them, their sources, and the steps that wrote them.",
+    "description": "Explain WHY a decision was made (or where a fact comes from): the graph paths from a decision_id\nor fact_id to the facts it rests on, who asserted them, their sources, and the steps that wrote them.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2499,7 +2499,7 @@
     }
   },
   "why_recalled": {
-    "description": "Explain why a past recall returned the facts it did. The recall_id comes from the recall tool's\n            result. Gives the query, each returned fact in rank order with its score, and where it came from.",
+    "description": "Explain why a past recall returned the facts it did. The recall_id comes from the recall tool's\nresult. Gives the query, each returned fact in rank order with its score, and where it came from.",
     "inputSchema": {
       "properties": {
         "agent_id": {
