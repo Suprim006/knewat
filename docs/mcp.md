@@ -142,7 +142,7 @@ holds a label or type the model does not list, it falls back to a full scan.
 
 ## Staleness tools (P7-J, 7 tools; see `docs/staleness.md`)
 
-Registered by `plexus/mcp/staleness_tools.py` (`register_staleness`), so the server now exposes 36 tools. Changing code makes a
+Registered by `plexus/mcp/staleness_tools.py` (`register_staleness`), so the server then exposed 36 tools (41 with the memory tools). Changing code makes a
 memory **suspect**, never false: it stays recallable, and the agent re-checks it. Paths are normalised to the canonical form
 (absolute, `/`, upper-case drive); a relative path is an error. Limits: ids <= 128, paths <= 1024, hashes <= 128, <= 200 changes.
 

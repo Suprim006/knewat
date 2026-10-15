@@ -38,3 +38,20 @@ def test_graph_model_mentions_every_indexed_label_and_property():
         if f"{lab}.{prop}" not in MODEL_MD and not re.search(rf"`{prop}` on \*\*every\*\* label", MODEL_MD)
     ]
     assert not undocumented, f"docs/graph-model.md does not mention these indexes: {undocumented}"
+
+
+# -- P7-11 ----------------------------------------------------------------------------------------------
+def test_docs_mcp_md_tool_counts_match_the_tool_snapshot():
+    import json
+
+    n = len(json.loads((ROOT / "plexus" / "tests" / "mcp" / "snapshots" / "tools.json").read_text("utf-8")))
+    text = (ROOT / "docs" / "mcp.md").read_text(encoding="utf-8")
+    assert f"{n} tools" in text, f"docs/mcp.md never says '{n} tools'"
+    stale = [m for m in re.findall(r"(?:now )?exposes? (\d+) tools", text) if int(m) != n]
+    assert not stale, f"docs/mcp.md says the server exposes {stale} tools; the snapshot has {n}"
+
+
+def test_env_example_lists_the_codescan_client_variables():
+    env = (ROOT / ".env.example").read_text(encoding="utf-8")
+    for name in ("PLEXUS_TENANT", "PLEXUS_URL"):
+        assert name in env, f"{name} is read by plexus.codescan but missing from .env.example"
