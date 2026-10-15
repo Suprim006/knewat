@@ -104,7 +104,10 @@ def anchor_fact(
         ),
     ] = "",
     hash: Annotated[
-        HashStr, Field(description="Optional hash of that code now (stored only if none is stored yet).")
+        HashStr,
+        Field(
+            description="Optional hash of that code now. Stored when none is stored yet; if it differs from the stored hash the fact is marked suspect."
+        ),
     ] = "",
     step: Step = None,
 ) -> Outcome:
@@ -227,7 +230,7 @@ def docs_to_update(
     ts: TenantState,
     m: MeteredClient,
     agent_id: AgentId,
-    since: Annotated[EpochMs, Field(description="Only changes after this time (epoch ms).")] = 0,
+    since: Annotated[EpochMs, Field(description="Only changes at or after this time (epoch ms).")] = 0,
     limit: Annotated[int, Field(ge=1, le=MAX_LIST, description="Max documents to return.")] = 50,
     step: Step = None,
 ) -> Outcome:

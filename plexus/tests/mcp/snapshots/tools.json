@@ -118,7 +118,7 @@
         },
         "hash": {
           "default": "",
-          "description": "Optional hash of that code now (stored only if none is stored yet).",
+          "description": "Optional hash of that code now. Stored when none is stored yet; if it differs from the stored hash the fact is marked suspect.",
           "maxLength": 128,
           "title": "Hash",
           "type": "string"
@@ -780,7 +780,7 @@
         },
         "since": {
           "default": 0,
-          "description": "Only changes after this time (epoch ms).",
+          "description": "Only changes at or after this time (epoch ms).",
           "maximum": 9999999999999,
           "minimum": 0,
           "title": "Since",
