@@ -199,7 +199,7 @@ Full plan: `docs/BASELINE.md`. Statements about the real Claude Code or Hermes p
 **Why.** It is reproducible and free for the public site (D-003: no LLM on the public site). It is honest about what a real model did, because the recording is the real graph. The first full real run cost about $0.70 (16 processes, 83 steps, 0 denials).
 
 ## D-011 — Memory that notices change: suspect → re-verify (staleness)
-2026-10-16 · **proposed** (owner review before P7 build)
+2026-10-16 · **accepted** by the owner (rank only, nothing deleted; file-level + Python function anchors)
 
 **Context.** Plexus only knows what agents tell it. When Claude Code edits code but not the doc or fact that describes
 it, nothing in the graph changes, and recall keeps returning the old fact. Users of today's tools complain about this
@@ -238,7 +238,7 @@ judgement. **Rejected alternatives:**
 - LLM-judged invalidation inside Plexus: breaks D-002 and is inconsistent (Graphiti #1841).
 
 ## D-012 — Activation-based forgetting: rank by use, never delete by decay
-2026-10-16 · **proposed** (owner review before P7 build)
+2026-10-16 · **accepted** by the owner (rank only, nothing deleted; file-level + Python function anchors)
 
 **Context.** The owner asked for human-like forgetting: unused memories fade, surprising ones stay strong. The research
 (`docs/research/forgetting-A-science-and-papers.md`, `forgetting-B-products.md`) found:
