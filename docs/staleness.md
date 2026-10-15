@@ -53,6 +53,8 @@ A fact is **suspect at time t** if `coalesce(verify_state,'verified') = 'suspect
 Canonical paths (`CodeAnchor.path`, doc `Source.uri`): absolute, `/` separators, upper-case drive letter, no `.`/`..`,
 no trailing slash (`C:/repo/app/payments.py`). One helper, `plexus.codescan.paths.canonical_path`, is used by the
 client and the server; it is pure string handling, so a Linux container normalises a Windows path the same way.
+The client resolves symlinks and junctions (`os.path.realpath`) before canonicalising, so a file edited through a linked
+project directory gets the same path as the git hook reports for it; a UNC path keeps its host (`//server/share/a.py`).
 
 ## How a change is detected (`mark_changed`)
 

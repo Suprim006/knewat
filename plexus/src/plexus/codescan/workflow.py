@@ -21,7 +21,7 @@ SKIP_DIRS = (".git/",)
 
 def relpath(repo_root: str, abs_canonical: str) -> str | None:
     """Repo-relative path of a canonical absolute path, or ``None`` when it is outside the repository."""
-    root = canonical_path(repo_root).rstrip("/") + "/"
+    root = absolute_canonical(repo_root).rstrip("/") + "/"  # links resolved, like the file paths (P7-06)
     if abs_canonical.lower().startswith(root.lower()):
         return abs_canonical[len(root) :]
     return None
@@ -53,12 +53,15 @@ def commit_groups(repo: str, ref: str) -> tuple[str, int, list[list[dict[str, An
     commit, at = gitutil.commit_info(root, ref)
     parent = f"{ref}~1" if gitutil.has_parent(root, ref) else None
     groups: list[list[dict[str, Any]]] = []
+    real_root = absolute_canonical(
+        root
+    )  # the repository dir with links resolved; the files are git's own blobs
     for rel in gitutil.changed_paths(root, ref):
         if rel.startswith(SKIP_DIRS):
             continue
         new = gitutil.show_file(root, ref, rel)
         old = gitutil.show_file(root, parent, rel) if parent else None
-        groups.append(file_entries(absolute_canonical(rel, root), new, old))
+        groups.append(file_entries(canonical_path(f"{real_root}/{rel}"), new, old))
     return commit, at, groups
 
 
