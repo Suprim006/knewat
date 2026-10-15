@@ -13,7 +13,7 @@ import importlib
 import importlib.util
 import logging
 import sys
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 from mcp.server.mcpserver import Context, MCPServer
 from pydantic import Field
@@ -200,8 +200,13 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
                 Name, Field(description="'doc', 'web', 'chat', 'note', 'tool'... (free text).")
             ] = "doc",
             trust: Annotated[
-                float, Field(ge=0.0, le=1.0, description="How far this source is trusted, 0..1.")
-            ] = 1.0,
+                Literal["normal", "high"] | Annotated[float, Field(ge=0.0, le=1.0)] | None,
+                Field(
+                    description="'high' for a source you fully trust: facts derived from it are protected from "
+                    "fading in recall. 'normal' (default). A number 0..1 is accepted for older clients and means "
+                    "'normal'; leaving it out keeps the trust an existing source already has."
+                ),
+            ] = None,
             step: Step = None,
         ) -> dict[str, Any]:
             """Register WHERE knowledge comes from (a document, web page, chat or note) and get a source_id.

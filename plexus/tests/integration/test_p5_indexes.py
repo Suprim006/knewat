@@ -29,7 +29,7 @@ def test_q4_knew_at_uses_agent_index(client, graph):
 
 
 def test_q4_create_source_uses_uri_index(client, graph):
-    params = {"source_id": "x", "uri": "u", "kind": "doc", "trust": 0.5, "title": "", "text": "", "now": 1}
+    params = {"source_id": "x", "uri": "u", "kind": "doc", "trust": "", "title": "", "text": "", "now": 1}
     _no_label_scan(client, graph, "lineage/create_source", params, "Source")
 
 

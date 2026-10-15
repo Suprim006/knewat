@@ -202,7 +202,7 @@ def numbers() -> None:
         ("python tests", testing, "**869 passed**", readme, "869 Python tests"),
         ("view tests", testing, "**150 passed**", readme, "150 View tests"),
         ("guard tests", deploy, "(34, no database)", readme, "34 unit tests for the deploy guard"),
-        ("tools driven by real run", testing, "11 distinct tools", readme, "only 11 of the 29 tools"),
+        ("tools driven by real run", testing, "11 distinct tools", readme, "only 11 of the 41 tools"),
         ("recording counts", demo, "| `acme-claude-sonnet` | 16 `claude -p` (sonnet) | 247 | 708 |", readme, "247 nodes, 708 edges"),
         ("blog 36 of 36", baseline, "P answered 36/36" if "P answered 36/36" in baseline else "Plexus answered 36/36", blog, "Plexus scored 36 of 36, SQLite 32, files 30"),
     ]
@@ -225,7 +225,7 @@ def numbers() -> None:
     check(n_cypher == 69, f"plexus/queries has {n_cypher} .cypher files, README says 69")
     check("69 files" in readme, "README does not state 69 query files")
     mcp_tools = len(re.findall(r"^\s*- \*\*(?:Engram|Relay|Lineage)", read("docs/mcp.md"), flags=re.M))
-    check("29 tools" in read("docs/mcp.md") and "29 tools" in readme and mcp_tools == 3, "29 tools claim not in docs/mcp.md and README")
+    check("41 tools" in read("docs/mcp.md") and "41 tools" in readme and mcp_tools == 3, "41 tools claim not in docs/mcp.md and README")
     print("ok    numbers checked against latest-all.json, the recording and the cited docs")
 
 

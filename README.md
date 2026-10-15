@@ -42,7 +42,7 @@ flowchart LR
     end
     subgraph plexus["plexus (Python, no LLM)"]
         MCP["MCP server<br/>stdio or streamable HTTP<br/>tenant bound to the connection"]
-        TOOLS["tool layer: 29 tools<br/>Engram, Relay, Lineage<br/>one parameterised Cypher statement each"]
+        TOOLS["tool layer: 41 tools<br/>Engram, Relay, Lineage, staleness, forgetting<br/>one parameterised Cypher statement each"]
         API["View API<br/>read-only"]
     end
     DB[("FalkorDB 6.0.2<br/>one graph per tenant")]
@@ -307,7 +307,7 @@ with the full L2 and L2-scale runs by `python -m plexus.crucible.combine`), moun
 
 ### Bring your own agent
 
-Any MCP client can connect. The server has 29 tools (`start_session`, `assert_fact`, `recall`, `claim_next_task`,
+Any MCP client can connect. The server has 41 tools (`start_session`, `assert_fact`, `recall`, `claim_next_task`,
 `record_decision`, `why`, `knew_at`, ...; the list is in [`docs/mcp.md`](docs/mcp.md)). Every tool takes an `agent_id`; the
 tenant is part of the connection, never an argument.
 
@@ -377,7 +377,7 @@ docker-compose.yml       FalkorDB 6.0.2, plexus-api, plexus-mcp, plexus-view, pl
 [`docs/TESTING.md`](docs/TESTING.md) has the Definition of Ready for Testing with evidence and a step-by-step manual
 checklist. At the last full run, 869 Python tests and 150 View tests passed (plus 34 unit tests for the deploy guard), and
 `ruff` and the View's lint and typecheck were clean; tests that need a database use their own throw-away graphs. Known gaps
-are listed there too: for example, a real Claude Code run has driven only 11 of the 29 tools (all 29 have an MCP contract
+are listed there too: for example, a real Claude Code run has driven only 11 of the 41 tools (all 41 have an MCP contract
 test), and the L1/L4 benchmark and the LLM arms are separate commands. `python scripts/verify_readme.py` checks that every
 link in this README, the video script and the blog draft resolves and that the quoted numbers still match the results files.
 
