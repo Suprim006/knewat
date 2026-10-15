@@ -79,6 +79,12 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
    advance the stored hashes. Calling again with the same arguments (including the returned `at`) continues with the same
    `Change` (its id is derived from commit, `at` and the new hashes) and skips facts it already marked.
 
+**`anchor_fact` with a stale hash.** If the hash given differs from the (non-empty) hash the server already holds for
+the anchor, the fact was checked against older code: it becomes `suspect` at once (one `Change`, one `SUSPECTED` edge, no
+`TOUCHED`; `staleness/anchor_mismatch`), and the result has `suspect: true` and `change_id`. The other facts on the anchor
+are not touched. (`mark_changed` is not reused: it compares the stored hash with a *new* hash, and here the stored one is
+the current code.)
+
 ## Re-verifying (`verify_fact`)
 
 - `still_true=true`: `verify_state='verified'`, `verified_at=now`, `VERIFIED_BY {outcome:'confirmed'}`. Fine on a fact

@@ -45,6 +45,12 @@ def _change_id(commit: str, t: int, rows: Sequence[dict[str, Any]]) -> str:
     return "chg:" + hashlib.sha1("|".join(parts).encode()).hexdigest()[:16]  # noqa: S324
 
 
+def _anchor_change_id(fact_id: str, anchor: str, given: str, stored: str) -> str:
+    """Deterministic ``Change`` id of an ``anchor_fact`` hash mismatch (repeating the call adds nothing)."""
+    raw = f"anchor|{fact_id}|{anchor}|{given}|{stored}"
+    return "chg:" + hashlib.sha1(raw.encode()).hexdigest()[:16]  # noqa: S324
+
+
 class Staleness:
     """Staleness operations bound to one tenant graph."""
 
@@ -129,13 +135,34 @@ class Staleness:
         """Link a Fact to a file (``symbol=''``) or a Python function / class (``ANCHORED_TO`` a CodeAnchor).
 
         ``path`` is normalised to the canonical form (absolute, ``/``, upper-case drive). ``hash`` is the code
-        hash the fact was verified against; it is stored only when the anchor has none yet. Raises
+        hash the fact was verified against; it is stored only when the anchor has none yet. When the anchor
+        already holds a different hash, the fact was checked against older code: it becomes suspect (a
+        ``Change`` and a ``SUSPECTED`` edge are recorded) and the result has ``suspect: True`` and
+        ``change_id``. Raises
         :class:`LookupError` (nothing written) for an unknown fact, :class:`ValueError` for a bad path / kind.
         """
         out = self._upsert_anchor(path, symbol, hash, kind, repo, fact_id=fact_id, now=now)
         if out is None:
             raise LookupError(f"no fact with id '{fact_id}'")
-        return {"fact_id": fact_id, **out}
+        res: dict[str, Any] = {"fact_id": fact_id, **out}
+        if hash and out["hash"] and out["hash"] != hash:  # P7-13: verified against code that is not current
+            t = self._t(now)
+            cid = _anchor_change_id(fact_id, out["anchor_id"], hash, out["hash"])
+            rows = self.client.rw(
+                self.graph,
+                "staleness/anchor_mismatch",
+                {
+                    "fact_id": fact_id,
+                    "change_id": cid,
+                    "paths": json.dumps([out["path"]]),
+                    "agent_id": "anchor_fact",
+                    "at": t,
+                    "now": t,
+                },
+            )
+            if rows:
+                res.update(suspect=True, change_id=rows[0]["change_id"])
+        return res
 
     def describe_code(
         self,

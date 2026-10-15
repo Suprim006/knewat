@@ -92,3 +92,55 @@ def test_describe_code_unknown_source_raises_and_writes_nothing(stale, mem, clie
     with pytest.raises(LookupError):
         stale.describe_code("nope", P)
     assert _anchors(client, graph) == []
+
+
+# -- P7-13: a hash that differs from the stored one proves the fact was verified against older code -------
+def _state(client, graph, fid):
+    return cypher(
+        client,
+        graph,
+        "MATCH (f:Fact {id:$f}) RETURN coalesce(f.verify_state,'verified'), coalesce(f.suspect_since,0)",
+        f=fid,
+    )[0]
+
+
+def test_anchor_fact_with_an_older_hash_makes_the_fact_suspect(stale, mem, client, graph, clock):
+    f1, f2 = mem.fact("timeout", "30 seconds"), mem.fact("retries", "3")
+    stale.anchor_fact(f1, P, hash="h1")  # the server's hash for the file
+    clock.advance(500)
+    out = stale.anchor_fact(f2, P, hash="h0")  # f2 was checked against h0, an older version
+    assert out["suspect"] is True and out["hash"] == "h1" and out["change_id"]
+    assert _state(client, graph, f2) == ["suspect", 1_000_500]
+    assert _state(client, graph, f1) == ["verified", 0]  # the other fact on the anchor is not touched
+    (row,) = stale.facts_to_verify()
+    assert row["fact_id"] == f2 and row["reason"] == f"changed in working tree ({P})"
+    assert row["change"]["change_id"] == out["change_id"]
+    # the stored hash is still the server's, and no doc is told that code changed
+    assert _anchors(client, graph)[0][4] == "h1"
+    assert cypher(client, graph, "MATCH (:Change)-[:TOUCHED]->(:CodeAnchor) RETURN count(*)") == [[0]]
+
+
+def test_anchor_fact_hash_mismatch_is_idempotent(stale, mem, client, graph, clock):
+    f1, f2 = mem.fact("timeout", "30 seconds"), mem.fact("retries", "3")
+    stale.anchor_fact(f1, P, hash="h1")
+    clock.advance(500)
+    first = stale.anchor_fact(f2, P, hash="h0")
+    clock.advance(500)
+    again = stale.anchor_fact(f2, P, hash="h0")
+    assert again["change_id"] == first["change_id"]
+    assert cypher(client, graph, "MATCH (c:Change) RETURN count(c)") == [[1]]
+    assert _state(client, graph, f2) == ["suspect", 1_000_500]  # the first suspicion time is kept
+
+
+@pytest.mark.parametrize(
+    ("stored", "given"),
+    [("h1", "h1"), ("h1", ""), ("", "h0")],
+    ids=["same hash", "no hash given", "nothing stored yet"],
+)
+def test_anchor_fact_without_a_conflicting_hash_marks_nothing(stale, mem, client, graph, stored, given):
+    f1, f2 = mem.fact("timeout", "30 seconds"), mem.fact("retries", "3")
+    stale.anchor_fact(f1, P, hash=stored)
+    out = stale.anchor_fact(f2, P, hash=given)
+    assert "suspect" not in out
+    assert _state(client, graph, f2) == ["verified", 0]
+    assert cypher(client, graph, "MATCH (c:Change) RETURN count(c)") == [[0]]
