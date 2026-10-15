@@ -165,6 +165,7 @@ Python entry point: `plexus.staleness.Staleness(client, graph, engram=...)`. Cod
 
 FalkorDB 6.0.2 quirks hit in `staleness/*` (kept in the query comments):
 - `staleness/mark_changed`: a `WHERE` attached to an `OPTIONAL MATCH` that follows aggregations evaluated as false for a node that exists (even `WHERE x.uri = x.uri`); the filter is a `CASE` in the next `WITH` instead.
+- `staleness/facts_to_verify` (P7-07): `UNWIND $ids AS fid MATCH (f:Fact {id: fid})-[:ABOUT]->(e)` in ONE pattern is planned as a traverse from every fact with the id as a late filter (O(ids x facts)); `MATCH (f:Fact {id: fid})`, a `WITH f`, then the traversal gives the index seek (`tests/integration/test_p7_plans.py`).
 - `staleness/facts_to_verify`: `WITH collect(..) AS sids` followed by `UNWIND` / `MATCH` returned no rows when the list was empty; the scope test is a pattern predicate `(:Scope {id})-[:INHERITS*0..3]->(sc)` in a `WITH ... WHERE` instead.
 - `staleness/backdate`: `MERGE` before an `OPTIONAL MATCH` is rejected ("A WITH clause is required to introduce MATCH after an updating clause"): reads first, `MERGE` after.
 ## Activation queries (`queries/activation/`, P7-K; D-012, `docs/forgetting.md`)
