@@ -55,6 +55,11 @@ def cypher(client, graph, q: str, **params):
     return client.graph(graph).ro_query(q, params or None).result_set
 
 
+def write(client, graph, q: str, **params):
+    """Ad-hoc write for fixtures (hand-made edges the other P7 agent will create for real)."""
+    return client.graph(graph).query(q, params or None).result_set
+
+
 def reads(client, graph, step_id: str, fact_id: str):
     """``[[via, at]]`` of the READ edge(s) from a step to a fact."""
     return cypher(
