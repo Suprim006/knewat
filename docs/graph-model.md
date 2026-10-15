@@ -1,4 +1,4 @@
-# Plexus graph model v1
+# Plexus graph model v1 (with the v1.1 / v1.2 additions of P1, P2 and P7)
 
 Source of truth: `docs/PLAN.md` §2. The schema is applied by `plexus/queries/schema/*.cypher` through
 `plexus.graph.schema.apply_schema`, and `plexus/tests/test_schema.py` checks the live indexes and constraints
@@ -43,6 +43,10 @@ erDiagram
     Recall }o--o{ Fact : "RETURNED"
     Recall }o--|| Agent : "BY"
     ToolCall }o--o{ Fact : "CREATED / UPDATED (any node)"
+    Fact }o--o{ CodeAnchor : "ANCHORED_TO (P7)"
+    Source }o--o{ CodeAnchor : "DESCRIBES (P7)"
+    Change }o--o{ CodeAnchor : "TOUCHED (P7)"
+    Change }o--o{ Fact : "SUSPECTED (P7)"
 ```
 
 The diagram is a summary (ER cardinalities are indicative). The edge table below is exact.
@@ -56,8 +60,8 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Session` | `id, agent_id, started_at, ended_at` | Engram |
 | `Episode` | `id, role, text, at, step, embedding` | Engram |
 | `Entity` | `id, name, norm_name, kind, embedding` | Engram |
-| `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten, confidence, embedding` | Engram |
-| `Source` | `id, uri, kind, trust, title, text` | Lineage |
+| `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten\|dormant, confidence, embedding`; P7: `verify_state: verified\|suspect, suspect_since, verified_at, verify_after (OPEN), surprise, pinned` | Engram (P7: Staleness, Activation) |
+| `Source` | `id, uri, kind: doc\|tool\|note\|code\|external\|…, trust: normal\|high, title, text`; P7: `content_hash, commit, repo` | Lineage (P7: Staleness) |
 | `Procedure` | `id, name, task_type, steps_json` | Engram |
 | `Run` | `id, at, success, notes` | Engram |
 | `Task` | `id, title, status: open\|claimed\|done\|failed, priority, lease_until, claimed_by, version, done_at` | Relay |
@@ -67,6 +71,8 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Step` | `id, n, at, agent_id` | Lineage |
 | `ToolCall` | `id, tool, at, agent_id, query_name, run_time_ms, wrote` | audit (feeds the View) |
 | `Recall` | `id, at, query, scope_id, agent_id, k` | lineage (record behind `why_recalled`) |
+| `CodeAnchor` | `id` (`anc:` + sha1(path#symbol)[:16]), `repo, path` (canonical), `symbol` (`''` = whole file), `hash, kind: file\|function\|class, updated_at` | Staleness (P7) |
+| `Change` | `id` (`chg:` + sha1(commit, at, hashes)[:16]), `commit, at, paths` (JSON list), `agent_id` | Staleness (P7) |
 
 ## Edges
 
@@ -95,12 +101,17 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Relay | `(Artifact)-[:PRODUCED_BY]->(Agent)` | |
 | Relay | `(Artifact)-[:VERIFIED_BY]->(Agent)` | |
 | Lineage | `(Step)-[:BY]->(Agent)` | |
-| Lineage | `(Step)-[:READ]->(Fact)` | |
+| Lineage | `(Step)-[:READ]->(Fact)` | P7: `via: recall\|use, at` |
 | Lineage | `(Step)-[:WROTE]->(Fact\|Decision\|Handoff\|Task)` | |
 | Lineage | `(Step)-[:NEXT]->(Step)` | |
 | audit | `(ToolCall)-[:IN_STEP]->(Step)` | |
 | audit | `(ToolCall)-[:CREATED\|UPDATED]->(any)` | |
 | lineage | `(Recall)-[:RETURNED {rank, score}]->(Fact)`, `(Recall)-[:BY]->(Agent)`, `(Recall)-[:IN_STEP]->(Step)` | |
+| Staleness (P7) | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` | `at` |
+| Staleness (P7) | `(Source)-[:DESCRIBES]->(CodeAnchor)` | `at` |
+| Staleness (P7) | `(Change)-[:TOUCHED]->(CodeAnchor\|Source)` | |
+| Staleness (P7) | `(Change)-[:SUSPECTED]->(Fact)` | `at` |
+| Staleness (P7) | `(Fact)-[:VERIFIED_BY]->(Agent)` | `at, commit, outcome: confirmed\|changed, evidence` |
 
 ## Indexes and constraints
 
@@ -108,13 +119,16 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 
 | Kind | Label.property | Why |
 |---|---|---|
-| Range | `id` on **every** label (16, including `Recall`) | entry point of every query; the UNIQUE constraints need it |
+| Range | `id` on **every** label (18, including `Recall`, `CodeAnchor`, `Change`) | entry point of every query; the UNIQUE constraints need it |
 | Range | `Fact.subject_id`, `Fact.predicate`, `Fact.valid_to`, `Fact.status` | four separate single-property indexes (FalkorDB range indexes here are not composite): `predicate` / `valid_to` / `status` serve the as-of and active-only filters; the current-fact lookup of `assert_fact` starts at the Entity and uses them as filters |
 | Range | `Task.status` | ready-task scans for `claim_next_task` |
 | Range | `Step.n`, `Step.agent_id` | time-machine (step N); the agent's latest step and `knew_at` |
 | Range | `ToolCall.at` | flow feed ordering |
 | Range | `Entity.norm_name` | entity MERGE key |
-| Range | `created_at` on **every** label (16) | `view/subgraph`: the Explorer's label / time-window filter is one index range seek per label instead of an All Node Scan |
+| Range | `created_at` on **every** label (18) | `view/subgraph`: the Explorer's label / time-window filter is one index range seek per label instead of an All Node Scan |
+| Range | `CodeAnchor.path`, `Change.at` | P7: the file-level symbol lookup of `anchor_fact`, and the change feed of `docs_to_update` |
+| Range | `Fact.verify_state`, `Fact.verify_after` | P7: the suspect scan (`staleness/suspect_ids`): an equality branch and a review-date range branch instead of one OR |
+| Range | `Fact.pinned` | P7: the pinned count of `view/inventory_memory` |
 | Range | `Source.uri`, `Scope.name`, `Procedure.task_type` | MERGE keys of `create_source`, `create_scope` (with `kind`) and `log_procedure_run` (with `name`); `best_procedure` filter |
 | Full-text | `Entity.name`, `Fact.value`, `Episode.text` | keyword entity resolution and recall |
 | Vector (384-d, cosine) | `Entity.embedding`, `Fact.embedding`, `Episode.embedding` | semantic seeds for recall |
@@ -134,7 +148,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 - **Graph naming.** One graph per tenant: `plexus_t_<tenant>` with `^[a-z0-9_]{1,48}$`
   (`plexus.graph.tenancy.graph_name`). Tests use `test_<uuid hex>` and delete the graph in teardown.
   Agents never pass a graph name; the tenant is bound per connection.
-- **Statuses** are lowercase strings: `Fact.status` ∈ `active|superseded|quarantined|forgotten`,
+- **Statuses** are lowercase strings: `Fact.status` ∈ `active|superseded|quarantined|forgotten|dormant`,
   `Task.status` ∈ `open|claimed|done|failed`.
 - **Bounded writes.** One statement per operation, `UNWIND` sizes bounded by the caller. `LIMIT` does not stop
   eager writes (`CREATE/SET/MERGE/DELETE`).
@@ -168,3 +182,30 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | `VERIFIED_BY` edge | `independent` | self-verification is allowed but marked |
 | `(Artifact)-[:FOR]->(Task)` | new edge (the `task_id` property is kept) | the artifact links to its task in the graph |
 | Step attachment | a separate `link_step` statement right after the write | Lineage decision: atomicity of a provenance edge vs. editing every Engram/Relay query (see `docs/queries.md`) |
+
+## Additions during P7 (graph model v1.3): staleness and activation forgetting
+
+All additive: data written before P7 lacks these properties, and every query reads them with `coalesce` (absent =
+the default). The names are fixed by the shared contract of the two P7 builds; the reasoning is in `docs/DECISIONS.md`
+D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/staleness.md` and `docs/forgetting.md`.
+
+| Where | Addition | Default when absent | Why |
+|---|---|---|---|
+| `Fact` | `verify_state` `'verified'\|'suspect'` | `'verified'` | a code change makes a fact *suspect*, never false; an agent re-checks it |
+| `Fact` | `suspect_since` (epoch ms) | `0` | when it became suspect; orders the work list |
+| `Fact` | `verified_at` (epoch ms) | `0` | last `verify_fact` |
+| `Fact` | `verify_after` (epoch ms) | `OPEN` | a review date for facts that are not about code; once passed the fact is suspect too |
+| `Fact` | `surprise` (float 0..1) | `0.0` | set once at write from the novelty of the fact; raises its starting activation |
+| `Fact` | `pinned` (bool) | `false` | the owner says it must stay prominent; protects it from fading and from sweeps |
+| `Fact` | `status = 'dormant'`, `prior_status`, `dormant_at` | n/a | an optional, reversible sweep hides faint, unprotected facts from recall; `restore_fact` puts `prior_status` back. Nothing is deleted |
+| `Source` | `kind` also `code`, `doc`, `external` | | what the Source is |
+| `Source` | `content_hash`, `commit`, `repo` | `''` | hash of the file the `uri` names and the commit that last reported it (`mark_changed`) |
+| `Source` | `trust` is the **string** `'normal'` or `'high'` | `'normal'` | `'high'` protects the facts derived from it. Data written before P7 holds a float (1.0); any float reads as `'normal'` |
+| `READ` edge | `via` `'recall'\|'use'`, `at` | `'recall'`; the Step's `at` | being *shown* a fact is weighed less than *using* it (weights 0.3 vs 1) |
+| `VERIFIED_BY` edge | `outcome`, `commit`, `evidence` (on Fact→Agent edges) | | the audit of a re-check; it counts as a weight-2 activation event |
+| `CodeAnchor`, `Change` | nodes (tables above) | | the code a fact is about, and the code change that made facts suspect |
+| `ANCHORED_TO`, `DESCRIBES`, `TOUCHED`, `SUSPECTED` | edges (table above) | | fact→code, doc→code, change→code/doc, change→fact |
+
+A fact is **suspect at time t** if `coalesce(verify_state,'verified') = 'suspect'` OR `coalesce(verify_after, OPEN) <= t`.
+Canonical paths (`CodeAnchor.path`, doc `Source.uri`) are absolute, `/`-separated, with an upper-case drive letter and no
+trailing slash.

@@ -10,6 +10,7 @@ import asyncio
 import importlib
 import json
 import logging
+import math
 import os
 import threading
 import time
@@ -25,15 +26,25 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from redis.exceptions import RedisError, ResponseError
 from starlette.background import BackgroundTask
 
+from plexus.activation import Activation, Settings
 from plexus.api import models as M
 from plexus.graph.client import GraphClient, Rows
 from plexus.graph.queries import QueryLibrary, UnknownQuery
 from plexus.graph.tenancy import TENANT_PREFIX, graph_name
+from plexus.staleness import Staleness
 
 log = logging.getLogger("plexus.api")
 
 OPEN = 9_999_999_999_999
 DEFAULT_ORIGINS = "http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173"
+# What a Fact node reports when it has no such property (written before P7); the contract's defaults.
+FACT_DEFAULTS: dict[str, Any] = {
+    "verify_state": "verified",
+    "suspect_since": 0,
+    "verify_after": OPEN,
+    "surprise": 0.0,
+    "pinned": False,
+}
 GRAPH_LIMIT_DEFAULT = 500
 GRAPH_LIMIT_MAX = 2000
 FLOW_LIMIT_MAX = 1000
@@ -45,18 +56,20 @@ MAX_STREAMS = 20  # concurrent /stream connections (env PLEXUS_API_MAX_STREAMS);
 FLOW_CACHE_TTL_S = 0.15  # subscribers polling within this window share one view/flow read
 FLOW_CACHE_MAX = 256
 MAX_ID = 128
+VERIFY_LIMIT_MAX = 200  # = plexus.staleness.service.MAX_LIST
 INVENTORY_KEY_SAMPLE = 200  # nodes sampled PER LABEL for the property-key inventory
 # The graph model's node labels and edge types (docs/graph-model.md). view/inventory_nodes|edges|keys count each of
 # them in O(1); a test keeps these lists, the queries and the model in sync, and the inventory endpoint falls back
 # to the full scans if the graph holds a label or type that is not listed.
 INVENTORY_LABELS = (
-    "Agent Artifact Decision Entity Episode Fact Handoff Procedure Recall Run Scope Session Source Step Task ToolCall"
+    "Agent Artifact Change CodeAnchor Decision Entity Episode Fact Handoff Procedure Recall Run Scope Session Source Step "
+    "Task ToolCall"
 ).split()
 INVENTORY_EDGE_TYPES = sorted(
     (
-        "ABOUT ASSERTED_BY BASED_ON BY CARRIES CLAIMED CONTRADICTS CREATED DECIDED DEPENDS_ON DERIVED_FROM DUPLICATES "
-        "FOR FROM HAD HAS_EPISODE IN_SCOPE IN_STEP INHERITS NEXT PRODUCED_BY READ RETURNED SUPERSEDES TO UPDATED "
-        "USED_IN VERIFIED_BY WROTE"
+        "ABOUT ANCHORED_TO ASSERTED_BY BASED_ON BY CARRIES CLAIMED CONTRADICTS CREATED DECIDED DEPENDS_ON DERIVED_FROM "
+        "DESCRIBES DUPLICATES FOR FROM HAD HAS_EPISODE IN_SCOPE IN_STEP INHERITS NEXT PRODUCED_BY READ RETURNED "
+        "SUPERSEDES SUSPECTED TO TOUCHED UPDATED USED_IN VERIFIED_BY WROTE"
     ).split()
 )
 
@@ -121,6 +134,14 @@ def _clean(props: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in props.items() if v is not None}
 
 
+def _activation_props(fa: Any) -> dict[str, Any]:
+    """The View-facing activation fields of a ``FactActivation`` (``activation`` is omitted when it is -inf)."""
+    out: dict[str, Any] = {"protected": bool(fa.protected)}
+    if math.isfinite(fa.activation):
+        out["activation"] = float(fa.activation)
+    return out
+
+
 def _event(row: dict[str, Any]) -> M.ToolCallEvent:
     step = row["step"]
     return M.ToolCallEvent(
@@ -164,18 +185,36 @@ def create_app(
         except ValueError:
             raise HTTPException(404, f"unknown tenant '{tenant}'") from None
 
-    def run(tenant: str, query: str, params: dict | None = None) -> Rows:
-        g = graph_of(tenant)
+    def guarded(tenant: str, what: str, fn: Callable[[], Any]) -> Any:
+        """Run a database read, mapping the failures to HTTP errors (404 unknown tenant, 502, 503)."""
         try:
-            return ro_client.ro(g, query, params)
+            return fn()
         except ResponseError as exc:
             if "empty key" in str(exc).lower() or "not exist" in str(exc).lower():
                 raise HTTPException(404, f"unknown tenant '{tenant}'") from None
-            log.exception("query %s failed", query)
+            log.exception("%s failed", what)
             raise HTTPException(502, "the graph database rejected the query") from None
         except (RedisError, OSError):
             log.exception("database unreachable")
             raise HTTPException(503, "graph database unavailable") from None
+
+    def run(tenant: str, query: str, params: dict | None = None) -> Rows:
+        g = graph_of(tenant)
+        return guarded(tenant, f"query {query}", lambda: ro_client.ro(g, query, params))
+
+    def activations(tenant: str, fact_ids: list[str]) -> dict[str, Any]:
+        """Activation + protection of these facts (200 ids per query); ``{}`` when forgetting is off.
+
+        A failure of this optional overlay is logged and the fields are left out: the graph itself is still served.
+        """
+        settings = Settings.from_env()
+        if not settings.forgetting or not fact_ids:
+            return {}
+        try:
+            return Activation(ro_client, graph_of(tenant), settings).compute(fact_ids)  # type: ignore[arg-type]
+        except (ResponseError, RedisError, OSError):
+            log.exception("activation overlay failed")
+            return {}
 
     def run_flow(tenant: str, after: int) -> list[M.ToolCallEvent]:
         return [_event(r) for r in run(tenant, "view/flow", {"after": after, "limit": FLOW_LIMIT_MAX})]
@@ -260,6 +299,7 @@ def create_app(
         sample = {"sample": INVENTORY_KEY_SAMPLE}
         keys = {r["label"]: sorted(r["keys"]) for r in run(tenant, "view/inventory_keys", sample)}
         idx = run(tenant, "view/indexes")
+        mem = run(tenant, "view/inventory_memory", {"now": int(time.time() * 1000)})[0]
         return M.InventoryResponse(
             tenant=tenant,
             nodes_total=sum(r["n"] for r in nodes),
@@ -278,6 +318,11 @@ def create_app(
                 )
                 for r in idx
             ],
+            suspect_facts=mem["suspect_facts"],
+            dormant_facts=mem["dormant_facts"],
+            pinned_facts=mem["pinned_facts"],
+            changes=mem["changes"],
+            code_anchors=mem["code_anchors"],
         )
 
     # ------------------------------------------------------------------ graph explorer
@@ -297,8 +342,18 @@ def create_app(
         truncated = len(raw_nodes) > limit
         raw_nodes = raw_nodes[:limit]
         ids = {n["id"] for n in raw_nodes}
+        act = activations(tenant, [n["id"] for n in raw_nodes if n["label"] == "Fact"])
+        nodes = []
+        for n in raw_nodes:
+            props = _clean(n["props"])
+            if n["label"] == "Fact":  # facts written before P7 lack these properties: report the defaults
+                for k, v in FACT_DEFAULTS.items():
+                    props.setdefault(k, v)
+                if n["id"] in act:
+                    props.update(_activation_props(act[n["id"]]))
+            nodes.append(M.GraphNode(id=n["id"], label=n["label"], props=props))
         return M.GraphResponse(
-            nodes=[M.GraphNode(id=n["id"], label=n["label"], props=_clean(n["props"])) for n in raw_nodes],
+            nodes=nodes,
             edges=[
                 M.GraphEdge(**e) for e in (row["edges"] or []) if e["source"] in ids and e["target"] in ids
             ],
@@ -392,7 +447,14 @@ def create_app(
         except (RedisError, OSError):
             log.exception("database unreachable")
             raise HTTPException(503, "graph database unavailable") from None
-        return model(id=ident, result=json.loads(json.dumps(result, default=str)))
+        data = json.loads(json.dumps(result, default=str))
+        # Fact nodes in the explanation carry the same activation fields as the explorer's nodes
+        nodes = data.get("nodes") or []
+        act = activations(tenant, [n["id"] for n in nodes if n.get("label") == "Fact"])
+        for n in nodes:
+            if n.get("label") == "Fact" and n["id"] in act:
+                n.setdefault("props", {}).update(_activation_props(act[n["id"]]))
+        return model(id=ident, result=data)
 
     @app.get("/api/{tenant}/step/{n}", response_model=M.StepResponse)
     def step(tenant: str, n: int = PathParam(ge=0, le=OPEN)):
@@ -442,6 +504,46 @@ def create_app(
     def recall_record(tenant: str, recall_id: str = PathParam(min_length=1, max_length=MAX_ID)):
         """``Lineage.why_recalled`` for a recall id (the recall tool returns it as ``recall_id``)."""
         return explain(tenant, "why_recalled", recall_id, M.RecallResponse, recall_id)
+
+    # ------------------------------------------------------------------ staleness and forgetting (P7)
+    @app.get("/api/{tenant}/verify-queue", response_model=M.VerifyQueueResponse)
+    def verify_queue(
+        tenant: str,
+        scope_id: str = Query(
+            "", max_length=MAX_ID, description="Limit to this scope and the scopes it inherits."
+        ),
+        limit: int = Query(50, ge=1, le=VERIFY_LIMIT_MAX),
+    ):
+        """``Staleness.facts_to_verify`` plus each fact's activation: what an agent should re-check next."""
+        stale = Staleness(ro_client, graph_of(tenant))  # type: ignore[arg-type]
+        rows = guarded(tenant, "facts_to_verify", lambda: stale.facts_to_verify(scope_id, limit))
+        act = activations(tenant, [r["fact_id"] for r in rows])
+        out = []
+        for r in rows:
+            extra = _activation_props(act[r["fact_id"]]) if r["fact_id"] in act else {}
+            out.append(M.VerifyRow(**{**r, **extra}))
+        return M.VerifyQueueResponse(rows=out)
+
+    @app.get("/api/{tenant}/docs-to-update", response_model=M.DocsToUpdateResponse)
+    def docs_to_update(
+        tenant: str,
+        since: int = Query(0, ge=0, le=OPEN, description="Only changes with at >= since (epoch ms)."),
+        limit: int = Query(50, ge=1, le=VERIFY_LIMIT_MAX),
+    ):
+        """``Staleness.docs_to_update``: docs that describe code which changed after the doc was last edited."""
+        stale = Staleness(ro_client, graph_of(tenant))  # type: ignore[arg-type]
+        rows = guarded(tenant, "docs_to_update", lambda: stale.docs_to_update(since, limit))
+        return M.DocsToUpdateResponse(docs=[M.DocRow(**r) for r in rows])
+
+    @app.get("/api/{tenant}/memory-strength/{fact_id}", response_model=M.MemoryStrengthResponse)
+    def memory_strength(tenant: str, fact_id: str = PathParam(min_length=1, max_length=MAX_ID)):
+        """``Activation.strength``: activation, protection and a one-line explanation. Never counts as a use."""
+        settings = Settings.from_env()
+        act = Activation(ro_client, graph_of(tenant), settings)  # type: ignore[arg-type]
+        s = guarded(tenant, "memory_strength", lambda: act.strength(fact_id))
+        if s is None:
+            raise HTTPException(404, f"unknown fact id: {fact_id}")
+        return M.MemoryStrengthResponse(**s, forgetting=settings.forgetting)
 
     return app
 

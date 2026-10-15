@@ -19,6 +19,8 @@ export const LABEL_COLORS: Record<string, string> = {
   Step: '#7c8798',
   ToolCall: '#b0b6c0',
   Recall: '#2dd4a0',
+  Change: '#e0672b',
+  CodeAnchor: '#6b8e23',
 };
 export const FALLBACK_COLOR = '#999999';
 export const labelColor = (label: string): string => LABEL_COLORS[label] ?? FALLBACK_COLOR;
@@ -41,8 +43,10 @@ export const LABEL_MODULES: Record<string, string> = {
   Step: 'Lineage',
   Recall: 'Lineage',
   ToolCall: 'Audit',
+  Change: 'Staleness',
+  CodeAnchor: 'Staleness',
 };
-export const MODULE_ORDER = ['Shared', 'Engram', 'Relay', 'Lineage', 'Audit'];
+export const MODULE_ORDER = ['Shared', 'Engram', 'Relay', 'Lineage', 'Staleness', 'Audit'];
 
 /** One colour per module, for the Explorer's "colour by module" mode (Engram, Relay, Lineage, audit). */
 export const MODULE_COLORS: Record<string, string> = {
@@ -50,6 +54,7 @@ export const MODULE_COLORS: Record<string, string> = {
   Engram: '#4363d8',
   Relay: '#f58231',
   Lineage: '#3cb44b',
+  Staleness: '#e0672b',
   Audit: '#9aa3b2',
 };
 export type ColorMode = 'label' | 'module';
@@ -97,6 +102,10 @@ export function displayName(label: string, p: Props): string {
       return str(p.tool) || 'ToolCall';
     case 'Recall':
       return trunc(str(p.query));
+    case 'Change':
+      return `change ${str(p.commit).slice(0, 7) || 'working tree'}`;
+    case 'CodeAnchor':
+      return str(p.symbol) ? `${basename(str(p.path))}#${str(p.symbol)}` : basename(str(p.path)) || label;
     case 'Run':
       return trunc(str(p.notes)) || 'run';
     case 'Session':
@@ -116,6 +125,10 @@ const TIME_KEYS = new Set([
   'ended_at',
   'done_at',
   'lease_until',
+  'suspect_since',
+  'verified_at',
+  'verify_after',
+  'updated_at',
 ]);
 
 /** Format a property for display: epoch-ms fields as ISO timestamps, the OPEN sentinel as "open". */

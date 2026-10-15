@@ -47,13 +47,26 @@ class InventoryResponse(BaseModel):
     labels: list[LabelInventory]
     edge_types: list[EdgeInventory]
     indexes: list[IndexInfo]
+    suspect_facts: int = Field(
+        default=0,
+        description="Active facts that are suspect now: verify_state = 'suspect' or a review date that has passed.",
+    )
+    dormant_facts: int = Field(default=0, description="Facts a memory_sweep moved to status 'dormant'.")
+    pinned_facts: int = Field(default=0, description="Facts pinned with pin_fact.")
+    changes: int = Field(default=0, description="Change nodes (code changes reported to mark_changed).")
+    code_anchors: int = Field(
+        default=0, description="CodeAnchor nodes (files and Python symbols facts are anchored to)."
+    )
 
 
 class GraphNode(BaseModel):
     id: str
     label: str
     props: dict[str, PropValue] = Field(
-        description="Whitelisted display properties; nulls dropped; embeddings never sent."
+        description="Whitelisted display properties; nulls dropped; embeddings never sent. Fact nodes always carry "
+        "verify_state ('verified' | 'suspect'), suspect_since (epoch ms, 0 = never), surprise (0..1), pinned and status "
+        "(active | superseded | dormant | forgotten | quarantined), with defaults for facts written before P7; and, "
+        "unless PLEXUS_FORGETTING=off, activation (float, omitted when -inf) and protected (bool)."
     )
 
 
@@ -229,6 +242,95 @@ class RecallResponse(BaseModel):
     result: WhyRecalledResult
 
 
+class VerifyChange(BaseModel):
+    change_id: str
+    commit: str
+    at: int
+    paths: list[str]
+
+
+class VerifyRow(BaseModel):
+    """A fact to re-check (``Staleness.facts_to_verify``), with its activation when forgetting is on."""
+
+    fact_id: str
+    entity: str
+    predicate: str
+    value: str
+    scope_id: str
+    verify_state: str = Field(
+        description="'suspect' (code changed) or 'verified' (only a review date passed)."
+    )
+    suspect_since: int
+    verify_after: int
+    reason: str
+    decisions_count: int = Field(description="Decisions (not flagged) that rest on the fact.")
+    anchors: list[str] = Field(
+        description="path#symbol of the anchors, then the uris of the Sources it derives from."
+    )
+    change: VerifyChange | None = None
+    activation: float | None = Field(
+        default=None, description="Absent (null) when forgetting is off or the fact has no usable events."
+    )
+    protected: bool | None = Field(default=None, description="Absent (null) when forgetting is off.")
+
+
+class VerifyQueueResponse(BaseModel):
+    rows: list[VerifyRow] = Field(
+        description="Ordered by decisions_count DESC, activation DESC, suspect_since ASC (activation only when forgetting is on)."
+    )
+
+
+class DocChange(BaseModel):
+    change_id: str
+    commit: str
+    at: int
+    paths: list[str]
+    anchor: str
+
+
+class DocRow(BaseModel):
+    source_id: str
+    uri: str
+    title: str
+    latest: int
+    changes: list[DocChange]
+
+
+class DocsToUpdateResponse(BaseModel):
+    docs: list[DocRow]
+
+
+class MemoryStrengthResponse(BaseModel):
+    """``Activation.strength``: why a fact ranks where it does. Reading it does not count as a use."""
+
+    fact_id: str
+    status: str
+    activation: float | None = Field(description="null when the fact has no usable events (A = -inf).")
+    a0: float = Field(
+        description="The neutral activation: the multiplier is half way between floor and 1 there."
+    )
+    multiplier: float
+    floor: float
+    decay: float
+    protected: bool
+    protect_reasons: list[str]
+    pinned: bool
+    surprise: float
+    created_at: int
+    verify_state: str
+    suspect_since: int
+    counts: dict[str, int] = Field(
+        description="Events considered, by kind (create, reassert, decision, handoff, use, recall, verified)."
+    )
+    events_considered: int
+    last_use: int | None = None
+    last_recall: int | None = None
+    explanation: str
+    forgetting: bool = Field(
+        description="False when PLEXUS_FORGETTING=off: recall ignores activation (this is still computed)."
+    )
+
+
 class QueryText(BaseModel):
     name: str
     mode: str
@@ -252,6 +354,9 @@ EXPORTED = (
     StepResponse,
     WhyResponse,
     RecallResponse,
+    VerifyQueueResponse,
+    DocsToUpdateResponse,
+    MemoryStrengthResponse,
     QueryText,
     ErrorBody,
 )

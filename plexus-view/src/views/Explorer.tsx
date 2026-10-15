@@ -6,11 +6,14 @@ import { FilterPanel } from '../components/FilterPanel';
 import { GraphCanvas } from '../components/GraphCanvas';
 import { NodePanel } from '../components/NodePanel';
 import { AblationPanel } from '../components/AblationPanel';
+import { MemoryLegend } from '../components/MemoryLegend';
 import { ABLATED_EDGE_TYPES, effectiveHiddenEdges } from '../lib/ablation';
 import { formatClock } from '../lib/flow';
 import { DEFAULT_HIDDEN_EDGE_TYPES, DEFAULT_HIDDEN_LABELS, MODULE_COLORS, labelColor } from '../lib/labels';
 import type { ColorMode } from '../lib/labels';
 import type { Counts, GraphController } from '../lib/graphController';
+import { EMPTY_MEMORY_COUNTS } from '../lib/memory';
+import type { MemoryCounts } from '../lib/memory';
 
 const GRAPH_LIMIT = 2000;
 const REPLAY_EVENTS = 24;
@@ -21,8 +24,9 @@ interface Stats {
   counts: Counts;
   labels: Record<string, number>;
   edges: Record<string, number>;
+  memory: MemoryCounts;
 }
-const EMPTY_STATS: Stats = { counts: EMPTY_COUNTS, labels: {}, edges: {} };
+const EMPTY_STATS: Stats = { counts: EMPTY_COUNTS, labels: {}, edges: {}, memory: EMPTY_MEMORY_COUNTS };
 
 export function Explorer() {
   const api = useApi();
@@ -67,7 +71,12 @@ export function Explorer() {
   const fixtureMode = ready && api.streamUrl(tenant) === null;
 
   const refresh = useCallback((c: GraphController) => {
-    setStats({ counts: c.counts(), labels: c.labelCounts(), edges: c.edgeTypeCounts() });
+    setStats({
+      counts: c.counts(),
+      labels: c.labelCounts(),
+      edges: c.edgeTypeCounts(),
+      memory: c.memoryCounts(),
+    });
     setResults(c.setSearch(queryRef.current));
     setRev((r) => r + 1);
   }, []);
@@ -82,6 +91,7 @@ export function Explorer() {
         if (!live) return;
         ctl.setFilters(filtersRef.current);
         ctl.load(g.nodes, g.edges);
+        ctl.setActivationCenter(g.a0 ?? null);
         ctl.setColorMode(colorRef.current);
         setBounds(ctl.timeBounds());
         setRange(null);
@@ -99,6 +109,23 @@ export function Explorer() {
       live = false;
     };
   }, [api, ctl, tenant, refresh]);
+
+  /* P7: the verify queue's reasons (commit and path) for the suspect tooltips; optional, never blocks the graph */
+  useEffect(() => {
+    if (!ctl || !tenant || !ready) return;
+    let live = true;
+    api
+      .verifyQueue(tenant, { limit: 200 })
+      .then((q) => {
+        if (!live) return;
+        ctl.setSuspectReasons(new Map(q.rows.map((r) => [r.fact_id, r.reason])));
+        refresh(ctl);
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [api, ctl, tenant, ready, refresh]);
 
   /* selection highlight lives in Cytoscape */
   useEffect(() => {
@@ -138,6 +165,7 @@ export function Explorer() {
         if (liveRead.current !== state) return; // tenant or controller changed while reading
         ctl.addLive(g.nodes, g.edges);
         ctl.updateProps(g.nodes);
+        if (g.a0 !== undefined) ctl.setActivationCenter(g.a0);
         setLiveError(null);
         refresh(ctl);
       };
@@ -381,6 +409,7 @@ export function Explorer() {
           </label>
           {ablation && <AblationPanel counts={stats.edges} />}
         </section>
+        <MemoryLegend counts={stats.memory} />
         <FilterPanel
           labelCounts={stats.labels}
           edgeCounts={stats.edges}

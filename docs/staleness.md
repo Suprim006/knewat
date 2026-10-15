@@ -19,8 +19,8 @@ Changing code never makes a fact false, it makes it *suspect*; nothing is delete
 
 ## Graph model v1.1 additions (J)
 
-(The names are fixed by `.plexus-agents/specs/P7-contract.md`; this section documents them until they are merged into
-`docs/graph-model.md`.)
+(The names are fixed by the shared P7 contract. They are folded into `docs/graph-model.md` too, which is the single
+source the consistency test reads.)
 
 | On | Property | Meaning |
 |---|---|---|

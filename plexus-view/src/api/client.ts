@@ -1,11 +1,14 @@
 import type {
+  DocsToUpdate,
   FlowResponse,
   GraphQuery,
   Inventory,
+  MemoryStrength,
   QueryText,
   Results,
   Subgraph,
   TenantList,
+  VerifyQueue,
   ViewApi,
   StepResponse,
   WhyResponse,
@@ -65,6 +68,11 @@ export function createHttpApi(
     flow: (t, after, limit) => get<FlowResponse>(`/api/${seg(t)}/flow`, { after, limit }),
     step: (t, n) => get<StepResponse>(`/api/${seg(t)}/step/${n}`),
     why: (t, id) => get<WhyResponse>(`/api/${seg(t)}/why/${seg(id)}`),
+    verifyQueue: (t, q) =>
+      get<VerifyQueue>(`/api/${seg(t)}/verify-queue`, { scope_id: q?.scopeId, limit: q?.limit }),
+    docsToUpdate: (t, q) =>
+      get<DocsToUpdate>(`/api/${seg(t)}/docs-to-update`, { since: q?.since, limit: q?.limit }),
+    memoryStrength: (t, id) => get<MemoryStrength>(`/api/${seg(t)}/memory-strength/${seg(id)}`),
     queryText: (name) => get<QueryText>(`/api/queries/${name.split('/').map(seg).join('/')}`),
     results: () => get<Results>('/api/results'),
     streamUrl: (t) => buildUrl(base, `/api/${seg(t)}/stream`),

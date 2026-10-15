@@ -21,7 +21,8 @@ def build_schema() -> dict:
         "/api/{tenant}/inventory -> InventoryResponse; /api/{tenant}/graph -> GraphResponse; "
         "/api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); "
         "/api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/{tenant}/recall/{id} -> RecallResponse; "
-        "/api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody."
+        "/api/{tenant}/verify-queue -> VerifyQueueResponse; /api/{tenant}/docs-to-update -> DocsToUpdateResponse; "
+        "/api/{tenant}/memory-strength/{fact_id} -> MemoryStrengthResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody."
     )
     return defs
 

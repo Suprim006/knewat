@@ -63,8 +63,6 @@ def test_every_label_has_a_branch_and_a_created_at_index():
     idx = (QUERIES / "schema" / "indexes.cypher").read_text(encoding="utf-8")
     id_labels = set(re.findall(r"CREATE INDEX FOR \(n:(\w+)\) ON \(n\.id\)", idx))
     created_labels = set(re.findall(r"CREATE INDEX FOR \(n:(\w+)\) ON \(n\.created_at\)", idx))
-    # P7-J labels (graph model v1.1) have id indexes but are not in the View inventory yet
-    id_labels -= {"CodeAnchor", "Change"}
     assert branches == created_labels == id_labels == set(INVENTORY_LABELS)
 
 

@@ -7,7 +7,7 @@
 // Index use (P5-int, Q5): one branch per label, each an index range seek on that label's created_at index (schema/indexes).
 // An unlabeled `MATCH (n) WHERE n.created_at ...` is an All Node Scan of the whole graph whatever the filters are. A branch whose
 // label is not wanted is gated by the UNWIND CASE (zero rows, so its index is never read). Each branch keeps its own newest $limit,
-// and the outer step keeps the newest $limit of those, so the result equals the old single scan (ties broken by id). The 16 labels
+// and the outer step keeps the newest $limit of those, so the result equals the old single scan (ties broken by id). The 18 labels
 // are the graph model's labels: tests/api/test_subgraph_plan.py fails if a label gets an `id` index but no branch here.
 CALL {
   UNWIND CASE WHEN size($labels) = 0 OR 'Agent' IN $labels THEN [1] ELSE [] END AS wAgent
@@ -17,6 +17,16 @@ CALL {
   UNION ALL
   UNWIND CASE WHEN size($labels) = 0 OR 'Artifact' IN $labels THEN [1] ELSE [] END AS wArtifact
   MATCH (n:Artifact) WHERE n.created_at >= $since AND n.created_at <= $until
+  WITH n ORDER BY n.created_at DESC, n.id LIMIT $limit
+  RETURN n
+  UNION ALL
+  UNWIND CASE WHEN size($labels) = 0 OR 'Change' IN $labels THEN [1] ELSE [] END AS wChange
+  MATCH (n:Change) WHERE n.created_at >= $since AND n.created_at <= $until
+  WITH n ORDER BY n.created_at DESC, n.id LIMIT $limit
+  RETURN n
+  UNION ALL
+  UNWIND CASE WHEN size($labels) = 0 OR 'CodeAnchor' IN $labels THEN [1] ELSE [] END AS wCodeAnchor
+  MATCH (n:CodeAnchor) WHERE n.created_at >= $since AND n.created_at <= $until
   WITH n ORDER BY n.created_at DESC, n.id LIMIT $limit
   RETURN n
   UNION ALL
@@ -104,5 +114,8 @@ RETURN [x IN ns | {
     at: x.at, created_at: x.created_at, valid_from: x.valid_from, valid_to: x.valid_to,
     priority: x.priority, success: x.success, n: x.n, step: x.step, claimed_by: x.claimed_by,
     version: x.version, summary: left(x.summary, 200), note: left(x.note, 200), confidence: x.confidence,
-    trust: x.trust, query: left(x.query, 200), k: x.k, harness: x.harness, task_type: x.task_type, subject_id: x.subject_id
+    trust: x.trust, query: left(x.query, 200), k: x.k, harness: x.harness, task_type: x.task_type, subject_id: x.subject_id,
+    verify_state: x.verify_state, suspect_since: x.suspect_since, verify_after: x.verify_after, verified_at: x.verified_at,
+    surprise: x.surprise, pinned: x.pinned, path: x.path, symbol: x.symbol, hash: x.hash, commit: x.commit, repo: x.repo,
+    paths: left(x.paths, 200)
   }}] AS nodes, es AS edges

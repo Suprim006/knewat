@@ -1,5 +1,6 @@
 import { buildAcme } from './acme';
 import type { AcmeDataset } from './acme';
+import { applyP7, docsToUpdate, memoryCounts, memoryStrength, verifyQueue } from './p7';
 import { QUERY_TEXTS } from './queries';
 import { ApiError } from '../api/client';
 import { OPEN } from '../api/types';
@@ -42,6 +43,9 @@ export function modelIndexes(labels: string[]): IndexInfo[] {
     ['Fact', 'predicate', 'RANGE'],
     ['Fact', 'valid_to', 'RANGE'],
     ['Fact', 'status', 'RANGE'],
+    ['Fact', 'pinned', 'RANGE'],
+    ['CodeAnchor', 'path', 'RANGE'],
+    ['Change', 'at', 'RANGE'],
     ['Task', 'status', 'RANGE'],
     ['Step', 'n', 'RANGE'],
     ['ToolCall', 'at', 'RANGE'],
@@ -116,8 +120,9 @@ interface Adj {
   reverse: boolean;
 }
 
+/** The default dataset is Acme Notes with the P7 staleness / forgetting overlay (`applyP7`). */
 export function createFixtureApi(
-  dataset: AcmeDataset = buildAcme(),
+  dataset: AcmeDataset = applyP7(buildAcme()),
   fixtureResults: Results | null = null,
 ): ViewApi {
   const forTenant = (tenant: string): AcmeDataset => (tenant === 'acme' ? dataset : EMPTY);
@@ -151,6 +156,7 @@ export function createFixtureApi(
         })),
         edge_types: [...types].map(([type, count]) => ({ type, count })),
         indexes: modelIndexes([...labels.keys()]),
+        ...memoryCounts(d, Date.now()),
       };
     },
 
@@ -316,6 +322,20 @@ export function createFixtureApi(
           truncated: false,
         },
       };
+    },
+
+    async verifyQueue(tenant, q = {}) {
+      return { rows: verifyQueue(forTenant(tenant), Date.now(), q.limit ?? 50) };
+    },
+
+    async docsToUpdate(tenant, q = {}) {
+      return { docs: docsToUpdate(forTenant(tenant), q.since ?? 0, q.limit ?? 50) };
+    },
+
+    async memoryStrength(tenant, factId) {
+      const s = memoryStrength(forTenant(tenant), factId);
+      if (!s) throw new ApiError(404, `fixture:/memory-strength/${factId}`, `unknown fact id: ${factId}`);
+      return s;
     },
 
     async queryText(name): Promise<QueryText> {

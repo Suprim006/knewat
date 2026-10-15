@@ -25,6 +25,8 @@ export const NODE_LABELS = [
   'Step',
   'ToolCall',
   'Recall',
+  'Change',
+  'CodeAnchor',
 ] as const;
 export type NodeLabel = (typeof NODE_LABELS)[number];
 
@@ -58,6 +60,10 @@ export const EDGE_TYPES = [
   'CREATED',
   'UPDATED',
   'RETURNED',
+  'ANCHORED_TO',
+  'DESCRIBES',
+  'TOUCHED',
+  'SUSPECTED',
 ] as const;
 export type EdgeType = (typeof EDGE_TYPES)[number];
 
@@ -108,6 +114,8 @@ export interface Subgraph {
   /** True if more nodes matched than `limit`. */
   truncated: boolean;
   limit: number;
+  /** Neutral activation (P7). The server does not send it today; if it does, the Explorer fades around it. */
+  a0?: number;
 }
 
 /** `GET /api/tenants` */
@@ -148,6 +156,12 @@ export interface Inventory {
   labels: LabelCount[];
   edge_types: EdgeTypeCount[];
   indexes: IndexInfo[];
+  /** P7 memory-health counts. Optional: an older server (or a tenant without P7 data) omits them. */
+  suspect_facts?: number;
+  dormant_facts?: number;
+  pinned_facts?: number;
+  changes?: number;
+  code_anchors?: number;
 }
 
 export interface NodeRef {
@@ -265,6 +279,86 @@ export interface WhyResponse {
   result: WhyResult;
 }
 
+/** Code change that made a fact suspect (`VerifyRow.change`). */
+export interface VerifyChange {
+  change_id: string;
+  commit: string;
+  /** Epoch ms. */
+  at: number;
+  paths: string[];
+}
+/** One fact to re-check (`GET /api/{t}/verify-queue`). */
+export interface VerifyRow {
+  fact_id: string;
+  entity: string;
+  predicate: string;
+  value: string;
+  scope_id: string;
+  /** 'suspect' (code changed) or 'verified' (only a review date passed). */
+  verify_state: string;
+  suspect_since: number;
+  verify_after: number;
+  reason: string;
+  /** Decisions (not flagged) that rest on the fact. */
+  decisions_count: number;
+  /** path#symbol of its anchors, then the uris of the Sources it derives from. */
+  anchors: string[];
+  change?: VerifyChange | null;
+  /** Absent or null when forgetting is off or the fact has no usable events. */
+  activation?: number | null;
+  protected?: boolean | null;
+}
+export interface VerifyQueue {
+  rows: VerifyRow[];
+}
+
+export interface DocChange {
+  change_id: string;
+  commit: string;
+  at: number;
+  paths: string[];
+  anchor: string;
+}
+/** A doc that describes code which changed after the doc was last edited. */
+export interface DocRow {
+  source_id: string;
+  uri: string;
+  title: string;
+  /** Epoch ms of the newest change. */
+  latest: number;
+  changes: DocChange[];
+}
+export interface DocsToUpdate {
+  docs: DocRow[];
+}
+
+/** `GET /api/{t}/memory-strength/{fact_id}`: why a fact ranks where it does. Reading it is not a use. */
+export interface MemoryStrength {
+  fact_id: string;
+  status: string;
+  /** null when the fact has no usable events. */
+  activation: number | null;
+  a0: number;
+  multiplier: number;
+  floor: number;
+  decay: number;
+  protected: boolean;
+  protect_reasons: string[];
+  pinned: boolean;
+  surprise: number;
+  created_at: number;
+  verify_state: string;
+  suspect_since: number;
+  /** Events considered, by kind (create, reassert, decision, handoff, use, recall, verified). */
+  counts: Record<string, number>;
+  events_considered: number;
+  last_use?: number | null;
+  last_recall?: number | null;
+  explanation: string;
+  /** False when PLEXUS_FORGETTING=off: recall ignores activation. */
+  forgetting: boolean;
+}
+
 /** `GET /api/queries/{name}` */
 export interface QueryText {
   name: string;
@@ -289,6 +383,17 @@ export interface GraphQuery {
   limit?: number;
 }
 
+export interface VerifyQuery {
+  /** Limit to this scope and the scopes it inherits. */
+  scopeId?: string;
+  limit?: number;
+}
+export interface DocsQuery {
+  /** Only changes with at >= since (epoch ms). */
+  since?: number;
+  limit?: number;
+}
+
 /** Interface implemented by both the HTTP client and the fixture client. */
 export interface ViewApi {
   tenants(): Promise<TenantList>;
@@ -298,6 +403,12 @@ export interface ViewApi {
   step(tenant: string, n: number): Promise<StepResponse>;
   why(tenant: string, id: string): Promise<WhyResponse>;
   queryText(name: string): Promise<QueryText>;
+  /** Facts to re-check, most decisions at risk first (P7, read-only). */
+  verifyQueue(tenant: string, query?: VerifyQuery): Promise<VerifyQueue>;
+  /** Docs describing code that changed after the doc was last edited (P7, read-only). */
+  docsToUpdate(tenant: string, query?: DocsQuery): Promise<DocsToUpdate>;
+  /** Rejects with a 404 {@link ApiError} for an unknown fact id. */
+  memoryStrength(tenant: string, factId: string): Promise<MemoryStrength>;
   /** Rejects with a 404 {@link ApiError} until the Crucible produces results. */
   results(): Promise<Results>;
   /** URL of the SSE stream for a tenant (`null` in fixture mode). */

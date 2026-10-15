@@ -1,4 +1,5 @@
 import { useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import type { GraphNode, Inventory as InventoryData } from '../api';
 import { useApi, useTenant } from '../app/context';
 import { LABEL_MODULES, MODULE_ORDER, displayName, labelColor } from '../lib/labels';
@@ -58,6 +59,52 @@ function SummaryCard({
         </ul>
       )}
     </article>
+  );
+}
+
+const MEMORY_STATS: [key: keyof InventoryData & string, title: string, hint: string][] = [
+  ['suspect_facts', 'suspect facts', 'code changed, or a review date passed'],
+  ['dormant_facts', 'dormant facts', 'swept out of recall, still stored'],
+  ['pinned_facts', 'pinned facts', 'never fade or get swept'],
+  ['changes', 'changes', 'code changes reported by agents'],
+  ['code_anchors', 'code anchors', 'files and Python symbols facts point at'],
+];
+
+/** The P7 memory-health counts. Every field is optional: an older server omits them. */
+function MemoryCounts({ data }: { data: InventoryData }) {
+  const counts = MEMORY_STATS.map(([k, title, hint]) => ({
+    k,
+    title,
+    hint,
+    n: data[k] as number | undefined,
+  }));
+  const any = counts.some((c) => (c.n ?? 0) > 0);
+  return (
+    <section aria-labelledby="inv-memory" className="memory-counts">
+      <h2 id="inv-memory">Staleness and forgetting</h2>
+      {!any ? (
+        <p className="muted" data-testid="memory-empty">
+          No staleness or forgetting data yet. Counts appear once agents anchor facts to code, pin facts or a
+          sweep marks facts dormant.
+        </p>
+      ) : (
+        <div className="stat-row">
+          {counts.map((c) => (
+            <div className="stat" key={c.k} data-testid={`memory-${c.k}`} title={c.hint}>
+              <div className="stat-n" data-testid="stat-n">
+                {c.n ?? 0}
+              </div>
+              <div className="stat-l">{c.title}</div>
+            </div>
+          ))}
+        </div>
+      )}
+      {(data.suspect_facts ?? 0) > 0 && (
+        <p>
+          <Link to="/verify">Open the Verify page</Link>
+        </p>
+      )}
+    </section>
   );
 }
 
@@ -157,6 +204,8 @@ export function Inventory() {
           <div className="stat-l">indexes and constraints</div>
         </div>
       </div>
+
+      <MemoryCounts data={data} />
 
       <h2>What the demo created</h2>
       <div className="cards summary" data-testid="demo-summary">

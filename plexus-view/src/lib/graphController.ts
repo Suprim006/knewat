@@ -5,6 +5,8 @@ import { keyEdges } from '../api/types';
 import type { GraphEdge, GraphNode, Props } from '../api/types';
 import { displayName, nodeColor } from './labels';
 import type { ColorMode } from './labels';
+import { EMPTY_MEMORY_COUNTS, medianActivation, memoryNodeData } from './memory';
+import type { MemoryCounts } from './memory';
 
 /*
  * Thin imperative wrapper around Cytoscape.js (docs/spikes/S3-view-lib.md).
@@ -44,7 +46,12 @@ export const DARK_THEME: Theme = {
   highlight: '#f8fafc',
 };
 
+/** Ring colour of a suspect Fact (amber, readable on light and dark). */
+export const SUSPECT_COLOR = '#d97706';
+
 const NODE_SIZE: Record<string, number> = {
+  Change: 16,
+  CodeAnchor: 16,
   Agent: 34,
   Entity: 22,
   Task: 22,
@@ -113,7 +120,7 @@ export function buildStyle(
         width: 'data(size)',
         height: 'data(size)',
         'background-color': 'data(color)',
-        label: 'data(name)',
+        label: 'data(display)',
         color: theme.text,
         'font-size': 10,
         'text-valign': 'bottom',
@@ -125,6 +132,14 @@ export function buildStyle(
         'min-zoomed-font-size': 9,
       },
     },
+    // P7: a Fact's opacity follows its activation (data.opacity is set only when the API sent one).
+    { selector: 'node[opacity]', style: { opacity: 'data(opacity)' as unknown as number } },
+    // P7: dormant = dashed outline; suspect = amber ring (the ⚠ glyph is in the label).
+    {
+      selector: 'node[?dormant]',
+      style: { 'border-style': 'dashed' as const, 'border-width': 2, 'border-color': theme.edgeStrong },
+    },
+    { selector: 'node[?suspect]', style: { 'border-width': 2, 'border-color': SUSPECT_COLOR } },
     // Anchors keep their label even when zoomed out; everything else labels on zoom-in.
     {
       selector:
@@ -247,6 +262,12 @@ export interface GraphController {
   /** Remove every node created at or after `ts` (used by the fixture "replay as live" demo). Returns the count. */
   removeCreatedSince(ts: number): number;
   setFilters(f: FilterState): void;
+  /** Fade centre for the activation-driven opacity: the API's A0, or null to use the median of the facts. */
+  setActivationCenter(a0: number | null): void;
+  /** Reasons from the verify queue (fact id -> text) for the suspect tooltips. */
+  setSuspectReasons(reasons: ReadonlyMap<string, string>): void;
+  /** Counts for the legend: suspect, pinned, dormant and activation-faded facts. */
+  memoryCounts(): MemoryCounts;
   /** Colour nodes by their label or by the module that owns the label. */
   setColorMode(mode: ColorMode): void;
   /** Hide nodes whose `created_at` is outside [from, to] (epoch ms); null clears. Nodes without one stay. */
@@ -284,6 +305,8 @@ export interface ControllerOptions {
   headless?: boolean;
   onSelect?: (id: string | null) => void;
   theme?: Theme;
+  /** Clock for the suspect rule (review dates); defaults to Date.now. */
+  now?: () => number;
 }
 
 interface KeyedEdge {
@@ -300,6 +323,7 @@ const toNodeDef = (n: GraphNode, mode: ColorMode = 'label'): ElementDefinition =
     size: NODE_SIZE[n.label] ?? 14,
     color: nodeColor(n.label, mode),
     props: n.props,
+    display: displayName(n.label, n.props),
   },
 });
 const toEdgeDef = ({ id, edge: e }: KeyedEdge): ElementDefinition => ({
@@ -353,6 +377,10 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   let focus: Set<string> | null = null;
   let focusId: string | null = null;
   const timers = new Set<ReturnType<typeof setTimeout>>();
+  const now = opts.now ?? Date.now;
+  let givenA0: number | null = null;
+  let reasons: ReadonlyMap<string, string> = new Map();
+  const memoryCount: MemoryCounts = { ...EMPTY_MEMORY_COUNTS };
 
   const cy = cytoscape({
     container: headless ? undefined : opts.container,
@@ -364,14 +392,50 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     style: buildStyle(theme, haystack, labelMaxWidth),
   });
 
-  cy.on('mouseover', 'node', (e) => e.target.addClass('hover'));
-  cy.on('mouseout', 'node', (e) => e.target.removeClass('hover'));
+  cy.on('mouseover', 'node', (e) => {
+    e.target.addClass('hover');
+    // A native tooltip on the canvas host: the suspect reason, pin / dormant notes, activation.
+    const tip = String(e.target.data('tip') ?? '');
+    if (opts.container) opts.container.title = tip;
+  });
+  cy.on('mouseout', 'node', (e) => {
+    e.target.removeClass('hover');
+    if (opts.container) opts.container.title = '';
+  });
   cy.on('tap', 'node', (e) => opts.onSelect?.(e.target.id()));
   cy.on('tap', (e) => {
     if (e.target === cy) opts.onSelect?.(null);
   });
 
   const name = (n: NodeSingular): string => String(n.data('name'));
+
+  /**
+   * (Re)compute the P7 display data of every node: glyphs in the label, tooltip, suspect / dormant / pinned
+   * flags and the activation opacity. The fade centre is the API's A0 if given, else the median activation of
+   * the Facts on the canvas. Cheap (one pass); runs after every change to the node set or their properties.
+   */
+  function applyMemory(): void {
+    const all = cy
+      .nodes()
+      .map((n) => ({ id: n.id(), label: String(n.data('label')), props: n.data('props') as Props }));
+    const a0 = givenA0 ?? medianActivation(all);
+    const t = now();
+    const counts: MemoryCounts = { suspect: 0, pinned: 0, dormant: 0, faded: 0 };
+    cy.batch(() => {
+      for (const g of all) {
+        const el = cy.getElementById(g.id);
+        const d = memoryNodeData(g, displayName(g.label, g.props), { now: t, a0, reasons });
+        el.data({ display: d.display, suspect: d.suspect, pinned: d.pinned, dormant: d.dormant, tip: d.tip });
+        if (d.opacity === undefined) el.removeData('opacity');
+        else el.data('opacity', d.opacity);
+        if (d.suspect) counts.suspect++;
+        if (d.pinned) counts.pinned++;
+        if (d.dormant) counts.dormant++;
+        if (d.opacity !== undefined) counts.faded++;
+      }
+    });
+    Object.assign(memoryCount, counts);
+  }
 
   function applyFilters(eles = cy.elements()) {
     cy.batch(() => {
@@ -432,6 +496,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       });
       updateEdgeMode();
       applyFilters();
+      applyMemory();
       if (nodes.length > 0) {
         // Lay out what is visible (hidden-by-default labels/edge types would only add hairball), then
         // park the hidden nodes next to their neighbours so toggling them on moves nothing.
@@ -489,6 +554,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       });
       flushPending();
       updateEdgeMode();
+      if (addedIds.length > 0) applyMemory();
       if (addedIds.length > 0) {
         const t = setTimeout(() => {
           timers.delete(t);
@@ -511,6 +577,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
           changed++;
         }
       });
+      if (changed > 0) applyMemory();
       return changed;
     },
 
@@ -525,6 +592,20 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
     setFilters(f) {
       filters = f;
       applyFilters();
+    },
+
+    setActivationCenter(a0) {
+      givenA0 = a0;
+      applyMemory();
+    },
+
+    setSuspectReasons(next) {
+      reasons = next;
+      applyMemory();
+    },
+
+    memoryCounts() {
+      return { ...memoryCount };
     },
 
     setColorMode(mode) {

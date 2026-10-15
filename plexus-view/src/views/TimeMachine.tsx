@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import type { StepAgent, StepFact, StepWrote } from '../api';
+import type { Props, StepAgent, StepFact, StepWrote } from '../api';
 import { useApi, useTenant } from '../app/context';
 import { agentColor, formatClock } from '../lib/flow';
 import { labelColor } from '../lib/labels';
+import { isSuspectAt, suspectReason, SUSPECT_GLYPH } from '../lib/memory';
 import { agentIdsOf, diffAgent, isEmptyDiff } from '../lib/timeMachine';
 import type { KnowledgeDiff } from '../lib/timeMachine';
 import { useAsync } from '../lib/useAsync';
@@ -14,12 +15,45 @@ const DEBOUNCE_MS = 120;
 
 const factText = (f: StepFact) => `${f.entity ?? '?'} · ${f.predicate ?? '?'} = ${f.value ?? '?'}`;
 
-function FactRow({ fact, kind }: { fact: StepFact; kind?: 'new' }) {
+/** Fact id -> its current properties (P7 fields); empty when the graph read is pending or failed. */
+type FactProps = ReadonlyMap<string, Props>;
+const NO_FACTS: FactProps = new Map();
+
+function FactRow({
+  fact,
+  kind,
+  stepAt,
+  facts,
+}: {
+  fact: StepFact;
+  kind?: 'new';
+  /** The step's time: a suspect badge shows only once it has reached the fact's suspect_since. */
+  stepAt?: number;
+  facts?: FactProps;
+}) {
+  const p = facts?.get(fact.id);
+  const suspect = p !== undefined && stepAt !== undefined && isSuspectAt(p, stepAt);
+  const dormant = fact.status === 'dormant';
   return (
     <li className={kind ? `diff-${kind}` : undefined} data-diff={kind}>
       <span className="dot" style={{ background: labelColor('Fact') }} />
+      {suspect && (
+        <span className="mem-badge suspect" data-testid="tm-suspect" title={suspectReason(p)}>
+          {SUSPECT_GLYPH} suspect
+        </span>
+      )}{' '}
       {factText(fact)}
-      {fact.status && fact.status !== 'active' && <span className="muted"> ({fact.status})</span>}{' '}
+      {dormant ? (
+        <span
+          className="mem-badge dormant"
+          data-testid="tm-dormant"
+          title="swept out of recall, still stored"
+        >
+          dormant
+        </span>
+      ) : (
+        fact.status && fact.status !== 'active' && <span className="muted"> ({fact.status})</span>
+      )}{' '}
       <Link to={`/why/${encodeURIComponent(fact.id)}`}>Why?</Link>
     </li>
   );
@@ -38,7 +72,17 @@ function WroteRow({ w, isNew }: { w: StepWrote; isNew: boolean }) {
   );
 }
 
-function AgentCard({ id, agent, diff }: { id: string; agent: StepAgent | undefined; diff: KnowledgeDiff }) {
+function AgentCard({
+  id,
+  agent,
+  diff,
+  facts,
+}: {
+  id: string;
+  agent: StepAgent | undefined;
+  diff: KnowledgeDiff;
+  facts: FactProps;
+}) {
   const newIds = new Set(diff.added.concat(diff.changed.map((c) => c.to)).map((f) => f.id));
   const newWrites = new Set(diff.newWrites.map((w) => w.id));
   return (
@@ -64,7 +108,13 @@ function AgentCard({ id, agent, diff }: { id: string; agent: StepAgent | undefin
             <h4>Knew ({agent.read.length})</h4>
             <ul>
               {agent.read.map((f) => (
-                <FactRow key={f.id} fact={f} kind={newIds.has(f.id) ? 'new' : undefined} />
+                <FactRow
+                  key={f.id}
+                  fact={f}
+                  kind={newIds.has(f.id) ? 'new' : undefined}
+                  stepAt={agent.step_at}
+                  facts={facts}
+                />
               ))}
               {agent.read.length === 0 && <li className="muted">nothing read yet</li>}
             </ul>
@@ -167,6 +217,17 @@ export function TimeMachine() {
   const nowData = useKept(now.data, tenant);
   const prevData = useKept(prev.data, tenant);
 
+  // P7: the facts' current staleness fields. Optional: a failed or slow read just shows no badges.
+  const loadFacts = useCallback(
+    () => (tenant ? api.graph(tenant, { labels: ['Fact'], limit: 2000 }) : Promise.resolve(undefined)),
+    [api, tenant],
+  );
+  const factGraph = useAsync(loadFacts);
+  const facts = useMemo<FactProps>(
+    () => (factGraph.data ? new Map(factGraph.data.nodes.map((n) => [n.id, n.props])) : NO_FACTS),
+    [factGraph.data],
+  );
+
   const agents = nowData ? agentIdsOf(nowData, prevData) : [];
   const pending = at !== step || now.loading || prev.loading;
   const latestAt = nowData?.agents.reduce((m, a) => Math.max(m, a.step_at), 0) ?? 0;
@@ -233,7 +294,7 @@ export function TimeMachine() {
         {agents.map((id) => {
           const a = nowData?.agents.find((x) => x.agent_id === id);
           const p = prevData?.agents.find((x) => x.agent_id === id);
-          return <AgentCard key={id} id={id} agent={a} diff={diffAgent(p, a)} />;
+          return <AgentCard key={id} id={id} agent={a} diff={diffAgent(p, a)} facts={facts} />;
         })}
       </div>
     </section>
