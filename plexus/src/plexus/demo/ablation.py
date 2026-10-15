@@ -200,6 +200,67 @@ def _write_probes(
 
 
 # ---------------------------------------------------------------------------------------------- the run
+READ_NEEDS = {"why(decision)": "BASED_ON", "knew_at(agent, step)": "READ", "who_knew(fact)": "READ"}
+WRITE_NEEDS = {
+    "blocked_by_failure(task)": "DEPENDS_ON",
+    "dependency-aware claim": "DEPENDS_ON",
+    "forget by source (cascade)": "DERIVED_FROM",
+    "exclusive claims": "",
+}
+WRITE_ORDER = (
+    "dependency-aware claim",
+    "blocked_by_failure(task)",
+    "forget by source (cascade)",
+    "exclusive claims",
+)
+
+
+def _read_rows(client: GraphClient, src: str, abl: str, tg: Targets, fact_id: str | None) -> list[Row]:
+    """One row per read-only feature: it must work on the intact graph and keep at least as much when stripped."""
+    intact_r = _read_probes(client, src, tg, fact_id)
+    ablated_r = _read_probes(client, abl, tg, fact_id)
+    rows = []
+    for name, (n_i, text_i) in intact_r.items():
+        n_a, text_a = ablated_r[name]
+        rows.append(Row(name, READ_NEEDS[name], text_i, text_a, n_i > 0, n_a >= n_i))
+    return rows
+
+
+def _write_rows(
+    client: GraphClient, src: str, abl: str, scratch: tuple[str, str], tg: Targets, deps: dict[str, list[str]]
+) -> list[Row]:
+    """One row per write feature, probed on throw-away copies of both graphs (dropped before returning)."""
+    s_int, s_abl = scratch
+    try:
+        copy_graph(client, src, s_int)
+        copy_graph(client, abl, s_abl)
+        w_int = _write_probes(client, s_int, tg, deps)
+        w_abl = _write_probes(client, s_abl, tg, deps)
+    finally:
+        client.delete_graph(s_int)
+        client.delete_graph(s_abl)
+    rows = []
+    for name in WRITE_ORDER:
+        if name in w_int:
+            _, text_i, ok_i = w_int[name]
+            _, text_a, ok_a = w_abl[name]
+            rows.append(Row(name, WRITE_NEEDS[name], text_i, text_a, ok_i, ok_a))
+    return rows
+
+
+def _supersession_row(client: GraphClient, src: str, abl: str) -> Row:
+    """Control: SUPERSEDES is not one of the stripped edges, so the history must be unchanged."""
+    sup_i, sup_a = _edge_count(client, src, "SUPERSEDES"), _edge_count(client, abl, "SUPERSEDES")
+    return Row(
+        "supersession history",
+        "",
+        f"{sup_i} SUPERSEDES edges",
+        f"{sup_a} SUPERSEDES edges",
+        True,
+        sup_i == sup_a,
+    )
+
+
 def run_ablation(
     client: GraphClient, tenant: str, *, drop: bool = False, log: Callable[[str], None] = print
 ) -> Report:
@@ -233,50 +294,11 @@ def run_ablation(
     rep = Report(tenant, abl_tenant, deleted)
 
     log("probing read-only features on both graphs ...")
-    intact_r = _read_probes(client, src, tg, fact_id)
-    ablated_r = _read_probes(client, abl, tg, fact_id)
-    needs = {"why(decision)": "BASED_ON", "knew_at(agent, step)": "READ", "who_knew(fact)": "READ"}
-    for name, (n_i, text_i) in intact_r.items():
-        n_a, text_a = ablated_r[name]
-        rep.rows.append(Row(name, needs[name], text_i, text_a, n_i > 0, n_a >= n_i))
+    rep.rows += _read_rows(client, src, abl, tg, fact_id)
 
     log("probing features that write, on throw-away copies ...")
-    try:
-        copy_graph(client, src, s_int)
-        copy_graph(client, abl, s_abl)
-        w_int = _write_probes(client, s_int, tg, deps)
-        w_abl = _write_probes(client, s_abl, tg, deps)
-    finally:
-        client.delete_graph(s_int)
-        client.delete_graph(s_abl)
-    wneeds = {
-        "blocked_by_failure(task)": "DEPENDS_ON",
-        "dependency-aware claim": "DEPENDS_ON",
-        "forget by source (cascade)": "DERIVED_FROM",
-        "exclusive claims": "",
-    }
-    for name in (
-        "dependency-aware claim",
-        "blocked_by_failure(task)",
-        "forget by source (cascade)",
-        "exclusive claims",
-    ):
-        if name in w_int:
-            n_i, text_i, ok_i = w_int[name]
-            n_a, text_a, ok_a = w_abl[name]
-            rep.rows.append(Row(name, wneeds[name], text_i, text_a, ok_i, ok_a))
-
-    sup_i, sup_a = _edge_count(client, src, "SUPERSEDES"), _edge_count(client, abl, "SUPERSEDES")
-    rep.rows.append(
-        Row(
-            "supersession history",
-            "",
-            f"{sup_i} SUPERSEDES edges",
-            f"{sup_a} SUPERSEDES edges",
-            True,
-            sup_i == sup_a,
-        )
-    )
+    rep.rows += _write_rows(client, src, abl, (s_int, s_abl), tg, deps)
+    rep.rows.append(_supersession_row(client, src, abl))
 
     after = inventory(client, tenant)
     rep.original_untouched = before == after
