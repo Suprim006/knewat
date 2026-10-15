@@ -273,14 +273,16 @@ LONG_OLD = (
     "verification via POST /payments/{id}/confirm. Legacy imepay is aliased to Khalti; non-gateway methods "
     "complete immediately."
 )
-LONG_NEW = LONG_OLD.replace("Legacy imepay is aliased to Khalti", "Legacy imepay is no longer aliased to Khalti")
+LONG_NEW = LONG_OLD.replace(
+    "Legacy imepay is aliased to Khalti", "Legacy imepay is no longer aliased to Khalti"
+)
 
 
 def test_a_small_correction_of_a_long_fact_is_recorded_not_swallowed_as_a_paraphrase(
     stale, mem, client, graph, clock
 ):
-    """The real run corrected one clause of a long fact; ``assert_fact`` called it a paraphrase duplicate of the old
-    fact, so verify_fact reported 'changed' while the old text stayed current. A corrected value must always win."""
+    """The real run corrected one clause of a long fact; ``assert_fact`` called it a paraphrase duplicate of
+    the old fact, so verify_fact said 'changed' while the old text stayed current. A correction must win."""
     f = mem.fact("payment gateways", LONG_OLD)
     stale.anchor_fact(f, P)
     stale.mark_changed([{"path": P, "new_hash": "h0"}])

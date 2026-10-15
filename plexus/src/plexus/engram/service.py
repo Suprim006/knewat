@@ -308,9 +308,9 @@ class Engram:
         created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
         and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
 
-        ``dup_threshold`` overrides the service's paraphrase threshold for this call (a negative value turns the
-        paraphrase check off, so only an equal normalised value is a duplicate; ``verify_fact`` uses it, because an agent
-        that corrects a clause of a long fact means a different fact).
+        ``dup_threshold`` overrides the service's paraphrase threshold for this call (a negative value turns
+        the paraphrase check off, so only an equal normalised value is a duplicate; ``verify_fact`` uses it,
+        because an agent that corrects a clause of a long fact means a different fact).
 
         A value is a duplicate only if its normalised text is equal, or its embedding is within
         ``dup_threshold`` **and** its numeric/version tokens are identical (``16`` != ``15``, ``v1.2.3`` !=

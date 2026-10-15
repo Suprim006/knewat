@@ -9,7 +9,9 @@ from plexus.activation.model import DAY_MS, Event, activation, neutral_activatio
 from plexus.activation.rank import rerank
 
 NOW = 5_000 * DAY_MS
-S = Settings()
+S = Settings(
+    floor=0.5
+)  # the mechanism tests use the original floor; the default (0.9) is pinned in test_settings
 
 
 def fa(fact_id: str, *, age_days: float, used_days=(), surprise=0.0, protected=False) -> FactActivation:

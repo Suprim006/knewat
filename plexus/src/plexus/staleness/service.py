@@ -318,7 +318,7 @@ class Staleness:
             now=t,
             supersede=True,
             subject_kind=old["subject_kind"] or "thing",
-            dup_threshold=-1.0,  # a corrected value is never a paraphrase of the old one (found by the real run)
+            dup_threshold=-1.0,  # a corrected value is never a paraphrase of the old one (real run)
         )
         new_id = r["fact_id"]
         res = self.client.rw(

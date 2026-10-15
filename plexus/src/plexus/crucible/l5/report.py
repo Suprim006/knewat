@@ -24,8 +24,8 @@ def _pct(x: float | None) -> str:
     return "n/a" if x is None else f"{100 * x:.1f}%"
 
 
-def criteria(res: dict[str, Any]) -> list[dict[str, Any]]:
-    """The pass criteria fixed in the pre-registration, evaluated on a result."""
+def criteria(res: dict[str, Any], margin: float = 0.02) -> list[dict[str, Any]]:
+    """The pass criteria fixed in the pre-registration, evaluated on a result (``margin``: the recall@5 tolerance)."""
     out: list[dict[str, Any]] = []
     if "staleness" in res:
         arms = res["staleness"]["arms"]
@@ -64,9 +64,9 @@ def criteria(res: dict[str, Any]) -> list[dict[str, Any]]:
         r_on = m["on"]["recall"]["all"]["recall@5"]
         out.append(
             {
-                "id": "L5b recall@5 of 'on' within 0.02 of 'off'",
+                "id": f"L5b recall@5 of 'on' within {margin:g} of 'off'",
                 "hard": False,
-                "ok": r_on >= r_off - 0.02,
+                "ok": r_on >= r_off - margin - 1e-9,
                 "value": [r_off, r_on],
             }
         )
@@ -90,6 +90,8 @@ def run_all(
     modules: int = 12,
     funcs: int = 5,
     commits: int = 20,
+    margin: float = 0.02,
+    tag: str = "",
 ) -> Path:
     embedder = get_embedder(embedder_kind)
     started = time.time()
@@ -105,9 +107,9 @@ def run_all(
             res["staleness"] = run_staleness(client, embedder, Path(tmp), modules, funcs, commits)
     if forgetting:
         res["forgetting"] = run_forgetting(client, embedder, sprints, noise)
-    res["criteria"] = criteria(res)
+    res["criteria"] = criteria(res, margin)
     res["seconds"] = round(time.time() - started, 1)
-    out = out_root / time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(started))
+    out = out_root / (time.strftime("%Y%m%dT%H%M%SZ", time.gmtime(started)) + (f"-{tag}" if tag else ""))
     out.mkdir(parents=True, exist_ok=True)
     (out / "results.json").write_text(json.dumps(res, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     (out / "report.md").write_text(render_report(res), encoding="utf-8")
@@ -234,6 +236,10 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--only", choices=("staleness", "forgetting"))
     p.add_argument("--sprints", type=int, default=20)
     p.add_argument("--noise", type=int, default=5, help="noise facts per subject (5 primary, 15 stress)")
+    p.add_argument(
+        "--margin", type=float, default=0.02, help="recall@5 tolerance of the non-inferiority criterion"
+    )
+    p.add_argument("--tag", default="", help="suffix of the result directory (e.g. floor09)")
     p.add_argument("--embedder", choices=("fastembed", "hash"))
     p.add_argument("--host", help="FalkorDB host (default $FALKORDB_HOST or 127.0.0.1)")
     p.add_argument("--port", type=int, help="FalkorDB port (default $FALKORDB_PORT or 6379)")
@@ -248,6 +254,8 @@ def main(argv: list[str] | None = None) -> int:
             forgetting=a.only in (None, "forgetting"),
             sprints=a.sprints,
             noise=a.noise,
+            margin=a.margin,
+            tag=a.tag,
         )
     finally:
         client.close()

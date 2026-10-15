@@ -10,7 +10,7 @@ from plexus.activation.model import neutral_activation
 
 def test_defaults():
     s = Settings.from_env({})
-    assert (s.decay, s.floor, s.events, s.forgetting, s.a0) == (0.5, 0.5, 50, True, None)
+    assert (s.decay, s.floor, s.events, s.forgetting, s.a0) == (0.5, 0.9, 50, True, None)
     assert s.neutral == pytest.approx(neutral_activation())
 
 

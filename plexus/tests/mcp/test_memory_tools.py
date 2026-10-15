@@ -113,7 +113,7 @@ async def test_memory_strength_explains_and_does_not_count_as_a_use(server, clie
         assert s1["activation"] == pytest.approx(s2["activation"], abs=1e-6), "inspecting is not using"
         for key in ("activation", "a0", "multiplier", "floor", "protected", "protect_reasons", "explanation"):
             assert key in s1
-        assert 0.5 <= s1["multiplier"] < 0.75 and "never used" in s1["explanation"]
+        assert 0.9 <= s1["multiplier"] < 0.95 and "never used" in s1["explanation"]
         fresh = (await ok(c, "memory_strength", agent_id="b", fact_id=new))["strength"]
         assert fresh["multiplier"] > s1["multiplier"]
         assert "ghost" in await err(c, "memory_strength", agent_id="b", fact_id="ghost")
