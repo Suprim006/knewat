@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -26,12 +27,18 @@ def relpath(repo_root: str, abs_canonical: str) -> str | None:
     return None
 
 
+class FileTooLarge(Exception):
+    """The file exists but is bigger than ``MAX_FILE_BYTES``: it is not hashed (and is not a deletion)."""
+
+
 def read_working(abs_path: str) -> bytes | None:
-    """The file's bytes now, ``None`` if it does not exist (deleted) or is too large to hash."""
+    """The file's bytes now; ``None`` if it does not exist (deleted); ``FileTooLarge`` if it is too big to hash."""
     p = Path(abs_path)
     try:
-        if not p.is_file() or p.stat().st_size > MAX_FILE_BYTES:
+        if not p.is_file():
             return None
+        if p.stat().st_size > MAX_FILE_BYTES:
+            raise FileTooLarge(f"{abs_path} is larger than {MAX_FILE_BYTES} bytes")
         return p.read_bytes()
     except OSError:
         return None
@@ -60,6 +67,7 @@ def working_groups(repo: str, paths: Iterable[str], *, baseline: bool = False) -
 
     For a scan ``old`` is the committed version (``HEAD``) when the file is in a git work tree; it only matters when
     the server has no hash stored yet, and it lets deleted functions be noticed. A baseline sends no ``old_hash``.
+    A file larger than ``MAX_FILE_BYTES`` is skipped with a note on stderr (it is not reported as deleted).
     """
     root = gitutil.toplevel(repo)
     groups: list[list[dict[str, Any]]] = []
@@ -70,7 +78,15 @@ def working_groups(repo: str, paths: Iterable[str], *, baseline: bool = False) -
             rel = relpath(root, cp)
             if rel:
                 old = gitutil.show_file(root, "HEAD", rel)
-        groups.append(file_entries(cp, read_working(cp), old))
+        try:
+            new = read_working(cp)
+        except FileTooLarge:  # not a deletion: leave the anchor and its facts alone
+            print(
+                f"plexus code: skipped {cp}: file too large to hash (> {MAX_FILE_BYTES} bytes)",
+                file=sys.stderr,
+            )
+            continue
+        groups.append(file_entries(cp, new, old))
     return groups
 
 
