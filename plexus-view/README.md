@@ -9,6 +9,7 @@ Vite + React + TypeScript, Cytoscape.js (+ `cytoscape-fcose`) for the graph. It 
 | `/flow`      | live `ToolCall` timeline (backfill + SSE), replay with play/pause/speed; click an event for the Cypher that ran and a mini-graph of what it touched                                                                                                               |
 | `/time`      | Time Machine: per-agent step slider, what each agent knew and wrote, diff highlighting between steps                                                                                                                                                              |
 | `/why/:id`   | provenance of a Decision or Fact as a left-to-right layered graph (`/why/latest` = newest decision), path highlight                                                                                                                                               |
+| `/verify`    | read-only staleness page: the verify queue from `/verify-queue` (fact, state, reason, decisions at risk, activation; `?fact=<id>` highlights a row) and `/docs-to-update`                                                                                         |
 | `/inventory` | "what the demo created" summary cards, counts per label and edge type, sample nodes, index list                                                                                                                                                                   |
 | `/results`   | Crucible results from `/api/results`: L1 table, L2 and L2-at-scale (accuracy, Wilson intervals, tokens/cost/latency, paired sign test, notes verbatim), L4 latency percentiles with the fastest-median callout, ablation; placeholder until a results file exists |
 
@@ -44,12 +45,12 @@ npm ci && npm run lint && npm run typecheck && npm test -- --run && npm run buil
 ```
 src/
   api/        types.ts (mirrors plexus/src/plexus/api/models.py), client.ts (HTTP client), sse.ts (SSE + reconnect), index.ts (createApi)
-  fixtures/   acme.ts (scripted Acme Notes scenario), client.ts (fixture ViewApi), queries.ts (real .cypher text), results.ts (test-only results sample)
+  fixtures/   acme.ts (scripted Acme Notes scenario), p7.ts (staleness / forgetting overlay), client.ts (fixture ViewApi), queries.ts (real .cypher text), results.ts (test-only results sample)
   lib/        graphController.ts (imperative Cytoscape wrapper), labels.ts, flow.ts, useFlowFeed.ts, eventGraph.ts, timeMachine.ts,
-              whyLayout.ts, summary.ts, ablation.ts, results.ts, cypher.ts (highlighter), theme.ts, useAsync.ts
+              whyLayout.ts, summary.ts, ablation.ts, results.ts, cypher.ts (highlighter), theme.ts, useAsync.ts, memory.ts (suspect / pinned / dormant / opacity rules), useNow.ts
   app/        providers (API + tenant context), Layout (header, nav, tenant selector, theme)
-  components/ GraphCanvas, MiniGraph, WhyGraph (SVG), CypherView, AblationPanel, FilterPanel, NodePanel
-  views/      Explorer, Flow, TimeMachine, Why, Inventory, Results
+  components/ GraphCanvas, MiniGraph, WhyGraph (SVG), CypherView, AblationPanel, FilterPanel, NodePanel, MemoryStrength, MemoryLegend
+  views/      Explorer, Flow, TimeMachine, Why, Verify, Inventory, Results
 scripts/
   seed_live.py   seed a tenant through the real MCP tools (in-process) for a live smoke test
 docs/screenshots/   PNGs captured from the browser against the live View API
@@ -83,6 +84,23 @@ All types in `src/api/types.ts` mirror `plexus/src/plexus/api/models.py` (also e
 `StepResponse.agents[].read/wrote`, `WhyResponse.result.{root, kind, facts, agents, sources, episodes, steps, paths, nodes, edges}`, `QueryText`.
 The fixture client returns the same shapes. Step numbers are **per agent** (each agent has its own `Step` chain), so the Time Machine slider value `n` means
 "each agent's latest step <= n".
+
+### Staleness and forgetting (P7)
+
+All of it is read-only and every field is optional (a tenant or server without P7 data shows empty states, never errors). Rules live in `src/lib/memory.ts`.
+
+- **Explorer.** A Fact is _suspect_ when `verify_state = 'suspect'` (and `suspect_since` has been reached) or its `verify_after` review date has passed (the
+  contract rule; superseded and forgotten facts are not flagged). Suspect facts get a `⚠` in the label and an amber ring; the tooltip (native, on the canvas) carries the
+  reason (commit and path from `/verify-queue`, else a generic one). `pinned` adds `📌`, `status = 'dormant'` draws a dashed outline. When a Fact has an
+  `activation`, its opacity is `0.35 + 0.65·σ(activation − A0)`; A0 is the API's (`Subgraph.a0`, not sent today) or the median activation of the facts in the response.
+  The "Memory markers" legend explains each marker with counts. Nothing is hidden: dormant and faded facts stay on the canvas.
+- **Node panel (Facts).** Badges, then a "Memory strength" section: activation (neutral A0, rank multiplier), protected + reasons, surprise, an events summary
+  (all from `/memory-strength/{id}`), the verify state with suspect-since and the change commit and paths, and a "Needs verification" link to `/verify?fact=<id>`.
+  If the endpoint fails the section shows what the graph carries.
+- **Time Machine.** The suspect badge shows on "Knew" facts only when the agent's step time has reached `suspect_since` (or the review date); dormant facts stay listed, marked.
+- **Inventory.** `suspect_facts`, `dormant_facts`, `pinned_facts`, `changes`, `code_anchors`.
+- **Fixtures.** `applyP7(buildAcme())` (`src/fixtures/p7.ts`) overlays suspect, pinned, dormant, high-surprise and low-activation facts plus `Change`/`CodeAnchor` nodes
+  on the Acme dataset, and backs the fixture client's three new endpoints. `buildAcme()` itself is unchanged.
 
 ### Results page
 
