@@ -260,8 +260,8 @@ class Staleness:
         supersede path creates the new fact (``Engram.assert_fact(..., supersede=True)``); then ONE statement
         (``staleness/backdate``) puts the old fact's ``valid_to`` and the new fact's ``valid_from`` at the
         time of the newest ``Change`` that suspected the old fact (event time; ``recorded_at`` stays the time
-        Plexus learned the value), marks the old fact verified, adds ``VERIFIED_BY {outcome:'changed'}`` and flags
-        the Decisions ``BASED_ON`` the old fact (``flag_reason = 'fact changed: <id>'``). The statements are
+        Plexus learned the value), marks the old fact verified, adds ``VERIFIED_BY {outcome:'changed'}``,
+        flags the Decisions ``BASED_ON`` the old fact (``flag_reason = 'fact changed: <id>'``). The statements are
         not atomic together: if the second fails the new value is still correctly recorded, only not
         backdated. ``evidence`` that is an absolute path or URL becomes (or reuses) a ``Source`` the new fact
         is ``DERIVED_FROM``; any other text is kept on the edge. A new value equal to the old one counts as
@@ -357,7 +357,7 @@ class Staleness:
 
     # -- review dates and work lists ------------------------------------------------------------------
     def set_review_date(self, fact_id: str, verify_after: int) -> dict[str, Any]:
-        """Give a fact (not about code) a review date (epoch ms); once passed it is in :meth:`facts_to_verify`.
+        """Give a fact (not about code) a review date (epoch ms); once passed the fact is due for re-checking
 
         ``OPEN`` (9999999999999) clears it. Raises :class:`LookupError` for an unknown fact.
         """
