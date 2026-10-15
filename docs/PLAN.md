@@ -200,6 +200,7 @@ The tenant is bound per connection (CLI arg or env for stdio, header or path for
 | **P4** Crucible benchmark | Oct 17 | H backends + L1 + L4 (`wt-cru1`, :6389) · I L2 questions + runner (`wt-cru2`, :6378) | ✅ L1 0 violations all arms; L4 (SQLite faster on median claims; Plexus +73% across tenant graphs); ablation 7/7; L2 43q tie (P/B0/B1 43, B2 40); pre-registered L2-scale 36q: P 36, B1 32, B0 30, B2 23 |
 | **P5** Integration, hardening, review → **READY FOR TESTING** | Oct 17 night → Oct 18 ~10:00 | 3–4 disjoint reviewers → fix agents; stretch work only if green | ✅ **READY FOR TESTING**: 4 reviews → 3 fix branches + P5-int merged; 869 Python + 150 View tests; fresh-clone `docker compose up` e2e verified; DoRT evidence and owner checklist in `docs/TESTING.md` (DoRT 3 and 5 partly met, see Known gaps) |
 | **P6** Deploy + submission | Oct 18 10:00 → 20:00 | orchestrator + owner (video, submission form) | ✅ agent work done: deploy image verified at 512 MB (332 MiB peak, 40/40 checks), `render.yaml` + `docs/deploy.md`; README, `docs/VIDEO_SCRIPT.md` (2:50), `docs/BLOG_DRAFT.md`, `scripts/verify_readme.py` (277 checks). **Owner:** push a public repo, create the Render service, fill `<RENDER_URL>`/`<VIDEO_URL>`, record the video, review the _TBD_ rows in AI_USAGE, submit by Oct 18 20:00 NPT |
+| **P7** Memory that notices change (staleness + re-verify) ‖ activation-based forgetting | Oct 16 → Oct 17 eve | J Staleness (`wt-stale`, :6391) · K Activation (`wt-activ`, :6392) · L view badges + client hook (`wt-p7view`) → P7-int → review | ⏳ design proposed (D-011, D-012); awaiting owner review |
 
 ### P0: Kickoff and foundations (orchestrator-led)
 **Build**
@@ -351,6 +352,111 @@ The tenant is bound per connection (CLI arg or env for stdio, header or path for
 - Blog draft (side prize). Submit by **20:00 NPT**, then freeze.
 
 ---
+
+### P7: Memory that notices change ‖ activation-based forgetting (D-011, D-012)
+Research: `docs/research/forgetting-A-science-and-papers.md` (cognitive science and papers, 40 sources),
+`docs/research/forgetting-B-products.md` (products and graph databases, 69 sources).
+
+**Graph model v1.1 (additive; no existing field changes meaning)**
+- `Fact` gains:
+  - `verify_state` (`verified` | `suspect`), `suspect_since`, `verified_at`, `verify_after` (optional; `OPEN` when unset);
+  - `surprise` (0–1, set once at write time) and `pinned`.
+- New status `dormant` (only set by an explicit sweep; can be restored).
+- `Source` gains `kind` (`code` | `doc` | `external`), `content_hash`, `commit`, `repo`, and `trust` (`normal` | `high`).
+- New nodes:
+  - `CodeAnchor {id, repo, path, symbol, hash, updated_at}`;
+  - `Change {id, commit, at, paths, agent_id}`.
+- New edges:
+  - `(Fact)-[:ANCHORED_TO]->(CodeAnchor)`;
+  - `(Source)-[:DESCRIBES]->(CodeAnchor)`;
+  - `(Change)-[:TOUCHED]->(CodeAnchor|Source)`;
+  - `(Change)-[:SUSPECTED]->(Fact)`;
+  - `(Fact)-[:VERIFIED_BY {at, commit, outcome}]->(Agent)`.
+- `READ` gains `{via: 'recall'|'use', at}`.
+- Indexes: `CodeAnchor.path`, `Change.at`, `Fact.verify_state`.
+
+**J — Staleness (Plexus server, TDD, own DB slot)**
+1. Schema v1.1 plus migration: existing facts get `verify_state='verified'` and `surprise=0`, and `READ` edges without
+   `via` count as `recall`.
+2. `anchor_fact(fact_id, path, symbol?, hash)` and `describe_code(source_id, path, symbol?, hash)`. `assert_fact` and
+   `add_source` take an optional `anchor`. A `Source` whose uri is a repo path implicitly anchors its derived facts at
+   file level, which is the zero-effort path for existing graphs.
+3. `mark_changed(changes=[{path, symbol?, old_hash?, new_hash}], commit?, at?)`:
+   - **one bounded statement:** update anchors, create the `Change`, then mark the facts linked to changed anchors
+     (direct, or via the source file) `suspect` with `SUSPECTED` edges;
+   - **unchanged hashes are a no-op**, so the call is idempotent;
+   - **returns** the facts marked suspect, the affected decisions (via `BASED_ON`), and the docs that describe the
+     changed code (via `DESCRIBES`).
+4. `verify_fact(fact_id, still_true, new_value?, evidence?)`:
+   - **confirmed:** set `verified` and add a `VERIFIED_BY` edge;
+   - **changed:** run the supersede path with the old fact's `valid_to` = the `Change.at` that made it suspect (event
+     time) while `recorded_at` stays now; then flag the dependent decisions as `needs_review`, as forget does.
+5. `facts_to_verify(scope?, limit)`: suspect facts plus facts whose `verify_after` has passed, ordered by number of
+   dependent decisions, then activation. `docs_to_update(since?)`: doc sources that `DESCRIBES` code changed since
+   their last verification.
+6. `recall` result rows gain `verify_state`, `suspect_since` and `suspect_reason`. Suspect facts are still returned and
+   never silently dropped.
+7. **Client CLI** (runs on the user's machine, not in Docker): `plexus code-scan --repo . --tenant t [--commit HEAD]`.
+   - It hashes files, plus Python functions and classes via `ast`, and calls `mark_changed` over MCP HTTP.
+   - `plexus hook claude` prints the `PostToolUse` (Edit|Write|MultiEdit) hook JSON for `.claude/settings.json`.
+   - `plexus hook git` installs `post-commit`.
+   - TS/Dart symbols: file-level only, with tree-sitter as a stretch.
+
+**K — Activation-based forgetting (Plexus server, TDD, own DB slot)**
+1. Write time:
+   - `assert_fact` computes `surprise`: supersede 0.6, cross-agent contradiction 0.9, otherwise novelty
+     `1 − max_cos` from the duplicate check's neighbours (capped at 0.5), and a duplicate gets 0;
+   - `READ` edges written by `record_recall` get `via:'recall'`; uses (`BASED_ON`, `CARRIES`, assert-time reads) count
+     as `use`.
+2. `queries/engram/activation.cypher`: for a list of fact ids, compute
+   `A = ln Σ w·max(Δt, 60 s)^-0.5` over the last 50 events, plus surprise pseudo-accesses and protection flags.
+   Benchmark the cost at 10k facts × 50 events.
+3. `recall` re-ranks: `final = relevance × (0.5 + 0.5·σ(A − A₀))`, where protected facts get ≥ neutral and exact
+   keyword matches bypass the penalty. A `forgetting: on|off` parameter is kept for the ablation. As-of, why, knew_at
+   and fact_history ignore activation.
+4. `pin_fact` / `unpin_fact`; `memory_strength(fact_id)` explains A (events, weights, surprise, protection);
+   `memory_sweep(threshold, dry_run=true)` → `dormant` (unprotected facts only); `restore_fact`.
+5. The rate parameter d, A₀, the floor and K are environment settings with defaults; the defaults are documented as
+   design choices, not validated values.
+
+**L — Viewer + docs**
+- Viewer: a "suspect" badge and a "faded" opacity driven by activation; Inventory counts suspect, dormant and pinned
+  facts; a "Needs verification" list.
+- Docs:
+  - `docs/mcp.md`: the new tools;
+  - `docs/graph-model.md` v1.1;
+  - `docs/queries.md`: the new `.cypher` files with their "why it's a graph query" notes;
+  - README: a "Memory that notices change" section.
+
+**Crucible L5 (pre-registered before any run, as for L2-scale)**
+- **Staleness:** a scripted repo of 20 commits and 60 anchored facts. Measure the precision and recall of
+  `mark_changed` against ground truth for file-level vs symbol-level anchors, and stale facts returned unflagged
+  (target 0; the baseline without anchors misses every one).
+- **Forgetting:** the L2-scale history with decaying noise added. Measure recall@k, the share of returned facts that
+  are noise, and tokens per recall, with forgetting on vs off, plus a "rarely used but critical" probe set
+  (decision-supporting facts read once, 90 days ago). Pass criteria:
+  - no loss of the critical probes;
+  - noise reduced;
+  - accuracy reported honestly even if unchanged.
+
+**Real-run check:** run Claude Code against the physio copy (`physio_test`) in a scratch clone of `pv-core-api`:
+1. edit `create_gateway_payment`;
+2. the hook marks the payment facts suspect;
+3. Claude re-verifies;
+4. supersede at the change time, and the README section is listed in `docs_to_update`.
+
+**Gate:** lint clean; all existing tests plus the new ones green; L5 results committed; real run recorded; independent
+review (queries + concurrency of `mark_changed` against concurrent `assert_fact`); the owner reviews D-011/D-012 and the
+v1.1 model.
+
+**Cut order if time is short:**
+1. symbol-level anchors (keep file level);
+2. `memory_sweep`/`dormant`;
+3. Hebbian co-access (not planned);
+4. viewer polish.
+
+Never cut: suspect → verify → supersede at the change time, query-time activation in recall, and protection of facts
+that decisions are based on.
 
 ## 6. Risks and mitigations
 

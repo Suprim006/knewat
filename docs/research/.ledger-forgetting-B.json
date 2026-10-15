@@ -1,0 +1,473 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://docs.mem0.ai/platform/features/memory-expiration",
+      "title": "Mem0: Memory Expiration",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 2,
+      "url": "https://deepwiki.com/mem0ai/mem0/11.5-batch-decay-and-expiration",
+      "title": "DeepWiki mem0 Batch, Decay and Expiration",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 3,
+      "url": "https://docs.mem0.ai/platform/features/memory-decay",
+      "title": "Mem0: Memory Decay",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 4,
+      "url": "https://docs.mem0.ai/core-concepts/memory-operations/delete",
+      "title": "Mem0: Delete Memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 5,
+      "url": "https://github.com/mem0ai/mem0/issues/4573",
+      "title": "mem0 issue 4573: 97.8% junk audit",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 6,
+      "url": "https://github.com/mem0ai/mem0/issues/4956",
+      "title": "mem0 issue 4956: ADD-only stale/contradictory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 7,
+      "url": "https://github.com/mem0ai/mem0/issues/5330",
+      "title": "mem0 issue 5330: access frequency tracking proposal",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 8,
+      "url": "https://github.com/mem0ai/mem0/issues/5867",
+      "title": "mem0 issue 5867: ADD-only conflicting memories",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 9,
+      "url": "https://raw.githubusercontent.com/getzep/graphiti/main/graphiti_core/utils/maintenance/edge_operations.py",
+      "title": "graphiti source: edge_operations.py",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 10,
+      "url": "https://raw.githubusercontent.com/getzep/graphiti/main/graphiti_core/edges.py",
+      "title": "graphiti source: edges.py",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 11,
+      "url": "https://github.com/getzep/graphiti/issues/1300",
+      "title": "graphiti issue 1300: temporal decay algorithms",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 12,
+      "url": "https://github.com/getzep/graphiti/issues/1602",
+      "title": "graphiti issue 1602: salience-based fact filtering RFC",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 13,
+      "url": "https://github.com/getzep/graphiti/issues/864",
+      "title": "graphiti issue 864: how to forget knowledge",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 14,
+      "url": "https://github.com/getzep/graphiti/issues/1645",
+      "title": "graphiti issue 1645: MCP stale-fact filtering",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 15,
+      "url": "https://raw.githubusercontent.com/getzep/graphiti/main/graphiti_core/search/search_config.py",
+      "title": "graphiti source: search_config.py",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 16,
+      "url": "https://arxiv.org/abs/2501.13956",
+      "title": "Zep: A Temporal Knowledge Graph Architecture for Agent Memory (arXiv 2501.13956)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 17,
+      "url": "https://arxiv.org/pdf/2501.13956",
+      "title": "Zep paper PDF (arXiv 2501.13956)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 18,
+      "url": "https://docs.letta.com/v1-sdk/memory/archival-memory",
+      "title": "Letta Docs: Archival memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 19,
+      "url": "https://www.letta.com/blog/sleep-time-compute",
+      "title": "Letta blog: Sleep-time Compute",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 20,
+      "url": "https://forum.letta.com/t/sleeptime-agents-for-memory-consolidation-best-practices-guide/154",
+      "title": "Letta forum: Sleeptime agents best practices",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 21,
+      "url": "https://arxiv.org/pdf/2310.08560",
+      "title": "MemGPT: Towards LLMs as Operating Systems (arXiv 2310.08560)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 22,
+      "url": "https://docs.letta.com/guides/agents/compaction",
+      "title": "Letta Docs: Compaction settings",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 23,
+      "url": "https://github.com/topoteretes/cognee/pull/3443/files",
+      "title": "Cognee PR 3443: decay_memory memify task",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 24,
+      "url": "https://github.com/topoteretes/cognee/issues/3390",
+      "title": "Cognee issue 3390: FORGET / decay task",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 25,
+      "url": "https://cognee.ai/blog/fundamentals/how-cognee-builds-ai-memory",
+      "title": "Cognee blog: How Cognee Builds AI Memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 26,
+      "url": "https://raw.githubusercontent.com/topoteretes/cognee/main/cognee/modules/improve/config.py",
+      "title": "cognee source: modules/improve/config.py",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 27,
+      "url": "https://github.com/topoteretes/cognee/pull/3443",
+      "title": "Cognee PR 3443 (closed, not merged): decay_memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 28,
+      "url": "https://github.com/topoteretes/cognee/issues/3391",
+      "title": "Cognee issue 3391: RE-WEIGHT task",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 29,
+      "url": "https://docs.langchain.com/langsmith/configure-ttl",
+      "title": "LangSmith docs: How to add TTLs",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 30,
+      "url": "https://reference.langchain.com/python/langgraph.store/base/TTLConfig",
+      "title": "LangGraph reference: TTLConfig",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 31,
+      "url": "https://langchain-ai.github.io/langmem/background_quickstart",
+      "title": "LangMem: Background Quickstart",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 32,
+      "url": "https://langchain-ai.github.io/langmem/concepts/conceptual_guide",
+      "title": "LangMem: Conceptual guide",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 33,
+      "url": "https://raw.githubusercontent.com/langchain-ai/langgraph/main/libs/checkpoint-postgres/langgraph/store/postgres/base.py",
+      "title": "langgraph source: store/postgres/base.py (TTL columns, refresh on get)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 34,
+      "url": "https://supermemory.ai/blog/memory-lifecycle-retention-corrections-deletion",
+      "title": "Supermemory blog: Agent Memory Lifecycle",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 35,
+      "url": "https://supermemory.ai/docs/concepts/graph-memory",
+      "title": "Supermemory docs: Graph memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 36,
+      "url": "https://supermemory.ai/docs/recall/memory-operations",
+      "title": "Supermemory docs: Memory operations",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 37,
+      "url": "https://github.com/supermemoryai/supermemory/issues/1442",
+      "title": "supermemory issue 1442: MCP: no way to delete a document by ID — forget-by-similarity is the o",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 38,
+      "url": "https://github.com/supermemoryai/supermemory/issues/1140",
+      "title": "supermemory issue 1140: Explicit `invalid_condition` support + self-host offline + pricing tra",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 39,
+      "url": "https://arxiv.org/pdf/2507.03724",
+      "title": "MemOS: A Memory OS for AI System (arXiv 2507.03724)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 40,
+      "url": "https://raw.githubusercontent.com/MemTensor/MemOS/main/src/memos/dream/maintenance.py",
+      "title": "MemOS source: src/memos/dream/maintenance.py",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 41,
+      "url": "https://raw.githubusercontent.com/MemTensor/MemOS/main/packages/memos-core/src/recall/recency.ts",
+      "title": "MemOS source: packages/memos-core/src/recall/recency.ts",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 42,
+      "url": "https://raw.githubusercontent.com/MemTensor/MemOS/main/apps/memos-local-plugin/core/retrieval/ALGORITHMS.md",
+      "title": "MemOS source: memos-local-plugin core/retrieval/ALGORITHMS.md",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 43,
+      "url": "https://code.claude.com/docs/en/memory",
+      "title": "Claude Code docs: Memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 44,
+      "url": "https://github.com/anthropics/claude-code/issues/25006",
+      "title": "claude-code issue 25006: MEMORY.md undocumented 200-line limit",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 45,
+      "url": "https://github.com/anthropics/claude-code/issues/85075",
+      "title": "claude-code issue 85075: months-old MEMORY.md loads silently, no expiry",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 46,
+      "url": "https://github.com/anthropics/claude-code/issues/99403",
+      "title": "claude-code issue 99403: MEMORY.md silently truncated when over size limit — no indication which entries",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 47,
+      "url": "https://github.com/anthropics/claude-code/issues/91188",
+      "title": "claude-code issue 91188: Feature request: make the auto-memory MEMORY.md compaction reminder threshold co",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 48,
+      "url": "https://help.openai.com/en/articles/8590148-memory-in-chatgpt",
+      "title": "OpenAI Help: Memory in ChatGPT",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 49,
+      "url": "https://support.claude.com/en/articles/11817273-use-claude-s-chat-search-and-memory-to-build-on-previous-context",
+      "title": "Claude Help Center: chat search and memory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 50,
+      "url": "https://help.openai.com/en/articles/6825453-chatgpt-release-notes",
+      "title": "OpenAI: ChatGPT release notes",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 51,
+      "url": "https://help.openai.com/en/articles/8590148-memory-in-chatgpt-faq",
+      "title": "OpenAI Help: Memory FAQ",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 52,
+      "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/website/docs/user-guide/features/memory.md",
+      "title": "Hermes Agent docs: Persistent memory (memory.md)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 53,
+      "url": "https://raw.githubusercontent.com/NousResearch/hermes-agent/main/website/docs/user-guide/features/curator.md",
+      "title": "Hermes Agent docs: Curator (curator.md)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 54,
+      "url": "https://github.com/sachitrafa/YourMemory",
+      "title": "GitHub: sachitrafa/YourMemory",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 55,
+      "url": "https://github.com/Tranquil-Flow/mnemoria",
+      "title": "GitHub: Tranquil-Flow/mnemoria",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 56,
+      "url": "https://github.com/Roxx0x/mtrace",
+      "title": "GitHub: Roxx0x/mtrace",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 57,
+      "url": "https://github.com/Emmimal/memory-decay-engine",
+      "title": "GitHub: Emmimal/memory-decay-engine",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 58,
+      "url": "https://arxiv.org/pdf/2304.03442",
+      "title": "Generative Agents: Interactive Simulacra of Human Behavior (arXiv 2304.03442)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 59,
+      "url": "https://arxiv.org/pdf/2305.10250",
+      "title": "MemoryBank: Enhancing LLMs with Long-Term Memory (arXiv 2305.10250)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 60,
+      "url": "https://arxiv.org/pdf/2304.03442v2",
+      "title": "Generative Agents (arXiv 2304.03442) PDF v2",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 61,
+      "url": "https://act-r.psy.cmu.edu/wordpress/wp-content/uploads/2012/12/652petrovAbstract.pdf",
+      "title": "Petrov (2006) Computationally efficient approximation of ACT-R base-level learning",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 62,
+      "url": "http://docs.falkordb.com/cypher/functions",
+      "title": "FalkorDB docs: Cypher functions",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 63,
+      "url": "https://docs.falkordb.com/design/concurrency",
+      "title": "FalkorDB docs: Atomicity and Concurrency",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 64,
+      "url": "https://github.com/FalkorDB/FalkorDB/issues/167",
+      "title": "FalkorDB issue 167: no vertex/edge TTL or timestamp property",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 65,
+      "url": "https://arxiv.org/pdf/2501.00663",
+      "title": "Titans: Learning to Memorize at Test Time (arXiv 2501.00663)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 66,
+      "url": "https://arxiv.org/abs/2604.16839v1",
+      "title": "HeLa-Mem: Hebbian Learning and Associative Memory for LLM Agents (arXiv 2604.16839)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 67,
+      "url": "https://redis.io/docs/latest/develop/reference/eviction",
+      "title": "Redis docs: Key eviction",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 68,
+      "url": "https://neo4j.com/labs/agent-memory/reference/api/long-term-entities",
+      "title": "Neo4j Agent Memory docs: entity and relationship operations",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 69,
+      "url": "https://arxiv.org/pdf/2604.16839v1",
+      "title": "HeLa-Mem PDF (arXiv 2604.16839v1)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 70,
+      "url": "https://arxiv.org/abs/2609.08279",
+      "title": "What Eviction Destroys: A Restore-Counterfactual Audit of Forgetting in Agent Memory (arXiv 2609.08279)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 71,
+      "url": "https://arxiv.org/abs/2604.20006",
+      "title": "From Recall to Forgetting: Benchmarking Long-Term Memory for Personalized Agents (arXiv 2604.20006)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 72,
+      "url": "https://arxiv.org/abs/2608.28978",
+      "title": "Selective Forgetting: A Graph-Based Memory Framework for Long-Term LLM Agents (arXiv 2608.28978)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 73,
+      "url": "https://arxiv.org/abs/2601.18642",
+      "title": "FadeMem: Biologically-Inspired Forgetting for Efficient Agent Memory (arXiv 2601.18642)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 74,
+      "url": "https://docs.mem0.ai/migration/oss-v2-to-v3",
+      "title": "Mem0 docs: Migrating to the New Memory Algorithm (OSS v2 to v3)",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 75,
+      "url": "https://raw.githubusercontent.com/langchain-ai/langmem/main/src/langmem/knowledge/extraction.py",
+      "title": "langmem source: knowledge/extraction.py",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 76,
+      "url": "https://docs.letta.com/guides/agents/memory-blocks",
+      "title": "Letta Docs: Memory blocks",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 77,
+      "url": "https://github.com/letta-ai/letta/issues/3270",
+      "title": "letta issue 3270: sliding_window compaction ignores percentage, performs full context wipe",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 78,
+      "url": "https://raw.githubusercontent.com/getzep/graphiti/main/graphiti_core/search/search_utils.py",
+      "title": "graphiti source: search/search_utils.py (episode_mentions_reranker)",
+      "accessed": "2026-10-16"
+    }
+  ]
+}

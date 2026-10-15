@@ -197,3 +197,94 @@ Full plan: `docs/BASELINE.md`. Statements about the real Claude Code or Hermes p
 - **Turns are sequential:** real agent turns run one at a time, and the scheduler picks the top ready task for the matching role. `claim_next_task` has no role filter, so concurrent turns would claim other roles' tasks. Concurrency is measured in Crucible instead.
 
 **Why.** It is reproducible and free for the public site (D-003: no LLM on the public site). It is honest about what a real model did, because the recording is the real graph. The first full real run cost about $0.70 (16 processes, 83 steps, 0 denials).
+
+## D-011 — Memory that notices change: suspect → re-verify (staleness)
+2026-10-16 · **proposed** (owner review before P7 build)
+
+**Context.** Plexus only knows what agents tell it. When Claude Code edits code but not the doc or fact that describes
+it, nothing in the graph changes, and recall keeps returning the old fact. Users of today's tools complain about this
+most: months-old `MEMORY.md` with no freshness signal, and Graphiti ranking superseded facts equal to current ones
+(`docs/research/forgetting-B-products.md`). Graphiti's two timelines (when a fact was true vs when the system learned
+it) are the right *record*, but its invalidation only reacts to new *text* and needs an LLM.
+
+**Decision.**
+- **Changing code doesn't make a fact false; it makes it suspect.** Facts get `verify_state`: `verified | suspect`. A
+  suspect fact stays recallable, carrying `suspect_since` and the change that caused it, so knowledge is never lost
+  just because a file was edited.
+- **Detection is deterministic and runs on the user's machine.** The Plexus server (in Docker) can't read the user's
+  repo. A client CLI (`plexus code-scan` / `plexus hook …`) hashes changed files, and changed functions where a parser
+  exists, then calls `mark_changed(changes, commit)`. It is triggered by a Claude Code `PostToolUse` hook on
+  Edit/Write and by a git `post-commit` hook.
+- **Linking facts to code:**
+  - **File level, automatic:** a fact `DERIVED_FROM` a `Source` whose uri is a repo path is anchored to that file, so
+    existing facts (for example the physio graph's `CLAUDE.md` facts) are covered with no extra work.
+  - **Function level, optional and more precise:** `(Fact)-[:ANCHORED_TO]->(CodeAnchor {path, symbol, hash})`.
+  - **Doc to code:** `(Source:doc)-[:DESCRIBES]->(CodeAnchor)`, so a code change lists the doc sections to update.
+- **The agent re-verifies; Plexus records the outcome.** `verify_fact(fact_id, still_true, new_value?, evidence?)`:
+  - **Confirmed:** the fact returns to `verified`, with a `VERIFIED {at, commit}` edge to the agent.
+  - **Changed:** the existing supersede path creates the new fact, and the old fact's `valid_to` is the **change's
+    time** (event time), while `recorded_at` stays the time Plexus learned it (Graphiti's two timelines).
+- **Check on use, not all at once.** Recall flags suspect facts, and Claude re-checks the ones it is about to rely on.
+  `facts_to_verify` orders the rest by impact: decisions that depend on the fact first, then activation (D-012).
+- **Facts that aren't about code** (deployed URLs, accounts, client requests) can carry `verify_after`. Once it has
+  passed, the fact becomes suspect too.
+- **Every suspicion is explainable:** `(Change {commit, at, paths})-[:SUSPECTED]->(Fact)` appears in `why`.
+
+**Why.** It targets the most-reported failure (stale memory with no signal) with a graph traversal Plexus already does
+(source → facts derived from it → decisions based on them). It keeps Plexus free of LLMs, and the agent supplies the
+judgement. **Rejected alternatives:**
+- a fixed TTL for code facts: code doesn't go stale with age;
+- auto-closing facts on change: true facts would be lost;
+- LLM-judged invalidation inside Plexus: breaks D-002 and is inconsistent (Graphiti #1841).
+
+## D-012 — Activation-based forgetting: rank by use, never delete by decay
+2026-10-16 · **proposed** (owner review before P7 build)
+
+**Context.** The owner asked for human-like forgetting: unused memories fade, surprising ones stay strong. The research
+(`docs/research/forgetting-A-science-and-papers.md`, `forgetting-B-products.md`) found:
+- **Decay improves efficiency and noise, not accuracy.** Removing decay terms changed accuracy by about 0–1 point
+  (MemTier, ZenBrain, HeLa-Mem). Decay **hurt** when an old fact was needed (ScrubJay on MemoryAgentBench).
+  Eviction errors are mostly irreversible.
+- **Human recall is better modelled by a power law** (ACT-R base-level activation `B = ln Σ t_k^-d`, `d ≈ 0.5`)
+  than by the exponential most agent products use.
+- **Surprise raises priority and confidence, not truth** (flashbulb memories).
+- **Products mostly re-rank or soft-hide rather than delete.** Several advertised decay features aren't implemented
+  (Cognee, MemOS).
+
+**Decision.**
+- **Activation is computed at query time from edges Plexus already writes. Nothing is written on read.**
+  `A(f) = ln Σ_k w_k · max(now − t_k, 1 min)^(−0.5)` over the fact's most recent K = 50 access events:
+  - creation: weight 1;
+  - **use**: weight 1, meaning cited in a decision (`BASED_ON`), carried in a handoff, read by `assert_fact`
+    (duplicate/supersede), or re-asserted;
+  - **surfaced by recall only**: weight 0.3. `READ` edges get `via: 'recall' | 'use'`, because today
+    `record_recall` writes `READ` for every returned fact, and surfacing must not keep boosting itself;
+  - **verification** (D-011): weight 2, following the testing effect.
+- **Surprise is computed once, deterministically, at write time:** `Fact.surprise ∈ [0,1]`, from:
+  - superseding a current fact (0.6);
+  - contradicting another agent's fact (0.9);
+  - novelty, `1 − max cosine` to the nearest existing facts in scope (the dedup lookup already finds them);
+  - later, a flagged decision or failed `Run` that traces back to the fact.
+
+  It adds `1 + round(4 · surprise)` pseudo-accesses at creation. It is kept separate from `confidence`, because
+  surprise is not truth.
+- **Rank, don't filter.** `recall` scores `relevance × (0.5 + 0.5 · σ(A − A₀))`. That leaves a floor of 0.5, so a
+  relevant but unused fact can still surface. A strong exact keyword match bypasses the penalty.
+- **No forgetting from:** `as_of`, `why`, `knew_at`, `fact_history`, or direct lookups by id.
+- **Protected facts never fade below neutral:**
+  - facts `BASED_ON` by a current (unflagged) decision;
+  - facts carried by an open handoff or relevant to an open task;
+  - facts at either end of a `SUPERSEDES`/`CONTRADICTS` chain;
+  - pinned facts (`pin_fact`), and facts from sources marked trust `high`.
+- **No deletion by decay.**
+  - **Optional `memory_sweep(dry_run=true)`:** it moves only low-activation, unprotected facts to `dormant` (a new
+    status) and can be undone with `restore`.
+  - **Bulky derived records** (`Episode`, `Recall`, `ToolCall`) are the first candidates for archival.
+  - **Hard delete** happens only via the existing explicit `forget_source`/purge.
+- **Activation and staleness are separate axes.** A suspect fact isn't strengthened by being read. A fact that is both
+  faded and suspect still appears in `facts_to_verify` if a decision depends on it.
+
+**Why.** It is grounded in the cognitive model with the best fit (ACT-R power law), and uses the per-access log no
+mainstream product keeps. It is deterministic, and decision-supporting facts are protected, which is the failure mode
+the research warns about. It is honest about the benefit: **less noise and cost, not better accuracy, unless measured.**
+P7 measures it with a pre-registered Crucible layer before any claim is made.
