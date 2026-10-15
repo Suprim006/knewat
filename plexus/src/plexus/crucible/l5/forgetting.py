@@ -135,10 +135,15 @@ def _measure(
     noise: set[str],
     forgetting: bool,
     hits_off: dict[str, bool] | None = None,
+    klass_of: dict[str, str] | None = None,
 ) -> dict[str, Any]:
     per_class: dict[str, dict[str, Any]] = {}
     rows_total = noise_rows = chars = 0
     hit5: dict[str, bool] = {}
+    above: dict[
+        str, int
+    ] = {}  # post-hoc diagnostic: class of the rows ranked above the target (all, on a miss)
+    klass_of = klass_of or {}
     for p in probes:
         rows = eng.recall(p.query, p.scope_id, k=max(KS), budget_chars=20_000, forgetting=forgetting)
         ranks = [i for i, r in enumerate(rows) if r["fact_id"] == p.fact_id]
@@ -148,6 +153,9 @@ def _measure(
         for k in KS:
             c[f"hit@{k}"] += int(rank is not None and rank < k)
         hit5[p.fact_id] = rank is not None and rank < max(KS)
+        for r_ in rows[: rank if rank is not None else len(rows)]:
+            kind = "noise" if r_["fact_id"] in noise else klass_of.get(r_["fact_id"], "other")
+            above[kind] = above.get(kind, 0) + 1
         rows_total += len(rows)
         noise_rows += sum(1 for r in rows if r["fact_id"] in noise)
         chars += sum(len(r["text"]) for r in rows)
@@ -159,6 +167,7 @@ def _measure(
         },
         "noise_share": noise_rows / rows_total if rows_total else None,
         "rows_returned": rows_total,
+        "ranked_above_target": above,
         "chars_per_recall": chars / len(probes) if probes else None,
     }
     if hits_off is not None:
@@ -211,10 +220,11 @@ def run_forgetting(
         facts_before = _fact_count(client, graph)
         modes: dict[str, Any] = {}
         with virtual_now(now):
-            off = _measure(eng, probes, noise, False)
+            klass_of = {p.fact_id: p.klass for p in probes}
+            off = _measure(eng, probes, noise, False, None, klass_of)
             hits_off = off["_hit5"]
             modes["off"] = off
-            modes["on"] = _measure(eng, probes, noise, True, hits_off)
+            modes["on"] = _measure(eng, probes, noise, True, hits_off, klass_of)
             act = Activation(client, graph, Settings(), clock=lambda: now)
             moved: set[str] = set()
             overlap = 0
@@ -226,7 +236,7 @@ def run_forgetting(
                     moved |= set(step["moved"])
                     if not step["moved"]:
                         break
-            modes["on+sweep"] = _measure(eng, probes, noise, True, hits_off)
+            modes["on+sweep"] = _measure(eng, probes, noise, True, hits_off, klass_of)
         facts_after = _fact_count(client, graph)
         by_class = {
             "critical": len(moved & crit),

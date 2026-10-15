@@ -177,3 +177,46 @@ already there, and replaces its own block on a re-run. A failing scan never fail
 - `facts_to_verify` ranks at most 5000 suspect ids; `docs_to_update` keeps up to 10 changes per doc.
 - The audit rows (`ToolCall`) and Steps record the tools. The View API shows `Change` / `CodeAnchor` nodes, the Fact fields and
   `/verify-queue`, `/docs-to-update` (see `docs/view-api.schema.json`).
+
+## Real run (P7-int): Claude Code verifies a stale memory on a copy of the physio graph
+
+Recording: `plexus/demo_data/recordings/physio-stale-sonnet/` (graph dump, `meta.json`, the prompt and both transcripts).
+Setup script: `scripts/p7_real_run_setup.sh`. Model `claude-sonnet-5-5` through `claude -p` (subscription, `env -u
+ANTHROPIC_API_KEY`, no `--bare`), `--max-turns 12`, tools `mcp__plexus__*` and `Read` only, 0 permission denials.
+
+What was set up (nothing was written to the compose stack: the graph `plexus_t_byo` (42 facts) was read with `DUMP` from
+the compose database, `RESTORE`d and `GRAPH.COPY`-ed to `plexus_t_physio_test` on the private test database):
+
+1. A scratch copy of `pv-core-api` (the original is untouched). The fact "payment gateways: eSewa and Khalti ... Legacy imepay
+   is aliased to Khalti ..." was anchored with `anchor_fact` to `normalize_method` in the copy's
+   `app/services/payments/gateway.py`, and the README `Source` was linked with `describe_code`. (The task text names
+   `create_gateway_payment`; this repo has no such function, the payment gateway routing lives in `gateway.py`.)
+2. `plexus code baseline` (1 file, 11 entries, nothing stale), then one edit: `normalize_method` no longer applies the
+   `imepay -> khalti` alias. `plexus code scan --paths app/services/payments/gateway.py`:
+   `2 changed, 1 memory may be stale; decisions built on them: 3; docs to update: README.md`.
+3. One `claude -p` with the prompt in `prompt.txt` (call `facts_to_verify`, read the code, `verify_fact`, `docs_to_update`).
+
+What Claude did (run 2, 5 turns, 21 s, $0.043 notional): `facts_to_verify` (one row, reason `changed in working tree
+(.../gateway.py)`) and `docs_to_update` in parallel, `Read` of `gateway.py`, then
+`verify_fact(still_true=false, new_value=<the fact with the alias clause corrected>, evidence=<the path>)`. Its summary
+named the stale clause, the three flagged decisions, the README and, unprompted, `AGENTS.md` (not registered in Plexus) and a
+code comment that does not match the code.
+
+Graph after the run (`plexus demo record`: 340 nodes, 1310 edges): the old fact `superseded`, `valid_to` = the `Change`
+time (`1792096666958`), the new fact `active` with `valid_from` = the same instant and `recorded_at` later (two
+timelines); `VERIFIED_BY {outcome: 'changed', agent: claude-verifier, evidence: <path>}` on the old fact; 1 `Change`, 1
+`SUSPECTED`, 11 `CodeAnchor` (the file and its 10 symbols), 3 decisions flagged `fact changed: <id>`; 0 suspect facts left.
+
+**The first run found a bug.** Run 1 (`transcripts/01-run1-before-fix.jsonl`, $0.17) behaved the same, but `verify_fact`
+answered `outcome: changed` with `new_fact_id` equal to the old fact id and `valid_to` still open. `assert_fact` had treated the
+corrected text (one clause of a 326-character fact) as a paraphrase duplicate of the old one, so the old text stayed
+current while the three decisions were flagged and the fact was marked verified. Fix: `verify_fact` now asserts with the
+paraphrase check off (`Engram.assert_fact(dup_threshold=-1)`; an equal normalised value still counts as a confirmation);
+`tests/staleness/test_verify.py::test_a_small_correction_of_a_long_fact_is_recorded_not_swallowed_as_a_paraphrase` pins it.
+Run 2 is after the fix; the graph was rebuilt from the dump before it.
+
+What this shows and does not show: one real agent, on one planted change, followed the loop with the tools alone and
+the result is in the graph as designed. It is a demonstration, not a measurement of how often agents verify well; the
+precision/recall of the flagging is in `docs/BASELINE.md` (L5a). The graph is the owner's own project notes (no third-party
+data); test accounts mentioned in it are the seeded ones.
+

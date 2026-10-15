@@ -189,6 +189,21 @@ def render_report(res: dict[str, Any]) -> str:
                 f"{_pct(rc.get('cold', {}).get('recall@5'))} | {_pct(m['noise_share'])} | {m['chars_per_recall']:.0f} | "
                 f"{m.get('critical_probe_loss', '-')} |"
             )
+        L += [
+            "",
+            "Post-hoc diagnostic (added after the first run; not pre-registered): class of the rows ranked above the "
+            "target (on a miss, of all rows returned), summed over all probes:",
+            "",
+            "| Mode | noise | hot | critical | cold | other |",
+            "|---|---|---|---|---|---|",
+        ]
+        for name, m in f["modes"].items():
+            ab = m.get("ranked_above_target", {})
+            L.append(
+                f"| {name} | "
+                + " | ".join(str(ab.get(k, 0)) for k in ("noise", "hot", "critical", "cold", "other"))
+                + " |"
+            )
         sw = f["sweep"]
         L += [
             "",

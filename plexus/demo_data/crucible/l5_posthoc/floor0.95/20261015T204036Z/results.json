@@ -1,0 +1,222 @@
+{
+  "criteria": [
+    {
+      "hard": true,
+      "id": "L5b critical-probe loss = 0 (on, on+sweep)",
+      "ok": true,
+      "value": [
+        0,
+        0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "L5b no critical fact moved to dormant",
+      "ok": true,
+      "value": 0
+    },
+    {
+      "hard": true,
+      "id": "L5b fact count unchanged by the sweep",
+      "ok": true,
+      "value": [
+        480,
+        480
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b recall@5 of 'on' within 0.02 of 'off'",
+      "ok": true,
+      "value": [
+        0.9857142857142858,
+        0.9857142857142858
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b noise share reduced",
+      "ok": true,
+      "value": [
+        0.23285714285714285,
+        0.1442857142857143
+      ]
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "forgetting": {
+    "classes": {
+      "cold": 51,
+      "critical": 80,
+      "hot": 9
+    },
+    "config": {
+      "days": 90,
+      "embedder": "FastEmbedder",
+      "ks": [
+        1,
+        3,
+        5
+      ],
+      "noise_per_subject": 5,
+      "seed": 20261016,
+      "sprints": 20
+    },
+    "history": {
+      "agents": [
+        "planner",
+        "researcher",
+        "builder"
+      ],
+      "conflicting_pairs": 40,
+      "decisions": 120,
+      "episodes": 80,
+      "facts": 180,
+      "forgotten_facts": 20,
+      "handoffs": 80,
+      "real_active_facts": 140,
+      "reclaims": 20,
+      "sources": 160,
+      "sprints": 20,
+      "supersedes": 20,
+      "tasks": 240
+    },
+    "modes": {
+      "off": {
+        "chars_per_recall": 323.1928571428571,
+        "noise_share": 0.23285714285714285,
+        "ranked_above_target": {
+          "cold": 5,
+          "critical": 42,
+          "noise": 4
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.7571428571428571,
+            "recall@3": 0.9714285714285714,
+            "recall@5": 0.9857142857142858
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.9607843137254902,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6125,
+            "recall@3": 0.95,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 0.8888888888888888,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700
+      },
+      "on": {
+        "chars_per_recall": 297.37142857142857,
+        "critical_probe_loss": 0,
+        "noise_share": 0.18428571428571427,
+        "ranked_above_target": {
+          "critical": 56
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.6928571428571428,
+            "recall@3": 0.9785714285714285,
+            "recall@5": 0.9857142857142858
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.7254901960784313,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6375,
+            "recall@3": 0.9625,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700
+      },
+      "on+sweep": {
+        "chars_per_recall": 282.6642857142857,
+        "critical_probe_loss": 0,
+        "noise_share": 0.1442857142857143,
+        "ranked_above_target": {
+          "cold": 14,
+          "critical": 96,
+          "hot": 10
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.6714285714285714,
+            "recall@3": 0.8642857142857143,
+            "recall@5": 0.8785714285714286
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.6666666666666666,
+            "recall@3": 0.6862745098039216,
+            "recall@5": 0.7058823529411765
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6375,
+            "recall@3": 0.9625,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700
+      }
+    },
+    "noise_facts": 300,
+    "reads": {
+      "critical_reads": 80,
+      "hot_facts": 9,
+      "read_edges": 739
+    },
+    "seconds": {
+      "noise": 8.5,
+      "play": 20.4
+    },
+    "sweep": {
+      "dry_run_critical_candidates": 0,
+      "fact_nodes_after": 480,
+      "fact_nodes_before": 480,
+      "moved_by_class": {
+        "cold_real": 15,
+        "critical": 0,
+        "hot": 0,
+        "noise": 171
+      },
+      "moved_total": 186
+    }
+  },
+  "git_commit": "75bd122-dirty",
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 39.8,
+  "started_at": "2026-10-15T20:40:36Z"
+}

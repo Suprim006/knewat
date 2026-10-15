@@ -341,3 +341,67 @@ Accuracy unchanged is a valid outcome and is reported as such.
 **Hypothesis (stated before seeing any result).** recall@5 within ±0.01 between `off` and `on` (the ranking multiplier is bounded to [0.5, 1]; the relevance gap between the target and noise is usually larger); noise share of `on` lower than `off` by a small relative amount (5-25%); `on+sweep` lower again (dormant noise is not returned at all) at a recall within 0.02 of `off`; chars per recall nearly equal for `off` and `on` (k rows are returned either way; only which rows changes); critical loss 0 because every critical fact is protected by its Decision. A possible failure that would count as a finding: cold, non-critical real facts (never read in 90 days) lose rank against noise that was read early, which would lower cold-class recall@5 in `on` and `on+sweep`; the per-class numbers are reported so this is visible.
 
 **Limits (repeated in the results).** One synthetic scenario repeated 20 times; noise is generated from templates, so it is more regular than real clutter; the read schedule is simulated, not observed; the probes are fact lookups (the part of the L2-scale question set that is about stored facts), not the full 36 questions, which are answered by hand-written Cypher and do not call `recall`. No LLM is involved, so this says nothing about the answer quality of an agent.
+
+
+## L5 results (staleness and forgetting; run after the pre-registration above)
+
+Source of truth: `plexus/demo_data/crucible/l5/` (`results.json` + `report.md` per run), produced by `python -m plexus.crucible.l5`; no LLM call (0). Code state: `p7-int` at `75bd122` for run 1 (then a diagnostic table was added to the harness; runs 2 and 3 are that code, uncommitted at the time of the run, `-dirty` in `results.json`). Embedder: fastembed `bge-small`. Runs on one private FalkorDB 6.0.2 container. Plexus ids are random UUIDs, so repeated runs differ in small ways (which facts are "hot", which noise gets read); the three N=5 numbers below show how much.
+
+### L5a: staleness, 60 facts, 21 commits (run `20261015T202726Z`)
+
+| Arm | TP | FP | FN | precision | recall | stale returned unflagged | stale not in the top 3 |
+|---|---|---|---|---|---|---|---|
+| S symbol-level anchors | 19 | 0 | 0 | 100% | 100% | **0** | 0 |
+| F file-level anchors | 19 | 106 | 0 | 15.2% | 100% | **0** | 0 |
+| N no anchors (baseline) | 0 | 0 | 19 | n/a | 0% | 19 | 0 |
+
+19 (commit, fact) pairs changed over the 20 change commits. Facts flagged by edit kind: S flagged only the changed functions (`value` 9, `docstring` 4, `sibling` 4, `delete` 2) and nothing for `add`, `module-comment`, `whitespace` and `reorder`; F flagged all 5 facts of a file for every edit of that file, so the four kinds that change no function cost it 40 flags in 8 commits (`add` 10, `module-comment` 15, `whitespace` 5, `reorder` 10). All pre-registered hypotheses held: S exact, F recall 1.0 with precision 15.2% (I had predicted 15-45%, the low edge), N misses all 19, and the hard criterion (unflagged = 0 for S and F) passed. Why: a stale fact is returned by `recall` with `verify_state = 'suspect'` as soon as `mark_changed` has seen the commit; the baseline arm shows what happens without anchors: every one of the 19 stale facts comes back looking current.
+
+Reading. The mechanism does what it claims on code where every fact is about one function; the file-level fallback is safe (recall 100%) but noisy (15% precision: 85% of what it flags is not stale). That noise is the price of not parsing symbols (other languages are file level only) and is the argument for `anchor_fact` with a symbol. It says nothing about facts nobody anchored.
+
+### L5b: forgetting on vs off (the pre-registered design, K = 20 sprints, 140 real facts: critical 80, hot 9, cold 51)
+
+| Run | Mode | recall@1 | recall@3 | recall@5 | critical@5 | cold@5 | noise share | chars / recall | critical loss |
+|---|---|---|---|---|---|---|---|---|---|
+| N=5, run 1 (`...202726Z`) | off | 75.7% | 97.1% | 98.6% | 97.5% | 100% | 23.0% | 322 | n/a |
+| | on | 22.1% | 45.0% | 72.9% | 87.5% | 45.1% | 10.0% | 256 | **8** |
+| | on+sweep | 12.9% | 42.9% | 67.9% | 85.0% | 35.3% | 4.7% | 245 | **10** |
+| N=5, run 2 (`...203329Z`) | off | 75.0% | 97.1% | 98.6% | 97.5% | 100% | 27.1% | 330 | n/a |
+| | on | 19.3% | 45.0% | 75.0% | 87.5% | 51.0% | 9.9% | 258 | **8** |
+| | on+sweep | 15.0% | 41.4% | 65.7% | 82.5% | 33.3% | 6.0% | 250 | **12** |
+| N=15 stress (`...203417Z`) | off | 76.4% | 97.1% | 97.9% | 96.2% | 100% | 31.0% | 339 | n/a |
+| | on | 22.9% | 53.6% | 79.3% | 87.5% | 62.7% | 14.0% | 273 | **7** |
+| | on+sweep | 17.1% | 42.9% | 67.9% | 82.5% | 39.2% | 9.6% | 260 | **11** |
+
+The sweep (real, `dry_run=false`) moved 187-188 facts to dormant at N=5 (572 of 587 at N=15): **0 critical, 0 hot**, 15-16 cold real, the rest noise; the number of `Fact` nodes was identical before and after (480/480, 1080/1080); no dry-run candidate was a critical fact.
+
+Pass criteria (fixed beforehand), run 1 / run 2 / N=15:
+
+| Criterion | Result |
+|---|---|
+| Critical-probe loss = 0 (hard) | **FAIL** (8 and 10 / 8 and 12 / 7 and 11 lost) |
+| No critical fact moved to dormant (hard) | PASS (0) |
+| Fact count unchanged by the sweep (hard) | PASS |
+| recall@5 of `on` within 0.02 of `off` | **FAIL** (72.9% / 75.0% / 79.3% against 98.6% / 98.6% / 97.9%) |
+| Noise share reduced | PASS (23.0% -> 10.0% on, 4.7% on+sweep; 27.1% -> 9.9% / 6.0%) |
+
+**The pre-registered hypothesis was wrong, and the result is a negative one for the default settings.** I predicted recall@5 within +-0.01 and critical loss 0; activation ranking with the default floor 0.5 cost 19-26 points of recall@5 and lost 7-8 of the 80 critical probes (and the sweep made it worse by hiding 15-16 cold real facts: cold@5 fell from 100% to 33-39%). Noise share did fall by more than half, as hoped, but "chars per recall" (322 -> 256) is not a saving: k rows are returned either way, the drop is the composition (shorter facts rank higher), and the answer was wrong more often.
+
+Post-hoc diagnostic (added to the harness after run 1; not pre-registered): the class of the rows ranked above the target. Run 2, mode `on`: noise 1, hot 12, **critical 367**, cold 0. So the noise is not what displaces the target; **protected (critical) and hot facts of the other sprints do**. The 20 sprints repeat the same story with near-identical texts ("Acme Notes API S07 ..." against "... S08 ..."), the relevance gap between a sprint's fact and its twin in another sprint is tiny, and the multiplier `floor + (1 - floor) * sigmoid(A - A0)` moves a protected fact (`max(A, A0)`, multiplier 0.75) or a hot one (about 1.0) far more than that gap, against a cold or unprotected target (about 0.52). In other words activation ranking, as tuned, over-weights popularity against relevance when many facts are nearly the same text. Real memory has less of this (versions are `SUPERSEDES`d and leave `active`, scopes separate projects) but the failure is real for near-duplicate facts in one scope, and it is exactly the pre-registered "possible failure".
+
+Post-hoc sensitivity (exploratory; the design was chosen after seeing the failure, so it is a hypothesis for a new pre-registered run, not a result): the same run with `PLEXUS_ACT_FLOOR` raised (`demo_data/crucible/l5_posthoc/floor*/`; one run each; N=5):
+
+| Floor | recall@5 `on` (off 98.6%) | critical loss `on` / `on+sweep` | noise share `off` -> `on` | recall@5 `on+sweep` |
+|---|---|---|---|---|
+| 0.5 (default) | 72.9-75.0% | 7-8 / 10-12 | 23-27% -> 10% | 65.7-67.9% |
+| 0.8 | 87.1% | 1 / 1 | 26.3% -> 11.9% | 87.1% |
+| 0.9 | 96.4% | 0 / 0 | 22.7% -> 14.1% | 87.1% |
+| 0.95 | 98.6% | 0 / 0 | 23.3% -> 18.4% | 87.9% |
+
+A floor of 0.9-0.95 keeps the critical probes and (0.95) all of recall@5, at the cost of removing less noise (18.4% against 23.3% at 0.95). The `on+sweep` column does not recover: a sweep hides the cold real facts (cold@5 68.6-70.6%) whatever the floor, because a cold unprotected fact that nobody read for 90 days is by definition what a sweep selects; the sweep is the lossy part and is optional, dry-run by default, and reversible (`restore_fact`).
+
+Reading, in plain words.
+- **What holds:** nothing is deleted (fact counts equal); protected facts are never swept (0 of 80 critical, 0 of 9 hot); noise share falls substantially with ranking alone; staleness flagging behaves as designed.
+- **What does not hold at the default floor 0.5:** "forgetting does not hurt retrieval" and "critical facts are safe in recall". Protection stops a fact from being swept, not from being outranked in recall by a more popular near-twin. In this benchmark the default made retrieval worse.
+- **Recommendation for the owner (not applied here):** do not claim an accuracy benefit; ship `PLEXUS_FORGETTING=off` as the default, or raise the default floor to about 0.9 and pre-register a fresh run (new seed, N=5 and 15) before keeping it on. The harness and the three environment variables (`PLEXUS_FORGETTING`, `PLEXUS_ACT_FLOOR`) are in place to do that in minutes.
+- **Limits:** one synthetic scenario repeated 20 times (near-identical sprints are the worst case for popularity-weighted ranking); template noise; simulated reads; fact-lookup probes only, not the 36 questions; three N=5 repeats that differ in the second digit because ids are random; the floor sweep is one run per value.

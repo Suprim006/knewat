@@ -264,3 +264,29 @@ def test_a_failure_between_the_two_statements_keeps_the_new_value_but_not_the_ba
     assert stale.facts_to_verify() == []
     with pytest.raises(ValueError, match="superseded"):
         stale.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+
+
+# -- found by the real Claude Code run (P7-int): a small correction is not a duplicate ----------------------
+LONG_OLD = (
+    "eSewa and Khalti (GATEWAY_METHODS = esewa, khalti). Gateway methods return a PENDING payment plus an "
+    "initiation (eSewa signed form / Khalti redirect URL); status becomes COMPLETED only after server-side "
+    "verification via POST /payments/{id}/confirm. Legacy imepay is aliased to Khalti; non-gateway methods "
+    "complete immediately."
+)
+LONG_NEW = LONG_OLD.replace("Legacy imepay is aliased to Khalti", "Legacy imepay is no longer aliased to Khalti")
+
+
+def test_a_small_correction_of_a_long_fact_is_recorded_not_swallowed_as_a_paraphrase(
+    stale, mem, client, graph, clock
+):
+    """The real run corrected one clause of a long fact; ``assert_fact`` called it a paraphrase duplicate of the old
+    fact, so verify_fact reported 'changed' while the old text stayed current. A corrected value must always win."""
+    f = mem.fact("payment gateways", LONG_OLD)
+    stale.anchor_fact(f, P)
+    stale.mark_changed([{"path": P, "new_hash": "h0"}])
+    stale.mark_changed([{"path": P, "new_hash": "h1"}], commit="c1", at=1_500_000)
+    clock.t = 2_000_000
+    out = stale.verify_fact(f, False, new_value=LONG_NEW, agent_id="bob")
+    assert out["outcome"] == "changed" and out["new_fact_id"] != f
+    rows = cypher(client, graph, "MATCH (x:Fact) RETURN x.id, x.status, x.value ORDER BY x.recorded_at")
+    assert [(r[1], r[2]) for r in rows] == [("superseded", LONG_OLD), ("active", LONG_NEW)]
