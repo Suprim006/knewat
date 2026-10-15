@@ -6,7 +6,6 @@ recalled, and nothing here ever deletes: a sweep only moves facts to ``dormant``
 
 from __future__ import annotations
 
-import time
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
@@ -14,6 +13,7 @@ from typing import Any
 from plexus.activation import model
 from plexus.activation.model import Event
 from plexus.activation.settings import Settings
+from plexus.common import check_between, now_ms, unique
 from plexus.graph.client import GraphClient
 
 MAX_IDS = 200  # fact ids per activation query
@@ -29,10 +29,6 @@ _WEIGHTS = {
     "recall": model.W_RECALL,
     "verified": model.W_VERIFIED,
 }
-
-
-def _now_ms() -> int:
-    return time.time_ns() // 1_000_000
 
 
 @dataclass
@@ -64,7 +60,7 @@ class Activation:
         client: GraphClient,
         graph: str,
         settings: Settings | None = None,
-        clock: Callable[[], int] = _now_ms,
+        clock: Callable[[], int] = now_ms,
     ):
         self.client = client
         self.graph = graph
@@ -78,7 +74,7 @@ class Activation:
         ``recall`` events after its ``suspect_since``: being surfaced does not strengthen a doubted fact.
         """
         t = self._clock() if now is None else now
-        ids = list(dict.fromkeys(fact_ids))
+        ids = unique(fact_ids)
         out: dict[str, FactActivation] = {}
         for i in range(0, len(ids), MAX_IDS):
             rows = self.client.ro(
@@ -199,10 +195,8 @@ class Activation:
         run moves them in ONE bounded statement that re-checks protection, so a fact that became protected
         since the listing is skipped. Never deletes; ``restore`` puts a fact back.
         """
-        if not 0 < limit <= MAX_IDS:
-            raise ValueError(f"limit must be between 1 and {MAX_IDS}")
-        if not 0 < scan <= MAX_SWEEP_SCAN:
-            raise ValueError(f"scan must be between 1 and {MAX_SWEEP_SCAN}")
+        check_between("limit", limit, MAX_IDS)
+        check_between("scan", scan, MAX_SWEEP_SCAN)
         t = self._clock() if now is None else now
         thr = self.settings.neutral - SWEEP_MARGIN if threshold is None else float(threshold)
         ids = [
@@ -247,7 +241,7 @@ class Activation:
         threshold is the caller's decision.
         """
         t = self._clock() if now is None else now
-        ids = list(dict.fromkeys(fact_ids))
+        ids = unique(fact_ids)
         moved: list[str] = []
         for i in range(0, len(ids), MAX_IDS):
             rows = self.client.rw(

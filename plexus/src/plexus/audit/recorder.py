@@ -5,10 +5,9 @@ Backed by the named query ``audit/record_tool_call``.
 
 from __future__ import annotations
 
-import time
-import uuid
 from collections.abc import Iterable
 
+from plexus.common import new_id, now_ms
 from plexus.graph.client import GraphClient
 
 MAX_LINKS = 200  # CREATED/UPDATED edges per call (bounded write)
@@ -70,8 +69,8 @@ def record_tool_call(
     """
     created = _links(created_ids, "C", MAX_LINKS)
     updated = _links(updated_ids, "U", MAX_LINKS - len(created))
-    call_id = str(uuid.uuid4())
-    t = now if now is not None else time.time_ns() // 1_000_000
+    call_id = new_id()
+    t = now if now is not None else now_ms()
     rows = client.rw(
         graph,
         "audit/record_tool_call",

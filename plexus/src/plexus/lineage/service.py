@@ -6,12 +6,10 @@ use ``ro``. Time is epoch ms; ``clock`` / ``now`` are injectable for tests.
 
 from __future__ import annotations
 
-import time
-import uuid
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
-from plexus.engram import normalize
+from plexus.common import check_between, new_id, normalize, now_ms, unique
 from plexus.graph.client import GraphClient
 from plexus.lineage import explain
 
@@ -56,32 +54,10 @@ class StepOrderError(LineageError, ValueError):
     """record_step was asked for an ``n`` lower than the agent's latest step."""
 
 
-def _now_ms() -> int:
-    return time.time_ns() // 1_000_000
-
-
-def _new_id() -> str:
-    return str(uuid.uuid4())
-
-
-def _check_limit(limit: int) -> None:
-    if not 0 < limit <= MAX_FORGET_FACTS:
-        raise ValueError(f"limit must be between 1 and {MAX_FORGET_FACTS}")
-
-
-def _check_detail(max_detail: int) -> None:
-    if not 0 < max_detail <= MAX_DETAIL:
-        raise ValueError(f"max_detail must be between 1 and {MAX_DETAIL}")
-
-
-def _ids(values: Iterable[str] | None) -> list[str]:
-    return list(dict.fromkeys(values or ()))
-
-
 class Lineage:
     """Provenance and time-travel operations bound to one tenant graph."""
 
-    def __init__(self, client: GraphClient, graph: str, clock: Callable[[], int] = _now_ms):
+    def __init__(self, client: GraphClient, graph: str, clock: Callable[[], int] = now_ms):
         self.client = client
         self.graph = graph
         self._clock = clock
@@ -114,7 +90,7 @@ class Lineage:
             self.graph,
             "lineage/create_source",
             {
-                "source_id": source_id or _new_id(),
+                "source_id": source_id or new_id(),
                 "uri": uri,
                 "kind": kind,
                 "trust": normalize_trust(trust),
@@ -135,7 +111,7 @@ class Lineage:
         rows = self.client.rw(
             self.graph,
             "lineage/record_step",
-            {"agent_id": agent_id, "step_id": _new_id(), "n": -1 if n is None else int(n), "at": self._t(at)},
+            {"agent_id": agent_id, "step_id": new_id(), "n": -1 if n is None else int(n), "at": self._t(at)},
         )
         r = rows[0]
         if r["step_id"] is None:
@@ -159,7 +135,7 @@ class Lineage:
         """
         if via not in ("use", "recall"):
             raise ValueError("via must be 'use' or 'recall'")
-        wrote, read = _ids(wrote_ids), _ids(read_ids)
+        wrote, read = unique(wrote_ids), unique(read_ids)
         if len(wrote) > MAX_LINK_IDS or len(read) > MAX_LINK_IDS:
             raise ValueError(f"at most {MAX_LINK_IDS} ids per list")
         rows = self.client.rw(
@@ -180,7 +156,7 @@ class Lineage:
         All-or-nothing; raises :class:`UnknownStep` (a LookupError) if the fact or any origin does not exist.
         Returns the number of origins linked.
         """
-        origins = _ids(from_ids)
+        origins = unique(from_ids)
         if fact_id in origins:
             raise ValueError("a fact cannot be derived from itself")
         if len(origins) > MAX_DERIVE_IDS:
@@ -220,7 +196,7 @@ class Lineage:
             )
         if len(rows) > MAX_RECALL_RESULTS:
             raise ValueError(f"at most {MAX_RECALL_RESULTS} results per recall record")
-        recall_id = _new_id()
+        recall_id = new_id()
         res = self.client.rw(
             self.graph,
             "lineage/record_recall",
@@ -280,8 +256,8 @@ class Lineage:
             return self.quarantine(source_id, now=now, limit=limit, max_detail=max_detail)
         if mode != "forget":
             raise ValueError("mode must be 'forget' or 'quarantine'")
-        _check_limit(limit)
-        _check_detail(max_detail)
+        check_between("limit", limit, MAX_FORGET_FACTS)
+        check_between("max_detail", max_detail, MAX_DETAIL)
         rows = self.client.rw(
             self.graph,
             "lineage/forget_source",
@@ -329,8 +305,8 @@ class Lineage:
         (readers: the earliest), the ``*_total`` counts and ``agents`` are always complete. Raises
         :class:`UnknownNode`.
         """
-        _check_limit(limit)
-        _check_detail(max_detail)
+        check_between("limit", limit, MAX_FORGET_FACTS)
+        check_between("max_detail", max_detail, MAX_DETAIL)
         rows = self.client.rw(
             self.graph,
             "lineage/quarantine",
@@ -369,7 +345,7 @@ class Lineage:
 
     def release_quarantine(self, source_id: str, *, limit: int = MAX_FORGET_FACTS) -> dict[str, Any]:
         """Undo :meth:`quarantine`: quarantined facts under the source get their previous status back."""
-        _check_limit(limit)
+        check_between("limit", limit, MAX_FORGET_FACTS)
         rows = self.client.rw(
             self.graph, "lineage/release_quarantine", {"source_id": source_id, "limit": limit}
         )

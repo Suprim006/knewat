@@ -11,13 +11,13 @@ import hashlib
 import json
 import math
 import re
-import time
 from collections.abc import Callable, Sequence
 from typing import Any
 
 from plexus.activation import Activation, Settings
 from plexus.codescan.paths import anchor_id, canonical_path
-from plexus.engram import OPEN, Engram, normalize
+from plexus.common import OPEN, check_between, normalize, now_ms
+from plexus.engram import Engram
 from plexus.graph.client import GraphClient
 from plexus.lineage import Lineage
 
@@ -27,6 +27,7 @@ MAX_AFFECTED = 2000  # facts made suspect per mark_changed call
 MAX_LIST = 200  # facts_to_verify / docs_to_update rows
 SCAN_CAP = 5000  # suspect ids read before ranking
 DEFAULT_DETAIL = 50  # decisions listed per call (the total is exact)
+MAX_DETAIL = 5000  # largest max_detail a caller may ask for
 MAX_FLAGGED = 1000  # decisions flagged by one verify_fact
 MAX_EVIDENCE = 500  # evidence text kept on the VERIFIED_BY edge
 _URL = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://\S+$")
@@ -36,8 +37,10 @@ _CODE_EXT = frozenset(
 )
 
 
-def _now_ms() -> int:
-    return time.time_ns() // 1_000_000
+def _change_id(commit: str, t: int, rows: Sequence[dict[str, Any]]) -> str:
+    """Deterministic ``Change`` id: the same commit, time and anchor hashes give the same id (idempotent)."""
+    parts = [commit, str(t), *sorted(f"{e['anchor_id']}={e['new_hash']}" for e in rows)]
+    return "chg:" + hashlib.sha1("|".join(parts).encode()).hexdigest()[:16]  # noqa: S324
 
 
 class Staleness:
@@ -49,7 +52,7 @@ class Staleness:
         graph: str,
         *,
         engram: Engram | None = None,
-        clock: Callable[[], int] = _now_ms,
+        clock: Callable[[], int] = now_ms,
         rank: Callable[[list[dict[str, Any]]], list[dict[str, Any]]] | None = None,
         forgetting: bool | None = None,
     ):
@@ -181,52 +184,21 @@ class Staleness:
         and the hashes are not advanced: call again with the same arguments (including the returned ``at``) to
         continue with the same Change.
         """
-        if not 0 < limit <= MAX_AFFECTED:
-            raise ValueError(f"limit must be between 1 and {MAX_AFFECTED}")
-        if not 0 < max_detail <= 5000:
-            raise ValueError("max_detail must be between 1 and 5000")
+        check_between("limit", limit, MAX_AFFECTED)
+        check_between("max_detail", max_detail, MAX_DETAIL)
         if len(changes) > MAX_CHANGES:
             raise ValueError(f"at most {MAX_CHANGES} changes per call")
         if not changes:
             raise ValueError("changes must not be empty")
-        entries: dict[str, dict[str, Any]] = {}
-        for ch in changes:
-            cpath = canonical_path(ch["path"])
-            symbol = (ch.get("symbol") or "").strip()
-            kind = ch.get("kind") or ("function" if symbol else "file")
-            if kind not in KINDS or (kind == "file") != (symbol == ""):
-                raise ValueError(f"bad kind '{kind}' for symbol '{symbol}'")
-            aid = anchor_id(cpath, symbol)
-            entries[aid] = {  # the last entry for an anchor wins
-                "anchor_id": aid,
-                "path": cpath,
-                "symbol": symbol,
-                "kind": kind,
-                "repo": ch.get("repo") or repo,
-                "new_hash": ch.get("new_hash") or "",
-                "old_hash": ch.get("old_hash") or "",
-                "cover": False,
-            }
-        with_symbols = {e["path"] for e in entries.values() if e["symbol"]}
-        for e in entries.values():
-            e["cover"] = e["kind"] == "file" and e["path"] not in with_symbols
-        rows = list(entries.values())
+        rows = self._change_entries(changes, repo)
         t = self._t(at)
-        change_id = (
-            "chg:"
-            + hashlib.sha1(  # noqa: S324
-                "|".join(
-                    [commit, str(t), *sorted(f"{e['anchor_id']}={e['new_hash']}" for e in rows)]
-                ).encode()
-            ).hexdigest()[:16]
-        )
         res = self.client.rw(
             self.graph,
             "staleness/mark_changed",
             {
                 "changes": rows,
                 "paths": sorted({e["path"] for e in rows}),
-                "change_id": change_id,
+                "change_id": _change_id(commit, t, rows),
                 "commit": commit,
                 "at": t,
                 "now": self._t(now),
@@ -248,6 +220,36 @@ class Staleness:
             "docs_to_update": sorted((dict(d) for d in r["docs"]), key=lambda d: (d["uri"], d["anchor"])),
             "truncated": bool(r["truncated"]),
         }
+
+    @staticmethod
+    def _change_entries(changes: Sequence[dict[str, Any]], repo: str) -> list[dict[str, Any]]:
+        """One row per anchor for the ``staleness/mark_changed`` UNWIND (the last entry for an anchor wins).
+
+        ``cover`` marks a file-level entry that also covers the symbol anchors of its file, which only
+        happens when the batch has no symbol entries for that file.
+        """
+        entries: dict[str, dict[str, Any]] = {}
+        for ch in changes:
+            cpath = canonical_path(ch["path"])
+            symbol = (ch.get("symbol") or "").strip()
+            kind = ch.get("kind") or ("function" if symbol else "file")
+            if kind not in KINDS or (kind == "file") != (symbol == ""):
+                raise ValueError(f"bad kind '{kind}' for symbol '{symbol}'")
+            aid = anchor_id(cpath, symbol)
+            entries[aid] = {
+                "anchor_id": aid,
+                "path": cpath,
+                "symbol": symbol,
+                "kind": kind,
+                "repo": ch.get("repo") or repo,
+                "new_hash": ch.get("new_hash") or "",
+                "old_hash": ch.get("old_hash") or "",
+                "cover": False,
+            }
+        with_symbols = {e["path"] for e in entries.values() if e["symbol"]}
+        for e in entries.values():
+            e["cover"] = e["kind"] == "file" and e["path"] not in with_symbols
+        return list(entries.values())
 
     # -- verification ---------------------------------------------------------------------------------
     def verify_fact(
@@ -290,23 +292,40 @@ class Staleness:
         old = rows[0]
         note = evidence.strip()
         if still_true or normalize(new_value) == old["norm_value"]:
-            self.client.rw(
-                self.graph,
-                "staleness/verify_confirm",
-                {
-                    "fact_id": fact_id,
-                    "agent_id": agent_id,
-                    "commit": commit,
-                    "evidence": note[:MAX_EVIDENCE],
-                    "now": t,
-                    "open_to": OPEN,
-                },
-            )
-            return {"fact_id": fact_id, "outcome": "confirmed", "flagged_decisions": []}
+            return self._confirm_fact(fact_id, agent_id, commit, note, t)
         if old["status"] != "active":
             raise ValueError(
                 f"fact '{fact_id}' is {old['status']}, not current: verify the fact that replaced it"
             )
+        return self._replace_fact(old, fact_id, new_value, agent_id, commit, note, t)
+
+    def _confirm_fact(self, fact_id: str, agent_id: str, commit: str, note: str, t: int) -> dict[str, Any]:
+        """``VERIFIED_BY {outcome: 'confirmed'}``: the fact is still true; ``verified_at`` is refreshed."""
+        self.client.rw(
+            self.graph,
+            "staleness/verify_confirm",
+            {
+                "fact_id": fact_id,
+                "agent_id": agent_id,
+                "commit": commit,
+                "evidence": note[:MAX_EVIDENCE],
+                "now": t,
+                "open_to": OPEN,
+            },
+        )
+        return {"fact_id": fact_id, "outcome": "confirmed", "flagged_decisions": []}
+
+    def _replace_fact(
+        self,
+        old: dict[str, Any],
+        fact_id: str,
+        new_value: str,
+        agent_id: str,
+        commit: str,
+        note: str,
+        t: int,
+    ) -> dict[str, Any]:
+        """Supersede ``old`` with ``new_value`` (Engram), then backdate and flag in one statement."""
         source_id = self._evidence_source(note, t)
         r = self._engram_().assert_fact(
             old["subject"],
@@ -398,8 +417,7 @@ class Staleness:
         the list does not strengthen the facts. An optional ``rank`` callable given to the constructor
         replaces the ordering.
         """
-        if not 0 < limit <= MAX_LIST:
-            raise ValueError(f"limit must be between 1 and {MAX_LIST}")
+        check_between("limit", limit, MAX_LIST)
         t = self._t(now)
         ids = [
             r["id"] for r in self.client.ro(self.graph, "staleness/suspect_ids", {"now": t, "cap": SCAN_CAP})
@@ -483,8 +501,7 @@ class Staleness:
         newest change first. A doc whose own file was reported to ``mark_changed`` after the code change drops
         off the list.
         """
-        if not 0 < limit <= MAX_LIST:
-            raise ValueError(f"limit must be between 1 and {MAX_LIST}")
+        check_between("limit", limit, MAX_LIST)
         rows = self.client.ro(
             self.graph,
             "staleness/docs_to_update",
