@@ -76,7 +76,7 @@ and ports (`docker compose -p other ...`, see the header of `docker-compose.yml`
 
 | # | Do | Expected |
 |---|---|---|
-| 1 | `cp .env.example .env && docker compose up -d --wait`, then open http://localhost:5180 and http://localhost:3000 | 4 services `healthy` (≈ 4 min the first time). The View header says `Tenant: unavailable` or an empty tenant list until step 2; the FalkorDB Browser opens |
+| 1 | `cp .env.example .env && docker compose up -d --wait --build`, then open http://localhost:5180 and http://localhost:3000 | 4 services `healthy` (≈ 4 min the first time). The View header says `Tenant: unavailable` or an empty tenant list until step 2; the FalkorDB Browser opens |
 | 2 | `docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo`, reload the View, pick tenant `demo`. **Inventory**: counts; **Explorer**: graph | `replayed 'acme-claude-sonnet' into tenant 'demo': 247 nodes, 708 edges (matches meta.json: True)`. Inventory: 247 nodes, 708 edges, 14 labels, 26 edge types (Agent 3, Decision 4, Handoff 4, Task 12, Fact 6, Source 6, Step 83, ToolCall 83, ...). Explorer shows the graph (51 of 247 nodes by default: Step, ToolCall, Session, Recall are hidden; tick them in the left panel) |
 | 3 | Open **Flow**, then in another terminal `docker compose run --rm plexus-cli demo live --scripted --tenant live --speed 4`; switch the View's tenant to `live`. Click an event | Flow shows `stream: open` and `ToolCall`s arriving (67 in this run: `claim_next_task`, `assert_fact`, `record_decision`, ...). Clicking one shows the Cypher it ran and a mini-graph of the nodes it created. The terminal prints the fault events: `kill_builder @15`, `reclaim` by the researcher, `publish_v2 @20`, `version_superseded @22`, `auth_contradiction @42` |
 | 4 | Kill an agent mid-run: the scripted run does it for you at step 15 (`--kill-at N` moves it). For a real kill use `plexus demo live --claude` (spends your Claude subscription; optional) | The builder's task `t03-design-endpoints` is reclaimed after its lease expires: Flow shows `claim_next_task` by `researcher` right after the gap; in the Explorer the `CLAIMED` edge carries `reclaimed_from = builder`. Query: `MATCH (a:Agent)-[c:CLAIMED]->(t:Task) WHERE c.reclaimed_from <> '' RETURN a.id, t.id` in the FalkorDB Browser (graph `plexus_t_live`) → `researcher, t03-design-endpoints` |
@@ -90,6 +90,8 @@ and ports (`docker compose -p other ...`, see the header of `docker-compose.yml`
 
 ### If a step does not match
 
+- **`exec: "plexus": executable file not found`** (or old behaviour from the API/MCP): an older `plexus:dev` image was reused. Run `docker compose build plexus-api && docker compose up -d --wait --force-recreate` (or always start with `up -d --wait --build`).
+- **`Bad Request: Missing session ID` at `:8765/mcp/t/<tenant>` in a browser**: normal. That URL is an MCP endpoint, not a page; connect an MCP client (owner step 9).
 - **Tenant list empty / "unavailable"**: the replay has not run yet, or the View was built for another API port (change `PLEXUS_API_PORT` → `docker compose up -d --build`).
 - **Ports in use**: set the five ports in `.env`; on the dev machine 6379 and 3000 belong to `falkordb-dev`.
 - **A first `docker compose run` after `up` recreates containers**: it happens when a variable such as `PLEXUS_API_PORT` is set in your shell with another value than `.env` (the shell wins). `env | grep -E "PLEXUS|FALKORDB"`.

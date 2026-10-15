@@ -7,7 +7,7 @@ three unmodified Claude Code agents, Sonnet). Ids are copy-pasteable into the Vi
 
 ## Before recording
 
-1. `docker compose up -d --wait`, then `docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo` and the same with `acme-scripted --tenant demo_scripted` (the public site has both tenants; locally you need both for beat 7).
+1. `docker compose up -d --wait --build`, then `docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo` and the same with `acme-scripted --tenant demo_scripted` (the public site has both tenants; locally you need both for beat 7).
 2. Open the View on http://localhost:5180 (or `<RENDER_URL>`), tenant `demo`. Open the FalkorDB Browser http://localhost:3000, graph `plexus_t_demo`, in a second tab. Have a terminal in the repo root.
 3. Pre-open: `/why/d6cdfc22-7653-43dc-a025-31167e8ae048`, the Time Machine, the Results page scrolled to "L2 at scale".
 4. Rehearse once: the Flow replay and the ablation command each take a few seconds; cut, do not wait.

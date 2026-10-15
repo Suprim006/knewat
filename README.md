@@ -13,7 +13,7 @@ with a graph query, not a guess.
 | Live demo | `<RENDER_URL>` (one container on Render Free: the View, the read-only API and a public MCP endpoint, see [Live demo](#live-demo)) |
 | Demo video (≤ 3 min) | `<VIDEO_URL>` (script: [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md)) |
 | Blog post | [`docs/BLOG_DRAFT.md`](docs/BLOG_DRAFT.md) |
-| Run it yourself | `docker compose up -d --wait`, see [Setup](#setup) (Docker is the only requirement) |
+| Run it yourself | `docker compose up -d --wait --build`, see [Setup](#setup) (Docker is the only requirement) |
 
 Plexus itself contains **no LLM and no LLM credentials**. The agents in the demo are the unmodified `claude` binary; every
 Plexus tool is a deterministic Cypher query. Only synthetic data is used (a fictional "Acme Notes API" team).
@@ -268,7 +268,8 @@ replay; evidence in [`docs/TESTING.md`](docs/TESTING.md)).
 ```bash
 git clone <this repo> plexus && cd plexus
 cp .env.example .env                    # optional: the defaults work; edit it only if a host port below is already taken
-docker compose up -d --wait             # builds and starts FalkorDB 6.0.2, the View API, the MCP server and the View
+docker compose up -d --wait --build     # builds and starts FalkorDB 6.0.2, the View API, the MCP server and the View
+                                        # (--build matters if an older plexus:dev image exists: compose would reuse it)
 docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo    # load the recorded real Claude Code run
 ```
 
@@ -277,7 +278,7 @@ docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo 
 | http://localhost:5180 | **The View.** Pick tenant `demo` in the header: Explorer, Flow, Time Machine, Why, Inventory and **Results** (the Crucible benchmark: L1, L2, L2 at scale, L4, ablation) |
 | http://localhost:3000 | FalkorDB Browser (the raw graph: graph `plexus_t_demo`) |
 | http://localhost:8080/api/tenants | the read-only View API (`/api/demo/inventory`, `/api/demo/graph`, `/api/results`, ...) |
-| http://localhost:8765/mcp/t/demo | the MCP server (streamable HTTP, tenant `demo` pinned by the path) |
+| http://localhost:8765/mcp/t/demo | the MCP server (streamable HTTP, tenant `demo` pinned by the path). It is an MCP endpoint, not a web page: a plain browser GET answers `Bad Request: Missing session ID`, which is normal. Connect an MCP client (see [Bring your own agent](#bring-your-own-agent)) |
 
 **How you know it worked:** the replay prints `replayed 'acme-claude-sonnet' into tenant 'demo': 247 nodes, 708 edges (matches
 meta.json: True)`; Inventory shows 247 nodes, 708 edges, 14 labels, 26 edge types; Flow lists 83 tool calls; Results shows
