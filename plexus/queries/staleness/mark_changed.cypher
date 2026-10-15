@@ -1,11 +1,11 @@
 // name: staleness/mark_changed
-// purpose: ONE atomic statement for a batch of code changes (at most 200 entries): find which anchors / doc Sources really changed (hash differs), make the active Facts that depend on them suspect, record one Change with TOUCHED / SUSPECTED edges, and report the decisions at risk and the docs to update.
+// purpose: ONE atomic statement for a batch of code changes (at most 200 entries): find which anchors / doc Sources really changed (hash differs), make the active and dormant Facts that depend on them suspect, record one Change with TOUCHED / SUSPECTED edges, and report the decisions at risk and the docs to update.
 // params: changes:list[map], paths:list[str], change_id:str, commit:str, at:int, now:int, agent_id:str, limit:int, limit_plus:int, max_detail:int
 // returns: one row: change_id (null when nothing changed), changed (entries whose hash changed), fact_ids (facts made suspect by THIS call; at most limit), decisions ([{id, text}], at most max_detail), decisions_total, docs ([{source_id, uri, anchor}]), truncated (true when more than `limit` facts are affected: call again with the same arguments to continue).
 // mode: rw
 // Each entry of $changes: {anchor_id, path, symbol, kind ('file'|'function'|'class'), repo, new_hash, old_hash, cover}. `cover` is true on a file-level entry whose file has no symbol entries in the batch: then a file change also covers the symbol anchors of that file.
 // Changed means: previous hash <> '' and previous hash <> new_hash, where previous = the hash stored on the anchor (or on the Source, content_hash, for implicit anchoring) and, when none is stored yet, the caller's old_hash. A first sighting without old_hash is a baseline: it is recorded and marks nothing. new_hash = '' means the file / symbol is gone.
-// Affected facts (status 'active' only): Facts ANCHORED_TO a changed anchor, plus Facts reaching a Source whose uri is a changed file through DERIVED_FROM*1..5 (expanded level by level from the Source, as lineage/forget_source does, so the work follows edges).
+// Affected facts (status 'active' or 'dormant'; a swept fact must be doubted too, or restore_fact would bring it back looking fresh. fact_ids lists the active ones only, a dormant fact is hidden until it is restored): Facts ANCHORED_TO a changed anchor, plus Facts reaching a Source whose uri is a changed file through DERIVED_FROM*1..5 (expanded level by level from the Source, as lineage/forget_source does, so the work follows edges).
 // Truncation: at most $limit facts are marked per call ($limit_plus = $limit + 1, so truncation can be detected; LIMIT takes no expression). When more are affected the anchor / Source hashes are NOT advanced and the Change id is deterministic (the caller derives it from commit, at and the new hashes), so the same call again continues: facts already SUSPECTED by that Change are skipped, and the hashes advance on the last call.
 // FalkorDB 6.0.2 quirk: a WHERE attached to an OPTIONAL MATCH that follows aggregations evaluated as false for a node that exists, so the doc filter is a CASE in the next WITH.
 // Writes are bounded: UNWIND sizes are <= 200 entries and <= $limit facts; the five-level expansion only reads.
@@ -26,7 +26,7 @@ OPTIONAL MATCH (sa:CodeAnchor {path: cp}) WHERE sa.symbol <> ''
 WITH cc, cas, srcs, srcs_all, collect(sa) AS sas
 WITH cc, srcs, srcs_all, cas + sas AS aff
 UNWIND CASE WHEN size(aff) = 0 THEN [null] ELSE aff END AS ax
-OPTIONAL MATCH (fa:Fact {status: 'active'})-[:ANCHORED_TO]->(ax)
+OPTIONAL MATCH (fa:Fact)-[:ANCHORED_TO]->(ax)
 WITH cc, srcs, srcs_all, aff, collect(DISTINCT fa) AS fa_list
 UNWIND CASE WHEN size(srcs) = 0 THEN [null] ELSE srcs END AS sx
 OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(sx)
@@ -43,7 +43,7 @@ WITH cc, srcs_all, aff, fa_list, l1, l2, l3, collect(DISTINCT n4) AS l4
 UNWIND CASE WHEN size(l4) = 0 THEN [null] ELSE l4 END AS x4
 OPTIONAL MATCH (n5:Fact)-[:DERIVED_FROM]->(x4)
 WITH cc, srcs_all, aff, fa_list, l1 + l2 + l3 + l4 AS reach4, collect(DISTINCT n5) AS l5
-WITH cc, srcs_all, aff, fa_list + [r IN reach4 + l5 WHERE r.status = 'active'] AS cand
+WITH cc, srcs_all, aff, [r IN fa_list + reach4 + l5 WHERE r.status IN ['active', 'dormant']] AS cand
 UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 OPTIONAL MATCH (:Change {id: $change_id})-[sr:SUSPECTED]->(f)
 WITH cc, srcs_all, aff, f, sr
@@ -88,5 +88,6 @@ FOREACH (_ IN CASE WHEN anychanged THEN [1] ELSE [] END |
         an.updated_at = $at, an.created_at = $now
       ON MATCH SET an.updated_at = CASE WHEN an.hash = c.new_hash THEN an.updated_at ELSE $at END, an.hash = c.new_hash
     FOREACH (_a IN CASE WHEN c.anchor_id IN ccids THEN [1] ELSE [] END | MERGE (ch)-[:TOUCHED]->(an))))
-RETURN CASE WHEN anychanged THEN $change_id ELSE null END AS change_id, size(cc) AS changed, [z IN fs | z.id] AS fact_ids,
+RETURN CASE WHEN anychanged THEN $change_id ELSE null END AS change_id, size(cc) AS changed,
+       [z IN fs WHERE z.status = 'active' | z.id] AS fact_ids,
        [e IN ds[0..$max_detail] | {id: e.id, text: e.text}] AS decisions, size(ds) AS decisions_total, docs, truncated

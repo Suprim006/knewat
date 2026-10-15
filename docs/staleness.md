@@ -53,6 +53,8 @@ A fact is **suspect at time t** if `coalesce(verify_state,'verified') = 'suspect
 Canonical paths (`CodeAnchor.path`, doc `Source.uri`): absolute, `/` separators, upper-case drive letter, no `.`/`..`,
 no trailing slash (`C:/repo/app/payments.py`). One helper, `plexus.codescan.paths.canonical_path`, is used by the
 client and the server; it is pure string handling, so a Linux container normalises a Windows path the same way.
+The client resolves symlinks and junctions (`os.path.realpath`) before canonicalising, so a file edited through a linked
+project directory gets the same path as the git hook reports for it; a UNC path keeps its host (`//server/share/a.py`).
 
 ## How a change is detected (`mark_changed`)
 
@@ -62,7 +64,8 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
    for implicit anchoring, on the `Source`'s `content_hash`) differs from `new_hash`. When nothing is stored yet, the
    caller's `old_hash` stands in. **A first sighting without `old_hash` is a baseline**: it is recorded and marks
    nothing. `new_hash = ''` means the file / symbol is gone.
-2. **Which facts?** Active facts only: those `ANCHORED_TO` a changed anchor, plus those that reach a `Source` whose
+2. **Which facts?** Active and dormant facts (a fact a sweep moved to `dormant` is doubted too, so a `restore_fact`
+   brings it back as suspect; `suspect_fact_ids` and `facts_to_verify` list the active ones only): those `ANCHORED_TO` a changed anchor, plus those that reach a `Source` whose
    `uri` is a changed file through `DERIVED_FROM*1..5` (zero effort: the physio graph's `CLAUDE.md` / `README.md`
    facts are covered as soon as the file is baselined). A file-level change also covers the symbol anchors of that file,
    but **only when the call has no symbol entries for it**; the client sends every symbol of a parseable Python file, so
@@ -76,27 +79,36 @@ One bounded statement per call (<= 200 entries, <= 2000 facts; `queries/stalenes
    advance the stored hashes. Calling again with the same arguments (including the returned `at`) continues with the same
    `Change` (its id is derived from commit, `at` and the new hashes) and skips facts it already marked.
 
+**`anchor_fact` with a stale hash.** If the hash given differs from the (non-empty) hash the server already holds for
+the anchor, the fact was checked against older code: it becomes `suspect` at once (one `Change`, one `SUSPECTED` edge, no
+`TOUCHED`; `staleness/anchor_mismatch`), and the result has `suspect: true` and `change_id`. The other facts on the anchor
+are not touched. (`mark_changed` is not reused: it compares the stored hash with a *new* hash, and here the stored one is
+the current code.)
+
 ## Re-verifying (`verify_fact`)
 
 - `still_true=true`: `verify_state='verified'`, `verified_at=now`, `VERIFIED_BY {outcome:'confirmed'}`. Fine on a fact
   that is not suspect (it refreshes `verified_at`). A passed review date is consumed.
 - `still_true=false` needs `new_value`. The existing supersede path (`Engram.assert_fact(supersede=True)`) creates the
   new fact, then one statement (`staleness/backdate`) sets `old.valid_to = new.valid_from =` **the time of the newest
-  `Change` that suspected the old fact** (event time), keeps `recorded_at` as the time Plexus learned it (two timelines),
+  `Change` that suspected the old fact and is newer than its last confirmation** (event time; a value an agent confirmed after the change was true after it, so the window never ends before the confirmation), keeps `recorded_at` as the time Plexus learned it (two timelines),
   marks the old fact verified (`VERIFIED_BY {outcome:'changed'}`), and flags the decisions that rested on it
   (`flagged=true`, `flag_reason='fact changed: <id>'`, the `forget_source` convention). The backdate applies only when it
   falls strictly inside the old fact's window, so `valid_to` never moves before `valid_from`. `as_of` before the change
   returns the old value, after it the new one. `evidence` that is an absolute path or a URL becomes (or reuses) a `Source`
   the new fact derives from, which makes it implicitly anchored to that file; any other text is stored on the edge.
-- **Known non-atomic path.** `verify_fact(still_true=false)` is two statements: the supersede (`assert_fact`) and then
-  `staleness/backdate`. FalkorDB has no multi-statement transaction, and the supersede path is shared with `assert_fact`,
-  so it was not rewritten. If the second statement fails (or the process dies between them): the new value is recorded
-  and is the current fact (nothing wrong is served), but the old fact keeps `valid_to = <time of the supersede>` instead of
-  the time of the code change, stays `verify_state='suspect'` with no `VERIFIED_BY` edge, and the decisions that rested on
-  it are **not flagged**. The old fact is no longer current, so it has left `facts_to_verify` and `verify_fact` refuses it
-  (`superseded`); there is no automatic repair. The symptoms are findable (`superseded` + `suspect` facts, decisions
-  `BASED_ON` them that are not flagged, visible in `why` and the View) and
-  `tests/staleness/test_verify.py::test_a_failure_between_the_two_statements_*` pins exactly this state.
+- **Non-atomic path, made fail-safe (P7-03).** `verify_fact(still_true=false)` is two write statements: the supersede
+  (`assert_fact`, shared with the engram, which owns it) and then `staleness/backdate`. FalkorDB has no multi-statement
+  transaction, so they stay two, but they are ordered so that a failure leaves a state that is consistent and can be
+  finished: (1) the backdate point is **read first** (`staleness/backdate_point`; if the read fails nothing was written and
+  the old value is still current); (2) the supersede; (3) `staleness/backdate`, **retried once** on a connection / server
+  error. If both attempts fail, the new value is still recorded and current, the old fact keeps `valid_to = <time of the
+  supersede>`, stays `verify_state='suspect'` with no `VERIFIED_BY` edge and its decisions are not flagged, **but** it carries
+  `verify_degraded = true` and the result says `verify_degraded: true`. Calling `verify_fact(old_id, still_true=false,
+  new_value=<same value>)` again then finishes the job (backdate, `VERIFIED_BY`, decision flags; the flag is cleared and no
+  third fact is created); a different `new_value` is refused. The degraded facts are findable with
+  `MATCH (f:Fact {verify_degraded: true}) RETURN f.id`. If even the flag cannot be written (database down) the call raises.
+  `tests/staleness/test_verify.py` injects the faults (a client that fails the read, one backdate, both backdates).
 
 Other work lists: `facts_to_verify` (suspect or past review date, ordered by non-flagged decisions that depend on the
 fact, then activation (D-012, the fact agents actually use first; each row carries `activation` and `protected`), then

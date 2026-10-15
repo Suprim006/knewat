@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from plexus.activation import Activation, Settings
 from plexus.embed import HashEmbedder
 from plexus.engram import Engram
 from plexus.lineage import Lineage
@@ -84,3 +85,32 @@ class Mem:
 @pytest.fixture
 def mem(eng, lin, relay, clock) -> Mem:
     return Mem(eng, lin, relay, clock)
+
+
+LATER = 5_000_000_000_000  # far in the future: every fact is faint
+
+
+@pytest.fixture
+def act(client, graph, clock) -> Activation:
+    return Activation(client, graph, Settings(), clock=clock)
+
+
+def sweep_to_dormant(act, fid):
+    out = act.sweep(scope_of(act, fid), threshold=50.0, dry_run=False, now=LATER)
+    assert fid in out["moved"], out
+
+
+def scope_of(act, fid):
+    q = "MATCH (:Fact {id:$f})-[:IN_SCOPE]->(s:Scope) RETURN s.id"
+    return cypher(act.client, act.graph, q, f=fid)[0][0]
+
+
+def row(client, graph, fid):
+    r = cypher(
+        client,
+        graph,
+        "MATCH (f:Fact {id:$f}) RETURN f.status, f.valid_to, coalesce(f.verify_state,'verified'), "
+        "coalesce(f.suspect_since,0)",
+        f=fid,
+    )
+    return r[0]

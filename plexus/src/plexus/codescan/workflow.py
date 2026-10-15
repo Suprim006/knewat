@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -20,18 +21,24 @@ SKIP_DIRS = (".git/",)
 
 def relpath(repo_root: str, abs_canonical: str) -> str | None:
     """Repo-relative path of a canonical absolute path, or ``None`` when it is outside the repository."""
-    root = canonical_path(repo_root).rstrip("/") + "/"
+    root = absolute_canonical(repo_root).rstrip("/") + "/"  # links resolved, like the file paths (P7-06)
     if abs_canonical.lower().startswith(root.lower()):
         return abs_canonical[len(root) :]
     return None
 
 
+class FileTooLarge(Exception):
+    """The file exists but is bigger than ``MAX_FILE_BYTES``: it is not hashed (and is not a deletion)."""
+
+
 def read_working(abs_path: str) -> bytes | None:
-    """The file's bytes now, ``None`` if it does not exist (deleted) or is too large to hash."""
+    """The file's bytes now; ``None`` if it does not exist (deleted); ``FileTooLarge`` if it is too big to hash."""
     p = Path(abs_path)
     try:
-        if not p.is_file() or p.stat().st_size > MAX_FILE_BYTES:
+        if not p.is_file():
             return None
+        if p.stat().st_size > MAX_FILE_BYTES:
+            raise FileTooLarge(f"{abs_path} is larger than {MAX_FILE_BYTES} bytes")
         return p.read_bytes()
     except OSError:
         return None
@@ -46,12 +53,15 @@ def commit_groups(repo: str, ref: str) -> tuple[str, int, list[list[dict[str, An
     commit, at = gitutil.commit_info(root, ref)
     parent = f"{ref}~1" if gitutil.has_parent(root, ref) else None
     groups: list[list[dict[str, Any]]] = []
+    real_root = absolute_canonical(
+        root
+    )  # the repository dir with links resolved; the files are git's own blobs
     for rel in gitutil.changed_paths(root, ref):
         if rel.startswith(SKIP_DIRS):
             continue
         new = gitutil.show_file(root, ref, rel)
         old = gitutil.show_file(root, parent, rel) if parent else None
-        groups.append(file_entries(absolute_canonical(rel, root), new, old))
+        groups.append(file_entries(canonical_path(f"{real_root}/{rel}"), new, old))
     return commit, at, groups
 
 
@@ -60,6 +70,7 @@ def working_groups(repo: str, paths: Iterable[str], *, baseline: bool = False) -
 
     For a scan ``old`` is the committed version (``HEAD``) when the file is in a git work tree; it only matters when
     the server has no hash stored yet, and it lets deleted functions be noticed. A baseline sends no ``old_hash``.
+    A file larger than ``MAX_FILE_BYTES`` is skipped with a note on stderr (it is not reported as deleted).
     """
     root = gitutil.toplevel(repo)
     groups: list[list[dict[str, Any]]] = []
@@ -70,7 +81,15 @@ def working_groups(repo: str, paths: Iterable[str], *, baseline: bool = False) -
             rel = relpath(root, cp)
             if rel:
                 old = gitutil.show_file(root, "HEAD", rel)
-        groups.append(file_entries(cp, read_working(cp), old))
+        try:
+            new = read_working(cp)
+        except FileTooLarge:  # not a deletion: leave the anchor and its facts alone
+            print(
+                f"plexus code: skipped {cp}: file too large to hash (> {MAX_FILE_BYTES} bytes)",
+                file=sys.stderr,
+            )
+            continue
+        groups.append(file_entries(cp, new, old))
     return groups
 
 

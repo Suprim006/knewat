@@ -1,10 +1,10 @@
 // name: staleness/docs_to_update
-// purpose: Doc Sources that DESCRIBE code which changed after $since and which have not been edited since (no later TOUCHED of the doc itself), newest change first.
+// purpose: Doc Sources that DESCRIBE code which changed at or after $since and which have not been edited since (no later TOUCHED of the doc itself), newest change first.
 // params: since:int, limit:int, per_doc:int
 // returns: source_id, uri, title, latest (time of the newest relevant change), changes ([{change_id, commit, at, paths (JSON list), anchor}] newest first, at most per_doc)
 // mode: ro
-// A Change counts for a doc when it TOUCHED an anchor the doc DESCRIBES and ch.at > $since and ch.at > the doc's own last TOUCHED (a doc edited in the same commit as the code has an equal time and is not listed).
-MATCH (ch:Change) WHERE ch.at > $since
+// A Change counts for a doc when it TOUCHED an anchor the doc DESCRIBES and ch.at >= $since (inclusive, as the View API documents it) and ch.at > the doc's own last TOUCHED (a doc edited in the same commit as the code has an equal time and is not listed).
+MATCH (ch:Change) WHERE ch.at >= $since
 MATCH (ch)-[:TOUCHED]->(a:CodeAnchor)<-[:DESCRIBES]-(d:Source)
 OPTIONAL MATCH (dc:Change)-[:TOUCHED]->(d)
 WITH ch, a, d, max(dc.at) AS doc_at

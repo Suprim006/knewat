@@ -171,7 +171,8 @@ def test_since_filters_old_changes(stale, mem):
     _doc_setup(stale, mem)
     stale.mark_changed([{"path": P, "symbol": "pay", "new_hash": "p1"}], commit="c3", at=1_700_000)
     assert len(stale.docs_to_update(since=1_699_999)) == 1
-    assert stale.docs_to_update(since=1_700_000) == []
+    assert len(stale.docs_to_update(since=1_700_000)) == 1  # P7-12: `since` is inclusive (at >= since)
+    assert stale.docs_to_update(since=1_700_001) == []
 
 
 def test_a_doc_edited_after_the_code_change_drops_off(stale, mem):

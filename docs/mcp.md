@@ -142,16 +142,16 @@ holds a label or type the model does not list, it falls back to a full scan.
 
 ## Staleness tools (P7-J, 7 tools; see `docs/staleness.md`)
 
-Registered by `plexus/mcp/staleness_tools.py` (`register_staleness`), so the server now exposes 36 tools. Changing code makes a
+Registered by `plexus/mcp/staleness_tools.py` (`register_staleness`), so the server then exposed 36 tools (41 with the memory tools). Changing code makes a
 memory **suspect**, never false: it stays recallable, and the agent re-checks it. Paths are normalised to the canonical form
 (absolute, `/`, upper-case drive); a relative path is an error. Limits: ids <= 128, paths <= 1024, hashes <= 128, <= 200 changes.
 
 | Tool | Arguments (besides `agent_id`, `step`) | What it does |
 |---|---|---|
-| `anchor_fact` | `fact_id`, `path`, `symbol=''`, `hash=''` | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` for a file or a Python function / class. Unknown fact: error, nothing written. |
+| `anchor_fact` | `fact_id`, `path`, `symbol=''`, `hash=''` | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` for a file or a Python function / class. A `hash` that differs from the anchor's stored hash makes the fact suspect (`suspect: true`, `change_id`). Unknown fact: error, nothing written. |
 | `describe_code` | `source_id`, `path`, `symbol=''`, `hash=''` | `(Source)-[:DESCRIBES]->(CodeAnchor)`: this doc describes this code. |
 | `mark_changed` | `changes=[{path, symbol='', new_hash, old_hash='', kind?}]` (1..200), `commit=''`, `at=null` | The hook entry point. Active facts anchored to (or derived from a Source at) a changed file / symbol become `suspect`; returns `change_id`, `suspect_fact_ids`, `decisions` (+ `decisions_total`), `docs_to_update`, `unchanged`, `truncated`. A first sighting without `old_hash` is a baseline. |
-| `verify_fact` | `fact_id`, `still_true`, `new_value=''`, `evidence=''`, `commit=''` | Confirmed: `verified`. Changed: the new value is asserted (supersede), the old fact ends at the time of the code change, decisions on the old fact are flagged. |
+| `verify_fact` | `fact_id`, `still_true`, `new_value=''`, `evidence=''`, `commit=''` | Confirmed: `verified`. Changed: the new value is asserted (supersede), the old fact ends at the time of the code change, decisions on the old fact are flagged. If the backdate fails twice the result has `verify_degraded: true`; calling it again with the same `new_value` finishes the job. |
 | `facts_to_verify` | `scope=''`, `limit=50` | Suspect facts (changed code or a passed review date), ordered by live decisions, then activation, then age; each row has reason, anchors, decision count and (forgetting on) `activation`, `protected`. |
 | `docs_to_update` | `since=0`, `limit=50` | Docs that describe code changed after the doc was last edited, with the commits / paths. |
 | `set_review_date` | `fact_id`, `verify_after` (epoch ms) | Review date for facts no code change can invalidate; once passed the fact is suspect. |
@@ -168,7 +168,7 @@ lowers a fact's **rank only**; none of these deletes anything.
 | `pin_fact` / `unpin_fact` | `fact_id` | `{fact_id, pinned}`. A pinned fact is never ranked below neutral and never swept. |
 | `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, …}}`. Read-only: no `READ` edge, so asking is not using. |
 | `memory_sweep` | `scope='global'`, `threshold=None` (−50..50), `dry_run=true`, `limit=200` (1..200) | `{sweep: {threshold, dry_run, scanned, candidates:[{fact_id, text, activation}], would_move, moved, skipped, truncated}}`. Moves to `dormant` only with `dry_run=false`; protected and suspect facts are never moved. |
-| `restore_fact` | `fact_id` | `{fact_id, restored, status, was}`; a fact that is not dormant is left alone. |
+| `restore_fact` | `fact_id` | `{fact_id, restored, status, was}` (+ `reason: 'already_superseded'`, `superseded_by` when a newer active fact blocks it); a fact that is not dormant is left alone. |
 
 `recall` gains `include_dormant: bool = false` and `forgetting: bool | null = null` (null = the server default,
 `PLEXUS_FORGETTING`). Each fact in the result also carries `surprise`, `activation`, `protected` (both `null` when

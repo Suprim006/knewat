@@ -27,7 +27,7 @@ final = relevance × ( floor + (1 − floor) · σ(A − A₀) )                
 
 * The sum runs over the fact's **newest K = 50** events. `rank` is the cosine distance after the sibling boost.
 * `A₀` (neutral) is the activation of a fact created once, one day ago: `ln(86400^−0.5) = −5.68`.
-* A fact at `A₀` gets multiplier `0.75`; far above it, `1.0`; far below it, the floor (`0.9` by default).
+* A fact at `A₀` gets multiplier `0.95` (`floor + (1 − floor) / 2`, i.e. `(1 + floor) / 2`); far above it, `1.0`; far below it, the floor (`0.9` by default).
 * Protected facts use `max(A, A₀)`, so they are never ranked below neutral.
 * **Exact keyword hit:** a fact that the full-text index returned *and* whose value contains every query keyword
   (words of ≥ 3 characters, at most 10) has multiplier 1.
@@ -72,7 +72,9 @@ vector index has no scope pre-filter, so 20 are fetched and filtered to the scop
 A fact is *suspect* if `verify_state = 'suspect'` or `verify_after` has passed (P7 contract). Recall still
 **returns** it, with `verify_state`, `suspect_since` and `suspect_reason` (`changed in <commit or 'working tree'>
 (<first path>)`, `review date passed`, or `marked suspect`). A suspect fact is **not strengthened by recall**:
-`recall` events after `suspect_since` are ignored. A `use` still counts.
+a `recall` READ written while the fact was suspect (`READ.suspect`, the contract rule at the READ's time, so also a passed
+review date) is ignored, and stays ignored after the fact is verified again; a back-dated doubt (`suspect_since` before the
+read) and READ edges that have no flag are judged by the fact's current state. A `use` still counts.
 
 ## Protected facts
 
@@ -125,8 +127,11 @@ hidden from `recall` unless `include_dormant=true`.
   (`docs/BASELINE.md`): at floor 0.9 recall@5 is 2.2 points below forgetting off in the confirmatory run; no accuracy claim is made.
 * The weights, the 0.3 and `A₀ − 2` are defaults chosen from the literature, not tuned on Plexus data. The floor (0.9) was chosen after the first L5b run failed at 0.5 and then confirmed in a separate pre-registered run (`docs/BASELINE.md`); it is tuned on one synthetic scenario.
 * Activation is computed from the newest 50 events, so a very heavily used fact does not keep growing.
-* A fact that a sweep parked is **not "current"** for `assert_fact`: asserting the same value again creates a new
-  active fact rather than reviving the dormant one (restore it first if that is what you want).
+* A fact that a sweep parked is still **current** for `assert_fact` (P7-02): a new value supersedes it (or, from another
+  agent without `supersede`, contradicts it) like an active fact, and asserting the same value again wakes it
+  (`status = prior_status`) instead of creating a twin. `restore_fact` refuses (`reason: 'already_superseded'`,
+  `superseded_by`) a dormant fact for which a newer active fact of the same entity, predicate and scope already exists
+  (data from before this rule); a recorded `CONTRADICTS` does not block a restore.
 * `forget_source` and `quarantine_source` also reach `dormant` facts (P7-int), so a dormant fact derived from a forgotten
   source becomes `forgotten` and `restore_fact` leaves it alone; a quarantined dormant fact is released back to
   `dormant`. `restore_fact` also refuses (leaves dormant) a dormant fact derived from a forgotten or quarantined fact,

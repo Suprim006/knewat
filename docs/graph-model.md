@@ -101,7 +101,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Relay | `(Artifact)-[:PRODUCED_BY]->(Agent)` | |
 | Relay | `(Artifact)-[:VERIFIED_BY]->(Agent)` | |
 | Lineage | `(Step)-[:BY]->(Agent)` | |
-| Lineage | `(Step)-[:READ]->(Fact)` | P7: `via: recall\|use, at` |
+| Lineage | `(Step)-[:READ]->(Fact)` | P7: `via: recall\|use, at, suspect` |
 | Lineage | `(Step)-[:WROTE]->(Fact\|Decision\|Handoff\|Task)` | |
 | Lineage | `(Step)-[:NEXT]->(Step)` | |
 | audit | `(ToolCall)-[:IN_STEP]->(Step)` | |
@@ -194,6 +194,7 @@ D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/s
 | `Fact` | `verify_state` `'verified'\|'suspect'` | `'verified'` | a code change makes a fact *suspect*, never false; an agent re-checks it |
 | `Fact` | `suspect_since` (epoch ms) | `0` | when it became suspect; orders the work list |
 | `Fact` | `verified_at` (epoch ms) | `0` | last `verify_fact` |
+| `Fact` | `verify_degraded` (bool) | absent | `verify_fact(changed)` superseded the fact but could not backdate it; calling it again finishes the job and removes the flag |
 | `Fact` | `verify_after` (epoch ms) | `OPEN` | a review date for facts that are not about code; once passed the fact is suspect too |
 | `Fact` | `surprise` (float 0..1) | `0.0` | set once at write from the novelty of the fact; raises its starting activation |
 | `Fact` | `pinned` (bool) | `false` | the owner says it must stay prominent; protects it from fading and from sweeps |
@@ -202,6 +203,7 @@ D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/s
 | `Source` | `content_hash`, `commit`, `repo` | `''` | hash of the file the `uri` names and the commit that last reported it (`mark_changed`) |
 | `Source` | `trust` is the **string** `'normal'` or `'high'` | `'normal'` | `'high'` protects the facts derived from it. Data written before P7 holds a float (1.0); any float reads as `'normal'` |
 | `READ` edge | `via` `'recall'\|'use'`, `at` | `'recall'`; the Step's `at` | being *shown* a fact is weighed less than *using* it (weights 0.3 vs 1) |
+| `READ` edge | `suspect` (bool, written by `record_recall`) | unknown | the fact was suspect (contract rule) when the recall happened; such a recall never counts, even after the fact is verified |
 | `VERIFIED_BY` edge | `outcome`, `commit`, `evidence` (on Fact→Agent edges) | | the audit of a re-check; it counts as a weight-2 activation event |
 | `CodeAnchor`, `Change` | nodes (tables above) | | the code a fact is about, and the code change that made facts suspect |
 | `ANCHORED_TO`, `DESCRIBES`, `TOUCHED`, `SUSPECTED` | edges (table above) | | fact→code, doc→code, change→code/doc, change→fact |

@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import pytest
+from redis.exceptions import ConnectionError as RedisConnectionError
 
 from plexus.codescan.paths import canonical_path
+from plexus.staleness import Staleness
 
 from .conftest import cypher
 
@@ -225,45 +227,117 @@ def test_the_new_fact_is_not_suspect_and_old_decisions_are_the_only_ones_flagged
     assert out["flagged_decisions"] == [d_old]
 
 
-# -- the known non-atomic path ---------------------------------------------------------------------------
-class _FailBackdate:
-    """A client whose ``staleness/backdate`` write fails (the process died between the two statements)."""
+# -- P7-03: the two statements of a "changed" verification fail safe ------------------------------------
+class _Flaky:
+    """A client whose ``staleness/backdate`` write fails ``fail`` times (a dropped connection), or always."""
 
-    def __init__(self, inner):
-        self._inner = inner
+    def __init__(self, inner, fail=1, name="staleness/backdate"):
+        self._inner, self.fail, self.name, self.calls = inner, fail, name, []
 
     def rw(self, graph, name, params=None, *a, **kw):
-        if name == "staleness/backdate":
-            raise RuntimeError("simulated failure between the two statements")
+        self.calls.append(name)
+        if name == self.name and self.fail != 0:
+            self.fail -= 1
+            raise RedisConnectionError("simulated: connection lost")
         return self._inner.rw(graph, name, params, *a, **kw)
+
+    def ro(self, graph, name, params=None, *a, **kw):
+        self.calls.append(name)
+        if name == self.name and self.fail != 0:
+            self.fail -= 1
+            raise RedisConnectionError("simulated: connection lost")
+        return self._inner.ro(graph, name, params, *a, **kw)
 
     def __getattr__(self, item):
         return getattr(self._inner, item)
 
 
-def test_a_failure_between_the_two_statements_keeps_the_new_value_but_not_the_backdate(
-    stale, suspect, mem, eng, client, graph, clock
-):
-    """Documented in docs/staleness.md: supersede and backdate are two statements (no transactions)."""
-    from plexus.staleness import Staleness
+def _stale(flaky, graph, eng, clock):
+    return Staleness(flaky, graph, engram=eng, clock=clock)
 
-    d = mem.decision(suspect)
-    broken = Staleness(_FailBackdate(client), graph, engram=eng, clock=clock)
-    with pytest.raises(RuntimeError):
+
+def test_a_failed_read_before_the_supersede_writes_nothing(suspect, mem, eng, client, graph, clock):
+    """The backdate read runs first: if it fails, the old value is still current and nothing was written."""
+    flaky = _Flaky(client, fail=1, name="staleness/backdate_point")
+    broken = _stale(flaky, graph, eng, clock)
+    with pytest.raises(RedisConnectionError):
         broken.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
-    new_id = cypher(client, graph, "MATCH (f:Fact {value:'60 seconds'}) RETURN f.id")[0][0]
+    assert cypher(client, graph, "MATCH (f:Fact) RETURN count(f)") == [[1]]
+    assert _fact(client, graph, suspect)["status"] == "active"
+    # a retry by the agent works
+    out = _stale(client, graph, eng, clock).verify_fact(
+        suspect, False, new_value="60 seconds", agent_id="bob"
+    )
+    assert out["outcome"] == "changed" and "verify_degraded" not in out
+
+
+def test_one_failed_backdate_is_retried_once_and_the_result_is_normal(
+    suspect, mem, eng, client, graph, clock
+):
+    d = mem.decision(suspect)
+    flaky = _Flaky(client, fail=1)
+    out = _stale(flaky, graph, eng, clock).verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+    assert flaky.calls.count("staleness/backdate") == 2
+    assert out["valid_to"] == 1_500_000 and out["flagged_decisions"] == [d] and "verify_degraded" not in out
+    assert _fact(client, graph, suspect)["state"] == "verified"
+
+
+def test_two_failed_backdates_mark_the_old_fact_degraded_and_say_so(suspect, mem, eng, client, graph, clock):
+    d = mem.decision(suspect)
+    flaky = _Flaky(client, fail=2)
+    out = _stale(flaky, graph, eng, clock).verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+    assert flaky.calls.count("staleness/backdate") == 2  # one retry, then give up
+    assert out["verify_degraded"] is True and out["outcome"] == "changed"
+    assert out["flagged_decisions"] == [] and out["valid_to"] == 2_000_000  # not backdated
+    new_id = out["new_fact_id"]
     new, old = _fact(client, graph, new_id), _fact(client, graph, suspect)
-    assert new["status"] == "active"  # the new value is recorded and is the current one
-    # what is missing: the backdate, the verification and the decision flag
-    assert old["status"] == "superseded" and old["valid_to"] == new["valid_from"] == 2_000_000
-    assert old["state"] == "suspect" and _edges(client, graph, suspect) == []
+    assert new["status"] == "active"  # the new value is recorded and current
+    assert (
+        old["status"] == "superseded" and old["state"] == "suspect" and _edges(client, graph, suspect) == []
+    )
+    flag = cypher(client, graph, "MATCH (f:Fact {id:$f}) RETURN f.verify_degraded", f=suspect)
+    assert flag == [[True]]
     assert cypher(client, graph, "MATCH (d:Decision {id:$d}) RETURN coalesce(d.flagged,false)", d=d) == [
         [False]
     ]
-    # the superseded fact is no longer current, so it has left facts_to_verify and verify_fact refuses it
-    assert stale.facts_to_verify() == []
+
+
+def test_a_degraded_verification_can_be_finished_by_calling_verify_fact_again(
+    suspect, mem, eng, client, graph, clock
+):
+    d = mem.decision(suspect)
+    broken = _stale(_Flaky(client, fail=2), graph, eng, clock)
+    out = broken.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob", commit="c2")
+    assert out["verify_degraded"] is True
+    clock.t = 2_100_000
+    fixed = _stale(client, graph, eng, clock).verify_fact(
+        suspect, False, new_value="60 seconds", agent_id="bob", commit="c2"
+    )
+    assert fixed["outcome"] == "changed" and fixed["new_fact_id"] == out["new_fact_id"]
+    assert (
+        fixed["valid_to"] == 1_500_000
+        and fixed["flagged_decisions"] == [d]
+        and "verify_degraded" not in fixed
+    )
+    old, new = _fact(client, graph, suspect), _fact(client, graph, out["new_fact_id"])
+    assert (old["state"], old["valid_to"], new["valid_from"]) == ("verified", 1_500_000, 1_500_000)
+    flag = cypher(client, graph, "MATCH (f:Fact {id:$f}) RETURN f.verify_degraded", f=suspect)
+    assert flag == [[None]]
+    assert cypher(client, graph, "MATCH (d:Decision {id:$d}) RETURN d.flagged", d=d) == [[True]]
+    assert len(cypher(client, graph, "MATCH (f:Fact) RETURN f.id")) == 2  # no third fact was created
+
+
+def test_a_superseded_fact_that_is_not_degraded_is_still_refused(stale, suspect):
+    stale.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
     with pytest.raises(ValueError, match="superseded"):
         stale.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+
+
+def test_a_degraded_fact_refuses_a_different_value(suspect, mem, eng, client, graph, clock):
+    broken = _stale(_Flaky(client, fail=2), graph, eng, clock)
+    broken.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+    with pytest.raises(ValueError, match="60 seconds"):
+        _stale(client, graph, eng, clock).verify_fact(suspect, False, new_value="90 seconds", agent_id="bob")
 
 
 # -- found by the real Claude Code run (P7-int): a small correction is not a duplicate ----------------------
@@ -292,3 +366,27 @@ def test_a_small_correction_of_a_long_fact_is_recorded_not_swallowed_as_a_paraph
     assert out["outcome"] == "changed" and out["new_fact_id"] != f
     rows = cypher(client, graph, "MATCH (x:Fact) RETURN x.id, x.status, x.value ORDER BY x.recorded_at")
     assert [(r[1], r[2]) for r in rows] == [("superseded", LONG_OLD), ("active", LONG_NEW)]
+
+
+# -- P7-08: backdate only to a Change newer than the last confirmation ----------------------------------
+def test_backdate_ignores_a_change_the_fact_was_confirmed_after(
+    stale, suspect, mem, lin, client, graph, clock
+):
+    """suspect: Change at 1_500_000; confirmed at 2_000_000; found false at 2_500_000."""
+    stale.verify_fact(suspect, True, agent_id="bob")  # confirmed at 2_000_000 (clock)
+    clock.t = 2_500_000
+    out = stale.verify_fact(suspect, False, new_value="45 seconds", agent_id="carol")
+    assert out["valid_to"] == 2_500_000  # not the Change time (1_500_000): the old value was confirmed since
+    assert _fact(client, graph, suspect)["valid_to"] == 2_500_000
+    assert _fact(client, graph, out["new_fact_id"])["valid_from"] == 2_500_000
+    confirmed_window = lin.as_of("Payments", "timeout", 2_200_000, mem.proj)
+    assert confirmed_window["value"] == "30 seconds"
+    assert lin.as_of("Payments", "timeout", 2_600_000, mem.proj)["value"] == "45 seconds"
+
+
+def test_backdate_still_uses_a_change_that_came_after_the_confirmation(stale, suspect, clock):
+    stale.verify_fact(suspect, True, agent_id="bob")  # confirmed at 2_000_000
+    stale.mark_changed([{"path": P, "new_hash": "h2"}], commit="c3", at=2_300_000)  # suspects it again
+    clock.t = 2_500_000
+    out = stale.verify_fact(suspect, False, new_value="45 seconds", agent_id="carol")
+    assert out["valid_to"] == 2_300_000
