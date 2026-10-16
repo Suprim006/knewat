@@ -95,18 +95,21 @@ def test_forget_source_unknown_and_bad_args(world, lin):
         lin.forget_source(world.bad, limit=0)
 
 
-def test_forget_source_depth_limit_is_five_hops(lin, eng, client, graph):
+def test_forget_source_depth_is_a_parameter_default_eight(lin, eng, client, graph):
     glob = eng.create_scope("global", "global")
     src = lin.create_source("https://x.example/deep")
     ids = []
-    for i in range(7):
+    for i in range(10):
         ids.append(eng.assert_fact("Deep", f"p{i}", f"v{i}", glob, "a1", now=100 + i)["fact_id"])
     lin.derive_from(ids[0], [src])
     for prev, cur in zip(ids, ids[1:], strict=False):
         lin.derive_from(cur, [prev])
-    res = lin.forget_source(src, now=999)
-    assert res["fact_ids"] == sorted(ids[:5])  # 1..5 hops reach ids[0]..ids[4]; ids[5], ids[6] are deeper
+    res = lin.forget_source(src, now=999, depth=5)
+    assert res["fact_ids"] == sorted(ids[:5])  # 1..5 hops reach ids[0]..ids[4]; ids[5].. are deeper
     assert _status(client, graph, ids[5])[0] == "active"
+    res = lin.forget_source(src, now=999)  # default depth 8: the walk goes through the forgotten ids[:5]
+    assert res["fact_ids"] == sorted(ids[5:8])
+    assert _status(client, graph, ids[8])[0] == "active"
 
 
 def test_forget_source_is_bounded_by_limit(lin, eng, client, graph):

@@ -21,12 +21,12 @@ def _status(client, graph, fid):
     return cypher(client, graph, "MATCH (f:Fact {id:$i}) RETURN f.status", i=fid)[0][0]
 
 
-def test_q3_quarantine_depth_limit_is_five_hops_and_release_restores_the_same_set(lin, eng, client, graph):
+def test_q3_quarantine_depth_parameter_and_release_restores_the_same_set(lin, eng, client, graph):
     src, ids = _chain(lin, eng, 7)
-    res = lin.quarantine(src, now=999)
+    res = lin.quarantine(src, now=999, depth=5)
     assert res["fact_ids"] == sorted(ids[:5])
     assert _status(client, graph, ids[5]) == "active"
-    assert lin.release_quarantine(src)["fact_ids"] == sorted(ids[:5])
+    assert lin.release_quarantine(src, depth=5)["fact_ids"] == sorted(ids[:5])
     assert {_status(client, graph, i) for i in ids} == {"active"}
 
 
