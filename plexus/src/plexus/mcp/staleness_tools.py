@@ -196,7 +196,7 @@ def verify_fact(
 
 
 # ---------------------------------------------------------------- work lists
-@tool
+@tool(kind="read")
 def facts_to_verify(
     ts: TenantState,
     m: MeteredClient,
@@ -225,7 +225,7 @@ def facts_to_verify(
     return Outcome({"facts": rows, "count": len(rows)})
 
 
-@tool
+@tool(kind="read")
 def docs_to_update(
     ts: TenantState,
     m: MeteredClient,

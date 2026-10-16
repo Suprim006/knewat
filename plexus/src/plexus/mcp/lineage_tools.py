@@ -82,7 +82,7 @@ def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
 
 
 # ---------------------------------------------------------------- explain and time machine
-@tool.when("why")
+@tool.when("why", kind="read")
 def why(
     ts: TenantState,
     m: MeteredClient,
@@ -95,7 +95,7 @@ def why(
     return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id))})
 
 
-@tool.when("why_recalled")
+@tool.when("why_recalled", kind="read")
 def why_recalled(
     ts: TenantState,
     m: MeteredClient,
@@ -108,7 +108,7 @@ def why_recalled(
     return Outcome({"why_recalled": _jsonable(_lineage(ts, m).why_recalled(recall_id))})
 
 
-@tool.when("who_knew")
+@tool.when("who_knew", kind="read")
 def who_knew(
     ts: TenantState,
     m: MeteredClient,
@@ -120,7 +120,7 @@ def who_knew(
     return Outcome({"who_knew": _jsonable(_lineage(ts, m).who_knew(fact_id))})
 
 
-@tool.when("knew_at")
+@tool.when("knew_at", kind="read")
 def knew_at(
     ts: TenantState,
     m: MeteredClient,
@@ -134,7 +134,7 @@ def knew_at(
     return Outcome({"knew_at": _jsonable(_lineage(ts, m).knew_at(subject_agent, step_n))})
 
 
-@tool.when("as_of")
+@tool.when("as_of", kind="read")
 def as_of(
     ts: TenantState,
     m: MeteredClient,

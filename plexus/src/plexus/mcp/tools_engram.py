@@ -139,7 +139,7 @@ def assert_fact(
     return Outcome({**r, "scope_id": sid}, created=created, updated=updated, assert_result=r)
 
 
-@tool
+@tool(kind="read", exposure=True)
 def recall(
     ts: TenantState,
     m: MeteredClient,
@@ -198,7 +198,7 @@ def recall(
     return Outcome({"facts": hits, "count": len(hits), "scope_id": sid}, after=record)
 
 
-@tool
+@tool(kind="read")
 def fact_history(
     ts: TenantState,
     m: MeteredClient,
@@ -248,7 +248,7 @@ def log_procedure_run(
     return Outcome({"run_id": rid}, created=[("Run", rid)])
 
 
-@tool
+@tool(kind="read")
 def best_procedure(
     ts: TenantState,
     m: MeteredClient,
