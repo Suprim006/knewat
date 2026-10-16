@@ -92,7 +92,14 @@ def test_combined_file_is_exactly_the_merge_of_its_parts():
 
 
 def test_combine_does_not_touch_its_inputs(tmp_path):
-    from plexus.crucible.combine import DEFAULT_B1H, DEFAULT_BASE, DEFAULT_C7X, DEFAULT_L2, DEFAULT_L2_SCALE, main
+    from plexus.crucible.combine import (
+        DEFAULT_B1H,
+        DEFAULT_BASE,
+        DEFAULT_C7X,
+        DEFAULT_L2,
+        DEFAULT_L2_SCALE,
+        main,
+    )
 
     parts = (DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_C7X)
     before = [p.read_bytes() for p in parts]

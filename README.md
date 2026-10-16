@@ -108,7 +108,7 @@ flowchart LR
     end
     subgraph plexus["plexus (Python, no LLM)"]
         MCP["MCP server<br/>stdio or streamable HTTP<br/>tenant bound to the connection"]
-        TOOLS["tool layer: 41 tools<br/>Engram, Relay, Lineage, staleness, forgetting<br/>one parameterised Cypher statement each"]
+        TOOLS["tool layer: 45 tools<br/>Engram, Relay, Lineage, staleness, forgetting<br/>one parameterised Cypher statement each"]
         API["View API<br/>read-only"]
     end
     DB[("FalkorDB 6.0.2<br/>one graph per tenant")]
@@ -205,7 +205,7 @@ The recorded real run holds 247 nodes and 708 edges (14 labels, 26 relationship 
 ## The Cypher queries the product depends on
 
 Every statement lives in a named, parameterised file under [`plexus/queries/<area>/<name>.cypher`](plexus/queries/) with a
-header (purpose, params, returns, mode) and is loaded by name; 93 files in all. The complete index with a "why it is a graph
+header (purpose, params, returns, mode) and is loaded by name; 108 files in all. The complete index with a "why it is a graph
 query" for each is [`docs/queries.md`](docs/queries.md). The ones the product cannot work without:
 
 | Query | What it does | Why it is a graph query |
@@ -222,7 +222,7 @@ query" for each is [`docs/queries.md`](docs/queries.md). The ones the product ca
 | [`lineage/knew_at`](plexus/queries/lineage/knew_at.cypher) | Time machine: facts an agent had read at or before step N that were still valid then, plus what it wrote | Step chain + `READ`/`WROTE` edges + the fact's validity window |
 | [`lineage/as_of`](plexus/queries/lineage/as_of.cypher) | The fact valid at time t for (subject, predicate), nearest scope first | Entity → `ABOUT` → Fact with a validity filter and scope traversal |
 | [`lineage/who_knew`](plexus/queries/lineage/who_knew.cypher) | Agents whose steps `READ` a fact, and who asserted it | `READ` edges one hop each way |
-| [`lineage/forget_source`](plexus/queries/lineage/forget_source.cypher) | Marks every fact reaching a `Source` through `DERIVED_FROM*1..5` as forgotten and flags the decisions that rest on them | The cascade follows derivation edges, in one atomic write |
+| [`lineage/forget_source`](plexus/queries/lineage/forget_source.cypher) | Marks every fact reaching a `Source` through up to 12 `DERIVED_FROM` hops (default 8, level by level) as forgotten and flags the decisions that rest on them | The cascade follows derivation edges, in one atomic write |
 | [`lineage/quarantine`](plexus/queries/lineage/quarantine.cypher) | Reversible version of the above (stretch feature); returns the blast radius (readers, decisions, handoffs) | Blast radius is a traversal back out through `READ`, `BASED_ON`, `CARRIES` |
 | [`audit/record_tool_call`](plexus/queries/audit/record_tool_call.cypher) | Writes a `ToolCall` with `IN_STEP` and `CREATED`/`UPDATED` edges to what the tool touched | The Flow page draws these edges |
 | [`view/flow`](plexus/queries/view/flow.cypher) | Tool calls in order with the nodes each created or updated | A traversal of `ToolCall` → `CREATED`/`UPDATED`; also the SSE feed |
@@ -291,7 +291,17 @@ model, scenario, budgets, seeds). Exact-match scoring, no LLM judge. Full method
 | **L4** performance | **SQLite is faster than Plexus on the median claim at every worker count** (0.10 vs 1.75 ms at 1 worker; 0.82 vs 570.9 ms at 200) but has worse tail latency at 200 workers (p99 2.18 s vs 1.86 s). Plexus server-side time stays at 1-4 ms; the rest is queueing, because FalkorDB serialises writes per graph. **Plexus scales across tenant graphs: 678 → 1025 → 1174 ops/s on 1, 4, 16 graphs (+73%)**, while SQLite peaked at 4 and fell at 16 (1103 → 1480 → 500; 16 files contend on one disk) | Raw claim speed is not Plexus's case. B0/B1/B2 are in-process libraries and the Plexus arms cross a container network |
 | **L2** provenance and time questions (43 questions, one Acme project) | **Tie on accuracy:** P 43/43, B0 43/43, B1 43/43, B2 40/43 (93.0%). The whole history fits in the 32k-character context, so the LLM reads everything. Plexus costs 0 tokens (vs 13-16k tokens and $0.05-0.06 per question for B0/B1) and ~2.5 ms vs ~5 s | A tie on accuracy; the difference is cost, latency and determinism. Plexus uses a hand-written Cypher per question family |
 | **L2 at scale** (pre-registered; 20 sprints of history, 10.4-16.6× the context cap, 36 questions) | **P 36/36 (100%), B1 32/36 (88.9%), B0 30/36 (83.3%), B2 23/36 (63.9%).** Wilson 95%: P 90.4-100, B1 74.7-95.6, B0 68.1-92.1, B2 47.6-77.5. Paired sign test: P vs B0 6-0, p = 0.031; **P vs B1 4-0, p = 0.125, not distinguishable from noise**; P vs B2 13-0, p < 0.001. B0/B1 failures were join-heavy provenance questions and one transitive dependency, not class-wide questions; accuracy did not decay with how early the sprint was. B0/B1 spent about 20-22k tokens and $0.08-0.09 per question (about 5 s) against 0 tokens and a few milliseconds | A gap, but a small one: the intervals of P and B0/B1 overlap, and the B1 gap is within sampling noise. Not a claim that Plexus is "better at memory" in general |
+| **B1h** hand-written SQL control on the same L2 and L2-scale questions | **SQL ties:** B1h 43/43 on L2 and 36/36 on L2-scale, the same as Plexus, at 0 LLM calls | On questions a SQL author can write, a relational schema answers as many as the graph. The advantage over B0/B1/B2 is a structured record, not graph storage as such |
+| **C7 extended** (226 labelled pairs; negations, units, number words, near-twins) | **0 false merges in 150 pairs that must stay apart** (every category, both splits; < 2.0% at 95% by the rule of three); the old rule (B2) falsely merged 68 of 150. **Targets missed:** heavy paraphrases are auto-merged 10 of 24 and surfaced for review 19 of 24, against a pre-registered 75% auto or 95% surfaced; light paraphrases 10 of 20 and unit rewordings 11 of 12 against 100% auto | Precision is the claim, recall of heavy rewordings is not. A close-but-different pair becomes a soft `DUPLICATES_MAYBE` link instead of a silent merge |
+| **L6** five pre-registered families where a graph could beat SQL (blast radius, why-depth, cross-sprint aggregation, consistent reads, crash-consistency) | **A tie or a SQL win in every family.** A: SQL ties the hand-tuned graph query and the product's `impact` tool did not finish at 5,000 facts (fixed: see below); B: tie when the call passes depth 12 (the MCP tool exposes it now; the tool path itself was not re-run); D: both 24/24, SQL 4.6x faster; E: 0 violations for every single-statement arm, the product's own level-wise traversal tears; F: Plexus lost (94 of 1,240 records without their `WROTE` edge; fixed for `assert_fact`, `record_decision` and `handoff`, see below). LLM pilot (8 questions per family): B1a 24/24, B0g 24/24, B0r 2/24, Plexus MCP tools 10/16, 88 calls, $7.09 | The graph is not found to beat a competent SQL schema in any family; the product defects the run exposed were fixed and re-run |
 | **Ablation** | 7 of 7 edge-dependent capabilities break, 5 of 5 controls unaffected | The graph does real work (above) |
+
+**What the results support.** Plexus makes provenance, dependencies and time first-class edges in FalkorDB, so *why*, *who knew* and *what is
+affected* are single deterministic queries (zero tokens, milliseconds). Against flat files and tool-less LLM readers that is a large cost and
+latency win, and a measurable accuracy win once histories exceed the context. A well-built relational schema with recursive CTEs matches Plexus on
+correctness and is faster on simple claims; we publish that tie (B1h, L6), the benchmark, and the cases where we lose. L6 in one line: no family
+shows the graph beating hand-written SQL, and two product defects it exposed (an `impact` query that never finished at 5,000 facts, and a
+provenance edge that a crash could lose) were fixed and re-measured.
 
 **Methodology limits** (the Results page and `report.md` print the full list): synthetic data; one scenario family; one model
 (`claude-sonnet-5-5`); LLM arms run once per question; 36-43 questions; scripted worker threads on one machine against a
@@ -373,7 +383,7 @@ with the full L2 and L2-scale runs by `python -m plexus.crucible.combine`), moun
 
 ### Bring your own agent
 
-Any MCP client can connect. The server has 41 tools (`start_session`, `assert_fact`, `recall`, `claim_next_task`,
+Any MCP client can connect. The server has 45 tools (`start_session`, `assert_fact`, `recall`, `claim_next_task`,
 `record_decision`, `why`, `knew_at`, ...; the list is in [`docs/mcp.md`](docs/mcp.md)). Every tool takes an `agent_id`; the
 tenant is part of the connection, never an argument.
 
@@ -427,7 +437,7 @@ bash ../scripts/agent_db.sh rm 10
 
 ```text
 plexus/                  the product (Python 3.12, uv)
-  queries/<area>/*.cypher  every Cypher statement, named and parameterised (90 files)
+  queries/<area>/*.cypher  every Cypher statement, named and parameterised (108 files)
   src/plexus/            graph (client, schema, tenancy), engram, relay, lineage, audit, mcp, api, embed, demo, crucible
   demo_data/             the Acme scenario, recordings (acme-claude-sonnet, acme-scripted, pilot-haiku), Crucible questions and caches
   tests/                 pytest against throw-away graphs
@@ -441,9 +451,9 @@ docker-compose.yml       FalkorDB 6.0.2, plexus-api, plexus-mcp, plexus-view, pl
 ## Testing
 
 [`docs/TESTING.md`](docs/TESTING.md) has the Definition of Ready for Testing with evidence and a step-by-step manual
-checklist. At the last full run, 1168 Python tests and 150 View tests passed (plus 34 unit tests for the deploy guard), and
+checklist. At the last full run, 1512 Python tests and 229 View tests passed (plus 55 unit tests for the deploy guard), and
 `ruff` and the View's lint and typecheck were clean; tests that need a database use their own throw-away graphs. Known gaps
-are listed there too: for example, a real Claude Code run has driven only 14 of the 41 tools (11 in the Acme run, 3 more in the P7 physio run; all 41 have an MCP contract
+are listed there too: for example, a real Claude Code run has driven only 14 of the 45 tools (11 in the Acme run, 3 more in the P7 physio run; all 45 have an MCP contract
 test), and the L1/L4 benchmark and the LLM arms are separate commands. `python scripts/verify_readme.py` checks that every
 link in this README, the video script and the blog draft resolves and that the quoted numbers still match the results files.
 

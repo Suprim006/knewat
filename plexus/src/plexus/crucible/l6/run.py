@@ -374,12 +374,19 @@ def main(argv: list[str] | None = None) -> int:
             # `impact` arms (after the CALL-subquery rewrite) and F for arm P only (the WROTE edge folded into the
             # write statement). Same worlds, seeds and questions as the pre-registered runs.
             doc = envelope("postfix", a.host, a.port, started, cmd)
-            doc["config"] = {"A_arms": a.arms.split(","), "F_kills": a.kills, "F_seed": 20261016, "scale": a.scale}
+            doc["config"] = {
+                "A_arms": a.arms.split(","),
+                "F_kills": a.kills,
+                "F_seed": 20261016,
+                "scale": a.scale,
+            }
             res = {"A": det_a(client, tmp, log, a.scale, only=set(a.arms.split(",")))}
             root = tempfile.mkdtemp(prefix="l6f-")
             tenant = f"l6f_p_{int(time.time()) % 100000}"
             try:
-                res["F"] = {"P": crash.kill_loop("P", a.kills, root, tenant, a.host, a.port, 20261016, log=log)}
+                res["F"] = {
+                    "P": crash.kill_loop("P", a.kills, root, tenant, a.host, a.port, 20261016, log=log)
+                }
             finally:
                 from plexus.graph.tenancy import graph_name
 
@@ -450,7 +457,11 @@ def build_layer(root: Path) -> dict[str, Any]:
             "cost_usd": d["run"].get("cost_usd", 0.0),
         }
         if kind == "postfix":  # kept apart: the same families again, after the P9-int fixes (before / after)
-            layer["postfix"] = {"run": d["run"]["id"], "config": d.get("config", {}), "families": d["families"]}
+            layer["postfix"] = {
+                "run": d["run"]["id"],
+                "config": d.get("config", {}),
+                "families": d["families"],
+            }
             continue
         for fam, v in d.get("families", {}).items():
             layer["families"].setdefault(fam, {})[kind] = v

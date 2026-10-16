@@ -81,7 +81,11 @@ def merge_c7x(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
         "arms": arms,
         "by_category": p["by_category"],
         "false_merge_upper_95": p["false_merge_upper_95"],
-        "targets": {"heavy_auto_pct": 75.0, "heavy_surfaced_pct": 95.0, "other_merge_categories_auto_pct": 100.0},
+        "targets": {
+            "heavy_auto_pct": 75.0,
+            "heavy_surfaced_pct": 95.0,
+            "other_merge_categories_auto_pct": 100.0,
+        },
     }
     run_layers = out.setdefault("run", {}).setdefault("layers", [])
     if "C7x" not in run_layers:
@@ -139,7 +143,10 @@ def main(argv: list[str] | None = None) -> int:
         "--b1h", type=Path, default=DEFAULT_B1H, help="B1h results.json, layers.B1h ('none' to skip)"
     )
     ap.add_argument(
-        "--c7x", type=Path, default=DEFAULT_C7X, help="C7-extended c7x_results.json, layers.C7x ('none' to skip)"
+        "--c7x",
+        type=Path,
+        default=DEFAULT_C7X,
+        help="C7-extended c7x_results.json, layers.C7x ('none' to skip)",
     )
     ap.add_argument(
         "--l6",
