@@ -15,6 +15,7 @@ from plexus.mcp import (
     tools_dedup,
     tools_engram,
     tools_impact,
+    tools_relations,
     tools_relay,
 )
 from plexus.mcp.limits import StrictModel
@@ -29,6 +30,7 @@ TABLES = [
     memory_tools.MEMORY_TOOLS,
     tools_impact.IMPACT_TOOLS,
     tools_dedup.DEDUP_TOOLS,
+    tools_relations.RELATION_TOOLS,
 ]
 
 
@@ -62,7 +64,7 @@ async def test_every_nested_object_in_a_tool_schema_forbids_additional_propertie
 
 def test_every_tool_declares_agent_id_and_step_and_a_unique_name():
     names = [d.name for table in TABLES for d in table]
-    assert len(names) == len(set(names)) == 44
+    assert len(names) == len(set(names)) == 45
     for table in TABLES:
         for d in table:
             params = list(d.work.__annotations__)

@@ -21,6 +21,7 @@ from plexus.common import OPEN, check_between, normalize
 from plexus.common import new_id as _new_id
 from plexus.common import now_ms as _now_ms  # module attribute: crucible's l5 pins it to fake the clock
 from plexus.embed import Embedder, embed_checked, get_embedder
+from plexus.engram import relations
 from plexus.engram.dedup import MAYBE_CAP, DedupSettings, features
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
@@ -224,6 +225,27 @@ class Engram:
         """Entity id for ``name`` (existing or newly created). See :meth:`resolve_entity_ex`."""
         return self.resolve_entity_ex(name, kind, now=now)["id"]
 
+    def assert_relation(
+        self,
+        subject: str,
+        kind: str,
+        obj: str,
+        scope_id: str,
+        *,
+        subject_kind: str = "thing",
+        object_kind: str = "thing",
+        now: int | None = None,
+    ) -> dict[str, Any]:
+        """Relate two entities: ``(subject)-[:RELATES {kind, scope_id}]->(object)``, typed and directed.
+
+        Idempotent. ``recall(hops=1|2)`` walks these edges in both directions (``plexus.engram.relations``).
+        Returns ``{created, subject_id, object_id, kind, scope_id}``; raises :class:`UnknownReference`
+        (writing nothing) for an unknown scope and ``ValueError`` for an empty kind or a self-relation.
+        """
+        return relations.assert_relation(
+            self, subject, kind, obj, scope_id, subject_kind=subject_kind, object_kind=object_kind, now=now
+        )
+
     # -- scopes ----------------------------------------------------------------------------------------
 
     def create_scope(
@@ -426,6 +448,7 @@ class Engram:
         *,
         include_dormant: bool = False,
         forgetting: bool | None = None,
+        hops: int = 0,
     ) -> list[dict[str, Any]]:
         """Top-``k`` facts for ``query`` in ``scope_id`` (and the scopes it inherits), best first.
 
@@ -437,6 +460,13 @@ class Engram:
         ``surprise``, ``verify_state`` (``suspect`` when marked so or when the review date has passed),
         ``suspect_since`` and ``suspect_reason``. ``include_dormant`` adds facts a sweep moved to ``dormant``;
         ``as_of`` always includes them (forgetting never changes history).
+
+        **Hops (P9-b).** ``hops`` 1 or 2 also follows the typed entity relations (:meth:`assert_relation`,
+        either direction) from the entities of the ``k`` hits and appends their current facts, nearest to the
+        query first, with ``hop`` (1|2) and ``relation_path`` on those rows: at most 20 entities and 20 facts
+        per hop, 3 facts per entity, ranked behind every direct hit. Direct rows are unchanged; ``hops=0``
+        (the default)
+        runs no extra query and returns exactly what earlier versions returned.
 
         ``as_of`` (epoch ms) returns what was valid at that time, including since-superseded versions; the
         default is "now" with active facts only. The text budget is applied here: results are kept in rank
@@ -450,6 +480,8 @@ class Engram:
         that cap a fact is only found if its ``value`` shares a keyword with the query (full-text union,
         which filters before its limit). Cost: an empty/short result on a large graph runs up to 3 queries.
         """
+        if hops not in range(relations.MAX_HOPS + 1):
+            raise ValueError(f"hops must be 0, 1 or {relations.MAX_HOPS}")
         if k <= 0:
             return []
         k = min(k, MAX_K)
@@ -478,7 +510,13 @@ class Engram:
                 words=_query_words(query),
             )
             rows = [x.row for x in ranked]
-        return self._apply_budget(rows, acts, t, budget_chars)
+        if not hops:
+            return self._apply_budget(rows, acts, t, budget_chars)
+        extra, meta = relations.expand_hops(self, rows, scope_id, hops, q, t, statuses)
+        out = self._apply_budget(rows + extra, acts, t, budget_chars)
+        for item in out:
+            item.update(meta.get(item["fact_id"], {}))
+        return out
 
     def _fetch_candidates(
         self, q: list[float], scope_id: str, k: int, t: int, statuses: list[str], kw_ids: list[str]

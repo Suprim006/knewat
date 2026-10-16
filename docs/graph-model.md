@@ -88,6 +88,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Engram | `(Fact)-[:SUPERSEDES]->(Fact)` | |
 | Engram | `(Fact)-[:DUPLICATES\|CONTRADICTS]->(Fact)` | |
 | Engram | `(Fact)-[:ASSERTED_BY]->(Agent)` | |
+| Engram | `(Entity)-[:RELATES]->(Entity)` | `kind, scope_id, at` (P9-b: typed entity relation written by `assert_relation`, walked by `recall(hops)`; unique per (kind, scope)) |
 | Engram | `(Procedure)-[:USED_IN]->(Run)` | |
 | Engram | `(Run)-[:BY]->(Agent)` | |
 | Engram | `(Run)-[:FOR]->(Task)` | |

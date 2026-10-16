@@ -359,6 +359,85 @@
       "type": "object"
     }
   },
+  "assert_relation": {
+    "description": "Record that two things are related (subject --kind--> object), e.g. 'Payment Service' 'depends on'\n'Ledger DB'. Safe to repeat. recall(hops=1 or 2) then also returns the facts of entities that are\n1-2 relations away from what the question matched, even when they share no words with it. Entities are\nmatched like assert_fact's subject. Returns created (false when the relation already existed) and the\ntwo entity ids.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "kind": {
+          "description": "How it relates, e.g. 'depends on', 'owned by', 'backed up by' (max 128 chars).",
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Kind",
+          "type": "string"
+        },
+        "object": {
+          "description": "The second entity, e.g. 'Ledger DB'.",
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Object",
+          "type": "string"
+        },
+        "object_kind": {
+          "default": "thing",
+          "description": "Entity kind of the object, e.g. 'database'.",
+          "maxLength": 512,
+          "title": "Object Kind",
+          "type": "string"
+        },
+        "scope": {
+          "default": "global",
+          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "maxLength": 512,
+          "title": "Scope",
+          "type": "string"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        },
+        "subject": {
+          "description": "The first entity, e.g. 'Payment Service'.",
+          "maxLength": 512,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "subject_kind": {
+          "default": "thing",
+          "description": "Entity kind of the subject, e.g. 'service'.",
+          "maxLength": 512,
+          "title": "Subject Kind",
+          "type": "string"
+        }
+      },
+      "required": [
+        "agent_id",
+        "subject",
+        "kind",
+        "object"
+      ],
+      "title": "assert_relationArguments",
+      "type": "object"
+    }
+  },
   "best_procedure": {
     "description": "Ask which procedures have worked best for a kind of task (ranked by success rate, then number of runs).",
     "inputSchema": {
@@ -2053,6 +2132,14 @@
           "default": null,
           "description": "False = rank by relevance only; True = also by how much a fact is used; null = the server default (on).",
           "title": "Forgetting"
+        },
+        "hops": {
+          "default": 0,
+          "description": "0 (default) = direct matches only. 1 or 2 = also add the facts of entities that are 1-2 relations away (see assert_relation) from the matched ones, marked with 'hop' and 'relation_path'; up to 20 extra facts per hop.",
+          "maximum": 2,
+          "minimum": 0,
+          "title": "Hops",
+          "type": "integer"
         },
         "include_dormant": {
           "default": false,

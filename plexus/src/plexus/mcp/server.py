@@ -21,6 +21,7 @@ from plexus.mcp.staleness_tools import register_staleness
 from plexus.mcp.tools import register_engram_relay
 from plexus.mcp.tools_dedup import register_dedup
 from plexus.mcp.tools_impact import register_impact
+from plexus.mcp.tools_relations import register_relations
 
 INSTRUCTIONS = (
     "Plexus is a shared graph memory and coordination layer for a team of agents. "
@@ -69,6 +70,7 @@ def build_server(rt: Runtime) -> MCPServer:
     register_memory(mcp, rt)
     register_impact(mcp, rt)
     register_dedup(mcp, rt)
+    register_relations(mcp, rt)
     return mcp
 
 

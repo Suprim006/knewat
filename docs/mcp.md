@@ -253,7 +253,7 @@ changed; `ToolCall.query_name` of a forgetting-on `recall` is still `engram/reca
 
 ## Impact tool (P9-b, `plexus/mcp/tools_impact.py`)
 
-One read-only tool, registered by `register_impact`: 42 tools in total with the 41 above. It answers "what breaks if this is wrong?" before
+One read-only tool, registered by `register_impact` (43 tools in total: the 41 above, `impact` and `assert_relation` below). It answers "what breaks if this is wrong?" before
 `quarantine_source` / `forget_source` / `fail_task` write anything, in one call instead of three.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
@@ -298,3 +298,18 @@ fact carries `maybe_duplicate_of: [fact ids]`.
 
 Both are write tools: a `ToolCall`, the agent's `Step` with `WROTE` edges to both facts and `UPDATED` audit edges. Errors
 (`unknown fact`, `not linked as possible duplicates`, `no longer the current value`) are plain tool errors.
+
+## Typed relations and `recall(hops)` (P9-b / P2, `plexus/mcp/tools_relations.py`, `plexus/engram/relations.py`)
+
+| Tool | Arguments (besides `agent_id`, `step`) | Result |
+|---|---|---|
+| `assert_relation` | `subject`, `kind` (e.g. `depends on`, max 128 chars), `object`, `scope='global'`, `subject_kind='thing'`, `object_kind='thing'` | `{created, subject_id, object_id, kind, scope_id}`. Writes `(subject)-[:RELATES {kind, scope_id, at}]->(object)`; idempotent per (subject, kind, object, scope); the entities are resolved like `assert_fact`'s subject. A self-relation, an empty kind or an unknown scope id is refused and nothing (not even an Entity) is written. The audit `ToolCall` has `UPDATED` edges to both entities. |
+
+`recall` gains `hops: 0|1|2 = 0`. With `hops >= 1` the entities of the `k` direct hits are expanded over `RELATES` (either direction,
+relations visible from the scope or the scopes it inherits), level by level over distinct entities, and the **current** facts of the
+entities reached are appended after the direct hits: at most 20 entities and 20 facts per hop, 3 facts per entity, each ranked behind
+every direct hit (own distance + 0.25 per hop). Those rows carry `hop` (1|2) and `relation_path` (`[{from, kind, to, dir}]` from the
+seed entity); direct rows are unchanged, and `hops=0` runs no extra query. A fact with no word or embedding overlap with the question
+is found this way when a chain of relations leads to its entity (test: `tests/integration/test_p9b_relations.py`). The relations are only as
+good as what agents write with `assert_relation`; Plexus extracts none by itself (no LLM). Relations are not time-versioned: with `as_of`
+the facts follow the time filter but the edges are today's.

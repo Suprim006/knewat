@@ -52,6 +52,8 @@ MATCH ()-[r:PRODUCED_BY]->() WITH count(r) AS n WHERE n > 0 RETURN 'PRODUCED_BY'
 UNION ALL
 MATCH ()-[r:READ]->() WITH count(r) AS n WHERE n > 0 RETURN 'READ' AS type, n
 UNION ALL
+MATCH ()-[r:RELATES]->() WITH count(r) AS n WHERE n > 0 RETURN 'RELATES' AS type, n
+UNION ALL
 MATCH ()-[r:RETURNED]->() WITH count(r) AS n WHERE n > 0 RETURN 'RETURNED' AS type, n
 UNION ALL
 MATCH ()-[r:SUPERSEDES]->() WITH count(r) AS n WHERE n > 0 RETURN 'SUPERSEDES' AS type, n
