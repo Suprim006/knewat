@@ -60,10 +60,10 @@ def test_blocked_by_failure_on_wide_diamond_dag_is_fast_and_complete(relay):
     assert got[-8:] == [f"L9-{i}" for i in range(8)]
 
 
-def test_blocked_by_failure_depth_is_limited_to_ten_levels(relay):
+def test_blocked_by_failure_depth_is_an_optional_bound(relay):
     _layered(relay, layers=12, width=1)
-    got = relay.blocked_by_failure("root")
-    assert got == [f"L{i}-0" for i in range(10)]
+    assert relay.blocked_by_failure("root", depth=10) == [f"L{i}-0" for i in range(10)]
+    assert relay.blocked_by_failure("root") == [f"L{i}-0" for i in range(12)]  # default 50 (was 10)
 
 
 def test_blocked_by_failure_node_cap(relay, monkeypatch):

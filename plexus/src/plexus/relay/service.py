@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
-from plexus.common import new_id, now_ms, unique
+from plexus.common import check_between, new_id, now_ms, unique
 from plexus.graph.client import GraphClient
 from plexus.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask, InvalidDag, UnknownReference
 
@@ -18,7 +18,9 @@ MAX_TASKS_PER_CALL = 500
 MAX_EDGES_PER_CALL = 5000
 MAX_ARTIFACTS_PER_CALL = 100
 MAX_REFS_PER_CALL = 100
-MAX_BLOCKED_DEPTH = 10  # blocked_by_failure: BFS levels
+MAX_BLOCKED_DEPTH = (
+    50  # blocked_by_failure: BFS levels (was 10: a 24-layer DAG lost 84 of 144 tasks silently)
+)
 MAX_BLOCKED_NODES = 5000  # blocked_by_failure: distinct tasks returned
 MAX_LEASE_MS = 24 * 3600 * 1000  # longest lease a claim / heartbeat may ask for (24 h)
 
@@ -366,17 +368,20 @@ class Relay:
             dict(r) for r in self.client.ro(self.graph, "relay/ready_tasks", {"now": now, "limit": limit})
         ]
 
-    def blocked_by_failure(self, task_id: str) -> list[str]:
-        """Not-done tasks that depend (transitively, up to 10 hops) on ``task_id``, nearest first.
+    def blocked_by_failure(self, task_id: str, depth: int = MAX_BLOCKED_DEPTH) -> list[str]:
+        """Not-done tasks that depend (transitively, up to ``depth`` hops, 1..50) on ``task_id``.
+
+        Nearest first.
 
         Level-wise BFS over distinct tasks (``relay/dependents_of``): linear in the edges touched, unlike the
         old path enumeration, which was exponential on layered DAGs. At most 5,000 tasks are returned. Tasks
         are listed by hop distance, then id; done tasks are walked through but not reported.
         """
+        check_between("depth", depth, MAX_BLOCKED_DEPTH)
         seen = {task_id}
         frontier = [task_id]
         out: list[str] = []
-        for _ in range(MAX_BLOCKED_DEPTH):
+        for _ in range(depth):
             rows = self.client.ro(self.graph, "relay/dependents_of", {"frontier": frontier})
             level = {r["id"]: r["status"] for r in rows if r["id"] not in seen}
             if not level:

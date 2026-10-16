@@ -5,10 +5,11 @@
 // mode: ro
 // Root = a Decision (its BASED_ON facts become the base facts) or a Fact (the base fact is the fact itself); an unknown id returns no rows.
 // Decision edges: DECIDED, FOR (Task), BASED_ON, (Step)-[:WROTE]->, and the writing Step's agent.
-// Per base fact: ASSERTED_BY, ABOUT, IN_SCOPE, DERIVED_FROM*1..3 (Episode | Source | Fact; with the asserting agent of derived facts and the Session/agent behind an Episode),
+// Per base fact: ASSERTED_BY, ABOUT, IN_SCOPE (the DERIVED_FROM ancestry, with the asserting agent of derived facts and the Session/agent behind an Episode,
+// comes from lineage/why_derived_level, which Lineage.why runs level by level over DISTINCT facts up to `depth` hops: P9-b),
 // SUPERSEDES / CONTRADICTS / DUPLICATES neighbours (both directions), and the Step(s) that WROTE it with their agent.
 // P7-int: the Changes that SUSPECTED a base fact (Change -> Fact) and the agents that VERIFIED_BY it (Fact -> Agent), so "why is this decision at risk" is this one query.
-// Every branch is capped by $limit rows, and a base fact's neighbourhood is bounded by the fixed hop limits above, so the result is bounded.
+// Every branch is capped by $limit rows, and a base fact's neighbourhood is fixed, so the result is bounded.
 MATCH (a:Agent)-[:DECIDED]->(d:Decision {id: $id})
 RETURN a.id AS s, 'Agent' AS sl, 'DECIDED' AS rel, d.id AS t, 'Decision' AS tl, 1 AS prio LIMIT $limit
 UNION
@@ -51,44 +52,6 @@ WITH bfs + f0s AS base
 UNWIND base AS f
 MATCH (f)-[:IN_SCOPE]->(sc:Scope)
 RETURN f.id AS s, 'Fact' AS sl, 'IN_SCOPE' AS rel, sc.id AS t, 'Scope' AS tl, 6 AS prio LIMIT $limit
-UNION
-OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
-WITH collect(bf) AS bfs
-OPTIONAL MATCH (f0:Fact {id: $id})
-WITH bfs, collect(f0) AS f0s
-WITH bfs + f0s AS base
-UNWIND base AS f
-MATCH p = (f)-[:DERIVED_FROM*1..3]->(x)
-UNWIND relationships(p) AS r
-RETURN DISTINCT startNode(r).id AS s, labels(startNode(r))[0] AS sl, 'DERIVED_FROM' AS rel,
-       endNode(r).id AS t, labels(endNode(r))[0] AS tl, 3 AS prio LIMIT $limit
-UNION
-OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
-WITH collect(bf) AS bfs
-OPTIONAL MATCH (f0:Fact {id: $id})
-WITH bfs, collect(f0) AS f0s
-WITH bfs + f0s AS base
-UNWIND base AS f
-MATCH (f)-[:DERIVED_FROM*1..3]->(g:Fact)-[:ASSERTED_BY]->(a:Agent)
-RETURN DISTINCT g.id AS s, 'Fact' AS sl, 'ASSERTED_BY' AS rel, a.id AS t, 'Agent' AS tl, 4 AS prio LIMIT $limit
-UNION
-OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
-WITH collect(bf) AS bfs
-OPTIONAL MATCH (f0:Fact {id: $id})
-WITH bfs, collect(f0) AS f0s
-WITH bfs + f0s AS base
-UNWIND base AS f
-MATCH (f)-[:DERIVED_FROM*1..3]->(e:Episode)<-[:HAS_EPISODE]-(se:Session)
-RETURN DISTINCT se.id AS s, 'Session' AS sl, 'HAS_EPISODE' AS rel, e.id AS t, 'Episode' AS tl, 4 AS prio LIMIT $limit
-UNION
-OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
-WITH collect(bf) AS bfs
-OPTIONAL MATCH (f0:Fact {id: $id})
-WITH bfs, collect(f0) AS f0s
-WITH bfs + f0s AS base
-UNWIND base AS f
-MATCH (f)-[:DERIVED_FROM*1..3]->(:Episode)<-[:HAS_EPISODE]-(se:Session)<-[:HAD]-(a:Agent)
-RETURN DISTINCT a.id AS s, 'Agent' AS sl, 'HAD' AS rel, se.id AS t, 'Session' AS tl, 4 AS prio LIMIT $limit
 UNION
 OPTIONAL MATCH (:Decision {id: $id})-[:BASED_ON]->(bf:Fact)
 WITH collect(bf) AS bfs

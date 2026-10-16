@@ -21,6 +21,9 @@ DEFAULT_DETAIL = 500  # forget / quarantine report: readers, decision ids and ha
 MAX_DETAIL = 5000
 MAX_SOURCE_TEXT = 2000
 MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
+MAX_DEPTH = 12  # DERIVED_FROM hops a cascade / why may follow (P9-b: was 5 / 3, hard-coded)
+DEFAULT_CASCADE_DEPTH = 8  # forget_source / quarantine / release_quarantine
+DEFAULT_WHY_DEPTH = 6
 
 
 TRUSTS = ("normal", "high")
@@ -240,25 +243,30 @@ class Lineage:
         now: int | None = None,
         limit: int = MAX_FORGET_FACTS,
         max_detail: int = DEFAULT_DETAIL,
+        depth: int = DEFAULT_CASCADE_DEPTH,
     ) -> dict[str, Any]:
         """Forget everything derived from a source, in one bounded statement.
 
-        Every fact that reaches the source through ``DERIVED_FROM*1..5`` becomes ``status='forgotten'`` with
+        Every fact that reaches the source through up to ``depth`` (1..12, default 8) ``DERIVED_FROM`` hops
+        becomes ``status='forgotten'`` with
         ``valid_to = min(valid_to, now)``, so ``Engram.recall`` and :meth:`as_of` stop returning it. Decisions
         ``BASED_ON`` those facts are flagged (``flagged = true``), never deleted. Handoffs that ``CARRIES``
         them are reported. Idempotent; at most ``limit`` (<= 5000) facts per call, ``truncated`` says to call
         again. Returns ``{source_id, mode, fact_ids, decision_ids, decisions_total, handoff_ids,
         handoffs_total, detail_truncated, truncated}``: ``decision_ids`` / ``handoff_ids`` list at most
         ``max_detail`` (1..5000, default 500) ids, the ``*_total`` counts are exact (every decision is flagged
-        regardless). ``mode='quarantine'`` delegates to :meth:`quarantine`. Raises :class:`UnknownNode`
+        regardless). ``mode='quarantine'`` delegates to :meth:`quarantine`. The cascade expands level by level
+        over distinct facts, so a diamond-shaped lineage costs its edges, not its paths. Raises
+        :class:`UnknownNode`
         (unknown source).
         """
         if mode == "quarantine":
-            return self.quarantine(source_id, now=now, limit=limit, max_detail=max_detail)
+            return self.quarantine(source_id, now=now, limit=limit, max_detail=max_detail, depth=depth)
         if mode != "forget":
             raise ValueError("mode must be 'forget' or 'quarantine'")
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("max_detail", max_detail, MAX_DETAIL)
+        check_between("depth", depth, MAX_DEPTH)
         rows = self.client.rw(
             self.graph,
             "lineage/forget_source",
@@ -266,6 +274,7 @@ class Lineage:
                 "source_id": source_id,
                 "now": self._t(now),
                 "limit": limit,
+                "depth": depth,
                 "reason": f"derived from forgotten source {source_id}",
                 "max_detail": max_detail,
             },
@@ -292,10 +301,12 @@ class Lineage:
         now: int | None = None,
         limit: int = MAX_FORGET_FACTS,
         max_detail: int = DEFAULT_DETAIL,
+        depth: int = DEFAULT_CASCADE_DEPTH,
     ) -> dict[str, Any]:
         """Quarantine a poisoned source and report its blast radius (stretch feature; reversible).
 
-        Same traversal as :meth:`forget_source` (``DERIVED_FROM*1..5``) but the facts become
+        Same traversal as :meth:`forget_source` (up to ``depth`` ``DERIVED_FROM`` hops, 1..12, default 8) but
+        the facts become
         ``status='quarantined'`` (hidden from recall and :meth:`as_of`, ``valid_to`` untouched, old status
         kept so :meth:`release_quarantine` can restore it). Nothing else is modified. Returns
         ``{source_id, mode, fact_ids, readers: [{agent_id, step_id, step_n, at, fact_id}], readers_total,
@@ -308,10 +319,17 @@ class Lineage:
         """
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("max_detail", max_detail, MAX_DETAIL)
+        check_between("depth", depth, MAX_DEPTH)
         rows = self.client.rw(
             self.graph,
             "lineage/quarantine",
-            {"source_id": source_id, "now": self._t(now), "limit": limit, "max_detail": max_detail},
+            {
+                "source_id": source_id,
+                "now": self._t(now),
+                "limit": limit,
+                "max_detail": max_detail,
+                "depth": depth,
+            },
         )
         if not rows:
             raise UnknownNode(f"no source with id '{source_id}'")
@@ -344,11 +362,19 @@ class Lineage:
             "truncated": bool(r["truncated"]),
         }
 
-    def release_quarantine(self, source_id: str, *, limit: int = MAX_FORGET_FACTS) -> dict[str, Any]:
-        """Undo :meth:`quarantine`: quarantined facts under the source get their previous status back."""
+    def release_quarantine(
+        self, source_id: str, *, limit: int = MAX_FORGET_FACTS, depth: int = DEFAULT_CASCADE_DEPTH
+    ) -> dict[str, Any]:
+        """Undo :meth:`quarantine`: quarantined facts under the source get their previous status back.
+
+        ``depth`` (1..12, default 8) should be at least the depth the quarantine used.
+        """
         check_between("limit", limit, MAX_FORGET_FACTS)
+        check_between("depth", depth, MAX_DEPTH)
         rows = self.client.rw(
-            self.graph, "lineage/release_quarantine", {"source_id": source_id, "limit": limit}
+            self.graph,
+            "lineage/release_quarantine",
+            {"source_id": source_id, "limit": limit, "depth": depth},
         )
         if not rows:
             raise UnknownNode(f"no source with id '{source_id}'")
@@ -359,11 +385,14 @@ class Lineage:
         }
 
     # -- why --------------------------------------------------------------------------------------------
-    def why(self, node_id: str, *, max_elements: int = MAX_WHY_ELEMENTS) -> dict[str, Any]:
+    def why(
+        self, node_id: str, *, max_elements: int = MAX_WHY_ELEMENTS, depth: int = DEFAULT_WHY_DEPTH
+    ) -> dict[str, Any]:
         """Explain a Decision or a Fact: the facts it rests on, who asserted them, where they came from.
 
-        Walks ``BASED_ON``, ``ASSERTED_BY``, ``DERIVED_FROM*1..3`` (Episode / Source / Fact, plus the Session
-        and agent behind an Episode), ``SUPERSEDES`` / ``CONTRADICTS`` / ``DUPLICATES`` neighbours and the
+        Walks ``BASED_ON``, ``ASSERTED_BY``, ``DERIVED_FROM`` to ``depth`` hops (1..12, default 6; Episode /
+        Source / Fact, plus the Session and agent behind an Episode; expanded level by level over distinct
+        facts), ``SUPERSEDES`` / ``CONTRADICTS`` / ``DUPLICATES`` neighbours and the
         ``Step`` (with its agent) that wrote the decision and each fact. Returns::
 
             {root, kind, facts: [{id, props, asserted_by, sources, episodes, derived_from_facts, supersedes,
@@ -377,7 +406,9 @@ class Lineage:
         """
         if max_elements < 2:
             raise ValueError("max_elements must be at least 2")
-        rows = self.client.ro(self.graph, "lineage/why_edges", {"id": node_id, "limit": max_elements})
+        check_between("depth", depth, MAX_DEPTH)
+        rows = list(self.client.ro(self.graph, "lineage/why_edges", {"id": node_id, "limit": max_elements}))
+        rows += self._derived_edges(node_id, rows, max_elements, depth)
         edges, labels, truncated = explain.bound_edges(rows, node_id, max_elements)
         info = self._node_info([node_id, *labels])
         root = info.get(node_id)
@@ -392,6 +423,26 @@ class Lineage:
         ]
         out = explain.summarise(node_id, root["label"], nodes, edges)
         out["truncated"] = truncated
+        return out
+
+    def _derived_edges(
+        self, node_id: str, rows: Sequence[dict[str, Any]], limit: int, depth: int
+    ) -> list[dict[str, Any]]:
+        """The DERIVED_FROM ancestry of the base facts: one query per level over DISTINCT facts."""
+        frontier = sorted({r["t"] for r in rows if r["rel"] == "BASED_ON"} | {node_id})
+        seen = set(frontier)
+        out: list[dict[str, Any]] = []
+        for _ in range(depth):
+            level = self.client.ro(
+                self.graph, "lineage/why_derived_level", {"frontier": frontier, "limit": limit}
+            )
+            out += [dict(r) for r in level]
+            frontier = sorted(
+                {r["t"] for r in level if r["rel"] == "DERIVED_FROM" and r["tl"] == "Fact"} - seen
+            )
+            if not frontier:
+                break
+            seen.update(frontier)
         return out
 
     def _node_info(self, ids: Iterable[str]) -> dict[str, dict[str, Any]]:
