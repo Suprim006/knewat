@@ -13,6 +13,7 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
+from plexus.common import OPEN
 from plexus.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K
 from plexus.mcp.limits import (
     ALL_SCOPES,
@@ -192,16 +193,23 @@ def recall(
             "up to 20 extra facts per hop.",
         ),
     ] = 0,
+    detail: Annotated[
+        Literal["compact", "full"],
+        Field(
+            description="'compact' (default): per hit fact_id, entity, predicate, value, valid_from, score, by, "
+            "plus any non-default flag. 'full': also text, provenance path, activation, surprise and every flag."
+        ),
+    ] = "compact",
     step: Step = None,
 ) -> Outcome:
     """Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this
-    before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window
-    and a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little
-    higher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is
-    'suspect' (its code or review date changed: verify before relying on it) and 'protected'; 'maybe_duplicate_of'
-    lists facts it may duplicate (see confirm_duplicate). 'truncated': true means more facts matched than
-    were returned (raise k / budget_chars or narrow the query). Also returns
-    recall_id: pass it to why_recalled to see why these facts came back, in this order."""
+    before acting, to learn what the team already knows. Each hit has fact_id, entity, predicate, value,
+    valid_from and 'by' (who asserted it). Facts that are used, decided on, or surprising rank a little
+    higher; unused old facts rank a little lower but are never hidden. A hit only carries a flag when it is
+    not the default: 'verify_state': 'suspect' (its code or review date changed: verify before relying on it),
+    'status' (not active), 'valid_to' (ended), 'protected', 'maybe_duplicate_of' (see confirm_duplicate).
+    'truncated': true means more facts matched than were returned (raise k / budget_chars or narrow the
+    query). Also returns recall_id: pass it to why_recalled to see why these facts came back, in this order."""
     all_scopes = (scope or "").strip() == ALL_SCOPES
     if all_scopes:
         sid = ts.scope_id("global", m, create=False) or ""  # the walk starts nowhere; $all keeps every scope
@@ -233,17 +241,53 @@ def recall(
         }
 
     out_sid = ALL_SCOPES if all_scopes else sid
-    return Outcome(
-        {
-            "facts": hits,
-            "count": len(hits),
-            "scope_id": out_sid,
-            "truncated": page["truncated"],
-            "omitted_by_budget": page["omitted_by_budget"],
-            "more_available": page["more_available"],
-        },
-        after=record,
-    )
+    out: dict[str, Any] = {
+        "facts": hits if detail == "full" else [compact_hit(h) for h in hits],
+        "count": len(hits),
+        "scope_id": out_sid,
+        "truncated": page["truncated"],
+    }
+    if detail == "full" or page["omitted_by_budget"]:
+        out["omitted_by_budget"] = page["omitted_by_budget"]
+    if detail == "full" or page["more_available"]:
+        out["more_available"] = page["more_available"]
+    return Outcome(out, after=record)
+
+
+# A compact recall hit leaves out a field whose value is the default below (P12 token fix: in L8 the full hit
+# was ~750 chars, 42% of it the provenance path, and no agent ever used a path id; ``detail='full'`` has it all).
+_COMPACT_DEFAULTS: dict[str, Any] = {
+    "status": "active",
+    "valid_to": OPEN,
+    "via": None,
+    "protected": None,
+    "maybe_duplicate_of": [],
+    "verify_state": "verified",
+    "suspect_since": 0,
+    "suspect_reason": None,
+}
+_COMPACT_ALWAYS = ("fact_id", "entity", "predicate", "value", "valid_from", "score")
+_COMPACT_FULL_ONLY = frozenset({"text", "path", "surprise", "activation"})
+
+
+def compact_hit(h: dict[str, Any]) -> dict[str, Any]:
+    """One recall hit without the fields an agent rarely needs: ``text`` (= entity + predicate + value),
+    ``path`` (entity/scope/source ids; ``by`` keeps who asserted it), ``surprise`` and ``activation`` (ranking
+    inputs, see ``why_recalled``), and every flag that has its default value. Unknown keys (``hop``,
+    ``relation_path``) are kept."""
+    out = {k: h[k] for k in _COMPACT_ALWAYS if k in h}
+    by = [p["id"] for p in h.get("path") or [] if p.get("rel") == "ASSERTED_BY"]
+    if by:
+        out["by"] = by[0] if len(by) == 1 else by
+    if h.get("protected") is False:
+        h = {**h, "protected": None}
+    for k, v in h.items():
+        if k in out or k in _COMPACT_FULL_ONLY:
+            continue
+        if k in _COMPACT_DEFAULTS and v == _COMPACT_DEFAULTS[k]:
+            continue
+        out[k] = v
+    return out
 
 
 @tool(kind="read")

@@ -63,6 +63,12 @@ Every tool takes `agent_id` (required) and `step` (optional int). Results are JS
 soft-duplicate tools, `impact` and `assert_relation` (the sections after this list).
 - **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
+  `recall` hits are **compact** by default (P12): `fact_id`, `entity`, `predicate`, `value`, `valid_from`, `score`, `by`
+  (asserting agent) plus only the flags that differ from their default (`verify_state: suspect` with `suspect_since` /
+  `suspect_reason`, `status`, `valid_to`, `via`, `protected: true`, a non-empty `maybe_duplicate_of`, `hop` /
+  `relation_path`). `detail: "full"` returns the pre-P12 hit (`text`, provenance `path`, `surprise`, `activation` and every
+  flag). Same facts, same order either way.
+
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
   1..50, default 50).
@@ -298,7 +304,7 @@ before P9-c have no key and only match by exact text. Thresholds: `PLEXUS_DUP_JA
 
 A merge keeps the raw wording: `ASSERTED_BY.text` on the duplicate's edge, so it is detectable and reversible.
 `assert_fact` returns `possible_duplicates: [{fact_id, value, cos, jaccard}]` (empty when none; at most 5) and every `recall`
-fact carries `maybe_duplicate_of: [fact ids]`.
+fact carries `maybe_duplicate_of: [fact ids]` (a compact hit only when it is non-empty).
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|

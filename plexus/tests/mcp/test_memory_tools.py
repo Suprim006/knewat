@@ -179,9 +179,9 @@ async def test_memory_tools_open_a_step_for_the_agent(server, client, tenant):
 async def test_recall_arguments_forgetting_and_include_dormant(server, client, tenant):
     async with Client(server) as c:
         await _seed(c, client, tenant)
-        on = await ok(c, "recall", agent_id="a", query="detail", k=5)
+        on = await ok(c, "recall", agent_id="a", query="detail", k=5, detail="full")
         assert all(isinstance(x["activation"], float) and x["protected"] is False for x in on["facts"])
-        off = await ok(c, "recall", agent_id="a", query="detail", k=5, forgetting=False)
+        off = await ok(c, "recall", agent_id="a", query="detail", k=5, forgetting=False, detail="full")
         assert all(x["activation"] is None and x["protected"] is None for x in off["facts"])
         for key in ("verify_state", "suspect_since", "suspect_reason", "surprise"):
             assert key in on["facts"][0]

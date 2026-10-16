@@ -27,7 +27,7 @@ async def test_assert_reports_possible_duplicates_and_recall_carries_the_link(se
         res = await ok(c, "recall", agent_id="carol", query="Topology edge Service calls", k=5)
         by = {f["fact_id"]: f for f in res["facts"]}
         assert by[n["fact_id"]]["maybe_duplicate_of"] == [o["fact_id"]]
-        assert by[o["fact_id"]]["maybe_duplicate_of"] == []
+        assert by[o["fact_id"]].get("maybe_duplicate_of", []) == []  # compact: [] is left out
 
 
 async def test_confirm_merges_new_into_old_and_reject_undoes_it(server, client, tenant):
@@ -95,7 +95,7 @@ async def test_reject_removes_only_the_link(server, client, tenant):
         r = await ok(c, "reject_duplicate", agent_id="carol", new_id=n["fact_id"], old_id=o["fact_id"])
         assert r["rejected"] is True and r["undone"] is False
         res = await ok(c, "recall", agent_id="carol", query="Topology edge Service calls", k=5)
-        assert all(f["maybe_duplicate_of"] == [] for f in res["facts"])
+        assert all(f.get("maybe_duplicate_of", []) == [] for f in res["facts"])
         r2 = await ok(c, "reject_duplicate", agent_id="carol", new_id=n["fact_id"], old_id=o["fact_id"])
         assert r2["rejected"] is False  # idempotent
         text = await err(c, "confirm_duplicate", agent_id="carol", new_id=n["fact_id"], old_id=o["fact_id"])

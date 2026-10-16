@@ -147,7 +147,12 @@ def transcript_events(seed: int) -> list[dict[str, Any]]:
 
 
 async def _bench_seed(
-    seed: int, port: int, canonical: list[dict[str, Any]], scope: str | None = None, embedder: str = "hash"
+    seed: int,
+    port: int,
+    canonical: list[dict[str, Any]],
+    scope: str | None = None,
+    embedder: str = "hash",
+    detail: str | None = None,
 ) -> dict[str, Any]:
     from mcp import Client
     from plexus.crucible.api import BackendSpec
@@ -186,11 +191,15 @@ async def _bench_seed(
 
             async def call(tool: str, args: dict[str, Any]) -> dict[str, Any] | None:
                 nonlocal errors
+                if tool == "recall" and detail is not None:
+                    args = {**args, "detail": detail}
                 res = await c.call_tool(tool, args)
                 if res.is_error:
                     errors += 1
                     return None
-                return json.loads(res.content[0].text)
+                out = json.loads(res.content[0].text)
+                out["_resp_chars"] = len(res.content[0].text)  # what the agent would read (P12 token fix)
+                return out
 
             for e in transcript_events(seed):
                 a = dict(e["args"])
@@ -218,6 +227,7 @@ async def _bench_seed(
                             "args": {k: v for k, v in a.items() if k not in ("agent_id", "query", "step")},
                             "returned": len(facts),
                             "truncated": (got or {}).get("truncated"),
+                            "resp_chars": (got or {}).get("_resp_chars", 0),
                             "found": {lab: _hit(facts, TARGETS[lab]) for lab in need},
                         }
                     )
@@ -236,6 +246,7 @@ async def _bench_seed(
                             "style": style,
                             "query": row[style],
                             "returned": len(facts),
+                            "resp_chars": (got or {}).get("_resp_chars", 0),
                             "found": _hit(facts, row["target"]),
                             "rank": next(
                                 (i + 1 for i, f in enumerate(facts) if _hit([f], row["target"])), None
@@ -287,7 +298,14 @@ def summarise(seeds: list[dict[str, Any]]) -> dict[str, Any]:
         "canonical_paraphrase": frac([r for r in canon if r["style"] == "paraphrase"]),
         "canonical_by_kind": by_kind,
         "canonical_mean_returned": round(sum(r["returned"] for r in canon) / max(len(canon), 1), 1),
+        "replay_mean_resp_chars": _mean([r.get("resp_chars") for s in seeds for r in s["replay"]]),
+        "canonical_mean_resp_chars": _mean([r.get("resp_chars") for r in canon]),
     }
+
+
+def _mean(xs: list[Any]) -> float | None:
+    v = [x for x in xs if x]
+    return round(sum(v) / len(v)) if v else None
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -300,6 +318,7 @@ def main(argv: list[str] | None = None) -> int:
         "--scope", default=None, help="override every recall's scope (ablation); default: as called"
     )
     ap.add_argument("--embedder", default="hash", help="hash (as L8) or fastembed (BGE, the product default)")
+    ap.add_argument("--detail", default=None, choices=("compact", "full"), help="force recall's detail (P12)")
     ap.add_argument(
         "--resummarise", type=Path, default=None, help="recompute the summary of an existing file"
     )
@@ -315,12 +334,13 @@ def main(argv: list[str] | None = None) -> int:
     canonical = canonical_targets()
     seeds = []
     for seed in a.seeds:
-        r = asyncio.run(_bench_seed(seed, a.port, canonical, a.scope, a.embedder))
+        r = asyncio.run(_bench_seed(seed, a.port, canonical, a.scope, a.embedder, a.detail))
         print(f"seed {seed}: replay calls {len(r['replay'])}, tool errors {r['tool_errors']}", flush=True)
         seeds.append(r)
     from plexus.crucible.l8.run import git_state
 
     rec = {"kind": "crucible-l8-recall-bench", "label": a.label, "scope_override": a.scope, "embedder": a.embedder,
+           "detail_override": a.detail,
            "bge_query_prefix": os.environ.get("PLEXUS_BGE_QUERY_PREFIX", "on"), "git": git_state(),
            "summary": summarise(seeds),
            "seeds": seeds}  # fmt: skip
