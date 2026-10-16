@@ -7,7 +7,9 @@ in-memory MCP client; (3) the no-write proof. The guard side is in ``deploy/test
 
 from __future__ import annotations
 
+import importlib.util
 import json
+from pathlib import Path
 
 import pytest
 
@@ -322,3 +324,26 @@ async def test_a_mislabelled_read_tool_is_audited_in_full_on_a_light_tenant(clie
         assert r["tool_call_id"] and "audit" not in r  # demoted to full: no 'light' claim in the result
     assert _q(client, tenant, "MATCH (t:ToolCall {tool:'sneaky'}) RETURN t.wrote") == [[True]]
     assert _count(client, tenant, "Step") == 1
+
+
+# ------------------------------------------------------------------------------------ guard coupling
+def _load_guard():
+    path = Path(__file__).resolve().parents[3] / "deploy" / "guard.py"
+    spec = importlib.util.spec_from_file_location("plexus_deploy_guard", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+def test_the_guard_allowlist_is_exactly_the_read_tools():
+    """guard.py imports no Plexus code: its OBSERVER_TOOLS list is checked against the registry here."""
+    guard = _load_guard()
+    assert guard.OBSERVER_TOOLS == {d.name for d in all_tool_defs() if d.kind == "read"}
+
+
+def test_the_deploy_audit_rule_makes_demo_tenants_off_and_team_tenants_unchanged():
+    guard = _load_guard()
+    env = {"PLEXUS_AUDIT_MODES": "team_*=light"}
+    policy = AuditPolicy.from_env(guard.ensure_demo_audit_off(env))
+    assert policy.tenant_mode("demo") == policy.tenant_mode("demo_scripted") == "off"
+    assert policy.tenant_mode("team_abcd") == "light" and policy.tenant_mode("acme") == "full"
