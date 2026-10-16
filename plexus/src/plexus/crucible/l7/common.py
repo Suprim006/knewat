@@ -21,7 +21,6 @@ from pathlib import Path
 from typing import Any
 
 from plexus.crucible import environment
-from plexus.crucible.l6.run import git_state
 from plexus.crucible.util import iso_utc, percentile, run_stamp
 
 SEED = 20261016
@@ -32,6 +31,28 @@ DEFAULT_HOST = "127.0.0.1"  # "localhost" tries ::1 first on Windows + Docker
 
 
 # ------------------------------------------------------------------------------------------------ results files
+def git_state() -> dict[str, Any]:
+    """HEAD and whether the WHOLE ``plexus/`` tree (code + tests, not demo_data) differs from it.
+
+    ``l6.run.git_state`` only looks at the ``l6/`` directory, so it reports a clean tree for uncommitted L7 code.
+    """
+    root = PKG.parents[4]
+
+    def g(*a: str) -> str:
+        return subprocess.run(
+            ["git", *a], capture_output=True, text=True, cwd=root, timeout=20
+        ).stdout.strip()
+
+    dirty = g("status", "--porcelain", "--", "src", "tests", "pyproject.toml")
+    return {
+        "commit": g("rev-parse", "HEAD"),
+        "short": g("rev-parse", "--short", "HEAD"),
+        "dirty": bool(dirty),
+        "dirty_files": dirty.splitlines()[:20],
+        "branch": g("rev-parse", "--abbrev-ref", "HEAD"),
+    }
+
+
 def envelope(kind: str, host: str, port: int, started: float, command: str) -> dict[str, Any]:
     """The common header of every L7 results.json (git state, machine, FalkorDB module config)."""
     return {
