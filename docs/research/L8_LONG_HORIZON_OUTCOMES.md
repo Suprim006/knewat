@@ -847,3 +847,121 @@ re-scored by the same code):
 B0′ "marked done" (R1, C1, C2, C3) is read from the lines that are new in `memory/tasks.md`'s tracked state after a
 write, not from the write's own text: B0′ agents usually `Edit` only the status cell (`todo` → `done: ...`), whose
 `new_string` does not name the task, which made C3 count 9 false "unrecognised completions" in seed 20261018.
+
+---
+
+## Round A results (2026-10-16; P, B1, B0′ × 5 seeds; B0 and B3 not run)
+
+Result files: `plexus/demo_data/crucible/l8/` — `20261016T155630Z-roundA/{results.json,report.md}` (= `latest-roundA.json`),
+`runs/<seed>/<arm>/` (run.json, metrics.json, audit.json, transcripts, store dumps, artifacts, B0′ memory files),
+`probe-20261017.json`, `discarded.json`, `logs/`, `cache/` (every reader and probe call, paid once). Report built at
+`3b50242` with a clean tree (the dirty check runs `git status --porcelain` over the whole repository; run-output paths
+are counted separately). Each `run.json` records its own commit (seeds 1–5: `4d56266`, `c296f78`, `021e118`,
+`34800ed`, `34800ed`); between them only the scorer, audit, report and docs changed — **no prompt, brief, schedule or
+harness change after the gate run**. The three seed-20261019 runs record `dirty: True`: `score.py` and
+`test_score.py` were being edited while they ran (scorer only, not used by the runner). Every run is scored by the
+same final code. The home directory is scrubbed to `<home>` in the committed records.
+
+**Spend: $21.87 notional `total_cost_usd`** (cap $25, approved estimate ≈ $17): 15 runs $19.87 (P $8.14, B1 $5.61,
+B0′ $6.12; 325 `claude -p` turns), B0′ audit readers $1.05 (15 calls), §6.9 probe $0.76 (18 statements, 24 calls),
+discarded shake-down $0.19. Round A came in **above the ≈ $17 approval estimate, in line with amendment 2's
+re-estimate (≈ $22) and under the $25 cap**; per run P ≈ $1.63, B1 ≈ $1.12, B0′ ≈ $1.22. Harness faults: none — every
+run completed, all 10 commits landed in every arm, the P hook ran on every commit with no hook failure, no permission
+denials, model `claude-sonnet-5-5` throughout (Claude Code 2.1.296). Kills: 42 of 45 applied; in three P seeds the run
+ended at turn 20 (t13 failed, t16 blocked, nothing left to claim), before K2's scheduled turn.
+
+### Headline (§12, chosen by the pre-stated rule)
+
+The main template cannot be filled: it needs B3, which was deferred, and P was not separated from either baseline.
+The pre-written alternatives that apply:
+
+> **Plexus did not reduce stale actions versus SQLite (4.5% vs 5.7%, n = 5 seeds each; permutation p = 0.56, seed
+> ranges overlap) and used 2.51× the tokens per correct action (2.01× billing-weighted)**; its remaining advantages
+> are the ones L2/L6 established (deterministic, $0 provenance answers).
+
+> Versus unmodified Claude Code with its own memory files (B0′): stale actions **4.5% (P) vs 2.4% (B0′)**, not
+> separated (p = 0.40): a tie, with B0′ numerically lower.
+
+> Step repetition, missing completion and reasoning–action mismatch were **not changed by the memory backend**
+> (step repetition P 0.3% (one event), B1 0.0%, B0′ 0.0%; no separation). The prediction "only the no-tool arm
+> differed" did not hold either: B0′ did not differ on these signatures.
+
+> Cost: P used 2.51× B1's tokens per correct action (> 2×): **a loss on cost** by the §6.6 criterion.
+
+The design-vs-graph question (§5.5) is **open**: B3 was not run.
+
+### Metrics (pooled over 5 seeds; per-seed values in `report.md`)
+
+| Metric | P (Plexus) | B1 (SQLite) | B0′ (Claude Code files) |
+|---|---|---|---|
+| tasks done / 16 (per seed) | 14, 14, 14, 16, 14 | 16 ×5 | 16 ×5 |
+| **stale-act rate** [Wilson 95%] | **4.5%** (14/312) [2.7, 7.4] | **5.7%** (19/332) [3.7, 8.8] | **2.4%** (6/248) [1.1, 5.2] |
+| stale-act per seed | 8.7, 1.8, 5.1, 1.5, 4.9 | 10.4, 1.5, 4.6, 4.6, 7.2 | 8.3, 0, 0, 0, 3.9 |
+| stale facts live at end (per seed) | 5, 6, 4, 5, 2 | 6, 6, 4, 5, 2 | 6, 6, 4, 6, 1 |
+| time-to-notice L1 median turns (per seed) | 7, 7.5, 10.5, 3, ∞ | 3, 3, 3, 3, 7.5 | 2, 3, 1.5, 1.5, 5.5 |
+| time-to-notice L2 median turns (per seed) | 8, 6, 15, 6, ∞ | 5.5, 6, 3, 6, 9 | 3.5, 6, 3, 6, 7 |
+| notice censored L1 / L2 (of 41 / 36 cases) | 11 / 14 | 4 / 10 | 2 / 9 |
+| step repetition R1+R2+R3 | 0.3% (1) | 0.0% | 0.0% |
+| R2 in reclaim turns (to recovery, amendment 3) | 6 (one seed) | 5 (one seed) | n/a |
+| missing completion C1+C2+C3 (per seed) | 0, 0, 2, 0, 2 | 1, 0, 1, 1, 1 | 0, 0, 0, 0, 1 |
+| mismatch M1 / M2 / M3 (sum) | 0 / 0 / 3 | 0 / 3 / 5 | 0 / n/a / n/a |
+| tokens per correct action (raw / billing-weighted) | 85,840 / 12,878 | 34,248 / 6,421 | 22,190 / 7,345 |
+| provenance: acknowledged writes with a record | 209/209 (≤ 1.4% missing, rule of 3) | 210/210 | n/a |
+| … at kill turns | 11/11 | 10/10 | n/a |
+| X1 (API key vs JWT) surfaced at write | 5/5 | 5/5 | 0/5 |
+| X2 surfaced at write | 4/5 | 5/5 | 0/5 (latency 1 turn) |
+| history recall (S07, S13, S20 facts used where needed) | 3/15 | 5/15 | **15/15** |
+| kills recovered / units repeated of finished | 12/12, 5 of 5 | 15/15, 9 of 9 | 15/15, **0 of 9** |
+| audit Q1 / Q2 / Q3 correct (of 5) | 5 / 2 / 2 | 5 / 2 / 1 | 0 / 1 / 2 |
+| cost (5 runs) | $8.14 | $5.61 | $6.12 |
+
+Separation tests (exact permutation on seed-level rates, separated = p ≤ 0.05 and non-overlapping ranges): P vs B1
+stale-act p = 0.56, P vs B0′ stale-act p = 0.40, P vs either on step repetition p = 1.0 — **none separated**.
+
+Post-hoc robustness (amendments 2–3, descriptive only): excluding the X2 brief-mandated store write, P 2.6% / B1 4.0% /
+B0′ 2.4%; excluding actions whose only stale tokens are of deleted functions, 3.6% / 4.9% / 0.0%; both, 1.7% / 3.1% /
+0.0%; only tasks every arm of the seed reached, 4.5% / 5.7% / 1.7%. The ordering B0′ ≤ P < B1 is stable across
+variants; none changes the verdict.
+
+§6.9 query-authoring probe (seed-1 stores, 3 questions × 3 cold repetitions per language, same model): Cypher 7/9
+first-try exact, 9/9 within 3 fixes, 2 fix iterations, median 4 non-blank lines (3–6); SQL 7/9, 9/9, 2, median 7
+lines (6–25). **A tie on correctness and iterations**; Cypher statements were shorter. §7 footnote: median
+`claim_next_task` latency seen by the agent, B1 15 ms (n = 96), P 37 ms (n = 89).
+
+### What the data say beyond the headline
+
+1. **Plexus's staleness machinery never engaged.** As in the gate (amendment 2), P agents made **0 `anchor_fact`,
+   0 `facts_to_verify` and 0 `verify_fact` calls in all 5 runs** (the plan deliberately does not tell them about
+   these tools, §5.2). The hook recorded every change, but with no anchored fact nothing could be marked suspect, so
+   P's stale-act rate measures P as an un-anchored fact store. P also noticed changes later than B1 in 4 of 5 seeds
+   and has the most censored cases (11 of 41 never noticed at level 1); P agents read the code less (72 `Read`
+   calls over 5 runs vs B1 106, B0′ 277) and relied on `recall`.
+2. **P left work undone.** In 4 of 5 seeds P's researcher called `fail_task` on `t13-reuse-billing-cycle`, which
+   blocks `t16`; B1 and B0′ finished all 16 tasks every time. The `fail_task` reasons say it: "four recalls returned
+   only Acme Notes API facts" — the S07 fact (`Bolt Billing API S07 billing_cycle`) is in P's store, but `recall`
+   with the `hash` embedder (amendment 1, as in the L3 pilot) did not rank it into the top k against 20 sprints of
+   near-identical Bolt Billing facts. B1 missed it too (history recall 5/15, S13 only) but did not fail the task;
+   B0′ grepped its history files and found all three history facts in every seed. Whether a semantic embedder fixes
+   this is not tested here.
+3. **B0′ was the strongest arm on several rows** (history recall, recovery repeats, stale-act rate, tokens) and the
+   weakest on cross-cutting audit questions (Q1 0/5: a 32k reader cannot count 21 decisions spread over 20 sprints)
+   and on surfacing contradictions at write time (0/5: files have no write-time check).
+4. **Audit Q2/Q3 were mostly wrong in both tool arms.** The deterministic store answers (P Cypher, B1 SQL) missed the
+   transcript truth (which agents read a later-invalidated fact; which completions used a stale one) in 3 of 5
+   seeds; the probe shows the statements themselves were authored correctly, so the misses are in what the stores
+   record about reads, plus, for P, the Step-time merge of amendment 3. Not diagnosed case by case.
+5. Provenance completeness is 100% in both tool arms, at kill turns included; it does not separate them.
+
+### Not executed as specified
+
+- **B0 and B3 were not built or run** (owner's round-A approval; amendment 2 cut rule). The design-vs-graph sentence
+  of §12 cannot be filled; §5.5 is open.
+- §6.9 ran in full; nothing was cut for budget.
+- Round A cost $21.87 against the ≈ $17 approval (amendment 2 had re-estimated ≈ $22 from the gate costs).
+- The P staleness path (anchor → hook → suspect → verify) was available but never exercised by the agents (0 anchors
+  in 5 runs), so round A does not test it; a run that tells agents to anchor would be a new, separately
+  pre-registered arm.
+- P's Step numbering merges S21 steps into the 20-sprint history's steps (amendment 3); provenance is matched on the
+  step number, and Q2's time filter for P inherits the history's step times.
+- Scorer fixes after the gate run (amendments 2–4) are post-hoc; they were made before seeds 3–5 were inspected but
+  after seeds 1–2 had been looked at. Prompts, briefs, schedules and the harness were frozen at the gate.
