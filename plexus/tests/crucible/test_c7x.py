@@ -51,20 +51,21 @@ def test_rule_of_three():
 
 
 class _MergeEverything:
-    """A deliberately wrong store: any second value for a subject+predicate is 'a duplicate'."""
+    """A deliberately wrong store: any second value for a subject+predicate is 'a duplicate' (no value is added)."""
 
     def __init__(self):
-        self.seen: dict[tuple[str, str], int] = {}
+        self.seen: dict[tuple[str, str], str] = {}
 
     def register_agent(self, *_):
         return None
 
     def assert_fact(self, agent, subject, predicate, value, **_):
-        self.seen[(subject, predicate)] = 1
-        return {"fact_id": "x", "duplicate_of": None}
+        self.seen.setdefault((subject, predicate), value)
+        return {"fact_id": "x"}
 
     def facts(self, subject, predicate):
-        return [{"status": "active"}] if (subject, predicate) in self.seen else []
+        v = self.seen.get((subject, predicate))
+        return [] if v is None else [{"status": "active", "value": v}]
 
 
 class _Run:
