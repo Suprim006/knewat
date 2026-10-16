@@ -1210,6 +1210,75 @@
       "type": "object"
     }
   },
+  "impact": {
+    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,\nthe decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them.\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
+    "inputSchema": {
+      "properties": {
+        "agent_id": {
+          "description": "Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Agent Id",
+          "type": "string"
+        },
+        "depth": {
+          "default": 8,
+          "description": "How many derivation / dependency hops to follow (default 8; at most 12 for a source or fact, 50 for a task).",
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
+        "id": {
+          "description": "The source_id, fact_id or task_id.",
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "description": "What to analyse: a 'source' (uri-registered), a 'fact', or a 'task'.",
+          "enum": [
+            "source",
+            "fact",
+            "task"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "max_items": {
+          "default": 50,
+          "description": "Ids listed per category (totals are always exact).",
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Max Items",
+          "type": "integer"
+        },
+        "step": {
+          "anyOf": [
+            {
+              "maximum": 2147483647,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional: your own step counter (1, 2, 3...); calls with the same step share one step. If omitted, every call becomes the next step automatically. Never go backwards.",
+          "title": "Step"
+        }
+      },
+      "required": [
+        "agent_id",
+        "kind",
+        "id"
+      ],
+      "title": "impactArguments",
+      "type": "object"
+    }
+  },
   "knew_at": {
     "description": "Time machine: what a given agent knew at its step N (the facts it had read that were still valid\nthen) and everything it had written by then.",
     "inputSchema": {

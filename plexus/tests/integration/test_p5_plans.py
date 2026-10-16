@@ -96,7 +96,7 @@ def test_q2_fact_history_does_not_enumerate_the_scope(client, graph, big):
 
 @pytest.mark.parametrize("query", ["lineage/forget_source", "lineage/quarantine"])
 def test_q3_cascade_from_a_source_with_no_facts_touches_no_facts(client, graph, big, query):
-    params = {"source_id": "SRC_EMPTY", "now": 5, "limit": 5000, "max_detail": 100}
+    params = {"source_id": "SRC_EMPTY", "now": 5, "limit": 5000, "max_detail": 100, "depth": 12}
     if query == "lineage/forget_source":
         params["reason"] = "r"
     ops = profile_ops(client, graph, query, params)
@@ -105,12 +105,17 @@ def test_q3_cascade_from_a_source_with_no_facts_touches_no_facts(client, graph, 
 
 def test_q3_release_quarantine_is_not_proportional_to_quarantined_facts(client, graph):
     seed_big_scope(client, graph, status="quarantined")
-    ops = profile_ops(client, graph, "lineage/release_quarantine", {"source_id": "SRC_EMPTY", "limit": 5000})
+    ops = profile_ops(
+        client, graph, "lineage/release_quarantine", {"source_id": "SRC_EMPTY", "limit": 5000, "depth": 12}
+    )
     _assert_small(ops, limit=20)
 
 
 def test_q3_cascade_follows_chains_from_the_source(client, graph, big):
     ops = profile_ops(
-        client, graph, "lineage/quarantine", {"source_id": "SRC", "now": 5, "limit": 5000, "max_detail": 100}
+        client,
+        graph,
+        "lineage/quarantine",
+        {"source_id": "SRC", "now": 5, "limit": 5000, "max_detail": 100, "depth": 12},
     )
     _assert_small(ops, limit=20)

@@ -80,7 +80,7 @@ async def test_tool_list_and_schema_snapshot(server):
     assert STALENESS_TOOLS <= names
     memory_tools = {"pin_fact", "unpin_fact", "memory_strength", "memory_sweep", "restore_fact"}  # P7-K
     extra = names - ENGRAM_RELAY_TOOLS - STALENESS_TOOLS
-    assert extra == lineage_tools | memory_tools, "unexpected or missing tools"
+    assert extra == lineage_tools | memory_tools | {"impact"}, "unexpected or missing tools"  # + P9-b
     for name, spec in got.items():
         props = spec["inputSchema"]["properties"]
         assert "agent_id" in props, name
