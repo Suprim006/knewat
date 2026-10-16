@@ -175,3 +175,21 @@ lowers a fact's **rank only**; none of these deletes anything.
 forgetting is off), `verify_state`, `suspect_since` and `suspect_reason`. `assert_fact` returns `surprise`.
 Audit: `pin_fact`, `unpin_fact`, `restore_fact` and a real `memory_sweep` record `UPDATED` edges to the facts they
 changed; `ToolCall.query_name` of a forgetting-on `recall` is still `engram/recall`: `activation/*` reads are auxiliary and never name a call that ran another read.
+
+## Impact tool (P9-b, `plexus/mcp/tools_impact.py`)
+
+One read-only tool, registered by `register_impact`: 42 tools in total with the 41 above. It answers "what breaks if this is wrong?" before
+`quarantine_source` / `forget_source` / `fail_task` write anything, in one call instead of three.
+
+| Tool | Arguments (besides `agent_id`, `step`) | Result |
+|---|---|---|
+| `impact` | `kind='source'\|'fact'\|'task'`, `id`, `depth=8` (1..12 for source/fact, 1..50 for task), `max_items=50` (1..200) | `{impact: {kind, id, depth, facts: {total, ids, by_status}, readers: {steps_total, agents_total, agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids}, truncated}}` for a source (facts reaching it through `DERIVED_FROM`) or a fact (itself plus the facts derived from it); `tasks` are the tasks the affected decisions are `FOR`. For `kind='task'`: `{impact: {kind, id, depth, tasks: {total, ids}, truncated}}`, the unfinished tasks that transitively depend on it (what `blocked_by_failure` returns). Totals are exact up to 5000 facts / 5000 tasks (`truncated`); lists are cut at `max_items`. Unknown id -> a tool error naming it. |
+
+Nothing is written (no `READ` edges either: looking at the damage must not make the facts look used); the audit `ToolCall` +
+`Step` are the only rows. The expansion is the level-wise, distinct-node one of `lineage/impact_source` / `lineage/impact_fact`
+(`docs/queries.md`): a diamond lineage of depth 12 with fan-in 3 (about 500k paths, 60 facts) answers in a few ms.
+
+`Lineage.forget_source`, `quarantine` and `release_quarantine` gained an optional `depth` (1..12, default 8; was a fixed 5 hops),
+`Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
+(1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source` and `blocked_by_failure` keep their
+schemas and use the new defaults.

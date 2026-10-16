@@ -24,6 +24,7 @@ MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
 MAX_DEPTH = 12  # DERIVED_FROM hops a cascade / why may follow (P9-b: was 5 / 3, hard-coded)
 DEFAULT_CASCADE_DEPTH = 8  # forget_source / quarantine / release_quarantine
 DEFAULT_WHY_DEPTH = 6
+DEFAULT_IMPACT_DETAIL = 50  # impact: ids listed per category
 
 
 TRUSTS = ("normal", "high")
@@ -382,6 +383,62 @@ class Lineage:
             "source_id": source_id,
             "fact_ids": sorted(rows[0]["fact_ids"]),
             "truncated": bool(rows[0]["truncated"]),
+        }
+
+    # -- impact (read-only blast radius) ------------------------------------------------------------------
+    def impact(
+        self,
+        kind: str,
+        node_id: str,
+        *,
+        depth: int = DEFAULT_CASCADE_DEPTH,
+        limit: int = MAX_FORGET_FACTS,
+        max_detail: int = DEFAULT_IMPACT_DETAIL,
+    ) -> dict[str, Any]:
+        """What would be affected if a ``'source'`` or a ``'fact'`` were wrong? Nothing is written.
+
+        Expands ``DERIVED_FROM`` (up to ``depth`` hops, 1..12, default 8) level by level over distinct
+        facts, as :meth:`forget_source` / :meth:`quarantine` do, in one read-only statement (one snapshot).
+        Returns ``{kind, id, depth, facts: {total, by_status, ids}, readers: {steps_total, agents_total,
+        agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids}, truncated}``. For a
+        fact, the fact itself is part of ``facts``. ``tasks`` are the tasks the affected decisions are
+        ``FOR``. Lists hold at most ``max_detail`` (1..5000, default 50) ids; the totals are exact up to
+        ``limit`` facts (``truncated`` says whether that bound was hit). Raises :class:`UnknownNode`.
+        """
+        if kind not in ("source", "fact"):
+            raise ValueError("kind must be 'source' or 'fact'")
+        check_between("depth", depth, MAX_DEPTH)
+        check_between("limit", limit, MAX_FORGET_FACTS)
+        check_between("max_detail", max_detail, MAX_DETAIL)
+        rows = self.client.ro(
+            self.graph, f"lineage/impact_{kind}", {"id": node_id, "depth": depth, "limit": limit}
+        )
+        if not rows:
+            raise UnknownNode(f"no {kind} with id '{node_id}'")
+        r = rows[0]
+        by_status: dict[str, int] = {}
+        for st in r["statuses"]:
+            by_status[st] = by_status.get(st, 0) + 1
+        agents = sorted(r["agent_ids"])
+
+        def cut(ids: Iterable[str]) -> dict[str, Any]:
+            ordered = sorted(ids)
+            return {"total": len(ordered), "ids": ordered[:max_detail]}
+
+        return {
+            "kind": kind,
+            "id": node_id,
+            "depth": depth,
+            "facts": {**cut(r["fact_ids"]), "by_status": dict(sorted(by_status.items()))},
+            "readers": {
+                "steps_total": r["steps_total"],
+                "agents_total": len(agents),
+                "agents": agents[:max_detail],
+            },
+            "decisions": cut(r["decision_ids"]),
+            "tasks": cut(r["task_ids"]),
+            "handoffs": cut(r["handoff_ids"]),
+            "truncated": bool(r["truncated"]),
         }
 
     # -- why --------------------------------------------------------------------------------------------
