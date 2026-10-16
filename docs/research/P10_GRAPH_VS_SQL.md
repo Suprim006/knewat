@@ -417,3 +417,209 @@ showed is stated so that the reader can see which choices were made with a numbe
   that is the result: "2,000 product-schema tenants do not fit in 3.8 GB of FalkorDB memory on this machine", with
   the N reached.
 * Run order: J (alone), then G (alone).
+
+### Amendment 3 (POST-HOC: written after the registered G run, before a second G run)
+
+The registered G run (`20261016T124311Z-g`, amendment 2's cap `maxmemory 3800mb`) stopped at tenant 1,088 of 2,000:
+`OOM command not allowed when used memory > 'maxmemory'`, with Redis `used_memory` 3.70 GB **but the container's
+resident memory only 1.87 GB**: FalkorDB's allocations as Redis counts them were about twice the physical memory
+in use. The cap therefore measured Redis's accounting, not whether 2,000 tenants fit. That run stays the registered
+result (N = 1, 2, 20, 200 measured in full; N = 2,000 "not reached under a 3.8 GB `maxmemory`"). A **second, post-hoc
+run** is made with the same code and parameters, `maxmemory 0`, and the protection moved to the container: `docker
+update --memory 3800m --memory-swap 3800m plexus-db-65` (the kernel kills that container, and only it, if its
+physical memory passes 3.8 GB; the VM had 4.08 GB available). It is reported as post-hoc next to the registered one.
+
+---
+
+# Results (written after the runs; the text above is unchanged except for the amendments)
+
+Machine and setup for every run: Windows 11, 12 logical CPUs, Docker Desktop / WSL2 (7.4 GiB VM), FalkorDB 6.0.2
+(`TIMEOUT_MAX 10000`, `MAX_QUEUED_QUERIES 500`, AOF on), SQLite 3.53.1 in-process. 0 LLM calls, $0. Result files:
+`plexus/demo_data/crucible/l7/<run>/results.json` + `report.md`. "Embedded" = SQLite in the client process; "server"
+= FalkorDB across the Docker port-forward. Every speed comparison below carries that difference.
+
+## I: atomic multi-entity writes
+
+Runs: `20261016T100730Z-i-merged` (I1-I4; parts `...100730Z-i`, `...100746Z-i`, `...104743Z-i`; code later committed
+as `31e6627`, see amendment 1), I5 on a quiet machine `20261016T111433Z-i` (code `dc0bda3`, clean).
+
+**I1, writer killed hard 0-400 ms after "ready", 200 kills per arm.** A close-out = 14 checkable items over 7
+labels/tables. "In flight" = close-outs that had started and were not acknowledged when the process died: the only
+ones a kill actually tests.
+
+| Arm | acknowledged close-outs | in flight at the kill (complete / partial / absent) | **partial** | lost acknowledged |
+|---|---|---|---|---|
+| **S-txn** (SQLite `BEGIN IMMEDIATE` ... `COMMIT`, 13 statements) | 40,013 | 150 (77 / 0 / 73) | **0** | 0 |
+| S-auto (same statements, autocommit) | 53,910 | 174 (11 / 143 / 20) | 143 | 0 |
+| **F-product** (4 MCP tool calls through `Runtime._run`) | 230 | 135 (13 / 86 / 36) | **86** | 0 |
+| F-multi (one Cypher statement per entity) | 1,617 | 166 (20 / 145 / 1) | 145 | 0 |
+| F-multiexec (the same statements in `MULTI`/`EXEC`) | 2,546 | 158 (155 / 0 / 3) | **0** | 0 |
+| **F-1stmt** (one Cypher statement, version guard first) | 3,055 | 143 (141 / 0 / 2) | **0** | 0 |
+
+Rule of three for the zero rows: below 1.5% per kill at 95% (200 kills). The product path left a partial close-out in
+86 of 200 kills (64% of the close-outs in flight): a close-out is four tool calls, each several statements, and
+nothing spans them.
+
+**I2, logical abort (103 of 400 close-outs carry a stale task version).**
+
+| Arm | stale close-outs left partial | leftover items | task wrongly changed |
+|---|---|---|---|
+| S-txn (`ROLLBACK` on the guard miss) | **0** / 103 | 0 | 0 |
+| F-1stmt, guard first (`MATCH ... WHERE version = $v` before any `CREATE`) | **0** / 103 | 0 | 0 |
+| F-1stmt, guard last (creates first, then a runtime error `1/0` on a miss) | **0** / 103 | 0 | 0 |
+| F-multi-cas-first (a careful client: the guard as the first statement) | 0 / 103 | 0 | 0 |
+| F-multi (product order, guard 4th), F-product, S-auto | 103 / 103 | 824 | 0 |
+| F-multiexec and F-multiexec-err | **103 / 103** | 1,339 | 0 |
+
+A runtime error inside one FalkorDB statement undoes that statement's earlier `CREATE`s (guard-last: 0 partial).
+`MULTI`/`EXEC` does not: the commands queued around the failing one are applied (1,339 leftover items, more than the
+multi-statement client, which at least stops at the failure).
+
+**I3, database server killed (`docker kill -s KILL`), 4 writers, 20 kills per arm.** F-1stmt: 2,930 acknowledged,
+**0 partial, 0 lost** (44 in flight, all absent). F-multi: 2,412 acknowledged, **52 partial**, 0 lost. Restart to
+ready: 9.5-10.8 s p50 (AOF replay, growing with the file). No acknowledged write was lost in any server kill.
+
+**I3, AOF replay crash (found at the start of this round, reproduced).** The slot-64 container of an earlier round
+could not restart: Redis 8.10.2 / FalkorDB 6.0.2 aborted while replaying its own AOF (`Guru Meditation: illegal
+decrRefCount for object with: type 0, encoding 8, refcount 0 #object.c:648`, stack in a Rust thread running
+`falkordb::graph_core::graph_free`). On a copy of its data directory (`.p10/aof-crash-evidence/`, 118 KB base RDB +
+51.8 MB incremental AOF of 69,516 commands, `GRAPH.EFFECT` / `GRAPH.DELETE` of test graphs): **3 of 3** fresh
+containers crashed during AOF load (two signatures: the one above and `signal 11` in `sdsfree`), and 7 of 8 more.
+Bisecting by command prefix does not isolate one command: the 52,734-command prefix that loaded once crashed 6 of 8
+times, the command after it alone does not crash. So the crash is **nondeterministic and grows more likely with the
+amount replayed**; the stack (a graph freed on a background thread while loading) suggests a race between
+asynchronous graph deletion and AOF loading, which I have not proved. During the I3 development run the arm's own
+container also segfaulted once, ~3 s after an AOF-replay restart, while a new graph was being created (a crashed Redis
+stays "Up" in Docker but answers nothing). The pre-registered prediction "not deterministic" holds; "will not
+reproduce" was wrong. This is a durability/availability weakness of the FalkorDB side that a crash test of
+acknowledged writes alone (0 lost) does not show.
+
+**I4a, lost updates on one counter (W threads x 50 increments).**
+
+| Mode | SQLite W=20 / W=200 lost | FalkorDB W=20 / W=200 lost | retries (W=200) SQLite / FalkorDB |
+|---|---|---|---|
+| naive read-then-write (two statements) | 898 / 9,805 | 912 / 9,897 | - |
+| atomic single statement (`c = c + 1`) | 0 / 0 | 0 / 0 | - |
+| optimistic CAS on a version, retry | 0 / 0 | 0 / 0 | 111,292 / 284,541 |
+| pessimistic (SQLite `BEGIN IMMEDIATE`; FalkorDB `WATCH` key + `MULTI`/`EXEC`) | 0 / 0 | 0 / 0 | 0 / 437,463 |
+
+FalkorDB's `WATCH` on a graph key works as an optimistic transaction (any write to the graph aborts the `EXEC`), but at
+the level of the whole graph, so under 200 writers it retried 437,463 times and took 347 s for 10,000 increments;
+SQLite's lock waited instead of retrying. (CAS on FalkorDB: 225 s; on SQLite: 14 s.)
+
+**I4b, write skew (500 rounds, two writers, invariant "not both tasks claimed").** One statement: 0 violations in
+both. Multi-statement without a transaction: 485-500 of 500 rounds violated in SQLite, 499 in FalkorDB. SQLite
+`BEGIN IMMEDIATE`: 0. SQLite `BEGIN DEFERRED`: 0 violations but 494-500 of 500 rounds ended in `SQLITE_BUSY` (the
+lock upgrade fails). FalkorDB `WATCH`+`MULTI`/`EXEC`: 0.
+
+**I5, is one Cypher statement enough? (quiet machine, `20261016T111433Z-i`)**
+
+| | F-1stmt | S-txn |
+|---|---|---|
+| statement lines / Python glue lines | 14 / 12 | 12 / 27 |
+| statements (round trips) per close-out | **1** | 13 |
+| I1 / I2 / I3 partial | 0 / 0 / 0 | 0 / 0 / (n/a: embedded) |
+| client latency p50 / p99, 1 writer | 3.44 / 5.90 ms (server) | 0.19 / 5.07 ms (embedded) |
+| p50 / p99, 8 writers | 34.2 / 83.5 ms; 114 close-outs/s | 0.22 / 6.28 ms; 1,983 close-outs/s |
+
+For a write whose shape is known in advance, one Cypher statement gives the same all-or-nothing outcome as the SQLite
+transaction under writer crashes, logical aborts and server crashes, in one round trip and fewer total lines (26 vs
+39). It is 18x slower per call at 1 writer and ~17x lower in throughput at 8 writers (server vs embedded; FalkorDB
+serialises writes per graph).
+
+## H: expressiveness and traversal
+
+Run `20261016T111552Z-h` (code `dc0bda3`, clean). Small: 2,061 facts, 2,900 fact->fact derivations; large: 50,061
+facts, 68,068 derivations (closures average ~1,500 facts), 30,500 steps, 2,500 decisions. 5 repetitions per
+question, 10 s budget. Lines = non-blank non-comment lines of the statement file.
+
+**"The answer" per language (rule H-3: fewest lines among correct single statements within 10 s at both scales).**
+
+| Question | Cypher lines | SQL lines | Cypher/SQL | small p50 Cypher / SQL (ms) | large p50 Cypher / SQL (ms) |
+|---|---|---|---|---|---|
+| H1a shortcut triangle | 5 | 12 | 0.42 | 5.3 / 5.9 | **60 / 356** (Cypher 5.9x faster) |
+| H1b handoff 3-cycle | 7 | 20 | 0.35 | 2.8 / 0.12 | 25.6 / 5.1 |
+| H1c independent corroboration | 13 (the natural 7-line form is wrong) | 20 | 0.65 | 307 / 35 | **timeout / timeout** (neither) |
+| H2 decision rests on what the agent read (24 q) | 6 (hop bound as a literal) | 14 | 0.43 | 8.2 / 0.09 | 575 / 0.64 |
+| H3 constrained shortest path (12 q) | 4 (`*1..8`) | 8 (`depth_cte`) | 0.50 | 2.6 / 0.09 | 2.7 / 0.11 |
+| H4 agents per source over closures | 7 (`distinct`) | 8 | 0.88 | 8.4 / 7.1 | **timeout** / 7,386 |
+
+Every arm that finished was correct except the two expected-wrong variants and one surprise:
+
+* **FalkorDB returned a silently wrong answer for the natural H1c** (amendment 1, H-4): on the toy graph it counted
+  0 (truth 26) without an error; at 2,000 and 50,000 facts the same text fails with "Query's mem consumption
+  exceeded capacity". The causes are planner bugs (an inline map referring to an earlier `MATCH` variable matches
+  nothing; a `MATCH` on already-bound variables after a hash join is re-planned as a Cartesian product of fresh
+  scans). The working Cypher needs a `WITH` after every stage, which takes it from 7 to 13 code lines (amendment 1
+  said 16: a miscount, the file has 13).
+* `shortestPath()` cannot take a predicate on the path (FalkorDB: only in `WITH`/`RETURN`); checking the predicate on
+  the one path it returns is wrong on all 4 traps (8/12), as predicted.
+* **Unbounded traversal is where Cypher breaks and SQL does not.** H3 with the hop bound removed (`*1..`): Cypher
+  6/12 at large (6 timeouts), SQL's recursive CTE (`path_cte+unbounded`) 12/12 at 0.29 ms p50. The SQL recursion
+  applies the "intermediate node active" filter at every step, so pruned branches are never extended; FalkorDB's
+  `all(n IN nodes(p) ...)` filter is applied to complete paths, so it enumerates every path first. H4 (closure over
+  every decision): all three Cypher forms (`naive`, `distinct`, FalkorDB's own `algo.BFS`) time out at 50,000 facts;
+  the SQL `UNION` CTE (which deduplicates (agent, fact) rows) answers in 7.4 s. The H2 gap (575 vs 0.64 ms) has the
+  same cause at depth <= 4.
+* SQL could express **every** question in one declarative statement; no question needed an application-side loop in
+  SQL. The app-side BFS (`h.bfs`, 18 lines, 11-25 round trips) is correct for both backends (Cypher 9.8 ms, SQL 0.14
+  ms p50 at large) but was never needed. H2's hop bound is a parameter in SQL (`:n`) and must be pasted into the
+  Cypher text (`*0..{N}`): FalkorDB takes no parameter in a hop bound.
+
+Against the H predictions: lines Cypher/SQL <= 0.7 held on 4 of 5 (H4 0.88 did not); "every arm that answers is
+correct" failed (the natural H1c); H3 "only the app-side BFS is correct and fast in both" was wrong: the bounded
+Cypher statement and every SQL CTE were correct and fast; "SQLite faster on >= 60% of cells" held (SQL faster in 9
+of the 11 question x scale cells where at least one language answered; Cypher faster in 2: H1a small, 1.1x, and H1a
+large, 5.9x; H1c large: neither answered); "FalkorDB faster on at least one motif cell at large" held (H1a).
+
+## J: concurrent session populations
+
+Runs: J-real `20261016T112325Z-j` (72 cells, 3 repetitions each, all 216 repetitions completed; code `2ac5fb4`,
+clean), J-trav `20261016T122247Z-j` (24 cells, 1 repetition). Median of repetitions; 30 s measured after 5 s warm-up;
+K = min(8, P) driver processes. Throughput = completed tool calls per second (errors excluded). S-file's engine runs
+inside the driver processes (embedded), FalkorDB in its container (server).
+
+**J-real, throughput (calls/s) and p99 latency.**
+
+| P | layout | F-mcp (product MCP path) | F-service | S-file | errors |
+|---|---|---|---|---|---|
+| 2 | one tenant | 111 / 48 ms | 180 / 43 ms | **1,167** / 32 ms | 0 |
+| 2 | team (5 per tenant) | 112 / 48 ms | 179 / 43 ms | **1,159** / 32 ms | 0 |
+| 20 | one | 159 / 209 ms | 268 / 198 ms | **1,125** / 152 ms | 0 |
+| 20 | team | 262 / 147 ms | 473 / 137 ms | **3,939** / 64 ms | 0 |
+| 200 | one | 111 / 3.9 s | 161 / **3.3 s** | **692** / **13.3 s** | 0 |
+| 200 | team | 349 / 1.2 s | 672 / 1.0 s | **11,449** / 0.32 s | 0 |
+| 1000 | one | 57 / 28 s | 82 / 29 s | **650** / **39 s** | 0 |
+| 1000 | team (200 tenants) | 314 / 3.2 s, **89% of calls failed** | 540 / 1.6 s, **90% failed** | **7,905** / 2.7 s, 0 failed | F: `Max pending queries exceeded` (255,304 and 425,818 calls) |
+
+* **SQLite (embedded, file per tenant) has the higher throughput in every one of the 24 cells**: 6.5x F-service at
+  P = 2, 17x at P = 200 team, 15x at P = 1000 team. Pre-registered prediction J1 (S >= F-service >= F-mcp
+  everywhere) holds; F-mcp is 1.4-1.9x below F-service (the per-call Step + ToolCall writes).
+* **Fairness under one hot tenant goes to FalkorDB** (prediction J2 holds): at P = 200 in one tenant the SQLite p50 is
+  0.28 ms but its p99 is 13.3 s (no fair queue in the busy handler; some callers wait while others go through), F's
+  p99 is 3.3 s; at P = 1000, 39 s vs 29 s.
+* **Spreading sessions over tenants helps both** (J3 holds): team vs one at P = 200: S-file 16.5x, F-service 4.2x.
+  FalkorDB serialises writes per graph, so one hot graph caps F at ~160-270 calls/s while the container uses ~1.3-1.5
+  cores (J5 holds); with 40 graphs it reaches 672 calls/s at ~4 cores.
+* **Failure mode at 1,000 sessions over 200 graphs: FalkorDB rejects ~90% of calls** with `Max pending queries
+  exceeded` (`MAX_QUEUED_QUERIES 500`, the deployed config). With the same 1,000 sessions in **one** graph it rejects
+  none (calls wait instead: p50 8-10 s). Prediction J4 had this backwards ("errors in J-one"); dev showed it first
+  (amendment 1, J-6). SQLite completed every call in every cell (120 s busy timeout), at the price of tail latency.
+  1,000 sessions were feasible on this machine for every arm (8 driver processes, about 1 GB of driver working set in all).
+* Resources: S-file used up to 10 driver cores at P = 200 team (the engine is in the client); FalkorDB's container
+  peaked at 4.3 cores (P = 200 team, F-service) and 0.6-0.7 GB of memory at P = 1000 team.
+
+**J-trav (10% of calls replaced by `why` / `impact`, 1 repetition)** changes the throughput picture little (S-file
+5,331-7,762 vs F-service 515-676 calls/s at P = 200-1000 team). The traversal calls themselves show the read path:
+
+| tool p50 (p99) | F-mcp | F-service | S-file |
+|---|---|---|---|
+| `why`, P = 2 | 21.9 ms | 13.1 ms | 0.86 ms |
+| `why`, P = 200, one tenant | 1,082 ms (1,635) | **16.1 ms (33)** | 0.60 ms (2.7) |
+| `why`, P = 1000, one tenant | 4,720 ms (23,004) | **15.7 ms (26)** | 0.63 ms (3.0) |
+| `impact`, P = 1000, one tenant | 4,527 ms | 4.4 ms | 0.72 ms |
+
+A FalkorDB read does not queue behind the graph's writers (F-service `why` stays at ~16 ms while that tenant's writes
+wait seconds), and SQLite's WAL readers do not either. **Through the product's MCP path the same read takes seconds**,
+because every MCP call, reads included, writes a Step and a ToolCall and so joins the per-graph write queue. That is a
+property of Plexus's audit design, not of the graph.
