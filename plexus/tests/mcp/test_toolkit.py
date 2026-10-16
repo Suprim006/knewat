@@ -8,7 +8,15 @@ from __future__ import annotations
 import pytest
 
 from mcp import Client
-from plexus.mcp import lineage_tools, memory_tools, staleness_tools, tools_engram, tools_impact, tools_relay
+from plexus.mcp import (
+    lineage_tools,
+    memory_tools,
+    staleness_tools,
+    tools_engram,
+    tools_impact,
+    tools_relations,
+    tools_relay,
+)
 from plexus.mcp.limits import StrictModel
 from plexus.mcp.toolkit import ToolTable
 from plexus.mcp.tools import register_engram_relay
@@ -20,6 +28,7 @@ TABLES = [
     staleness_tools.STALENESS_TOOLS,
     memory_tools.MEMORY_TOOLS,
     tools_impact.IMPACT_TOOLS,
+    tools_relations.RELATION_TOOLS,
 ]
 
 
@@ -53,7 +62,7 @@ async def test_every_nested_object_in_a_tool_schema_forbids_additional_propertie
 
 def test_every_tool_declares_agent_id_and_step_and_a_unique_name():
     names = [d.name for table in TABLES for d in table]
-    assert len(names) == len(set(names)) == 42
+    assert len(names) == len(set(names)) == 43
     for table in TABLES:
         for d in table:
             params = list(d.work.__annotations__)

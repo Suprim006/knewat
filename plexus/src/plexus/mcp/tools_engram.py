@@ -167,6 +167,16 @@ def recall(
             "null = the server default (on)."
         ),
     ] = None,
+    hops: Annotated[
+        int,
+        Field(
+            ge=0,
+            le=2,
+            description="0 (default) = direct matches only. 1 or 2 = also add the facts of entities that are 1-2 "
+            "relations away (see assert_relation) from the matched ones, marked with 'hop' and 'relation_path'; "
+            "up to 20 extra facts per hop.",
+        ),
+    ] = 0,
     step: Step = None,
 ) -> Outcome:
     """Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this
@@ -186,6 +196,7 @@ def recall(
         budget_chars=budget_chars,
         include_dormant=include_dormant,
         forgetting=forgetting,
+        hops=hops,
     )
     for h in hits:
         h["score"] = round(h["score"], 4)
