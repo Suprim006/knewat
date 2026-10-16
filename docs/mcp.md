@@ -59,8 +59,8 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 ## Tools
 
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
-41 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools and 5 memory-strength tools (the two
-sections after this list).
+43 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools and 2
+soft-duplicate tools (the three sections after this list).
 - **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
@@ -160,7 +160,7 @@ Audit: facts a call made suspect or verified are `UPDATED` edges of the ToolCall
 `CodeAnchor` is a `CREATED` edge. `facts_to_verify` adds no `READ` edges (a suspect fact is not strengthened by being listed).
 ## Memory-strength tools (P7-K, `plexus/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
 
-Five more tools, registered by `register_memory` (the 41 tools above are 29 + 7 staleness + these 5). Forgetting
+Five more tools, registered by `register_memory` (the 41 tools above are 29 + 7 staleness + these 5; the 2 soft-duplicate tools below make 43). Forgetting
 lowers a fact's **rank only**; none of these deletes anything.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
@@ -193,3 +193,33 @@ Nothing is written (no `READ` edges either: looking at the damage must not make 
 `Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
 (1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source` and `blocked_by_failure` keep their
 schemas and use the new defaults.
+## Soft-duplicate tools (P9-c, `plexus/mcp/tools_dedup.py`; `plexus/engram/dedup.py`)
+
+`assert_fact` decides whether a new value is the same statement as a current one (same entity, predicate and scope):
+
+| Tier | Rule (all need the same **discriminator key**, and not "same words, other order") | Result |
+|---|---|---|
+| exact | equal normalised text | duplicate |
+| 1 | value-embedding cosine distance <= 0.08 | duplicate |
+| 2 | stemmed, stop-word-free token Jaccard >= 0.6 **and** cosine distance <= 0.16 | duplicate |
+| 3 | cosine distance <= 0.20 **or** Jaccard >= 0.5 | not merged: the fact is stored and linked `(new)-[:DUPLICATES_MAYBE {score, cos, jaccard}]->(old)` |
+
+The discriminator key is a multiset of numbers and versions, unit-normalised quantities (`5 minutes` = `300 s` != `5 hours`;
+`1 GB` = `1000 MB` != `1 GiB`), number words (`two` = `2`), ordinals, negations (`not never no without`, `un-`/`dis-`/`non-`
+prefixes) and a reviewed antonym table (`enabled`/`disabled`, `above`/`below`, `at least`/`at most`, `some`/`only`, ...). So
+`enabled`/`not enabled`, `5 minutes`/`5 hours`, `two`/`three` and `at least`/`at most` are never merged. When two values have the
+same content words in a different order (`A calls B` / `B calls A`) they are never auto-merged either (tier 3). Facts written
+before P9-c have no key and only match by exact text. Thresholds: `PLEXUS_DUP_JACCARD`, `PLEXUS_DUP_TIER2_COS`,
+`PLEXUS_DUP_MAYBE_COS`, `PLEXUS_DUP_MAYBE_JACCARD` (the tier-1 distance stays the `Engram` constructor argument).
+
+A merge keeps the raw wording: `ASSERTED_BY.text` on the duplicate's edge, so it is detectable and reversible.
+`assert_fact` returns `possible_duplicates: [{fact_id, value, cos, jaccard}]` (empty when none; at most 5) and every `recall`
+fact carries `maybe_duplicate_of: [fact ids]`.
+
+| Tool | Arguments (besides `agent_id`, `step`) | Result |
+|---|---|---|
+| `confirm_duplicate` | `new_id`, `old_id` | `{new_id, old_id, merged, already, reopened, moved}`. The newer fact gets a zero-width window and `(new)-[:DUPLICATES]->(old)`; its asserters now also assert the old fact (`ASSERTED_BY {text, via}`); if the newer fact had superseded the old one (same agent, re-worded) the old one is current again. Needs the soft link and a current newer fact. |
+| `reject_duplicate` | `new_id`, `old_id` | `{rejected, undone, restored}`. Deletes the soft link; on an already confirmed pair it undoes the merge. Idempotent. |
+
+Both are write tools: a `ToolCall`, the agent's `Step` with `WROTE` edges to both facts and `UPDATED` audit edges. Errors
+(`unknown fact`, `not linked as possible duplicates`, `no longer the current value`) are plain tool errors.

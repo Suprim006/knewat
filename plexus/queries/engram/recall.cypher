@@ -1,7 +1,7 @@
 // name: engram/recall
 // purpose: Hybrid recall in ONE read: vector (+ keyword) seeds over Fact.embedding, scope-inheritance + validity-window + status filter, 1-hop ABOUT-entity expansion to sibling facts (boosted, capped), nearest first, with provenance for the why-path.
 // params: q:list[float], scope_id:str, over:int, k:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str]
-// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent)
+// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), maybe_dup [ids of the facts this one is a possible duplicate of: (n)-[:DUPLICATES_MAYBE]->(o), P9-c]
 // mode: ro
 
 // P7 (D-012): the statuses list is a parameter: ['active'] by default, + 'dormant' with include_dormant, + 'superseded' and 'dormant' for as_of. The extra row fields are plain
@@ -60,5 +60,6 @@ RETURN n.id AS fact_id, en.id AS entity_id, en.name AS entity_name, n.predicate 
        coalesce(n.surprise, 0.0) AS surprise, coalesce(n.verify_state, 'verified') AS verify_state,
        coalesce(n.suspect_since, 0) AS suspect_since, coalesce(n.verify_after, 9999999999999) AS verify_after,
        [(n)-[:DERIVED_FROM]->(d) | {id: d.id, label: labels(d)[0]}] AS derived_from,
-       [(n)-[:ASSERTED_BY]->(ag:Agent) | ag.id] AS asserted_by
+       [(n)-[:ASSERTED_BY]->(ag:Agent) | ag.id] AS asserted_by,
+       [(n)-[:DUPLICATES_MAYBE]->(mo:Fact) | mo.id] AS maybe_dup
 ORDER BY rank ASC

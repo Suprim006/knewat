@@ -1,0 +1,1813 @@
+version: 1
+note: 'C7 extended corpus (P9-c). Each pair: two values for one subject+predicate asserted by two agents. expected: merge = the same statement (one active fact is right), distinct = a different statement
+  (merging loses information: a FALSE MERGE), maybe = related, must not be auto-merged but may be surfaced as a soft duplicate. split: alternating within each category (train = dev, test = frozen, never
+  used for tuning; thresholds are fixed in docs/BASELINE.md before the first run). Subjects are unique code names so no pair can interact through entity resolution.'
+pairs:
+- id: punctuation-01
+  category: punctuation
+  split: train
+  expected: merge
+  subject: Mercury service
+  predicate: setting
+  a: The platform team owns it.
+  b: The platform team owns it
+- id: punctuation-02
+  category: punctuation
+  split: test
+  expected: merge
+  subject: Venus job
+  predicate: setting
+  a: Refreshed every 30 seconds
+  b: refreshed every 30 seconds.
+- id: punctuation-03
+  category: punctuation
+  split: train
+  expected: merge
+  subject: Jupiter cluster
+  predicate: setting
+  a: Set to debug in staging
+  b: Set to debug in staging!
+- id: punctuation-04
+  category: punctuation
+  split: test
+  expected: merge
+  subject: Saturn pipeline
+  predicate: setting
+  a: Backups run at 03:00 UTC.
+  b: Backups run at 03:00 UTC
+- id: punctuation-05
+  category: punctuation
+  split: train
+  expected: merge
+  subject: Neptune store
+  predicate: setting
+  a: Uses a read-through cache
+  b: Uses a read through cache.
+- id: punctuation-06
+  category: punctuation
+  split: test
+  expected: merge
+  subject: Pluto service
+  predicate: setting
+  a: Owned by the data team
+  b: Owned by the data team.
+- id: punctuation-07
+  category: punctuation
+  split: train
+  expected: merge
+  subject: Ceres job
+  predicate: setting
+  a: Logs are shipped to Loki
+  b: Logs are shipped to Loki.
+- id: punctuation-08
+  category: punctuation
+  split: test
+  expected: merge
+  subject: Vesta cluster
+  predicate: setting
+  a: TLS is terminated at the edge
+  b: TLS is terminated at the edge;
+- id: punctuation-09
+  category: punctuation
+  split: train
+  expected: merge
+  subject: Titan pipeline
+  predicate: setting
+  a: Pager rotation is weekly
+  b: Pager rotation is weekly...
+- id: punctuation-10
+  category: punctuation
+  split: test
+  expected: merge
+  subject: Europa store
+  predicate: setting
+  a: Deploys happen from the main branch
+  b: Deploys happen from the main branch.
+- id: punctuation-11
+  category: punctuation
+  split: train
+  expected: merge
+  subject: Danube service
+  predicate: setting
+  a: 'Alerts go to the #ops channel'
+  b: 'Alerts go to the #ops channel.'
+- id: punctuation-12
+  category: punctuation
+  split: test
+  expected: merge
+  subject: Rhine job
+  predicate: setting
+  a: The queue is durable
+  b: The queue is durable!
+- id: light-01
+  category: light
+  split: train
+  expected: merge
+  subject: Nile cluster
+  predicate: setting
+  a: Runs nightly at 02:00 UTC
+  b: Runs every night at 02:00 UTC
+- id: light-02
+  category: light
+  split: test
+  expected: merge
+  subject: Amazon pipeline
+  predicate: setting
+  a: 100 requests per minute per key
+  b: Each key is limited to 100 requests per minute
+- id: light-03
+  category: light
+  split: train
+  expected: merge
+  subject: Volga store
+  predicate: setting
+  a: Least recently used entries are evicted first
+  b: Evicts the least recently used entries first
+- id: light-04
+  category: light
+  split: test
+  expected: merge
+  subject: Mekong service
+  predicate: setting
+  a: Requires iOS 16 or newer
+  b: Needs iOS 16 or later
+- id: light-05
+  category: light
+  split: train
+  expected: merge
+  subject: Ganges job
+  predicate: setting
+  a: Raw events are kept for 90 days
+  b: Events are retained in raw form for 90 days
+- id: light-06
+  category: light
+  split: test
+  expected: merge
+  subject: Thames cluster
+  predicate: setting
+  a: The service listens on port 9000
+  b: It listens on port 9000
+- id: light-07
+  category: light
+  split: train
+  expected: merge
+  subject: Seine pipeline
+  predicate: setting
+  a: Reviews are done by the security team
+  b: The security team does the reviews
+- id: light-08
+  category: light
+  split: test
+  expected: merge
+  subject: Tiber store
+  predicate: setting
+  a: Secrets are stored in Vault
+  b: Vault stores the secrets
+- id: light-09
+  category: light
+  split: train
+  expected: merge
+  subject: Falcon service
+  predicate: setting
+  a: Builds are triggered on every push
+  b: Every push triggers a build
+- id: light-10
+  category: light
+  split: test
+  expected: merge
+  subject: Heron job
+  predicate: setting
+  a: The database is backed up daily
+  b: Daily backups are taken of the database
+- id: light-11
+  category: light
+  split: train
+  expected: merge
+  subject: Osprey cluster
+  predicate: setting
+  a: Traffic is routed through Envoy
+  b: Envoy routes the traffic
+- id: light-12
+  category: light
+  split: test
+  expected: merge
+  subject: Kestrel pipeline
+  predicate: setting
+  a: Images are scanned before release
+  b: Before release, images are scanned
+- id: light-13
+  category: light
+  split: train
+  expected: merge
+  subject: Pelican store
+  predicate: setting
+  a: The cluster has 12 nodes
+  b: There are 12 nodes in the cluster
+- id: light-14
+  category: light
+  split: test
+  expected: merge
+  subject: Sparrow service
+  predicate: setting
+  a: Tokens expire after 1 hour
+  b: A token expires after 1 hour
+- id: light-15
+  category: light
+  split: train
+  expected: merge
+  subject: Raven job
+  predicate: setting
+  a: Logs are rotated weekly
+  b: Weekly log rotation is in place
+- id: light-16
+  category: light
+  split: test
+  expected: merge
+  subject: Puffin cluster
+  predicate: setting
+  a: The cache holds up to 500 entries
+  b: Up to 500 entries fit in the cache
+- id: light-17
+  category: light
+  split: train
+  expected: merge
+  subject: Condor pipeline
+  predicate: setting
+  a: Feature flags live in LaunchDarkly
+  b: LaunchDarkly holds the feature flags
+- id: light-18
+  category: light
+  split: test
+  expected: merge
+  subject: Swift store
+  predicate: setting
+  a: Metrics are scraped every 15 seconds
+  b: Metrics get scraped every 15 seconds
+- id: light-19
+  category: light
+  split: train
+  expected: merge
+  subject: Amber service
+  predicate: setting
+  a: The API is versioned in the URL path
+  b: API versions are put in the URL path
+- id: light-20
+  category: light
+  split: test
+  expected: merge
+  subject: Garnet job
+  predicate: setting
+  a: Retries use exponential backoff
+  b: Exponential backoff is used for retries
+- id: heavy-01
+  category: heavy
+  split: train
+  expected: merge
+  subject: Jade cluster
+  predicate: setting
+  a: Production deploys need two reviewers
+  b: Two reviewers must approve every production deploy
+- id: heavy-02
+  category: heavy
+  split: test
+  expected: merge
+  subject: Opal pipeline
+  predicate: setting
+  a: The on-call engineer is paged first
+  b: First to be paged is whoever is on call
+- id: heavy-03
+  category: heavy
+  split: train
+  expected: merge
+  subject: Topaz store
+  predicate: setting
+  a: Stored in the team handbook wiki
+  b: You can find it in the wiki handbook of the team
+- id: heavy-04
+  category: heavy
+  split: test
+  expected: merge
+  subject: Sapphire service
+  predicate: setting
+  a: Grafana shows all service metrics
+  b: All service metrics are visualised in Grafana
+- id: heavy-05
+  category: heavy
+  split: train
+  expected: merge
+  subject: Ruby job
+  predicate: setting
+  a: Customer data never leaves the EU region
+  b: Data about customers stays inside the EU region
+- id: heavy-06
+  category: heavy
+  split: test
+  expected: merge
+  subject: Onyx cluster
+  predicate: setting
+  a: New hires get laptop access on day one
+  b: On their first day, new hires receive access to a laptop
+- id: heavy-07
+  category: heavy
+  split: train
+  expected: merge
+  subject: Quartz pipeline
+  predicate: setting
+  a: Incidents are reviewed in a blameless postmortem
+  b: After an incident the team holds a postmortem without blame
+- id: heavy-08
+  category: heavy
+  split: test
+  expected: merge
+  subject: Agate store
+  predicate: setting
+  a: The release train leaves every second Tuesday
+  b: Every other Tuesday the release train departs
+- id: heavy-09
+  category: heavy
+  split: train
+  expected: merge
+  subject: Cedar service
+  predicate: setting
+  a: Passwords must be rotated every 90 days
+  b: You have to change your password once every 90 days
+- id: heavy-10
+  category: heavy
+  split: test
+  expected: merge
+  subject: Birch job
+  predicate: setting
+  a: Pull requests need a green build before merging
+  b: A pull request can be merged only after the build is green
+- id: heavy-11
+  category: heavy
+  split: train
+  expected: merge
+  subject: Maple cluster
+  predicate: setting
+  a: The staging cluster mirrors production
+  b: Staging is a mirror image of the production cluster
+- id: heavy-12
+  category: heavy
+  split: test
+  expected: merge
+  subject: Willow pipeline
+  predicate: setting
+  a: Support tickets are answered within 4 hours
+  b: Within 4 hours every support ticket gets an answer
+- id: heavy-13
+  category: heavy
+  split: train
+  expected: merge
+  subject: Aspen store
+  predicate: setting
+  a: Load tests run before each major release
+  b: Before every major release, load tests are run
+- id: heavy-14
+  category: heavy
+  split: test
+  expected: merge
+  subject: Cypress service
+  predicate: setting
+  a: Database migrations are applied by the pipeline
+  b: The pipeline is what applies the database migrations
+- id: heavy-15
+  category: heavy
+  split: train
+  expected: merge
+  subject: Juniper job
+  predicate: setting
+  a: The mobile app is built with Flutter
+  b: Flutter is the framework the mobile app is built with
+- id: heavy-16
+  category: heavy
+  split: test
+  expected: merge
+  subject: Spruce cluster
+  predicate: setting
+  a: Access to production is granted per ticket
+  b: For production access a ticket has to be raised
+- id: heavy-17
+  category: heavy
+  split: train
+  expected: merge
+  subject: Hazel pipeline
+  predicate: setting
+  a: Dashboards are reviewed in the Monday sync
+  b: In the Monday sync the dashboards get reviewed
+- id: heavy-18
+  category: heavy
+  split: test
+  expected: merge
+  subject: Alder store
+  predicate: setting
+  a: Secrets rotate automatically every 30 days
+  b: Every 30 days the secrets are rotated automatically
+- id: heavy-19
+  category: heavy
+  split: train
+  expected: merge
+  subject: Lisbon service
+  predicate: setting
+  a: Alerts are routed by service ownership
+  b: Ownership of the service decides where alerts are routed
+- id: heavy-20
+  category: heavy
+  split: test
+  expected: merge
+  subject: Oslo job
+  predicate: setting
+  a: The data warehouse refreshes overnight
+  b: Overnight, the data warehouse gets refreshed
+- id: heavy-21
+  category: heavy
+  split: train
+  expected: merge
+  subject: Cairo cluster
+  predicate: setting
+  a: Feature work is tracked on the product board
+  b: The product board is where feature work is tracked
+- id: heavy-22
+  category: heavy
+  split: test
+  expected: merge
+  subject: Lima pipeline
+  predicate: setting
+  a: Backups are verified by a weekly restore test
+  b: Each week a restore test verifies the backups
+- id: heavy-23
+  category: heavy
+  split: train
+  expected: merge
+  subject: Quito store
+  predicate: setting
+  a: Artifacts are signed before publication
+  b: Before publication the artifacts get signed
+- id: heavy-24
+  category: heavy
+  split: test
+  expected: merge
+  subject: Hanoi service
+  predicate: setting
+  a: Only maintainers can cut a release
+  b: Releases can be cut by maintainers only
+- id: negation-01
+  category: negation
+  split: train
+  expected: distinct
+  subject: Perth job
+  predicate: setting
+  a: The cache is enabled
+  b: The cache is not enabled in staging
+- id: negation-02
+  category: negation
+  split: test
+  expected: distinct
+  subject: Turin cluster
+  predicate: setting
+  a: Deploys are allowed on Fridays
+  b: Deploys are never allowed on Fridays
+- id: negation-03
+  category: negation
+  split: train
+  expected: distinct
+  subject: Ghent pipeline
+  predicate: setting
+  a: Backups are encrypted
+  b: Backups are not encrypted
+- id: negation-04
+  category: negation
+  split: test
+  expected: distinct
+  subject: Bergen store
+  predicate: setting
+  a: The service retries failed calls
+  b: The service never retries failed calls
+- id: negation-05
+  category: negation
+  split: train
+  expected: distinct
+  subject: Helium service
+  predicate: setting
+  a: Writes go through the primary
+  b: Writes do not go through the primary
+- id: negation-06
+  category: negation
+  split: test
+  expected: distinct
+  subject: Neon job
+  predicate: setting
+  a: Logs contain user emails
+  b: Logs contain no user emails
+- id: negation-07
+  category: negation
+  split: train
+  expected: distinct
+  subject: Argon cluster
+  predicate: setting
+  a: The job runs with root privileges
+  b: The job runs without root privileges
+- id: negation-08
+  category: negation
+  split: test
+  expected: distinct
+  subject: Cobalt pipeline
+  predicate: setting
+  a: Tests must pass before merging
+  b: Tests need not pass before merging
+- id: negation-09
+  category: negation
+  split: train
+  expected: distinct
+  subject: Nickel store
+  predicate: setting
+  a: Rate limiting applies to partners
+  b: Rate limiting doesn't apply to partners
+- id: negation-10
+  category: negation
+  split: test
+  expected: distinct
+  subject: Zinc service
+  predicate: setting
+  a: The endpoint requires authentication
+  b: The endpoint does not require authentication
+- id: negation-11
+  category: negation
+  split: train
+  expected: distinct
+  subject: Copper job
+  predicate: setting
+  a: Sessions are shared across regions
+  b: Sessions are not shared across regions
+- id: negation-12
+  category: negation
+  split: test
+  expected: distinct
+  subject: Tin cluster
+  predicate: setting
+  a: PII is stored in the warehouse
+  b: PII is never stored in the warehouse
+- id: negation-13
+  category: negation
+  split: train
+  expected: distinct
+  subject: Lithium pipeline
+  predicate: setting
+  a: The pipeline can deploy to production
+  b: The pipeline cannot deploy to production
+- id: negation-14
+  category: negation
+  split: test
+  expected: distinct
+  subject: Boron store
+  predicate: setting
+  a: Hotfixes skip code review
+  b: Hotfixes do not skip code review
+- id: negation-15
+  category: negation
+  split: train
+  expected: distinct
+  subject: Everest service
+  predicate: setting
+  a: Metrics are public
+  b: Metrics are not public
+- id: negation-16
+  category: negation
+  split: test
+  expected: distinct
+  subject: Alps job
+  predicate: setting
+  a: The scheduler is leader-elected
+  b: The scheduler is not leader-elected
+- id: negation-17
+  category: negation
+  split: train
+  expected: distinct
+  subject: Andes cluster
+  predicate: setting
+  a: Clients should cache the response
+  b: Clients should not cache the response
+- id: negation-18
+  category: negation
+  split: test
+  expected: distinct
+  subject: Atlas pipeline
+  predicate: setting
+  a: Schema changes are backwards compatible
+  b: Schema changes are never backwards compatible
+- id: negation-19
+  category: negation
+  split: train
+  expected: distinct
+  subject: Urals store
+  predicate: setting
+  a: We support Internet Explorer
+  b: We no longer support Internet Explorer
+- id: negation-20
+  category: negation
+  split: test
+  expected: distinct
+  subject: Rockies service
+  predicate: setting
+  a: Alerts page the on-call engineer
+  b: Alerts do not page the on-call engineer
+- id: antonym-01
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Pamir job
+  predicate: setting
+  a: Retries are enabled for the orders queue
+  b: Retries are disabled for the orders queue
+- id: antonym-02
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Sinai cluster
+  predicate: setting
+  a: Feature flag is on for all users
+  b: Feature flag is off for all users
+- id: antonym-03
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Olympus pipeline
+  predicate: setting
+  a: Latency must stay below 200 ms
+  b: Latency must stay above 200 ms
+- id: antonym-04
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Fuji store
+  predicate: setting
+  a: The service is available during the migration
+  b: The service is unavailable during the migration
+- id: antonym-05
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Tulip service
+  predicate: setting
+  a: The bucket is public
+  b: The bucket is private
+- id: antonym-06
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Orchid job
+  predicate: setting
+  a: Replication is synchronous
+  b: Replication is asynchronous
+- id: antonym-07
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Lotus cluster
+  predicate: setting
+  a: The port is open to the internet
+  b: The port is closed to the internet
+- id: antonym-08
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Daisy pipeline
+  predicate: setting
+  a: Memory usage will increase after the change
+  b: Memory usage will decrease after the change
+- id: antonym-09
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Poppy store
+  predicate: setting
+  a: Cache entries are written before the response
+  b: Cache entries are written after the response
+- id: antonym-10
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Lavender service
+  predicate: setting
+  a: The build passes on main
+  b: The build fails on main
+- id: antonym-11
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Jasmine job
+  predicate: setting
+  a: Access is granted to contractors
+  b: Access is denied to contractors
+- id: antonym-12
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Clover cluster
+  predicate: setting
+  a: The certificate is valid
+  b: The certificate is invalid
+- id: antonym-13
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Iris pipeline
+  predicate: setting
+  a: The node is online
+  b: The node is offline
+- id: antonym-14
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Magnolia store
+  predicate: setting
+  a: Uploads are accepted from partners
+  b: Uploads are rejected from partners
+- id: antonym-15
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Walrus service
+  predicate: setting
+  a: The job starts at midnight
+  b: The job stops at midnight
+- id: antonym-16
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Otter job
+  predicate: setting
+  a: The lock is held during the write
+  b: The lock is released during the write
+- id: antonym-17
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Badger cluster
+  predicate: setting
+  a: Disk encryption is mandatory
+  b: Disk encryption is optional
+- id: antonym-18
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Lynx pipeline
+  predicate: setting
+  a: The check is a hard failure
+  b: The check is a soft failure
+- id: antonym-19
+  category: antonym
+  split: train
+  expected: distinct
+  subject: Bison store
+  predicate: setting
+  a: The feature is stable
+  b: The feature is unstable
+- id: antonym-20
+  category: antonym
+  split: test
+  expected: distinct
+  subject: Moose service
+  predicate: setting
+  a: Messages are inbound only
+  b: Messages are outbound only
+- id: quantifier-01
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Ferret job
+  predicate: setting
+  a: All requests are logged
+  b: Some requests are logged
+- id: quantifier-02
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Marmot cluster
+  predicate: setting
+  a: Retries at least 3 times
+  b: Retries at most 3 times
+- id: quantifier-03
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Gecko pipeline
+  predicate: setting
+  a: Only admins can delete projects
+  b: Any member can delete projects
+- id: quantifier-04
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Tapir store
+  predicate: setting
+  a: Every service has an owner
+  b: Few services have an owner
+- id: quantifier-05
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Anchor service
+  predicate: setting
+  a: The pool holds at least 20 connections
+  b: The pool holds at most 20 connections
+- id: quantifier-06
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Compass job
+  predicate: setting
+  a: Both replicas must acknowledge
+  b: Either replica may acknowledge
+- id: quantifier-07
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Lantern cluster
+  predicate: setting
+  a: Always run the linter before pushing
+  b: Sometimes run the linter before pushing
+- id: quantifier-08
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Harbor pipeline
+  predicate: setting
+  a: Many teams use the shared runner
+  b: Few teams use the shared runner
+- id: quantifier-09
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Beacon store
+  predicate: setting
+  a: Uploads are limited to at most 10 MB
+  b: Uploads are limited to at least 10 MB
+- id: quantifier-10
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Rudder service
+  predicate: setting
+  a: Only the owner can approve
+  b: Anyone can approve
+- id: quantifier-11
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Keel job
+  predicate: setting
+  a: Usually the build takes 5 minutes
+  b: Rarely the build takes 5 minutes
+- id: quantifier-12
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Mast cluster
+  predicate: setting
+  a: Each deploy needs a ticket
+  b: Some deploys need a ticket
+- id: quantifier-13
+  category: quantifier
+  split: train
+  expected: distinct
+  subject: Sextant pipeline
+  predicate: setting
+  a: Latency is often above the target
+  b: Latency is rarely above the target
+- id: quantifier-14
+  category: quantifier
+  split: test
+  expected: distinct
+  subject: Buoy store
+  predicate: setting
+  a: Responses are minimum 2 KB
+  b: Responses are maximum 2 KB
+- id: number_word_same-01
+  category: number_word_same
+  split: train
+  expected: merge
+  subject: Marble service
+  predicate: setting
+  a: Deploys need two reviewers
+  b: Deploys need 2 reviewers
+- id: number_word_same-02
+  category: number_word_same
+  split: test
+  expected: merge
+  subject: Granite job
+  predicate: setting
+  a: The cluster has three nodes
+  b: The cluster has 3 nodes
+- id: number_word_same-03
+  category: number_word_same
+  split: train
+  expected: merge
+  subject: Basalt cluster
+  predicate: setting
+  a: Tokens last twenty four hours
+  b: Tokens last 24 hours
+- id: number_word_same-04
+  category: number_word_same
+  split: test
+  expected: merge
+  subject: Slate pipeline
+  predicate: setting
+  a: There are five replicas
+  b: There are 5 replicas
+- id: number_word_same-05
+  category: number_word_same
+  split: train
+  expected: merge
+  subject: Flint store
+  predicate: setting
+  a: Retention is seven days
+  b: Retention is 7 days
+- id: number_word_same-06
+  category: number_word_same
+  split: test
+  expected: merge
+  subject: Coral service
+  predicate: setting
+  a: Pool size is twenty five
+  b: Pool size is 25
+- id: number_word_same-07
+  category: number_word_same
+  split: train
+  expected: merge
+  subject: Pearl job
+  predicate: setting
+  a: Allow one retry
+  b: Allow 1 retry
+- id: number_word_same-08
+  category: number_word_same
+  split: test
+  expected: merge
+  subject: Ivory cluster
+  predicate: setting
+  a: The limit is one hundred requests
+  b: The limit is 100 requests
+- id: number_word_diff-01
+  category: number_word_diff
+  split: train
+  expected: distinct
+  subject: Ebony pipeline
+  predicate: setting
+  a: Deploys need two reviewers
+  b: Deploys need three reviewers
+- id: number_word_diff-02
+  category: number_word_diff
+  split: test
+  expected: distinct
+  subject: Sonnet store
+  predicate: setting
+  a: The cluster has three nodes
+  b: The cluster has five nodes
+- id: number_word_diff-03
+  category: number_word_diff
+  split: train
+  expected: distinct
+  subject: Ballad service
+  predicate: setting
+  a: Tokens last twenty four hours
+  b: Tokens last twelve hours
+- id: number_word_diff-04
+  category: number_word_diff
+  split: test
+  expected: distinct
+  subject: Ode job
+  predicate: setting
+  a: There are two replicas
+  b: There are 3 replicas
+- id: number_word_diff-05
+  category: number_word_diff
+  split: train
+  expected: distinct
+  subject: Haiku cluster
+  predicate: setting
+  a: Retention is seven days
+  b: Retention is 14 days
+- id: number_word_diff-06
+  category: number_word_diff
+  split: test
+  expected: distinct
+  subject: Fable pipeline
+  predicate: setting
+  a: Pool size is ten
+  b: Pool size is ten thousand
+- id: number_word_diff-07
+  category: number_word_diff
+  split: train
+  expected: distinct
+  subject: Myth store
+  predicate: setting
+  a: Allow one retry
+  b: Allow four retries
+- id: number_word_diff-08
+  category: number_word_diff
+  split: test
+  expected: distinct
+  subject: Saga service
+  predicate: setting
+  a: The limit is one hundred requests
+  b: The limit is two hundred requests
+- id: number_word_diff-09
+  category: number_word_diff
+  split: train
+  expected: distinct
+  subject: Epic job
+  predicate: setting
+  a: 'Shards: four'
+  b: 'Shards: four hundred'
+- id: number_word_diff-10
+  category: number_word_diff
+  split: test
+  expected: distinct
+  subject: Verse cluster
+  predicate: setting
+  a: Half of the traffic is mirrored
+  b: All of the traffic is mirrored
+- id: unit_same-01
+  category: unit_same
+  split: train
+  expected: merge
+  subject: Limerick pipeline
+  predicate: setting
+  a: The timeout is 5 minutes
+  b: The timeout is 300 seconds
+- id: unit_same-02
+  category: unit_same
+  split: test
+  expected: merge
+  subject: Sapling store
+  predicate: setting
+  a: Cache TTL is 2 hours
+  b: Cache TTL is 120 minutes
+- id: unit_same-03
+  category: unit_same
+  split: train
+  expected: merge
+  subject: Meadow service
+  predicate: setting
+  a: Retention is 1 day
+  b: Retention is 24 hours
+- id: unit_same-04
+  category: unit_same
+  split: test
+  expected: merge
+  subject: Canyon job
+  predicate: setting
+  a: The lease lasts 90 seconds
+  b: The lease lasts 1.5 minutes
+- id: unit_same-05
+  category: unit_same
+  split: train
+  expected: merge
+  subject: Glacier cluster
+  predicate: setting
+  a: Upload limit is 1 GB
+  b: Upload limit is 1000 MB
+- id: unit_same-06
+  category: unit_same
+  split: test
+  expected: merge
+  subject: Tundra pipeline
+  predicate: setting
+  a: Log files cap at 2 MB
+  b: Log files cap at 2000 KB
+- id: unit_same-07
+  category: unit_same
+  split: train
+  expected: merge
+  subject: Savanna store
+  predicate: setting
+  a: Heartbeat every 1 second
+  b: Heartbeat every 1000 ms
+- id: unit_same-08
+  category: unit_same
+  split: test
+  expected: merge
+  subject: Prairie service
+  predicate: setting
+  a: Sessions expire after 1 week
+  b: Sessions expire after 7 days
+- id: unit_same-09
+  category: unit_same
+  split: train
+  expected: merge
+  subject: Lagoon job
+  predicate: setting
+  a: The disk is 1 GiB
+  b: The disk is 1024 MiB
+- id: unit_same-10
+  category: unit_same
+  split: test
+  expected: merge
+  subject: Delta cluster
+  predicate: setting
+  a: Connect timeout is 30 s
+  b: Connect timeout is 30 seconds
+- id: unit_same-11
+  category: unit_same
+  split: train
+  expected: merge
+  subject: Fjord pipeline
+  predicate: setting
+  a: Error budget is 5 %
+  b: Error budget is 5 percent
+- id: unit_same-12
+  category: unit_same
+  split: test
+  expected: merge
+  subject: Piano store
+  predicate: setting
+  a: The build limit is 10 min
+  b: The build limit is 600 seconds
+- id: unit_diff-01
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Violin service
+  predicate: setting
+  a: The timeout is 5 minutes
+  b: The timeout is 5 hours
+- id: unit_diff-02
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Cello job
+  predicate: setting
+  a: Cache TTL is 2 hours
+  b: Cache TTL is 2 days
+- id: unit_diff-03
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Oboe cluster
+  predicate: setting
+  a: Retention is 1 day
+  b: Retention is 1 week
+- id: unit_diff-04
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Flute pipeline
+  predicate: setting
+  a: The lease lasts 90 seconds
+  b: The lease lasts 90 minutes
+- id: unit_diff-05
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Harp store
+  predicate: setting
+  a: Upload limit is 1 GB
+  b: Upload limit is 1 TB
+- id: unit_diff-06
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Trumpet service
+  predicate: setting
+  a: Log files cap at 2 MB
+  b: Log files cap at 2 GB
+- id: unit_diff-07
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Viola job
+  predicate: setting
+  a: Heartbeat every 1 second
+  b: Heartbeat every 1 minute
+- id: unit_diff-08
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Bassoon cluster
+  predicate: setting
+  a: Sessions expire after 1 week
+  b: Sessions expire after 1 hour
+- id: unit_diff-09
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Cornet pipeline
+  predicate: setting
+  a: The disk is 1 GiB
+  b: The disk is 1 GB
+- id: unit_diff-10
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Nutmeg store
+  predicate: setting
+  a: Connect timeout is 30 s
+  b: Connect timeout is 30 ms
+- id: unit_diff-11
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Saffron service
+  predicate: setting
+  a: Error budget is 5 %
+  b: Error budget is 50 %
+- id: unit_diff-12
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Cumin job
+  predicate: setting
+  a: The build limit is 10 min
+  b: The build limit is 10 h
+- id: unit_diff-13
+  category: unit_diff
+  split: train
+  expected: distinct
+  subject: Fennel cluster
+  predicate: setting
+  a: Latency target is 200 ms
+  b: Latency target is 200 s
+- id: unit_diff-14
+  category: unit_diff
+  split: test
+  expected: distinct
+  subject: Basil pipeline
+  predicate: setting
+  a: Backups are kept 30 days
+  b: Backups are kept 30 weeks
+- id: direction_swap-01
+  category: direction_swap
+  split: train
+  expected: maybe
+  subject: Sage store
+  predicate: setting
+  a: Service A calls B
+  b: Service B calls A
+- id: direction_swap-02
+  category: direction_swap
+  split: test
+  expected: maybe
+  subject: Thyme service
+  predicate: setting
+  a: Data flows from the API to the worker
+  b: Data flows from the worker to the API
+- id: direction_swap-03
+  category: direction_swap
+  split: train
+  expected: maybe
+  subject: Clove job
+  predicate: setting
+  a: Orders replicate from eu to us
+  b: Orders replicate from us to eu
+- id: direction_swap-04
+  category: direction_swap
+  split: test
+  expected: maybe
+  subject: Anise cluster
+  predicate: setting
+  a: The gateway forwards to billing
+  b: Billing forwards to the gateway
+- id: direction_swap-05
+  category: direction_swap
+  split: train
+  expected: maybe
+  subject: Ginger pipeline
+  predicate: setting
+  a: Alice reports to Bob
+  b: Bob reports to Alice
+- id: direction_swap-06
+  category: direction_swap
+  split: test
+  expected: maybe
+  subject: Quill store
+  predicate: setting
+  a: The cache invalidates the index
+  b: The index invalidates the cache
+- id: direction_swap-07
+  category: direction_swap
+  split: train
+  expected: maybe
+  subject: Parchment service
+  predicate: setting
+  a: Mobile syncs to the server
+  b: The server syncs to mobile
+- id: direction_swap-08
+  category: direction_swap
+  split: test
+  expected: maybe
+  subject: Ledger job
+  predicate: setting
+  a: The scheduler wakes the worker
+  b: The worker wakes the scheduler
+- id: direction_swap-09
+  category: direction_swap
+  split: train
+  expected: maybe
+  subject: Folio cluster
+  predicate: setting
+  a: Logs are pulled by the collector from the agent
+  b: Logs are pulled by the agent from the collector
+- id: direction_swap-10
+  category: direction_swap
+  split: test
+  expected: maybe
+  subject: Codex pipeline
+  predicate: setting
+  a: Team X depends on team Y
+  b: Team Y depends on team X
+- id: entity_swap-01
+  category: entity_swap
+  split: train
+  expected: distinct
+  subject: Scroll store
+  predicate: setting
+  a: Written in Go
+  b: Written in Rust
+- id: entity_swap-02
+  category: entity_swap
+  split: test
+  expected: distinct
+  subject: Tome service
+  predicate: setting
+  a: Hosted in eu-west
+  b: Hosted in us-east
+- id: entity_swap-03
+  category: entity_swap
+  split: train
+  expected: distinct
+  subject: Primer job
+  predicate: setting
+  a: Runs on Mondays
+  b: Runs on Fridays
+- id: entity_swap-04
+  category: entity_swap
+  split: test
+  expected: distinct
+  subject: Almanac cluster
+  predicate: setting
+  a: Backed by PostgreSQL
+  b: Backed by MySQL
+- id: entity_swap-05
+  category: entity_swap
+  split: train
+  expected: distinct
+  subject: Rocket pipeline
+  predicate: setting
+  a: Owned by the payments team
+  b: Owned by the growth team
+- id: entity_swap-06
+  category: entity_swap
+  split: test
+  expected: distinct
+  subject: Comet store
+  predicate: setting
+  a: Deployed to AWS
+  b: Deployed to GCP
+- id: entity_swap-07
+  category: entity_swap
+  split: train
+  expected: distinct
+  subject: Nebula service
+  predicate: setting
+  a: The frontend uses React
+  b: The frontend uses Vue
+- id: entity_swap-08
+  category: entity_swap
+  split: test
+  expected: distinct
+  subject: Quasar job
+  predicate: setting
+  a: Messages go through Kafka
+  b: Messages go through RabbitMQ
+- id: entity_swap-09
+  category: entity_swap
+  split: train
+  expected: distinct
+  subject: Pulsar cluster
+  predicate: setting
+  a: Authenticated with OAuth
+  b: Authenticated with SAML
+- id: entity_swap-10
+  category: entity_swap
+  split: test
+  expected: distinct
+  subject: Meteor pipeline
+  predicate: setting
+  a: Metrics are stored in Prometheus
+  b: Metrics are stored in InfluxDB
+- id: entity_swap-11
+  category: entity_swap
+  split: train
+  expected: distinct
+  subject: Orbit store
+  predicate: setting
+  a: The lead is Priya
+  b: The lead is Tomas
+- id: entity_swap-12
+  category: entity_swap
+  split: test
+  expected: distinct
+  subject: Zenith service
+  predicate: setting
+  a: Logs are shipped to Loki
+  b: Logs are shipped to Splunk
+- id: near_numeric-01
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Eclipse job
+  predicate: setting
+  a: Retries 3 times before failing
+  b: Retries 5 times before failing
+- id: near_numeric-02
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Aurora cluster
+  predicate: setting
+  a: Version 1.2.3
+  b: Version 1.2.4
+- id: near_numeric-03
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Bramble pipeline
+  predicate: setting
+  a: Listens on port 8080
+  b: Listens on port 8081
+- id: near_numeric-04
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Thistle store
+  predicate: setting
+  a: Python 3.11
+  b: Python 3.12
+- id: near_numeric-05
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Heather service
+  predicate: setting
+  a: Max 10 connections
+  b: Max 3 connections
+- id: near_numeric-06
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Moss job
+  predicate: setting
+  a: Pool of 16 workers
+  b: Pool of 15 workers
+- id: near_numeric-07
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Fern cluster
+  predicate: setting
+  a: PostgreSQL 15
+  b: PostgreSQL 16
+- id: near_numeric-08
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Ivy pipeline
+  predicate: setting
+  a: Timeout of 30
+  b: Timeout of 31
+- id: near_numeric-09
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Bracken store
+  predicate: setting
+  a: API v1
+  b: API v2
+- id: near_numeric-10
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Gorse service
+  predicate: setting
+  a: Needs 8 GB of memory
+  b: Needs 16 GB of memory
+- id: near_numeric-11
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Nettle job
+  predicate: setting
+  a: Node 18
+  b: Node 20
+- id: near_numeric-12
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Sorrel cluster
+  predicate: setting
+  a: Rollout to 10 percent
+  b: Rollout to 100 percent
+- id: near_numeric-13
+  category: near_numeric
+  split: train
+  expected: distinct
+  subject: Cobble pipeline
+  predicate: setting
+  a: Replication factor 3
+  b: Replication factor 2
+- id: near_numeric-14
+  category: near_numeric
+  split: test
+  expected: distinct
+  subject: Lintel store
+  predicate: setting
+  a: Schema version 41
+  b: Schema version 42
+- id: sprint_twin-01
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Arch service
+  predicate: setting
+  a: 'Sprint 12 goal: ship the billing export'
+  b: 'Sprint 13 goal: ship the billing export'
+- id: sprint_twin-02
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Gable job
+  predicate: setting
+  a: Sprint 12 velocity was 31 points
+  b: Sprint 13 velocity was 31 points
+- id: sprint_twin-03
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Turret cluster
+  predicate: setting
+  a: Release 2.4 freeze is on Thursday
+  b: Release 2.5 freeze is on Thursday
+- id: sprint_twin-04
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Rampart pipeline
+  predicate: setting
+  a: 'Sprint 7 retro action: shorten standups'
+  b: 'Sprint 8 retro action: shorten standups'
+- id: sprint_twin-05
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Bastion store
+  predicate: setting
+  a: Q3 target is 99.9 percent uptime
+  b: Q4 target is 99.9 percent uptime
+- id: sprint_twin-06
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Keep service
+  predicate: setting
+  a: Sprint 20 demo is on the 14th
+  b: Sprint 21 demo is on the 14th
+- id: sprint_twin-07
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Moat job
+  predicate: setting
+  a: Milestone 3 owner is Dana
+  b: Milestone 4 owner is Dana
+- id: sprint_twin-08
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Portcullis cluster
+  predicate: setting
+  a: Sprint 5 carries over two tickets
+  b: Sprint 6 carries over two tickets
+- id: sprint_twin-09
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Marlin pipeline
+  predicate: setting
+  a: Week 14 on-call is Mira
+  b: Week 15 on-call is Mira
+- id: sprint_twin-10
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Salmon store
+  predicate: setting
+  a: 'Sprint 30 scope: search relevance'
+  b: 'Sprint 31 scope: search relevance'
+- id: sprint_twin-11
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Trout service
+  predicate: setting
+  a: Cycle 8 theme is reliability
+  b: Cycle 9 theme is reliability
+- id: sprint_twin-12
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Haddock job
+  predicate: setting
+  a: Sprint 9 planned 24 points
+  b: Sprint 9 completed 24 points
+- id: sprint_twin-13
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Sturgeon cluster
+  predicate: setting
+  a: Iteration 15 ends on Friday
+  b: Iteration 16 ends on Friday
+- id: sprint_twin-14
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Mackerel pipeline
+  predicate: setting
+  a: Sprint 2 had no incidents
+  b: Sprint 3 had no incidents
+- id: sprint_twin-15
+  category: sprint_twin
+  split: train
+  expected: distinct
+  subject: Herring store
+  predicate: setting
+  a: Release 1.0 supports Windows
+  b: Release 2.0 supports Windows
+- id: sprint_twin-16
+  category: sprint_twin
+  split: test
+  expected: distinct
+  subject: Carp service
+  predicate: setting
+  a: 'Sprint 40 goal: reduce page load'
+  b: 'Sprint 41 goal: reduce page load'
+- id: long_one_word-01
+  category: long_one_word
+  split: train
+  expected: distinct
+  subject: Pike job
+  predicate: setting
+  a: Every night at two in the morning the batch job exports the new orders to the warehouse and emails the finance team a summary
+  b: Every night at two in the morning the batch job exports the old orders to the warehouse and emails the finance team a summary
+- id: long_one_word-02
+  category: long_one_word
+  split: test
+  expected: distinct
+  subject: Perch cluster
+  predicate: setting
+  a: When a request fails with a server error the client waits one second and then retries the call against the same replica
+  b: When a request fails with a client error the client waits one second and then retries the call against the same replica
+- id: long_one_word-03
+  category: long_one_word
+  split: train
+  expected: distinct
+  subject: Velvet pipeline
+  predicate: setting
+  a: The weekly report is generated on Monday and sent to every team lead together with the dashboard link
+  b: The weekly report is generated on Tuesday and sent to every team lead together with the dashboard link
+- id: long_one_word-04
+  category: long_one_word
+  split: test
+  expected: distinct
+  subject: Denim store
+  predicate: setting
+  a: All inbound traffic is terminated at the load balancer and forwarded to the application pods over an internal network
+  b: All inbound traffic is terminated at the load balancer and forwarded to the application pods over an external network
+- id: long_one_word-05
+  category: long_one_word
+  split: train
+  expected: distinct
+  subject: Linen service
+  predicate: setting
+  a: Engineers who join the platform team get read access to the monitoring stack during their first week of onboarding
+  b: Engineers who join the platform team get write access to the monitoring stack during their first week of onboarding
+- id: long_one_word-06
+  category: long_one_word
+  split: test
+  expected: distinct
+  subject: Tweed job
+  predicate: setting
+  a: The nightly job compacts the event tables and then deletes the partitions that are older than the retention window
+  b: The nightly job compacts the event tables and then archives the partitions that are older than the retention window
+- id: long_one_word-07
+  category: long_one_word
+  split: train
+  expected: distinct
+  subject: Satin cluster
+  predicate: setting
+  a: Incidents with customer impact are escalated to the duty manager who decides whether to open a public status page
+  b: Incidents with customer impact are escalated to the duty manager who decides whether to close a public status page
+- id: long_one_word-08
+  category: long_one_word
+  split: test
+  expected: distinct
+  subject: Silk pipeline
+  predicate: setting
+  a: The mobile client caches the last known configuration and refreshes it in the background whenever the app is opened
+  b: The mobile client caches the last known configuration and refreshes it in the foreground whenever the app is opened
+- id: long_one_word-09
+  category: long_one_word
+  split: train
+  expected: distinct
+  subject: Wool store
+  predicate: setting
+  a: Production credentials are issued per service and expire automatically after the maintenance window ends
+  b: Production credentials are issued per person and expire automatically after the maintenance window ends
+- id: long_one_word-10
+  category: long_one_word
+  split: test
+  expected: distinct
+  subject: Cotton service
+  predicate: setting
+  a: The release manager signs off on the changelog before the tag is pushed and the artifacts are published
+  b: The release manager signs off on the changelog after the tag is pushed and the artifacts are published
+- id: long_one_word-11
+  category: long_one_word
+  split: train
+  expected: distinct
+  subject: Flannel job
+  predicate: setting
+  a: Slow queries above the threshold are logged together with the plan and sent to the performance channel
+  b: Slow queries below the threshold are logged together with the plan and sent to the performance channel
+- id: long_one_word-12
+  category: long_one_word
+  split: test
+  expected: distinct
+  subject: Corduroy cluster
+  predicate: setting
+  a: Data exports for partners are delivered over SFTP every morning and are encrypted with the partner public key
+  b: Data exports for partners are delivered over HTTPS every morning and are encrypted with the partner public key
+- id: bare_boolean-01
+  category: bare_boolean
+  split: train
+  expected: distinct
+  subject: Tango pipeline
+  predicate: setting
+  a: enabled
+  b: disabled
+- id: bare_boolean-02
+  category: bare_boolean
+  split: test
+  expected: distinct
+  subject: Waltz store
+  predicate: setting
+  a: 'true'
+  b: 'false'
+- id: bare_boolean-03
+  category: bare_boolean
+  split: train
+  expected: distinct
+  subject: Polka service
+  predicate: setting
+  a: 'on'
+  b: 'off'
+- id: bare_boolean-04
+  category: bare_boolean
+  split: test
+  expected: distinct
+  subject: Rumba job
+  predicate: setting
+  a: 'yes'
+  b: 'no'
+- id: bare_boolean-05
+  category: bare_boolean
+  split: train
+  expected: distinct
+  subject: Samba cluster
+  predicate: setting
+  a: active
+  b: inactive
+- id: bare_boolean-06
+  category: bare_boolean
+  split: test
+  expected: distinct
+  subject: Bolero pipeline
+  predicate: setting
+  a: required
+  b: optional
+- id: bare_boolean-07
+  category: bare_boolean
+  split: train
+  expected: distinct
+  subject: Mambo store
+  predicate: setting
+  a: allowed
+  b: denied
+- id: bare_boolean-08
+  category: bare_boolean
+  split: test
+  expected: distinct
+  subject: Minuet service
+  predicate: setting
+  a: public
+  b: private

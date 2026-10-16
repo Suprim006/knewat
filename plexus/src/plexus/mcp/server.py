@@ -19,6 +19,7 @@ from plexus.mcp.memory_tools import register_memory
 from plexus.mcp.runtime import Runtime
 from plexus.mcp.staleness_tools import register_staleness
 from plexus.mcp.tools import register_engram_relay
+from plexus.mcp.tools_dedup import register_dedup
 from plexus.mcp.tools_impact import register_impact
 
 INSTRUCTIONS = (
@@ -67,6 +68,7 @@ def build_server(rt: Runtime) -> MCPServer:
     register_staleness(mcp, rt)
     register_memory(mcp, rt)
     register_impact(mcp, rt)
+    register_dedup(mcp, rt)
     return mcp
 
 
