@@ -540,6 +540,14 @@
           "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
           "title": "Audit"
         },
+        "depth": {
+          "default": 50,
+          "description": "How many dependency hops to follow (1..50, default 50).",
+          "maximum": 50,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
         "step": {
           "anyOf": [
             {
@@ -1278,6 +1286,14 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "depth": {
+          "default": 8,
+          "description": "How many DERIVED_FROM hops to follow from the source (1..12, default 8). Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
         "source_id": {
           "description": "Source whose derived facts should be forgotten.",
           "maxLength": 128,
@@ -1442,7 +1458,7 @@
     }
   },
   "impact": {
-    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,\nthe decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them.\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
+    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,\nthe decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them, with\nexact totals, earliest_at / latest_at (epoch ms) per category and the 5 earliest affected facts.\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1480,7 +1496,7 @@
         "max_items": {
           "default": 50,
           "description": "Ids listed per category (totals are always exact).",
-          "maximum": 200,
+          "maximum": 2000,
           "minimum": 1,
           "title": "Max Items",
           "type": "integer"
@@ -1980,6 +1996,14 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "depth": {
+          "default": 8,
+          "description": "How many DERIVED_FROM hops to follow from the source (1..12, default 8). Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
         "source_id": {
           "description": "The suspected (poisoned or wrong) source.",
           "maxLength": 128,
@@ -2369,6 +2393,14 @@
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
+        },
+        "depth": {
+          "default": 8,
+          "description": "How many DERIVED_FROM hops to follow from the source (at least the depth quarantine_source used) (1..12, default 8). Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
         },
         "source_id": {
           "description": "A source previously passed to quarantine_source.",
@@ -2943,6 +2975,14 @@
           "default": null,
           "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
           "title": "Audit"
+        },
+        "depth": {
+          "default": 6,
+          "description": "How many DERIVED_FROM hops to follow back from the decision or fact (1..12, default 6). Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
         },
         "node_id": {
           "description": "A decision id or a fact id.",

@@ -99,8 +99,8 @@ def test_impact_carries_timestamps_per_facet(world, lin):
 
 
 def test_impact_5000_fact_blast_answers_in_under_2_s_with_exact_totals(client, empty_graph, clock):
-    """P9-int regression (L6-A): the old statement carried the fact list as a grouping key through three
-    UNWINDs and never finished at 5,000 facts. Noise (5,000 unrelated facts, 7,500 reads) must not be walked."""
+    """P9-int regression (L6-A): the old statement carried the fact list as a grouping key through
+    three UNWINDs and never finished at 5,000 facts. Unrelated noise must not be walked."""
     d = build_blast(client, empty_graph, n=5000, noise=5000)
     tc = TimedClient(client)
     lin = Lineage(tc, empty_graph, clock=clock)

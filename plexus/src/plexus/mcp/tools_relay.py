@@ -28,6 +28,7 @@ from plexus.mcp.limits import (
 )
 from plexus.mcp.runtime import MeteredClient, Outcome, TenantState
 from plexus.mcp.toolkit import ToolTable
+from plexus.relay.service import MAX_BLOCKED_DEPTH
 
 MAX_TASKS = 200
 
@@ -273,10 +274,18 @@ def blocked_by_failure(
     m: MeteredClient,
     agent_id: AgentId,
     task_id: Annotated[IdStr, Field(description="The failed (or stuck) task.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many dependency hops to follow (1..{MAX_BLOCKED_DEPTH}, default {MAX_BLOCKED_DEPTH}).",
+            ge=1,
+            le=MAX_BLOCKED_DEPTH,
+        ),
+    ] = MAX_BLOCKED_DEPTH,
     step: Step = None,
 ) -> Outcome:
     """List every unfinished task that transitively depends on this one (what a failure is blocking)."""
     if ts.relay(m).task_status(task_id) is None:
         raise ToolError(f"blocked_by_failure: unknown task id: {task_id}")
-    ids = ts.relay(m).blocked_by_failure(task_id)
+    ids = ts.relay(m).blocked_by_failure(task_id, depth=depth)
     return Outcome({"blocked": ids, "count": len(ids)})
