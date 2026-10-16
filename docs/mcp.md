@@ -111,6 +111,39 @@ or a scope id (max 512 chars). **Writes** (`assert_fact`) create a named scope o
 `as_of`) never do: a scope that does not exist gives an empty answer (`recall` returns `count: 0`, `scope_id: null` and records
 no `Recall`), so a typo cannot grow the graph.
 
+## Toolsets: publish only the modules a session needs (P12, `plexus/mcp/toolsets.py`)
+
+The whole tool list is part of every API call's prompt, so a session can ask for a subset. A toolset is a
+comma-separated list of **modules** (the §2.2 module boundaries of `docs/PLEXUS_REPORT.md`) and/or **profiles**:
+
+| Name | Tools |
+|---|---|
+| `engram` | 7: `start_session` … `best_procedure` |
+| `relay` | 13: `register_agent` … `blocked_by_failure` (`register_agent` is how a relay-only agent joins: it has no `start_session`) |
+| `lineage` | 9: `add_source`, `why`, `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine` |
+| `staleness` | 7 (below) |
+| `forgetting` | 5 memory-strength tools (below) |
+| `relations` | 2: `assert_relation`, `impact` |
+| `dedup` | 2: `confirm_duplicate`, `reject_duplicate` |
+| profile `core` | `engram,relay,lineage` (29) |
+| profile `full` | every module (45): **the default, unchanged** |
+
+* stdio: `plexus-mcp --transport stdio --tenant acme --toolset core` (or env `PLEXUS_TOOLSET`); a bad value stops
+  the server at start with the list of valid names.
+* HTTP: `--toolset` / `PLEXUS_TOOLSET` is the default for sessions that pick none; a client picks per session with
+  `/mcp/t/<tenant>?toolset=core` or the header `X-Plexus-Toolset: core`. Unknown or empty name, or URL and header
+  disagreeing: **400** `invalid toolset: unknown toolset 'x'; valid: engram, relay, …, core, full` (never a silent full
+  or empty list). The toolset is pinned to the MCP session at `initialize` like the tenant: a later request naming
+  another toolset gets a 400.
+* A tool outside the session's toolset is neither listed nor callable: `recall: not in this session's toolset 'relay'
+  (it is in module 'engram'); connect with a toolset that includes 'engram' (e.g. toolset=full)`.
+* It is a prompt-size choice, **not access control** (any client can open a `toolset=full` session); read-only demo
+  tenants and audit modes stay the safety controls. Responses, audit and validation are identical under every toolset.
+
+Measured with `claude -p` 2.1.296 (`python -m plexus.crucible.l8.manifest_probe --toolset …`,
+`plexus/demo_data/crucible/l8_p12tok/manifest_probe-toolsets.json`), prompt tokens of the tool list per API call:
+`full` 19,877, `core,staleness` 16,114, `core` 12,880, `relay` 5,111.
+
 ## Argument limits and errors
 
 Every argument is bounded; a violation is a tool error of one line, e.g. `recall: k: Input should be greater than or equal to 1`
