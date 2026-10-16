@@ -841,3 +841,9 @@ re-scored by the same code):
 6. Pooling keeps an infinite median as `inf`; each separation test also reports its direction (`P_lower`).
 7. Post-hoc (observed in seeds 1-2: P's researcher calls `fail_task` on `t13`, which blocks `t16`, the latest and most
    exposed task): the stale-act rate is also reported over the tasks every arm of a seed reached. Descriptive only.
+
+### Amendment 4 (2026-10-16, during round A, scorer only)
+
+B0′ "marked done" (R1, C1, C2, C3) is read from the lines that are new in `memory/tasks.md`'s tracked state after a
+write, not from the write's own text: B0′ agents usually `Edit` only the status cell (`todo` → `done: ...`), whose
+`new_string` does not name the task, which made C3 count 9 false "unrecognised completions" in seed 20261018.

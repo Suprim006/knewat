@@ -335,10 +335,12 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
                     if o and o in before
                     else before + str(e.input.get("new_string", ""))
                 )
-            # B0' R1 (amendment 2): a task marked done again in a later turn (lines this write adds; the first
-            # task id on a line is its subject; reclaim turns excluded)
+            # B0' done marks (amendments 2-3): lines that are new in tasks.md's tracked state after this write (an
+            # Edit often rewrites only the status cell, so its new_string alone does not name the task); a line is a
+            # record of task X when it is X's table row (title cell) or an 'X: ...' note; reclaim turns excluded
             if ok(e) and rel.endswith("tasks.md"):
-                for line in (txt or "").splitlines():
+                old_lines = set(before.splitlines())
+                for line in (x for x in mem_text.get(rel, "").splitlines() if x not in old_lines):
                     m_id = TASK_ID_RE.search(line)
                     tid0 = m_id.group(1) if m_id else ""
                     subject = tid0 in S.TASK_BY_ID and (
@@ -409,10 +411,7 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
         if mcp:
             done_here = any(e.tool == "complete_task" and ok(e) for e in tu)
         else:
-            done_here = any(
-                e.tool in ("Write", "Edit") and "tasks.md" in _path(e) and t.id in str(e.input.get("content") or e.input.get("new_string") or "")
-                and "done" in str(e.input.get("content") or e.input.get("new_string") or "").lower() for e in tu
-            )  # fmt: skip
+            done_here = tn in b0_done.get(t.id, set())
         if not done_here:
             C3 += 1
 
