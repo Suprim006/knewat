@@ -1,0 +1,29 @@
+{
+ "qid": "D17",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "The three sprints with the most forgotten facts are S020 (10), S060 (9) and S090 (8). I counted facts with status `forgotten`, grouped by scope. The next highest was S130 with 7, so there are no ties at the cutoff.\n\n{\"answer\": [\"S020\", \"S060\", \"S090\"]}",
+ "answer": [
+  "S020",
+  "S060",
+  "S090"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 188,
+  "cache_read_input_tokens": 5195,
+  "cache_creation_input_tokens": 3419
+ },
+ "cost_usd": 0.0160835,
+ "latency_ms": 10962.5,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "c281a6f5f9cc963fa890442cc170097b17194861ff1441398bfb898aa2a221da",
+ "context_chars": 0
+}

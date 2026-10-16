@@ -1,0 +1,3552 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "pilot",
+ "run": {
+  "id": "20261016T060222Z-pilot",
+  "started_at": "2026-10-16T05:56:36Z",
+  "finished_at": "2026-10-16T06:02:22Z",
+  "stage": "rest",
+  "llm_calls": 88,
+  "calls_run_live": 9,
+  "cost_usd": 7.0855,
+  "cost_live_usd": 1.6303,
+  "cost_cumulative_usd": 7.0855
+ },
+ "git": {
+  "commit": "5871d3098d6b6b8d928c3fcbb417134a36645045",
+  "short": "5871d30",
+  "dirty": false,
+  "branch": "p9a"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "5871d30",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 0,
+   "reachable": false,
+   "error": "ConnectionError: Error 10049 connecting to 127.0.0.1:0. The requested address is not valid in its context."
+  },
+  "claude": "claude -p, model sonnet"
+ },
+ "prompt_version": "l6-v1",
+ "model": "sonnet",
+ "budget": {
+  "total_cap_usd": 20.0,
+  "arm_caps_usd": {
+   "B0r": 3.0,
+   "B1a": 7.0,
+   "B0g": 8.0,
+   "P": 6.0
+  },
+  "per_call_cap_usd": 0.8,
+  "gate_usd": 16.0,
+  "projected_usd": null,
+  "measured_mean_cost": null,
+  "arm_spent_cumulative_usd": {
+   "B0g": 0.6522,
+   "B0r": 1.8747,
+   "B1a": 0.5612,
+   "P": 3.9975
+  }
+ },
+ "partial": false,
+ "families": {
+  "A": {
+   "pilot_ids": [
+    "A01",
+    "A04",
+    "A06",
+    "A07",
+    "A10",
+    "A11",
+    "A13",
+    "A16"
+   ],
+   "n_questions": 8,
+   "arms": {
+    "B0r": {
+     "n": 8,
+     "strict_correct": 0,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 19147.2,
+     "cost_usd": 0.6328,
+     "cost_per_question_usd": 0.0791,
+     "tool_calls_per_question": 0.0,
+     "latency_s_median": 10.2,
+     "components_correct": {
+      "probes": 0,
+      "agents": 0,
+      "decisions": 0,
+      "earliest5": 0,
+      "handoffs": 0,
+      "facts": 0
+     },
+     "questions": [
+      {
+       "id": "A01",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19289,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 956,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17787
+       },
+       "cost_usd": 0.080766,
+       "latency_ms": 13728.0,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31637,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 10,
+        "agents": 18,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f006332",
+         "f005300",
+         "f043558",
+         "f025922",
+         "f023895"
+        ]
+       },
+       "got": "{\"facts\": 4, \"agents\": 0, \"decisions\": 1, \"handoffs\": 1, \"probes\": [false, true, false, false, true, true, false, false, false, true], \"earliest5\": [\"f006332\", \"f043558\", \"f023895\", \"f050274\"]}",
+       "reply": "The excerpt only partly supports this, so these numbers come from what is visible, not a full trace.\n\n**Affected facts (4 visible):**\n- f023895 and f043558 derive from s0001 directly.\n- f006332 derives from f043558, so it is affected.\n- f050274 derives from f023895, so it is affected.\n\n**Probes:**\n- f004486, f028102, f010224 and f048401 show no link to s0001. f010224 and f048401 derive only from f004486 and f028102, whose own derivations aren't shown.\n- f005300 and f045815 don't appear in the ex",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A04",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 18876,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 509,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17821
+       },
+       "cost_usd": 0.076432,
+       "latency_ms": 9666.2,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31636,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 5000,
+        "agents": 65,
+        "decisions": 81,
+        "handoffs": 49,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f014091",
+         "f005047",
+         "f012510",
+         "f039444",
+         "f009582"
+        ]
+       },
+       "got": "{\"facts\": 0, \"agents\": 0, \"decisions\": 0, \"handoffs\": 0, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": []}",
+       "reply": "I can't work out this answer from the excerpt. It contains only `decisions.jsonl`, and the question depends on files I wasn't shown:\n\n- **`facts.jsonl`** has the `derived_from` links. Without it I can't tell which facts descend from s0007, so I can't count affected facts, check any of the 10 probe ids, or find the 5 earliest by `at`.\n- **`sources.json`** would show how s0007 maps to its uri and which facts cite it directly.\n- **`logs/<agent>.jsonl`** has the `read` lists that determine affected ",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A06",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19028,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 661,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17821
+       },
+       "cost_usd": 0.077952,
+       "latency_ms": 10309.4,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31657,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 100,
+        "agents": 16,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f032441",
+         "f016923",
+         "f048671",
+         "f020806",
+         "f007475"
+        ]
+       },
+       "got": "{\"facts\": 1, \"agents\": 0, \"decisions\": 0, \"handoffs\": 0, \"probes\": [false, false, false, true, false, false, false, false, false, false], \"earliest5\": [\"f021796\"]}",
+       "reply": "The excerpt can't support a full answer. I can only confirm one affected fact, so most of the numbers below are placeholders, not computed results.\n\n- **Confirmed affected:** f021796 (\"sessions ships next quarter\") lists `s0011` in `derived_from`, so it is affected directly.\n- **Not confirmed:** f019448 derives from f022245, f022164 and f009680. None of those three appear in the excerpt, so I can't tell whether they trace back to `s0011`. I marked f022245 and f022164 as not affected, and the oth",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A07",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19125,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 724,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17855
+       },
+       "cost_usd": 0.078718,
+       "latency_ms": 10039.2,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31691,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 1000,
+        "agents": 70,
+        "decisions": 10,
+        "handoffs": 10,
+        "probes": [
+         true,
+         false,
+         false,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f020574",
+         "f009422",
+         "f023187",
+         "f014125",
+         "f040407"
+        ]
+       },
+       "got": "{\"facts\": 2, \"agents\": 1, \"decisions\": 0, \"handoffs\": 2, \"probes\": [false, false, true, false, true, false, false, false, false, false], \"earliest5\": [\"f022003\", \"f010933\", \"\", \"\", \"\"]}",
+       "reply": "I can't work out the full answer from these excerpts, so most of the JSON below is a guess. The excerpts have no source-to-fact links for s0013, no read logs, and only a small part of facts.jsonl.\n\nWhat the excerpts do show:\n- f010933 (agent a026) derives from f022003.\n- Handoffs h00371 and h00399 both carry f022003.\n- No decision shown is based on f022003 or f010933.\n\nI could not confirm that f022003 derives from s0013. I assumed it does, because it is the one fact the surrounding records point",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A10",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19182,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 786,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17850
+       },
+       "cost_usd": 0.079318,
+       "latency_ms": 10136.1,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31685,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 100,
+        "agents": 57,
+        "decisions": 4,
+        "handoffs": 3,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f049469",
+         "f007868",
+         "f007497",
+         "f029912",
+         "f011381"
+        ]
+       },
+       "got": "{\"facts\": 1, \"agents\": 0, \"decisions\": 0, \"handoffs\": 0, \"probes\": [false, false, false, false, false, false, true, false, false, false], \"earliest5\": [\"f028841\"]}",
+       "reply": "The excerpt can't support a full answer. The only fact visible with a link to s0019 is `f028841` (derived directly from `s0019`, active). I can't see the rest of the derivation chain, any handoffs, or the logs other than a single `a093` entry. The counts below are therefore lower bounds, not verified totals.\n\n- **Facts:** `f028841` is the only affected fact I can confirm, so I report 1. Facts derived from it, if any, aren't in the excerpt.\n- **Agents:** the only log shown is `a093` reading `f027",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A11",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 18936,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 541,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17849
+       },
+       "cost_usd": 0.076864,
+       "latency_ms": 9218.3,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31681,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 1000,
+        "agents": 39,
+        "decisions": 16,
+        "handoffs": 14,
+        "probes": [
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f025559",
+         "f036944",
+         "f026242",
+         "f025475",
+         "f051273"
+        ]
+       },
+       "got": "{\"facts\": 1, \"agents\": 1, \"decisions\": 0, \"handoffs\": 0, \"probes\": [false, false, true, false, false, false, false, false, false, false], \"earliest5\": [\"f042036\"]}",
+       "reply": "The excerpt only supports a partial answer, so these figures are a lower bound rather than a full count.\n\n- **Facts:** f042036 is the only affected fact I can see. It derives directly from s0021. The excerpt shows no other fact derived from s0021 or from f042036, so I count 1.\n- **Agents:** a039 read f042036 (log step st010346), so I count 1.\n- **Decisions:** none of the decisions shown is based on f042036, so I count 0.\n- **Handoffs:** no handoffs appear in the excerpt, so I count 0.\n- **Probes",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A13",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19750,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 1387,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17817
+       },
+       "cost_usd": 0.085196,
+       "latency_ms": 15217.1,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31688,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 10,
+        "agents": 10,
+        "decisions": 3,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f018813",
+         "f013345",
+         "f015530",
+         "f050721",
+         "f041882"
+        ]
+       },
+       "got": "{\"facts\": 3, \"agents\": 3, \"decisions\": 2, \"handoffs\": 1, \"probes\": [false, true, false, false, false, false, false, false, true, true], \"earliest5\": [\"f036025\", \"f018813\", \"f013345\"]}",
+       "reply": "The excerpt does not show `sources.json` or any logs, and no fact names s0025, so this answer is a best guess from the one dependency chain that reaches decisions and a handoff.\n\n- **Chain I assumed is poisoned:** f036025 \u2192 f013345 \u2192 f018813.\n- **Facts:** I count 3 (f036025, f013345, f018813). If f036025 itself derives from s0025, these are all affected.\n- **Decisions:** d00299 is based on f013345 and d00781 on f018813, so 2.\n- **Handoffs:** h00524 carries f018813, so 1.\n- **Agents:** the logs a",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A16",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 18992,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 623,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17823
+       },
+       "cost_usd": 0.07758,
+       "latency_ms": 10685.8,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31636,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 5000,
+        "agents": 31,
+        "decisions": 69,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f001863",
+         "f033081",
+         "f043169",
+         "f012160",
+         "f027639"
+        ]
+       },
+       "got": "{\"facts\": 0, \"agents\": 0, \"decisions\": 0, \"handoffs\": 0, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": []}",
+       "reply": "I can't work out this answer from the excerpt. It contains only `decisions.jsonl` (the decision ids, agents and `based_on` lists). The rest of what the question depends on is missing:\n\n- **`sources.json`:** it would show which facts cite s0031 directly.\n- **`facts.jsonl`:** its `derived_from` links would let me trace the poisoning through other facts at any depth, and its `at` values would give the earliest five facts.\n- **`logs/<agent>.jsonl`:** these record which facts each agent read, so I ca",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B1a": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 11158.9,
+     "cost_usd": 0.2218,
+     "cost_per_question_usd": 0.0277,
+     "tool_calls_per_question": 1.25,
+     "latency_s_median": 18.6,
+     "components_correct": {
+      "probes": 8,
+      "agents": 8,
+      "decisions": 8,
+      "earliest5": 8,
+      "handoffs": 8,
+      "facts": 8
+     },
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10622,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 1079,
+        "cache_read_input_tokens": 5287,
+        "cache_creation_input_tokens": 4252
+       },
+       "cost_usd": 0.028335,
+       "latency_ms": 24156.8,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Starting from source s0001, I followed every `derived_from` link, through other facts at any depth. That gave 10 affected facts, and I counted the agents, decisions and handoffs that touch them. I didn't check whether any of these facts have status superseded or forgotten, so the counts include them either way.\n\n- **Facts:** 10 are affected.\n- **Agents:** 18 distinct agents read at least one affected fact.\n- **Decisions:** 2 are based on an affected fact.\n- **Handoffs:** 2 carry an affected fact",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A04",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10386,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 976,
+        "cache_read_input_tokens": 5287,
+        "cache_creation_input_tokens": 4119
+       },
+       "cost_usd": 0.026773,
+       "latency_ms": 18504.4,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0007 affects 5,000 facts, found by following `derived_from` links from s0007 through other facts at any depth. Those facts lead to 65 distinct agents who read them, 81 decisions based on them and 49 handoffs carrying them.\n\nOf the 10 probe facts, f047976, f037168, f013754, f018071 and f002695 are affected. f004619, f019026, f026538, f036502 and f033610 are not.\n\nThe 5 earliest affected facts, oldest first by `valid_from`, are f014091, f005047, f012510, f039444 and f009582.\n\n{\"facts\": 500",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A06",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10513,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 951,
+        "cache_read_input_tokens": 5287,
+        "cache_creation_input_tokens": 4271
+       },
+       "cost_usd": 0.027131,
+       "latency_ms": 16402.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "I found 100 affected facts by following `derived_from` links from s0011 through other facts at any depth. Counts and probes are over all of them, whatever their status. Of those, 16 distinct agents read an affected fact, 2 decisions are based on one, and 3 handoffs carry one.\n\nFive probes are affected: f025760, f021796, f012407, f010365 and f014619. The other five are not. The five earliest affected facts, by `valid_from`, are f032441, f016923, f048671, f020806 and f007475.\n\n{\"facts\": 100, \"agen",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A07",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10614,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 1014,
+        "cache_read_input_tokens": 5287,
+        "cache_creation_input_tokens": 4309
+       },
+       "cost_usd": 0.027913,
+       "latency_ms": 17787.7,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "In total, 1000 facts are affected by the poisoned source s0013, whether they derive from it directly or through other facts. Those facts reach 70 distinct agents, 10 decisions and 10 handoffs. I found the affected facts by following `derived_from` links outward from s0013 at any depth. I then counted the agents whose steps read an affected fact, the decisions based on one, and the handoffs that carry one.\n\nOf the ten probe facts, f030679, f040904, f039736, f046287 and f030735 are affected. The o",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A10",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10559,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 995,
+        "cache_read_input_tokens": 5287,
+        "cache_creation_input_tokens": 4273
+       },
+       "cost_usd": 0.027579,
+       "latency_ms": 18760.4,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0019 taints 100 facts, counting facts that derive from it directly or through other facts. I traced the `derived_from` links from s0019 and then followed them through derived facts at any depth. The other counts come from what those facts reach:\n\n- **Agents:** 57 distinct agents read at least one affected fact.\n- **Decisions:** 4 are based on an affected fact.\n- **Handoffs:** 3 carry an affected fact.\n- **Probes:** f017581, f046578, f028841, f004585 and f048923 are affected. The other fi",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A11",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 15361,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 974,
+        "cache_read_input_tokens": 9973,
+        "cache_creation_input_tokens": 4408
+       },
+       "cost_usd": 0.028381,
+       "latency_ms": 18649.7,
+       "num_turns": 4,
+       "tool_calls": 3,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0021 taints 1000 facts, counting facts that derive from it directly or through other facts. Those facts were read by 39 distinct agents, are the basis of 16 decisions, and are carried by 14 handoffs.\n\n- **Agents:** I counted an agent as affected only if one of its steps read an affected fact. I did not count agents who merely asserted one.\n- **Probes:** In the order you listed them, f049603, f002059, f026438, f045352 and f039528 are not affected. f042036, f050526, f013155, f027292 and f0",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10573,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 991,
+        "cache_read_input_tokens": 5285,
+        "cache_creation_input_tokens": 4293
+       },
+       "cost_usd": 0.027618,
+       "latency_ms": 16927.4,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The poisoned source s0025 affects 10 facts, read by 10 distinct agents. It also touches 3 decisions and 2 handoffs.\n\nI followed `derived_from` links from s0025 through other facts at any depth. I then counted the agents whose steps read an affected fact, the decisions based on one, and the handoffs that carry one. For \"earliest\" I used `valid_from`, since the facts table has no `at` column.\n\nOf the 10 probes, f018813, f033764, f013817, f036025 and f013345 are affected. The other five are not.\n\n{",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A16",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 10643,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 1028,
+        "cache_read_input_tokens": 5287,
+        "cache_creation_input_tokens": 4324
+       },
+       "cost_usd": 0.028113,
+       "latency_ms": 19581.1,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0031 affects 5000 facts, 31 agents, 69 decisions and 50 handoffs.\n\n- **Method:** I started from the facts that derive directly from s0031. I then followed `derived_from` links downward through other facts until no new facts turned up.\n- **Agents:** I counted an agent as affected if any of its steps read an affected fact.\n- **Earliest five:** I ordered affected facts by `valid_from`, since the database has no `at` column on facts.\n\nOf the ten probe facts, f040559, f002255, f004376, f03888",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B0g": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 22509.1,
+     "cost_usd": 0.2422,
+     "cost_per_question_usd": 0.0303,
+     "tool_calls_per_question": 1.62,
+     "latency_s_median": 30.1,
+     "components_correct": {
+      "probes": 8,
+      "agents": 8,
+      "decisions": 8,
+      "earliest5": 8,
+      "handoffs": 8,
+      "facts": 8
+     },
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17000,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 929,
+        "cache_read_input_tokens": 7669,
+        "cache_creation_input_tokens": 8398
+       },
+       "cost_usd": 0.043657,
+       "latency_ms": 30792.4,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "I computed this with a script over the data files. It follows `derived_from` links from s0001 until no new facts turn up, then checks which agents, decisions and handoffs touch those facts.\n\n- 10 facts are affected.\n- 18 agents read at least one affected fact. I counted one agent per file in `logs/`.\n- 2 decisions are based on an affected fact.\n- 2 handoffs carry an affected fact.\n- Of the probe facts, f043558, f023895, f050274, f005300 and f006332 are affected. The other five are not.\n- The fiv",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A04",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 25899,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1108,
+        "cache_read_input_tokens": 20519,
+        "cache_creation_input_tokens": 4266
+       },
+       "cost_usd": 0.030208,
+       "latency_ms": 30427.1,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "In total, 5000 facts are affected by the poisoned source s0007. I counted a fact as affected if it derives from s0007 directly or through other facts at any depth. I included facts marked superseded or forgotten, since the question doesn't exclude them.\n\n- **Agents:** 65 distinct agents read at least one affected fact.\n- **Decisions:** 81 are based on an affected fact.\n- **Handoffs:** 49 carry an affected fact.\n- **Probes:** f047976, f037168, f013754, f018071 and f002695 are affected. f004619, f",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A06",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16938,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 899,
+        "cache_read_input_tokens": 12106,
+        "cache_creation_input_tokens": 3929
+       },
+       "cost_usd": 0.025925,
+       "latency_ms": 27964.9,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "I traced the poisoning from s0011 through the facts' `derived_from` links until no new facts turned up. Then I checked which agent logs, decisions and handoffs touch those facts.\n\n- **Facts:** 100 are affected.\n- **Agents:** 16 distinct agents read at least one affected fact.\n- **Decisions:** 2 are based on an affected fact.\n- **Handoffs:** 3 carry an affected fact.\n- **Probes:** f025760, f021796, f012407, f010365 and f014619 are affected. The other five are not.\n- **Earliest five:** f032441, f0",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A07",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 25484,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 855,
+        "cache_read_input_tokens": 20447,
+        "cache_creation_input_tokens": 4176
+       },
+       "cost_usd": 0.027311,
+       "latency_ms": 29933.2,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0013 affects 1000 facts, read by 70 agents, with 10 affected decisions and 10 affected handoffs. I traced it by following `derived_from` links from s0013 until no new facts were added. Agents, decisions and handoffs were then matched against that fact set.\n\n{\"facts\": 1000, \"agents\": 70, \"decisions\": 10, \"handoffs\": 10, \"probes\": [true, false, false, false, false, true, true, false, true, true], \"earliest5\": [\"f020574\", \"f009422\", \"f023187\", \"f014125\", \"f040407\"]}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A10",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 25842,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1039,
+        "cache_read_input_tokens": 20524,
+        "cache_creation_input_tokens": 4273
+       },
+       "cost_usd": 0.029546,
+       "latency_ms": 31315.0,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Starting from s0019, 100 facts are affected, counting facts that derive from it directly or through other affected facts.\n\n- **Agents:** 57 distinct agents read at least one affected fact.\n- **Decisions:** 4 are based on an affected fact.\n- **Handoffs:** 3 carry an affected fact.\n- **Probes:** f017581, f046578, f028841, f004585 and f048923 are affected. The other five (f027199, f013722, f009494, f024195, f007582) are not.\n- **Earliest five:** f049469, f007868, f007497, f029912, f011381, oldest f",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A11",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 35096,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 1248,
+        "cache_read_input_tokens": 29227,
+        "cache_creation_input_tokens": 4613
+       },
+       "cost_usd": 0.033871,
+       "latency_ms": 30214.8,
+       "num_turns": 4,
+       "tool_calls": 3,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Starting from s0021, I followed `derived_from` links through facts at any depth. That gave 1000 affected facts. I then counted the agents, decisions and handoffs that touch those facts.\n\n- **Agents:** 39 distinct agents read at least one affected fact, judged from the per-agent log files.\n- **Decisions:** 16 are based on an affected fact.\n- **Handoffs:** 14 carry an affected fact.\n- **Probes:** f042036, f050526, f013155, f027292 and f048406 are affected. f049603, f002059, f026438, f045352 and f0",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16864,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 876,
+        "cache_read_input_tokens": 12112,
+        "cache_creation_input_tokens": 3872
+       },
+       "cost_usd": 0.025467,
+       "latency_ms": 22694.9,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "I computed the affected set by following `derived_from` links outward from s0025 until no new facts turned up. This gave 10 affected facts. I then checked the logs, decisions and handoffs against that set.\n\n- **Facts:** 10 are affected.\n- **Agents:** 10 distinct agents read at least one affected fact.\n- **Decisions:** 3 are based on an affected fact.\n- **Handoffs:** 2 carry an affected fact.\n- **Probes:** f018813, f033764, f013817, f036025 and f013345 are affected. The other five probes (f032357",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A16",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16950,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 941,
+        "cache_read_input_tokens": 12112,
+        "cache_creation_input_tokens": 3893
+       },
+       "cost_usd": 0.026201,
+       "latency_ms": 24169.9,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "I treated a fact as affected if `s0031` appears in its `derived_from`, or if any of its parents is an affected fact. I repeated that pass until no new facts turned up. I did not inspect the data beyond running the script.\n\n- **Facts:** 5000 are affected.\n- **Agents:** 31 distinct agents read at least one affected fact. I counted one agent per file in `logs/`.\n- **Decisions:** 69 are based on an affected fact.\n- **Handoffs:** 50 carry an affected fact.\n- **Probes:** f002255, f040559, f004376, f03",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "P": {
+     "n": 8,
+     "strict_correct": 2,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 1,
+     "tokens_per_question": 324317.2,
+     "cost_usd": 3.3108,
+     "cost_per_question_usd": 0.4139,
+     "tool_calls_per_question": 18.38,
+     "latency_s_median": 79.0,
+     "components_correct": {
+      "probes": 5,
+      "agents": 6,
+      "decisions": 5,
+      "earliest5": 2,
+      "handoffs": 5,
+      "facts": 5
+     },
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 97467,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1560,
+        "cache_read_input_tokens": 81421,
+        "cache_creation_input_tokens": 14480
+       },
+       "cost_usd": 0.081674,
+       "latency_ms": 39016.5,
+       "num_turns": 12,
+       "tool_calls": 11,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0001 affects 10 facts, 18 agents, 2 decisions and 2 handoffs. I took those totals from `impact` on s0001 at depth 12, and the result was not truncated.\n\n- **Probes:** f043558, f023895, f050274, f005300 and f006332 are in the affected set. The other five probe ids (f004486, f028102, f010224, f048401, f045815) are not.\n- **Earliest5:** I ordered the affected facts by `valid_from`, because `why` shows that and not an `at` field. I took `valid_from` to be the same as `at`. The five earliest ",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A04",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": false,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 273676,
+       "usage": {
+        "input_tokens": 18,
+        "output_tokens": 2126,
+        "cache_read_input_tokens": 264134,
+        "cache_creation_input_tokens": 7398
+       },
+       "cost_usd": 0.077301,
+       "latency_ms": 67261.4,
+       "num_turns": 11,
+       "tool_calls": 10,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 5000,
+        "agents": 65,
+        "decisions": 81,
+        "handoffs": 49,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f014091",
+         "f005047",
+         "f012510",
+         "f039444",
+         "f009582"
+        ]
+       },
+       "got": "{\"facts\": 5, \"agents\": 9, \"decisions\": 0, \"handoffs\": 0, \"probes\": [true, false, false, false, false, false, false, false, false, false], \"earliest5\": [\"f038324\", \"f047976\", \"f002437\", \"f042984\", \"f049159\"]}",
+       "reply": "I can't give you the full answer. The `impact` call on s0007 failed with a database error every time I tried it, and I have no other read tool that lists everything derived from a source. I tried depths 1, 2, 3, 8 and 12 and item caps from 1 to 200. The same call works for other sources such as s0008, so the failure looks specific to s0007.\n\nThe only affected facts I confirmed are these, from `why` and `impact` on individual facts:\n- **f038324** derives directly from s0007, so it is affected.\n- ",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A06",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 732793,
+       "usage": {
+        "input_tokens": 16,
+        "output_tokens": 7638,
+        "cache_read_input_tokens": 568804,
+        "cache_creation_input_tokens": 156335
+       },
+       "cost_usd": 0.758632,
+       "latency_ms": 131679.9,
+       "num_turns": 49,
+       "tool_calls": 48,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 100,
+        "agents": 16,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f032441",
+         "f016923",
+         "f048671",
+         "f020806",
+         "f007475"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 16, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, true, true, false, false, true, true, false, true], \"earliest5\": [\"f032441\", \"f016923\", \"f020806\", \"f007475\", \"f033878\"]}",
+       "reply": "I could confirm everything except `earliest5`. About six of the 100 affected facts (f045940, f047325, f048671, f049298, f049672, f050231) were never checked for their timestamp. I ran out of query budget before reaching them. If any of those predates f033878, the fifth entry would change.\n\n- **Totals:** `impact` on s0011, which follows derivations to any depth, returned 100 affected facts, 16 agents, 2 decisions (d00810, d00811) and 3 handoffs (h00387, h00553, h00554).\n- **Probes:** f025760, f02",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A07",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 145042,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 2234,
+        "cache_read_input_tokens": 115521,
+        "cache_creation_input_tokens": 27279
+       },
+       "cost_usd": 0.143024,
+       "latency_ms": 31817.0,
+       "num_turns": 13,
+       "tool_calls": 12,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 1000,
+        "agents": 70,
+        "decisions": 10,
+        "handoffs": 10,
+        "probes": [
+         true,
+         false,
+         false,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f020574",
+         "f009422",
+         "f023187",
+         "f014125",
+         "f040407"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 70, \"decisions\": 10, \"handoffs\": 10, \"probes\": [true, false, false, false, false, true, true, false, true, true], \"earliest5\": [\"f040904\", \"f031629\", \"f010879\", \"f000032\", \"f033867\"]}",
+       "reply": "I could answer most of this from the recorded data, but I couldn't get `earliest5`. The `impact` tool lists at most 200 of the 1000 affected fact ids, and `why` shows each fact's `valid_from` one fact at a time. I couldn't see the creation time (`at`) of all 1000 facts, so the five ids in `earliest5` are a placeholder guess.\n\n- **Counts:** `impact` on s0013 (depth 12) reports 1000 affected facts, 70 distinct reading agents, 10 decisions (d00055, d00336, d00354, d00448, d00456, d00527, d00535, d0",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A10",
+       "strict": false,
+       "components": {},
+       "error": "budget (per-call cap)",
+       "parse_error": "",
+       "tokens": 412296,
+       "usage": {
+        "input_tokens": 10,
+        "output_tokens": 4371,
+        "cache_read_input_tokens": 260047,
+        "cache_creation_input_tokens": 147868
+       },
+       "cost_usd": 1.108181,
+       "latency_ms": 135981.1,
+       "num_turns": 30,
+       "tool_calls": 29,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "no_reply",
+       "expected": {
+        "facts": 100,
+        "agents": 57,
+        "decisions": 4,
+        "handoffs": 3,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f049469",
+         "f007868",
+         "f007497",
+         "f029912",
+         "f011381"
+        ]
+       },
+       "got": "null",
+       "reply": "",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A11",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 315971,
+       "usage": {
+        "input_tokens": 10,
+        "output_tokens": 3288,
+        "cache_read_input_tokens": 202597,
+        "cache_creation_input_tokens": 110076
+       },
+       "cost_usd": 0.493464,
+       "latency_ms": 90756.9,
+       "num_turns": 13,
+       "tool_calls": 12,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 1000,
+        "agents": 39,
+        "decisions": 16,
+        "handoffs": 14,
+        "probes": [
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f025559",
+         "f036944",
+         "f026242",
+         "f025475",
+         "f051273"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, true, false, true, true, true, false, false, true], \"earliest5\": [\"f034207\", \"f033332\", \"f036649\", \"f023254\", \"f033222\"]}",
+       "reply": "I could confirm the four counts and the ten probes. The `earliest5` list is a best guess, not a verified answer.\n\n- **Counts:** `impact` on s0021 gave totals of 1000 facts, 39 distinct reading agents, 16 decisions and 14 handoffs. The totals are exact. It listed only 200 of the 1000 fact ids, so I could not read the full set.\n- **Probes:** For each probe fact, `why` showed its full ancestry. A fact is affected if any ancestor links to s0021.\n  - **Affected:** f042036 (links directly to s0021), f",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 106908,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1646,
+        "cache_read_input_tokens": 81362,
+        "cache_creation_input_tokens": 23894
+       },
+       "cost_usd": 0.120184,
+       "latency_ms": 24672.5,
+       "num_turns": 12,
+       "tool_calls": 11,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0025 affects 10 facts, 10 agents, 3 decisions and 2 handoffs. I got these from one `impact` call on s0025 at depth 12, which wasn't truncated, plus a `why` call on each affected fact.\n\n- **Facts (10):** f013345, f013817, f015530, f018813, f020172, f033764, f036025, f036725, f041882, f050721.\n- **Agents (10):** a007, a018, a028, a033, a043, a046, a049, a069, a070, a080.\n- **Decisions (3):** d00299, d00780, d00781.\n- **Handoffs (2):** h00523, h00524.\n- **Probes:** f018813, f033764, f013817",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A16",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": true,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 510385,
+       "usage": {
+        "input_tokens": 16,
+        "output_tokens": 3838,
+        "cache_read_input_tokens": 393894,
+        "cache_creation_input_tokens": 112637
+       },
+       "cost_usd": 0.528349,
+       "latency_ms": 105237.9,
+       "num_turns": 15,
+       "tool_calls": 14,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 5000,
+        "agents": 31,
+        "decisions": 69,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f001863",
+         "f033081",
+         "f043169",
+         "f012160",
+         "f027639"
+        ]
+       },
+       "got": "{\"facts\": 3328, \"agents\": 31, \"decisions\": 59, \"handoffs\": 39, \"probes\": [false, false, true, true, false, true, true, true, true, false], \"earliest5\": [\"f000004\", \"f000010\", \"f000013\", \"f000040\", \"f000110\"]}",
+       "reply": "Status: the `impact` call and most of the `why` probes are done. Two things I couldn't establish are flagged below.\n\n**What the data supports**\n- **Totals:** `impact` on s0031 reports 3,328 affected facts, 31 distinct reading agents, 59 decisions and 39 handoffs. The result was not truncated.\n- **Probes confirmed affected:** f002255 is in the affected id list. f004376 and f038888 both link directly to s0031. f032325 reaches s0031 through f044374 and f024193, which sit in f004376's s0031 chain.\n-",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    }
+   }
+  },
+  "B": {
+   "pilot_ids": [
+    "B01",
+    "B05",
+    "B09",
+    "B10",
+    "B13",
+    "B14",
+    "B17",
+    "B21"
+   ],
+   "n_questions": 8,
+   "arms": {
+    "B0r": {
+     "n": 8,
+     "strict_correct": 1,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 17809.9,
+     "cost_usd": 0.5782,
+     "cost_per_question_usd": 0.0723,
+     "tool_calls_per_question": 0.0,
+     "latency_s_median": 9.4,
+     "components_correct": {
+      "chain": 1,
+      "agent": 8
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17571,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 434,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16591
+       },
+       "cost_usd": 0.070762,
+       "latency_ms": 11026.1,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31665,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The excerpt doesn't include f000008, so I could not trace the chain link by link. This answer is a best guess.\n\n- d00001 is based on f000008.\n- The only fact shown that derives directly from s00001 is f000004, asserted by a15. Its `derived_from` is `[\"s00001\", \"f000001\", \"f000002\", \"f000003\"]`.\n- I assumed f000008 links straight to f000004. Any intermediate facts between them are not visible, so the chain may be longer than shown.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B05",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17987,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 612,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16829
+       },
+       "cost_usd": 0.073494,
+       "latency_ms": 11257.4,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31627,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000076",
+         "f000072",
+         "f000068"
+        ],
+        "agent": "a25"
+       },
+       "got": "{\"chain\": [\"f000076\", \"f000068\"], \"agent\": \"a25\"}",
+       "reply": "The excerpt doesn't contain f000076, the fact d00009 is based on, so I could not verify the link from f000076 to f000068. The answer below is my best inference from what is shown.\n\n- d00009 is based on the single fact f000076.\n- The only fact in the excerpt derived directly from s00057 is f000068 (\"routing ships next quarter\"), asserted by a25. Its derived_from list is s00057, f000065, f000066 and f000067.\n- I assumed f000076 derives from f000068 with no intermediate facts, which gives a two-fac",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B09",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17936,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 561,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16829
+       },
+       "cost_usd": 0.072984,
+       "latency_ms": 9023.3,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31685,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000176",
+         "f000172",
+         "f000168",
+         "f000164"
+        ],
+        "agent": "a30"
+       },
+       "got": "{\"chain\": [\"f000176\", \"f000164\"], \"agent\": \"a30\"}",
+       "reply": "The excerpt only partly supports this, so the chain below is my best guess.\n\n- Decision d00017 is based on exactly one fact, f000176.\n- The only fact shown as derived directly from s00137 is f000164 (\"import was benchmarked (note 2883)\"), asserted by agent a30.\n- The excerpt does not include f000176's own record, so I can't see whether any facts sit between f000176 and f000164. I assumed f000176 derives from f000164 directly. If f000176 actually goes through intermediate facts, the chain would b",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B10",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17852,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 522,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16784
+       },
+       "cost_usd": 0.072414,
+       "latency_ms": 9748.1,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31629,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000208",
+         "f000204",
+         "f000200",
+         "f000196"
+        ],
+        "agent": "a06"
+       },
+       "got": "{\"chain\": [\"f000208\", \"f000196\"], \"agent\": \"a06\"}",
+       "reply": "The excerpt doesn't include f000208 or any facts between it and the source, so this answer is partly a guess.\n\n- Decision d00019 is based on f000208.\n- The only fact shown that derives directly from s00163 is f000196 (\"queue is deprecated\"), asserted by a06.\n- I assumed f000208 derives straight from f000196. Any intermediate facts between them are not visible, so the chain may be longer than two.\n\n{\"chain\": [\"f000208\", \"f000196\"], \"agent\": \"a06\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17801,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 535,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16720
+       },
+       "cost_usd": 0.072288,
+       "latency_ms": 7993.7,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31652,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000312",
+         "f000308",
+         "f000304",
+         "f000300",
+         "f000296",
+         "f000292"
+        ],
+        "agent": "a10"
+       },
+       "got": "{\"chain\": [\"f000312\", \"f000292\"], \"agent\": \"a10\"}",
+       "reply": "The excerpt does not show f000312's `derived_from`, so I can't confirm the full chain. This is a best guess.\n\n- d00025 is based on exactly one fact, f000312.\n- The only fact in the excerpt that derives directly from s00241 is f000292, asserted by a10. Its sources are s00241, f000289, f000290 and f000291.\n- I assumed f000312 links to f000292 with no intermediate facts. The excerpt doesn't show whether any exist, so the chain may be longer.\n\n{\"chain\": [\"f000312\", \"f000292\"], \"agent\": \"a10\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B14",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17772,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 516,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16710
+       },
+       "cost_usd": 0.072058,
+       "latency_ms": 8996.9,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31640,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000360",
+         "f000356",
+         "f000352",
+         "f000348",
+         "f000344",
+         "f000340"
+        ],
+        "agent": "a05"
+       },
+       "got": "{\"chain\": [\"f000360\", \"f000340\"], \"agent\": \"a05\"}",
+       "reply": "The excerpt doesn't contain f000360, the fact d00027 is based on, so I couldn't follow its derived-from links directly. The chain below is a best guess, not something the data confirms.\n\nThe only fact shown that derives directly from s00279 is f000340 (\"cache was benchmarked\", agent a05). Its derived_from list is s00279, f000337, f000338 and f000339. I assumed f000360 derives from f000340 with no intermediate facts. That is the weakest step, since any facts between them would be missing from thi",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B17",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17836,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 559,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16731
+       },
+       "cost_usd": 0.072572,
+       "latency_ms": 8985.9,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31662,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000512",
+         "f000508",
+         "f000504",
+         "f000500",
+         "f000496",
+         "f000492",
+         "f000488",
+         "f000484"
+        ],
+        "agent": "a24"
+       },
+       "got": "{\"chain\": [\"f000512\", \"f000484\"], \"agent\": \"a24\"}",
+       "reply": "The excerpt doesn't include the record for f000512, which is the one fact d00033 is based on. I couldn't see its `derived_from` links, so the intermediate part of the chain is a guess.\n\n- d00033 is based on f000512.\n- The only fact shown that derives directly from s00393 is f000484 (agent a24, \"admin is rate limited (note 1202)\").\n- f000484 was recorded shortly before f000512, so I assumed f000512 derives from it directly.\n\nIf f000512 reaches f000484 through other facts, the chain would have mor",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B21",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17724,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 483,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16695
+       },
+       "cost_usd": 0.071668,
+       "latency_ms": 9727.6,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31645,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000784",
+         "f000780",
+         "f000776",
+         "f000772",
+         "f000768",
+         "f000764",
+         "f000760",
+         "f000756",
+         "f000752",
+         "f000748",
+         "f000744",
+         "f000740"
+        ],
+        "agent": "a06"
+       },
+       "got": "{\"chain\": [\"f000784\", \"f000740\"], \"agent\": \"a06\"}",
+       "reply": "The excerpt doesn't include f000784, the fact d00041 is based on, so I could not trace the full chain. This answer is a best guess.\n\n- d00041 is based on exactly one fact, f000784.\n- The only fact in the excerpt derived directly from s00593 is f000740, asserted by a06. Its text is \"flags is owned by platform\".\n- I assumed f000784 derives directly from f000740. If it goes through other facts first, the chain would have more entries than shown here. The agent would still be a06, since f000740 is t",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B1a": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 12041.1,
+     "cost_usd": 0.1783,
+     "cost_per_question_usd": 0.0223,
+     "tool_calls_per_question": 1.5,
+     "latency_s_median": 14.3,
+     "components_correct": {
+      "chain": 8,
+      "agent": 8
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9460,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 465,
+        "cache_read_input_tokens": 4121,
+        "cache_creation_input_tokens": 4870
+       },
+       "cost_usd": 0.02455,
+       "latency_ms": 19691.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain is f000008 \u2192 f000004. Fact f000004 is derived directly from s00001, and agent a15 asserted it.\n\nI followed the derived-from links starting from the one fact that decision d00001 is based on, f000008. f000008 derives from f000004, f000005, f000006 and f000007. Of those, only f000004 links straight to s00001. The other branches reach different sources: f000005 to s00005, f000006 to s00006, f000007 to s00007.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 14182,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 440,
+        "cache_read_input_tokens": 9852,
+        "cache_creation_input_tokens": 3884
+       },
+       "cost_usd": 0.020933,
+       "latency_ms": 15975.8,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Decision d00009 is based on fact f000076. Following derived-from links, f000076 derives from f000072, and f000072 derives from f000068. Fact f000068 is derived directly from s00057, and agent a25 asserted it.\n\n{\"chain\": [\"f000076\", \"f000072\", \"f000068\"], \"agent\": \"a25\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 13766,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 453,
+        "cache_read_input_tokens": 9547,
+        "cache_creation_input_tokens": 3760
+       },
+       "cost_usd": 0.020537,
+       "latency_ms": 12696.7,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's only fact is f000176. Following derived-from links from it, the only path that reaches s00137 is f000176 \u2192 f000172 \u2192 f000168 \u2192 f000164. The last fact, f000164, derives directly from s00137, and agent a30 asserted it.\n\n{\"chain\": [\"f000176\",\"f000172\",\"f000168\",\"f000164\"], \"agent\": \"a30\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19179,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 487,
+        "cache_read_input_tokens": 14531,
+        "cache_creation_input_tokens": 4153
+       },
+       "cost_usd": 0.022951,
+       "latency_ms": 17465.0,
+       "num_turns": 4,
+       "tool_calls": 3,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision rests on one fact, f000208. Following derived-from links, f000208 reaches s00163 through f000204, then f000200, then f000196. f000196 is the fact derived directly from s00163. Agent a06 asserted it.\n\n{\"chain\": [\"f000208\",\"f000204\",\"f000200\",\"f000196\"], \"agent\": \"a06\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9586,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 455,
+        "cache_read_input_tokens": 5115,
+        "cache_creation_input_tokens": 4012
+       },
+       "cost_usd": 0.021118,
+       "latency_ms": 16859.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs through the facts that lead to s00241: f000312 \u2192 f000308 \u2192 f000304 \u2192 f000300 \u2192 f000296 \u2192 f000292. Fact f000292 is derived directly from s00241, and agent a10 asserted it.\n\nI checked the decision's fact links with a recursive query. Decision d00025 rests on one fact, f000312. At each step I followed the one derived-from link that continues toward s00241. The other links at each step end at different sources, so they don't lead there.\n\n{\"chain\": [\"f000312\",\"f000308\",\"f000304\",\"f0003",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9606,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 421,
+        "cache_read_input_tokens": 5141,
+        "cache_creation_input_tokens": 4040
+       },
+       "cost_usd": 0.020892,
+       "latency_ms": 11143.8,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs f000360 \u2192 f000356 \u2192 f000352 \u2192 f000348 \u2192 f000344 \u2192 f000340. Fact f000340 is derived directly from s00279. Agent a05 asserted f000340.\n\nI followed the derived-from links from d00027's single fact. At each level, exactly one of the parent facts led onward. The other parents were derived from other sources.\n\n{\"chain\": [\"f000360\",\"f000356\",\"f000352\",\"f000348\",\"f000344\",\"f000340\"], \"agent\": \"a05\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9146,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 408,
+        "cache_read_input_tokens": 5147,
+        "cache_creation_input_tokens": 3587
+       },
+       "cost_usd": 0.018951,
+       "latency_ms": 12543.8,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain starts at f000512, the one fact decision d00033 is based on. It runs through five more derived-from links to f000484, which derives directly from s00393. Agent a24 asserted f000484, and it is the only agent recorded for that fact.\n\n{\"chain\": [\"f000512\",\"f000508\",\"f000504\",\"f000500\",\"f000496\",\"f000492\",\"f000488\",\"f000484\"], \"agent\": \"a24\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 11404,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 471,
+        "cache_read_input_tokens": 5146,
+        "cache_creation_input_tokens": 5783
+       },
+       "cost_usd": 0.028365,
+       "latency_ms": 11954.0,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's fact is f000784, and the chain follows derived-from links down to f000740. That fact derives directly from s00593 and was asserted by a06.\n\nThe query started from d00041's single fact in `decision_facts` and followed `derived_from` links recursively. At each step exactly one fact derives from another fact. The other parents are sources other than s00593.\n\n{\"chain\": [\"f000784\",\"f000780\",\"f000776\",\"f000772\",\"f000768\",\"f000764\",\"f000760\",\"f000756\",\"f000752\",\"f000748\",\"f000744\",\"f0007",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B0g": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 27660.8,
+     "cost_usd": 0.2202,
+     "cost_per_question_usd": 0.0275,
+     "tool_calls_per_question": 2.75,
+     "latency_s_median": 23.1,
+     "components_correct": {
+      "chain": 8,
+      "agent": 8
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 27096,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 733,
+        "cache_read_input_tokens": 21858,
+        "cache_creation_input_tokens": 4497
+       },
+       "cost_usd": 0.02752,
+       "latency_ms": 16389.2,
+       "num_turns": 5,
+       "tool_calls": 4,
+       "tools": [
+        "Grep"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision is based on only one fact, f000008. That fact is derived from f000004, f000005, f000006 and f000007. Of those four, only f000004 is derived directly from s00001, and agent a15 asserted it.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 24789,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 782,
+        "cache_read_input_tokens": 20005,
+        "cache_creation_input_tokens": 3996
+       },
+       "cost_usd": 0.025816,
+       "latency_ms": 22775.4,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain is f000076 \u2192 f000072 \u2192 f000068. Decision d00009 is based on the single fact f000076. I followed the derived-from links and checked the source in `facts.jsonl`:\n\n- f000076 (asserted by a28) is derived from f000072, f000073, f000074 and f000075.\n- f000072 (asserted by a02) is derived from f000068, f000069, f000070 and f000071.\n- f000068 (asserted by a25) is derived from s00057, f000065, f000066 and f000067.\n\nI took the first parent at each step. f000068 is the only fact in the file that ",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 33903,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 975,
+        "cache_read_input_tokens": 28493,
+        "cache_creation_input_tokens": 4427
+       },
+       "cost_usd": 0.030323,
+       "latency_ms": 25442.0,
+       "num_turns": 4,
+       "tool_calls": 3,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Decision d00017 is based on one fact, f000176. Following derived-from links, the only route from f000176 to s00137 is f000176 \u2192 f000172 \u2192 f000168 \u2192 f000164 \u2192 s00137. I searched every parent at each step and found no other route. f000164 is the fact derived directly from s00137, and agent a30 asserted it.\n\n{\"chain\": [\"f000176\", \"f000172\", \"f000168\", \"f000164\"], \"agent\": \"a30\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 32655,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 691,
+        "cache_read_input_tokens": 27913,
+        "cache_creation_input_tokens": 4043
+       },
+       "cost_usd": 0.025889,
+       "latency_ms": 28207.3,
+       "num_turns": 4,
+       "tool_calls": 3,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Decision d00019 is based on exactly one fact, f000208. Following the derived-from links, the only path from f000208 to s00163 is f000208 \u2192 f000204 \u2192 f000200 \u2192 f000196. Fact f000196 is derived directly from s00163, and agent a06 asserted it.\n\n{\"chain\": [\"f000208\", \"f000204\", \"f000200\", \"f000196\"], \"agent\": \"a06\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 45507,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 1273,
+        "cache_read_input_tokens": 38016,
+        "cache_creation_input_tokens": 6206
+       },
+       "cost_usd": 0.04138,
+       "latency_ms": 21617.4,
+       "num_turns": 7,
+       "tool_calls": 6,
+       "tools": [
+        "Grep"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs from the decision's fact, f000312, down to f000292, the fact derived directly from s00241. I traced it by following each fact's `derived_from` list.\n\nd00025 is based on only f000312. Each link below is a `derived_from` entry of the fact before it:\n\n- f000312 derives from f000308.\n- f000308 derives from f000304.\n- f000304 derives from f000300.\n- f000300 derives from f000296.\n- f000296 derives from f000292.\n- f000292 derives from s00241 directly.\n\nThe other parents of each of these ",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16201,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 520,
+        "cache_read_input_tokens": 11970,
+        "cache_creation_input_tokens": 3707
+       },
+       "cost_usd": 0.021233,
+       "latency_ms": 23378.3,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's one fact is f000360, and the chain from there reaches s00279 at f000340, which a05 asserted.\n\nMost facts in the chain list four parents. I followed the first parent at each step, and that path reaches s00279. I did not check whether any other parent also reaches it.\n\n{\"chain\": [\"f000360\",\"f000356\",\"f000352\",\"f000348\",\"f000344\",\"f000340\"], \"agent\": \"a05\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 24579,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 706,
+        "cache_read_input_tokens": 19958,
+        "cache_creation_input_tokens": 3909
+       },
+       "cost_usd": 0.024704,
+       "latency_ms": 26977.6,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's single supporting fact is f000512. Tracing derived-from links from it reaches s00393 along exactly one chain. The last fact in the chain, f000484, was derived directly from s00393 and was asserted by agent a24. All facts on the chain are active.\n\n{\"chain\": [\"f000512\", \"f000508\", \"f000504\", \"f000500\", \"f000496\", \"f000492\", \"f000488\", \"f000484\"], \"agent\": \"a24\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16556,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 623,
+        "cache_read_input_tokens": 11966,
+        "cache_creation_input_tokens": 3963
+       },
+       "cost_usd": 0.023287,
+       "latency_ms": 21233.1,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's single fact is f000784. I followed derived-from links from it down to s00593. At each step I took the first parent, and that path reached s00593. I did not check whether the other parents at each step also lead to s00593, so I'm assuming this chain is the intended one. The last fact, f000740, lists s00593 as a direct parent and was asserted by a06.\n\n{\"chain\": [\"f000784\",\"f000780\",\"f000776\",\"f000772\",\"f000768\",\"f000764\",\"f000760\",\"f000756\",\"f000752\",\"f000748\",\"f000744\",\"f000740\"], ",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "P": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 83349.5,
+     "cost_usd": 0.6866,
+     "cost_per_question_usd": 0.0858,
+     "tool_calls_per_question": 1.88,
+     "latency_s_median": 16.0,
+     "components_correct": {
+      "chain": 8,
+      "agent": 8
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 60541,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 223,
+        "cache_read_input_tokens": 27814,
+        "cache_creation_input_tokens": 32500
+       },
+       "cost_usd": 0.135019,
+       "latency_ms": 25150.6,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00001 is based on one fact, f000008. That fact is derived from f000004, and f000004 is derived directly from s00001. The chain is f000008 \u2192 f000004.\n\nf000004 was asserted by a15.\n\nThe other facts that f000008 and f000004 derive from lead to other sources, not s00001. So they aren't part of this chain.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 62829,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 224,
+        "cache_read_input_tokens": 52775,
+        "cache_creation_input_tokens": 9826
+       },
+       "cost_usd": 0.04683,
+       "latency_ms": 15475.1,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00009 is based on one fact, f000076. Following derived-from links, f000076 derives from f000072. f000072 derives from f000068. f000068 derives directly from s00057, and a25 asserted it.\n\nThe chain from the decision's fact down to the fact derived directly from s00057 is f000076, f000072, f000068.\n\n{\"chain\": [\"f000076\", \"f000072\", \"f000068\"], \"agent\": \"a25\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 64656,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 213,
+        "cache_read_input_tokens": 52775,
+        "cache_creation_input_tokens": 11664
+       },
+       "cost_usd": 0.054072,
+       "latency_ms": 11664.3,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision rests on one fact, f000176. Following derived-from links, f000176 leads to f000172, then f000168, then f000164. f000164 derives directly from s00137, and agent a30 asserted it.\n\nThe chain is f000176 \u2192 f000172 \u2192 f000168 \u2192 f000164.\n\n{\"chain\": [\"f000176\", \"f000172\", \"f000168\", \"f000164\"], \"agent\": \"a30\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 64775,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 243,
+        "cache_read_input_tokens": 52776,
+        "cache_creation_input_tokens": 11752
+       },
+       "cost_usd": 0.054724,
+       "latency_ms": 12101.8,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00019 is based on one fact, f000208. Following the derived-from links, that fact reaches s00163 through three more facts:\n\n- f000208 is derived from f000204 (among others).\n- f000204 is derived from f000200.\n- f000200 is derived from f000196.\n- f000196 is derived directly from s00163.\n\nThe asserting agent of f000196 is a06.\n\n{\"chain\": [\"f000208\", \"f000204\", \"f000200\", \"f000196\"], \"agent\": \"a06\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 66698,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 393,
+        "cache_read_input_tokens": 52773,
+        "cache_creation_input_tokens": 13528
+       },
+       "cost_usd": 0.063327,
+       "latency_ms": 16200.7,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's single fact reaches s00241 through five derived-from links. I read them from the `why` result for d00025:\n\n- d00025 is based on f000312.\n- f000312 derives from f000308.\n- f000308 derives from f000304.\n- f000304 derives from f000300.\n- f000300 derives from f000296.\n- f000296 derives from f000292.\n- f000292 derives directly from s00241, and a10 asserted f000292.\n\n{\"chain\": [\"f000312\", \"f000308\", \"f000304\", \"f000300\", \"f000296\", \"f000292\"], \"agent\": \"a10\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 66703,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 316,
+        "cache_read_input_tokens": 52776,
+        "cache_creation_input_tokens": 13607
+       },
+       "cost_usd": 0.062874,
+       "latency_ms": 15774.1,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision rests on f000360. Following the derived-from links, s00279 is reached only through f000340, which derives from it directly. The chain is:\n\nf000360 \u2192 f000356 \u2192 f000352 \u2192 f000348 \u2192 f000344 \u2192 f000340 \u2192 s00279\n\nEach link is a recorded derived-from edge:\n- f000360 derives from f000356.\n- f000356 derives from f000352.\n- f000352 derives from f000348.\n- f000348 derives from f000344.\n- f000344 derives from f000340.\n- f000340 derives from s00279.\n\nf000340 was asserted by a05.\n\n{\"chain\": [\"f00",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 112398,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 956,
+        "cache_read_input_tokens": 91355,
+        "cache_creation_input_tokens": 20081
+       },
+       "cost_usd": 0.099031,
+       "latency_ms": 17781.4,
+       "num_turns": 6,
+       "tool_calls": 5,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs from the decision's fact f000512 down to f000484, which is derived directly from s00393. Agent a24 asserted f000484.\n\nThe links, each checked against the DERIVED_FROM edges:\n- Decision d00033 is based on one fact, f000512.\n- f000512 is derived from f000508.\n- f000508 is derived from f000504.\n- f000504 is derived from f000500.\n- f000500 is derived from f000496.\n- f000496 is derived from f000492.\n- f000492 is derived from f000488.\n- f000488 is derived from f000484.\n- f000484 is deri",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 168196,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 1209,
+        "cache_read_input_tokens": 130579,
+        "cache_creation_input_tokens": 36400
+       },
+       "cost_usd": 0.170764,
+       "latency_ms": 24936.4,
+       "num_turns": 5,
+       "tool_calls": 4,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs through twelve facts and ends at f000740, which was asserted by a06.\n\nd00041 is based on one fact, f000784. Each fact in the chain is derived from the next, following the DERIVED_FROM edges returned by `why` on d00041, f000760 and f000764. The impact report for s00593 confirms the result. It lists f000740 among the facts derived from s00593, and the edges show f000740 is the only fact in this chain derived directly from it.\n\nThe chain, in order:\n- f000784 is derived from f000780.\n",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    }
+   }
+  },
+  "D": {
+   "pilot_ids": [
+    "D01",
+    "D05",
+    "D09",
+    "D13",
+    "D17",
+    "D21",
+    "D02",
+    "D10"
+   ],
+   "n_questions": 8,
+   "arms": {
+    "B0r": {
+     "n": 8,
+     "strict_correct": 1,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 19644.1,
+     "cost_usd": 0.6636,
+     "cost_per_question_usd": 0.0829,
+     "tool_calls_per_question": 0.0,
+     "latency_s_median": 11.0,
+     "components_correct": {
+      "count": 0,
+      "agent": 1,
+      "set": 0,
+      "ordered": 1
+     },
+     "questions": [
+      {
+       "id": "D01",
+       "strict": false,
+       "components": {
+        "count": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19538,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 432,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 18560
+       },
+       "cost_usd": 0.078618,
+       "latency_ms": 8554.2,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31691,
+       "reply_format": "prose_then_json",
+       "expected": 477,
+       "got": "300",
+       "reply": "I can't work this out from the excerpt. It contains only decisions.jsonl lines, with no facts.jsonl entries, so I can't see which facts have a superseded status. The excerpt also covers only part of the decisions (the visible ones run from S001 to S096, out of S001 to S200), so even a count of the visible decisions wouldn't give the total.\n\nThe number below is a rough estimate, not a count from the data. I assumed roughly 1,500 decisions across all sprints, and that about one in five is based on",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D02",
+       "strict": false,
+       "components": {
+        "count": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 20648,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 1759,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 18343
+       },
+       "cost_usd": 0.09102,
+       "latency_ms": 15604.6,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31662,
+       "reply_format": "prose_then_json",
+       "expected": 243,
+       "got": "37",
+       "reply": "I could only partly verify this count. The excerpt shows every fact for S001 and S100, but for the other sprints it shows only decisions. So I assumed the first three facts of each sprint (`-01` to `-03`) are the superseded ones, as they are in S001 and S100.\n\n- **S001:** `f-S001-01`, `-02` and `-03` are superseded. Decisions `d-S001-00003`, `-00004` and `-00005` are based on `f-S001-02`, giving 3.\n- **S100:** `f-S100-01`, `-02` and `-03` are superseded. `d-S100-00797` (based on `-02`) and `d-S1",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D05",
+       "strict": false,
+       "components": {
+        "agent": true,
+        "count": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 20611,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 2471,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17594
+       },
+       "cost_usd": 0.095144,
+       "latency_ms": 16597.3,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31697,
+       "reply_format": "unparseable",
+       "expected": {
+        "agent": "agent-12",
+        "count": 29
+       },
+       "got": "{\"agent\": \"agent-12\", \"count\": 20}",
+       "reply": "Agent-12 asserted the most facts that were later forgotten: 20 in the excerpt. I tallied every fact with status `forgotten` by its asserting agent. The excerpt may be incomplete, so this is the count from what was shown.\n\nThe closest runners-up were agent-06 with 17, and agent-10 and agent-07 with 16 each.\n\n{\"agent\": \"agent-12\", \"count\": 20}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D09",
+       "strict": false,
+       "components": {
+        "set": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 20237,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 753,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 18938
+       },
+       "cost_usd": 0.08334,
+       "latency_ms": 10456.5,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31670,
+       "reply_format": "prose_then_json",
+       "expected": [
+        "shared-01",
+        "shared-02",
+        "shared-03",
+        "shared-04",
+        "shared-05",
+        "shared-06",
+        "shared-07",
+        "shared-08",
+        "shared-09",
+        "shared-11",
+        "shared-14",
+        "shared-15"
+       ],
+       "got": "[\"shared-16\"]",
+       "reply": "The excerpt can't fully support this question, so this is a best guess rather than a computed answer.\n\nThe question needs each decision's facts mapped to a shared source, and then a count of the distinct sprints each source reaches. Only 7 facts are shown with their `derived_from` values, so most of the decisions can't be traced to a source.\n\nAlmost every decision is based on that sprint's `f-Sxxx-16` fact, so which source that fact derives from decides the counts. Of the `-16` facts and nearby ",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D10",
+       "strict": false,
+       "components": {
+        "set": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19496,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 570,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 18380
+       },
+       "cost_usd": 0.079278,
+       "latency_ms": 8626.0,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31662,
+       "reply_format": "prose_then_json",
+       "expected": [
+        "shared-01",
+        "shared-02",
+        "shared-03",
+        "shared-04",
+        "shared-05",
+        "shared-06",
+        "shared-07",
+        "shared-08",
+        "shared-11",
+        "shared-15",
+        "shared-19"
+       ],
+       "got": "[]",
+       "reply": "I can't determine this reliably from the excerpt. It has fact records only for S001 and S100, so I can't trace the decisions in the other ~98 sprints back to their shared sources.\n\nIn the two sprints I can see, each shared source is cited in just one sprint:\n- **S001:** decisions cite `shared-01` (via f-S001-04 and f-S001-06) and `shared-14` (via f-S001-10).\n- **S100:** decisions cite `shared-03` (via f-S100-14) and `shared-08` (via f-S100-01).\n\nNone of these reaches the threshold of more than 8",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D13",
+       "strict": false,
+       "components": {
+        "count": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 18924,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 1028,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17350
+       },
+       "cost_usd": 0.079738,
+       "latency_ms": 11579.0,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31656,
+       "reply_format": "prose_then_json",
+       "expected": 239,
+       "got": "115",
+       "reply": "I can't determine this from the excerpt. It shows no handoffs.jsonl lines, so I can't see which facts any handoff carries. All I can see is that superseded facts appear in 115 distinct sprints. A handoff can only carry a superseded fact in one of those sprints, so 115 is a rough upper-bound estimate, not a counted result.\n\n{\"answer\": 115}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D17",
+       "strict": true,
+       "components": {
+        "ordered": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 18576,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 430,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17600
+       },
+       "cost_usd": 0.074758,
+       "latency_ms": 7770.4,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31697,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Counting the facts with status `forgotten` per sprint in the excerpt, the top three are:\n\n- **S020:** 10 forgotten facts.\n- **S060:** 8 forgotten facts.\n- **S090:** 5 forgotten facts.\n\nEvery other sprint shows at most 3. The excerpt may be incomplete, so these counts are only what is visible in it.\n\n{\"answer\": [\"S020\", \"S060\", \"S090\"]}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D21",
+       "strict": false,
+       "components": {
+        "count": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 19123,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 1221,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 17356
+       },
+       "cost_usd": 0.081692,
+       "latency_ms": 12571.6,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31656,
+       "reply_format": "prose_then_json",
+       "expected": 552,
+       "got": "155",
+       "reply": "I can't compute this exactly from the excerpt. It shows only the superseded facts (about 169 of them) and none of the facts that replaced them. It also has no `supersedes` links, so I can't tell which agent asserted each replacement.\n\nMy answer is an estimate. With 12 agents, a replacement by a different agent is about 11/12 likely if agents are assigned independently. That gives 169 \u00d7 11/12 \u2248 155.\n\n{\"answer\": 155}",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B1a": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 11179.6,
+     "cost_usd": 0.161,
+     "cost_per_question_usd": 0.0201,
+     "tool_calls_per_question": 1.62,
+     "latency_s_median": 12.7,
+     "components_correct": {
+      "count": 5,
+      "agent": 1,
+      "set": 2,
+      "ordered": 1
+     },
+     "questions": [
+      {
+       "id": "D01",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 8728,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 207,
+        "cache_read_input_tokens": 5166,
+        "cache_creation_input_tokens": 3351
+       },
+       "cost_usd": 0.015999,
+       "latency_ms": 10618.3,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "477 decisions are based on at least one fact whose status is `superseded`. I counted distinct decisions in `decision_facts` that link to such a fact. I didn't check the `fact_links` supersedes rows, and I didn't check whether each fact was superseded after the decision was made. The count rests on the status field alone.\n\n{\"answer\": 477}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D02",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9053,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 404,
+        "cache_read_input_tokens": 5168,
+        "cache_creation_input_tokens": 3477
+       },
+       "cost_usd": 0.018473,
+       "latency_ms": 13430.9,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "243 decisions in sprints S001\u2013S100 are based on at least one fact whose status is `superseded`.\n\nI took the sprint from each fact's scope and counted each decision once, even if several of its facts were superseded. I didn't check the exact format of the scope values, so the sprint filter relies on the `S` followed by a number in the scope text. I also counted any fact with `superseded` status as \"later superseded\" and didn't compare timestamps.\n\n{\"answer\": 243}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D05",
+       "strict": true,
+       "components": {
+        "agent": true,
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 8836,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 217,
+        "cache_read_input_tokens": 5183,
+        "cache_creation_input_tokens": 3432
+       },
+       "cost_usd": 0.016424,
+       "latency_ms": 10417.3,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Across all sprints, agent-12 asserted the most facts that were later forgotten: 29. I counted distinct facts with status `forgotten`, grouped by the agent who asserted them. The next highest was agent-07 with 26.\n\n{\"agent\": \"agent-12\", \"count\": 29}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D09",
+       "strict": true,
+       "components": {
+        "set": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9740,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 769,
+        "cache_read_input_tokens": 5199,
+        "cache_creation_input_tokens": 3768
+       },
+       "cost_usd": 0.02329,
+       "latency_ms": 12821.6,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Twelve shared sources are cited by decisions in more than 16 different sprints. I followed each decision's facts back through their `derived_from` links to the shared sources, then counted distinct fact scopes (sprints) per source.\n\n| Source | Sprints |\n|---|---|\n| shared-01 | 69 |\n| shared-02 | 68 |\n| shared-03 | 36 |\n| shared-04 | 45 |\n| shared-05 | 35 |\n| shared-06 | 32 |\n| shared-07 | 31 |\n| shared-08 | 28 |\n| shared-09 | 19 |\n| shared-11 | 18 |\n| shared-14 | 17 |\n| shared-15 | 18 |\n\nI didn'",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D10",
+       "strict": true,
+       "components": {
+        "set": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 26077,
+       "usage": {
+        "input_tokens": 10,
+        "output_tokens": 1306,
+        "cache_read_input_tokens": 20029,
+        "cache_creation_input_tokens": 4732
+       },
+       "cost_usd": 0.034011,
+       "latency_ms": 23802.4,
+       "num_turns": 6,
+       "tool_calls": 5,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Eleven shared sources are cited by decisions in more than 8 different sprints within S001\u2013S100. I traced each decision through the facts it is based on, and followed `derived_from` links through intermediate facts to the source. Sprints are counted per distinct fact scope.\n\n| Source | Sprints |\n|---|---|\n| shared-01 | 33 |\n| shared-02 | 36 |\n| shared-03 | 23 |\n| shared-04 | 21 |\n| shared-05 | 18 |\n| shared-06 | 17 |\n| shared-07 | 15 |\n| shared-08 | 15 |\n| shared-11 | 10 |\n| shared-15 | 10 |\n| sh",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D13",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 8731,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 197,
+        "cache_read_input_tokens": 5166,
+        "cache_creation_input_tokens": 3364
+       },
+       "cost_usd": 0.015951,
+       "latency_ms": 12617.3,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "239 handoffs carry at least one fact whose status is `superseded`. I counted distinct handoffs with a `kind='fact'` item that points to such a fact. I didn't separately check the `supersedes` links, because the question defines superseded by the status field.\n\n{\"answer\": 239}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D17",
+       "strict": true,
+       "components": {
+        "ordered": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 8806,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 188,
+        "cache_read_input_tokens": 5195,
+        "cache_creation_input_tokens": 3419
+       },
+       "cost_usd": 0.016084,
+       "latency_ms": 10962.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "The three sprints with the most forgotten facts are S020 (10), S060 (9) and S090 (8). I counted facts with status `forgotten`, grouped by scope. The next highest was S130 with 7, so there are no ties at the cutoff.\n\n{\"answer\": [\"S020\", \"S060\", \"S090\"]}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D21",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9466,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 519,
+        "cache_read_input_tokens": 5170,
+        "cache_creation_input_tokens": 3773
+       },
+       "cost_usd": 0.020807,
+       "latency_ms": 13054.2,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "552 facts were superseded by a fact asserted by a different agent than the original.\n\nI counted facts linked through `supersedes` links where the superseding fact and the original have no agent in common. There are 600 supersedes links, each pointing to a different original fact. No fact has more than one asserting agent, so \"different agent\" is unambiguous. I also required the original fact's status to be `superseded`.\n\n{\"answer\": 552}",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B0g": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 19579.1,
+     "cost_usd": 0.1899,
+     "cost_per_question_usd": 0.0237,
+     "tool_calls_per_question": 1.38,
+     "latency_s_median": 20.2,
+     "components_correct": {
+      "count": 5,
+      "agent": 1,
+      "set": 2,
+      "ordered": 1
+     },
+     "questions": [
+      {
+       "id": "D01",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 24832,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 771,
+        "cache_read_input_tokens": 20047,
+        "cache_creation_input_tokens": 4008
+       },
+       "cost_usd": 0.025759,
+       "latency_ms": 23025.4,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "477 decisions are based on at least one fact that was later superseded.\n\nI counted a fact as superseded when its status is `superseded`. That gives 600 facts. The 600 facts named in other facts' `supersedes` lists are the same set, so either definition gives the same count. I then counted the decisions in `decisions.jsonl` whose `based_on` list includes at least one of those facts.\n\n{\"answer\": 477}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D02",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16177,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 585,
+        "cache_read_input_tokens": 11993,
+        "cache_creation_input_tokens": 3595
+       },
+       "cost_usd": 0.021437,
+       "latency_ms": 20171.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "243 of the decisions in sprints S001\u2013S100 are based on at least one fact that was later superseded.\n\nI counted a decision if any fact in its `based_on` list has status `superseded`. I took each decision's sprint from the scope of its first `based_on` fact, which is valid because all its facts sit in one sprint. As a cross-check, the 600 facts marked `superseded` are exactly the 600 facts named in other facts' `supersedes` lists. Counting by either measure gives the same 243.\n\n{\"answer\": 243}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D05",
+       "strict": true,
+       "components": {
+        "agent": true,
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 15713,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 289,
+        "cache_read_input_tokens": 12008,
+        "cache_creation_input_tokens": 3412
+       },
+       "cost_usd": 0.017747,
+       "latency_ms": 15924.2,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Agent-12 asserted the most facts that were later forgotten: 29. I counted facts in `facts.jsonl` whose status is `forgotten`, grouped by the asserting agent. The next highest were agent-07 with 26 and agent-06 with 25.\n\n{\"answer\": {\"agent\": \"agent-12\", \"count\": 29}}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D09",
+       "strict": true,
+       "components": {
+        "set": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17495,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 954,
+        "cache_read_input_tokens": 12026,
+        "cache_creation_input_tokens": 4511
+       },
+       "cost_usd": 0.028795,
+       "latency_ms": 19536.6,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Twelve shared sources are cited by decisions in more than 16 different sprints. I traced each decision's `based_on` facts back through `derived_from` (following fact-to-fact links) to the `shared-` sources they come from. I then counted the distinct sprints in which each source appeared.\n\nI did not filter by fact status, so superseded and forgotten facts are included.\n\nThe sources above the threshold of 16 sprints:\n\n| Source | Sprints |\n|---|---|\n| `shared-01` | 69 |\n| `shared-02` | 68 |\n| `shar",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D10",
+       "strict": true,
+       "components": {
+        "set": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 16871,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 765,
+        "cache_read_input_tokens": 12028,
+        "cache_creation_input_tokens": 4074
+       },
+       "cost_usd": 0.025157,
+       "latency_ms": 20502.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Eleven shared sources are cited by decisions in more than 8 different sprints within S001\u2013S100.\n\nI found them with a script. For each decision, it took the facts the decision is based on and used each fact's sprint scope. It then followed each fact's `derived_from` chain through parent facts until it reached a `shared-` source. Finally it counted the distinct sprints per source.\n\nI kept only sources with a count above 8. `shared-19` has 9 sprints and `shared-11` and `shared-15` have 10 each. `sh",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D13",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 25247,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1001,
+        "cache_read_input_tokens": 20130,
+        "cache_creation_input_tokens": 4110
+       },
+       "cost_usd": 0.028475,
+       "latency_ms": 21394.8,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "239 handoffs carry at least one fact whose status is `superseded`.\n\nI counted two ways, and both gave 239:\n- Handoffs that carry a fact with status `superseded`.\n- Handoffs that carry a fact listed in another fact's `supersedes` field.\n\nI also tried a stricter reading of \"later\": the superseding fact was recorded after the handoff. That gave 0, so none of the superseding facts has a recording time later than the handoff that carries the fact it replaced. I went with 239 because the question asks",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D17",
+       "strict": true,
+       "components": {
+        "ordered": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 15822,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 322,
+        "cache_read_input_tokens": 12018,
+        "cache_creation_input_tokens": 3478
+       },
+       "cost_usd": 0.018342,
+       "latency_ms": 17941.0,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Sprints S020, S060 and S090 have the most forgotten facts. I counted facts in `facts.jsonl` whose status is `forgotten`, grouped by scope. The top counts were S020 with 10, S060 with 9 and S090 with 8. S130 followed with 7, so there is no tie for third place.\n\n{\"answer\": [\"S020\", \"S060\", \"S090\"]}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "D21",
+       "strict": true,
+       "components": {
+        "count": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 24476,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 679,
+        "cache_read_input_tokens": 19940,
+        "cache_creation_input_tokens": 3851
+       },
+       "cost_usd": 0.0242,
+       "latency_ms": 20255.4,
+       "num_turns": 3,
+       "tool_calls": 2,
+       "tools": [
+        "Bash"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": null,
+       "got": null,
+       "reply": "Across all sprints, 552 facts were superseded by a fact from a different agent than the one who recorded the original.\n\nI counted each superseded fact once, comparing the agent on the original fact with the agent on the fact whose `supersedes` list names it. 600 facts have status `superseded`, and 600 distinct fact ids appear in some `supersedes` list. Of those 600, 552 were replaced by a different agent.\n\n{\"answer\": 552}",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    }
+   }
+  }
+ },
+ "scoring": "reply may start with prose and must END with one {\"answer\": ...} object; strict = every component exact; whole-reply-JSON variant reported",
+ "cache": "demo_data/crucible/l6_cache"
+}

@@ -1,0 +1,26 @@
+{
+ "qid": "D13",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "239 handoffs carry at least one fact whose status is `superseded`.\n\nI counted two ways, and both gave 239:\n- Handoffs that carry a fact with status `superseded`.\n- Handoffs that carry a fact listed in another fact's `supersedes` field.\n\nI also tried a stricter reading of \"later\": the superseding fact was recorded after the handoff. That gave 0, so none of the superseding facts has a recording time later than the handoff that carries the fact it replaced. I went with 239 because the question asks about facts that were superseded, not about the order of timestamps.\n\n{\"answer\": 239}",
+ "answer": 239,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 1001,
+  "cache_read_input_tokens": 20130,
+  "cache_creation_input_tokens": 4110
+ },
+ "cost_usd": 0.028475,
+ "latency_ms": 21394.8,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "8a3500bf54002e4c68e169a75dff9e1471b74efd436103fa3ffc0535a00b0fa7",
+ "context_chars": 0
+}

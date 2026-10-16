@@ -1,0 +1,49 @@
+{
+ "qid": "A13",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "I computed the affected set by following `derived_from` links outward from s0025 until no new facts turned up. This gave 10 affected facts. I then checked the logs, decisions and handoffs against that set.\n\n- **Facts:** 10 are affected.\n- **Agents:** 10 distinct agents read at least one affected fact.\n- **Decisions:** 3 are based on an affected fact.\n- **Handoffs:** 2 carry an affected fact.\n- **Probes:** f018813, f033764, f013817, f036025 and f013345 are affected. The other five probes (f032357, f040139, f017749, f043333, f025708) are not.\n- **Earliest 5:** ordered by `at`, oldest first, they are f018813, f013345, f015530, f050721, f041882.\n\n{\"answer\": {\"facts\": 10, \"agents\": 10, \"decisions\": 3, \"handoffs\": 2, \"probes\": [false, true, false, true, false, false, false, true, true, true], \"earliest5\": [\"f018813\", \"f013345\", \"f015530\", \"f050721\", \"f041882\"]}}",
+ "answer": {
+  "facts": 10,
+  "agents": 10,
+  "decisions": 3,
+  "handoffs": 2,
+  "probes": [
+   false,
+   true,
+   false,
+   true,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true
+  ],
+  "earliest5": [
+   "f018813",
+   "f013345",
+   "f015530",
+   "f050721",
+   "f041882"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 876,
+  "cache_read_input_tokens": 12112,
+  "cache_creation_input_tokens": 3872
+ },
+ "cost_usd": 0.0254672,
+ "latency_ms": 22694.9,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "b9f2afee57bc39cc0e4836a2b746bbe5612ac2bc00de4ffa937d375f3a73da6a",
+ "context_chars": 0
+}

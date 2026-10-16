@@ -1,0 +1,37 @@
+{
+ "qid": "B17",
+ "arm": "B1a",
+ "family": "B",
+ "reply": "The chain starts at f000512, the one fact decision d00033 is based on. It runs through five more derived-from links to f000484, which derives directly from s00393. Agent a24 asserted f000484, and it is the only agent recorded for that fact.\n\n{\"chain\": [\"f000512\",\"f000508\",\"f000504\",\"f000500\",\"f000496\",\"f000492\",\"f000488\",\"f000484\"], \"agent\": \"a24\"}",
+ "answer": {
+  "chain": [
+   "f000512",
+   "f000508",
+   "f000504",
+   "f000500",
+   "f000496",
+   "f000492",
+   "f000488",
+   "f000484"
+  ],
+  "agent": "a24"
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 408,
+  "cache_read_input_tokens": 5147,
+  "cache_creation_input_tokens": 3587
+ },
+ "cost_usd": 0.0189507,
+ "latency_ms": 12543.8,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "ed8904e832e3c1d87b1ebf752d59725c912fe6ef2c5b9be25555bcb955ba496b",
+ "context_chars": 0
+}

@@ -1,0 +1,29 @@
+{
+ "qid": "D17",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "Sprints S020, S060 and S090 have the most forgotten facts. I counted facts in `facts.jsonl` whose status is `forgotten`, grouped by scope. The top counts were S020 with 10, S060 with 9 and S090 with 8. S130 followed with 7, so there is no tie for third place.\n\n{\"answer\": [\"S020\", \"S060\", \"S090\"]}",
+ "answer": [
+  "S020",
+  "S060",
+  "S090"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 322,
+  "cache_read_input_tokens": 12018,
+  "cache_creation_input_tokens": 3478
+ },
+ "cost_usd": 0.0183418,
+ "latency_ms": 17941.0,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "45dc40a621abe3232aeb9ff8a82c3141d0c78252a278950cf9ed3112c98e991d",
+ "context_chars": 0
+}

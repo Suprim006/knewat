@@ -1,0 +1,51 @@
+{
+ "qid": "A11",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "Source s0021 taints 1000 facts, counting facts that derive from it directly or through other facts. Those facts were read by 39 distinct agents, are the basis of 16 decisions, and are carried by 14 handoffs.\n\n- **Agents:** I counted an agent as affected only if one of its steps read an affected fact. I did not count agents who merely asserted one.\n- **Probes:** In the order you listed them, f049603, f002059, f026438, f045352 and f039528 are not affected. f042036, f050526, f013155, f027292 and f048406 are affected.\n- **Earliest five:** I ranked affected facts by `valid_from`, oldest first.\n\n{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, true, false, true, true, true, false, false, true], \"earliest5\": [\"f025559\", \"f036944\", \"f026242\", \"f025475\", \"f051273\"]}",
+ "answer": {
+  "facts": 1000,
+  "agents": 39,
+  "decisions": 16,
+  "handoffs": 14,
+  "probes": [
+   false,
+   false,
+   true,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f025559",
+   "f036944",
+   "f026242",
+   "f025475",
+   "f051273"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 974,
+  "cache_read_input_tokens": 9973,
+  "cache_creation_input_tokens": 4408
+ },
+ "cost_usd": 0.0283813,
+ "latency_ms": 18649.7,
+ "num_turns": 4,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query",
+  "mcp__sql__query",
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "f3a463b8f1538860d05c16da321eac7686d9bdb83cc4d0caabcc60a1168eb7ae",
+ "context_chars": 0
+}

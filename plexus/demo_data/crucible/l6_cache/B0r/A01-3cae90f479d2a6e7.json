@@ -1,0 +1,46 @@
+{
+ "qid": "A01",
+ "arm": "B0r",
+ "family": "A",
+ "reply": "The excerpt only partly supports this, so these numbers come from what is visible, not a full trace.\n\n**Affected facts (4 visible):**\n- f023895 and f043558 derive from s0001 directly.\n- f006332 derives from f043558, so it is affected.\n- f050274 derives from f023895, so it is affected.\n\n**Probes:**\n- f004486, f028102, f010224 and f048401 show no link to s0001. f010224 and f048401 derive only from f004486 and f028102, whose own derivations aren't shown.\n- f005300 and f045815 don't appear in the excerpt at all, so I marked them false.\n\n**Decisions:** only d00772 is based on an affected fact (f023895). d00773 is based on f025836, whose derivation isn't shown.\n\n**Handoffs:** h00516 carries f023895 and f006332, so it is affected.\n\n**Agents:** no agent logs were shown, so I couldn't find who read an affected fact. I put 0, but this count is a placeholder, not a finding.\n\n**Earliest5:** only four affected facts are visible, so the list has four entries, ordered by `at`.\n\n{\"answer\": {\"facts\": 4, \"agents\": 0, \"decisions\": 1, \"handoffs\": 1, \"probes\": [false, true, false, false, true, true, false, false, false, true], \"earliest5\": [\"f006332\", \"f043558\", \"f023895\", \"f050274\"]}}",
+ "answer": {
+  "facts": 4,
+  "agents": 0,
+  "decisions": 1,
+  "handoffs": 1,
+  "probes": [
+   false,
+   true,
+   false,
+   false,
+   true,
+   true,
+   false,
+   false,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f006332",
+   "f043558",
+   "f023895",
+   "f050274"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 956,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 17787
+ },
+ "cost_usd": 0.0807664,
+ "latency_ms": 13728.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "3cae90f479d2a6e710a9ef7ed37f4b3f9cf5622ce802da58acc7ffb415678328",
+ "context_chars": 31637
+}

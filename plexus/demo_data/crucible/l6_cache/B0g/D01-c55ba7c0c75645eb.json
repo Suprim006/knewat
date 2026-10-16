@@ -1,0 +1,26 @@
+{
+ "qid": "D01",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "477 decisions are based on at least one fact that was later superseded.\n\nI counted a fact as superseded when its status is `superseded`. That gives 600 facts. The 600 facts named in other facts' `supersedes` lists are the same set, so either definition gives the same count. I then counted the decisions in `decisions.jsonl` whose `based_on` list includes at least one of those facts.\n\n{\"answer\": 477}",
+ "answer": 477,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 771,
+  "cache_read_input_tokens": 20047,
+  "cache_creation_input_tokens": 4008
+ },
+ "cost_usd": 0.0257587,
+ "latency_ms": 23025.4,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "c55ba7c0c75645eb467e62684976c9b5a837bcd3d009080a793a96834b204aa1",
+ "context_chars": 0
+}

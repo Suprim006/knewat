@@ -1,0 +1,25 @@
+{
+ "qid": "D13",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "239 handoffs carry at least one fact whose status is `superseded`. I counted distinct handoffs with a `kind='fact'` item that points to such a fact. I didn't separately check the `supersedes` links, because the question defines superseded by the status field.\n\n{\"answer\": 239}",
+ "answer": 239,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 197,
+  "cache_read_input_tokens": 5166,
+  "cache_creation_input_tokens": 3364
+ },
+ "cost_usd": 0.0159506,
+ "latency_ms": 12617.3,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "4b4d81fb24d1e42894c4d3674ad409bc9627fe3e5b1bbd63fc8085bc2bbaa192",
+ "context_chars": 0
+}

@@ -1,0 +1,26 @@
+{
+ "qid": "D21",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "552 facts were superseded by a fact asserted by a different agent than the original.\n\nI counted facts linked through `supersedes` links where the superseding fact and the original have no agent in common. There are 600 supersedes links, each pointing to a different original fact. No fact has more than one asserting agent, so \"different agent\" is unambiguous. I also required the original fact's status to be `superseded`.\n\n{\"answer\": 552}",
+ "answer": 552,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 519,
+  "cache_read_input_tokens": 5170,
+  "cache_creation_input_tokens": 3773
+ },
+ "cost_usd": 0.020807,
+ "latency_ms": 13054.2,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query",
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "3870399f376f884c69bd1bc77ad721cdd7b252925412274216ded6ccaf3853de",
+ "context_chars": 0
+}

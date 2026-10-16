@@ -1,0 +1,25 @@
+{
+ "qid": "D01",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "477 decisions are based on at least one fact whose status is `superseded`. I counted distinct decisions in `decision_facts` that link to such a fact. I didn't check the `fact_links` supersedes rows, and I didn't check whether each fact was superseded after the decision was made. The count rests on the status field alone.\n\n{\"answer\": 477}",
+ "answer": 477,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 207,
+  "cache_read_input_tokens": 5166,
+  "cache_creation_input_tokens": 3351
+ },
+ "cost_usd": 0.0159986,
+ "latency_ms": 10618.3,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "8992f3fa472f32fe608911e13a165ba6ab169ebf9c6f7c53e6170aa3ae68e54e",
+ "context_chars": 0
+}

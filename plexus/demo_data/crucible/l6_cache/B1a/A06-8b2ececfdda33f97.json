@@ -1,0 +1,49 @@
+{
+ "qid": "A06",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "I found 100 affected facts by following `derived_from` links from s0011 through other facts at any depth. Counts and probes are over all of them, whatever their status. Of those, 16 distinct agents read an affected fact, 2 decisions are based on one, and 3 handoffs carry one.\n\nFive probes are affected: f025760, f021796, f012407, f010365 and f014619. The other five are not. The five earliest affected facts, by `valid_from`, are f032441, f016923, f048671, f020806 and f007475.\n\n{\"facts\": 100, \"agents\": 16, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, true, true, false, false, true, true, false, true], \"earliest5\": [\"f032441\", \"f016923\", \"f048671\", \"f020806\", \"f007475\"]}",
+ "answer": {
+  "facts": 100,
+  "agents": 16,
+  "decisions": 2,
+  "handoffs": 3,
+  "probes": [
+   false,
+   false,
+   true,
+   true,
+   false,
+   false,
+   true,
+   true,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f032441",
+   "f016923",
+   "f048671",
+   "f020806",
+   "f007475"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 951,
+  "cache_read_input_tokens": 5287,
+  "cache_creation_input_tokens": 4271
+ },
+ "cost_usd": 0.0271307,
+ "latency_ms": 16402.5,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "8b2ececfdda33f97b960b109d09a0d19ec6dba13f22b19b542f5d487773dbd39",
+ "context_chars": 0
+}

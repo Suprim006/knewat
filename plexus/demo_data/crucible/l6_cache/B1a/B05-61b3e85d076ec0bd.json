@@ -1,0 +1,33 @@
+{
+ "qid": "B05",
+ "arm": "B1a",
+ "family": "B",
+ "reply": "Decision d00009 is based on fact f000076. Following derived-from links, f000076 derives from f000072, and f000072 derives from f000068. Fact f000068 is derived directly from s00057, and agent a25 asserted it.\n\n{\"chain\": [\"f000076\", \"f000072\", \"f000068\"], \"agent\": \"a25\"}",
+ "answer": {
+  "chain": [
+   "f000076",
+   "f000072",
+   "f000068"
+  ],
+  "agent": "a25"
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 440,
+  "cache_read_input_tokens": 9852,
+  "cache_creation_input_tokens": 3884
+ },
+ "cost_usd": 0.0209332,
+ "latency_ms": 15975.8,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query",
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "61b3e85d076ec0bd704a316735339961f14910bd88886c5a47e42320a7726185",
+ "context_chars": 0
+}

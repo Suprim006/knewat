@@ -1,0 +1,23 @@
+{
+ "qid": "D01",
+ "arm": "B0r",
+ "family": "D",
+ "reply": "I can't work this out from the excerpt. It contains only decisions.jsonl lines, with no facts.jsonl entries, so I can't see which facts have a superseded status. The excerpt also covers only part of the decisions (the visible ones run from S001 to S096, out of S001 to S200), so even a count of the visible decisions wouldn't give the total.\n\nThe number below is a rough estimate, not a count from the data. I assumed roughly 1,500 decisions across all sprints, and that about one in five is based on a fact that was later superseded.\n\n{\"answer\": 300}",
+ "answer": 300,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 432,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 18560
+ },
+ "cost_usd": 0.0786184,
+ "latency_ms": 8554.2,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "b3e6ed775ca1022d5148fa3e0f5c6734ae52a1ba24ef70beca732d70d2b2c213",
+ "context_chars": 31691
+}

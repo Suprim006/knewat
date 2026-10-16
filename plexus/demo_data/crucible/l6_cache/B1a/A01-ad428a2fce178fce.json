@@ -1,0 +1,49 @@
+{
+ "qid": "A01",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "Starting from source s0001, I followed every `derived_from` link, through other facts at any depth. That gave 10 affected facts, and I counted the agents, decisions and handoffs that touch them. I didn't check whether any of these facts have status superseded or forgotten, so the counts include them either way.\n\n- **Facts:** 10 are affected.\n- **Agents:** 18 distinct agents read at least one affected fact.\n- **Decisions:** 2 are based on an affected fact.\n- **Handoffs:** 2 carry an affected fact.\n- **Probes:** f043558, f023895, f050274, f005300 and f006332 are affected. The other five (f004486, f028102, f010224, f048401, f045815) are not.\n- **Earliest five:** I ordered by `valid_from`, the recorded-time column, since the `at` column isn't on `facts`. Oldest first, they are f006332, f005300, f043558, f025922, f023895.\n\n{\"facts\": 10, \"agents\": 18, \"decisions\": 2, \"handoffs\": 2, \"probes\": [false, true, false, false, true, true, false, true, false, true], \"earliest5\": [\"f006332\", \"f005300\", \"f043558\", \"f025922\", \"f023895\"]}",
+ "answer": {
+  "facts": 10,
+  "agents": 18,
+  "decisions": 2,
+  "handoffs": 2,
+  "probes": [
+   false,
+   true,
+   false,
+   false,
+   true,
+   true,
+   false,
+   true,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f006332",
+   "f005300",
+   "f043558",
+   "f025922",
+   "f023895"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 1079,
+  "cache_read_input_tokens": 5287,
+  "cache_creation_input_tokens": 4252
+ },
+ "cost_usd": 0.028334699999999997,
+ "latency_ms": 24156.8,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "ad428a2fce178fced5b6254a3b52908cda5e3f55704dd6d0793ba540742c66d7",
+ "context_chars": 0
+}

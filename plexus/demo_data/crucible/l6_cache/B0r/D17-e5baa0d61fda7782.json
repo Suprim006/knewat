@@ -1,0 +1,27 @@
+{
+ "qid": "D17",
+ "arm": "B0r",
+ "family": "D",
+ "reply": "Counting the facts with status `forgotten` per sprint in the excerpt, the top three are:\n\n- **S020:** 10 forgotten facts.\n- **S060:** 8 forgotten facts.\n- **S090:** 5 forgotten facts.\n\nEvery other sprint shows at most 3. The excerpt may be incomplete, so these counts are only what is visible in it.\n\n{\"answer\": [\"S020\", \"S060\", \"S090\"]}",
+ "answer": [
+  "S020",
+  "S060",
+  "S090"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 430,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 17600
+ },
+ "cost_usd": 0.0747584,
+ "latency_ms": 7770.4,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "e5baa0d61fda77826491e4e3b9a01aa197e63dafdb5e6dbee4790e1d66d363bd",
+ "context_chars": 31697
+}

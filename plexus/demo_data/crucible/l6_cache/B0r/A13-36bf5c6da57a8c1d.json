@@ -1,0 +1,45 @@
+{
+ "qid": "A13",
+ "arm": "B0r",
+ "family": "A",
+ "reply": "The excerpt does not show `sources.json` or any logs, and no fact names s0025, so this answer is a best guess from the one dependency chain that reaches decisions and a handoff.\n\n- **Chain I assumed is poisoned:** f036025 → f013345 → f018813.\n- **Facts:** I count 3 (f036025, f013345, f018813). If f036025 itself derives from s0025, these are all affected.\n- **Decisions:** d00299 is based on f013345 and d00781 on f018813, so 2.\n- **Handoffs:** h00524 carries f018813, so 1.\n- **Agents:** the logs are not shown, so 3 is a guess.\n- **Other chain:** f025708 → f032357 → f043333 → f017749 has no decisions or handoffs attached in the excerpt, so I treated it as unaffected.\n- **Earliest five:** only 3 facts are affected, so the list has 3 ids rather than 5. f018813 (at 1760000113178) precedes f013345 (1760000186151). I could not see f036025's timestamp and put it first on the assumption that a root fact predates its descendants.\n\n{\"facts\": 3, \"agents\": 3, \"decisions\": 2, \"handoffs\": 1, \"probes\": [false, true, false, false, false, false, false, false, true, true], \"earliest5\": [\"f036025\", \"f018813\", \"f013345\"]}",
+ "answer": {
+  "facts": 3,
+  "agents": 3,
+  "decisions": 2,
+  "handoffs": 1,
+  "probes": [
+   false,
+   true,
+   false,
+   false,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true
+  ],
+  "earliest5": [
+   "f036025",
+   "f018813",
+   "f013345"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 1387,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 17817
+ },
+ "cost_usd": 0.0851964,
+ "latency_ms": 15217.1,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "36bf5c6da57a8c1dbf161376d7ecd647f849c24ae56467ce15cc6a43e201fc71",
+ "context_chars": 31688
+}

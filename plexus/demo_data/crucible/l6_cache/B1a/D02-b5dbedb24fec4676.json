@@ -1,0 +1,25 @@
+{
+ "qid": "D02",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "243 decisions in sprints S001–S100 are based on at least one fact whose status is `superseded`.\n\nI took the sprint from each fact's scope and counted each decision once, even if several of its facts were superseded. I didn't check the exact format of the scope values, so the sprint filter relies on the `S` followed by a number in the scope text. I also counted any fact with `superseded` status as \"later superseded\" and didn't compare timestamps.\n\n{\"answer\": 243}",
+ "answer": 243,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 404,
+  "cache_read_input_tokens": 5168,
+  "cache_creation_input_tokens": 3477
+ },
+ "cost_usd": 0.018472799999999998,
+ "latency_ms": 13430.9,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "b5dbedb24fec4676c739881a0844fbbd10c44f4def57709ca805586afb9fbb16",
+ "context_chars": 0
+}

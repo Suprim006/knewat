@@ -1,0 +1,49 @@
+{
+ "qid": "A16",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "I treated a fact as affected if `s0031` appears in its `derived_from`, or if any of its parents is an affected fact. I repeated that pass until no new facts turned up. I did not inspect the data beyond running the script.\n\n- **Facts:** 5000 are affected.\n- **Agents:** 31 distinct agents read at least one affected fact. I counted one agent per file in `logs/`.\n- **Decisions:** 69 are based on an affected fact.\n- **Handoffs:** 50 carry an affected fact.\n- **Probes:** f002255, f040559, f004376, f038888 and f032325 are affected. The other five (f017663, f014579, f006406, f041759, f009425) are not.\n- **Earliest five:** f001863, f033081, f043169, f012160, f027639, oldest first by `at`.\n\n{\"facts\": 5000, \"agents\": 31, \"decisions\": 69, \"handoffs\": 50, \"probes\": [false, true, true, false, false, true, true, true, false, false], \"earliest5\": [\"f001863\", \"f033081\", \"f043169\", \"f012160\", \"f027639\"]}",
+ "answer": {
+  "facts": 5000,
+  "agents": 31,
+  "decisions": 69,
+  "handoffs": 50,
+  "probes": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  "earliest5": [
+   "f001863",
+   "f033081",
+   "f043169",
+   "f012160",
+   "f027639"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 941,
+  "cache_read_input_tokens": 12112,
+  "cache_creation_input_tokens": 3893
+ },
+ "cost_usd": 0.026201199999999997,
+ "latency_ms": 24169.9,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "458c9a8dbb9858d7871ac70d8ecbb533b881f105218da420af610524cbc80836",
+ "context_chars": 0
+}

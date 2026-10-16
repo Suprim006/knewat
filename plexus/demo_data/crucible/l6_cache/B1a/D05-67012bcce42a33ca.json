@@ -1,0 +1,28 @@
+{
+ "qid": "D05",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "Across all sprints, agent-12 asserted the most facts that were later forgotten: 29. I counted distinct facts with status `forgotten`, grouped by the agent who asserted them. The next highest was agent-07 with 26.\n\n{\"agent\": \"agent-12\", \"count\": 29}",
+ "answer": {
+  "agent": "agent-12",
+  "count": 29
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 217,
+  "cache_read_input_tokens": 5183,
+  "cache_creation_input_tokens": 3432
+ },
+ "cost_usd": 0.0164243,
+ "latency_ms": 10417.3,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "67012bcce42a33ca22cd3abf45bf18d45401f1a467b02090c672f30d3af93b31",
+ "context_chars": 0
+}

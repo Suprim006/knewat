@@ -1,0 +1,50 @@
+{
+ "qid": "A04",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "In total, 5000 facts are affected by the poisoned source s0007. I counted a fact as affected if it derives from s0007 directly or through other facts at any depth. I included facts marked superseded or forgotten, since the question doesn't exclude them.\n\n- **Agents:** 65 distinct agents read at least one affected fact.\n- **Decisions:** 81 are based on an affected fact.\n- **Handoffs:** 49 carry an affected fact.\n- **Probes:** f047976, f037168, f013754, f018071 and f002695 are affected. f004619, f019026, f026538, f036502 and f033610 are not.\n- **Earliest five:** these are the affected facts with the smallest `at`, oldest first.\n\n{\"facts\": 5000, \"agents\": 65, \"decisions\": 81, \"handoffs\": 49, \"probes\": [true, true, false, true, true, true, false, false, false, false], \"earliest5\": [\"f014091\", \"f005047\", \"f012510\", \"f039444\", \"f009582\"]}",
+ "answer": {
+  "facts": 5000,
+  "agents": 65,
+  "decisions": 81,
+  "handoffs": 49,
+  "probes": [
+   true,
+   true,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false,
+   false
+  ],
+  "earliest5": [
+   "f014091",
+   "f005047",
+   "f012510",
+   "f039444",
+   "f009582"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 1108,
+  "cache_read_input_tokens": 20519,
+  "cache_creation_input_tokens": 4266
+ },
+ "cost_usd": 0.0302079,
+ "latency_ms": 30427.1,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "93d8c74701946e93f839a5eac0dc3c7b036e57576e0fff80631cdc00de77b409",
+ "context_chars": 0
+}

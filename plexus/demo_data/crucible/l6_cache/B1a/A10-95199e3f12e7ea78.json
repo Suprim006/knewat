@@ -1,0 +1,49 @@
+{
+ "qid": "A10",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "Source s0019 taints 100 facts, counting facts that derive from it directly or through other facts. I traced the `derived_from` links from s0019 and then followed them through derived facts at any depth. The other counts come from what those facts reach:\n\n- **Agents:** 57 distinct agents read at least one affected fact.\n- **Decisions:** 4 are based on an affected fact.\n- **Handoffs:** 3 carry an affected fact.\n- **Probes:** f017581, f046578, f028841, f004585 and f048923 are affected. The other five are not.\n- **Earliest five:** ordered by `valid_from`, oldest first.\n\n{\"facts\": 100, \"agents\": 57, \"decisions\": 4, \"handoffs\": 3, \"probes\": [false, true, true, false, false, false, true, true, true, false], \"earliest5\": [\"f049469\", \"f007868\", \"f007497\", \"f029912\", \"f011381\"]}",
+ "answer": {
+  "facts": 100,
+  "agents": 57,
+  "decisions": 4,
+  "handoffs": 3,
+  "probes": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   false
+  ],
+  "earliest5": [
+   "f049469",
+   "f007868",
+   "f007497",
+   "f029912",
+   "f011381"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 995,
+  "cache_read_input_tokens": 5287,
+  "cache_creation_input_tokens": 4273
+ },
+ "cost_usd": 0.027578699999999998,
+ "latency_ms": 18760.4,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "95199e3f12e7ea78fd3b681a17de903d208daa22f1a969481c37797cb1f06e2b",
+ "context_chars": 0
+}

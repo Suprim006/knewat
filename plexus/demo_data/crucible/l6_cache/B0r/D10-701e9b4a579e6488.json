@@ -1,0 +1,23 @@
+{
+ "qid": "D10",
+ "arm": "B0r",
+ "family": "D",
+ "reply": "I can't determine this reliably from the excerpt. It has fact records only for S001 and S100, so I can't trace the decisions in the other ~98 sprints back to their shared sources.\n\nIn the two sprints I can see, each shared source is cited in just one sprint:\n- **S001:** decisions cite `shared-01` (via f-S001-04 and f-S001-06) and `shared-14` (via f-S001-10).\n- **S100:** decisions cite `shared-03` (via f-S100-14) and `shared-08` (via f-S100-01).\n\nNone of these reaches the threshold of more than 8 sprints on the evidence shown. The empty list below is a best answer from incomplete data, not a verified result.\n\n{\"answer\": []}",
+ "answer": [],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 570,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 18380
+ },
+ "cost_usd": 0.0792784,
+ "latency_ms": 8626.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "701e9b4a579e648809209a4b3c278a58d33efd04ea6cca70fc7284dd48a5731a",
+ "context_chars": 31662
+}
