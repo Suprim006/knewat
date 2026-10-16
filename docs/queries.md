@@ -118,6 +118,13 @@ an Engram/Relay write, plus `record_recall` which attaches its own `READ` edges.
 | `lineage/impact_fact` | ro | Same for a Fact: the fact itself plus every fact derived from it through 1..`depth` hops, and the readers, decisions, tasks and handoffs on them | P9-b / P4 `impact` tool (`kind='fact'`). |
 | `lineage/discard_step` | rw | Delete a `Step` that was opened for a call which then failed and linked nothing (no `READ`, `WROTE`, `NEXT`, `IN_STEP`); returns whether it was deleted | P9-int: the runtime now opens the Step *before* `assert_fact` / `record_decision` / `handoff`; a rejected call must still leave no Step. The empty-Step test is a pattern predicate on the node. |
 
+**P12 fix 2.** The five task tools (`relay/create_tasks`, `claim_next_task`, `complete_task`, `fail_task`, `reopen_task`) also take
+`step_id` (`''` = none) and create `(Step)-[:WROTE]->(Task)` in their own statement (every created task for `create_tasks`; the
+claimed / completed / failed / reopened task otherwise). `claim_next_task` takes the optional Step match after its `ORDER BY ... LIMIT 1`,
+so nothing claimable still writes nothing. Task-state semantics are unchanged. For these tools (and `record_decision` / `handoff`) the
+runtime skips the early Step when the agent is not registered, so an unknown agent is rejected as before instead of being created by
+`lineage/record_step`. Kill test: `plexus.crucible.l6.crash_tasks` (41 of 1,287 task writes without WROTE before, 0 of 1,333 after).
+
 **P9-int update.** `engram/assert_fact`, `relay/record_decision` and `relay/handoff` now take a `step_id` parameter (`''` = none)
 and, when the Step exists, create `(Step)-[:WROTE]->(new node)` in the same statement (`OPTIONAL MATCH (stp:Step {id: $step_id})`,
 carried through the `WITH` chain, then one `FOREACH`). The runtime opens the Step first (`Runtime._execute(pre_step=...)`) and

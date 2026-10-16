@@ -72,7 +72,7 @@ class Relay:
         return dict(rows[0])
 
     # -- task DAG ---------------------------------------------------------------------------------------
-    def create_tasks(self, tasks: Sequence[dict[str, Any]]) -> list[str]:
+    def create_tasks(self, tasks: Sequence[dict[str, Any]], *, step_id: str | None = None) -> list[str]:
         """Create tasks (+ DEPENDS_ON edges) atomically. Each item: ``{id?, title, priority?, depends_on?}``.
 
         ``depends_on`` may name tasks in the same batch or tasks that already exist. Returns the task ids in
@@ -115,14 +115,23 @@ class Relay:
         res = self.client.rw(
             self.graph,
             "relay/create_tasks",
-            {"tasks": rows, "edges": edges, "ids": ids, "ext_dep_ids": ext, "now": self._clock()},
+            {
+                "tasks": rows,
+                "edges": edges,
+                "ids": ids,
+                "ext_dep_ids": ext,
+                "step_id": step_id or "",
+                "now": self._clock(),
+            },
         )
         if res.stats.get("nodes_created", 0) != len(rows):
             self._explain_rejected_create(ids, ext)
         return ids
 
     # -- claims -----------------------------------------------------------------------------------------
-    def claim_next_task(self, agent_id: str, lease_ms: int, now: int | None = None) -> dict[str, Any] | None:
+    def claim_next_task(
+        self, agent_id: str, lease_ms: int, now: int | None = None, *, step_id: str | None = None
+    ) -> dict[str, Any] | None:
         """Atomically claim the highest-priority ready task, or return None if nothing is claimable.
 
         Ready = open (or lease expired) with every dependency done. The returned dict carries ``version``
@@ -133,7 +142,9 @@ class Relay:
         _check_lease(lease_ms)
         now = self._clock() if now is None else now
         rows = self.client.rw(
-            self.graph, "relay/claim_next_task", {"agent": agent_id, "lease_ms": lease_ms, "now": now}
+            self.graph,
+            "relay/claim_next_task",
+            {"agent": agent_id, "lease_ms": lease_ms, "step_id": step_id or "", "now": now},
         )
         if rows:
             return dict(rows[0])
@@ -163,6 +174,8 @@ class Relay:
         expected_version: int,
         artifacts: Sequence[dict[str, Any]] = (),
         now: int | None = None,
+        *,
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         """Mark the task done if ``agent_id`` still holds it at ``expected_version``; record its artifacts.
 
@@ -170,7 +183,9 @@ class Relay:
         Raises :class:`ClaimConflict` (stale version, wrong owner, not claimed), :class:`UnknownReference`
         (no such task) or :class:`DuplicateArtifact`; nothing is written then.
         """
-        return self._finish("relay/complete_task", agent_id, task_id, expected_version, artifacts, now, {})
+        return self._finish(
+            "relay/complete_task", agent_id, task_id, expected_version, artifacts, now, {}, step_id
+        )
 
     def fail_task(
         self,
@@ -180,13 +195,24 @@ class Relay:
         artifacts: Sequence[dict[str, Any]] = (),
         reason: str = "",
         now: int | None = None,
+        *,
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         """Like :meth:`complete_task` but marks the task failed (downstream tasks stay blocked)."""
         return self._finish(
-            "relay/fail_task", agent_id, task_id, expected_version, artifacts, now, {"reason": reason}
+            "relay/fail_task",
+            agent_id,
+            task_id,
+            expected_version,
+            artifacts,
+            now,
+            {"reason": reason},
+            step_id,
         )
 
-    def reopen_task(self, agent_id: str, task_id: str, now: int | None = None) -> dict[str, Any]:
+    def reopen_task(
+        self, agent_id: str, task_id: str, now: int | None = None, *, step_id: str | None = None
+    ) -> dict[str, Any]:
         """Retry a failed task: CAS ``failed`` -> ``open`` (version+1, lease and ``done_at`` cleared).
 
         Returns ``{id, status, version}``. Raises :class:`UnknownReference` (task or agent) or
@@ -195,7 +221,9 @@ class Relay:
         """
         now = self._clock() if now is None else now
         rows = self.client.rw(
-            self.graph, "relay/reopen_task", {"agent": agent_id, "task": task_id, "now": now}
+            self.graph,
+            "relay/reopen_task",
+            {"agent": agent_id, "task": task_id, "step_id": step_id or "", "now": now},
         )
         if rows:
             return dict(rows[0])
@@ -215,6 +243,7 @@ class Relay:
         artifacts: Sequence[dict[str, Any]],
         now: int | None,
         extra: dict[str, Any],
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         if len(artifacts) > MAX_ARTIFACTS_PER_CALL:
             raise InvalidDag(f"at most {MAX_ARTIFACTS_PER_CALL} artifacts per call, got {len(artifacts)}")
@@ -241,6 +270,7 @@ class Relay:
                 "expected_version": expected_version,
                 "artifacts": rows,
                 "artifact_ids": ids,
+                "step_id": step_id or "",
                 "now": now,
                 **extra,
             },

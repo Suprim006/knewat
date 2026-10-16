@@ -1,8 +1,9 @@
 // name: relay/fail_task
 // purpose: Mark a claimed task failed (compare-and-set on claimed_by + version) and record its artifacts.
-// params: agent:str, task:str, expected_version:int, artifacts:list[map], artifact_ids:list[str], reason:str, now:int
+// params: agent:str, task:str, expected_version:int, artifacts:list[map], artifact_ids:list[str], step_id:str ('' = none), reason:str, now:int
 // returns: id, status, version (zero rows = CAS rejected, or an artifact id already exists; nothing written)
 // mode: rw
+// step_id (P12 fix 2): the Step opened before this call ('' = none); the task is linked (Step)-[:WROTE]->(Task) in the same statement (crash-consistency).
 // CAS: the task must be status 'claimed', claimed_by = agent and version = expected_version. The artifact id
 // guard makes a duplicate artifact id reject the whole call. Artifacts are created inside FOREACH so an empty
 // list does not remove the row. $artifacts items: {id, kind, uri, hash, summary} (no nulls; '' when absent).
@@ -11,8 +12,9 @@
 MATCH (t:Task {id: $task})
 WHERE t.status = 'claimed' AND t.claimed_by = $agent AND t.version = $expected_version
 MATCH (a:Agent {id: $agent})
+OPTIONAL MATCH (stp:Step {id: $step_id})
 OPTIONAL MATCH (e:Artifact) WHERE e.id IN $artifact_ids
-WITH a, t, count(e) AS duplicates
+WITH a, t, stp, count(e) AS duplicates
 WHERE duplicates = 0
 SET t.status = 'failed', t.fail_reason = $reason,
     t.done_at = $now, t.version = t.version + 1
@@ -23,4 +25,5 @@ FOREACH (art IN $artifacts |
   })-[:PRODUCED_BY]->(a)
   CREATE (x)-[:FOR]->(t)
 )
+FOREACH (sw IN CASE WHEN stp IS NULL THEN [] ELSE [stp] END | CREATE (sw)-[:WROTE]->(t))
 RETURN t.id AS id, t.status AS status, t.version AS version

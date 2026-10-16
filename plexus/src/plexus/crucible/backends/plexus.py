@@ -32,7 +32,7 @@ from plexus.embed import Embedder, get_embedder
 from plexus.engram.errors import UnknownReference as EngramUnknown
 from plexus.graph.client import GraphClient
 from plexus.graph.tenancy import graph_name
-from plexus.mcp.lineage_hook import FOLDS_WROTE, discard_step
+from plexus.mcp.lineage_hook import FOLDS_WROTE, discard_step, open_pre_step
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 from plexus.relay import errors as relay_errors
 
@@ -126,7 +126,9 @@ class PlexusBackend:
                 if (
                     self._steps_enabled and tool in FOLDS_WROTE
                 ):  # as Runtime._run: Step first, WROTE in the write
-                    m.step_id = self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
+                    m.step_id = open_pre_step(
+                        self.client, self.ts, tool, agent_id, None, self._now(), degraded
+                    )
                 try:
                     wrapped_out = wrapped(self.ts, m)
                 except Exception:
@@ -303,8 +305,10 @@ class PlexusBackend:
             chunk = list(tasks[i : i + 500])
 
             def work(ts: TenantState, m: MeteredClient, chunk=chunk) -> Outcome:
-                ids = ts.relay(m).create_tasks(chunk)
-                return Outcome({"task_ids": ids}, created=[("Task", x) for x in ids])
+                ids = ts.relay(m).create_tasks(chunk, step_id=m.step_id)
+                return Outcome(
+                    {"task_ids": ids}, created=[("Task", x) for x in ids], linked=ids if m.step_id else ()
+                )
 
             try:
                 out.extend(self._call("create_tasks", "crucible", work)["task_ids"])
@@ -318,10 +322,10 @@ class PlexusBackend:
         self, agent_id: str, lease_ms: int = 60_000, now: int | None = None
     ) -> dict[str, Any] | None:
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            t = ts.relay(m).claim_next_task(agent_id, lease_ms, now)
+            t = ts.relay(m).claim_next_task(agent_id, lease_ms, now, step_id=m.step_id)
             if t is None:
                 return Outcome({"task": None})
-            return Outcome({"task": t}, updated=[("Task", t["id"])])
+            return Outcome({"task": t}, updated=[("Task", t["id"])], linked=[t["id"]] if m.step_id else ())
 
         t = self._call("claim_next_task", agent_id, work)["task"]
         if t is None:
@@ -339,13 +343,47 @@ class PlexusBackend:
         self, agent_id: str, task_id: str, expected_version: int, artifacts: Sequence[dict[str, Any]] = ()
     ) -> dict[str, Any]:
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            r = ts.relay(m).complete_task(agent_id, task_id, expected_version, list(artifacts))
+            r = ts.relay(m).complete_task(
+                agent_id, task_id, expected_version, list(artifacts), step_id=m.step_id
+            )
             return Outcome(
-                r, created=[("Artifact", a) for a in r["artifact_ids"]], updated=[("Task", task_id)]
+                r,
+                created=[("Artifact", a) for a in r["artifact_ids"]],
+                updated=[("Task", task_id)],
+                linked=[task_id] if m.step_id else (),
             )
 
         d = self._call("complete_task", agent_id, work)
         return {k: d[k] for k in ("id", "status", "version", "artifact_ids")}
+
+    def fail_task(
+        self,
+        agent_id: str,
+        task_id: str,
+        expected_version: int,
+        artifacts: Sequence[dict[str, Any]] = (),
+        reason: str = "",
+    ) -> dict[str, Any]:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).fail_task(
+                agent_id, task_id, expected_version, list(artifacts), reason, step_id=m.step_id
+            )
+            return Outcome(
+                r,
+                created=[("Artifact", a) for a in r["artifact_ids"]],
+                updated=[("Task", task_id)],
+                linked=[task_id] if m.step_id else (),
+            )
+
+        d = self._call("fail_task", agent_id, work)
+        return {k: d[k] for k in ("id", "status", "version", "artifact_ids")}
+
+    def reopen_task(self, agent_id: str, task_id: str) -> dict[str, Any]:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).reopen_task(agent_id, task_id, step_id=m.step_id)
+            return Outcome({"task": r}, updated=[("Task", task_id)], linked=[task_id] if m.step_id else ())
+
+        return self._call("reopen_task", agent_id, work)["task"]
 
     def handoff(
         self,

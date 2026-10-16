@@ -24,10 +24,26 @@ WROTE_LABELS = frozenset(
     {"Decision", "Handoff", "Task"}
 )  # nodes a Step can WROTE besides Facts (see link_step)
 HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
-# Tools whose write statement creates (Step)-[:WROTE]->(node) itself (P9-int, L6-F): the Runtime opens their Step
-# BEFORE the tool runs and hands it over as ``MeteredClient.step_id``. A crash can then no longer leave the new
-# fact / decision / handoff without its WROTE edge. Every other tool is still linked after its write.
-FOLDS_WROTE = frozenset({"assert_fact", "record_decision", "handoff"})
+# Tools whose write statement creates (Step)-[:WROTE]->(node) itself (P9-int, L6-F; the five task tools: P12 fix 2):
+# the Runtime opens their Step BEFORE the tool runs and hands it over as ``MeteredClient.step_id``. A crash can then
+# no longer leave the new fact / decision / handoff / task change without its WROTE edge. Every other tool is
+# still linked after its write.
+FOLDS_WROTE = frozenset(
+    {
+        "assert_fact",
+        "record_decision",
+        "handoff",
+        "create_tasks",
+        "claim_next_task",
+        "complete_task",
+        "fail_task",
+        "reopen_task",
+    }
+)
+# Relay tools whose own statement MATCHes the acting agent and rejects an unknown one ("unknown agent"). Opening the
+# Step first would MERGE that agent into existence (lineage/record_step), so for these the early Step is skipped when
+# the agent is not registered: the tool then fails exactly as before and no Step or Agent is left behind.
+REQUIRES_AGENT = FOLDS_WROTE - {"assert_fact"}
 LINK_CHUNK = 200  # ids per link_step call (lineage.MAX_LINK_IDS)
 
 
@@ -62,6 +78,21 @@ def open_step(
             log.warning("step %s is behind %s's latest step; using the next number", step, agent_id)
             return lin.record_step(agent_id, None, at)
     return None
+
+
+def open_pre_step(
+    client: GraphClient,
+    ts: TenantState,
+    tool: str,
+    agent_id: str,
+    step: int | None,
+    at: int,
+    degraded: list[str],
+) -> str | None:
+    """The Step opened BEFORE a FOLDS_WROTE tool runs; ``None`` when the tool needs a registered agent and it is not."""
+    if tool in REQUIRES_AGENT and not client.ro(ts.graph, "relay/agent_exists", {"id": agent_id}):
+        return None
+    return open_step(client, ts, agent_id, step, at, degraded)
 
 
 def discard_step(client: GraphClient, ts: TenantState, step_id: str | None) -> None:
