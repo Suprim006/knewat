@@ -208,13 +208,17 @@ def test_plan_shape_hop_queries_do_not_enumerate_the_scope(client, graph):
         "CREATE (a)-[:RELATES {kind: 'next', scope_id: 'S', at: 1}]->(b)"
     )
     ops = profile_ops(
-        client, graph, "engram/relates_level", {"frontier": ["E5"], "scope_id": "S", "limit": 200}
+        client,
+        graph,
+        "engram/relates_level",
+        {"frontier": ["E5"], "scope_id": "S", "all": False, "limit": 200},
     )
     assert max_records(ops).records < BIG // 10, str(max_records(ops))
     vec = client.graph(graph).ro_query("MATCH (f:Fact {id: 'F0'}) RETURN f.embedding").result_set[0][0]
     params = {
         "entity_ids": ["E6", "E4"],
         "scope_id": "S",
+        "all": False,
         "t": 5,
         "statuses": ["active"],
         "per_entity": 3,
@@ -224,3 +228,7 @@ def test_plan_shape_hop_queries_do_not_enumerate_the_scope(client, graph):
     assert max_records(ops).records < BIG // 10, "\n".join(map(str, ops))
     rows = client.ro(graph, "engram/recall_hop_facts", params)
     assert len(rows) == 6 and {r["entity_id"] for r in rows} == {"E4", "E6"}
+    # P12: scope 'all' (OPTIONAL scope path) keeps the anchored plan and the same rows in a one-scope graph
+    ops = profile_ops(client, graph, "engram/recall_hop_facts", {**params, "all": True})
+    assert max_records(ops).records < BIG // 10, "\n".join(map(str, ops))
+    assert len(client.ro(graph, "engram/recall_hop_facts", {**params, "all": True})) == 6

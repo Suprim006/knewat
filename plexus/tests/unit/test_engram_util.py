@@ -39,6 +39,7 @@ def test_every_engram_query_loads_and_modes():
         "engram/duplicate_pair",
         "engram/relates_level",  # P9-b
         "engram/recall_hop_facts",
+        "engram/count_missing_search_text",  # P12
     }
     # R: one statement per operation
     assert all(len(lib.get(n).statements) == 1 for n in names)

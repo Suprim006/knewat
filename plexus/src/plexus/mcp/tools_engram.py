@@ -13,9 +13,12 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
+from plexus.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K
 from plexus.mcp.limits import (
+    ALL_SCOPES,
     MAX_INT,
     MAX_LIST,
+    MAX_NAME,
     AgentId,
     EpochMs,
     IdStr,
@@ -150,8 +153,15 @@ def recall(
     m: MeteredClient,
     agent_id: AgentId,
     query: Annotated[Value, Field(description="Natural-language question or topic, e.g. 'API version'.")],
-    scope: ScopeArg = "global",
-    k: Annotated[int, Field(ge=1, le=50, description="Max number of facts to return.")] = 8,
+    scope: Annotated[
+        str,
+        Field(
+            description="Where to search: 'all' (default: every scope of the team's memory), or 'global', "
+            "'project:<name>', 'user:<name>' or a scope id (that scope plus the scopes it inherits).",
+            max_length=MAX_NAME,
+        ),
+    ] = ALL_SCOPES,
+    k: Annotated[int, Field(ge=1, le=50, description="Max number of facts to return.")] = DEFAULT_K,
     as_of: Annotated[
         EpochMs | None,
         Field(
@@ -160,7 +170,7 @@ def recall(
     ] = None,
     budget_chars: Annotated[
         int, Field(ge=50, le=20000, description="Rough cap on total returned text.")
-    ] = 2000,
+    ] = DEFAULT_BUDGET_CHARS,
     include_dormant: Annotated[
         bool,
         Field(description="True to also search facts a memory_sweep moved to 'dormant' (hidden by default)."),
@@ -189,12 +199,17 @@ def recall(
     and a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little
     higher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is
     'suspect' (its code or review date changed: verify before relying on it) and 'protected'; 'maybe_duplicate_of'
-    lists facts it may duplicate (see confirm_duplicate). Also returns
+    lists facts it may duplicate (see confirm_duplicate). 'truncated': true means more facts matched than
+    were returned (raise k / budget_chars or narrow the query). Also returns
     recall_id: pass it to why_recalled to see why these facts came back, in this order."""
-    sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
-    if sid is None:
-        return Outcome({"facts": [], "count": 0, "scope_id": None})
-    hits = ts.engram(m).recall(
+    all_scopes = (scope or "").strip() == ALL_SCOPES
+    if all_scopes:
+        sid = ts.scope_id("global", m, create=False) or ""  # the walk starts nowhere; $all keeps every scope
+    else:
+        sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
+        if sid is None:
+            return Outcome({"facts": [], "count": 0, "scope_id": None, "truncated": False})
+    hits, page = ts.engram(m).recall_page(
         query,
         sid,
         k=k,
@@ -203,6 +218,7 @@ def recall(
         include_dormant=include_dormant,
         forgetting=forgetting,
         hops=hops,
+        all_scopes=all_scopes,
     )
     for h in hits:
         h["score"] = round(h["score"], 4)
@@ -210,9 +226,24 @@ def recall(
             h["activation"] = round(h["activation"], 3)
 
     def record(lin, step_id: str | None) -> dict[str, Any]:
-        return {"recall_id": lin.record_recall(agent_id, step_id, query, sid, k, hits)}
+        return {
+            "recall_id": lin.record_recall(
+                agent_id, step_id, query, ALL_SCOPES if all_scopes else sid, k, hits
+            )
+        }
 
-    return Outcome({"facts": hits, "count": len(hits), "scope_id": sid}, after=record)
+    out_sid = ALL_SCOPES if all_scopes else sid
+    return Outcome(
+        {
+            "facts": hits,
+            "count": len(hits),
+            "scope_id": out_sid,
+            "truncated": page["truncated"],
+            "omitted_by_budget": page["omitted_by_budget"],
+            "more_available": page["more_available"],
+        },
+        after=record,
+    )
 
 
 @tool(kind="read")

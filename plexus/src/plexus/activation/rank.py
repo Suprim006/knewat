@@ -46,10 +46,11 @@ def rerank(
 ) -> list[Ranked]:
     """Score the candidates and keep the best ``k``.
 
-    ``relevance = 1 - rank`` (``rank`` is the cosine distance after the sibling boost), clamped to [0, 1].
-    The multiplier is ``floor + (1 - floor) * sigmoid(A - A0)``; protected facts use ``max(A, A0)``.
-    A fact that is a full-text keyword hit **and** whose value contains every query keyword (``words``)
-    is exempt (1.0).
+    ``relevance`` = the row's ``fused`` score when it has one (P12: hybrid of the vector and keyword channels,
+    ``plexus.engram.service.fuse_scores``), else ``1 - rank`` (``rank`` is the cosine distance after the
+    sibling boost); clamped to [0, 1]. The multiplier is ``floor + (1 - floor) * sigmoid(A - A0)``; protected
+    facts use ``max(A, A0)``. A fact that is a full-text keyword hit **and** whose text (entity name,
+    predicate and value; the value only before P12) contains every query keyword (``words``) is exempt (1.0).
     Order: ``final`` descending, then vector rank, then id, so the result never depends on the input order.
     """
     a0 = settings.neutral
@@ -58,9 +59,11 @@ def rerank(
         fa = acts.get(r["fact_id"])
         a = fa.activation if fa is not None else float("-inf")
         protected = bool(fa and fa.protected)
-        bypass = bool(words) and r["fact_id"] in kw_ids and _contains_every(r.get("value", ""), words)
+        text = " ".join(str(r.get(x) or "") for x in ("entity_name", "predicate", "value"))
+        bypass = bool(words) and r["fact_id"] in kw_ids and _contains_every(text, words)
         mult = model.multiplier(a, a0, settings.floor, protected=protected, bypass=bypass)
-        rel = min(1.0, max(0.0, 1.0 - float(r["rank"])))
+        raw = r["fused"] if r.get("fused") is not None else 1.0 - float(r["rank"])
+        rel = min(1.0, max(0.0, float(raw)))
         scored.append(
             Ranked(
                 row=r,

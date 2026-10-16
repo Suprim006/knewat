@@ -3,7 +3,9 @@
 1. list normalised names held by more than one Entity (they would leave UNIQUE(``Entity.norm_name``) FAILED);
 2. backfill ``Entity.tok`` / ``Entity.num_key`` in batches of ``BATCH`` (entities without them never match the
    full-text / vector lookups of ``engram/resolve_entity``, so run this before relying on the new resolution);
-3. apply the schema (idempotent: adds the UNIQUE constraint) and report its status;
+3. apply the schema (idempotent: adds the UNIQUE constraint and, P12, the ``Fact.search_text`` full-text
+   field) and report its status; P12 also backfills ``Fact.search_text`` on older facts (recall's keyword
+   channel);
 4. dry-run report of near-duplicate *legacy* entities, read-only: for every entity, the older entities the new
    resolution would have joined it to (same kind and numeric tokens; token Jaccard or vector distance).
 
@@ -70,6 +72,19 @@ def backfill_entity_keys(client: GraphClient, graph: str, *, dry_run: bool = Fal
             rows = client.rw(graph, "engram/backfill_entity_keys", {"rows": todo})
             updated += rows[0]["n"]
     return {"total": total, "missing": missing, "updated": updated}
+
+
+def backfill_search_text(client: GraphClient, graph: str, *, dry_run: bool = False) -> dict[str, int]:
+    """P12: set ``Fact.search_text`` (entity name + predicate words) on facts written before P12, so recall's
+    keyword channel matches their subject and predicate too. Idempotent; ``dry_run`` only counts."""
+    missing = int(client.ro(graph, "engram/count_missing_search_text")[0]["n"])
+    updated = 0
+    while not dry_run:
+        n = int(client.rw(graph, "engram/backfill_search_text", {"batch": BATCH})[0]["n"])
+        updated += n
+        if n == 0:
+            break
+    return {"missing": missing, "updated": updated}
 
 
 def _older_candidates(
@@ -160,6 +175,7 @@ def run(client: GraphClient, graph: str, *, dry_run: bool = False) -> dict[str, 
     """The whole migration. Returns the report dict printed (or dumped as JSON) by the CLI."""
     dups = duplicate_names(client, graph)
     backfill = backfill_entity_keys(client, graph, dry_run=dry_run)
+    search = backfill_search_text(client, graph, dry_run=dry_run)
     if not dry_run:
         apply_schema(
             client, graph
@@ -169,6 +185,7 @@ def run(client: GraphClient, graph: str, *, dry_run: bool = False) -> dict[str, 
         "dry_run": dry_run,
         "duplicate_names": dups,
         "backfill": backfill,
+        "search_text": search,
         "constraint": constraint_status(client, graph),
         "near_duplicates": near_duplicates(client, graph),
     }
@@ -181,6 +198,11 @@ def format_report(rep: dict[str, Any], max_pairs: int = 50) -> str:
     lines.append(
         f"entities: {b['total']}; without tok/num_key: {b['missing']}; {verb}: "
         f"{b['missing'] if rep['dry_run'] else b['updated']}"
+    )
+    st = rep.get("search_text") or {"missing": 0, "updated": 0}
+    lines.append(
+        f"facts without search_text (P12): {st['missing']}; "
+        f"{verb}: {st['missing'] if rep['dry_run'] else st['updated']}"
     )
     lines.append(f"UNIQUE(Entity.norm_name): {rep['constraint']}")
     for d in rep["duplicate_names"]:

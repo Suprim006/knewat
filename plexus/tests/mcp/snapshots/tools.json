@@ -2094,7 +2094,7 @@
     }
   },
   "recall": {
-    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\nbefore acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\nand a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little\nhigher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is\n'suspect' (its code or review date changed: verify before relying on it) and 'protected'; 'maybe_duplicate_of'\nlists facts it may duplicate (see confirm_duplicate). Also returns\nrecall_id: pass it to why_recalled to see why these facts came back, in this order.",
+    "description": "Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this\nbefore acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window\nand a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little\nhigher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is\n'suspect' (its code or review date changed: verify before relying on it) and 'protected'; 'maybe_duplicate_of'\nlists facts it may duplicate (see confirm_duplicate). 'truncated': true means more facts matched than\nwere returned (raise k / budget_chars or narrow the query). Also returns\nrecall_id: pass it to why_recalled to see why these facts came back, in this order.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -2137,7 +2137,7 @@
           "title": "Audit"
         },
         "budget_chars": {
-          "default": 2000,
+          "default": 6000,
           "description": "Rough cap on total returned text.",
           "maximum": 20000,
           "minimum": 50,
@@ -2172,7 +2172,7 @@
           "type": "boolean"
         },
         "k": {
-          "default": 8,
+          "default": 20,
           "description": "Max number of facts to return.",
           "maximum": 50,
           "minimum": 1,
@@ -2186,8 +2186,8 @@
           "type": "string"
         },
         "scope": {
-          "default": "global",
-          "description": "Memory scope: 'global' (shared by everyone, default), 'project:<name>' or 'user:<name>' (project/user scopes also see 'global'), or a scope id.",
+          "default": "all",
+          "description": "Where to search: 'all' (default: every scope of the team's memory), or 'global', 'project:<name>', 'user:<name>' or a scope id (that scope plus the scopes it inherits).",
           "maxLength": 512,
           "title": "Scope",
           "type": "string"

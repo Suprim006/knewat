@@ -1,12 +1,17 @@
 // name: engram/recall
 // purpose: Hybrid recall in ONE read: vector (+ keyword) seeds over Fact.embedding, scope-inheritance + validity-window + status filter, 1-hop ABOUT-entity expansion to sibling facts (boosted, capped), nearest first, with provenance for the why-path.
-// params: q:list[float], scope_id:str, over:int, k:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str]
-// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), maybe_dup [ids of the facts this one is a possible duplicate of: (n)-[:DUPLICATES_MAYBE]->(o), P9-c]
+// params: q:list[float], scope_id:str, all:bool, over:int, lim:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str]
+// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), maybe_dup [ids of the facts this one is a possible duplicate of: (n)-[:DUPLICATES_MAYBE]->(o), P9-c], kw (1 when the fact is one of $kw_ids, else 0), sib_of [ids of the seeds this fact is a sibling of (same ABOUT entity)]
 // mode: ro
 
 // P7 (D-012): the statuses list is a parameter: ['active'] by default, + 'dormant' with include_dormant, + 'superseded' and 'dormant' for as_of. The extra row fields are plain
 // properties of the matched fact (read with coalesce, absent on facts written before P7); the activation re-ranking happens in Python on these rows (plexus.activation.rank).
-// Scopes searched: the given scope plus everything it INHERITS (<=3 hops). Facts are valid at t when valid_from <= t < valid_to.
+// Scopes searched: the given scope plus everything it INHERITS (<=3 hops); with $all (P12, recall's scope 'all') every scope of the tenant graph.
+// Facts are valid at t when valid_from <= t < valid_to.
+// Keyword seeds are never cut by the cosine LIMITs (P12): both LIMITs order the keyword hits first and keep $lim = k + size($kw_ids) rows (LIMIT takes no expression), so
+// every in-scope valid keyword hit reaches the caller, which fuses the vector and keyword scores and cuts to k. With a pool this large
+// nearly every candidate is also a seed, so the caller re-applies the sibling boost itself, only to siblings of the best seeds
+// (sib_of; plexus.engram.service._sibling_boost), as before P12; `rank` here boosts siblings of every seed.
 // Seeds: the top `over` nearest facts of the WHOLE graph plus the facts in kw_ids (full-text hits from engram/recall_keywords),
 // then filtered. LIMITATION: FalkorDB's vector procedure has no pre-filter, so scope/status/validity are applied AFTER the
 // index returns `over` nodes; nearer out-of-scope or superseded facts can crowd the target out. The Python wrapper therefore
@@ -23,35 +28,35 @@
 MATCH (:Scope {id: $scope_id})-[:INHERITS*0..3]->(a:Scope)
 WITH collect(DISTINCT a.id) AS sids
 CALL db.idx.vector.queryNodes('Fact', 'embedding', $over, vecf32($q)) YIELD node, score
-WITH sids, collect({n: node, s: score}) AS vh
+WITH sids, collect({n: node, s: score, kw: 0}) AS vh
 UNWIND CASE WHEN size($kw_ids) = 0 THEN [''] ELSE $kw_ids END AS kid
 OPTIONAL MATCH (kx:Fact {id: kid})
-WITH sids, vh, collect({n: kx, s: vec.cosineDistance(kx.embedding, vecf32($q))}) AS kh
+WITH sids, vh, collect({n: kx, s: vec.cosineDistance(kx.embedding, vecf32($q)), kw: 1}) AS kh
 UNWIND vh + kh AS h
 WITH sids, size(vh) AS raw, h WHERE h.n IS NOT NULL
-WITH sids, raw, h.n AS f, min(h.s) AS score
+WITH sids, raw, h.n AS f, min(h.s) AS score, max(h.kw) AS kw
 WHERE f.status IN $statuses AND f.valid_from <= $t AND $t < f.valid_to
 MATCH (f)-[:IN_SCOPE]->(fs:Scope)
-WHERE fs.id IN sids
+WHERE $all OR fs.id IN sids
 MATCH (f)-[:ABOUT]->(e:Entity)
-WITH sids, raw, f, e, score
-ORDER BY score ASC
-LIMIT $k
+WITH sids, raw, f, e, score, kw
+ORDER BY kw DESC, score ASC
+LIMIT $lim
 OPTIONAL MATCH (e)<-[:ABOUT]-(g0:Fact)
   WHERE g0.id <> f.id AND g0.status IN $statuses AND g0.valid_from <= $t AND $t < g0.valid_to
-WITH sids, raw, f, e, score, g0
+WITH sids, raw, f, e, score, kw, g0
 OPTIONAL MATCH (g0)-[:IN_SCOPE]->(gs:Scope)
-  WHERE gs.id IN sids
-WITH raw, f, e, score, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
-WITH raw, f, e, score, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
+  WHERE $all OR gs.id IN sids
+WITH raw, f, e, score, kw, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
+WITH raw, f, e, score, kw, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
 ORDER BY gd ASC
-WITH raw, f, e, score, collect({g: g, d: gd})[0..$sibs] AS sibs
-WITH raw, [{n: f, rank: score, dist: score, seed: 1, via: f.id}]
-     + [s IN sibs WHERE s.g IS NOT NULL | {n: s.g, rank: CASE WHEN s.d - $boost < 0 THEN 0.0 ELSE s.d - $boost END, dist: s.d, seed: 0, via: f.id}] AS cands
+WITH raw, f, e, score, kw, collect({g: g, d: gd})[0..$sibs] AS sibs
+WITH raw, [{n: f, rank: score, dist: score, seed: 1, via: f.id, kw: kw}]
+     + [s IN sibs WHERE s.g IS NOT NULL | {n: s.g, rank: CASE WHEN s.d - $boost < 0 THEN 0.0 ELSE s.d - $boost END, dist: s.d, seed: 0, via: f.id, kw: 0}] AS cands
 UNWIND cands AS c
-WITH raw, c.n AS n, min(c.rank) AS rank, min(c.dist) AS dist, max(c.seed) AS isseed, collect(CASE WHEN c.seed = 0 THEN c.via END) AS vias
-ORDER BY rank ASC
-LIMIT $k
+WITH raw, c.n AS n, min(c.rank) AS rank, min(c.dist) AS dist, max(c.seed) AS isseed, max(c.kw) AS kw, collect(CASE WHEN c.seed = 0 THEN c.via END) AS vias
+ORDER BY kw DESC, rank ASC
+LIMIT $lim
 MATCH (n)-[:ABOUT]->(en:Entity)
 MATCH (n)-[:IN_SCOPE]->(ns:Scope)
 RETURN n.id AS fact_id, en.id AS entity_id, en.name AS entity_name, n.predicate AS predicate, n.value AS value,
@@ -61,5 +66,5 @@ RETURN n.id AS fact_id, en.id AS entity_id, en.name AS entity_name, n.predicate 
        coalesce(n.suspect_since, 0) AS suspect_since, coalesce(n.verify_after, 9999999999999) AS verify_after,
        [(n)-[:DERIVED_FROM]->(d) | {id: d.id, label: labels(d)[0]}] AS derived_from,
        [(n)-[:ASSERTED_BY]->(ag:Agent) | ag.id] AS asserted_by,
-       [(n)-[:DUPLICATES_MAYBE]->(mo:Fact) | mo.id] AS maybe_dup
+       [(n)-[:DUPLICATES_MAYBE]->(mo:Fact) | mo.id] AS maybe_dup, kw, vias AS sib_of
 ORDER BY rank ASC

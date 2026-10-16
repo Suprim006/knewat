@@ -24,6 +24,7 @@ MAX_TEXT = 100_000
 MAX_LIST = 200
 MAX_INT = 2**31 - 1
 MAX_LEASE_MS = 86_400_000  # one day
+ALL_SCOPES = "all"  # recall's scope spec for every scope of the tenant graph (P12; recall only)
 
 AgentId = Annotated[
     str,

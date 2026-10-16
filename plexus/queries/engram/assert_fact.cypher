@@ -3,7 +3,8 @@
 // params: entity_id:str, predicate:str, value:str, norm_value:str, value_tokens:str, dup_key:str, tok:list[str], tok_seq:list[str], scope_id:str, agent_id:str,
 //   source_id:str, episode_id:str, step_id:str ('' = none), confidence:float, supersede:bool, now:int, open_to:int,
 //   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float, jac2:float, cos2:float, maybe_cos:float, maybe_jac:float, maybe_cap:int,
-//   novelty:float, surprise_supersede:float, surprise_contradict:float
+//   novelty:float, surprise_supersede:float, surprise_contradict:float, search_text:str
+// search_text (P12): entity name + predicate words; the full-text channel of recall indexes it next to Fact.value. Written on the new fact only.
 // returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, or a given episode/source does not exist (nothing is written, not even the Agent)
 // mode: rw
 
@@ -101,7 +102,7 @@ FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
   FOREACH (c IN closing | SET c.valid_to = ts, c.status = 'superseded' MERGE (d)-[:SUPERSEDES]->(c)))
 FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   CREATE (nf:Fact {id: $fact_id, subject_id: $entity_id, predicate: $predicate, value: $value, norm_value: $norm_value,
-                   value_tokens: $value_tokens, dup_key: $dup_key, tok: $tok, tok_seq: $tok_seq,
+                   value_tokens: $value_tokens, dup_key: $dup_key, tok: $tok, tok_seq: $tok_seq, search_text: $search_text,
                    valid_from: ts, valid_to: $open_to, recorded_at: $now, created_at: $now,
                    status: 'active', confidence: $confidence, surprise: sp, embedding: vecf32($emb), value_embedding: vecf32($value_emb)})
   CREATE (nf)-[:ABOUT]->(e)

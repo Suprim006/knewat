@@ -92,13 +92,15 @@ def test_k_and_budget_are_clamped(eng, proj, monkeypatch):
 
     monkeypatch.setattr(eng.client, "ro", spy)
     eng.assert_fact("Acme", "owner", "alice", proj, "a1", now=10)
-    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=False)  # retrieval only
-    assert all(p["k"] == svc.MAX_K == 50 for p in seen)
+    got = eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=False)  # retrieval only
+    assert len(got) <= svc.MAX_K == 50
+    # P12: the candidate pool is max(3k, 60) capped at MAX_POOL (150), plus every keyword hit
+    assert all(p["lim"] - len(p["kw_ids"]) == svc.MAX_POOL == 150 for p in seen)
     assert svc.MAX_BUDGET_CHARS == 20_000
     assert all(p["over"] <= svc.MAX_OVER for p in seen)
     seen.clear()
-    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=True)  # P7-K: 2k candidates
-    assert all(p["k"] == 2 * svc.MAX_K for p in seen)
+    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=True)
+    assert all(p["lim"] - len(p["kw_ids"]) == svc.MAX_POOL for p in seen)
     assert all(p["over"] <= svc.MAX_OVER for p in seen)
 
 
@@ -117,7 +119,8 @@ def test_sibling_expansion_is_capped_per_seed(eng, client, graph, proj):
         "q": eng.embedder.embed(["Hot attr3 value 3"])[0],
         "scope_id": proj,
         "over": 1,  # exactly one seed
-        "k": 50,
+        "lim": 50,
+        "all": False,
         "t": 20,
         "statuses": ["active"],
         "boost": 0.05,
