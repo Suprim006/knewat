@@ -22,8 +22,10 @@ import time
 from collections import defaultdict
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
+from plexus.common import OPEN
 from plexus.crucible.api import (
     ClaimConflict,
     CrucibleError,
@@ -77,6 +79,11 @@ TESTS: dict[str, dict[str, str]] = {
         "title": "Paraphrase facts written concurrently by different agents",
         "metric": "duplicates stored beyond the sequential paraphrase-miss rate; false merges",
         "bar": "concurrent misses <= sequential misses (rate reported); 0 false merges",
+    },
+    "C7X": {
+        "title": "Paraphrase precision: 226 labelled pairs (negation, units, numbers, direction, ...)",
+        "metric": "false merges (a different statement stored as a duplicate), per category; recall of true paraphrases",
+        "bar": "0 false merges in every category on P / P-mcp (baseline arms: reported, not gated)",
     },
     "C8": {
         "title": "Forget by source, then probe recall",
@@ -894,6 +901,112 @@ def c7(run: ArmRun, seed: int, cfg: L1Config) -> RunResult:
     )
 
 
+# -- C7X: the extended, labelled corpus (P9-c B4) ------------------------------------------------------------
+C7X_PATH = Path(__file__).resolve().parents[3] / "demo_data" / "crucible" / "c7_pairs.yaml"
+C7X_GATED_ARMS = (
+    "P",
+    "P-mcp",
+)  # the arms that implement the precision guards; the baselines are measured, not gated
+
+
+def load_c7x(path: Path | None = None) -> list[dict[str, Any]]:
+    """The labelled pairs of ``demo_data/crucible/c7_pairs.yaml``: ``id category split expected subject predicate a b``."""
+    import yaml
+
+    doc = yaml.safe_load((path or C7X_PATH).read_text(encoding="utf-8"))
+    return list(doc["pairs"])
+
+
+def rule_of_three(n: int) -> float | None:
+    """95% upper bound on a rate after 0 events in ``n`` trials (``3 / n``); ``None`` for ``n == 0``."""
+    return None if n <= 0 else round(3.0 / n, 4)
+
+
+def _soft_linked(b: Any, new_id: str, old_id: str) -> bool:
+    """True when the Plexus store holds ``(new)-[:DUPLICATES_MAYBE]->(old)``. Other arms have no such link."""
+    client, graph = getattr(b, "client", None), getattr(b, "graph", None)
+    if client is None or graph is None:
+        return False
+    rows = client.ro(graph, "engram/duplicate_pair", {"new_id": new_id, "old_id": old_id, "open_to": OPEN})
+    return bool(rows and rows[0]["linked"])
+
+
+def _c7x_outcome(b: Any, p: dict[str, Any]) -> str:
+    """Assert both values (two agents, in order) and classify: ``merged`` | ``maybe`` | ``new``.
+
+    Plexus reports ``duplicate_of`` itself (the lookup by subject name is not used: with a weak embedder a subject can
+    resolve to another pair's entity); the other arms are judged by whether both of this pair's values are still active.
+    """
+    ag_a, ag_b = f"{p['id']}-a", f"{p['id']}-b"
+    b.register_agent(ag_a, "")
+    b.register_agent(ag_b, "")
+    first = b.assert_fact(ag_a, p["subject"], p["predicate"], p["a"])
+    r = b.assert_fact(ag_b, p["subject"], p["predicate"], p["b"])
+    if "duplicate_of" in r:
+        merged = bool(r["duplicate_of"])
+    else:
+        mine = {normalize(p["a"]), normalize(p["b"])}
+        facts = b.facts(p["subject"], p["predicate"])
+        merged = sum(1 for f in facts if f["status"] == "active" and normalize(f["value"]) in mine) < 2
+    if merged:
+        return "merged"
+    return "maybe" if _soft_linked(b, r["fact_id"], first["fact_id"]) else "new"
+
+
+def c7x(run: ArmRun, seed: int, cfg: L1Config, pairs: list[dict[str, Any]] | None = None) -> RunResult:
+    """Every labelled pair through one fresh tenant (sequential). A *false merge* is a pair labelled ``distinct`` or
+    ``maybe`` that ended as one fact. Gated (violation) on the Plexus arms; the baseline arms only report the count."""
+    corpus = pairs if pairs is not None else load_c7x()
+    res = RunResult(seed=seed, params={"pairs": len(corpus)})
+    b = run.open("c7x")
+    cats: dict[str, dict[str, Any]] = {}
+    for p in corpus:
+        out = _c7x_outcome(b, p)
+        c = cats.setdefault(
+            p["category"],
+            {"expected": p["expected"], "pairs": 0, "merged": 0, "maybe": 0, "new": 0, "false_merges": 0,
+             "test_pairs": 0, "test_false_merges": 0},
+        )  # fmt: skip
+        c["pairs"] += 1
+        c[out] += 1
+        false = p["expected"] != "merge" and out == "merged"
+        c["false_merges"] += int(false)
+        if p["split"] == "test":
+            c["test_pairs"] += 1
+            c["test_false_merges"] += int(false)
+    wrong = [c for c in cats.values() if c["false_merges"]]
+    false_total = sum(c["false_merges"] for c in cats.values())
+    n_not_merge = sum(c["pairs"] for c in cats.values() if c["expected"] != "merge")
+    n_merge = sum(c["pairs"] for c in cats.values() if c["expected"] == "merge")
+    auto = sum(c["merged"] for c in cats.values() if c["expected"] == "merge")
+    surfaced = auto + sum(c["maybe"] for c in cats.values() if c["expected"] == "merge")
+    for c in cats.values():
+        c["false_merge_upper_95"] = (
+            rule_of_three(c["pairs"]) if c["expected"] != "merge" and not c["false_merges"] else None
+        )
+    gated = run.arm in C7X_GATED_ARMS
+    return res.conclude(
+        violations={
+            "false_merges": false_total if gated else 0,
+            "categories_with_false_merges": len(wrong) if gated else 0,
+        },
+        metrics={
+            "pairs": len(corpus),
+            "false_merges": false_total,
+            "not_merge_pairs": n_not_merge,
+            "merge_pairs": n_merge,
+            "auto_merged": auto,
+            "surfaced": surfaced,
+            "recall_auto": round(auto / n_merge, 3) if n_merge else 0.0,
+            "recall_surfaced": round(surfaced / n_merge, 3) if n_merge else 0.0,
+        },
+        details={
+            "by_category": cats,
+            "false_merge_upper_95": rule_of_three(n_not_merge) if not false_total else None,
+        },
+    )
+
+
 # ============================================================================================================
 # C8: forget by source
 # ============================================================================================================
@@ -1011,6 +1124,7 @@ CASES: dict[str, Callable[..., RunResult]] = {
     "C5": c5,
     "C6": c6,
     "C7": c7,
+    "C7X": c7x,
     "C8": c8,
 }
 
