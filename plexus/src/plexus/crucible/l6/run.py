@@ -193,7 +193,7 @@ def det_dag(client: GraphClient, tmp: Path, log: Callable[[str], None]) -> dict[
         g = client.graph(name)
         relay = Relay(client, name)
 
-        def product(_q: Any, relay: Any = relay) -> tuple[Any, dict[str, Any]]:
+        def product(_q: Any, relay: Any = relay, probes: list[str] = q.probes) -> tuple[Any, dict[str, Any]]:
             t0 = time.perf_counter()
             ids = sorted(relay.blocked_by_failure("root"))
             return {
