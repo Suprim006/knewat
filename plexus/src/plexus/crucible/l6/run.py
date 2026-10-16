@@ -108,6 +108,9 @@ def summarise(arm: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
         "arm": arm, "n": len(rows), "strict_correct": sum(r["strict"] for r in rows),
         "timeouts": sum(r["error"] == "timeout" for r in rows), "other_errors": sum(bool(r["error"]) and r["error"] != "timeout" for r in rows),
         "components_correct": comps,
+        "strict_without_earliest5": sum(bool(r["components"]) and all(v for k, v in r["components"].items() if k != "earliest5") for r in rows)
+        if "earliest5" in comps or any("earliest5" in r["components"] for r in rows)
+        else None,
         "latency_ms": {"p50": round(percentile(lat, 50), 2), "p99": round(percentile(lat, 99), 2), "max": round(max(lat), 2) if lat else 0},
         "server_ms_median": round(statistics.median([r["server_ms_median"] for r in rows]), 3) if rows else 0,
         "statements_per_answer_median": statistics.median([r["statements"] for r in rows]) if rows else 0,
@@ -140,6 +143,8 @@ def loc(obj: Any) -> int:
 
 # ------------------------------------------------------------------------------------------------ the families
 def det_a(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: float = 1.0) -> dict[str, Any]:
+    from plexus.lineage.service import Lineage
+
     t = time.time()
     w, qs = W.gen_a(scale)
     log(f"A: world {w.counts()} generated in {time.time() - t:.1f}s")
@@ -150,6 +155,8 @@ def det_a(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
     arms: dict[str, Callable[[Any], tuple[Any, dict[str, Any]]]] = {
         "B1h": A.SqlArm(p_tuned).blast, "B1h-untuned": A.SqlArm(p_untuned, tuned=False).blast,
         "P-tuned": A.TunedArm(g).blast, "P-anchored": A.AnchoredArm(g).blast, "P-naive": A.NaiveArm(g).blast,
+        "P-product-tool": A.ProductImpactA(Lineage(client, name), 200).blast,
+        "P-product-service": A.ProductImpactA(Lineage(client, name), 5000).blast,
     }  # fmt: skip
     out = {nm: measure(nm, "A", qs, fn) for nm, fn in arms.items()}
     for nm, v in out.items():
@@ -242,7 +249,8 @@ def det_b(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
     g = client.graph(name)
     arms: dict[str, Callable[[Any], tuple[Any, dict[str, Any]]]] = {
         "B1h": B.SqlB(path).answer, "P-tuned": B.TunedB(g).answer, "P-naive": B.NaiveB(g).answer,
-        "P-pre(why@5191976)": B.ProductWhyB(Lineage(client, name)).answer,
+        "P-product-tool": B.ProductWhyB(Lineage(client, name)).answer,
+        "P-product-service": B.ProductWhyB(Lineage(client, name), depth=12, max_elements=5000).answer,
     }  # fmt: skip
     out = {nm: measure(nm, "B", qs, fn) for nm, fn in arms.items()}
     by_depth = {}
