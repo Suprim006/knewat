@@ -282,4 +282,125 @@ time and peak working set (they contain the SQLite engine for S), and the Falkor
 
 ## Amendments
 
-(none yet)
+### Amendment 1 (written after the harness builds and dev runs; before the recorded G, H and J runs and the I5 re-run)
+
+Family I's recorded run has already happened (`plexus/demo_data/crucible/l7/20261016T100730Z-i-merged/`, all parts
+`--scale full`). Its design choices below (I-1..I-6) were fixed in the code before that run started; the notes file
+that lists them was written while the run was in progress, so they are recorded here after the fact, not before.
+The I harness code was uncommitted at run time (committed afterwards as `31e6627`; only `ruff format` changed it), and
+its `results.json` says `dirty: false` because the L6 `git_state` it used only inspected `crucible/l6/`; the L7
+envelope now checks the whole `plexus/` tree (`05632f9`). Everything else here is fixed **before** the run it affects.
+Dev runs (reduced size, not results) were made for G, H and J while other benchmarks loaded the machine; what they
+showed is stated so that the reader can see which choices were made with a number in view.
+
+**Family I (as run).**
+* I-1 The SQLite store for I is purpose-built (`l7/i_queries/s_schema.sql`, one table per entity plus join tables), not
+  the B1 schema (B1 has no Step/Artifact/Handoff-carries shape matching the close-out). `busy_timeout=10000`, WAL,
+  `synchronous=NORMAL`.
+* I-2 A close-out has 14 checkable items (fact, its derived-from, asserted-by, the step, step-WROTE, decision, based-on,
+  decided/for, artifact, artifact links, handoff, handoff links, carries, task done at version+1). Complete = 14,
+  absent = 0, partial = anything else; one classifier for every arm. F-product mints its own ids: the values passed
+  through the tool arguments carry the close-out id, and its Step counts as present when a Step has a WROTE edge to the
+  tagged fact.
+* I-3 Each close-out needs a claimed task at a known version; that setup is outside the close-out (one autocommit
+  statement; F-product: `create_tasks` + `claim_next_task` through the product). The writer prints an intent line
+  before and an ack line after each close-out; "in flight at kill" = intent without ack, the only close-outs whose
+  atomicity a kill actually tests (reported as complete / partial / absent).
+* I-4 Added arms beyond the table: `F-multi-cas-first` (task guard as the first statement: a careful client),
+  `F-multiexec-err` (the guard miss raised as a runtime error inside `EXEC`). `F-multi` keeps the product's order
+  (guard fourth).
+* I-5 I3 uses 4 writer threads per cycle, 0.4-1.6 s of writes, then `docker kill -s KILL`, `docker start`, health
+  check; a server that crashed after restart (seen once in dev: plexus-db-68 segfaulted ~3 s after an AOF-replay
+  restart while a new graph was created; a crashed Redis stays "Up" in Docker and answers nothing) is detected by
+  `REDIS BUG REPORT` in the log and restarted; such events are counted in the results.
+* I-6 I4a: W threads, 50 ops each, CAS/WATCH retries with 0-2 ms jitter, 240 s budget per cell; the FalkorDB
+  pessimistic W=200 cell hit the budget and was re-run once with 1,500 s (`20261016T104743Z-i`), the merged file flags
+  it `replaces_incomplete_cell`. I4b: 500 rounds of two writers released on a barrier, think time 0 and 2 ms.
+* I-7 (before the re-run) I5 timings in the merged file were taken while family J's dev run loaded the machine; I5 is
+  re-run alone (`--parts I5`) and that run is the reported I5 latency; the merged file's I5 numbers are kept as
+  "loaded machine".
+
+**Family G (before the recorded run).**
+* G-1 Generator `l7/g_gen.py`: tenant `g<k:04d>`, 99 ordinary facts + the canary, max derived-from depth exactly 4,
+  every value tagged with the tenant. F bulk load = `apply_schema` (timed as creation) then 18 `UNWIND` statements
+  writing the product model's properties (embedding from the `hash` embedder, Entity/Scope/ABOUT/IN_SCOPE edges) so
+  that the real `Engram.recall`, `Lineage.why` and `Lineage.impact` work on it: G3a uses those product services for F,
+  no hand-written Cypher.
+* G-2 G2: `MEMORY USAGE <graph key>` returns a constant 40 bytes for every graph (the key object only) and
+  `GRAPH.MEMORY USAGE` reports whole MB (0 here): neither is usable. F footprint is therefore the `INFO used_memory`
+  delta per tenant, `docker stats` memory, and RDB size after `BGSAVE` per tenant. Empty (schema-only) footprint is a
+  separate first experiment of 200 schema-only graphs. **Dev showed an empty F tenant at ~0.73 MB of `used_memory`,
+  outside prediction G5 (20-500 KB); the prediction is not changed and will be reported as wrong if the run agrees.**
+* G-3 G3b: per-tenant ACL user `~plexus_t_<A>` with `+graph.query +graph.ro_query +graph.explain +graph.profile`
+  (not `+graph.list`: it has no key and would list every tenant's name); S-shared protection = 13 per-tenant
+  `TEMP VIEW`s + an authorizer denying direct reads of `main.*` and any non-SELECT action. 50 raw-channel pairs per N.
+* G-4 G4: 2,000 operations **per op type** per arm per N (the pre-registration's "2,000 operations" read per op
+  type), same seeded tenant/fact sequence for every arm, every answer checked against the ledger; q4 on F writes a
+  minimal Fact (no embedding), unlike the product's `assert_fact`. First use of a (tenant, op) on F is reported apart
+  from repeat use (each graph has its own plan cache). Dev at N <= 200: F p50 flat (ratio 1.1-1.3), S-file-cached q4
+  grew from ~0.13 to ~1.6 ms. F-shared: not run.
+* G-5 Full run: cumulative N = 1, 2, 20, 200, 2000 in one process; dev projected ~11-12 min to create and load 2,000
+  F tenants and ~4.3-6.5 GB of Redis memory at N = 2000 against a 7.4 GiB VM; if memory runs out, the N and the
+  resource are reported.
+
+**Family H (before the recorded run).**
+* H-1 Generator change before any query was timed: with the first background (30% roots, 1.4 parents among the
+  rest, uniform attachment) the dev check of the truth found closures of ~9-22 facts (subcritical), so traversal
+  would not have been tested at all. The background now uses 10% roots, 1 or 2 parents (50/50) drawn 60% from the
+  100 most recent facts and 40% uniformly: large-scale closures average ~1,500 facts (max ~4,600). Statistics of
+  the truth only were looked at, no query timing.
+* H-2 Arms (all statement texts in `l7/h_queries/`): H1a, H1b, H1c, H2 one Cypher and one SQL statement each; H1c
+  also `h1c.natural.cypher` (see H-4); H4 `naive` (one variable-length pattern), `distinct` (DISTINCT between hops),
+  `bfs` (FalkorDB `algo.BFS`, max_level -1) in Cypher and one recursive CTE (`UNION`) in SQL; H3 Cypher: `varlen`
+  (`*1..8` + `all(...)` + `ORDER BY length LIMIT 1`), `varlen+unbounded` (`*1..`), `shortestpath` (illegal with a
+  predicate: the predicate is checked on the single returned path, so it is wrong on traps by construction, kept to
+  show it), `bfs_level+app-bfs` (one statement per BFS level, Python BFS `h.bfs`); SQL: `path_cte` (path string,
+  `UNION ALL`, depth < 8), `path_cte+unbounded`, `depth_cte` (one row per (node, depth) by `UNION`; returns the hop
+  count only, no path; scored on hops), `bfs_level+app-bfs` (the same Python BFS). The H3 answer is unbounded; every
+  planted answer is <= 6 hops, so the depth-8 variants are an author who knows paths are short.
+* H-3 **Rule for "the answer" per language, fixed now, before any large-scale timing:** for each question family and
+  language, the reported answer is the correct single-statement variant with the fewest lines that answers every
+  question of the family at both scales within 10 s; if none, the correct variant with the fewest round trips
+  (the app-side BFS for H3). Every variant is reported regardless.
+* H-4 **FalkorDB 6.0.2 silently answers the natural H1c wrongly** (found at toy size, before any recorded run). In
+  `MATCH (f1 ...)-[]->(s1) MATCH (f2 {subject: f1.subject, ...})-[]->(s2) WHERE ... MATCH (f1)-[:ASSERTED_BY]->(a1),
+  (f2)-[:ASSERTED_BY]->(a2) ...`: (i) the inline map that refers to `f1` matches nothing (0 rows; with a `WITH f1, s1`
+  before it, 29 rows, correct), and (ii) after a Value Hash Join, the later `MATCH` on the already-bound `f1`/`f2` is
+  planned as a Cartesian product with fresh label scans: 3.78 M rows on a 361-fact toy graph instead of <= 29; at
+  2,000+ facts it fails with "Query's mem consumption exceeded capacity". `h1c.cypher` therefore puts a `WITH`
+  barrier between every stage (16 lines instead of 7); the natural form is reported as its own arm. Correctness is
+  scored per arm, so any further planner error shows up as a wrong answer.
+* H-5 Dev (small 2k and medium 10k facts, loaded machine): every arm correct except the two expected ones and
+  `h4.naive` (timeout at 10k); `h1c.cypher` took 8.5 s at 10k facts (its `NOT (f1)-[:DERIVED_FROM*1..]->(f2)`
+  predicates enumerate paths), SQL 1.3 s; an `algo.BFS` form of H1c timed out at 10k and is not an arm. H2 Cypher
+  needs the hop bound as a literal (FalkorDB takes no parameter in `*0..N`), so the statement is a template; SQL takes
+  `:n` as a parameter.
+
+**Family J (before the recorded run).**
+* J-1 Sessions replay one of the six recorded agents' sequences (acme planner/researcher/builder, pilot
+  planner/researcher/builder) chosen uniformly; that reproduces the pooled mix (dev realised: start_session 20.2%,
+  recall 16.3%, claim 15.9%, complete 13.8%, ...). One fresh agent id per session; session RNG
+  `Random(SEED + rep*100000 + slot)`, identical scripts across arms.
+* J-2 Task supply, identical on every arm: preload `clamp(25 x sessions in tenant, 100, 5000)` tasks plus 4 anchor
+  tasks; each replayed `create_tasks` adds 6 tasks; a `claim_next_task` that returns nothing is followed by one extra
+  6-task `create_tasks` counted as `create_tasks_refill`. `complete_task` is replayed only when the session holds a
+  claim (else skipped, not counted).
+* J-3 Tools the B1 store lacks: `start_session` (new `sessions` table) and `verify_artifact` (new table) are written in
+  `BEGIN IMMEDIATE`; `remember_episode` on S has no session link (one link fewer than F: favours S slightly).
+  `derived_from` carries fact ids only on both arms. F-mcp = `Runtime._run` (Step + ToolCall per call) without the
+  per-agent lock and the JSON transport. J-trav: 10% of calls (after the first) replaced by `why` (50%) / `impact`
+  (50%); F uses the product tools' work functions, S uses B1 `why` and one recursive CTE for `impact`, which needs a
+  `step_reads(fact_id)` index created in J-trav cells only.
+* J-4 Counting: a call belongs to the cell if it finishes after warm-up; throughput = ok / no-task / claim-conflict
+  calls finished inside the 30 s window; errors are excluded from throughput and listed by class (`locked`,
+  `timeout`, `max_pending`, `pool`, `connection`, `unknown_ref`, `other`); latency includes the calls in flight at the
+  window end (`late_finishers`, about P). No per-call budget is added in J: F keeps the server's `TIMEOUT_DEFAULT
+  5000`, S keeps B1's 120 s `busy_timeout` (the 10 s convention is not applied in J; it would turn lock waits into
+  timeouts). "GRAPH.* busy" from `INFO commandstats` is command wall time including waits, not CPU.
+* J-5 **Grid trimmed** (dev measured ~2 h 15 min for the full 144 cells): **J-real** all 4 populations x 2 layouts x
+  3 arms x **3 repetitions** (72 cells, median of repetitions reported); **J-trav** the same 24 cells x **1
+  repetition**. 5 s warm-up + 30 s measured as registered. S-shared for J: not run.
+* J-6 Dev showed (loaded machine): `Max pending queries exceeded` only with many graphs (P=1000 J-team, 200 graphs:
+  53,423 of 59,370 F-service calls failed) and **0** with one graph and 1,000 callers (p50 13-24 s instead), which is the
+  opposite direction of prediction J4's "in J-one"; S-file 0 errors at every P with p99 14-24 s in J-one at P >= 200.
+  Prediction J4 is not changed. 1,000 sessions are feasible (8 processes, ~660 MB of drivers, < 1,700 handles).
