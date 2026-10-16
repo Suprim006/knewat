@@ -23,9 +23,10 @@ Every number below comes from a file in this repo. The source is named next to e
 5. [Methodology: how it was measured (Crucible)](#5-methodology-how-it-was-measured-crucible)
 6. [Findings](#6-findings)
 7. [Memory that notices change, and forgetting (P7)](#7-memory-that-notices-change-and-forgetting-p7)
-8. [Shortcomings and limits](#8-shortcomings-and-limits)
-9. [What we would do next](#9-what-we-would-do-next)
-10. [Where to find everything](#10-where-to-find-everything)
+8. [Can a graph beat SQL? (P9)](#8-can-a-graph-beat-sql-p9)
+9. [Shortcomings and limits](#9-shortcomings-and-limits)
+10. [What we would do next](#10-what-we-would-do-next)
+11. [Where to find everything](#11-where-to-find-everything)
 
 ---
 
@@ -106,7 +107,7 @@ We saw several of these gaps while building Plexus with a multi-agent setup (Her
 
 ### 2.1 In one paragraph
 
-Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **41 tools**. Each tool is
+Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **45 tools**. Each tool is
 **one deterministic, parameterised Cypher query** (or a short fixed sequence of them) against a **FalkorDB graph per
 tenant**:
 - every memory, task, claim, handoff and decision is a node;
@@ -125,7 +126,9 @@ via fastembed, int8 ONNX on CPU), so it needs no API key and has no running cost
 | **Lineage** | Provenance and time: steps per agent, READ/WROTE edges, recall records, "why", "who knew", "what did X know at step N", "as of T", forgetting by source, quarantine | G6 | `add_source`, `why`, `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine` |
 | **Staleness** (P7) | Memory that notices change: facts anchored to files and Python symbols become **suspect** when the code changes (a Claude Code hook or git hook reports hashes); the agent re-verifies and the old fact is closed at the change's time | G3 (code ↔ memory drift) | `anchor_fact`, `describe_code`, `mark_changed`, `verify_fact`, `facts_to_verify`, `docs_to_update`, `set_review_date`; CLI `plexus code scan\|baseline\|hook-claude\|hook-git` |
 | **Forgetting** (P7) | Activation-based ranking (ACT-R power-law decay over the use history already in the graph) with write-time surprise; facts fade in rank, never deleted; decision-supporting facts protected | memory hygiene (noise, growth) | `pin_fact`, `unpin_fact`, `memory_strength`, `memory_sweep` (dry-run, reversible), `restore_fact`; `recall(forgetting=…)` |
-| **Audit** | Every tool call becomes a `ToolCall` node linked to its step and to every node it created or updated | feeds the viewer; makes the system observable | (automatic) |
+| **Relations + impact** (P9) | Typed entity relations (`assert_relation`, `RELATES`) with `recall(hops)`; a read-only `impact` tool: blast radius of a source, fact or task (facts, readers, decisions, handoffs, blocked tasks) with timestamps | multi-hop recall; impact before quarantine | `assert_relation`, `impact`, `recall(hops=…)` |
+| **Dedup confirm** (P9) | Deterministic duplicate guards (numbers, units, negation, comparatives), a Jaccard tier, and `DUPLICATES_MAYBE` soft links an agent confirms or rejects | G5 precision | `confirm_duplicate`, `reject_duplicate` |
+| **Audit** | Every tool call becomes a `ToolCall` node linked to its step and to every node it created or updated; audit modes `off\|light\|full` per tenant (public demo tenants are readable with zero writes) | feeds the viewer; makes the system observable | (automatic; `audit` arg on read tools) |
 | **Crucible** | The benchmark: the same tool API over four backends, then correctness, provenance, end-to-end and performance layers | G8 | `crucible` CLI |
 | **plexus-view** | A read-only React + Cytoscape viewer: Explorer, Flow, Time Machine, Why, Inventory, Results | makes the memory visible | (web UI) |
 
@@ -139,7 +142,7 @@ flowchart LR
     A3[Claude Code: builder]
     A4[any MCP client]
   end
-  A1 & A2 & A3 & A4 -->|MCP stdio or HTTP, tenant bound per connection| MCP[Plexus MCP server: 41 tools]
+  A1 & A2 & A3 & A4 -->|MCP stdio or HTTP, tenant bound per connection| MCP[Plexus MCP server: 45 tools]
   MCP -->|"parameterised Cypher (one statement per write)"| FDB[(FalkorDB 6.0.2: one graph per tenant)]
   MCP --> EMB[local embedder bge-small, CPU]
   API[View API, FastAPI, read-only] -->|GRAPH.RO_QUERY only| FDB
@@ -226,7 +229,7 @@ Full tables are in `docs/graph-model.md`; the edge types by module:
 | **Tenant isolation** | One graph per tenant: `plexus_t_<tenant>`. No query can cross graphs. | `plexus/src/plexus/graph/tenancy.py` |
 | **Live flow** | `ToolCall` → `CREATED`/`UPDATED` edges, ordered by an indexed `at`. | `queries/view/flow.cypher` |
 
-93 named `.cypher` files are listed in `docs/queries.md`. A test (`tests/test_docs_consistency.py`) fails if a query file
+108 named `.cypher` files are listed in `docs/queries.md`. A test (`tests/test_docs_consistency.py`) fails if a query file
 is missing from it.
 
 ### 3.4 The proof: cut the edges and the features break (ablation)
@@ -264,7 +267,7 @@ the missing relationships, not by a broken copy.
 ### 4.1 Process
 
 - **Timeline:** built inside the hackathon window, from the first commit (Oct 15 00:17 NPT) through phases P0–P6,
-  with 231+ commits.
+  with 286+ commits.
 - **Pre-window work:** before the window opened, only notes, research and design were written (rule R5).
 - **Plan and decisions:** the plan is `docs/PLAN.md`, and 10 decisions with their reasoning are in `docs/DECISIONS.md`.
 
@@ -279,8 +282,9 @@ the missing relationships, not by a broken copy.
 | P6 | One-container deployment (512 MB checked), README, video script, blog draft | 40/40 deploy checks; 278 README checks |
 | P7 | Staleness (J) ‖ activation forgetting (K) ‖ viewer (L) → integration (int) with a pre-registered Crucible L5 and a real Claude run on a copy of the owner's physiotherapy-project graph | 1168 tests; L5 results committed; independent review → 14 findings fixed |
 | P8 | Structure and readability pass with zero behaviour change: four disjoint-scope agents (MCP layer, services/API/CLI, Crucible/demo, viewer) | MCP snapshot and API schema byte-identical; HTML of the viewer pages byte-identical; all suites green |
+| P9 | "Can a graph beat SQL?" and the three product fixes: hand-written SQL control arm, pre-registered Crucible L6, traversal fix, `impact`, typed relations, duplicate precision, atomic entity resolution, audit modes | 1512 tests; L6 results committed incl. a pre-registered loss and its fix; LLM pilot $7.09 |
 
-Current size: 22,785 lines of Python in `plexus/src` and 8,770 of TypeScript in `plexus-view/src`; 93 query files; 41 tools; 1229 Python and 223 viewer tests.
+Current size: ~26,000 lines of Python in `plexus/src` and ~9,000 of TypeScript in `plexus-view/src`; 108 query files; 45 tools; 1512 Python and 229 viewer tests.
 
 ### 4.2 Engineering rules we held to
 
@@ -649,12 +653,64 @@ byte-identical before and after.
 | `graphController.ts` 834, `Results.tsx` 729, `Explorer.tsx` 500 lines | 421 / 104 / 292 lines; style/layout/data/selection modules; per-layer components |
 | 8 copies of `OPEN`/`now_ms`/`new_id`/`normalize` | one `plexus/common.py` |
 
-## 8. Shortcomings and limits
+## 8. Can a graph beat SQL? (P9)
 
-### 8.1 About the claims
+The owner read the shortcomings and asked whether "not more correct than SQL or files" could be tackled. Two
+analyses (`docs/research/BEAT_SQL_ANALYSIS.md`, `PRODUCT_FIXES_ANALYSIS.md`) and a phase of work answered it. Source
+of every number: `docs/BASELINE.md` sections "B1h", "C7 extended", "L6".
 
-- **Plexus is not more correct than a well-built SQL or file backend** at claims, leases, dependencies, as-of queries,
-  tenant isolation or forgetting (L1 tie).
+### 8.1 First, an honesty fix: L2 never ran SQL
+
+The "SQLite" arm in L2 was an **LLM reading a CSV dump with no tools**, while Plexus answered with hand-written
+Cypher. A hand-written SQL arm (B1h, $0, no LLM) scores **43/43 on L2 and 36/36 on L2-scale**: a tie with Plexus.
+The earlier "36 vs 32" gap was a gap against a reader, not against SQL.
+
+### 8.2 Pre-registered Crucible L6: where a graph should win, with a SQL control arm
+
+| Family | Plexus vs hand-written SQL (B1h) | Plexus vs agents with tools (SQL tool B1a, shell over files B0g) | vs a tool-less reader (B0r) |
+|---|---|---|---|
+| A blast radius through diamond-shaped lineage (51k facts) | **tie** 24/24 both; SQL faster at 5,000-fact blasts (192 vs 595 ms) | B1a 8/8, B0g 8/8, Plexus-via-MCP 2/8 before the fix (no timestamps; 200-id pages) | 0/8 |
+| B why-chain depth 2–12 | **tie** 24/24 both once `depth` is exposed; Plexus's natural query was the weak one | 8/8 all three tool arms | 1/8 |
+| D cross-sprint aggregation | **tie** 24/24; SQL 4.6× faster | B1a 8/8, B0g 8/8 | 1/8 |
+| E consistent reads under concurrent writes | **tie**: 0 violations when the read is one statement (FalkorDB snapshot = SQLite WAL); level-wise reads and unlocked files tear | — | — |
+| F provenance crash-consistency (200 SIGKILLs) | **Plexus lost**, as pre-registered: 94 of 1,240 facts without their Step/WROTE link vs 0 for SQLite. **After folding WROTE into the write: 0 of 1,842** | — | — |
+| C multi-hop recall | not run (typed relations landed after the run) | | |
+
+LLM pilot: 88 `claude -p` calls, $7.09 of a $20 cap, 8 questions per family: too small to show differences under
+3 questions, and said so.
+
+**Verdict.** A well-built relational schema with recursive CTEs **matches Plexus on correctness everywhere we
+looked**, is faster on simple claims and aggregation, and wins crash-consistency until we fixed it. What Plexus
+beats is the status quo of agent memory: tool-less readers (0–2 of 8 on every structural question) and flat
+retrieval. Its honest pitch is structured provenance, dependencies and time as first-class edges answered
+deterministically at zero tokens, with the graph primitives SQL makes you hand-build, plus the tie published.
+
+### 8.3 What L6 found in our own tools, and fixed
+- `impact` carried a 5,000-id list through three `UNWIND`s and never finished: rewritten as per-facet `CALL`
+  subqueries, 0.35 s at 5,000 facts, with timestamps (24/24 via the service; 18/24 via the MCP tool because of a
+  2,000-id cap on probes).
+- `why`, `forget_source`, `quarantine_source`, `blocked_by_failure` now expose `depth` (the hidden 3–5-hop caps had
+  truncated answers silently).
+- Variable-length `*1..N` patterns enumerated paths: `blocked_by_failure` on a diamond DAG beside 5,000 tasks went
+  from 380 ms to 2.2 ms with level-wise expansion.
+- Steps are opened before the write and `WROTE` is created in the same statement for `assert_fact`,
+  `record_decision` and `handoff` (L6-F: 94 → 0 orphans).
+
+### 8.4 The three product shortcomings, fixed
+
+| Shortcoming | What we found | Fix | Measured |
+|---|---|---|---|
+| Every tool call writes | `recall` = 3 serialised writes; public tenants refused all calls | Audit modes `off\|light\|full` per tenant and tool class, per-call `audit` on reads; `demo*` tenants readable, writes refused, no graph creation | Zero write commands in `off` mode (Redis command counters); recall throughput ×1.4–2.6 in `light` |
+| Duplicate detection heuristic | Worse than reported: the old rule would auto-merge "enabled"/"not enabled" and "5 minutes"/"5 hours" (the vector baseline merged 68 of 150 non-duplicates) | Discriminator keys (numbers, units, negation, comparatives), sequence and substitution guards, Jaccard tier, `DUPLICATES_MAYBE` soft links with confirm/reject tools | C7 extended to 226 labelled pairs: **0 false merges / 150**; true paraphrases 67% auto-merged, 92% surfaced; heavy paraphrases missed their 75% target (42%) |
+| Entity resolution race | 50 racers with two spellings created 2 entities | One atomic resolve-or-create statement (exact, full-text, vector lookups inside the creating statement), UNIQUE `norm_name` backstop, migration command | 1 entity in 20/20 runs; 50 distinct names → 50 entities |
+
+## 9. Shortcomings and limits
+
+### 9.1 About the claims
+
+- **Plexus is not more correct than a well-built SQL backend** at claims, leases, dependencies, as-of queries,
+  tenant isolation, forgetting (L1 tie), blast radius, why-chains, aggregation or consistent reads (L6 tie with the
+  hand-written SQL arm). Its wins are against tool-less readers and flat retrieval.
 - **Plexus is slower than SQLite** on the median claim at every load level (L4).
 - **On a small history, Plexus ties** a plain-files backend read by Claude on provenance accuracy (L2). Its advantage
   there is cost, latency and determinism, not accuracy.
@@ -662,7 +718,7 @@ byte-identical before and after.
   p = 0.125) is within noise. Only the B2 gap is clearly significant.
 - **L3 showed no separation,** and Plexus agents spent more tokens.
 
-### 8.2 About the benchmark design
+### 9.2 About the benchmark design
 
 - **Synthetic data, one scenario family,** repeated in L2-scale as 20 near-identical sprints that don't interact.
 - **Favours retrieval:** every L2-scale question names its sprint, and a sprint's records share its tag.
@@ -679,22 +735,21 @@ byte-identical before and after.
 - **`latest-all.json` mixes runs** from different moments: L1/L4 from the first compose run, L2 and L2-scale from
   later runs. The file records which.
 
-### 8.3 About the product
+### 9.3 About the product
 
 - **Write throughput per tenant is bounded** by FalkorDB's per-graph write serialisation. Hot tenants need to be spread
   across graphs; one busy team graph has a ceiling (373 claims/s at 200 workers in our run).
-- **Provenance isn't atomic with the write.** Step `WROTE`/`READ` links and the `ToolCall` audit record are written in
-  statements right after the tool's own write. A crash in between loses a provenance edge, never the memory itself.
-  Failures are retried once, then flagged (`lineage_degraded`/`audit_degraded`) rather than hidden.
-- **Every tool call writes** (an audit node and a step). Even a read like `recall` is a write. So:
-  - the public `demo` tenants refuse every MCP call;
-  - the audit layer costs 2–3× throughput at low concurrency;
-  - visitors who bring their own agent must use a `team_*` tenant.
-- **Duplicate detection is heuristic.** It uses the local embedding plus identical numeric/version tokens, and misses
-  about 25% of heavy paraphrases (C7). It never merged distinct facts in our tests, but thresholds were tuned on
-  synthetic data.
-- **Entity resolution is a separate step before `assert_fact`.** Two different spellings racing can create two
-  entities.
+- **Provenance is atomic only for `assert_fact`, `record_decision` and `handoff`** (WROTE folded into the write after
+  L6-F). Other tools still write their Step links and the `ToolCall` audit record in statements after the write; a
+  crash in between loses a provenance edge, never the memory itself (retried once, then flagged).
+- **In `full` audit mode every tool call writes** (an audit node and a step), costing 2–3× throughput at low
+  concurrency; `light`/`off` modes trade provenance for speed, and the public `demo*` tenants run `off` (readable,
+  writes refused).
+- **Duplicate detection is deterministic and conservative.** After P9 it makes 0 false merges on 150 labelled
+  non-duplicates but auto-merges only 42% of heavy paraphrases (79% surfaced as soft duplicates); light and unit
+  rewordings also miss their 100% auto target. Thresholds were tuned on synthetic pairs.
+- **Entity resolution is atomic but not transitive** (A~B and B~C don't make A~C), and legacy tenants need
+  `plexus migrate entities` before fuzzy matching works for old entities.
 - **Recall speed is limited by the CPU embedder** (about 47 embeddings/s shared). Retrieval can still miss a valid
   fact whose embedding is far from the query and which shares no keyword with it, because vector filters run after
   top-k.
@@ -719,9 +774,9 @@ byte-identical before and after.
   - the unfiltered Explorer query got slightly slower after indexing (3.8 → 5.8 ms at 4.2k nodes), while filtered
     reads got faster.
 
-### 8.4 About the evidence and the process
+### 9.4 About the evidence and the process
 
-- **Real Claude Code coverage:** only 14 of the 41 tools have been driven by real `claude -p` (11 in the Acme runs, 3 more in the physio staleness run). All 41 have MCP
+- **Real Claude Code coverage:** only 18 of the 45 tools have been driven by real `claude -p` (Acme runs, the physio staleness run, and the L6 pilot's read-only set). All 45 have MCP
   contract tests, and a guard fails if a new tool lacks one.
 - **Reproducing the benchmark** takes separate commands, deliberately (L1/L4 vs the LLM layers), so a re-run can't
   spend the subscription by accident. LLM answers are cached, so re-scoring is free.
@@ -733,15 +788,17 @@ byte-identical before and after.
   model and queries is tracked in `docs/AI_USAGE.md` and wasn't complete at the time of writing.
 - **L5 used one scenario family and one run per setting** (ids are random, so second digits move); the real staleness
   run is a single demonstration, not a benchmark.
+- **Insert latency grows with the full index set.** 200 fact inserts took 0.05 s on an empty graph and about 2 s at
+  8,000 facts in one probe (a range-index-only graph stayed flat); not yet isolated to an index.
 - **One FalkorDB version:** everything was verified on 6.0.2 only. Several documented features behave differently or
   are missing there (§6.9).
 
 ---
 
-## 9. What we would do next
+## 10. What we would do next
 
-1. **Measure the case the graph should win:** cross-project questions such as "which decisions across all sprints
-   relied on a fact from source S" or "which agents ever read a fact that was later quarantined". Pre-register them.
+1. **Run L6-C** (multi-hop recall with typed relations, now built) and a Postgres + pgvector arm; isolate the
+   insert-latency growth to its index.
 2. **Repeat L3 properly:** ≥ 5 runs per arm with fixed seeds, a larger scenario whose history exceeds an agent's
    context, and the MAST metrics.
 3. **Slim the tool output:** cap recall paths and `why` detail by default, to close the token gap seen in L3.
@@ -758,7 +815,7 @@ byte-identical before and after.
 
 ---
 
-## 10. Where to find everything
+## 11. Where to find everything
 
 | Topic | File |
 |---|---|
@@ -771,6 +828,7 @@ byte-identical before and after.
 | Benchmark methodology, pre-registration, results | `docs/BASELINE.md`, `plexus/src/plexus/crucible/results/latest-all.json` |
 | Ready-for-testing evidence and the manual test checklist | `docs/TESTING.md` |
 | Demo modes, recording, replay, ablation | `docs/demo.md` |
+| Beat-SQL and product-fix analyses, L6 | `docs/research/BEAT_SQL_ANALYSIS.md`, `docs/research/PRODUCT_FIXES_ANALYSIS.md`, `docs/BASELINE.md` (B1h, C7 extended, L6) |
 | Staleness and forgetting: design, hooks, limits, the real run | `docs/staleness.md`, `docs/forgetting.md`, D-011/D-012 |
 | Forgetting research (cited) | `docs/research/forgetting-A-science-and-papers.md`, `forgetting-B-products.md` |
 | Deployment | `docs/deploy.md`, `render.yaml`, `deploy/` |
