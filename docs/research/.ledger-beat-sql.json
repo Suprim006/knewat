@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://www.sqlite.org/lang_with.html",
+      "title": "",
+      "accessed": "2026-10-16",
+      "quotes": [
+        {
+          "text": "UNION is used instead of UNION ALL to prevent the recursion from entering an infinite loop if the graph contains cycles",
+          "added": "2026-10-16"
+        },
+        {
+          "text": "only add rows to the queue if no identical row has been previously added to the queue",
+          "added": "2026-10-16"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "url": "https://docs.falkordb.com/cypher/known-limitations.html",
+      "title": "",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 3,
+      "url": "https://docs.falkordb.com/design/concurrency",
+      "title": "",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 4,
+      "url": "https://arxiv.org/html/2608.00426v1",
+      "title": "",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 5,
+      "url": "https://arxiv.org/abs/2503.13657",
+      "title": "",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 6,
+      "url": "https://arxiv.org/html/2603.10062",
+      "title": "",
+      "accessed": "2026-10-16"
+    },
+    {
+      "id": 7,
+      "url": "https://letta.com/blog/benchmarking-ai-agent-memory",
+      "title": "",
+      "accessed": "2026-10-16"
+    }
+  ]
+}

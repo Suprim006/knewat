@@ -205,7 +205,7 @@ The recorded real run holds 247 nodes and 708 edges (14 labels, 26 relationship 
 ## The Cypher queries the product depends on
 
 Every statement lives in a named, parameterised file under [`plexus/queries/<area>/<name>.cypher`](plexus/queries/) with a
-header (purpose, params, returns, mode) and is loaded by name; 90 files in all. The complete index with a "why it is a graph
+header (purpose, params, returns, mode) and is loaded by name; 93 files in all. The complete index with a "why it is a graph
 query" for each is [`docs/queries.md`](docs/queries.md). The ones the product cannot work without:
 
 | Query | What it does | Why it is a graph query |

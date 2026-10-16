@@ -27,3 +27,9 @@ plexus/.pytest_cache/
 plexus/.ruff_cache/
 .venv-gate/
 mcp.local.json
+
+# Claude Code local settings (machine-specific hook paths)
+.claude/settings.local.json
+
+# scratch probes
+plexus/probe_*.db

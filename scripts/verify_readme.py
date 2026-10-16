@@ -11,7 +11,7 @@ Checked documents: README.md, docs/VIDEO_SCRIPT.md, docs/BLOG_DRAFT.md. Standard
 3. Mermaid: each block starts with a known diagram type (and is parsed by mermaid when PLEXUS_MERMAID_DIR is set).
 4. Numbers: every figure quoted from a source must appear in that source file (and, where the source is the results JSON, equal
    the JSON's value) and in the document that quotes it.
-5. Queries: every linked .cypher exists and has a row in docs/queries.md; the "90 files" claim equals the real file count.
+5. Queries: every linked .cypher exists and has a row in docs/queries.md; the "93 files" claim equals the real file count.
 6. Video script: beats are contiguous, end by 3:00, narration is <= 25 words per beat; every id exists in the recording
    transcripts; every (step, agent, tool) claim matches the recording's calls.json.
 """
@@ -222,7 +222,7 @@ def numbers() -> None:
 
     # (d) counts derived from the tree
     n_cypher = len(list((ROOT / "plexus/queries").rglob("*.cypher")))
-    check(n_cypher == 90, f"plexus/queries has {n_cypher} .cypher files, README says 90")
+    check(n_cypher == 93, f"plexus/queries has {n_cypher} .cypher files, README says 93")
     check("90 files" in readme, "README does not state 90 query files")
     mcp_tools = len(re.findall(r"^\s*- \*\*(?:Engram|Relay|Lineage)", read("docs/mcp.md"), flags=re.M))
     check("41 tools" in read("docs/mcp.md") and "41 tools" in readme and mcp_tools == 3, "41 tools claim not in docs/mcp.md and README")
