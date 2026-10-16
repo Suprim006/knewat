@@ -59,7 +59,9 @@ class Fake:
             from plexus.crucible.backends import open_backend
 
             if "--root" in sargs:
-                self.backend = open_backend(BackendSpec(arm="B1", tenant=tenant, root=sargs[sargs.index("--root") + 1]))
+                self.backend = open_backend(
+                    BackendSpec(arm="B1", tenant=tenant, root=sargs[sargs.index("--root") + 1])
+                )
             else:
                 env = srv["env"]
                 self.backend = open_backend(BackendSpec(
@@ -73,7 +75,12 @@ class Fake:
     def call(self, name: str, inp: dict[str, Any], fn: Any) -> Any:
         self.n += 1
         tid = f"toolu_{uuid.uuid4().hex[:12]}"
-        emit({"type": "assistant", "message": {"content": [{"type": "tool_use", "id": tid, "name": name, "input": inp}]}})
+        emit(
+            {
+                "type": "assistant",
+                "message": {"content": [{"type": "tool_use", "id": tid, "name": name, "input": inp}]},
+            }
+        )
         try:
             res = fn()
             content = res if isinstance(res, str) else json.dumps(res)
@@ -101,7 +108,9 @@ class Fake:
 
     def read(self, rel: str) -> str:
         p = self.cwd / rel
-        return self.call("Read", {"file_path": str(p)}, lambda: p.read_text(encoding="utf-8") if p.exists() else "")
+        return self.call(
+            "Read", {"file_path": str(p)}, lambda: p.read_text(encoding="utf-8") if p.exists() else ""
+        )
 
     def write(self, rel: str, text: str) -> None:
         p = self.cwd / rel
@@ -143,7 +152,7 @@ class Fake:
     def run(self) -> None:
         p = self.prompt
         if "project kickoff" in p:
-            tasks = json.loads(p[p.index("["): p.rindex("]") + 1])
+            tasks = json.loads(p[p.index("[") : p.rindex("]") + 1])
             if self.mcp:
                 self.mcp_call("start_session")
                 self.mcp_call("create_tasks", tasks=tasks)

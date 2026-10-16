@@ -67,7 +67,9 @@ def git_state() -> dict[str, Any]:
     campaign are expected there and do not make the *code* dirty."""
 
     def g(*a: str) -> str:
-        return subprocess.run(["git", *a], capture_output=True, text=True, cwd=REPO_ROOT, timeout=30).stdout.strip()
+        return subprocess.run(
+            ["git", *a], capture_output=True, text=True, cwd=REPO_ROOT, timeout=30
+        ).stdout.strip()
 
     lines = g("status", "--porcelain", "--untracked-files=all").splitlines()
     out_rel = "plexus/demo_data/crucible/l8/"
@@ -84,7 +86,9 @@ def git_state() -> dict[str, Any]:
 
 def claude_version() -> str:
     try:
-        return subprocess.run(["claude", "--version"], capture_output=True, text=True, timeout=60).stdout.strip()
+        return subprocess.run(
+            ["claude", "--version"], capture_output=True, text=True, timeout=60
+        ).stdout.strip()
     except Exception as exc:  # noqa: BLE001
         return f"unknown ({type(exc).__name__})"
 
@@ -93,14 +97,20 @@ def claude_version() -> str:
 def prepare(out: Path) -> dict[int, dict[str, Any]]:
     """schedule.json + sentinels.json for every seed, and scenario.json (briefs ``l8-v1``). Deterministic, $0."""
     out.mkdir(parents=True, exist_ok=True)
-    (out / "scenario.json").write_text(json.dumps(S.scenario_json(), indent=1) + "\n", encoding="utf-8", newline="\n")
+    (out / "scenario.json").write_text(
+        json.dumps(S.scenario_json(), indent=1) + "\n", encoding="utf-8", newline="\n"
+    )
     res = {}
     for seed in SEEDS:
         d = build_schedule(seed)
         sd = out / "seeds" / str(seed)
         sd.mkdir(parents=True, exist_ok=True)
-        (sd / "schedule.json").write_text(json.dumps(d["schedule"], indent=1) + "\n", encoding="utf-8", newline="\n")
-        (sd / "sentinels.json").write_text(json.dumps(d["sentinels"], indent=1) + "\n", encoding="utf-8", newline="\n")
+        (sd / "schedule.json").write_text(
+            json.dumps(d["schedule"], indent=1) + "\n", encoding="utf-8", newline="\n"
+        )
+        (sd / "sentinels.json").write_text(
+            json.dumps(d["sentinels"], indent=1) + "\n", encoding="utf-8", newline="\n"
+        )
         res[seed] = d
     return res
 
@@ -151,7 +161,9 @@ class PlexusStore(Store):
         ]  # fmt: skip
         decisions = [
             {"id": r[0], "text": r[1], "at": r[2], "based_on": r[3]}
-            for r in self.q("MATCH (d:Decision) RETURN d.id, d.text, d.at, [(d)-[:BASED_ON]->(f:Fact) | f.id]")
+            for r in self.q(
+                "MATCH (d:Decision) RETURN d.id, d.text, d.at, [(d)-[:BASED_ON]->(f:Fact) | f.id]"
+            )
         ]
         handoffs = [
             {"id": r[0], "note": r[1], "fact_ids": r[2]}
@@ -167,7 +179,9 @@ class PlexusStore(Store):
         ]
         changes = [
             {"id": r[0], "commit": r[1], "at": r[2], "suspected": r[3]}
-            for r in self.q("MATCH (c:Change) RETURN c.id, c.commit, c.at, [(c)-[:SUSPECTED]->(f:Fact) | f.id]")
+            for r in self.q(
+                "MATCH (c:Change) RETURN c.id, c.commit, c.at, [(c)-[:SUSPECTED]->(f:Fact) | f.id]"
+            )
         ]
         tasks = [
             {"id": r[0], "status": r[1], "claimed_by": r[2], "version": r[3]}
@@ -204,7 +218,9 @@ class SqliteStore(Store):
         df = {}
         for r in rows("SELECT decision_id, fact_id FROM decision_facts"):
             df.setdefault(r["decision_id"], []).append(r["fact_id"])
-        decisions = [{**d, "based_on": df.get(d["id"], [])} for d in rows("SELECT id, text, at FROM decisions")]
+        decisions = [
+            {**d, "based_on": df.get(d["id"], [])} for d in rows("SELECT id, text, at FROM decisions")
+        ]
         hi = {}
         for r in rows("SELECT handoff_id, kind, item_id FROM handoff_items"):
             if r["kind"] in ("fact", "Fact"):
@@ -212,7 +228,9 @@ class SqliteStore(Store):
         handoffs = [{**h, "fact_ids": hi.get(h["id"], [])} for h in rows("SELECT id, note FROM handoffs")]
         wrote = [
             {"node": r["node_id"], "agent": r["agent_id"], "at": r["at"]}
-            for r in rows("SELECT w.node_id, s.agent_id, s.at FROM step_wrote w JOIN steps s ON s.id = w.step_id")
+            for r in rows(
+                "SELECT w.node_id, s.agent_id, s.at FROM step_wrote w JOIN steps s ON s.id = w.step_id"
+            )
         ]
         reads = [
             {"agent": r["agent_id"], "at": r["at"], "fact": r["fact_id"], "value": r["value"]}
@@ -267,7 +285,9 @@ class L8State:
     fired: dict[str, int] = field(default_factory=dict)
     landed: list[dict[str, Any]] = field(default_factory=list)
     started: float = field(default_factory=time.time)
-    holds: dict[str, str] = field(default_factory=dict)  # agent -> task (MCP: after claim result; B0': assignment)
+    holds: dict[str, str] = field(
+        default_factory=dict
+    )  # agent -> task (MCP: after claim result; B0': assignment)
     calls_since_claim: dict[str, int] = field(default_factory=dict)
     k2_wrote: bool = False
 
@@ -439,9 +459,11 @@ class L8Driver(ClaudeDriver):
                 if name.startswith(MCP_PREFIX):
                     st.step += 1
                     rep.plexus_calls += 1
-                    self._emit(f"step {st.step:>3}  {turn.agent:<10} {name[len(MCP_PREFIX):]}")
+                    self._emit(f"step {st.step:>3}  {turn.agent:<10} {name[len(MCP_PREFIX) :]}")
                 else:
-                    self._emit(f"  file   {turn.agent:<10} {name} {str((block.get('input') or {}).get('file_path', ''))[-60:]}")
+                    self._emit(
+                        f"  file   {turn.agent:<10} {name} {str((block.get('input') or {}).get('file_path', ''))[-60:]}"
+                    )
         elif kind == "user":
             for block in ev.get("message", {}).get("content", []):
                 if isinstance(block, dict) and block.get("type") == "tool_result":
@@ -460,7 +482,7 @@ class L8Driver(ClaudeDriver):
         if block.get("is_error"):
             rep.problems.append(f"{name} failed: {str(block.get('content'))[:200]}")
             return
-        short = name[len(MCP_PREFIX):] if name.startswith(MCP_PREFIX) else name
+        short = name[len(MCP_PREFIX) :] if name.startswith(MCP_PREFIX) else name
         data = _result_json(block.get("content")) if name.startswith(MCP_PREFIX) else {}
         if short == "claim_next_task" and data.get("task"):
             st.holds[t.agent] = data["task"]["id"]
@@ -481,13 +503,25 @@ class L8Driver(ClaudeDriver):
         if t.kind != "task":
             return
         why = ""
-        if (t.agent == "builder" and "K1" not in st.fired and st.turn_no >= k["K1"]["from_turn"]
-                and t.agent in st.holds and st.calls_since_claim.get(t.agent, 0) >= 1):
+        if (
+            t.agent == "builder"
+            and "K1" not in st.fired
+            and st.turn_no >= k["K1"]["from_turn"]
+            and t.agent in st.holds
+            and st.calls_since_claim.get(t.agent, 0) >= 1
+        ):
             why = "K1"
-        elif (t.agent == "researcher" and "K2" not in st.fired and st.turn_no >= k["K2"]["from_turn"]
-              and t.name in k["K2"]["tasks"] and is_art_write):
+        elif (
+            t.agent == "researcher"
+            and "K2" not in st.fired
+            and st.turn_no >= k["K2"]["from_turn"]
+            and t.name in k["K2"]["tasks"]
+            and is_art_write
+        ):
             why = "K2"
-        elif (t.agent == "planner" and "K3" not in st.fired and st.turn_no >= k["K3"]["from_turn"] and is_write):
+        elif (
+            t.agent == "planner" and "K3" not in st.fired and st.turn_no >= k["K3"]["from_turn"] and is_write
+        ):
             why = "K3"  # fmt: skip
         if not why:
             return
@@ -547,7 +581,9 @@ async def run_schedule(st: L8State, driver: L8Driver, workdir: Path, on_commit: 
         if not v2_fired and nxt >= sched["v2_turn"]:
             v2_fired = True
             st.event("publish_v2")
-            pending_specials.extend([L8Turn("special", "researcher", "ingest-v2"), L8Turn("special", "planner", "adopt-v2")])
+            pending_specials.extend(
+                [L8Turn("special", "researcher", "ingest-v2"), L8Turn("special", "planner", "adopt-v2")]
+            )
 
     await play(L8Turn("init", "planner", "init"))
     if mcp:
@@ -584,13 +620,17 @@ async def run_schedule(st: L8State, driver: L8Driver, workdir: Path, on_commit: 
                 continue
             if all((statuses.get(t.id) or {}).get("status") == "done" for t in S.TASKS):
                 return "completed"
-            return "stuck: " + ",".join(t.id for t in S.TASKS if (statuses.get(t.id) or {}).get("status") != "done")
+            return "stuck: " + ",".join(
+                t.id for t in S.TASKS if (statuses.get(t.id) or {}).get("status") != "done"
+            )
         ready.sort(key=lambda x: (-x[0].priority, S.TASKS.index(x[0])))
         task, s = ready[0]
         attempts[task.id] = attempts.get(task.id, 0) + 1
         if attempts[task.id] > MAX_ATTEMPTS:
             return f"gave up: {task.id} not done after {MAX_ATTEMPTS} attempts"
-        prev = str(s.get("claimed_by") or "") if (mcp and s["status"] == "claimed") else reclaim.pop(task.id, "")
+        prev = (
+            str(s.get("claimed_by") or "") if (mcp and s["status"] == "claimed") else reclaim.pop(task.id, "")
+        )
         if not mcp and isinstance(st.store, FileStore):
             st.store.interrupted.discard(task.id)
         agent = ("planner" if prev == "researcher" else "researcher") if prev else task.role
@@ -665,9 +705,7 @@ def run_arm(
         shutil.rmtree(run_dir)
     run_dir.mkdir(parents=True)
     scratch = Path(scratch or os.environ.get("TMPDIR") or "/tmp")
-    work_root = Path(
-        __import__("tempfile").mkdtemp(prefix=f"l8-{seed}-{arm}-", dir=str(scratch))
-    )
+    work_root = Path(__import__("tempfile").mkdtemp(prefix=f"l8-{seed}-{arm}-", dir=str(scratch)))
     workdir = work_root / "work"
     (workdir / "artifacts").mkdir(parents=True)
     tenant = f"l8_{arm.lower()}_{seed}_{time.strftime('%H%M%S')}{tag}"
@@ -689,10 +727,17 @@ def run_arm(
         gc = GraphClient(host=host, port=port)
         apply_schema(gc, graph_name(tenant))
         gc.close()
-        b = open_backend(BackendSpec(arm="P-mcp", tenant=tenant, root="", host=host, port=port, embedder="hash"))
+        b = open_backend(
+            BackendSpec(arm="P-mcp", tenant=tenant, root="", host=host, port=port, embedder="hash")
+        )
         play_scale(b, 20)
         b.close()
-        env = {"FALKORDB_HOST": host, "FALKORDB_PORT": str(port), "PLEXUS_EMBEDDER": "hash", "PLEXUS_AUDIT_MODE": "full"}
+        env = {
+            "FALKORDB_HOST": host,
+            "FALKORDB_PORT": str(port),
+            "PLEXUS_EMBEDDER": "hash",
+            "PLEXUS_AUDIT_MODE": "full",
+        }
         cfg_json = {"mcpServers": {"plexus": {"command": plexus_mcp_command(),
                     "args": ["--transport", "stdio", "--tenant", tenant], "env": env}}}  # fmt: skip
         store = PlexusStore(tenant, host, port)
@@ -734,13 +779,19 @@ def run_arm(
              "--url", hook.url, "--paths", *[f"{m}.py" for m in mods]], capture_output=True, text=True,
             env={**os.environ, "FALKORDB_HOST": host, "FALKORDB_PORT": str(port)},
         )  # fmt: skip
-        hook_info = {"installed": True, "url": hook.url, "baseline": (base.stdout + base.stderr).strip()[-400:]}
+        hook_info = {
+            "installed": True,
+            "url": hook.url,
+            "baseline": (base.stdout + base.stderr).strip()[-400:],
+        }
 
     def on_commit(phase: str) -> int | None:
         return store.count_changes() if isinstance(store, PlexusStore) else None
 
     st = L8State(arm, sched, store)
-    cfg = ClaudeConfig(workdir=workdir, mcp_config=cfgfile, model=model, max_turns=max_turns, launcher=launcher)
+    cfg = ClaudeConfig(
+        workdir=workdir, mcp_config=cfgfile, model=model, max_turns=max_turns, launcher=launcher
+    )
     driver = L8Driver(cfg, st, sentinels, on_event=log)
     status, error = "completed", ""
     try:
@@ -771,9 +822,13 @@ def run_arm(
         "wall_s": round(time.time() - t0, 1), "workdir": str(workdir).replace("\\", "/"),
         "all_tokens_count": len(all_tokens(sentinels, sched)),
     }  # fmt: skip
-    (run_dir / "run.json").write_text(json.dumps(rec, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
+    (run_dir / "run.json").write_text(
+        json.dumps(rec, indent=1, default=str) + "\n", encoding="utf-8", newline="\n"
+    )
     store.close()
-    log(f"== {arm} seed {seed}: {status} {error} turns={st.turn_no} cost=${summ['total_cost_usd']} wall={rec['wall_s']}s")
+    log(
+        f"== {arm} seed {seed}: {status} {error} turns={st.turn_no} cost=${summ['total_cost_usd']} wall={rec['wall_s']}s"
+    )
     return rec
 
 

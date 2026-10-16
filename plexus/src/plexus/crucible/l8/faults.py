@@ -18,7 +18,18 @@ from plexus.crucible.l8.scenario import TASK_BY_ID, nominal_order
 
 SEEDS = tuple(20261016 + r for r in range(1, 6))  # 20261017..20261021
 COMMIT_TURNS = range(4, 19)  # 4..18 inclusive
-KINDS10 = ("value", "sibling", "docstring", "add", "module-comment", "whitespace", "reorder", "delete", "value", "value")
+KINDS10 = (
+    "value",
+    "sibling",
+    "docstring",
+    "add",
+    "module-comment",
+    "whitespace",
+    "reorder",
+    "delete",
+    "value",
+    "value",
+)
 BIAS = 0.7
 V2_TURN = 12
 K1_FROM = 6  # builder, first task turn at/after this with >= 1 call on the task
@@ -51,7 +62,9 @@ def build_schedule(seed: int, check_dir: Path | None = None) -> dict[str, Any]:
     alive = set(initial)
     current = dict(initial)
     history: dict[str, list[dict[str, Any]]] = {k: [{"token": v, "from_turn": 0}] for k, v in initial.items()}
-    history["ratelimit.window"].insert(0, {"token": x2_old, "from_turn": -1, "note": "S03 note (old sprint document)"})
+    history["ratelimit.window"].insert(
+        0, {"token": x2_old, "from_turn": -1, "note": "S03 note (old sprint document)"}
+    )
     edits: list[Edit] = []
     mods = initial_modules(initial)
     trailing: set[str] = set()
@@ -74,11 +87,21 @@ def build_schedule(seed: int, check_dir: Path | None = None) -> dict[str, Any]:
             e.module = e.funcs[0].split(".")[0]
             e.new_tokens = {f: next(pool) for f in e.funcs}
         elif kind == "sibling":
-            mods_ok = sorted({c.split(".")[0] for c in cand if sum(1 for a in alive if a.startswith(c.split(".")[0] + ".")) >= 2})
+            mods_ok = sorted(
+                {
+                    c.split(".")[0]
+                    for c in cand
+                    if sum(1 for a in alive if a.startswith(c.split(".")[0] + ".")) >= 2
+                }
+            )
             m = rng.choice(mods_ok)
             in_mod = [a for a in sorted(alive) if a.startswith(m + ".")]
             pref = [c for c in cand if c.startswith(m + ".")]
-            picks = pref[:1] + rng.sample([x for x in in_mod if x not in pref[:1]], 1) if pref else rng.sample(in_mod, 2)
+            picks = (
+                pref[:1] + rng.sample([x for x in in_mod if x not in pref[:1]], 1)
+                if pref
+                else rng.sample(in_mod, 2)
+            )
             e.funcs, e.module = sorted(picks), m
             e.new_tokens = {f: next(pool) for f in e.funcs}
         elif kind == "docstring":

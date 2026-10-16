@@ -55,8 +55,12 @@ class Edit:
     turn: int  # lands at the boundary before this turn (1-based process index)
     kind: str
     module: str = ""
-    funcs: list[str] = field(default_factory=list)  # tracked 'module.function' whose code changes (ground truth)
-    new_tokens: dict[str, str] = field(default_factory=dict)  # 'module.function' -> its new token (value/sibling)
+    funcs: list[str] = field(
+        default_factory=list
+    )  # tracked 'module.function' whose code changes (ground truth)
+    new_tokens: dict[str, str] = field(
+        default_factory=dict
+    )  # 'module.function' -> its new token (value/sibling)
     extra: dict[str, Any] = field(default_factory=dict)  # add: name/token; reorder: a/b; whitespace: fn
     biased: bool = False  # the function(s) were drawn from the needs of a task not yet done (nominally)
     forced: str = ""  # why a function was forced in (X3)
@@ -72,7 +76,8 @@ class Edit:
 def initial_modules(tokens: dict[str, str]) -> dict[str, Module]:
     """``tokens``: 'module.function' -> initial token. Values render as string literals ``return "AX-12345"``."""
     return {
-        m: Module(m, [Func(f, doc_of(m, f), f'"{tokens[key(m, f)]}"') for f in fs]) for m, fs in MODULES.items()  # type: ignore[arg-type]
+        m: Module(m, [Func(f, doc_of(m, f), f'"{tokens[key(m, f)]}"') for f in fs])
+        for m, fs in MODULES.items()  # type: ignore[arg-type]
     }
 
 
@@ -164,5 +169,7 @@ def land(root: Path, mods: dict[str, Module], e: Edit) -> str:
     sha = commit(root, f"change {e.k}: {e.kind} in {e.module}", e.k)
     truth = ast_truth(root, before, sha)
     if truth != set(e.funcs if e.kind in ("value", "sibling", "docstring", "delete") else []):
-        raise AssertionError(f"change {e.k} {e.kind}: script edits {sorted(e.funcs)} != ast truth {sorted(truth)}")
+        raise AssertionError(
+            f"change {e.k} {e.kind}: script edits {sorted(e.funcs)} != ast truth {sorted(truth)}"
+        )
     return sha
