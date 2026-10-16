@@ -117,7 +117,10 @@ def assert_fact(
     """Store a durable fact (subject, predicate, value) in shared memory. A new value for the same
     subject+predicate closes the old one (your own earlier value is superseded; a different agent's value is
     reported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns
-    'duplicate_of'. Returns fact_id, superseded[], duplicate_of, contradicts[]."""
+    'duplicate_of'. A paraphrase of an existing value is merged only when numbers, units, negation and word order
+    agree ('enabled' and 'not enabled' are never merged). When the new value merely looks like an existing one, it is
+    stored anyway and listed in 'possible_duplicates': decide with confirm_duplicate or reject_duplicate.
+    Returns fact_id, superseded[], duplicate_of, contradicts[], possible_duplicates[]."""
     sid = ts.scope_id(scope, m)
     r = ts.engram(m).assert_fact(
         subject,
@@ -173,7 +176,8 @@ def recall(
     before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window
     and a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little
     higher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is
-    'suspect' (its code or review date changed: verify before relying on it) and 'protected'. Also returns
+    'suspect' (its code or review date changed: verify before relying on it) and 'protected'; 'maybe_duplicate_of'
+    lists facts it may duplicate (see confirm_duplicate). Also returns
     recall_id: pass it to why_recalled to see why these facts came back, in this order."""
     sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
     if sid is None:
