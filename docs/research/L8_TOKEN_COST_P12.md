@@ -321,6 +321,9 @@ says 6,997) on an identical 277 API calls, so the whole drop is the tool list. P
 ### 6.4 Not regressed
 
 * Tasks 16/16 on both seeds; history facts 6/6 (S07, S13, S20 on each); provenance 84/84; X1 surfaced at write 2/2.
+* No-LLM recall bench through a `core`-scoped server (`PLEXUS_TOOLSET=core`, 5 seeds,
+  `l8_p12ts/recall_bench-p12ts-core.json`): needed history fact found S07 5/5, S13 5/5, S20 1/1 (as in rounds A2 and
+  1); canonical 1,000/1,000; replay 29/36 (round 1: 28/36, ranking ties).
 * **X2 surfaced at write 1/2.** In seed 20261018 the researcher asserted the old window token (from history) and
   superseded it with the code's value itself one step later (same agent, same predicate), so when the builder wrote
   the code value there was no live contradiction left to flag (`both_live_at_end: false`, 0 later actions on the old
