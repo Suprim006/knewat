@@ -1,0 +1,321 @@
+{
+ "seed": 20261018,
+ "initial_tokens": {
+  "auth.token_ttl": "AX-36331",
+  "auth.hash_rounds": "AX-53183",
+  "auth.session_cookie": "AX-18358",
+  "auth.mfa_window": "AX-69943",
+  "auth.key_header": "AX-75840",
+  "api.base_path": "AX-81436",
+  "api.page_size": "AX-25149",
+  "api.max_body": "AX-38941",
+  "api.cors_origin": "AX-17341",
+  "api.error_format": "AX-90930",
+  "db.engine": "AX-45735",
+  "db.pool_size": "AX-43568",
+  "db.schema_name": "AX-85466",
+  "db.replica_count": "AX-34339",
+  "db.backup_window": "AX-80736",
+  "ratelimit.window": "AX-76589",
+  "ratelimit.burst": "AX-16435",
+  "ratelimit.per_user": "AX-41402",
+  "ratelimit.per_key": "AX-26554",
+  "ratelimit.retry_after": "AX-93920",
+  "notes.max_length": "AX-24538",
+  "notes.tag_limit": "AX-19959",
+  "notes.archive_days": "AX-87154",
+  "notes.share_mode": "AX-39123",
+  "notes.title_max": "AX-89547",
+  "users.id_format": "AX-37798",
+  "users.quota_mb": "AX-81762",
+  "users.invite_ttl": "AX-75714",
+  "users.role_default": "AX-18243",
+  "users.locale_default": "AX-22639",
+  "search.index_name": "AX-99342",
+  "search.analyzer": "AX-73593",
+  "search.max_hits": "AX-10045",
+  "search.fuzzy_level": "AX-20129",
+  "search.refresh_ms": "AX-82923",
+  "export.format": "AX-23413",
+  "export.max_rows": "AX-32409",
+  "export.signed_url_ttl": "AX-21883",
+  "export.compression": "AX-91989",
+  "export.schedule": "AX-86413",
+  "billing.cycle": "AX-15601",
+  "billing.currency": "AX-84461",
+  "billing.grace_days": "AX-14221",
+  "billing.invoice_prefix": "AX-54198",
+  "billing.tax_mode": "AX-81787",
+  "audit.retention_days": "AX-25095",
+  "audit.sink": "AX-48591",
+  "audit.sample_rate": "AX-22754",
+  "audit.pii_mask": "AX-84001",
+  "audit.event_version": "AX-17590",
+  "config.region": "AX-20369",
+  "config.feature_flags": "AX-70251",
+  "config.log_level": "AX-77897",
+  "config.env_name": "AX-39929",
+  "config.secret_store": "AX-72069",
+  "release.channel": "AX-74366",
+  "release.version_tag": "AX-77174",
+  "release.rollout_pct": "AX-66448",
+  "release.freeze_day": "AX-78044",
+  "release.changelog_path": "AX-35900"
+ },
+ "x2_old_token": "AX-30896",
+ "commits": [
+  {
+   "k": 1,
+   "turn": 4,
+   "kind": "delete",
+   "module": "users",
+   "funcs": [
+    "users.quota_mb"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 2,
+   "turn": 5,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.token_ttl"
+   ],
+   "new_tokens": {
+    "auth.token_ttl": "AX-13924"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 3,
+   "turn": 6,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.token_ttl"
+   ],
+   "new_tokens": {
+    "auth.token_ttl": "AX-75088"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": "X3: auth.token_ttl in the first value commit after t04's nominal turn"
+  },
+  {
+   "k": 4,
+   "turn": 8,
+   "kind": "value",
+   "module": "api",
+   "funcs": [
+    "api.cors_origin",
+    "auth.session_cookie",
+    "release.channel"
+   ],
+   "new_tokens": {
+    "api.cors_origin": "AX-84987",
+    "auth.session_cookie": "AX-98773",
+    "release.channel": "AX-36185"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 5,
+   "turn": 9,
+   "kind": "whitespace",
+   "module": "api",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "fn": "error_format"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 6,
+   "turn": 12,
+   "kind": "add",
+   "module": "ratelimit",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "name": "extra_6",
+    "token": "AX-35889"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 7,
+   "turn": 13,
+   "kind": "module-comment",
+   "module": "audit",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 8,
+   "turn": 15,
+   "kind": "reorder",
+   "module": "release",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "a": 2,
+    "b": 1
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 9,
+   "turn": 17,
+   "kind": "sibling",
+   "module": "ratelimit",
+   "funcs": [
+    "ratelimit.burst",
+    "ratelimit.retry_after"
+   ],
+   "new_tokens": {
+    "ratelimit.burst": "AX-12872",
+    "ratelimit.retry_after": "AX-27534"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 10,
+   "turn": 18,
+   "kind": "docstring",
+   "module": "ratelimit",
+   "funcs": [
+    "ratelimit.per_key"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  }
+ ],
+ "v2_turn": 12,
+ "kills": {
+  "K1": {
+   "agent": "builder",
+   "from_turn": 6,
+   "after": "first tool call after the claim"
+  },
+  "K2": {
+   "agent": "researcher",
+   "from_turn": 13,
+   "tasks": [
+    "t14-ratelimit-spec",
+    "t16-release-notes"
+   ],
+   "after": "first Write of an artifact file"
+  },
+  "K3": {
+   "agent": "planner",
+   "from_turn": 14,
+   "after": "first memory write (MCP write or Write)"
+  }
+ },
+ "nominal_order": [
+  [
+   1,
+   "init"
+  ],
+  [
+   2,
+   "t01-gather-requirements"
+  ],
+  [
+   3,
+   "t02-choose-api-version"
+  ],
+  [
+   4,
+   "t03-design-endpoints"
+  ],
+  [
+   5,
+   "t04-survey-infra-security"
+  ],
+  [
+   6,
+   "t05-choose-auth"
+  ],
+  [
+   7,
+   "t13-reuse-billing-cycle"
+  ],
+  [
+   8,
+   "t06-write-db-schema"
+  ],
+  [
+   9,
+   "t14-ratelimit-spec"
+  ],
+  [
+   10,
+   "t07-implement-crud-spec"
+  ],
+  [
+   11,
+   "t15-config-matrix"
+  ],
+  [
+   12,
+   "ingest-v2"
+  ],
+  [
+   13,
+   "adopt-v2"
+  ],
+  [
+   14,
+   "t12-update-endpoints-for-v2"
+  ],
+  [
+   15,
+   "t08-write-test-plan"
+  ],
+  [
+   16,
+   "t09-review-spec"
+  ],
+  [
+   17,
+   "t10-write-docs"
+  ],
+  [
+   18,
+   "t16-release-notes"
+  ],
+  [
+   19,
+   "t11-package-release"
+  ]
+ ],
+ "invalidated": [
+  "api.cors_origin",
+  "auth.session_cookie",
+  "auth.token_ttl",
+  "ratelimit.burst",
+  "ratelimit.retry_after",
+  "release.channel",
+  "users.quota_mb"
+ ]
+}
