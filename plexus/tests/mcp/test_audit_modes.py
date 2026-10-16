@@ -349,3 +349,136 @@ def test_the_deploy_audit_rule_makes_demo_tenants_off_and_team_tenants_unchanged
     policy = AuditPolicy.from_env(guard.ensure_demo_audit_off(env))
     assert policy.tenant_mode("demo") == policy.tenant_mode("demo_scripted") == "off"
     assert policy.tenant_mode("team_abcd") == "light" and policy.tenant_mode("acme") == "full"
+
+
+# ------------------------------------------------------------------------------------ 3. the no-write proof
+WRITE_COMMANDS = (
+    "graph.query",
+    "graph.delete",
+    "graph.copy",
+    "graph.constraint",
+    "set",
+    "del",
+    "unlink",
+    "hset",
+    "lpush",
+    "rpush",
+    "sadd",
+    "zadd",
+    "incr",
+    "expire",
+    "rename",
+    "restore",
+    "flushdb",
+    "flushall",
+)
+
+
+def _commandstats(r) -> dict[str, int]:
+    return {k.removeprefix("cmdstat_").lower(): v["calls"] for k, v in r.info("commandstats").items()}
+
+
+def _server_counters(r) -> dict:
+    """Everything the server counts as a write, plus the call counts of every command."""
+    persistence = r.info("persistence")
+    return {
+        "calls": _commandstats(r),
+        "dirty": persistence["rdb_changes_since_last_save"],
+        "last_save": persistence["rdb_last_save_time"],
+        "keys": r.dbsize(),
+    }
+
+
+def _delta(before: dict, after: dict) -> dict[str, int]:
+    return {
+        c: n - before["calls"].get(c, 0) for c, n in after["calls"].items() if n != before["calls"].get(c, 0)
+    }
+
+
+async def _read_burst(c: Client, ids: dict) -> int:
+    """Every read tool, a few times each; returns how many calls were made."""
+    calls = [
+        ("recall", {"query": "API version"}),
+        ("recall", {"query": "something nobody asserted", "k": 3}),
+        ("recall", {"query": "API", "as_of": 1, "include_dormant": True}),
+        ("fact_history", {"subject": "API", "predicate": "version"}),
+        ("as_of", {"subject": "API", "predicate": "version", "t": 9_999_999_999_000}),
+        ("why", {"node_id": ids["decision"]}),
+        ("why", {"node_id": ids["fact"]}),
+        ("why_recalled", {"recall_id": ids["recall"]}),
+        ("who_knew", {"fact_id": ids["fact"]}),
+        ("knew_at", {"subject_agent": "seed", "step_n": 3}),
+        ("ready_tasks", {}),
+        ("task_status", {"task_id": ids["task"]}),
+        ("blocked_by_failure", {"task_id": ids["task"]}),
+        ("best_procedure", {"task_type": "bugfix"}),
+        ("memory_strength", {"fact_id": ids["fact"]}),
+        ("facts_to_verify", {}),
+        ("docs_to_update", {}),
+    ]
+    assert {t for t, _ in calls} == READ_TOOLS, "the burst must cover every read tool"
+    n = 0
+    for _ in range(3):
+        for tool, args in calls:
+            await _ok(c, tool, agent_id="visitor", **args)
+            n += 1
+    return n
+
+
+@pytest.fixture
+def raw_redis():
+    import redis
+
+    from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
+
+    r = redis.Redis(host=TEST_DB_HOST, port=TEST_DB_PORT, decode_responses=True)
+    yield r
+    r.close()
+
+
+async def _seed_with_recall(client, tenant) -> dict:
+    ids = await _seed(client, tenant)
+    async with Client(build_server(_runtime(client, tenant))) as c:
+        ids["recall"] = (await _ok(c, "recall", agent_id="seed", query="API version"))["recall_id"]
+    return ids
+
+
+async def test_no_write_proof_an_off_tenant_burst_issues_zero_write_commands(client, tenant, raw_redis):
+    ids = await _seed_with_recall(client, tenant)
+    graph_before = _totals(client, tenant)
+    before = _server_counters(raw_redis)
+    async with Client(build_server(_runtime(client, tenant, mode="off"))) as c:
+        n = await _read_burst(c, ids)
+    after = _server_counters(raw_redis)
+
+    delta = _delta(before, after)
+    assert n >= 50
+    assert delta.get("graph.ro_query", 0) >= n, delta  # the reads really ran, as read-only queries
+    assert {c: d for c, d in delta.items() if c in WRITE_COMMANDS} == {}, delta  # and not one write command
+    assert after["keys"] == before["keys"]
+    if after["last_save"] == before["last_save"]:  # the server's own dirty-key counter did not move
+        assert after["dirty"] == before["dirty"]
+    assert _totals(client, tenant) == graph_before
+
+
+async def test_the_proof_can_fail_the_same_burst_in_full_mode_does_write(client, tenant, raw_redis):
+    """Control: the counters above are not blind. In full mode the very same burst issues write commands."""
+    ids = await _seed_with_recall(client, tenant)
+    before = _server_counters(raw_redis)
+    async with Client(build_server(_runtime(client, tenant, mode="full"))) as c:
+        n = await _read_burst(c, ids)
+    after = _server_counters(raw_redis)
+    delta = _delta(before, after)
+    assert delta.get("graph.query", 0) >= 2 * n  # at least a Step and a ToolCall per call
+    assert after["dirty"] > before["dirty"] or after["last_save"] != before["last_save"]
+
+
+async def test_light_mode_burst_issues_one_write_per_read_except_recall(client, tenant, raw_redis):
+    ids = await _seed_with_recall(client, tenant)
+    async with Client(build_server(_runtime(client, tenant, mode="light"))) as c:
+        await _ok(c, "task_status", agent_id="warm", task_id=ids["task"])  # the schema check of a new Runtime
+        before = _server_counters(raw_redis)
+        n = await _read_burst(c, ids)
+        delta = _delta(before, _server_counters(raw_redis))
+    recalls = 3 * 3  # the recall rows of the burst stay full: Step + READ/Recall + ToolCall (3 writes)
+    assert delta["graph.query"] == (n - recalls) * 1 + recalls * 3, delta
