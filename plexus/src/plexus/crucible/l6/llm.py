@@ -31,8 +31,15 @@ from plexus.crucible.l2.questions import parse_reply
 PROMPT_VERSION = "l6-v1"
 MODEL = "sonnet"
 PER_CALL_CAP_USD = 0.80
-MAX_TURNS = {"B0r": 3, "B1a": 20, "B0g": 20}
-ALLOWED_TOOLS = {"B0r": set(), "B1a": {"mcp__sql__query"}, "B0g": {"Bash", "Read", "Grep", "Glob"}}
+MAX_TURNS = {"B0r": 3, "B1a": 20, "B0g": 20, "P": 20}
+# P: the real Plexus MCP server, read-only tools only (the write tools, quarantine_source above all, are not allowed)
+P_TOOLS = ("impact", "why", "blocked_by_failure", "task_status", "who_knew", "fact_history")
+ALLOWED_TOOLS = {
+    "B0r": set(),
+    "B1a": {"mcp__sql__query"},
+    "B0g": {"Bash", "Read", "Grep", "Glob"},
+    "P": {f"mcp__plexus__{t}" for t in P_TOOLS},
+}
 
 COMMON = (
     "All the data is synthetic. Work out the answer carefully from the data; do not guess and do not invent ids. "
@@ -80,6 +87,13 @@ ROLES = {
     "B1a": (
         "You answer one question about a team's recorded memory. You have ONE tool, `query`, that runs a read-only SQL statement on the memory "
         "database. " + SCHEMA_NOTE + " " + COMMON
+    ),
+    "P": (
+        "You answer one question about a team's recorded memory, kept in the Plexus graph memory. You have its read-only tools "
+        "(`impact`, `why`, `blocked_by_failure`, `task_status`, `who_knew`, `fact_history`); each tool describes itself. Facts are "
+        "recorded with their provenance: a fact derives from a source or from other facts, decisions are based on facts, handoffs "
+        "carry facts, steps read facts. Use the tools; do not guess and do not invent ids. If no tool can give a part of the answer, "
+        "say so in prose and give your best answer for the rest. " + COMMON
     ),
     "B0g": (
         "You answer one question about a team's recorded memory, kept in files. " + FILES_NOTE + " " + COMMON
@@ -143,8 +157,11 @@ class PilotRunner:
         arm_caps: dict[str, float] | None = None,
         launcher: list[str] | None = None,
         model: str = MODEL,
+        db_host: str = "127.0.0.1",
+        db_port: int = 6361,
     ):
         self.cache_dir, self.total_cap, self.model = cache_dir, total_cap, model
+        self.db_host, self.db_port = db_host, db_port
         self.arm_caps = arm_caps or {}
         self.launcher = launcher
         self.live_calls = 0
@@ -169,6 +186,7 @@ class PilotRunner:
             "B0r": "tools=none max_turns=3 stdin",
             "B1a": f"tools=mcp__sql__query(read-only sql, 20s, 200 rows, 12000 chars) max_turns={MAX_TURNS['B1a']}",
             "B0g": f"tools=Bash,Read,Grep,Glob max_turns={MAX_TURNS['B0g']} cwd=copy of the files",
+            "P": f"tools=plexus-mcp stdio, allowed {','.join(P_TOOLS)} max_turns={MAX_TURNS['P']} embedder=hash",
         }[arm]
 
     def key(self, arm: str, prompt: str, data_sha: str) -> str:
@@ -205,6 +223,19 @@ class PilotRunner:
                 "--allowedTools",
                 "mcp__sql__query",
             ]
+        if arm == "P":
+            assert mcp_config is not None
+            allowed = ",".join(f"mcp__plexus__{t}" for t in P_TOOLS)
+            return [
+                *base,
+                "--tools",
+                "",
+                "--strict-mcp-config",
+                "--mcp-config",
+                str(mcp_config),
+                "--allowedTools",
+                allowed,
+            ]
         return [
             *base,
             "--tools",
@@ -217,7 +248,7 @@ class PilotRunner:
     # -- one call -------------------------------------------------------------------------------------------------------------------
     def ask(
         self, arm: str, family: str, qid: str, prompt: str, *, data_sha: str, context: str = "", db: str = "", files_dir: Path | None = None,
-        use_cache: bool = True,
+        use_cache: bool = True, tenant: str = "",
     ) -> Call:  # fmt: skip
         key = self.key(arm, prompt + "\x00" + context, data_sha)
         path = self._path(arm, qid, key)
@@ -238,7 +269,7 @@ class PilotRunner:
             cap = self.arm_caps.get(arm)
             if cap is not None and self.arm_spent.get(arm, 0.0) >= cap:
                 raise BudgetExceeded(f"{arm} ${self.arm_spent.get(arm, 0.0):.2f} of its ${cap:.2f} cap")
-        call = self._run(arm, family, qid, prompt, context, db, files_dir)
+        call = self._run(arm, family, qid, prompt, context, db, files_dir, tenant)
         call.key = key
         call.context_chars = len(context)
         with self._lock:
@@ -255,7 +286,15 @@ class PilotRunner:
         return call
 
     def _run(
-        self, arm: str, family: str, qid: str, prompt: str, context: str, db: str, files_dir: Path | None
+        self,
+        arm: str,
+        family: str,
+        qid: str,
+        prompt: str,
+        context: str,
+        db: str,
+        files_dir: Path | None,
+        tenant: str = "",
     ) -> Call:
         call = Call(qid=qid, arm=arm, family=family, model=self.model)
         tmp = Path(tempfile.mkdtemp(prefix="crucible-l6-cwd-"))
@@ -271,6 +310,31 @@ class PilotRunner:
                                 "sql": {
                                     "command": sys.executable,
                                     "args": ["-m", "plexus.crucible.l6.sql_mcp", "--db", db],
+                                }
+                            }
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                cwd = tmp / "cwd"
+                cwd.mkdir()
+            elif arm == "P":
+                mcp_config = tmp / "mcp.json"
+                mcp_config.write_text(
+                    json.dumps(
+                        {
+                            "mcpServers": {
+                                "plexus": {
+                                    "command": str(
+                                        Path(sys.executable).parent
+                                        / ("plexus-mcp.exe" if os.name == "nt" else "plexus-mcp")
+                                    ),
+                                    "args": ["--transport", "stdio", "--tenant", tenant],
+                                    "env": {
+                                        "FALKORDB_HOST": self.db_host,
+                                        "FALKORDB_PORT": str(self.db_port),
+                                        "PLEXUS_EMBEDDER": "hash",
+                                    },
                                 }
                             }
                         }

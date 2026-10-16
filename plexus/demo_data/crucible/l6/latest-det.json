@@ -2,16 +2,16 @@
  "schema": "crucible-l6/1",
  "kind": "det",
  "run": {
-  "id": "20261016T042534Z-det",
-  "started_at": "2026-10-16T04:25:33Z",
-  "finished_at": "2026-10-16T04:34:46Z",
+  "id": "20261016T045029Z-det",
+  "started_at": "2026-10-16T04:50:28Z",
+  "finished_at": "2026-10-16T05:03:36Z",
   "command": "python -m plexus.crucible.l6.run det --port 6361",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
  "git": {
-  "commit": "9aa117c053af34d15334c73d92c08883102b2a13",
-  "short": "9aa117c",
+  "commit": "ae9d208d56ac1f195dd704d8f79ab206d795e10a",
+  "short": "ae9d208",
   "dirty": false,
   "branch": "p9a"
  },
@@ -21,7 +21,7 @@
   "machine": "AMD64",
   "cpu_count": 12,
   "in_docker": false,
-  "git_commit": "9aa117c",
+  "git_commit": "ae9d208",
   "embedder": "none",
   "falkordb": {
    "host": "127.0.0.1",
@@ -100,10 +100,11 @@
       "probes": 24,
       "earliest5": 24
      },
+     "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 52.76,
-      "p99": 347.83,
-      "max": 347.83
+      "p50": 56.76,
+      "p99": 260.27,
+      "max": 260.27
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -121,11 +122,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 36.12,
+       "latency_ms_median": 33.36,
        "latency_ms_all": [
-        57.38,
-        36.12,
-        31.65
+        39.25,
+        33.36,
+        31.83
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -144,11 +145,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 41.48,
+       "latency_ms_median": 40.45,
        "latency_ms_all": [
-        41.48,
-        37.74,
-        42.65
+        40.45,
+        41.79,
+        37.22
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -167,11 +168,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 76.04,
+       "latency_ms_median": 63.88,
        "latency_ms_all": [
-        93.59,
-        76.04,
-        68.53
+        63.88,
+        68.27,
+        60.31
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -190,11 +191,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 199.02,
+       "latency_ms_median": 166.52,
        "latency_ms_all": [
-        199.02,
-        172.84,
-        209.86
+        166.95,
+        166.09,
+        166.52
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -213,11 +214,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 42.64,
+       "latency_ms_median": 29.24,
        "latency_ms_all": [
-        31.96,
-        45.44,
-        42.64
+        36.67,
+        29.24,
+        27.5
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -236,11 +237,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 52.27,
+       "latency_ms_median": 66.91,
        "latency_ms_all": [
-        52.27,
-        55.36,
-        45.2
+        82.51,
+        38.07,
+        66.91
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -259,11 +260,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 103.49,
+       "latency_ms_median": 92.07,
        "latency_ms_all": [
-        101.5,
-        104.1,
-        103.49
+        96.69,
+        92.07,
+        85.17
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -282,11 +283,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 321.37,
+       "latency_ms_median": 230.73,
        "latency_ms_all": [
-        347.83,
-        321.37,
-        251.23
+        230.73,
+        254.94,
+        208.72
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -305,11 +306,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 26.14,
+       "latency_ms_median": 26.16,
        "latency_ms_all": [
-        24.95,
-        27.6,
-        26.14
+        26.16,
+        25.05,
+        31.15
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -328,11 +329,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 35.44,
+       "latency_ms_median": 38.57,
        "latency_ms_all": [
-        39.79,
-        35.44,
-        34.86
+        47.6,
+        38.32,
+        38.57
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -351,11 +352,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 67.33,
+       "latency_ms_median": 83.76,
        "latency_ms_all": [
-        61.15,
-        67.33,
-        95.75
+        83.76,
+        75.62,
+        88.24
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -374,11 +375,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 225.88,
+       "latency_ms_median": 217.34,
        "latency_ms_all": [
-        225.88,
-        217.32,
-        242.17
+        239.82,
+        217.34,
+        191.02
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -397,11 +398,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 29.81,
+       "latency_ms_median": 23.07,
        "latency_ms_all": [
-        29.81,
-        31.42,
-        28.28
+        23.07,
+        25.21,
+        22.51
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -420,11 +421,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 41.9,
+       "latency_ms_median": 31.8,
        "latency_ms_all": [
-        39.83,
-        41.9,
-        45.73
+        31.57,
+        31.8,
+        32.11
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -443,11 +444,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 91.02,
+       "latency_ms_median": 63.9,
        "latency_ms_all": [
-        92.31,
-        84.47,
-        91.02
+        63.9,
+        64.63,
+        62.36
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -466,11 +467,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 233.2,
+       "latency_ms_median": 157.5,
        "latency_ms_all": [
-        270.97,
-        233.2,
-        177.2
+        169.66,
+        157.5,
+        146.78
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -489,11 +490,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 26.57,
+       "latency_ms_median": 21.69,
        "latency_ms_all": [
-        27.84,
-        24.61,
-        26.57
+        20.44,
+        21.99,
+        21.69
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -512,11 +513,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 37.08,
+       "latency_ms_median": 29.12,
        "latency_ms_all": [
-        37.87,
-        37.08,
-        35.6
+        29.12,
+        29.76,
+        28.7
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -535,11 +536,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 61.38,
+       "latency_ms_median": 58.75,
        "latency_ms_all": [
-        58.36,
-        64.39,
-        61.38
+        56.1,
+        62.93,
+        58.75
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -558,11 +559,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 136.49,
+       "latency_ms_median": 125.94,
        "latency_ms_all": [
-        136.49,
-        138.25,
-        130.26
+        146.24,
+        125.94,
+        123.39
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -581,11 +582,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 23.94,
+       "latency_ms_median": 24.22,
        "latency_ms_all": [
-        23.94,
-        24.37,
-        23.78
+        22.25,
+        24.3,
+        24.22
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -604,11 +605,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 31.08,
+       "latency_ms_median": 33.91,
        "latency_ms_all": [
-        31.08,
-        32.45,
-        30.9
+        33.3,
+        33.91,
+        35.58
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -627,11 +628,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 52.76,
+       "latency_ms_median": 66.96,
        "latency_ms_all": [
-        54.78,
-        51.15,
-        52.76
+        66.96,
+        66.96,
+        56.76
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -650,11 +651,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 169.32,
+       "latency_ms_median": 232.18,
        "latency_ms_all": [
-        153.47,
-        183.39,
-        169.32
+        232.18,
+        260.27,
+        203.38
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -676,10 +677,11 @@
       "probes": 24,
       "earliest5": 24
      },
+     "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 67.05,
-      "p99": 278.72,
-      "max": 278.72
+      "p50": 76.47,
+      "p99": 326.14,
+      "max": 326.14
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -697,11 +699,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 30.31,
+       "latency_ms_median": 38.89,
        "latency_ms_all": [
-        32.8,
-        30.22,
-        30.31
+        42.69,
+        35.94,
+        38.89
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -720,11 +722,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 41.57,
+       "latency_ms_median": 49.45,
        "latency_ms_all": [
-        41.57,
-        41.46,
-        41.83
+        49.45,
+        49.58,
+        47.03
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -743,11 +745,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 73.93,
+       "latency_ms_median": 94.03,
        "latency_ms_all": [
-        73.37,
-        73.97,
-        73.93
+        94.03,
+        90.54,
+        95.23
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -766,11 +768,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 178.65,
+       "latency_ms_median": 227.55,
        "latency_ms_all": [
-        158.58,
-        178.65,
-        180.93
+        220.53,
+        240.55,
+        227.55
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -789,11 +791,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 36.49,
+       "latency_ms_median": 43.01,
        "latency_ms_all": [
-        33.05,
-        36.49,
-        39.28
+        43.01,
+        44.96,
+        40.78
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -812,11 +814,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 58.67,
+       "latency_ms_median": 59.14,
        "latency_ms_all": [
-        54.71,
-        58.67,
-        67.05
+        59.14,
+        51.42,
+        69.08
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -835,11 +837,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 98.73,
+       "latency_ms_median": 105.61,
        "latency_ms_all": [
-        122.96,
-        98.73,
-        78.41
+        117.39,
+        94.2,
+        105.61
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -858,11 +860,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 189.3,
+       "latency_ms_median": 290.75,
        "latency_ms_all": [
-        228.74,
-        189.3,
-        176.3
+        288.13,
+        290.75,
+        296.62
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -881,11 +883,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 37.51,
+       "latency_ms_median": 41.72,
        "latency_ms_all": [
-        30.68,
-        37.51,
-        39.87
+        40.16,
+        41.72,
+        42.2
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -904,11 +906,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 51.03,
+       "latency_ms_median": 52.56,
        "latency_ms_all": [
-        48.68,
-        52.44,
-        51.03
+        51.75,
+        52.56,
+        56.44
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -927,11 +929,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 82.23,
+       "latency_ms_median": 103.28,
        "latency_ms_all": [
-        88.77,
-        82.23,
-        82.13
+        129.15,
+        101.53,
+        103.28
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -950,11 +952,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 216.71,
+       "latency_ms_median": 289.2,
        "latency_ms_all": [
-        218.47,
-        215.54,
-        216.71
+        297.13,
+        289.2,
+        279.7
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -973,11 +975,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 30.8,
+       "latency_ms_median": 36.95,
        "latency_ms_all": [
-        27.56,
-        30.8,
-        31.87
+        35.93,
+        36.95,
+        38.55
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -996,11 +998,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 38.35,
+       "latency_ms_median": 50.68,
        "latency_ms_all": [
-        37.36,
-        38.35,
-        39.49
+        47.28,
+        55.4,
+        50.68
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1019,11 +1021,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 99.04,
+       "latency_ms_median": 102.53,
        "latency_ms_all": [
-        99.04,
-        103.16,
-        90.43
+        118.68,
+        102.53,
+        102.44
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1042,11 +1044,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 219.46,
+       "latency_ms_median": 263.18,
        "latency_ms_all": [
-        217.22,
-        238.88,
-        219.46
+        263.18,
+        253.88,
+        304.32
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1065,11 +1067,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 35.65,
+       "latency_ms_median": 37.76,
        "latency_ms_all": [
-        33.21,
-        35.65,
-        35.68
+        38.16,
+        37.33,
+        37.76
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1088,11 +1090,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 42.2,
+       "latency_ms_median": 48.22,
        "latency_ms_all": [
-        41.89,
-        42.57,
-        42.2
+        46.69,
+        51.99,
+        48.22
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1111,11 +1113,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 74.3,
+       "latency_ms_median": 103.92,
        "latency_ms_all": [
-        74.3,
-        75.95,
-        74.12
+        103.92,
+        105.59,
+        96.79
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1134,11 +1136,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 156.94,
+       "latency_ms_median": 224.64,
        "latency_ms_all": [
-        155.11,
-        156.94,
-        179.84
+        209.31,
+        259.86,
+        224.64
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1157,11 +1159,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 39.34,
+       "latency_ms_median": 39.04,
        "latency_ms_all": [
-        29.5,
-        62.08,
-        39.34
+        42.96,
+        39.04,
+        31.6
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1180,11 +1182,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 58.67,
+       "latency_ms_median": 68.1,
        "latency_ms_all": [
-        60.14,
-        53.72,
-        58.67
+        56.72,
+        68.1,
+        76.47
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1203,11 +1205,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 89.36,
+       "latency_ms_median": 101.49,
        "latency_ms_all": [
-        87.23,
-        89.36,
-        94.81
+        98.56,
+        115.23,
+        101.49
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1226,11 +1228,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 271.26,
+       "latency_ms_median": 303.75,
        "latency_ms_all": [
-        278.72,
-        271.26,
-        265.77
+        285.93,
+        326.14,
+        303.75
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1252,12 +1254,13 @@
       "probes": 24,
       "earliest5": 24
      },
+     "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 85.37,
-      "p99": 1138.49,
-      "max": 1138.49
+      "p50": 69.28,
+      "p99": 749.12,
+      "max": 749.12
      },
-     "server_ms_median": 43.72,
+     "server_ms_median": 27.774,
      "statements_per_answer_median": 10.0,
      "questions": [
       {
@@ -1273,13 +1276,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 30.63,
+       "latency_ms_median": 20.9,
        "latency_ms_all": [
-        22.98,
-        30.63,
-        33.11
+        28.43,
+        20.9,
+        19.96
        ],
-       "server_ms_median": 2.157,
+       "server_ms_median": 2.693,
        "expected": null,
        "got": null
       },
@@ -1296,13 +1299,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 33.87,
+       "latency_ms_median": 24.58,
        "latency_ms_all": [
-        35.58,
-        33.87,
-        26.4
+        29.06,
+        24.58,
+        24.34
        ],
-       "server_ms_median": 10.896,
+       "server_ms_median": 7.208,
        "expected": null,
        "got": null
       },
@@ -1319,13 +1322,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 135.83,
+       "latency_ms_median": 127.44,
        "latency_ms_all": [
-        106.9,
-        320.99,
-        135.83
+        134.88,
+        125.01,
+        127.44
        ],
-       "server_ms_median": 76.544,
+       "server_ms_median": 81.369,
        "expected": null,
        "got": null
       },
@@ -1342,13 +1345,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 652.0,
+       "latency_ms_median": 618.42,
        "latency_ms_all": [
-        652.0,
-        617.44,
-        770.16
+        659.48,
+        508.24,
+        618.42
        ],
-       "server_ms_median": 480.141,
+       "server_ms_median": 466.269,
        "expected": null,
        "got": null
       },
@@ -1365,13 +1368,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 24.61,
+       "latency_ms_median": 25.39,
        "latency_ms_all": [
-        28.91,
-        24.61,
-        20.77
+        29.38,
+        25.13,
+        25.39
        ],
-       "server_ms_median": 2.036,
+       "server_ms_median": 1.963,
        "expected": null,
        "got": null
       },
@@ -1388,13 +1391,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 26.86,
+       "latency_ms_median": 36.26,
        "latency_ms_all": [
-        27.03,
-        26.19,
-        26.86
+        34.28,
+        36.26,
+        53.69
        ],
-       "server_ms_median": 6.224,
+       "server_ms_median": 7.455,
        "expected": null,
        "got": null
       },
@@ -1411,13 +1414,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 134.15,
+       "latency_ms_median": 124.66,
        "latency_ms_all": [
-        89.38,
-        134.15,
-        159.31
+        124.66,
+        122.55,
+        156.18
        ],
-       "server_ms_median": 78.518,
+       "server_ms_median": 78.052,
        "expected": null,
        "got": null
       },
@@ -1434,13 +1437,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 1037.07,
+       "latency_ms_median": 723.57,
        "latency_ms_all": [
-        887.46,
-        1037.07,
-        1138.49
+        749.12,
+        580.53,
+        723.57
        ],
-       "server_ms_median": 708.418,
+       "server_ms_median": 443.972,
        "expected": null,
        "got": null
       },
@@ -1457,13 +1460,13 @@
        },
        "error": "",
        "statements": 12,
-       "latency_ms_median": 43.6,
+       "latency_ms_median": 35.44,
        "latency_ms_all": [
-        46.16,
-        43.6,
-        41.06
+        35.44,
+        29.7,
+        35.5
        ],
-       "server_ms_median": 2.713,
+       "server_ms_median": 2.508,
        "expected": null,
        "got": null
       },
@@ -1480,13 +1483,13 @@
        },
        "error": "",
        "statements": 12,
-       "latency_ms_median": 47.21,
+       "latency_ms_median": 53.81,
        "latency_ms_all": [
-        55.37,
-        47.21,
-        42.18
+        50.28,
+        69.28,
+        53.81
        ],
-       "server_ms_median": 8.115,
+       "server_ms_median": 8.408,
        "expected": null,
        "got": null
       },
@@ -1503,13 +1506,13 @@
        },
        "error": "",
        "statements": 12,
-       "latency_ms_median": 196.24,
+       "latency_ms_median": 133.31,
        "latency_ms_all": [
-        171.86,
-        196.24,
-        213.15
+        150.4,
+        126.48,
+        133.31
        ],
-       "server_ms_median": 101.579,
+       "server_ms_median": 77.967,
        "expected": null,
        "got": null
       },
@@ -1526,13 +1529,13 @@
        },
        "error": "",
        "statements": 18,
-       "latency_ms_median": 923.41,
+       "latency_ms_median": 613.22,
        "latency_ms_all": [
-        989.94,
-        923.41,
-        848.05
+        665.18,
+        613.22,
+        604.02
        ],
-       "server_ms_median": 672.741,
+       "server_ms_median": 460.931,
        "expected": null,
        "got": null
       },
@@ -1549,13 +1552,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 55.87,
+       "latency_ms_median": 37.21,
        "latency_ms_all": [
-        45.14,
-        55.87,
-        69.27
+        37.21,
+        32.59,
+        40.33
        ],
-       "server_ms_median": 2.751,
+       "server_ms_median": 2.488,
        "expected": null,
        "got": null
       },
@@ -1572,13 +1575,13 @@
        },
        "error": "",
        "statements": 16,
-       "latency_ms_median": 59.73,
+       "latency_ms_median": 52.09,
        "latency_ms_all": [
-        85.37,
-        55.96,
-        59.73
+        53.61,
+        45.67,
+        52.09
        ],
-       "server_ms_median": 7.346,
+       "server_ms_median": 7.696,
        "expected": null,
        "got": null
       },
@@ -1595,13 +1598,13 @@
        },
        "error": "",
        "statements": 16,
-       "latency_ms_median": 162.92,
+       "latency_ms_median": 118.1,
        "latency_ms_all": [
-        161.36,
-        162.92,
-        184.51
+        118.1,
+        125.6,
+        115.32
        ],
-       "server_ms_median": 84.945,
+       "server_ms_median": 55.973,
        "expected": null,
        "got": null
       },
@@ -1618,13 +1621,13 @@
        },
        "error": "",
        "statements": 22,
-       "latency_ms_median": 887.43,
+       "latency_ms_median": 430.32,
        "latency_ms_all": [
-        891.67,
-        887.43,
-        878.23
+        495.39,
+        423.46,
+        430.32
        ],
-       "server_ms_median": 592.754,
+       "server_ms_median": 297.809,
        "expected": null,
        "got": null
       },
@@ -1641,13 +1644,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 38.62,
+       "latency_ms_median": 13.54,
        "latency_ms_all": [
-        34.02,
-        42.51,
-        38.62
+        14.64,
+        13.54,
+        13.17
        ],
-       "server_ms_median": 1.735,
+       "server_ms_median": 1.318,
        "expected": null,
        "got": null
       },
@@ -1664,13 +1667,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 48.09,
+       "latency_ms_median": 18.63,
        "latency_ms_all": [
-        43.68,
-        48.09,
-        56.0
+        17.7,
+        19.04,
+        18.63
        ],
-       "server_ms_median": 9.491,
+       "server_ms_median": 4.344,
        "expected": null,
        "got": null
       },
@@ -1687,13 +1690,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 180.22,
+       "latency_ms_median": 77.75,
        "latency_ms_all": [
-        180.22,
-        175.63,
-        185.36
+        71.75,
+        78.39,
+        77.75
        ],
-       "server_ms_median": 90.511,
+       "server_ms_median": 47.139,
        "expected": null,
        "got": null
       },
@@ -1710,13 +1713,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 873.0,
+       "latency_ms_median": 514.7,
        "latency_ms_all": [
-        858.41,
-        943.22,
-        873.0
+        514.7,
+        513.96,
+        555.46
        ],
-       "server_ms_median": 647.664,
+       "server_ms_median": 370.346,
        "expected": null,
        "got": null
       },
@@ -1733,13 +1736,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 27.54,
+       "latency_ms_median": 22.45,
        "latency_ms_all": [
-        24.76,
-        27.54,
-        28.36
+        22.61,
+        22.07,
+        22.45
        ],
-       "server_ms_median": 1.922,
+       "server_ms_median": 1.831,
        "expected": null,
        "got": null
       },
@@ -1756,13 +1759,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 43.4,
+       "latency_ms_median": 26.22,
        "latency_ms_all": [
-        37.92,
-        43.4,
-        78.33
+        29.16,
+        23.38,
+        26.22
        ],
-       "server_ms_median": 6.965,
+       "server_ms_median": 5.753,
        "expected": null,
        "got": null
       },
@@ -1779,13 +1782,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 135.7,
+       "latency_ms_median": 98.98,
        "latency_ms_all": [
-        149.29,
-        131.46,
-        135.7
+        97.64,
+        100.07,
+        98.98
        ],
-       "server_ms_median": 84.545,
+       "server_ms_median": 59.5,
        "expected": null,
        "got": null
       },
@@ -1802,13 +1805,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 840.18,
+       "latency_ms_median": 577.53,
        "latency_ms_all": [
-        840.18,
-        970.28,
-        740.03
+        609.01,
+        577.53,
+        550.2
        ],
-       "server_ms_median": 643.157,
+       "server_ms_median": 425.245,
        "expected": null,
        "got": null
       }
@@ -1828,12 +1831,13 @@
       "probes": 24,
       "earliest5": 24
      },
+     "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 39.09,
-      "p99": 5563.06,
-      "max": 5563.06
+      "p50": 32.26,
+      "p99": 3351.31,
+      "max": 3351.31
      },
-     "server_ms_median": 18.212,
+     "server_ms_median": 17.209,
      "statements_per_answer_median": 6.0,
      "questions": [
       {
@@ -1849,13 +1853,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 18.56,
+       "latency_ms_median": 20.13,
        "latency_ms_all": [
-        18.56,
-        15.48,
-        19.06
+        19.07,
+        20.13,
+        25.9
        ],
-       "server_ms_median": 1.649,
+       "server_ms_median": 2.175,
        "expected": null,
        "got": null
       },
@@ -1872,13 +1876,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 23.87,
+       "latency_ms_median": 20.13,
        "latency_ms_all": [
-        22.17,
-        24.32,
-        23.87
+        20.13,
+        18.45,
+        20.84
        ],
-       "server_ms_median": 4.564,
+       "server_ms_median": 4.426,
        "expected": null,
        "got": null
       },
@@ -1895,13 +1899,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 50.72,
+       "latency_ms_median": 40.24,
        "latency_ms_all": [
-        48.83,
-        50.72,
-        65.73
+        36.89,
+        40.24,
+        43.92
        ],
-       "server_ms_median": 31.087,
+       "server_ms_median": 26.598,
        "expected": null,
        "got": null
       },
@@ -1918,13 +1922,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 205.55,
+       "latency_ms_median": 137.91,
        "latency_ms_all": [
-        168.0,
-        205.85,
-        205.55
+        107.5,
+        137.91,
+        141.26
        ],
-       "server_ms_median": 182.202,
+       "server_ms_median": 122.4,
        "expected": null,
        "got": null
       },
@@ -1941,13 +1945,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 20.47,
+       "latency_ms_median": 17.94,
        "latency_ms_all": [
-        29.88,
-        20.47,
-        18.37
+        17.94,
+        17.63,
+        19.97
        ],
-       "server_ms_median": 2.312,
+       "server_ms_median": 1.862,
        "expected": null,
        "got": null
       },
@@ -1964,13 +1968,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 21.57,
+       "latency_ms_median": 20.93,
        "latency_ms_all": [
-        19.97,
-        21.57,
-        27.76
+        20.41,
+        20.93,
+        21.16
        ],
-       "server_ms_median": 5.167,
+       "server_ms_median": 4.428,
        "expected": null,
        "got": null
       },
@@ -1987,13 +1991,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 65.2,
+       "latency_ms_median": 61.2,
        "latency_ms_all": [
-        65.2,
-        69.41,
-        64.45
+        44.51,
+        61.2,
+        65.2
        ],
-       "server_ms_median": 49.149,
+       "server_ms_median": 43.806,
        "expected": null,
        "got": null
       },
@@ -2010,13 +2014,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 306.08,
+       "latency_ms_median": 206.29,
        "latency_ms_all": [
-        306.08,
-        382.62,
-        284.1
+        195.49,
+        209.14,
+        206.29
        ],
-       "server_ms_median": 282.444,
+       "server_ms_median": 188.762,
        "expected": null,
        "got": null
       },
@@ -2033,13 +2037,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 15.63,
+       "latency_ms_median": 14.89,
        "latency_ms_all": [
-        15.63,
-        14.86,
-        15.67
+        14.89,
+        14.85,
+        16.02
        ],
-       "server_ms_median": 1.744,
+       "server_ms_median": 1.69,
        "expected": null,
        "got": null
       },
@@ -2056,13 +2060,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 22.22,
+       "latency_ms_median": 21.52,
        "latency_ms_all": [
-        21.92,
-        22.49,
-        22.22
+        23.41,
+        20.14,
+        21.52
        ],
-       "server_ms_median": 8.396,
+       "server_ms_median": 7.13,
        "expected": null,
        "got": null
       },
@@ -2079,13 +2083,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 132.25,
+       "latency_ms_median": 125.21,
        "latency_ms_all": [
-        132.25,
-        143.43,
-        130.2
+        142.79,
+        125.21,
+        113.81
        ],
-       "server_ms_median": 118.454,
+       "server_ms_median": 108.339,
        "expected": null,
        "got": null
       },
@@ -2102,13 +2106,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 857.19,
+       "latency_ms_median": 741.62,
        "latency_ms_all": [
-        855.75,
-        896.06,
-        857.19
+        772.44,
+        741.62,
+        489.26
        ],
-       "server_ms_median": 841.656,
+       "server_ms_median": 727.218,
        "expected": null,
        "got": null
       },
@@ -2125,13 +2129,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 24.85,
+       "latency_ms_median": 13.07,
        "latency_ms_all": [
-        16.91,
-        41.93,
-        24.85
+        12.93,
+        13.97,
+        13.07
        ],
-       "server_ms_median": 1.922,
+       "server_ms_median": 1.35,
        "expected": null,
        "got": null
       },
@@ -2148,13 +2152,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 34.23,
+       "latency_ms_median": 19.67,
        "latency_ms_all": [
-        40.64,
-        34.23,
-        28.13
+        19.44,
+        20.1,
+        19.67
        ],
-       "server_ms_median": 11.032,
+       "server_ms_median": 7.821,
        "expected": null,
        "got": null
       },
@@ -2171,13 +2175,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 594.32,
+       "latency_ms_median": 260.43,
        "latency_ms_all": [
-        499.25,
-        594.32,
-        633.36
+        255.2,
+        265.52,
+        260.43
        ],
-       "server_ms_median": 571.904,
+       "server_ms_median": 247.183,
        "expected": null,
        "got": null
       },
@@ -2194,13 +2198,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 5426.84,
+       "latency_ms_median": 3321.16,
        "latency_ms_all": [
-        5426.84,
-        4431.65,
-        5563.06
+        3321.16,
+        3351.31,
+        2705.45
        ],
-       "server_ms_median": 5401.634,
+       "server_ms_median": 3308.195,
        "expected": null,
        "got": null
       },
@@ -2217,13 +2221,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 14.87,
+       "latency_ms_median": 19.2,
        "latency_ms_all": [
-        14.87,
-        14.97,
-        13.94
+        18.49,
+        20.72,
+        19.2
        ],
-       "server_ms_median": 1.717,
+       "server_ms_median": 1.82,
        "expected": null,
        "got": null
       },
@@ -2240,13 +2244,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 17.4,
+       "latency_ms_median": 24.05,
        "latency_ms_all": [
-        17.4,
-        16.61,
-        17.71
+        24.05,
+        20.16,
+        25.18
        ],
-       "server_ms_median": 3.962,
+       "server_ms_median": 4.472,
        "expected": null,
        "got": null
       },
@@ -2263,13 +2267,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 39.09,
+       "latency_ms_median": 59.62,
        "latency_ms_all": [
-        44.88,
-        39.09,
-        37.26
+        61.61,
+        59.62,
+        39.65
        ],
-       "server_ms_median": 25.392,
+       "server_ms_median": 26.935,
        "expected": null,
        "got": null
       },
@@ -2286,13 +2290,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 143.42,
+       "latency_ms_median": 156.16,
        "latency_ms_all": [
-        158.51,
-        143.42,
-        128.38
+        192.34,
+        156.16,
+        132.75
        ],
-       "server_ms_median": 129.284,
+       "server_ms_median": 138.496,
        "expected": null,
        "got": null
       },
@@ -2309,13 +2313,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 15.24,
+       "latency_ms_median": 14.95,
        "latency_ms_all": [
-        15.24,
-        15.57,
-        14.18
+        14.95,
+        14.01,
+        21.86
        ],
-       "server_ms_median": 1.797,
+       "server_ms_median": 1.571,
        "expected": null,
        "got": null
       },
@@ -2332,13 +2336,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 17.43,
+       "latency_ms_median": 28.21,
        "latency_ms_all": [
-        16.9,
-        17.43,
-        19.85
+        28.01,
+        28.21,
+        32.26
        ],
-       "server_ms_median": 4.065,
+       "server_ms_median": 4.698,
        "expected": null,
        "got": null
       },
@@ -2355,13 +2359,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 50.49,
+       "latency_ms_median": 51.71,
        "latency_ms_all": [
-        57.94,
-        50.49,
-        48.07
+        45.2,
+        51.71,
+        52.78
        ],
-       "server_ms_median": 36.245,
+       "server_ms_median": 36.707,
        "expected": null,
        "got": null
       },
@@ -2378,13 +2382,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 322.03,
+       "latency_ms_median": 238.77,
        "latency_ms_all": [
-        294.0,
-        322.03,
-        332.28
+        246.6,
+        237.44,
+        238.77
        ],
-       "server_ms_median": 294.393,
+       "server_ms_median": 221.537,
        "expected": null,
        "got": null
       }
@@ -2393,16 +2397,24 @@
     "P-naive": {
      "arm": "P-naive",
      "n": 24,
-     "strict_correct": 0,
-     "timeouts": 24,
+     "strict_correct": 10,
+     "timeouts": 14,
      "other_errors": 0,
-     "components_correct": {},
+     "components_correct": {
+      "facts": 10,
+      "agents": 10,
+      "decisions": 10,
+      "handoffs": 10,
+      "probes": 10,
+      "earliest5": 10
+     },
+     "strict_without_earliest5": 10,
      "latency_ms": {
       "p50": 5000,
-      "p99": 6981.53,
-      "max": 6981.53
+      "p99": 6109.5,
+      "max": 6109.5
      },
-     "server_ms_median": 2.629,
+     "server_ms_median": 68.596,
      "statements_per_answer_median": 1.0,
      "questions": [
       {
@@ -2414,10 +2426,10 @@
        "latency_ms_median": 5000,
        "latency_ms_all": [
         5000,
-        5000,
+        5167.01,
         5000
        ],
-       "server_ms_median": 0.196,
+       "server_ms_median": 0.18,
        "expected": {
         "facts": 10,
         "agents": 18,
@@ -2457,7 +2469,7 @@
         5000,
         5000
        ],
-       "server_ms_median": 0.727,
+       "server_ms_median": 0.529,
        "expected": {
         "facts": 100,
         "agents": 25,
@@ -2497,7 +2509,7 @@
         5000,
         5000
        ],
-       "server_ms_median": 4.942,
+       "server_ms_median": 2.416,
        "expected": {
         "facts": 1000,
         "agents": 57,
@@ -2537,7 +2549,7 @@
         5000,
         5000
        ],
-       "server_ms_median": 25.13,
+       "server_ms_median": 19.036,
        "expected": {
         "facts": 5000,
         "agents": 65,
@@ -2577,7 +2589,7 @@
         5000,
         5000
        ],
-       "server_ms_median": 0.21,
+       "server_ms_median": 0.181,
        "expected": {
         "facts": 10,
         "agents": 16,
@@ -2617,7 +2629,7 @@
         5000,
         5000
        ],
-       "server_ms_median": 0.878,
+       "server_ms_median": 0.851,
        "expected": {
         "facts": 100,
         "agents": 16,
@@ -2657,7 +2669,7 @@
         5000,
         5000
        ],
-       "server_ms_median": 4.445,
+       "server_ms_median": 4.255,
        "expected": {
         "facts": 1000,
         "agents": 70,
@@ -2694,10 +2706,10 @@
        "latency_ms_median": 5000,
        "latency_ms_all": [
         5000,
-        5000,
-        5000
+        4635.85,
+        5111.21
        ],
-       "server_ms_median": 26.113,
+       "server_ms_median": 4619.989,
        "expected": {
         "facts": 5000,
         "agents": 61,
@@ -2727,83 +2739,49 @@
       },
       {
        "id": "A09",
-       "strict": false,
-       "components": {},
-       "error": "timeout",
-       "statements": 1,
-       "latency_ms_median": 5000,
-       "latency_ms_all": [
-        5000,
-        5000,
-        5000
-       ],
-       "server_ms_median": 0.225,
-       "expected": {
-        "facts": 10,
-        "agents": 12,
-        "decisions": 2,
-        "handoffs": 3,
-        "probes": [
-         true,
-         false,
-         true,
-         true,
-         false,
-         true,
-         false,
-         true,
-         false,
-         false
-        ],
-        "earliest5": [
-         "f046681",
-         "f016431",
-         "f045816",
-         "f016439",
-         "f030496"
-        ]
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
        },
-       "got": "{}"
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 4903.04,
+       "latency_ms_all": [
+        4482.26,
+        5000,
+        4903.04
+       ],
+       "server_ms_median": 4459.612,
+       "expected": null,
+       "got": null
       },
       {
        "id": "A10",
-       "strict": false,
-       "components": {},
-       "error": "timeout",
-       "statements": 1,
-       "latency_ms_median": 5000,
-       "latency_ms_all": [
-        5000,
-        5000,
-        5000
-       ],
-       "server_ms_median": 1.591,
-       "expected": {
-        "facts": 100,
-        "agents": 57,
-        "decisions": 4,
-        "handoffs": 3,
-        "probes": [
-         false,
-         true,
-         true,
-         false,
-         false,
-         false,
-         true,
-         true,
-         true,
-         false
-        ],
-        "earliest5": [
-         "f049469",
-         "f007868",
-         "f007497",
-         "f029912",
-         "f011381"
-        ]
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
        },
-       "got": "{}"
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 4958.6,
+       "latency_ms_all": [
+        4326.95,
+        5194.14,
+        4958.6
+       ],
+       "server_ms_median": 4947.366,
+       "expected": null,
+       "got": null
       },
       {
        "id": "A11",
@@ -2814,10 +2792,10 @@
        "latency_ms_median": 5000,
        "latency_ms_all": [
         5000,
-        5000,
+        5191.14,
         5000
        ],
-       "server_ms_median": 11.975,
+       "server_ms_median": 13.167,
        "expected": {
         "facts": 1000,
         "agents": 39,
@@ -2847,43 +2825,26 @@
       },
       {
        "id": "A12",
-       "strict": false,
-       "components": {},
-       "error": "timeout",
-       "statements": 1,
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
        "latency_ms_median": 5000,
        "latency_ms_all": [
-        5000,
+        4777.31,
         5000,
         5000
        ],
-       "server_ms_median": 123.641,
-       "expected": {
-        "facts": 5000,
-        "agents": 47,
-        "decisions": 93,
-        "handoffs": 59,
-        "probes": [
-         false,
-         false,
-         true,
-         true,
-         false,
-         true,
-         false,
-         true,
-         false,
-         true
-        ],
-        "earliest5": [
-         "f044364",
-         "f045945",
-         "f039240",
-         "f049447",
-         "f022922"
-        ]
-       },
-       "got": "{}"
+       "server_ms_median": 108.223,
+       "expected": null,
+       "got": null
       },
       {
        "id": "A13",
@@ -2894,10 +2855,10 @@
        "latency_ms_median": 5000,
        "latency_ms_all": [
         5000,
-        5000,
+        5064.31,
         5000
        ],
-       "server_ms_median": 0.19,
+       "server_ms_median": 0.347,
        "expected": {
         "facts": 10,
         "agents": 10,
@@ -2931,13 +2892,13 @@
        "components": {},
        "error": "timeout",
        "statements": 1,
-       "latency_ms_median": 5000,
+       "latency_ms_median": 4218.83,
        "latency_ms_all": [
         5000,
-        5000,
-        5000
+        4218.83,
+        3934.63
        ],
-       "server_ms_median": 1.435,
+       "server_ms_median": 3916.35,
        "expected": {
         "facts": 100,
         "agents": 25,
@@ -2967,83 +2928,49 @@
       },
       {
        "id": "A15",
-       "strict": false,
-       "components": {},
-       "error": "timeout",
-       "statements": 1,
-       "latency_ms_median": 5000,
-       "latency_ms_all": [
-        5000,
-        5000,
-        5256.87
-       ],
-       "server_ms_median": 60.398,
-       "expected": {
-        "facts": 1000,
-        "agents": 49,
-        "decisions": 14,
-        "handoffs": 9,
-        "probes": [
-         true,
-         true,
-         true,
-         true,
-         true,
-         false,
-         false,
-         false,
-         false,
-         false
-        ],
-        "earliest5": [
-         "f044840",
-         "f012622",
-         "f050800",
-         "f024767",
-         "f008740"
-        ]
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
        },
-       "got": "{}"
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 4391.47,
+       "latency_ms_all": [
+        4391.47,
+        4950.08,
+        4222.82
+       ],
+       "server_ms_median": 4375.314,
+       "expected": null,
+       "got": null
       },
       {
        "id": "A16",
-       "strict": false,
-       "components": {},
-       "error": "timeout",
-       "statements": 1,
-       "latency_ms_median": 5000,
-       "latency_ms_all": [
-        5000,
-        6981.53,
-        5000
-       ],
-       "server_ms_median": 471.399,
-       "expected": {
-        "facts": 5000,
-        "agents": 31,
-        "decisions": 69,
-        "handoffs": 50,
-        "probes": [
-         false,
-         true,
-         true,
-         false,
-         false,
-         true,
-         true,
-         true,
-         false,
-         false
-        ],
-        "earliest5": [
-         "f001863",
-         "f033081",
-         "f043169",
-         "f012160",
-         "f027639"
-        ]
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
        },
-       "got": "{}"
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 6050.47,
+       "latency_ms_all": [
+        6109.5,
+        5442.94,
+        6050.47
+       ],
+       "server_ms_median": 6038.19,
+       "expected": null,
+       "got": null
       },
       {
        "id": "A17",
@@ -3051,13 +2978,13 @@
        "components": {},
        "error": "timeout",
        "statements": 1,
-       "latency_ms_median": 5000,
+       "latency_ms_median": 4718.33,
        "latency_ms_all": [
         5000,
-        5000,
-        5000
+        4718.33,
+        4248.89
        ],
-       "server_ms_median": 0.316,
+       "server_ms_median": 4231.042,
        "expected": {
         "facts": 10,
         "agents": 9,
@@ -3094,10 +3021,10 @@
        "latency_ms_median": 5000,
        "latency_ms_all": [
         5000,
-        5000,
+        3909.89,
         5000
        ],
-       "server_ms_median": 0.593,
+       "server_ms_median": 1.133,
        "expected": {
         "facts": 100,
         "agents": 47,
@@ -3127,6 +3054,121 @@
       },
       {
        "id": "A19",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 4003.85,
+       "latency_ms_all": [
+        4134.52,
+        4003.85,
+        3964.9
+       ],
+       "server_ms_median": 3986.74,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A20",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 3862.91,
+       "latency_ms_all": [
+        3430.1,
+        3862.91,
+        4896.26
+       ],
+       "server_ms_median": 3847.254,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A21",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 3791.54,
+       "latency_ms_all": [
+        3962.5,
+        3740.05,
+        3791.54
+       ],
+       "server_ms_median": 3780.88,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A22",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 4680.42,
+       "latency_ms_all": [
+        4680.42,
+        4648.24,
+        4771.41
+       ],
+       "server_ms_median": 4665.404,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A23",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 5000,
+       "latency_ms_all": [
+        5017.54,
+        5000,
+        5000
+       ],
+       "server_ms_median": 4.079,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A24",
        "strict": false,
        "components": {},
        "error": "timeout",
@@ -3137,7 +3179,897 @@
         5000,
         5000
        ],
-       "server_ms_median": 3.667,
+       "server_ms_median": 28.97,
+       "expected": {
+        "facts": 5000,
+        "agents": 55,
+        "decisions": 71,
+        "handoffs": 43,
+        "probes": [
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         true,
+         false,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f043945",
+         "f037641",
+         "f027122",
+         "f011780",
+         "f037268"
+        ]
+       },
+       "got": "{}"
+      }
+     ]
+    },
+    "P-product-tool": {
+     "arm": "P-product-tool",
+     "n": 24,
+     "strict_correct": 0,
+     "timeouts": 0,
+     "other_errors": 6,
+     "components_correct": {
+      "facts": 18,
+      "agents": 18,
+      "decisions": 18,
+      "handoffs": 18,
+      "probes": 12,
+      "earliest5": 0
+     },
+     "strict_without_earliest5": 12,
+     "latency_ms": {
+      "p50": 31.65,
+      "p99": 5097.84,
+      "max": 5097.84
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "A01",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 8.88,
+       "latency_ms_all": [
+        11.19,
+        7.88,
+        8.88
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 18,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f006332",
+         "f005300",
+         "f043558",
+         "f025922",
+         "f023895"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 18, \"decisions\": 2, \"handoffs\": 2, \"probes\": [false, true, false, false, true, true, false, true, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A02",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 12.0,
+       "latency_ms_all": [
+        11.94,
+        12.0,
+        16.14
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 25,
+        "decisions": 3,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f019203",
+         "f029403",
+         "f043299",
+         "f032086",
+         "f007431"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 25, \"decisions\": 3, \"handoffs\": 2, \"probes\": [false, true, true, true, true, false, false, false, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A03",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 387.53,
+       "latency_ms_all": [
+        329.0,
+        451.36,
+        387.53
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 57,
+        "decisions": 15,
+        "handoffs": 8,
+        "probes": [
+         true,
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f031685",
+         "f031825",
+         "f048683",
+         "f021514",
+         "f021456"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 57, \"decisions\": 15, \"handoffs\": 8, \"probes\": [false, false, false, false, false, false, true, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A04",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5011.39,
+       "latency_ms_all": [
+        5011.39,
+        5021.82,
+        5008.59
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 65,
+        "decisions": 81,
+        "handoffs": 49,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f014091",
+         "f005047",
+         "f012510",
+         "f039444",
+         "f009582"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A05",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 4.28,
+       "latency_ms_all": [
+        9.51,
+        4.2,
+        4.28
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 16,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f028364",
+         "f019581",
+         "f049939",
+         "f014484",
+         "f005039"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 16, \"decisions\": 2, \"handoffs\": 2, \"probes\": [true, true, false, true, false, false, true, false, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A06",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 7.74,
+       "latency_ms_all": [
+        8.02,
+        7.74,
+        7.51
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 16,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f032441",
+         "f016923",
+         "f048671",
+         "f020806",
+         "f007475"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 16, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, true, true, false, false, true, true, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A07",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 306.1,
+       "latency_ms_all": [
+        306.1,
+        309.12,
+        285.78
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 70,
+        "decisions": 10,
+        "handoffs": 10,
+        "probes": [
+         true,
+         false,
+         false,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f020574",
+         "f009422",
+         "f023187",
+         "f014125",
+         "f040407"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 70, \"decisions\": 10, \"handoffs\": 10, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A08",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5016.19,
+       "latency_ms_all": [
+        5015.51,
+        5016.19,
+        5097.84
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 61,
+        "decisions": 64,
+        "handoffs": 54,
+        "probes": [
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f033540",
+         "f019457",
+         "f026462",
+         "f050556",
+         "f022000"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A09",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 12.33,
+       "latency_ms_all": [
+        22.55,
+        12.33,
+        6.59
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 12,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         true,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f046681",
+         "f016431",
+         "f045816",
+         "f016439",
+         "f030496"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 12, \"decisions\": 2, \"handoffs\": 3, \"probes\": [true, false, true, true, false, true, false, true, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A10",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 20.97,
+       "latency_ms_all": [
+        13.25,
+        31.65,
+        20.97
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 57,
+        "decisions": 4,
+        "handoffs": 3,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f049469",
+         "f007868",
+         "f007497",
+         "f029912",
+         "f011381"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 57, \"decisions\": 4, \"handoffs\": 3, \"probes\": [false, true, true, false, false, false, true, true, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A11",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 260.78,
+       "latency_ms_all": [
+        424.08,
+        260.78,
+        253.47
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 39,
+        "decisions": 16,
+        "handoffs": 14,
+        "probes": [
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f025559",
+         "f036944",
+         "f026242",
+         "f025475",
+         "f051273"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A12",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5006.75,
+       "latency_ms_all": [
+        5005.61,
+        5011.51,
+        5006.75
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 47,
+        "decisions": 93,
+        "handoffs": 59,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f044364",
+         "f045945",
+         "f039240",
+         "f049447",
+         "f022922"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A13",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.09,
+       "latency_ms_all": [
+        12.29,
+        6.09,
+        5.04
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 10,
+        "decisions": 3,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f018813",
+         "f013345",
+         "f015530",
+         "f050721",
+         "f041882"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 10, \"decisions\": 3, \"handoffs\": 2, \"probes\": [false, true, false, true, false, false, false, true, true, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A14",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.12,
+       "latency_ms_all": [
+        10.12,
+        9.03,
+        10.83
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 25,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         false,
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f049081",
+         "f012740",
+         "f046722",
+         "f006664",
+         "f030458"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 25, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, false, true, false, true, true, false, true, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A15",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 262.95,
+       "latency_ms_all": [
+        227.5,
+        263.2,
+        262.95
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 49,
+        "decisions": 14,
+        "handoffs": 9,
+        "probes": [
+         true,
+         true,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f044840",
+         "f012622",
+         "f050800",
+         "f024767",
+         "f008740"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 49, \"decisions\": 14, \"handoffs\": 9, \"probes\": [false, false, false, true, false, false, false, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A16",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5012.45,
+       "latency_ms_all": [
+        5012.45,
+        5016.85,
+        5009.68
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 31,
+        "decisions": 69,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f001863",
+         "f033081",
+         "f043169",
+         "f012160",
+         "f027639"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A17",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.2,
+       "latency_ms_all": [
+        11.87,
+        6.06,
+        6.2
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 9,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f026627",
+         "f001897",
+         "f050104",
+         "f004362",
+         "f010722"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 9, \"decisions\": 2, \"handoffs\": 2, \"probes\": [false, true, false, false, false, true, true, true, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A18",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.5,
+       "latency_ms_all": [
+        10.5,
+        9.96,
+        11.21
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 47,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f022485",
+         "f008257",
+         "f004532",
+         "f047627",
+         "f024159"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 47, \"decisions\": 2, \"handoffs\": 3, \"probes\": [true, true, true, false, true, false, true, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A19",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 227.75,
+       "latency_ms_all": [
+        215.08,
+        240.68,
+        227.75
+       ],
+       "server_ms_median": 0,
        "expected": {
         "facts": 1000,
         "agents": 24,
@@ -3163,21 +4095,21 @@
          "f020890"
         ]
        },
-       "got": "{}"
+       "got": "{\"facts\": 1000, \"agents\": 24, \"decisions\": 16, \"handoffs\": 17, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": []}"
       },
       {
        "id": "A20",
        "strict": false,
        "components": {},
-       "error": "timeout",
+       "error": "TimeoutError: Timeout reading from socket",
        "statements": 1,
-       "latency_ms_median": 5000,
+       "latency_ms_median": 5013.84,
        "latency_ms_all": [
-        5000,
-        5000,
-        5000
+        5012.06,
+        5018.36,
+        5013.84
        ],
-       "server_ms_median": 21.084,
+       "server_ms_median": 0,
        "expected": {
         "facts": 5000,
         "agents": 52,
@@ -3208,16 +4140,23 @@
       {
        "id": "A21",
        "strict": false,
-       "components": {},
-       "error": "timeout",
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 5000,
+       "latency_ms_median": 7.01,
        "latency_ms_all": [
-        5000,
-        5000,
-        5000
+        21.77,
+        5.83,
+        7.01
        ],
-       "server_ms_median": 0.326,
+       "server_ms_median": 0,
        "expected": {
         "facts": 10,
         "agents": 10,
@@ -3243,21 +4182,28 @@
          "f013723"
         ]
        },
-       "got": "{}"
+       "got": "{\"facts\": 10, \"agents\": 10, \"decisions\": 2, \"handoffs\": 2, \"probes\": [true, false, false, true, true, true, false, true, false, false], \"earliest5\": []}"
       },
       {
        "id": "A22",
        "strict": false,
-       "components": {},
-       "error": "timeout",
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 5000,
+       "latency_ms_median": 11.23,
        "latency_ms_all": [
-        5000,
-        5000,
-        5000
+        16.66,
+        11.02,
+        11.23
        ],
-       "server_ms_median": 0.521,
+       "server_ms_median": 0,
        "expected": {
         "facts": 100,
         "agents": 59,
@@ -3283,21 +4229,28 @@
          "f035252"
         ]
        },
-       "got": "{}"
+       "got": "{\"facts\": 100, \"agents\": 59, \"decisions\": 3, \"handoffs\": 3, \"probes\": [true, true, false, false, false, true, false, true, true, false], \"earliest5\": []}"
       },
       {
        "id": "A23",
        "strict": false,
-       "components": {},
-       "error": "timeout",
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 5000,
+       "latency_ms_median": 243.13,
        "latency_ms_all": [
-        5000,
-        5000,
-        5000
+        321.45,
+        243.13,
+        200.04
        ],
-       "server_ms_median": 4.49,
+       "server_ms_median": 0,
        "expected": {
         "facts": 1000,
         "agents": 20,
@@ -3323,21 +4276,1132 @@
          "f031800"
         ]
        },
-       "got": "{}"
+       "got": "{\"facts\": 1000, \"agents\": 20, \"decisions\": 24, \"handoffs\": 15, \"probes\": [false, false, false, false, false, false, false, false, false, true], \"earliest5\": []}"
       },
       {
        "id": "A24",
        "strict": false,
        "components": {},
-       "error": "timeout",
+       "error": "TimeoutError: Timeout reading from socket",
        "statements": 1,
-       "latency_ms_median": 4609.35,
+       "latency_ms_median": 5006.82,
        "latency_ms_all": [
-        5000,
-        4609.35,
-        4359.07
+        5006.82,
+        5018.37,
+        5006.66
        ],
-       "server_ms_median": 4334.025,
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 55,
+        "decisions": 71,
+        "handoffs": 43,
+        "probes": [
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         true,
+         false,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f043945",
+         "f037641",
+         "f027122",
+         "f011780",
+         "f037268"
+        ]
+       },
+       "got": "{}"
+      }
+     ]
+    },
+    "P-product-service": {
+     "arm": "P-product-service",
+     "n": 24,
+     "strict_correct": 0,
+     "timeouts": 0,
+     "other_errors": 6,
+     "components_correct": {
+      "facts": 18,
+      "agents": 18,
+      "decisions": 18,
+      "handoffs": 18,
+      "probes": 18,
+      "earliest5": 0
+     },
+     "strict_without_earliest5": 18,
+     "latency_ms": {
+      "p50": 27.55,
+      "p99": 5060.14,
+      "max": 5060.14
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "A01",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 5.14,
+       "latency_ms_all": [
+        9.78,
+        4.44,
+        5.14
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 18,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f006332",
+         "f005300",
+         "f043558",
+         "f025922",
+         "f023895"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 18, \"decisions\": 2, \"handoffs\": 2, \"probes\": [false, true, false, false, true, true, false, true, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A02",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 8.99,
+       "latency_ms_all": [
+        9.13,
+        8.44,
+        8.99
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 25,
+        "decisions": 3,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f019203",
+         "f029403",
+         "f043299",
+         "f032086",
+         "f007431"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 25, \"decisions\": 3, \"handoffs\": 2, \"probes\": [false, true, true, true, true, false, false, false, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A03",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 355.78,
+       "latency_ms_all": [
+        400.92,
+        290.04,
+        355.78
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 57,
+        "decisions": 15,
+        "handoffs": 8,
+        "probes": [
+         true,
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f031685",
+         "f031825",
+         "f048683",
+         "f021514",
+         "f021456"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 57, \"decisions\": 15, \"handoffs\": 8, \"probes\": [true, false, false, true, false, true, true, false, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A04",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5014.87,
+       "latency_ms_all": [
+        5002.96,
+        5014.87,
+        5017.32
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 65,
+        "decisions": 81,
+        "handoffs": 49,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f014091",
+         "f005047",
+         "f012510",
+         "f039444",
+         "f009582"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A05",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.53,
+       "latency_ms_all": [
+        10.5,
+        5.43,
+        6.53
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 16,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f028364",
+         "f019581",
+         "f049939",
+         "f014484",
+         "f005039"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 16, \"decisions\": 2, \"handoffs\": 2, \"probes\": [true, true, false, true, false, false, true, false, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A06",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 13.52,
+       "latency_ms_all": [
+        13.72,
+        12.58,
+        13.52
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 16,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f032441",
+         "f016923",
+         "f048671",
+         "f020806",
+         "f007475"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 16, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, true, true, false, false, true, true, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A07",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 243.88,
+       "latency_ms_all": [
+        381.54,
+        243.88,
+        228.88
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 70,
+        "decisions": 10,
+        "handoffs": 10,
+        "probes": [
+         true,
+         false,
+         false,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f020574",
+         "f009422",
+         "f023187",
+         "f014125",
+         "f040407"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 70, \"decisions\": 10, \"handoffs\": 10, \"probes\": [true, false, false, false, false, true, true, false, true, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A08",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5015.01,
+       "latency_ms_all": [
+        5011.05,
+        5015.01,
+        5023.28
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 61,
+        "decisions": 64,
+        "handoffs": 54,
+        "probes": [
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f033540",
+         "f019457",
+         "f026462",
+         "f050556",
+         "f022000"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A09",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 5.09,
+       "latency_ms_all": [
+        11.66,
+        5.09,
+        4.77
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 12,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         true,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f046681",
+         "f016431",
+         "f045816",
+         "f016439",
+         "f030496"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 12, \"decisions\": 2, \"handoffs\": 3, \"probes\": [true, false, true, true, false, true, false, true, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A10",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.18,
+       "latency_ms_all": [
+        13.69,
+        16.05,
+        14.18
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 57,
+        "decisions": 4,
+        "handoffs": 3,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f049469",
+         "f007868",
+         "f007497",
+         "f029912",
+         "f011381"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 57, \"decisions\": 4, \"handoffs\": 3, \"probes\": [false, true, true, false, false, false, true, true, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A11",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 520.92,
+       "latency_ms_all": [
+        520.92,
+        486.85,
+        558.7
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 39,
+        "decisions": 16,
+        "handoffs": 14,
+        "probes": [
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f025559",
+         "f036944",
+         "f026242",
+         "f025475",
+         "f051273"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, true, false, true, true, true, false, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A12",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5013.7,
+       "latency_ms_all": [
+        5006.93,
+        5030.91,
+        5013.7
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 47,
+        "decisions": 93,
+        "handoffs": 59,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f044364",
+         "f045945",
+         "f039240",
+         "f049447",
+         "f022922"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A13",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.44,
+       "latency_ms_all": [
+        27.55,
+        8.09,
+        11.44
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 10,
+        "decisions": 3,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f018813",
+         "f013345",
+         "f015530",
+         "f050721",
+         "f041882"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 10, \"decisions\": 3, \"handoffs\": 2, \"probes\": [false, true, false, true, false, false, false, true, true, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A14",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.15,
+       "latency_ms_all": [
+        16.15,
+        26.57,
+        14.15
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 25,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         false,
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f049081",
+         "f012740",
+         "f046722",
+         "f006664",
+         "f030458"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 25, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, false, true, false, true, true, false, true, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A15",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 640.4,
+       "latency_ms_all": [
+        640.4,
+        691.82,
+        632.31
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 49,
+        "decisions": 14,
+        "handoffs": 9,
+        "probes": [
+         true,
+         true,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f044840",
+         "f012622",
+         "f050800",
+         "f024767",
+         "f008740"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 49, \"decisions\": 14, \"handoffs\": 9, \"probes\": [true, true, true, true, true, false, false, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A16",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5025.46,
+       "latency_ms_all": [
+        5000.26,
+        5025.46,
+        5034.06
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 31,
+        "decisions": 69,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f001863",
+         "f033081",
+         "f043169",
+         "f012160",
+         "f027639"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A17",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 9.6,
+       "latency_ms_all": [
+        14.6,
+        9.6,
+        7.97
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 9,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         false,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f026627",
+         "f001897",
+         "f050104",
+         "f004362",
+         "f010722"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 9, \"decisions\": 2, \"handoffs\": 2, \"probes\": [false, true, false, false, false, true, true, true, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A18",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.56,
+       "latency_ms_all": [
+        17.34,
+        16.56,
+        11.93
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 47,
+        "decisions": 2,
+        "handoffs": 3,
+        "probes": [
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f022485",
+         "f008257",
+         "f004532",
+         "f047627",
+         "f024159"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 47, \"decisions\": 2, \"handoffs\": 3, \"probes\": [true, true, true, false, true, false, true, false, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A19",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 456.84,
+       "latency_ms_all": [
+        387.02,
+        456.84,
+        510.62
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 24,
+        "decisions": 16,
+        "handoffs": 17,
+        "probes": [
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true
+        ],
+        "earliest5": [
+         "f001875",
+         "f037091",
+         "f029816",
+         "f005153",
+         "f020890"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 24, \"decisions\": 16, \"handoffs\": 17, \"probes\": [false, false, true, false, true, true, false, false, true, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A20",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5038.17,
+       "latency_ms_all": [
+        5004.84,
+        5060.14,
+        5038.17
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 52,
+        "decisions": 79,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f035284",
+         "f024890",
+         "f020210",
+         "f050230",
+         "f001015"
+        ]
+       },
+       "got": "{}"
+      },
+      {
+       "id": "A21",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.17,
+       "latency_ms_all": [
+        24.04,
+        10.48,
+        11.17
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 10,
+        "agents": 10,
+        "decisions": 2,
+        "handoffs": 2,
+        "probes": [
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f044456",
+         "f043179",
+         "f015026",
+         "f025989",
+         "f013723"
+        ]
+       },
+       "got": "{\"facts\": 10, \"agents\": 10, \"decisions\": 2, \"handoffs\": 2, \"probes\": [true, false, false, true, true, true, false, true, false, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A22",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 19.23,
+       "latency_ms_all": [
+        15.18,
+        19.23,
+        20.49
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 100,
+        "agents": 59,
+        "decisions": 3,
+        "handoffs": 3,
+        "probes": [
+         true,
+         true,
+         false,
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f039612",
+         "f008784",
+         "f048803",
+         "f022354",
+         "f035252"
+        ]
+       },
+       "got": "{\"facts\": 100, \"agents\": 59, \"decisions\": 3, \"handoffs\": 3, \"probes\": [true, true, false, false, false, true, false, true, true, false], \"earliest5\": []}"
+      },
+      {
+       "id": "A23",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 377.15,
+       "latency_ms_all": [
+        377.15,
+        322.21,
+        404.25
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 1000,
+        "agents": 20,
+        "decisions": 24,
+        "handoffs": 15,
+        "probes": [
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         true,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f003153",
+         "f030357",
+         "f007109",
+         "f013248",
+         "f031800"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 20, \"decisions\": 24, \"handoffs\": 15, \"probes\": [true, false, true, false, false, false, true, true, false, true], \"earliest5\": []}"
+      },
+      {
+       "id": "A24",
+       "strict": false,
+       "components": {},
+       "error": "TimeoutError: Timeout reading from socket",
+       "statements": 1,
+       "latency_ms_median": 5014.74,
+       "latency_ms_all": [
+        5008.23,
+        5014.74,
+        5023.17
+       ],
+       "server_ms_median": 0,
        "expected": {
         "facts": 5000,
         "agents": 55,
@@ -3396,6 +5460,22 @@
     {
      "a": "B1h",
      "b": "P-naive",
+     "only_a_right": 14,
+     "only_b_right": 0,
+     "both_right": 10,
+     "p_two_sided": 0.0001
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-tool",
+     "only_a_right": 24,
+     "only_b_right": 0,
+     "both_right": 0,
+     "p_two_sided": 0.0
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-service",
      "only_a_right": 24,
      "only_b_right": 0,
      "both_right": 0,
@@ -3578,11 +5658,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.3,
+       "latency_ms_median": 0.31,
        "latency_ms_all": [
-        3.03,
-        0.3,
-        0.24
+        3.36,
+        0.31,
+        0.19
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -3600,11 +5680,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.19,
+       "latency_ms_median": 0.44,
        "latency_ms_all": [
-        1.82,
-        0.19,
-        0.17
+        3.44,
+        0.44,
+        0.41
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -3622,11 +5702,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.33,
+       "latency_ms_median": 0.36,
        "latency_ms_all": [
-        2.27,
-        0.33,
-        0.33
+        3.31,
+        0.36,
+        0.31
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -3644,11 +5724,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.45,
+       "latency_ms_median": 0.46,
        "latency_ms_all": [
-        3.53,
-        0.45,
-        0.45
+        3.46,
+        0.46,
+        0.44
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -3666,11 +5746,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.54,
+       "latency_ms_median": 0.51,
        "latency_ms_all": [
-        2.97,
-        0.53,
-        0.54
+        3.82,
+        0.51,
+        0.5
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -3695,11 +5775,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.89,
+       "latency_ms_median": 2.06,
        "latency_ms_all": [
-        2.24,
-        1.7,
-        1.89
+        2.16,
+        1.99,
+        2.06
        ],
        "server_ms_median": 0,
        "expected": {
@@ -3738,11 +5818,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 30.77,
+       "latency_ms_median": 37.94,
        "latency_ms_all": [
-        29.97,
-        31.02,
-        30.77
+        36.11,
+        37.94,
+        39.4
        ],
        "server_ms_median": 0,
        "expected": {
@@ -3781,11 +5861,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 772.55,
+       "latency_ms_median": 726.86,
        "latency_ms_all": [
-        607.39,
-        772.55,
-        809.39
+        743.94,
+        722.26,
+        726.86
        ],
        "server_ms_median": 0,
        "expected": {
@@ -3909,13 +5989,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.25,
+       "latency_ms_median": 6.5,
        "latency_ms_all": [
-        6.93,
-        5.25,
-        4.93
+        5.48,
+        6.5,
+        7.53
        ],
-       "server_ms_median": 1.792,
+       "server_ms_median": 0.859,
        "expected": null,
        "got": null
       },
@@ -3931,13 +6011,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.21,
+       "latency_ms_median": 10.97,
        "latency_ms_all": [
-        7.21,
-        6.81,
-        8.05
+        10.97,
+        11.16,
+        10.44
        ],
-       "server_ms_median": 4.597,
+       "server_ms_median": 6.627,
        "expected": null,
        "got": null
       },
@@ -3953,13 +6033,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 189.5,
+       "latency_ms_median": 126.37,
        "latency_ms_all": [
-        189.5,
-        202.29,
-        122.19
+        150.37,
+        126.37,
+        124.05
        ],
-       "server_ms_median": 183.645,
+       "server_ms_median": 123.114,
        "expected": null,
        "got": null
       },
@@ -3975,13 +6055,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 2536.58,
+       "latency_ms_median": 2038.16,
        "latency_ms_all": [
-        2653.19,
-        2536.58,
-        2082.43
+        2041.96,
+        1862.99,
+        2038.16
        ],
-       "server_ms_median": 2532.709,
+       "server_ms_median": 2033.019,
        "expected": null,
        "got": null
       },
@@ -4043,13 +6123,13 @@
        },
        "error": "",
        "statements": 9,
-       "latency_ms_median": 28.88,
+       "latency_ms_median": 32.89,
        "latency_ms_all": [
-        90.43,
-        28.88,
-        26.86
+        39.77,
+        32.89,
+        26.12
        ],
-       "server_ms_median": 2.305,
+       "server_ms_median": 2.049,
        "expected": null,
        "got": null
       },
@@ -4065,13 +6145,13 @@
        },
        "error": "",
        "statements": 13,
-       "latency_ms_median": 25.94,
+       "latency_ms_median": 54.01,
        "latency_ms_all": [
-        26.06,
-        24.56,
-        25.94
+        31.35,
+        54.01,
+        60.81
        ],
-       "server_ms_median": 1.588,
+       "server_ms_median": 2.696,
        "expected": null,
        "got": null
       },
@@ -4087,13 +6167,13 @@
        },
        "error": "",
        "statements": 17,
-       "latency_ms_median": 79.67,
+       "latency_ms_median": 46.94,
        "latency_ms_all": [
-        48.11,
-        105.68,
-        79.67
+        53.37,
+        46.94,
+        46.21
        ],
-       "server_ms_median": 2.996,
+       "server_ms_median": 3.196,
        "expected": null,
        "got": null
       },
@@ -4109,13 +6189,13 @@
        },
        "error": "",
        "statements": 21,
-       "latency_ms_median": 58.49,
+       "latency_ms_median": 67.27,
        "latency_ms_all": [
-        61.98,
-        58.49,
-        55.55
+        67.27,
+        68.59,
+        58.63
        ],
-       "server_ms_median": 3.255,
+       "server_ms_median": 4.332,
        "expected": null,
        "got": null
       },
@@ -4131,13 +6211,13 @@
        },
        "error": "",
        "statements": 25,
-       "latency_ms_median": 182.81,
+       "latency_ms_median": 67.88,
        "latency_ms_all": [
-        289.15,
-        182.81,
-        120.25
+        71.25,
+        60.44,
+        67.88
        ],
-       "server_ms_median": 4.488,
+       "server_ms_median": 4.492,
        "expected": null,
        "got": null
       }
@@ -4160,11 +6240,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 20.11,
+       "latency_ms_median": 36.33,
        "latency_ms_all": [
-        24.92,
-        20.11,
-        19.54
+        36.33,
+        37.97,
+        27.13
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4174,176 +6254,92 @@
        "layers": 12,
        "tasks": 93,
        "id": "G12",
-       "strict": false,
+       "strict": true,
        "components": {
-        "tasks": false,
-        "probes": false,
+        "tasks": true,
+        "probes": true,
         "first5": true
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 25.55,
+       "latency_ms_median": 50.69,
        "latency_ms_all": [
-        24.91,
-        25.55,
-        61.34
+        46.09,
+        50.69,
+        53.02
        ],
        "server_ms_median": 0,
-       "expected": {
-        "tasks": 72,
-        "probes": [
-         true,
-         false,
-         true,
-         true,
-         false,
-         false,
-         true,
-         false,
-         false,
-         true
-        ],
-        "first5": [
-         "t01-0",
-         "t01-1",
-         "t01-2",
-         "t01-3",
-         "t01-4"
-        ]
-       },
-       "got": "{\"tasks\": 60, \"probes\": [true, false, true, false, false, false, true, false, false, true], \"first5\": [\"t01-0\", \"t01-1\", \"t01-2\", \"t01-3\", \"t01-4\"]}"
+       "expected": null,
+       "got": null
       },
       {
        "layers": 16,
        "tasks": 117,
        "id": "G16",
-       "strict": false,
+       "strict": true,
        "components": {
-        "tasks": false,
-        "probes": false,
+        "tasks": true,
+        "probes": true,
         "first5": true
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 63.8,
+       "latency_ms_median": 50.63,
        "latency_ms_all": [
-        46.51,
-        69.62,
-        63.8
+        54.01,
+        43.29,
+        50.63
        ],
        "server_ms_median": 0,
-       "expected": {
-        "tasks": 96,
-        "probes": [
-         true,
-         false,
-         true,
-         false,
-         true,
-         true,
-         false,
-         true,
-         false,
-         false
-        ],
-        "first5": [
-         "t01-0",
-         "t01-1",
-         "t01-2",
-         "t01-3",
-         "t01-4"
-        ]
-       },
-       "got": "{\"tasks\": 60, \"probes\": [true, false, false, false, true, true, false, false, false, false], \"first5\": [\"t01-0\", \"t01-1\", \"t01-2\", \"t01-3\", \"t01-4\"]}"
+       "expected": null,
+       "got": null
       },
       {
        "layers": 20,
        "tasks": 141,
        "id": "G20",
-       "strict": false,
+       "strict": true,
        "components": {
-        "tasks": false,
-        "probes": false,
+        "tasks": true,
+        "probes": true,
         "first5": true
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 33.58,
+       "latency_ms_median": 69.98,
        "latency_ms_all": [
-        32.17,
-        35.35,
-        33.58
+        69.16,
+        69.98,
+        80.29
        ],
        "server_ms_median": 0,
-       "expected": {
-        "tasks": 120,
-        "probes": [
-         true,
-         true,
-         true,
-         true,
-         false,
-         false,
-         false,
-         false,
-         false,
-         true
-        ],
-        "first5": [
-         "t01-0",
-         "t01-1",
-         "t01-2",
-         "t01-3",
-         "t01-4"
-        ]
-       },
-       "got": "{\"tasks\": 60, \"probes\": [true, true, false, true, false, false, false, false, false, true], \"first5\": [\"t01-0\", \"t01-1\", \"t01-2\", \"t01-3\", \"t01-4\"]}"
+       "expected": null,
+       "got": null
       },
       {
        "layers": 24,
        "tasks": 165,
        "id": "G24",
-       "strict": false,
+       "strict": true,
        "components": {
-        "tasks": false,
-        "probes": false,
+        "tasks": true,
+        "probes": true,
         "first5": true
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 54.55,
+       "latency_ms_median": 94.39,
        "latency_ms_all": [
-        54.55,
-        53.02,
-        67.76
+        74.42,
+        100.11,
+        94.39
        ],
        "server_ms_median": 0,
-       "expected": {
-        "tasks": 144,
-        "probes": [
-         true,
-         false,
-         false,
-         false,
-         true,
-         true,
-         false,
-         false,
-         true,
-         true
-        ],
-        "first5": [
-         "t01-0",
-         "t01-1",
-         "t01-2",
-         "t01-3",
-         "t01-4"
-        ]
-       },
-       "got": "{\"tasks\": 60, \"probes\": [false, false, false, false, false, true, false, false, false, false], \"first5\": [\"t01-0\", \"t01-1\", \"t01-2\", \"t01-3\", \"t01-4\"]}"
+       "expected": null,
+       "got": null
       }
      ],
-     "strict_correct": 1,
+     "strict_correct": 5,
      "n": 5,
      "timeouts": 0
     }
@@ -4376,10 +6372,11 @@
       "chain": 24,
       "agent": 24
      },
+     "strict_without_earliest5": null,
      "latency_ms": {
-      "p50": 0.11,
-      "p99": 3.01,
-      "max": 3.01
+      "p50": 0.09,
+      "p99": 3.06,
+      "max": 3.06
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 2.0,
@@ -4393,10 +6390,10 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.07,
+       "latency_ms_median": 0.13,
        "latency_ms_all": [
-        3.01,
-        0.07,
+        3.06,
+        0.13,
         0.05
        ],
        "server_ms_median": 0,
@@ -4435,7 +6432,7 @@
        "latency_ms_all": [
         0.05,
         0.05,
-        0.13
+        0.05
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4452,7 +6449,7 @@
        "statements": 2,
        "latency_ms_median": 0.05,
        "latency_ms_all": [
-        0.07,
+        0.11,
         0.05,
         0.04
        ],
@@ -4469,11 +6466,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.05,
+       "latency_ms_median": 0.06,
        "latency_ms_all": [
-        0.09,
+        0.1,
         0.05,
-        0.05
+        0.06
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4492,7 +6489,7 @@
        "latency_ms_all": [
         0.06,
         0.05,
-        0.06
+        0.15
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4507,11 +6504,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.07,
+       "latency_ms_median": 0.04,
        "latency_ms_all": [
-        0.11,
-        0.07,
-        0.06
+        0.09,
+        0.04,
+        0.04
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4526,11 +6523,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.09,
+       "latency_ms_median": 0.04,
        "latency_ms_all": [
-        0.09,
-        0.12,
-        0.08
+        0.05,
+        0.04,
+        0.04
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4547,7 +6544,7 @@
        "statements": 2,
        "latency_ms_median": 0.1,
        "latency_ms_all": [
-        0.09,
+        0.05,
         0.12,
         0.1
        ],
@@ -4564,11 +6561,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.09,
+       "latency_ms_median": 0.08,
        "latency_ms_all": [
-        0.14,
-        0.09,
-        0.09
+        0.13,
+        0.08,
+        0.05
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4583,11 +6580,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.12,
+       "latency_ms_median": 0.07,
        "latency_ms_all": [
-        0.26,
-        0.12,
-        0.11
+        0.07,
+        0.11,
+        0.05
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4602,11 +6599,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.11,
+       "latency_ms_median": 0.05,
        "latency_ms_all": [
-        0.11,
-        0.1,
-        0.17
+        0.06,
+        0.05,
+        0.05
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4621,11 +6618,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.2,
+       "latency_ms_median": 0.1,
        "latency_ms_all": [
-        0.2,
-        0.13,
-        0.29
+        0.1,
+        0.06,
+        0.2
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4642,8 +6639,8 @@
        "statements": 2,
        "latency_ms_median": 0.1,
        "latency_ms_all": [
-        0.19,
-        0.09,
+        0.14,
+        0.07,
         0.1
        ],
        "server_ms_median": 0,
@@ -4659,11 +6656,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.13,
+       "latency_ms_median": 0.09,
        "latency_ms_all": [
-        0.13,
-        0.16,
-        0.12
+        0.21,
+        0.09,
+        0.09
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4678,11 +6675,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.12,
+       "latency_ms_median": 0.1,
        "latency_ms_all": [
-        0.18,
-        0.12,
-        0.1
+        0.1,
+        0.07,
+        0.36
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4697,11 +6694,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.13,
+       "latency_ms_median": 0.11,
        "latency_ms_all": [
         0.24,
         0.11,
-        0.13
+        0.08
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4716,11 +6713,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.11,
+       "latency_ms_median": 0.08,
        "latency_ms_all": [
-        0.15,
-        0.11,
-        0.1
+        0.12,
+        0.08,
+        0.08
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4735,11 +6732,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.1,
+       "latency_ms_median": 0.12,
        "latency_ms_all": [
-        0.15,
-        0.1,
-        0.1
+        0.42,
+        0.12,
+        0.09
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4754,11 +6751,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.11,
+       "latency_ms_median": 0.09,
        "latency_ms_all": [
-        0.12,
-        0.1,
-        0.11
+        0.15,
+        0.09,
+        0.08
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4773,11 +6770,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.17,
+       "latency_ms_median": 0.15,
        "latency_ms_all": [
-        0.17,
-        0.21,
-        0.15
+        0.16,
+        0.15,
+        0.14
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4792,10 +6789,10 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.16,
+       "latency_ms_median": 0.18,
        "latency_ms_all": [
-        0.21,
-        0.16,
+        0.18,
+        0.18,
         0.15
        ],
        "server_ms_median": 0,
@@ -4813,9 +6810,9 @@
        "statements": 2,
        "latency_ms_median": 0.16,
        "latency_ms_all": [
-        0.18,
-        0.16,
-        0.15
+        0.17,
+        0.14,
+        0.16
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4830,11 +6827,11 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 0.22,
+       "latency_ms_median": 0.13,
        "latency_ms_all": [
-        0.26,
-        0.22,
-        0.19
+        0.17,
+        0.13,
+        0.13
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -4852,12 +6849,13 @@
       "chain": 24,
       "agent": 24
      },
+     "strict_without_earliest5": null,
      "latency_ms": {
-      "p50": 33.96,
-      "p99": 146.67,
-      "max": 146.67
+      "p50": 22.79,
+      "p99": 58.64,
+      "max": 58.64
      },
-     "server_ms_median": 1.837,
+     "server_ms_median": 1.978,
      "statements_per_answer_median": 7.0,
      "questions": [
       {
@@ -4869,13 +6867,13 @@
        },
        "error": "",
        "statements": 4,
-       "latency_ms_median": 17.5,
+       "latency_ms_median": 10.71,
        "latency_ms_all": [
-        16.03,
-        19.3,
-        17.5
+        15.21,
+        10.71,
+        10.46
        ],
-       "server_ms_median": 1.031,
+       "server_ms_median": 1.171,
        "expected": null,
        "got": null
       },
@@ -4888,13 +6886,13 @@
        },
        "error": "",
        "statements": 4,
-       "latency_ms_median": 24.63,
+       "latency_ms_median": 13.18,
        "latency_ms_all": [
-        22.96,
-        24.63,
-        41.18
+        11.24,
+        13.18,
+        15.48
        ],
-       "server_ms_median": 0.969,
+       "server_ms_median": 1.023,
        "expected": null,
        "got": null
       },
@@ -4907,13 +6905,13 @@
        },
        "error": "",
        "statements": 4,
-       "latency_ms_median": 25.97,
+       "latency_ms_median": 11.86,
        "latency_ms_all": [
-        27.49,
-        25.97,
-        20.94
+        14.03,
+        11.86,
+        10.28
        ],
-       "server_ms_median": 0.902,
+       "server_ms_median": 0.966,
        "expected": null,
        "got": null
       },
@@ -4926,13 +6924,13 @@
        },
        "error": "",
        "statements": 4,
-       "latency_ms_median": 24.74,
+       "latency_ms_median": 11.33,
        "latency_ms_all": [
-        24.74,
-        27.6,
-        23.8
+        11.33,
+        12.38,
+        10.5
        ],
-       "server_ms_median": 1.011,
+       "server_ms_median": 1.043,
        "expected": null,
        "got": null
       },
@@ -4945,13 +6943,13 @@
        },
        "error": "",
        "statements": 5,
-       "latency_ms_median": 27.49,
+       "latency_ms_median": 14.04,
        "latency_ms_all": [
-        35.72,
-        27.49,
-        21.9
+        13.25,
+        14.04,
+        18.3
        ],
-       "server_ms_median": 1.351,
+       "server_ms_median": 1.199,
        "expected": null,
        "got": null
       },
@@ -4964,13 +6962,13 @@
        },
        "error": "",
        "statements": 5,
-       "latency_ms_median": 25.71,
+       "latency_ms_median": 17.83,
        "latency_ms_all": [
-        28.7,
-        25.71,
-        23.97
+        18.72,
+        17.83,
+        13.86
        ],
-       "server_ms_median": 1.25,
+       "server_ms_median": 1.446,
        "expected": null,
        "got": null
       },
@@ -4983,13 +6981,13 @@
        },
        "error": "",
        "statements": 5,
-       "latency_ms_median": 24.57,
+       "latency_ms_median": 16.99,
        "latency_ms_all": [
-        22.22,
-        24.57,
-        27.0
+        14.97,
+        16.99,
+        18.16
        ],
-       "server_ms_median": 1.411,
+       "server_ms_median": 1.387,
        "expected": null,
        "got": null
       },
@@ -5002,13 +7000,13 @@
        },
        "error": "",
        "statements": 5,
-       "latency_ms_median": 19.34,
+       "latency_ms_median": 19.47,
        "latency_ms_all": [
-        19.13,
-        19.34,
-        26.36
+        19.14,
+        19.47,
+        21.76
        ],
-       "server_ms_median": 1.309,
+       "server_ms_median": 1.601,
        "expected": null,
        "got": null
       },
@@ -5021,13 +7019,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 26.41,
+       "latency_ms_median": 16.02,
        "latency_ms_all": [
-        22.23,
-        26.41,
-        29.81
+        16.17,
+        12.29,
+        16.02
        ],
-       "server_ms_median": 1.469,
+       "server_ms_median": 1.315,
        "expected": null,
        "got": null
       },
@@ -5040,13 +7038,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 25.65,
+       "latency_ms_median": 22.79,
        "latency_ms_all": [
-        25.65,
-        23.97,
-        30.45
+        22.51,
+        22.79,
+        23.42
        ],
-       "server_ms_median": 1.536,
+       "server_ms_median": 1.838,
        "expected": null,
        "got": null
       },
@@ -5059,13 +7057,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 32.58,
+       "latency_ms_median": 18.64,
        "latency_ms_all": [
-        33.96,
-        24.11,
-        32.58
+        22.4,
+        18.64,
+        16.82
        ],
-       "server_ms_median": 1.457,
+       "server_ms_median": 1.67,
        "expected": null,
        "got": null
       },
@@ -5078,13 +7076,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 35.29,
+       "latency_ms_median": 22.57,
        "latency_ms_all": [
-        72.68,
-        35.29,
-        28.13
+        19.09,
+        25.26,
+        22.57
        ],
-       "server_ms_median": 1.387,
+       "server_ms_median": 1.823,
        "expected": null,
        "got": null
       },
@@ -5097,13 +7095,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 33.41,
+       "latency_ms_median": 23.56,
        "latency_ms_all": [
-        33.41,
-        25.55,
-        38.06
+        23.56,
+        28.06,
+        23.49
        ],
-       "server_ms_median": 2.21,
+       "server_ms_median": 2.118,
        "expected": null,
        "got": null
       },
@@ -5116,13 +7114,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 50.99,
+       "latency_ms_median": 33.61,
        "latency_ms_all": [
-        58.51,
-        50.99,
-        27.57
+        29.89,
+        33.61,
+        36.39
        ],
-       "server_ms_median": 2.18,
+       "server_ms_median": 2.718,
        "expected": null,
        "got": null
       },
@@ -5135,13 +7133,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 43.55,
+       "latency_ms_median": 25.98,
        "latency_ms_all": [
-        31.17,
-        63.58,
-        43.55
+        34.07,
+        25.98,
+        17.48
        ],
-       "server_ms_median": 2.158,
+       "server_ms_median": 2.79,
        "expected": null,
        "got": null
       },
@@ -5154,13 +7152,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 65.44,
+       "latency_ms_median": 26.98,
        "latency_ms_all": [
-        55.96,
-        65.44,
-        83.99
+        21.48,
+        26.98,
+        35.21
        ],
-       "server_ms_median": 2.139,
+       "server_ms_median": 2.316,
        "expected": null,
        "got": null
       },
@@ -5173,13 +7171,13 @@
        },
        "error": "",
        "statements": 10,
-       "latency_ms_median": 87.31,
+       "latency_ms_median": 45.73,
        "latency_ms_all": [
-        87.31,
-        85.47,
-        146.67
+        45.73,
+        45.76,
+        43.16
        ],
-       "server_ms_median": 2.451,
+       "server_ms_median": 3.609,
        "expected": null,
        "got": null
       },
@@ -5192,13 +7190,13 @@
        },
        "error": "",
        "statements": 10,
-       "latency_ms_median": 87.13,
+       "latency_ms_median": 29.01,
        "latency_ms_all": [
-        93.51,
-        46.75,
-        87.13
+        24.19,
+        29.01,
+        40.63
        ],
-       "server_ms_median": 3.402,
+       "server_ms_median": 2.658,
        "expected": null,
        "got": null
       },
@@ -5211,13 +7209,13 @@
        },
        "error": "",
        "statements": 10,
-       "latency_ms_median": 70.6,
+       "latency_ms_median": 25.7,
        "latency_ms_all": [
-        70.6,
-        45.45,
-        112.79
+        43.07,
+        25.7,
+        25.62
        ],
-       "server_ms_median": 2.873,
+       "server_ms_median": 2.39,
        "expected": null,
        "got": null
       },
@@ -5230,13 +7228,13 @@
        },
        "error": "",
        "statements": 10,
-       "latency_ms_median": 96.57,
+       "latency_ms_median": 31.72,
        "latency_ms_all": [
-        60.44,
-        96.57,
-        114.19
+        29.71,
+        32.72,
+        31.72
        ],
-       "server_ms_median": 2.498,
+       "server_ms_median": 2.948,
        "expected": null,
        "got": null
       },
@@ -5249,13 +7247,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 120.43,
+       "latency_ms_median": 42.3,
        "latency_ms_all": [
-        120.43,
-        116.33,
-        126.49
+        42.3,
+        42.46,
+        39.51
        ],
-       "server_ms_median": 3.5,
+       "server_ms_median": 3.693,
        "expected": null,
        "got": null
       },
@@ -5268,13 +7266,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 77.2,
+       "latency_ms_median": 41.44,
        "latency_ms_all": [
-        77.2,
-        56.65,
-        79.26
+        41.94,
+        41.44,
+        41.06
        ],
-       "server_ms_median": 3.841,
+       "server_ms_median": 3.974,
        "expected": null,
        "got": null
       },
@@ -5287,13 +7285,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 63.7,
+       "latency_ms_median": 45.11,
        "latency_ms_all": [
-        54.35,
-        65.79,
-        63.7
+        47.63,
+        44.09,
+        45.11
        ],
-       "server_ms_median": 4.562,
+       "server_ms_median": 4.245,
        "expected": null,
        "got": null
       },
@@ -5306,13 +7304,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 70.04,
+       "latency_ms_median": 56.94,
        "latency_ms_all": [
-        79.68,
-        70.04,
-        67.78
+        49.19,
+        58.64,
+        56.94
        ],
-       "server_ms_median": 3.816,
+       "server_ms_median": 4.262,
        "expected": null,
        "got": null
       }
@@ -5328,12 +7326,13 @@
       "chain": 24,
       "agent": 24
      },
+     "strict_without_earliest5": null,
      "latency_ms": {
-      "p50": 8.84,
-      "p99": 20.38,
-      "max": 20.38
+      "p50": 8.22,
+      "p99": 23.11,
+      "max": 23.11
      },
-     "server_ms_median": 0.504,
+     "server_ms_median": 0.568,
      "statements_per_answer_median": 2.0,
      "questions": [
       {
@@ -5345,13 +7344,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.7,
+       "latency_ms_median": 14.09,
        "latency_ms_all": [
-        10.17,
-        8.7,
-        7.94
+        9.61,
+        23.11,
+        14.09
        ],
-       "server_ms_median": 0.428,
+       "server_ms_median": 0.589,
        "expected": null,
        "got": null
       },
@@ -5364,13 +7363,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.56,
+       "latency_ms_median": 9.19,
        "latency_ms_all": [
-        8.75,
-        8.15,
-        8.56
+        16.21,
+        9.19,
+        9.11
        ],
-       "server_ms_median": 0.402,
+       "server_ms_median": 0.537,
        "expected": null,
        "got": null
       },
@@ -5383,13 +7382,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 12.54,
+       "latency_ms_median": 8.32,
        "latency_ms_all": [
-        20.38,
-        12.54,
-        10.25
+        8.36,
+        8.32,
+        8.23
        ],
-       "server_ms_median": 0.414,
+       "server_ms_median": 0.57,
        "expected": null,
        "got": null
       },
@@ -5402,13 +7401,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.84,
+       "latency_ms_median": 8.96,
        "latency_ms_all": [
-        8.84,
-        12.96,
-        7.58
+        7.68,
+        8.96,
+        9.51
        ],
-       "server_ms_median": 0.462,
+       "server_ms_median": 0.662,
        "expected": null,
        "got": null
       },
@@ -5421,13 +7420,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.32,
+       "latency_ms_median": 10.77,
        "latency_ms_all": [
-        8.32,
-        7.3,
-        10.29
+        10.77,
+        11.19,
+        7.98
        ],
-       "server_ms_median": 0.466,
+       "server_ms_median": 0.746,
        "expected": null,
        "got": null
       },
@@ -5440,13 +7439,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 11.66,
+       "latency_ms_median": 9.14,
        "latency_ms_all": [
-        11.66,
-        11.99,
-        11.02
+        6.1,
+        10.43,
+        9.14
        ],
-       "server_ms_median": 0.668,
+       "server_ms_median": 0.556,
        "expected": null,
        "got": null
       },
@@ -5459,13 +7458,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 11.96,
+       "latency_ms_median": 7.41,
        "latency_ms_all": [
-        16.21,
-        11.96,
-        10.76
+        7.41,
+        6.92,
+        8.18
        ],
-       "server_ms_median": 0.381,
+       "server_ms_median": 0.543,
        "expected": null,
        "got": null
       },
@@ -5478,13 +7477,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.81,
+       "latency_ms_median": 11.58,
        "latency_ms_all": [
-        8.81,
-        9.32,
-        6.76
+        9.41,
+        11.58,
+        11.82
        ],
-       "server_ms_median": 0.462,
+       "server_ms_median": 0.586,
        "expected": null,
        "got": null
       },
@@ -5497,13 +7496,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 10.56,
+       "latency_ms_median": 6.62,
        "latency_ms_all": [
-        10.56,
-        6.2,
-        17.79
+        6.62,
+        7.23,
+        6.39
        ],
-       "server_ms_median": 0.474,
+       "server_ms_median": 0.641,
        "expected": null,
        "got": null
       },
@@ -5516,13 +7515,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 13.08,
+       "latency_ms_median": 5.76,
        "latency_ms_all": [
-        12.71,
-        13.08,
-        16.84
+        5.76,
+        6.01,
+        5.44
        ],
-       "server_ms_median": 0.439,
+       "server_ms_median": 0.495,
        "expected": null,
        "got": null
       },
@@ -5535,13 +7534,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 11.78,
+       "latency_ms_median": 8.98,
        "latency_ms_all": [
-        12.75,
-        11.78,
-        8.02
+        6.8,
+        8.98,
+        12.44
        ],
-       "server_ms_median": 0.89,
+       "server_ms_median": 0.495,
        "expected": null,
        "got": null
       },
@@ -5554,13 +7553,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 6.37,
+       "latency_ms_median": 7.53,
        "latency_ms_all": [
-        6.37,
-        5.65,
-        10.55
+        7.53,
+        8.22,
+        7.34
        ],
-       "server_ms_median": 0.414,
+       "server_ms_median": 0.54,
        "expected": null,
        "got": null
       },
@@ -5573,13 +7572,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.72,
+       "latency_ms_median": 8.8,
        "latency_ms_all": [
-        6.64,
-        8.72,
-        12.74
+        10.72,
+        8.8,
+        7.99
        ],
-       "server_ms_median": 0.493,
+       "server_ms_median": 0.644,
        "expected": null,
        "got": null
       },
@@ -5592,13 +7591,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 11.25,
+       "latency_ms_median": 9.92,
        "latency_ms_all": [
-        11.0,
-        11.25,
-        16.1
+        9.92,
+        8.4,
+        9.94
        ],
-       "server_ms_median": 0.533,
+       "server_ms_median": 0.539,
        "expected": null,
        "got": null
       },
@@ -5611,13 +7610,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.14,
+       "latency_ms_median": 8.06,
        "latency_ms_all": [
-        8.14,
-        13.26,
-        7.23
+        9.63,
+        7.17,
+        8.06
        ],
-       "server_ms_median": 0.482,
+       "server_ms_median": 0.581,
        "expected": null,
        "got": null
       },
@@ -5630,13 +7629,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 9.25,
+       "latency_ms_median": 7.55,
        "latency_ms_all": [
-        9.25,
-        6.6,
-        11.84
+        9.0,
+        6.63,
+        7.55
        ],
-       "server_ms_median": 0.528,
+       "server_ms_median": 0.596,
        "expected": null,
        "got": null
       },
@@ -5649,13 +7648,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.89,
+       "latency_ms_median": 7.28,
        "latency_ms_all": [
-        9.55,
-        8.89,
-        5.39
+        7.28,
+        6.48,
+        7.94
        ],
-       "server_ms_median": 0.515,
+       "server_ms_median": 0.548,
        "expected": null,
        "got": null
       },
@@ -5668,13 +7667,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 6.02,
+       "latency_ms_median": 7.59,
        "latency_ms_all": [
-        5.8,
-        6.78,
-        6.02
+        6.14,
+        7.95,
+        7.59
        ],
-       "server_ms_median": 0.533,
+       "server_ms_median": 0.566,
        "expected": null,
        "got": null
       },
@@ -5687,13 +7686,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 6.23,
+       "latency_ms_median": 10.55,
        "latency_ms_all": [
-        5.9,
-        6.23,
-        6.68
+        11.8,
+        10.55,
+        9.77
        ],
-       "server_ms_median": 0.52,
+       "server_ms_median": 0.55,
        "expected": null,
        "got": null
       },
@@ -5706,13 +7705,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 7.05,
+       "latency_ms_median": 8.15,
        "latency_ms_all": [
-        8.22,
-        7.05,
-        6.11
+        7.77,
+        10.78,
+        8.15
        ],
-       "server_ms_median": 0.594,
+       "server_ms_median": 0.638,
        "expected": null,
        "got": null
       },
@@ -5725,13 +7724,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 7.66,
+       "latency_ms_median": 6.53,
        "latency_ms_all": [
-        9.89,
-        7.52,
-        7.66
+        6.53,
+        6.37,
+        6.82
        ],
-       "server_ms_median": 0.553,
+       "server_ms_median": 0.617,
        "expected": null,
        "got": null
       },
@@ -5744,13 +7743,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 9.33,
+       "latency_ms_median": 8.67,
        "latency_ms_all": [
-        7.14,
-        9.33,
-        10.73
+        6.24,
+        8.67,
+        9.1
        ],
-       "server_ms_median": 0.649,
+       "server_ms_median": 0.647,
        "expected": null,
        "got": null
       },
@@ -5763,13 +7762,13 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 8.83,
+       "latency_ms_median": 7.93,
        "latency_ms_all": [
-        10.6,
-        7.46,
-        8.83
+        9.04,
+        6.72,
+        7.93
        ],
-       "server_ms_median": 0.555,
+       "server_ms_median": 0.551,
        "expected": null,
        "got": null
       },
@@ -5782,32 +7781,33 @@
        },
        "error": "",
        "statements": 2,
-       "latency_ms_median": 10.78,
+       "latency_ms_median": 8.82,
        "latency_ms_all": [
-        11.75,
-        10.78,
-        8.73
+        9.59,
+        8.82,
+        8.17
        ],
-       "server_ms_median": 0.639,
+       "server_ms_median": 0.559,
        "expected": null,
        "got": null
       }
      ]
     },
-    "P-pre(why@5191976)": {
-     "arm": "P-pre(why@5191976)",
+    "P-product-tool": {
+     "arm": "P-product-tool",
      "n": 24,
-     "strict_correct": 8,
+     "strict_correct": 16,
      "timeouts": 0,
-     "other_errors": 16,
+     "other_errors": 8,
      "components_correct": {
-      "chain": 8,
-      "agent": 8
+      "chain": 16,
+      "agent": 16
      },
+     "strict_without_earliest5": null,
      "latency_ms": {
-      "p50": 349.66,
-      "p99": 485.86,
-      "max": 485.86
+      "p50": 630.76,
+      "p99": 1089.22,
+      "max": 1089.22
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -5821,11 +7821,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 451.02,
+       "latency_ms_median": 268.0,
        "latency_ms_all": [
-        451.02,
-        448.49,
-        485.86
+        340.55,
+        268.0,
+        225.54
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5840,11 +7840,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 418.65,
+       "latency_ms_median": 234.65,
        "latency_ms_all": [
-        418.44,
-        418.65,
-        428.14
+        265.42,
+        234.65,
+        224.21
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5859,11 +7859,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 407.75,
+       "latency_ms_median": 245.07,
        "latency_ms_all": [
-        415.29,
-        407.75,
-        395.92
+        223.61,
+        266.79,
+        245.07
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5878,11 +7878,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 396.36,
+       "latency_ms_median": 290.54,
        "latency_ms_all": [
-        337.77,
-        396.36,
-        434.74
+        216.25,
+        290.54,
+        348.59
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5897,11 +7897,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 351.88,
+       "latency_ms_median": 536.94,
        "latency_ms_all": [
-        408.13,
-        351.88,
-        333.68
+        475.48,
+        536.94,
+        538.21
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5916,11 +7916,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 384.27,
+       "latency_ms_median": 458.24,
        "latency_ms_all": [
-        327.96,
-        384.27,
-        436.84
+        458.24,
+        432.71,
+        470.88
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5935,11 +7935,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 407.6,
+       "latency_ms_median": 473.79,
        "latency_ms_all": [
-        393.98,
-        420.16,
-        407.6
+        485.16,
+        431.04,
+        473.79
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5954,11 +7954,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 464.24,
+       "latency_ms_median": 522.33,
        "latency_ms_all": [
-        467.19,
-        464.24,
-        425.23
+        522.33,
+        507.73,
+        526.68
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -5966,203 +7966,155 @@
       },
       {
        "id": "B09",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 419.7,
+       "latency_ms_median": 532.86,
        "latency_ms_all": [
-        448.83,
-        419.7,
-        408.36
+        698.13,
+        532.86,
+        501.23
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000176",
-         "f000172",
-         "f000168",
-         "f000164"
-        ],
-        "agent": "a30"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B10",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 440.68,
+       "latency_ms_median": 478.17,
        "latency_ms_all": [
-        440.68,
-        455.31,
-        438.03
+        465.98,
+        586.81,
+        478.17
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000208",
-         "f000204",
-         "f000200",
-         "f000196"
-        ],
-        "agent": "a06"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B11",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 351.51,
+       "latency_ms_median": 612.26,
        "latency_ms_all": [
-        398.18,
-        345.81,
-        351.51
+        612.26,
+        658.23,
+        569.81
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000240",
-         "f000236",
-         "f000232",
-         "f000228"
-        ],
-        "agent": "a10"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B12",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 323.92,
+       "latency_ms_median": 602.06,
        "latency_ms_all": [
-        323.92,
-        322.61,
-        362.71
+        630.76,
+        602.06,
+        595.56
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000272",
-         "f000268",
-         "f000264",
-         "f000260"
-        ],
-        "agent": "a17"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B13",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 326.22,
+       "latency_ms_median": 813.46,
        "latency_ms_all": [
-        317.98,
-        326.22,
-        347.09
+        813.46,
+        706.76,
+        823.94
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000312",
-         "f000308",
-         "f000304",
-         "f000300",
-         "f000296",
-         "f000292"
-        ],
-        "agent": "a10"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B14",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 392.92,
+       "latency_ms_median": 769.49,
        "latency_ms_all": [
-        430.5,
-        391.25,
-        392.92
+        822.8,
+        769.49,
+        674.09
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000360",
-         "f000356",
-         "f000352",
-         "f000348",
-         "f000344",
-         "f000340"
-        ],
-        "agent": "a05"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B15",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 423.21,
+       "latency_ms_median": 797.76,
        "latency_ms_all": [
-        467.53,
-        423.21,
-        360.51
+        699.67,
+        851.68,
+        797.76
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000408",
-         "f000404",
-         "f000400",
-         "f000396",
-         "f000392",
-         "f000388"
-        ],
-        "agent": "a11"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B16",
-       "strict": false,
-       "components": {},
-       "error": "root not in the why result",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
        "statements": 1,
-       "latency_ms_median": 246.01,
+       "latency_ms_median": 793.17,
        "latency_ms_all": [
-        239.58,
-        289.84,
-        246.01
+        821.36,
+        793.17,
+        643.24
        ],
        "server_ms_median": 0,
-       "expected": {
-        "chain": [
-         "f000456",
-         "f000452",
-         "f000448",
-         "f000444",
-         "f000440",
-         "f000436"
-        ],
-        "agent": "a17"
-       },
-       "got": "{}"
+       "expected": null,
+       "got": null
       },
       {
        "id": "B17",
@@ -6170,11 +8122,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 209.5,
+       "latency_ms_median": 720.38,
        "latency_ms_all": [
-        187.23,
-        209.5,
-        237.28
+        720.38,
+        630.37,
+        741.48
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6198,11 +8150,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 222.02,
+       "latency_ms_median": 745.41,
        "latency_ms_all": [
-        222.02,
-        229.24,
-        206.42
+        745.41,
+        764.08,
+        635.17
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6226,11 +8178,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 259.67,
+       "latency_ms_median": 999.43,
        "latency_ms_all": [
-        219.83,
-        270.49,
-        259.67
+        787.56,
+        999.43,
+        1039.66
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6254,11 +8206,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 271.5,
+       "latency_ms_median": 942.41,
        "latency_ms_all": [
-        262.13,
-        271.5,
-        319.23
+        1016.25,
+        942.41,
+        800.43
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6282,11 +8234,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 238.05,
+       "latency_ms_median": 723.37,
        "latency_ms_all": [
-        226.43,
-        238.05,
-        240.55
+        520.46,
+        723.37,
+        733.74
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6314,11 +8266,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 278.38,
+       "latency_ms_median": 843.35,
        "latency_ms_all": [
-        278.38,
-        268.01,
-        305.89
+        829.02,
+        843.35,
+        1089.22
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6346,11 +8298,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 334.26,
+       "latency_ms_median": 967.58,
        "latency_ms_all": [
-        349.66,
-        334.26,
-        292.48
+        958.32,
+        1060.45,
+        967.58
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6378,11 +8330,11 @@
        "components": {},
        "error": "root not in the why result",
        "statements": 1,
-       "latency_ms_median": 265.96,
+       "latency_ms_median": 721.74,
        "latency_ms_all": [
-        235.24,
-        265.96,
-        323.67
+        838.52,
+        719.67,
+        721.74
        ],
        "server_ms_median": 0,
        "expected": {
@@ -6403,6 +8355,483 @@
         "agent": "a17"
        },
        "got": "{}"
+      }
+     ]
+    },
+    "P-product-service": {
+     "arm": "P-product-service",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "chain": 24,
+      "agent": 24
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 869.37,
+      "p99": 2452.86,
+      "max": 2452.86
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 279.51,
+       "latency_ms_all": [
+        279.51,
+        270.02,
+        370.11
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 461.0,
+       "latency_ms_all": [
+        461.0,
+        495.46,
+        398.95
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 335.75,
+       "latency_ms_all": [
+        340.75,
+        334.73,
+        335.75
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 380.12,
+       "latency_ms_all": [
+        392.94,
+        380.12,
+        373.04
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 490.36,
+       "latency_ms_all": [
+        516.42,
+        487.54,
+        490.36
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 477.95,
+       "latency_ms_all": [
+        477.95,
+        449.59,
+        587.55
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 552.01,
+       "latency_ms_all": [
+        552.01,
+        497.99,
+        674.89
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 563.03,
+       "latency_ms_all": [
+        542.4,
+        627.58,
+        563.03
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 589.67,
+       "latency_ms_all": [
+        756.2,
+        589.67,
+        472.94
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 558.02,
+       "latency_ms_all": [
+        558.02,
+        468.23,
+        631.47
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 721.15,
+       "latency_ms_all": [
+        698.78,
+        721.15,
+        884.54
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 800.68,
+       "latency_ms_all": [
+        783.75,
+        869.37,
+        800.68
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 917.84,
+       "latency_ms_all": [
+        965.49,
+        882.04,
+        917.84
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 981.41,
+       "latency_ms_all": [
+        833.78,
+        981.41,
+        993.45
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1044.12,
+       "latency_ms_all": [
+        1121.54,
+        1022.99,
+        1044.12
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1058.69,
+       "latency_ms_all": [
+        921.4,
+        1058.69,
+        1196.25
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 993.27,
+       "latency_ms_all": [
+        1238.12,
+        993.27,
+        971.29
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B18",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1640.05,
+       "latency_ms_all": [
+        1442.15,
+        1669.0,
+        1640.05
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B19",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1095.39,
+       "latency_ms_all": [
+        1502.37,
+        1095.39,
+        1072.01
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B20",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1133.87,
+       "latency_ms_all": [
+        985.25,
+        1133.87,
+        1634.2
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1901.97,
+       "latency_ms_all": [
+        2452.86,
+        1901.97,
+        1474.11
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B22",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1831.59,
+       "latency_ms_all": [
+        2310.34,
+        1831.59,
+        1616.22
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B23",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 2229.25,
+       "latency_ms_all": [
+        2066.43,
+        2323.68,
+        2229.25
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B24",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 1627.26,
+       "latency_ms_all": [
+        1627.26,
+        1116.71,
+        1738.75
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
       }
      ]
     }
@@ -6432,13 +8861,21 @@
      "8": 4,
      "12": 4
     },
-    "P-pre(why@5191976)": {
+    "P-product-tool": {
      "2": 4,
      "3": 4,
-     "4": 0,
-     "6": 0,
+     "4": 4,
+     "6": 4,
      "8": 0,
      "12": 0
+    },
+    "P-product-service": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 4,
+     "12": 4
     }
    },
    "pairs_vs_B1h": [
@@ -6460,11 +8897,19 @@
     },
     {
      "a": "B1h",
-     "b": "P-pre(why@5191976)",
-     "only_a_right": 16,
+     "b": "P-product-tool",
+     "only_a_right": 8,
      "only_b_right": 0,
-     "both_right": 8,
-     "p_two_sided": 0.0
+     "both_right": 16,
+     "p_two_sided": 0.0078
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-service",
+     "only_a_right": 0,
+     "only_b_right": 0,
+     "both_right": 24,
+     "p_two_sided": 1.0
     }
    ],
    "query_lines": {
@@ -6506,10 +8951,11 @@
       "set": 4,
       "ordered": 4
      },
+     "strict_without_earliest5": null,
      "latency_ms": {
-      "p50": 1.26,
-      "p99": 10.94,
-      "max": 10.94
+      "p50": 1.62,
+      "p99": 11.93,
+      "max": 11.93
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -6522,11 +8968,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 2.01,
+       "latency_ms_median": 2.79,
        "latency_ms_all": [
-        6.03,
-        2.01,
-        1.95
+        7.23,
+        2.67,
+        2.79
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6540,11 +8986,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.07,
+       "latency_ms_median": 1.43,
        "latency_ms_all": [
-        1.02,
-        1.12,
-        1.07
+        1.35,
+        1.43,
+        1.45
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6558,11 +9004,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.09,
+       "latency_ms_median": 1.48,
        "latency_ms_all": [
-        1.26,
-        1.09,
-        1.05
+        1.62,
+        1.37,
+        1.48
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6576,11 +9022,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.25,
+       "latency_ms_median": 1.57,
        "latency_ms_all": [
-        1.25,
-        1.19,
-        1.36
+        1.82,
+        1.57,
+        1.31
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6595,11 +9041,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.08,
+       "latency_ms_median": 1.94,
        "latency_ms_all": [
-        1.57,
-        1.08,
-        0.96
+        2.13,
+        1.94,
+        1.82
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6614,11 +9060,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.71,
+       "latency_ms_median": 0.79,
        "latency_ms_all": [
-        0.71,
-        0.67,
-        0.84
+        0.88,
+        0.76,
+        0.79
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6633,11 +9079,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.93,
+       "latency_ms_median": 1.11,
        "latency_ms_all": [
-        0.8,
-        0.93,
-        1.38
+        1.01,
+        1.17,
+        1.11
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6652,11 +9098,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.95,
+       "latency_ms_median": 1.27,
        "latency_ms_all": [
-        0.95,
-        0.95,
-        1.44
+        1.27,
+        1.06,
+        1.28
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6670,11 +9116,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 9.43,
+       "latency_ms_median": 11.15,
        "latency_ms_all": [
-        9.43,
-        10.26,
-        9.35
+        11.93,
+        11.15,
+        9.03
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6688,11 +9134,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 3.43,
+       "latency_ms_median": 3.89,
        "latency_ms_all": [
-        3.4,
-        3.43,
-        5.23
+        3.89,
+        4.63,
+        3.69
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6706,11 +9152,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 4.78,
+       "latency_ms_median": 3.77,
        "latency_ms_all": [
-        4.61,
-        4.78,
-        5.38
+        3.77,
+        3.78,
+        3.3
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6724,11 +9170,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.42,
+       "latency_ms_median": 4.52,
        "latency_ms_all": [
-        6.42,
-        4.86,
-        8.08
+        5.97,
+        4.37,
+        4.52
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6742,11 +9188,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 2.31,
+       "latency_ms_median": 2.57,
        "latency_ms_all": [
-        2.34,
-        2.31,
-        1.83
+        2.83,
+        1.92,
+        2.57
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6760,11 +9206,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.0,
+       "latency_ms_median": 1.04,
        "latency_ms_all": [
+        1.04,
         0.95,
-        1.0,
-        1.09
+        1.37
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6778,11 +9224,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.0,
+       "latency_ms_median": 1.08,
        "latency_ms_all": [
-        0.95,
-        1.0,
-        1.27
+        1.1,
+        1.08,
+        0.97
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6796,11 +9242,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 1.05,
+       "latency_ms_median": 1.5,
        "latency_ms_all": [
-        1.05,
-        0.99,
-        1.07
+        1.25,
+        1.5,
+        2.26
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6814,11 +9260,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.85,
+       "latency_ms_median": 1.19,
        "latency_ms_all": [
-        1.32,
-        0.77,
-        0.85
+        2.18,
+        1.19,
+        1.04
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6832,11 +9278,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.6,
+       "latency_ms_median": 1.17,
        "latency_ms_all": [
-        0.58,
-        0.6,
-        0.65
+        1.37,
+        1.17,
+        1.03
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6850,11 +9296,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.6,
+       "latency_ms_median": 0.94,
        "latency_ms_all": [
-        0.78,
-        0.6,
-        0.55
+        0.94,
+        1.11,
+        0.79
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6868,11 +9314,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 0.71,
+       "latency_ms_median": 0.69,
        "latency_ms_all": [
-        0.71,
-        1.08,
-        0.65
+        0.84,
+        0.69,
+        0.56
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6886,11 +9332,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 10.22,
+       "latency_ms_median": 8.94,
        "latency_ms_all": [
-        10.94,
-        6.74,
-        10.22
+        8.96,
+        8.6,
+        8.94
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6904,11 +9350,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 3.81,
+       "latency_ms_median": 3.55,
        "latency_ms_all": [
-        3.61,
-        3.81,
-        4.64
+        3.52,
+        3.55,
+        3.72
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6922,11 +9368,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 3.63,
+       "latency_ms_median": 3.98,
        "latency_ms_all": [
-        3.53,
-        4.53,
-        3.63
+        6.68,
+        3.57,
+        3.98
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6940,11 +9386,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 4.94,
+       "latency_ms_median": 5.17,
        "latency_ms_all": [
-        5.86,
-        4.94,
-        4.35
+        5.47,
+        5.17,
+        4.24
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -6964,12 +9410,13 @@
       "set": 4,
       "ordered": 4
      },
+     "strict_without_earliest5": null,
      "latency_ms": {
-      "p50": 7.05,
-      "p99": 14.93,
-      "max": 14.93
+      "p50": 7.17,
+      "p99": 10.79,
+      "max": 10.79
      },
-     "server_ms_median": 2.545,
+     "server_ms_median": 2.942,
      "statements_per_answer_median": 1.0,
      "questions": [
       {
@@ -6980,13 +9427,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.05,
+       "latency_ms_median": 7.36,
        "latency_ms_all": [
-        7.05,
-        7.01,
-        7.33
+        8.94,
+        7.36,
+        6.66
        ],
-       "server_ms_median": 4.321,
+       "server_ms_median": 4.013,
        "expected": null,
        "got": null
       },
@@ -6998,13 +9445,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.12,
+       "latency_ms_median": 5.11,
        "latency_ms_all": [
-        5.96,
-        5.04,
-        5.12
+        5.11,
+        5.03,
+        6.26
        ],
-       "server_ms_median": 2.201,
+       "server_ms_median": 2.275,
        "expected": null,
        "got": null
       },
@@ -7016,13 +9463,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.75,
+       "latency_ms_median": 6.88,
        "latency_ms_all": [
-        6.19,
-        5.75,
-        5.31
+        6.88,
+        6.89,
+        5.65
        ],
-       "server_ms_median": 2.466,
+       "server_ms_median": 3.04,
        "expected": null,
        "got": null
       },
@@ -7034,13 +9481,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.85,
+       "latency_ms_median": 9.8,
        "latency_ms_all": [
-        6.85,
-        5.17,
-        8.01
+        6.57,
+        9.8,
+        9.96
        ],
-       "server_ms_median": 2.654,
+       "server_ms_median": 3.471,
        "expected": null,
        "got": null
       },
@@ -7053,13 +9500,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 9.8,
+       "latency_ms_median": 8.64,
        "latency_ms_all": [
-        7.32,
-        11.07,
-        9.8
+        7.87,
+        8.94,
+        8.64
        ],
-       "server_ms_median": 4.516,
+       "server_ms_median": 4.359,
        "expected": null,
        "got": null
       },
@@ -7072,13 +9519,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.7,
+       "latency_ms_median": 6.28,
        "latency_ms_all": [
-        6.42,
-        8.12,
-        6.7
+        6.22,
+        6.28,
+        7.21
        ],
-       "server_ms_median": 2.225,
+       "server_ms_median": 2.843,
        "expected": null,
        "got": null
       },
@@ -7091,13 +9538,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.92,
+       "latency_ms_median": 5.7,
        "latency_ms_all": [
-        5.92,
-        7.58,
-        5.53
+        6.68,
+        5.7,
+        4.71
        ],
-       "server_ms_median": 2.323,
+       "server_ms_median": 2.487,
        "expected": null,
        "got": null
       },
@@ -7110,13 +9557,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 8.43,
+       "latency_ms_median": 6.95,
        "latency_ms_all": [
-        8.66,
-        8.43,
-        7.05
+        5.05,
+        6.95,
+        7.32
        ],
-       "server_ms_median": 3.508,
+       "server_ms_median": 3.395,
        "expected": null,
        "got": null
       },
@@ -7128,13 +9575,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 9.62,
+       "latency_ms_median": 9.07,
        "latency_ms_all": [
-        9.62,
-        9.19,
-        9.92
+        9.95,
+        7.77,
+        9.07
        ],
-       "server_ms_median": 4.746,
+       "server_ms_median": 5.295,
        "expected": null,
        "got": null
       },
@@ -7146,13 +9593,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.4,
+       "latency_ms_median": 6.51,
        "latency_ms_all": [
-        5.62,
-        6.4,
-        12.47
+        6.51,
+        6.48,
+        7.1
        ],
-       "server_ms_median": 2.584,
+       "server_ms_median": 2.722,
        "expected": null,
        "got": null
       },
@@ -7164,13 +9611,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.62,
+       "latency_ms_median": 7.17,
        "latency_ms_all": [
-        6.62,
-        5.97,
-        8.63
+        6.43,
+        7.17,
+        7.59
        ],
-       "server_ms_median": 2.628,
+       "server_ms_median": 2.834,
        "expected": null,
        "got": null
       },
@@ -7182,13 +9629,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.1,
+       "latency_ms_median": 9.86,
        "latency_ms_all": [
-        6.1,
-        8.05,
-        5.65
+        9.86,
+        10.79,
+        7.52
        ],
-       "server_ms_median": 2.907,
+       "server_ms_median": 4.146,
        "expected": null,
        "got": null
       },
@@ -7200,13 +9647,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 8.17,
+       "latency_ms_median": 8.49,
        "latency_ms_all": [
-        8.17,
-        8.93,
-        8.11
+        8.21,
+        8.49,
+        8.53
        ],
-       "server_ms_median": 3.847,
+       "server_ms_median": 4.73,
        "expected": null,
        "got": null
       },
@@ -7218,13 +9665,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 10.48,
+       "latency_ms_median": 7.38,
        "latency_ms_all": [
-        14.93,
-        10.48,
-        9.59
+        7.38,
+        7.92,
+        6.86
        ],
-       "server_ms_median": 2.319,
+       "server_ms_median": 2.763,
        "expected": null,
        "got": null
       },
@@ -7236,13 +9683,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.69,
+       "latency_ms_median": 6.41,
        "latency_ms_all": [
-        7.69,
-        6.18,
-        8.46
+        4.66,
+        6.41,
+        7.37
        ],
-       "server_ms_median": 1.973,
+       "server_ms_median": 2.163,
        "expected": null,
        "got": null
       },
@@ -7254,13 +9701,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 12.07,
+       "latency_ms_median": 8.71,
        "latency_ms_all": [
-        12.07,
-        12.45,
-        8.83
+        10.79,
+        8.71,
+        6.01
        ],
-       "server_ms_median": 2.505,
+       "server_ms_median": 3.201,
        "expected": null,
        "got": null
       },
@@ -7272,13 +9719,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 10.12,
+       "latency_ms_median": 8.27,
        "latency_ms_all": [
-        7.87,
-        10.12,
-        14.1
+        10.71,
+        8.27,
+        8.05
        ],
-       "server_ms_median": 4.669,
+       "server_ms_median": 4.688,
        "expected": null,
        "got": null
       },
@@ -7290,13 +9737,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.69,
+       "latency_ms_median": 6.33,
        "latency_ms_all": [
-        7.84,
-        6.69,
-        6.25
+        6.28,
+        6.33,
+        7.51
        ],
-       "server_ms_median": 2.006,
+       "server_ms_median": 2.347,
        "expected": null,
        "got": null
       },
@@ -7308,13 +9755,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.72,
+       "latency_ms_median": 8.18,
        "latency_ms_all": [
-        4.84,
-        6.44,
-        5.72
+        6.07,
+        8.18,
+        10.78
        ],
-       "server_ms_median": 2.169,
+       "server_ms_median": 2.706,
        "expected": null,
        "got": null
       },
@@ -7326,13 +9773,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.16,
+       "latency_ms_median": 7.47,
        "latency_ms_all": [
-        6.16,
-        7.57,
-        5.83
+        6.43,
+        7.47,
+        7.53
        ],
-       "server_ms_median": 2.324,
+       "server_ms_median": 3.137,
        "expected": null,
        "got": null
       },
@@ -7344,13 +9791,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.56,
+       "latency_ms_median": 8.09,
        "latency_ms_all": [
-        6.56,
-        6.24,
-        8.25
+        8.09,
+        6.81,
+        8.19
        ],
-       "server_ms_median": 3.552,
+       "server_ms_median": 4.387,
        "expected": null,
        "got": null
       },
@@ -7362,13 +9809,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.83,
+       "latency_ms_median": 4.95,
        "latency_ms_all": [
-        8.45,
-        5.83,
-        5.8
+        4.83,
+        4.95,
+        5.47
        ],
-       "server_ms_median": 2.417,
+       "server_ms_median": 2.068,
        "expected": null,
        "got": null
       },
@@ -7380,13 +9827,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.45,
+       "latency_ms_median": 5.72,
        "latency_ms_all": [
-        6.72,
-        7.45,
-        10.16
+        5.46,
+        5.72,
+        8.49
        ],
-       "server_ms_median": 2.105,
+       "server_ms_median": 2.292,
        "expected": null,
        "got": null
       },
@@ -7398,13 +9845,13 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.49,
+       "latency_ms_median": 6.84,
        "latency_ms_all": [
-        6.49,
-        6.18,
-        10.6
+        6.63,
+        6.84,
+        8.22
        ],
-       "server_ms_median": 2.594,
+       "server_ms_median": 2.478,
        "expected": null,
        "got": null
       }

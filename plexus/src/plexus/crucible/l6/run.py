@@ -41,6 +41,11 @@ DEMO = PKG.parents[4] / "demo_data" / "crucible" / "l6"
 REPS = 3
 
 
+def is_timeout(err: str) -> bool:
+    """The 5,000 ms budget: our own deadline ("timeout") or the product client's 5 s socket timeout."""
+    return err == "timeout" or err.startswith("TimeoutError")
+
+
 def sign_test(b: int, c: int) -> float:
     """Exact two-sided sign test on b vs c discordant pairs."""
     n = b + c
@@ -80,7 +85,7 @@ def measure(
         lats, servers, first = [], [], None
         for r in range(reps):
             got, m = fn(q)
-            lats.append(A.TIMEOUT_MS if m["error"] == "timeout" else m["latency_ms"])
+            lats.append(A.TIMEOUT_MS if is_timeout(m["error"]) else m["latency_ms"])
             servers.append(m["server_ms"])
             if r == 0:
                 first = (got, m)
@@ -106,7 +111,7 @@ def summarise(arm: str, rows: list[dict[str, Any]]) -> dict[str, Any]:
             comps[k] = comps.get(k, 0) + int(v)
     return {
         "arm": arm, "n": len(rows), "strict_correct": sum(r["strict"] for r in rows),
-        "timeouts": sum(r["error"] == "timeout" for r in rows), "other_errors": sum(bool(r["error"]) and r["error"] != "timeout" for r in rows),
+        "timeouts": sum(is_timeout(r["error"]) for r in rows), "other_errors": sum(bool(r["error"]) and not is_timeout(r["error"]) for r in rows),
         "components_correct": comps,
         "strict_without_earliest5": sum(bool(r["components"]) and all(v for k, v in r["components"].items() if k != "earliest5") for r in rows)
         if "earliest5" in comps or any("earliest5" in r["components"] for r in rows)
@@ -233,7 +238,7 @@ def det_dag(client: GraphClient, tmp: Path, log: Callable[[str], None]) -> dict[
                 "sizes": v,
                 "strict_correct": sum(x["strict"] for x in v),
                 "n": len(v),
-                "timeouts": sum(x["error"] == "timeout" for x in v),
+                "timeouts": sum(is_timeout(x["error"]) for x in v),
             }
             for nm, v in rows.items()
         }

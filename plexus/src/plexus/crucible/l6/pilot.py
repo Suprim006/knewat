@@ -40,8 +40,9 @@ PILOT_IDS = {
     "B": [0, 4, 8, 9, 12, 13, 16, 20],
     "D": [0, 4, 8, 12, 16, 20, 1, 9],
 }
-ARMS = ("B0r", "B1a", "B0g")
-ARM_CAPS = {"B0r": 3.0, "B1a": 7.0, "B0g": 8.0}
+ARMS = ("B0r", "B1a", "B0g", "P")
+ARM_CAPS = {"B0r": 3.0, "B1a": 7.0, "B0g": 8.0, "P": 2.0}
+P_FAMILIES = ("A", "B")  # no product tool exists for D (P8 is not built): P-mcp is not asked D
 TOTAL_CAP = 20.0
 GATE_USD = 16.0
 CONTEXT_CHARS = 32_000
@@ -64,6 +65,7 @@ class Prep:
         self.chunks = S.file_text_chunks(self.files)
         self.data_sha = self._hash()
         self._bm25: Bm25 | None = None
+        self.tenant = f"l6p_{family.lower()}"
 
     def _hash(self) -> str:
         import hashlib
@@ -121,6 +123,8 @@ class Prep:
 def tasks_for(preps: dict[str, Prep], ids: dict[str, list[int]], arm: str) -> list[tuple[str, Any]]:
     out = []
     for fam in ("A", "B", "D"):
+        if arm == "P" and fam not in P_FAMILIES:
+            continue
         qs = preps[fam].qs
         for i in ids[fam]:
             out.append((fam, qs[i]))
@@ -130,7 +134,7 @@ def tasks_for(preps: dict[str, Prep], ids: dict[str, list[int]], arm: str) -> li
 def call_one(runner: L.PilotRunner, prep: Prep, arm: str, q: Any) -> L.Call:
     return runner.ask(
         arm, prep.family, q.id, prep.prompt(q), data_sha=prep.data_sha,
-        context=prep.context(q) if arm == "B0r" else "", db=prep.db if arm == "B1a" else "", files_dir=prep.files if arm == "B0g" else None,
+        context=prep.context(q) if arm == "B0r" else "", db=prep.db if arm == "B1a" else "", files_dir=prep.files if arm == "B0g" else None, tenant=prep.tenant if arm == "P" else "",
     )  # fmt: skip
 
 
@@ -173,6 +177,9 @@ def run_pilot(
     launcher: list[str] | None,
     log: Any = print,
     cache: Path | None = None,
+    graphs: bool = True,
+    host: str = "127.0.0.1",
+    port: int = 6361,
 ) -> dict[str, Any]:
     started = time.time()
     tmp = Path(tempfile.mkdtemp(prefix="crucible-l6-pilot-"))
@@ -181,7 +188,25 @@ def run_pilot(
         log(
             f"pilot: family {f}: {len(p.qs)} questions, {len(p.chunks)} file lines, data sha {p.data_sha[:12]}"
         )
-    runner = L.PilotRunner(cache or CACHE, total_cap=TOTAL_CAP, arm_caps=ARM_CAPS, launcher=launcher)
+    runner = L.PilotRunner(
+        cache or CACHE, total_cap=TOTAL_CAP, arm_caps=ARM_CAPS, launcher=launcher, db_host=host, db_port=port
+    )
+    client = None
+    if graphs:  # the P arm reads the real graph: one tenant per family, dropped at the end
+        from plexus.graph.client import GraphClient
+        from plexus.graph.tenancy import graph_name
+
+        client = GraphClient(host=host, port=port)
+        for f in P_FAMILIES:
+            S.load_plexus(preps[f].world, client, preps[f].tenant)
+            log(f"pilot: loaded graph for family {f} (tenant {preps[f].tenant})")
+
+    def cleanup() -> None:
+        shutil.rmtree(tmp, ignore_errors=True)
+        if client is not None:
+            for f in P_FAMILIES:
+                client.delete_graph(graph_name(preps[f].tenant))
+
     ids = {f: list(v) for f, v in PILOT_IDS.items()}
     if scale < 1:  # toy run: keep the ids that exist
         ids = {f: [i for i in v if i < len(preps[f].qs)][:8] for f, v in ids.items()}
@@ -210,26 +235,27 @@ def run_pilot(
             )
 
     if stage in ("measure", "all"):
-        with ThreadPoolExecutor(3) as ex:
+        with ThreadPoolExecutor(4) as ex:
             list(ex.map(lambda a: do(a, [("B", preps["B"].qs[i]) for i in measure_ids]), ARMS))
         mean = {a: statistics.mean(v) if v else 0.0 for a, v in measured.items()}
-        calls_per_arm = sum(len(v) for v in ids.values())
-        projected = sum(m * calls_per_arm for m in mean.values())
+        calls_per_arm = {a: sum(len(ids[f]) for f in ids if a != "P" or f in P_FAMILIES) for a in ARMS}
+        projected = sum(m * calls_per_arm[a] for a, m in mean.items())
         log(
             f"measured mean cost per call {mean}; projected total for {calls_per_arm} calls per arm: ${projected:.2f} (gate ${GATE_USD})"
         )
         if stage == "measure" or projected > GATE_USD:
             log("stopping after the measurement stage" + (" (gate exceeded)" if projected > GATE_USD else ""))
+            cleanup()
             return _doc(
                 rows, ids, preps, runner, started, completed, out, stage, projected, mean, partial=True
             )
     if stage in ("rest", "all"):
-        with ThreadPoolExecutor(3) as ex:
+        with ThreadPoolExecutor(4) as ex:
             list(ex.map(lambda a: do(a, tasks_for(preps, ids, a)), ARMS))
     doc = _doc(
         rows, ids, preps, runner, started, completed, out, stage, None, None, partial=stage == "measure"
     )
-    shutil.rmtree(tmp, ignore_errors=True)
+    cleanup()
     return doc
 
 

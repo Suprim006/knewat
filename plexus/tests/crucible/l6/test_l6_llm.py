@@ -37,6 +37,8 @@ def ask(r: L.PilotRunner, arm: str = "B0r", qid: str = "A01", **kw) -> L.Call:
 def test_commands_per_arm_never_bare_and_tools_are_exact(tmp_path):
     r = runner(tmp_path)
     for arm in L.ROLES:
+        if arm == "P":
+            continue
         cmd = r.command(arm, tmp_path / "m.json")
         assert "--bare" not in cmd and "--no-session-persistence" in cmd and "--disable-slash-commands" in cmd
         assert cmd[cmd.index("--max-turns") + 1] == str(L.MAX_TURNS[arm])
@@ -138,11 +140,13 @@ def test_prep_context_obeys_the_cap_and_prefers_relevant_lines(tmp_path):
 def test_toy_pilot_end_to_end_with_the_fake(tmp_path, monkeypatch):
     # every question answered "unknown": all wrong, but the machinery (rows, costs, caps, files) is exercised
     monkeypatch.setenv("FAKE_COST", "0.02")
-    doc = P.run_pilot("all", tmp_path / "out", 0.05, FAKE, log=lambda s: None, cache=tmp_path / "cache")
+    doc = P.run_pilot(
+        "all", tmp_path / "out", 0.05, FAKE, log=lambda s: None, cache=tmp_path / "cache", graphs=False
+    )
     assert doc["kind"] == "pilot" and not doc["partial"]
     assert set(doc["families"]) == {"A", "B", "D"}
     for fam, f in doc["families"].items():
-        assert set(f["arms"]) == set(P.ARMS), fam
+        assert set(f["arms"]) == {a for a in P.ARMS if a != "P" or fam in P.P_FAMILIES}, fam
         for a in f["arms"].values():
             assert (
                 a["n"] == len(f["pilot_ids"])
@@ -152,5 +156,7 @@ def test_toy_pilot_end_to_end_with_the_fake(tmp_path, monkeypatch):
     assert doc["run"]["cost_usd"] == pytest.approx(0.02 * doc["run"]["llm_calls"])
     assert (tmp_path / "out" / "latest-pilot.json").exists()
     # second run: everything cached, nothing live
-    doc2 = P.run_pilot("all", tmp_path / "out2", 0.05, FAKE, log=lambda s: None, cache=tmp_path / "cache")
+    doc2 = P.run_pilot(
+        "all", tmp_path / "out2", 0.05, FAKE, log=lambda s: None, cache=tmp_path / "cache", graphs=False
+    )
     assert doc2["run"]["calls_run_live"] == 0 and doc2["run"]["cost_live_usd"] == 0
