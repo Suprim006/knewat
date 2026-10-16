@@ -1,0 +1,41 @@
+{
+ "reply": "Only sprint S21 is covered by these records, so I can only answer for S21. Nothing here records decisions from S01-S20.\n\n**Decisions in the records that relied directly on a fact from the v1 guide (`02_api_style_guide_v1`):**\n- **D-t02 (S21)** is the only one. It builds against API v1 and relies on `style_guide.api_version = v1`.\n\n**Decisions that don't count:**\n- **D-t02-v2** relies on the v2 guide, and the v1 guide is withdrawn.\n- **D-t09** mentions v1 only to reject a spec written against it. The facts it relies on are the v2 fact and others.\n- **D-t05** and **D-t13** don't rely on the style guide's API version.\n\n**The 10 probes:** none of them (S01, S04, S06, S09, S11, S15, S16, S17, S18, S19) appears in the records. I can't confirm that any of them relied on a v1-guide fact, so I mark them all false. Probes 1 and 7 are phrased as \"build against\" decisions, but they name v1 and v7, and the records show no source for either. Probes 2, 3, 5, 8 and 10 adopt v22 to v38, which are not v1-family versions.\n\n{\"answer\": {\"count\": 1, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": [\"S21\"]}}",
+ "cost": 0.0445575,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 9030,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 838,
+  "output_tokens_details": {
+   "thinking_tokens": 380
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 9030,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 838,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 9030,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 9030
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 10.1,
+ "tag": "b0p-20261017-Q1"
+}

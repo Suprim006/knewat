@@ -1,0 +1,41 @@
+# Facts (sprint S21)
+
+- product.purpose = Acme Notes is a small REST notes service (create, tag, search notes) for Acme Corp. (source: acme-docs/01_product_brief.md)
+- style_guide.api_version = v2 (source: acme-docs/06_api_style_guide_v2.md). Replaces earlier value v1 (from acme-docs/02_api_style_guide_v1.md, now withdrawn).
+- api.base_path = AX-80684 (source: repo/api.py, base_path())
+- api.page_size = AX-48354 (source: repo/api.py, page_size())
+- api.max_body = AX-44971 (source: repo/api.py, max_body())
+- api.cors_origin = AX-13629 (source: repo/api.py, cors_origin())
+- api.error_format = AX-55709 (source: repo/api.py, error_format())
+- infra.database = PostgreSQL 16 (managed) (source: acme-docs/03_infra_note.md)
+- security.auth_method = JWT bearer tokens, signed with RS256, issued by the Acme identity provider (source: acme-docs/04_security_note.md)
+- db.engine = AX-28059 (source: repo/db.py, engine())
+- db.pool_size = AX-10726 (source: repo/db.py, pool_size())
+- db.schema_name = AX-81475 (source: repo/db.py, schema_name())
+- db.replica_count = AX-48545 (source: repo/db.py, replica_count())
+- db.backup_window = AX-67698 (source: repo/db.py, backup_window())
+- auth.token_ttl = AX-87187 (source: repo/auth.py, token_ttl())
+- auth.hash_rounds = AX-52301 (source: repo/auth.py, hash_rounds())
+- auth.session_cookie = AX-25766 (source: repo/auth.py, session_cookie())
+- auth.mfa_window = AX-37780 (source: repo/auth.py, mfa_window())
+- auth.key_header = AX-71613 (source: repo/auth.py, key_header())
+- customer.requested_auth_method = long-lived API key sent in an X-Api-Key header (source: acme-docs/05_customer_request.md, Globex pilot). CONFLICT with security.auth_method (JWT bearer tokens, RS256); both kept, see D-t05.
+- auth.token_ttl = AX-59344 (source: repo/auth.py, token_ttl(), re-read in t05). CONFLICT: earlier fact auth.token_ttl = AX-87187 (t04) is stale; the code changed. Current code governs, see D-t05.
+- ratelimit.window = AX-34064 (source: acme-docs/s03/ratelimit_note.md, S03 note). CONFLICT with code value below; S03 is historical, current code governs.
+- ratelimit.window = AX-94252 (source: repo/ratelimit.py, window(), t14)
+- ratelimit.burst = AX-45565 (source: repo/ratelimit.py, burst())
+- ratelimit.per_user = AX-82957 (source: repo/ratelimit.py, per_user())
+- ratelimit.per_key = AX-51394 (source: repo/ratelimit.py, per_key())
+- ratelimit.retry_after = AX-20113 (source: repo/ratelimit.py, retry_after())
+- ratelimit.window = AX-94252 (source: repo/ratelimit.py, window(), re-read in t15; unchanged)
+- config.region = AX-49787 (source: repo/config.py, region(), t15)
+- config.secret_store = AX-24118 (source: repo/config.py, secret_store(), t15)
+- config.env_name = AX-89720 (source: repo/config.py, env_name(), t15)
+- auth.mfa_window = AX-50544 (source: repo/auth.py, mfa_window(), re-read in t15). CONFLICT: earlier fact auth.mfa_window = AX-37780 (t04) is stale; the code changed. Current code governs.
+- notes.max_length = AX-16383 (source: repo/notes.py, max_length(), t08)
+- notes.tag_limit = AX-60457 (source: repo/notes.py, tag_limit(), t08)
+- notes.archive_days = AX-94273 (source: repo/notes.py, archive_days(), t08)
+- notes.share_mode = AX-43223 (source: repo/notes.py, share_mode(), t08; docstring says revised in change 3)
+- api.error_format = AX-41106 (source: repo/api.py, error_format(), t09). CONFLICT: earlier fact api.error_format = AX-55709 is stale; the code changed. Current code governs.
+- notes.title_max = AX-40109 (source: repo/notes.py, title_max(), t08)
+- users.quota_mb = AX-20527 (source: repo/users.py, quota_mb(), t10)

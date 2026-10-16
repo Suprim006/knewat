@@ -1,0 +1,322 @@
+{
+ "seed": 20261019,
+ "initial_tokens": {
+  "auth.token_ttl": "AX-87187",
+  "auth.hash_rounds": "AX-52301",
+  "auth.session_cookie": "AX-25766",
+  "auth.mfa_window": "AX-37780",
+  "auth.key_header": "AX-71613",
+  "api.base_path": "AX-80684",
+  "api.page_size": "AX-48354",
+  "api.max_body": "AX-44971",
+  "api.cors_origin": "AX-13629",
+  "api.error_format": "AX-55709",
+  "db.engine": "AX-28059",
+  "db.pool_size": "AX-10726",
+  "db.schema_name": "AX-81475",
+  "db.replica_count": "AX-48545",
+  "db.backup_window": "AX-67698",
+  "ratelimit.window": "AX-94252",
+  "ratelimit.burst": "AX-45565",
+  "ratelimit.per_user": "AX-82957",
+  "ratelimit.per_key": "AX-51394",
+  "ratelimit.retry_after": "AX-20113",
+  "notes.max_length": "AX-20331",
+  "notes.tag_limit": "AX-60457",
+  "notes.archive_days": "AX-94273",
+  "notes.share_mode": "AX-43223",
+  "notes.title_max": "AX-40109",
+  "users.id_format": "AX-69198",
+  "users.quota_mb": "AX-20527",
+  "users.invite_ttl": "AX-34492",
+  "users.role_default": "AX-62849",
+  "users.locale_default": "AX-54473",
+  "search.index_name": "AX-12560",
+  "search.analyzer": "AX-82627",
+  "search.max_hits": "AX-97163",
+  "search.fuzzy_level": "AX-54006",
+  "search.refresh_ms": "AX-45230",
+  "export.format": "AX-34239",
+  "export.max_rows": "AX-85197",
+  "export.signed_url_ttl": "AX-22838",
+  "export.compression": "AX-58202",
+  "export.schedule": "AX-91357",
+  "billing.cycle": "AX-14962",
+  "billing.currency": "AX-86465",
+  "billing.grace_days": "AX-61153",
+  "billing.invoice_prefix": "AX-10000",
+  "billing.tax_mode": "AX-56429",
+  "audit.retention_days": "AX-52834",
+  "audit.sink": "AX-74122",
+  "audit.sample_rate": "AX-85883",
+  "audit.pii_mask": "AX-44940",
+  "audit.event_version": "AX-81308",
+  "config.region": "AX-49787",
+  "config.feature_flags": "AX-52662",
+  "config.log_level": "AX-42835",
+  "config.env_name": "AX-89720",
+  "config.secret_store": "AX-24118",
+  "release.channel": "AX-96044",
+  "release.version_tag": "AX-27821",
+  "release.rollout_pct": "AX-74797",
+  "release.freeze_day": "AX-71540",
+  "release.changelog_path": "AX-19127"
+ },
+ "x2_old_token": "AX-34064",
+ "commits": [
+  {
+   "k": 1,
+   "turn": 4,
+   "kind": "value",
+   "module": "api",
+   "funcs": [
+    "api.error_format",
+    "release.channel"
+   ],
+   "new_tokens": {
+    "api.error_format": "AX-41106",
+    "release.channel": "AX-38101"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 2,
+   "turn": 6,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.token_ttl",
+    "notes.max_length"
+   ],
+   "new_tokens": {
+    "auth.token_ttl": "AX-59344",
+    "notes.max_length": "AX-16383"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": "X3: auth.token_ttl in the first value commit after t04's nominal turn"
+  },
+  {
+   "k": 3,
+   "turn": 7,
+   "kind": "docstring",
+   "module": "notes",
+   "funcs": [
+    "notes.share_mode"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 4,
+   "turn": 8,
+   "kind": "add",
+   "module": "db",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "name": "extra_4",
+    "token": "AX-55714"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 5,
+   "turn": 10,
+   "kind": "reorder",
+   "module": "config",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "a": 4,
+    "b": 2
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 6,
+   "turn": 11,
+   "kind": "whitespace",
+   "module": "ratelimit",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "fn": "per_key"
+   },
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 7,
+   "turn": 12,
+   "kind": "delete",
+   "module": "export",
+   "funcs": [
+    "export.compression"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 8,
+   "turn": 13,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.mfa_window"
+   ],
+   "new_tokens": {
+    "auth.mfa_window": "AX-50544"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 9,
+   "turn": 14,
+   "kind": "module-comment",
+   "module": "release",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 10,
+   "turn": 17,
+   "kind": "sibling",
+   "module": "billing",
+   "funcs": [
+    "billing.currency",
+    "billing.cycle"
+   ],
+   "new_tokens": {
+    "billing.currency": "AX-87484",
+    "billing.cycle": "AX-42079"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  }
+ ],
+ "v2_turn": 12,
+ "kills": {
+  "K1": {
+   "agent": "builder",
+   "from_turn": 6,
+   "after": "first tool call after the claim"
+  },
+  "K2": {
+   "agent": "researcher",
+   "from_turn": 14,
+   "tasks": [
+    "t14-ratelimit-spec",
+    "t16-release-notes"
+   ],
+   "after": "first Write of an artifact file"
+  },
+  "K3": {
+   "agent": "planner",
+   "from_turn": 13,
+   "after": "first memory write (MCP write or Write)"
+  }
+ },
+ "nominal_order": [
+  [
+   1,
+   "init"
+  ],
+  [
+   2,
+   "t01-gather-requirements"
+  ],
+  [
+   3,
+   "t02-choose-api-version"
+  ],
+  [
+   4,
+   "t03-design-endpoints"
+  ],
+  [
+   5,
+   "t04-survey-infra-security"
+  ],
+  [
+   6,
+   "t05-choose-auth"
+  ],
+  [
+   7,
+   "t13-reuse-billing-cycle"
+  ],
+  [
+   8,
+   "t06-write-db-schema"
+  ],
+  [
+   9,
+   "t14-ratelimit-spec"
+  ],
+  [
+   10,
+   "t07-implement-crud-spec"
+  ],
+  [
+   11,
+   "t15-config-matrix"
+  ],
+  [
+   12,
+   "ingest-v2"
+  ],
+  [
+   13,
+   "adopt-v2"
+  ],
+  [
+   14,
+   "t12-update-endpoints-for-v2"
+  ],
+  [
+   15,
+   "t08-write-test-plan"
+  ],
+  [
+   16,
+   "t09-review-spec"
+  ],
+  [
+   17,
+   "t10-write-docs"
+  ],
+  [
+   18,
+   "t16-release-notes"
+  ],
+  [
+   19,
+   "t11-package-release"
+  ]
+ ],
+ "invalidated": [
+  "api.error_format",
+  "auth.mfa_window",
+  "auth.token_ttl",
+  "billing.currency",
+  "billing.cycle",
+  "export.compression",
+  "notes.max_length",
+  "release.channel"
+ ]
+}

@@ -1,0 +1,41 @@
+{
+ "reply": "```sql\nWITH RECURSIVE edges(child, parent) AS (\n  SELECT src, dst FROM fact_links WHERE kind LIKE 'DERIV%FROM%'\n  UNION\n  SELECT dst, src FROM fact_links WHERE kind IN ('DERIVES','DERIVES_INTO','SOURCE_OF')\n),\ntainted(fid) AS (\n  SELECT fl.src FROM fact_links fl\n  JOIN sources s ON s.id = fl.dst\n  WHERE fl.kind <> 'BASED_ON' AND s.uri LIKE '%02_api_style_guide_v1%'\n  UNION\n  SELECT fl.dst FROM fact_links fl\n  JOIN sources s ON s.id = fl.src\n  WHERE fl.kind <> 'BASED_ON' AND s.uri LIKE '%02_api_style_guide_v1%'\n  UNION\n  SELECT e.child FROM edges e\n  JOIN tainted t ON e.parent = t.fid\n),\ndec_ids(did) AS (\n  SELECT df.decision_id FROM decision_facts df WHERE df.fact_id IN (SELECT fid FROM tainted)\n  UNION\n  SELECT fl.src FROM fact_links fl WHERE fl.kind = 'BASED_ON' AND fl.dst IN (SELECT fid FROM tainted)\n)\nSELECT DISTINCT d.text\nFROM decisions d\nWHERE d.id IN (SELECT did FROM dec_ids)\n```",
+ "cost": 0.0300975,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 4580,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1172,
+  "output_tokens_details": {
+   "thinking_tokens": 640
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 4580,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1172,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 4580,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 4580
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 15.5,
+ "tag": "probe-sql-Q1-r1-i1"
+}

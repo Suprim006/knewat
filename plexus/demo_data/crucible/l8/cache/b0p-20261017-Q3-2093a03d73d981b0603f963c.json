@@ -1,0 +1,41 @@
+{
+ "reply": "Only t07-implement-crud-spec completed with a stale or suspect value in its artifact summary.\n\n- **t07-implement-crud-spec:** The handoff flags `auth.session_cookie = AX-67390` as memory-only, no longer in `repo/auth.py`, and unverified. It also notes that `auth.token_ttl` and `auth.key_header` had drifted from the facts. The spec was built on `style_guide.api_version = v1` as well, which the v2 guide supersedes (D-t02-v2).\n- **t01 to t06:** These used values that were current when each task finished. The v2 ingest and the code drift were found later.\n- **t08 to t14, t16:** These used current code values, v2 where relevant, or reused earlier-sprint facts without a superseded value.\n- **t15-config-matrix:** `config.secret_store = AX-85001` was later found stale by t16, but nothing in the records shows it was superseded or flagged when t15 finished. Its `auth.hash_rounds` already used the newer AX-15064. I left t15 out, though that is a judgement call.\n\n{\"answer\": [\"t07-implement-crud-spec\"]}",
+ "cost": 0.0486755,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 8622,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1413,
+  "output_tokens_details": {
+   "thinking_tokens": 1032
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 8622,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1413,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 8622,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 8622
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 14.9,
+ "tag": "b0p-20261017-Q3"
+}

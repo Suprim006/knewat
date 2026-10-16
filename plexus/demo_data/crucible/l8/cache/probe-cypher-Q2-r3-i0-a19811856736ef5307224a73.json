@@ -1,0 +1,41 @@
+{
+ "reply": "```cypher\nMATCH (s:Step)-[r:READ]->(f:Fact)\nWHERE f.value IN $old AND s.at < $t AND coalesce(r.via, 'recall') = 'recall'\nMATCH (s)-[:BY]->(a:Agent)\nRETURN DISTINCT a.id AS agent_id\n```",
+ "cost": 0.0468115,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 11061,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 251,
+  "output_tokens_details": {
+   "thinking_tokens": 133
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 11061,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 251,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 11061,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 11061
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 5.5,
+ "tag": "probe-cypher-Q2-r3-i0"
+}

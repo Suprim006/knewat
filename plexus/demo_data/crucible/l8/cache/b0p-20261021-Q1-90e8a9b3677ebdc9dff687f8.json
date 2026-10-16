@@ -1,0 +1,41 @@
+{
+ "reply": "Within the records provided, 12 decisions relied directly on the v1-family fact (`02_api_style_guide_v1`).\n\nEach sprint has a \"Build against vN\" decision and a later \"Adopt style guide vN+1\" decision. The records don't show the `based_on` fact sources directly, so this rests on the pattern in the S21 records. There, the first decision relies on the v1 fact, and the \"adopt\" update relies on the v2 fact that supersedes it. By that pattern, the \"Build against\" decisions are the ones based on the v1-family fact, and the \"Adopt\" decisions are based on the v2-family fact.\n\nThe 12 are the \"Build against\" decisions for S01, S02, S05, S08, S11, S13, S14, S16, S17, S18 and S20, plus S21's D-t02, which cites `product.api_version = v1`. The S21 D-t02 update and D-t09 rely on v2, so they are excluded.\n\nFor the 10 probes:\n1. S01 build-against v1: yes.\n2. S13 build-against v25: yes.\n3. S13 adopt v26: no, it is v2-family.\n4. S08 adopt v16: no.\n5. S17 build-against v33: yes.\n6. S11 adopt v22: no.\n7. S16 adopt v32: no.\n8. S17 adopt v34: no.\n9. S19 build-against v37: no, because no S19 decision appears in the records.\n10. S18 build-against v35: yes.\n\nThe five earliest are S01, S02, S05, S08 and S11.\n\n{\"answer\": {\"count\": 12, \"probes\": [true, true, false, false, true, false, false, false, false, true], \"earliest5\": [\"S01\", \"S02\", \"S05\", \"S08\", \"S11\"]}}",
+ "cost": 0.0832855,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 17877,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1172,
+  "output_tokens_details": {
+   "thinking_tokens": 602
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 17877,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1172,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 17877,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 17877
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 11.6,
+ "tag": "b0p-20261021-Q1"
+}

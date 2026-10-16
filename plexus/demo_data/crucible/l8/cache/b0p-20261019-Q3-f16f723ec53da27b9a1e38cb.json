@@ -1,0 +1,41 @@
+{
+ "reply": "Of the tasks marked done, none completed with an artifact summary that used a value already stale at that moment. These are the cases I checked:\n\n- **t01, t02 (v1, `api.error_format` = AX-55709):** v1 was still the current style guide at that point. D-t02 says the recorded values matched `repo/api.py` at the time. The `error_format` code change to AX-41106 was only noticed later, in t03, t09 and t12.\n- **t03, t07 (built on v1):** v1 was current when t03 finished, and the t07 summary lists only values that were current at that point.\n- **t05, t07, t09, t15 (`auth.token_ttl` = AX-59344, `auth.mfa_window` = AX-50544):** these are the re-read, current values, not the stale AX-87187 and AX-37780.\n- **t13 (`billing.cycle` = AX-14962, `billing.currency` = AX-86465):** these were the code values when t13 ran. t16 later reports the code had changed, and t16 correctly uses the new values AX-42079 and AX-87484.\n- **t14 (`ratelimit.window`):** it used the current code value AX-94252, not the outdated S03 value AX-34064.\n- **t10 (`api.error_format` = AX-41106):** this is the current value.\n- **t08 (`notes.share_mode`):** its docstring mentions a revision, but nothing in the records flags the value as suspect or superseded.\n\n{\"answer\": []}",
+ "cost": 0.0501375,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 9070,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1380,
+  "output_tokens_details": {
+   "thinking_tokens": 897
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 9070,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1380,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 9070,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 9070
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 17.1,
+ "tag": "b0p-20261019-Q3"
+}
