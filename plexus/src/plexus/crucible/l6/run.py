@@ -37,7 +37,7 @@ from plexus.crucible.util import iso_utc, percentile, run_stamp
 from plexus.graph.client import GraphClient
 
 PKG = Path(__file__).resolve()
-DEMO = PKG.parents[5] / "demo_data" / "crucible" / "l6"
+DEMO = PKG.parents[4] / "demo_data" / "crucible" / "l6"
 REPS = 3
 
 
