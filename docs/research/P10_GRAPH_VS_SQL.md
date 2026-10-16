@@ -234,6 +234,76 @@ Tests:
 
 ---
 
+## G: multi-tenancy at 1 to 2,000 tenants
+
+Runs: registered `20261016T124311Z-g` (code `2ac5fb4`, clean; N = 1, 2, 20, 200 measured, N = 2,000 not reached under
+`maxmemory 3800mb`), post-hoc 2 (`partial-20261016T125705Z-g.json` + its log: 2,000 tenants created, then OOM-killed
+during `BGSAVE`), post-hoc 3 ``20261016T131704Z-g` (code `15b71a5`, clean)` (no forks; N = 2,000 measured; amendments 3-4). Each tenant: 100 facts
+(canary included), 30 steps, 10 decisions, 5 handoffs, 10 tasks; ids collide across tenants on purpose.
+
+**G3a, leakage on the product path (the correctness gate): 0 leaked rows in every arm at every N** (registered: 2,
+200 and 200 ordered pairs at N = 2, 20, 200; post-hoc 3: 200 pairs at N = 2,000, also 0 in every arm, controls 200/200). For F these probes went through the product services
+bound to tenant A (`Lineage.why`, `Lineage.impact`, `Engram.recall`), and the controls (A finding its own canary and
+secret) passed on every pair, so the zeros are not vacuous. The gate is met.
+
+**G3b, the raw query channel (an agent or a compromised server that can send arbitrary Cypher / SQL), leaks / pairs.**
+
+| Configuration | leaks | |
+|---|---|---|
+| F, one Redis user (Plexus as deployed) | 50 / 50 | any graph key is readable |
+| F, a Redis ACL user per tenant (`~plexus_t_<A>`, GRAPH.* commands) | 0 / 50 (NOPERM) | own tenant still readable |
+| S-file, raw SQL | 50 / 50 | `ATTACH DATABASE '<B's file>'` |
+| S-file, authorizer denying `ATTACH` | 0 / 50 | |
+| S-shared, raw SQL | 50 / 50 | no row-level security in SQLite |
+| S-shared, per-tenant `TEMP VIEW`s + authorizer denying base-table reads | 0 / 50 | 13 views, an authorizer callback |
+
+Both per-tenant-object designs (graph per tenant, file per tenant) close the raw channel with one engine-level
+switch (an ACL key pattern; an authorizer that refuses `ATTACH`). The shared-file design needs a view per table and
+an authorizer, and every one of its 7 statements needs a tenant predicate (15 occurrences); S-file and F need none.
+
+**G1, creating a tenant.** F `apply_schema` (the product's tenant creation: range, full-text and vector indexes,
+UNIQUE constraints) p50 134.8 ms, p99 152 ms (N = 200); loading the tenant's world another 137 ms. S-file: create 15.1
+ms, load 9.5 ms. S-shared has no per-tenant DDL (load 3.1 ms). F creation is **9x slower** than S-file; 2,000 F
+tenants took ~10 min to create and load. Prediction G4 holds.
+
+**G2, footprint per tenant (N = 200).**
+
+| | F (FalkorDB) | S-file | S-shared |
+|---|---|---|---|
+| empty (schema only) | 744 KB of Redis `used_memory`; 6.6 KB of RDB | 184 KB file | (no empty state) |
+| loaded (100 facts, ...) | 3.36 MB `used_memory`; ~1.7 MB resident; 69 KB RDB (54 KB at N = 2,000) | 229 KB file | 77 KB |
+
+Redis's `used_memory` for FalkorDB graphs is about twice the resident memory (3.70 GB vs 1.87 GB at 1,088 tenants), and
+it is what `maxmemory` limits. Either way an in-memory FalkorDB tenant costs 7-15x the disk an SQLite tenant file
+takes, and it costs RAM rather than disk. Prediction G5 (empty F tenant 20-500 KB; neither backend more than 3x
+smaller) was wrong: 744 KB, and S-file is 4x smaller empty and 7-15x smaller loaded.
+
+**Feasibility at 2,000 tenants on this machine (7.4 GiB VM).** Registered run: refused at tenant 1,088 by `maxmemory
+3800mb` (Redis accounting). With a 3.8 GB physical cap instead: all 2,000 tenants fit (~3.5 GB resident), but the
+first persistence fork (`BGSAVE`, copy-on-write) got the container OOM-killed. The 2,000-tenant FalkorDB population
+fits in this RAM only with persistence forks switched off; 2,000 SQLite files (S-file, 2,000 open connections ~10,000
+Windows handles) and the shared file had no resource problem.
+
+**G4, latency as a function of the tenant count** (one client thread, 2,000 operations per op type and N, random
+tenants; p50 ms, server vs embedded).
+
+| arm | q1 fact by id, N = 1 / 200 / 2,000 | q3 why-chain (recursive), N = 1 / 200 / 2,000 | q4 write, N = 1 / 200 / 2,000 |
+|---|---|---|---|
+| F | 1.71 / 1.74 / 1.81 | 1.80 / 1.83 / 1.93 | 3.07 / 2.57 / 2.71 |
+| S-file, cached connections | 0.008 / 0.021 / **0.316** | 0.024 / 0.036 / 0.329 | 0.060 / 0.116 / **2.14** |
+| S-file, open per request | 2.48 / 2.77 / 3.10 | 2.60 / 2.66 / 2.86 | 7.15 / 7.06 / 14.3 |
+| S-shared | 0.007 / 0.013 / **0.266** | 0.093 / 0.086 / 0.322 | 0.065 / 0.080 / 0.428 |
+
+0 wrong answers and 0 errors in every cell. N <= 200 columns from the registered run, N = 2,000 from post-hoc 3
+(whose own N = 1 to N = 2,000 p50 ratios are: **F 0.91-1.09x**, S-file cached 13.7-39.5x, S-file open-per-request
+1.13-2.02x, S-shared 2.0-38x). **FalkorDB's per-operation latency does not change with the number of tenants**
+(prediction G3 for F holds): a tenant is a key in one server. **SQLite's does**, by 14-40x between 1 and 2,000
+tenants for cached connections (2,000 open connections = 10,216 Windows handles and 974 MB of client working set:
+2,000 page caches) and up to 38x for the shared file (q1; one bigger B-tree), so predictions G3 for S-file-cached and
+S-shared (within 1.5x) were wrong. In absolute terms the embedded SQLite arms are still faster per read than FalkorDB at
+2,000 tenants (q1/q3: 0.27-0.33 ms vs 1.81-1.93 ms, 5.7-7x; q2 on the shared file 0.012 vs 1.90 ms); only open-per-request (which pays a connect per call) is
+slower than F, at every N.
+
 ## J: concurrent session populations (all components, under load)
 
 **Session mix, from real tool calls** (not invented): the per-agent call sequences of the two recorded Claude runs,
