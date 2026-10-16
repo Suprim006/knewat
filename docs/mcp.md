@@ -114,9 +114,84 @@ Every argument is bounded; a violation is a tool error of one line, e.g. `recall
 lists the expected keys, not a silently dropped dependency). Unknown *top-level* arguments are ignored by design (the tenant is never
 an argument). `log_procedure_run` with a `task_id` and `blocked_by_failure` check that the task exists, like `task_status`.
 
-Every call is audited: the tool wrapper sums the database-reported `run_time_ms` of the queries the tool ran and then
-writes one `ToolCall` (`audit/record_tool_call`) with `IN_STEP`/`CREATED`/`UPDATED` edges. Deliberate deviation from
-PLAN §3 ("same statement"): the server-side time is only known after the tool's own statement has run.
+By default every call is audited (audit mode `full`, below): the tool wrapper sums the database-reported `run_time_ms` of
+the queries the tool ran and then writes one `ToolCall` (`audit/record_tool_call`) with `IN_STEP`/`CREATED`/`UPDATED`
+edges. Deliberate deviation from PLAN §3 ("same statement"): the server-side time is only known after the tool's own
+statement has run.
+
+## Audit modes
+
+A read tool used to cost 2-3 write statements (Step, `Recall` + `READ` edges for `recall`, `ToolCall`), queued behind
+every real writer of the tenant graph, and its `READ {via:'recall'}` edges changed ranking (activation weighs them 0.3).
+That made a read-only public tenant impossible. Each tool now has a class and each tenant an audit mode.
+
+**Tool class** (`ToolDef.kind`, declared where the tool is defined; an unmarked tool is `write`, so a forgotten
+annotation is the safe one): `read` = `recall` `fact_history` `best_procedure` `ready_tasks` `task_status`
+`blocked_by_failure` `why` `why_recalled` `who_knew` `knew_at` `as_of` `memory_strength` `facts_to_verify`
+`docs_to_update`. Everything else is `write` (including `memory_sweep`, whose `dry_run` is an argument). `recall` is also
+an *exposure* tool: its `READ` edges are the provenance behind `who_knew`, `knew_at`, `why_recalled` and forgetting.
+
+**Tenant mode**, from env read once at start (a bad value stops the server): `PLEXUS_AUDIT_MODE` = `full` (default) |
+`light` | `off`, and a per-tenant table `PLEXUS_AUDIT_MODES="demo*=off,team_*=full"` (`glob=mode`, first match wins,
+matched on the tenant id; unmatched tenants use `PLEXUS_AUDIT_MODE`).
+
+| Mode | read tool | `recall` (exposure) | write tool |
+|---|---|---|---|
+| `full` | today: Step, `READ`/`Recall` edges, `ToolCall` | full | unchanged |
+| `light` | one `ToolCall {wrote:false}`; no Step, no `IN_STEP`, no `READ` | stays **full** | unchanged (full) |
+| `off` | **nothing written**; `tool_call_id: null` | nothing written; `recall_id: null` | **refused**: `<tool>: this tenant is read-only (audit mode 'off'): writes are disabled` |
+
+* **Per-call `audit`.** Every read tool accepts an optional `audit: "light" | "full"`. `"light"` lowers that one call
+  (for `recall` on a `full` or `light` tenant it drops the Step, `Recall` and `READ` edges: use it for lookups that
+  should not count as the agent having *used* the facts). It can never raise the mode: `"full"` is a no-op, and on an
+  `off` tenant it changes nothing. Write tools do not take it. A result carries `"audit": "light"|"off"` when the
+  call ran below `full` (absent in `full`, so full-mode results are unchanged).
+* **Step numbers.** A `light`/`off` call takes no Step, so an agent's `n` sequence counts only calls that have one
+  (writes and `recall` in `full`). `knew_at(agent, N)` therefore does not count meta-reads. These calls also skip the
+  per-agent call lock (there is no step number to keep in order).
+* **`off` is enforced, not trusted.** The call runs on a client whose write methods raise, so a tool that is labelled
+  `read` but writes fails closed instead of changing the graph. In `light`, such a tool is audited in full for that
+  call and the server logs an error. A test asserts the guard's allowlist equals the set of `read` tools.
+* **`off` never creates a graph.** For an `off` tenant the runtime does not apply the schema: if the tenant graph does
+  not exist the call is refused (`unknown tenant ...: read-only tenants are not created by requests`), and a graph that
+  was deleted under a running server is not re-created either. (`full`/`light` tenants still heal themselves.)
+* **No-write proof** (`tests/mcp/test_audit_modes.py`): a burst of all 14 read tools x 3 on an `off` tenant leaves
+  Redis `INFO commandstats` with `graph.ro_query` up by 51 or more and **zero** `graph.query`/`graph.delete`/`set`/...,
+  the keyspace and `rdb_changes_since_last_save` unchanged, and the node and edge counts identical. The same burst
+  in `full` mode is the control (it issues >= 2 `graph.query` per call).
+* **Deployment.** `deploy/app.py` calls `ensure_demo_audit_off()`, which puts `demo*=off` first in `PLEXUS_AUDIT_MODES`
+  (an operator's own `demo*` rule cannot weaken it): the public `demo` and `demo_*` tenants are readable over MCP and
+  never written. See `docs/deploy.md`.
+
+Write statements per read call (counted from `commandstats`): `full` 2 (3 for `recall`), `light` 1, `off` 0.
+For the effect on throughput see the next section.
+
+### Throughput (L4 `P-mcp` recall row)
+
+Scripted, no LLM: `deploy/bench_audit_modes.py` runs the Crucible L4 recall sweep on the `P-mcp` arm (300 facts,
+`Runtime._run`, 10 recalls per worker) three times per mode, alternating the order, and reports the median. Only
+`recall` changes mode (`light` = what `recall(audit="light")` does, `off` = what a `demo*` tenant does); seeding stays
+`full`. One FalkorDB 6.0.2 container on `127.0.0.1` (slot 65), Windows 11 desktop, all 27 points per embedder ran with
+0 errors and 0 empty recalls. Rows are `ops/s (client p50 / p99 ms)`.
+
+| Embedder | Workers | `full` | `light` | `off` | light / full | off / full |
+|---|---|---|---|---|---|---|
+| `hash` | 1 | 17.7 (52 / 113) | 31.2 (31 / 60) | 35.0 (26 / 55) | 1.76x | 1.98x |
+| `hash` | 10 | 52.4 (181 / 272) | 98.1 (97 / 142) | 95.9 (90 / 194) | 1.87x | 1.83x |
+| `hash` | 50 | 41.9 (1109 / 2093) | 109.1 (412 / 800) | 114.3 (367 / 1016) | 2.60x | 2.73x |
+| `fastembed` | 1 | 10.5 (93 / 144) | 14.7 (64 / 101) | 18.4 (49 / 100) | 1.40x | 1.75x |
+| `fastembed` | 10 | 35.3 (258 / 523) | 40.6 (229 / 325) | 46.1 (207 / 268) | 1.15x | 1.31x |
+| `fastembed` | 50 | 28.1 (1710 / 2346) | 38.7 (1259 / 1528) | 43.9 (1131 / 1350) | 1.38x | 1.56x |
+
+How to read it: the `hash` rows isolate the audit cost (the embedder is free): `light` removes two of the three write
+statements per recall and is 1.8-2.6x faster, `off` removes all three and is 1.8-2.7x. With the real `fastembed` model
+the gain is 1.15-1.4x for `light` and 1.3-1.75x for `off`, because the shared model (single thread, calls serialised)
+is the other limiter; this agrees with `docs/BASELINE.md`, where P-mcp is embedder-bound at high worker counts. Caveats:
+this is not the compose-network setup of the BASELINE table (its P-mcp numbers are lower: the network hop), so compare
+the ratios, not the absolute values; three runs per cell and a desktop that was doing other things, so treat differences of
+about 10-15% as noise (`light` and `off` are within it of each other with `hash`); only `recall` was measured, not claims.
+`light` on `recall` also drops the exposure provenance (no `Recall`, no `READ` edges), so use it for lookups, not for
+reads an agent will act on.
 
 ## Headless smoke (verified)
 

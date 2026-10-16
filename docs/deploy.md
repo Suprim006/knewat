@@ -22,7 +22,8 @@ Files (all under the P6 ownership; nothing in `plexus/src` or `plexus-view` is c
 | `deploy/entrypoint.py` | supervisor: start redis, wait `loading:0`, reseed, start the sweeper thread, run uvicorn on `$PORT` |
 | `deploy/app.py` | ASGI wrapper that mounts the View API, the MCP app and the static files |
 | `deploy/guard.py` | public-safety middleware and the idle sweeper |
-| `deploy/verify.py` | the local gate (below); `deploy/tests/` = unit tests for the guard (34, no database) |
+| `deploy/verify.py` | the local gate (below); `deploy/tests/` = unit tests for the guard (55, no database) |
+| `deploy/bench_audit_modes.py` | scripted benchmark of the audit modes (`recall` throughput, no LLM), see `docs/mcp.md` "Audit modes" |
 | `deploy/screenshots/` | the View served from the container under `-m 512m --cpus 0.5` |
 | `render.yaml` | Render Blueprint (Docker web service, free plan, `/healthz`) |
 
@@ -96,7 +97,9 @@ The MCP endpoint is public, so the wrapper is deny-by-default. Implemented in `d
 | Control | Behaviour | Env var (default) |
 |---|---|---|
 | Write tenants | only `team_[a-z0-9]{4,24}` may be written through MCP | n/a |
-| Read-only demo tenants | `demo` and `demo_*`: the MCP handshake and `tools/list` work, every `tools/call` is answered with a one-line tool error ("read-only demo tenant … connect to /mcp/t/team_<name>") and never reaches Plexus. Why every tool and not only writes: each Plexus tool call, even `recall`, writes an audit `ToolCall` node, so no tool is read-only. | n/a |
+| Readable, read-only demo tenants | `demo` and `demo_*`: the handshake and `tools/list` work, and a `tools/call` of one of the 14 **read tools** (`OBSERVER_TOOLS`: `recall`, `fact_history`, `as_of`, `why`, `why_recalled`, `who_knew`, `knew_at`, `ready_tasks`, `task_status`, `blocked_by_failure`, `best_procedure`, `memory_strength`, `facts_to_verify`, `docs_to_update`) is forwarded. Any other call is answered with a one-line tool error ("read-only demo tenant: writes are disabled; reads are allowed … connect to /mcp/t/team_<name>") and never reaches Plexus; so is a JSON-RPC batch. Enforcement is two gates: the allowlist here, and the runtime, which serves `demo*` in audit mode **`off`** (`deploy/app.py` puts `demo*=off` first in `PLEXUS_AUDIT_MODES`): a read writes nothing at all (no Step, no `ToolCall`, no `READ` edge, so a visitor cannot change ranking), a write is refused, and the database client is read-only. A test keeps the allowlist equal to the set of tools declared `kind="read"`. | `PLEXUS_AUDIT_MODES` (`demo*=off` forced) |
+| No graph creation by a request | a `demo*` tools/call is forwarded only if that tenant's graph already exists (the guard's graph listing), and the runtime refuses an `off` tenant without a graph instead of applying the schema. `/mcp/t/demo_x1` creates nothing, whatever the name. | n/a |
+| Demo read rate | a `recall` embeds its query (about 47/s for the whole process, `docs/BASELINE.md`), so forwarded demo reads spend a second, smaller bucket: 30/min per client IP and 120/min in total, 429 with `Retry-After`. Handshakes and refused writes do not spend it. | `PLEXUS_DEMO_RATE_PER_MIN` (30), `PLEXUS_DEMO_GLOBAL_RATE_PER_MIN` (120) |
 | Everything else | any other tenant name: 403 with the allowed pattern | n/a |
 | Rate limit | token bucket per client IP on `/mcp` (60 requests/min, burst 60), plus a global bucket (600/min) as backstop; 429 with `Retry-After`. `/api` has its own bucket (300/min per IP). The SSE stream counts once when it opens. | `PLEXUS_RATE_PER_MIN`, `PLEXUS_GLOBAL_RATE_PER_MIN`, `PLEXUS_API_RATE_PER_MIN` |
 | Body cap | 512 KiB: `Content-Length` and streamed bodies, 413 (the SDK's own cap is set to the same value) | `PLEXUS_MAX_BODY_BYTES` (524288) |
@@ -129,7 +132,7 @@ docker build -f deploy/Dockerfile -t plexus-deploy .
 docker run --rm -d --name plexus-deploy-test -m 512m --cpus 0.5 -e PORT=10000 -p 127.0.0.1:18100:10000 plexus-deploy
 # or run the whole gate, which does exactly that and then the checks below, and removes the container:
 cd plexus && uv run python ../deploy/verify.py
-cd plexus && uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini      # guard unit tests (34)
+cd plexus && uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini      # guard unit tests (55)
 ```
 
 Run on Windows 11 / Docker Desktop (WSL2, 12 logical CPUs on the host, capped to 0.5 CPU for the container), image
@@ -179,9 +182,12 @@ Reproduce the raw numbers: `deploy/verify.py` prints every `MEM` snapshot and a 
 
 - **`demo_scripted`, not `demo-scripted`.** A tenant name must match `^[a-z0-9_]{1,48}$` (`plexus/graph/tenancy.py`), so a
   hyphen is invalid.
-- **Read-only demo tenants refuse every `tools/call`**, including `recall`, because each call writes an audit node (above).
-  Visitors read the demo in the View; they bring their own agent to a `team_` tenant. Letting agents `recall` on the demo
-  would need a no-audit read path in `plexus/src` (not changed here).
+- **Demo tenants are readable over MCP, writes refused (P9-e).** Before, every `tools/call` on `demo*` was refused
+  because each call wrote an audit node; the audit modes (`docs/mcp.md`) give reads a no-write path (mode `off`), so a visitor's
+  agent can `recall`, ask `why` and `as_of` against the demo graph. Not verified in the container (`verify.py` was not
+  re-run for P9-e: it needs Docker and the full image); the unit tests (`deploy/tests`), the runtime tests and the Redis
+  commandstats proof (`plexus/tests/mcp/test_audit_modes.py`) cover it. `verify.py`'s existing check (an `assert_fact`
+  on `/mcp/t/demo` is refused with the read-only message and the graph is unchanged) still holds.
 - **Reseed calls the same function the CLI does** (`plexus.demo.replay.replay(..., reset=True)`) in-process, instead of
   spawning `plexus demo replay` twice: one Python process instead of three saves boot time and memory on 0.5 CPU. It
   fails the boot if a restored inventory differs from the recording's `meta.json`.
