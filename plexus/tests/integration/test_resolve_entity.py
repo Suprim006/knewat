@@ -117,6 +117,23 @@ def test_fulltext_below_jaccard_creates_a_new_entity(eng, client, graph):
     assert _count(client, graph) == 2
 
 
+def test_one_differing_word_is_not_a_duplicate(eng, client, graph):
+    """OR candidates + Jaccard alone would merge these (3 of 5 tokens shared); containment is required too."""
+    _stmt(eng, "auth gateway service api")
+    assert _stmt(eng, "billing gateway service api")["how"] == "new"
+    assert (
+        _stmt(eng, "auth gateway service api v")["how"] == "fulltext"
+    )  # a superset still joins (4/5, contained)
+    assert _count(client, graph) == 2
+
+
+def test_same_numbers_in_another_order_are_not_the_same_entity(eng, client, graph):
+    """The shape that failed Crucible C8: 'Handbook 1 vacation rule 0' vs 'Handbook 0 expenses rule 1'."""
+    a = _stmt(eng, "Handbook 0 expenses rule 1")
+    b = _stmt(eng, "Handbook 1 vacation rule 0")
+    assert (a["how"], b["how"]) == ("new", "new")
+
+
 def test_kind_and_numbers_guard_every_lookup(eng, client, graph):
     _stmt(eng, "Billing Service 1", "service")
     assert _stmt(eng, "Billing Service 2", "service")["how"] == "new"  # different num_key

@@ -10,7 +10,8 @@ both miss and create two Entities (reproduced: 2 entities for a vector pair, 2 f
 `queries/engram/resolve_entity.cypher` is one write statement:
 
 1. full-text candidates: `CALL db.idx.fulltext.queryNodes('Entity', 'a|b|c')` (**OR** of the name tokens), same `kind`
-   and same `num_key` (numbers / versions in the name), token Jaccard >= `FULLTEXT_JACCARD` (0.6), best first;
+   and same `num_key` (numbers / versions in the name), token Jaccard >= `FULLTEXT_JACCARD` (0.6) **and one token set
+   contained in the other**, best first;
 2. vector candidates: `CALL db.idx.vector.queryNodes('Entity', 'embedding', 5, vecf32($emb))`, same `kind` and
    `num_key`, cosine distance <= `ENTITY_NEAR` (0.10), nearest first;
 3. exact: `OPTIONAL MATCH (ex:Entity {norm_name: $norm})`;
@@ -36,6 +37,12 @@ statement.
 The old query ANDed all tokens, so "auth gateway service" did not find an older "auth gateway" (the AND needs `service`
 in the old name) although the Jaccard filter would accept it (2/3). Resolution depended on creation order. The
 candidate query is now OR; the Jaccard filter stays. `test_fulltext_is_independent_of_creation_order` covers both orders.
+
+OR alone is too loose: "Handbook 1 vacation rule 0" and "Handbook 0 expenses rule 1" share 4 of 6 tokens and the same
+multiset of numbers, so Jaccard 0.67 merged them (Crucible C8 caught it). The old AND only ever accepted a candidate
+that *contained every query token*; the statement keeps that rule but makes it symmetric: a full-text candidate needs
+Jaccard >= 0.6 and one name's token set contained in the other's. "auth gateway" <-> "auth gateway service" (either
+order) still joins; "auth gateway service api" and "billing gateway service api" (3 of 5 shared) do not.
 
 ## What is not claimed
 

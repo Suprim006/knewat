@@ -91,7 +91,9 @@ def _older_candidates(
         if c_num != num_key:
             return
         j = _jaccard(set(tok), set(c_tok))
-        if (how == "fulltext" and j < jaccard) or (how == "vector" and (distance or 0.0) > entity_threshold):
+        if how == "fulltext" and (j < jaccard or not (set(tok) <= set(c_tok) or set(c_tok) <= set(tok))):
+            return
+        if how == "vector" and (distance or 0.0) > entity_threshold:
             return
         hit = cands.setdefault(c["id"], {"name": c["name"], "how": set(), "distance": None, "jaccard": j})
         hit["how"].add(how)
@@ -119,7 +121,8 @@ def near_duplicates(
     """Read-only: ``(younger, older)`` entity pairs that ``engram/resolve_entity`` would have joined.
 
     Candidates must be older by ``(created_at, id)``, of the same kind and numeric tokens, and either share
-    >= ``jaccard`` of their name tokens (full-text) or lie within ``entity_threshold`` distance (vector).
+    >= ``jaccard`` of their name tokens with one token set containing the other (full-text), or lie within
+    ``entity_threshold`` distance (vector).
     """
     born: dict[str, tuple[int, str]] = {}  # id -> (created_at, id): who is older
     for page in _page(client, graph):
