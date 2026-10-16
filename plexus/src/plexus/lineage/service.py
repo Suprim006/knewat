@@ -405,8 +405,8 @@ class Lineage:
         fact, the fact itself is part of ``facts``. ``tasks`` are the tasks the affected decisions are
         ``FOR``. Lists hold at most ``max_detail`` (1..5000, default 50) ids; the totals are exact up to
         ``limit`` facts (``truncated`` says whether that bound was hit). Every list category also carries
-        ``earliest_at`` / ``latest_at`` over the WHOLE set (epoch ms: ``valid_from``, step / decision / handoff
-        ``at``; ``None`` when empty), and ``facts.earliest`` is the 5 earliest affected facts
+        ``earliest_at`` / ``latest_at`` over the WHOLE set (epoch ms: ``valid_from``, step / decision /
+        handoff ``at``; ``None`` when empty), and ``facts.earliest`` is the 5 earliest affected facts
         ``[{id, at}]``. Raises :class:`UnknownNode`.
         """
         if kind not in ("source", "fact"):
@@ -436,7 +436,10 @@ class Lineage:
             ordered = sorted(ids)
             return {"total": len(ordered), "ids": ordered[:max_detail], **span(ats)}
 
-        by_time = sorted(zip(r["fact_ats"], r["fact_ids"], strict=True), key=lambda p: (2**62 if p[0] is None else p[0], p[1]))
+        by_time = sorted(
+            zip(r["fact_ats"], r["fact_ids"], strict=True),
+            key=lambda p: (2**62 if p[0] is None else p[0], p[1]),
+        )
         return {
             "kind": kind,
             "id": node_id,

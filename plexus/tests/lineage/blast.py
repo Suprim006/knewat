@@ -1,3 +1,4 @@
+# ruff: noqa: E501
 """A large blast radius for the ``impact`` regression tests: one Source, ``n`` derived facts in layers with
 fan-in 1..3 (so paths far exceed nodes), steps that READ them, decisions / handoffs on a few, plus unrelated noise
 (facts, steps and READ edges) that a scan-driven plan would have to walk.
@@ -37,7 +38,11 @@ def build_blast(
         except ResponseError as exc:  # pragma: no cover - already there
             if "already indexed" not in str(exc):
                 raise
-    _w(client, graph, "CREATE (:Source {id: 'src-b', uri: 'urn:blast', kind: 'url', trust: 'normal', created_at: 1})")
+    _w(
+        client,
+        graph,
+        "CREATE (:Source {id: 'src-b', uri: 'urn:blast', kind: 'url', trust: 'normal', created_at: 1})",
+    )
     _w(
         client,
         graph,
@@ -84,7 +89,10 @@ def build_blast(
         )
     # readers: every fact read by 1..2 steps of one agent (blast and noise alike)
     ids = [f["id"] for f in facts + noise_facts]
-    steps = [{"id": f"st{i}", "n": i // 20 + 1, "agent": f"ag{i % 20}", "at": 2000 + i} for i in range(len(ids) * 3 // 2)]
+    steps = [
+        {"id": f"st{i}", "n": i // 20 + 1, "agent": f"ag{i % 20}", "at": 2000 + i}
+        for i in range(len(ids) * 3 // 2)
+    ]
     for chunk in _batches(steps):
         _w(
             client,

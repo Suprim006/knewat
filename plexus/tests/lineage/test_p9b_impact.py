@@ -6,8 +6,8 @@ import pytest
 
 from plexus.lineage import Lineage, UnknownNode
 
-from .conftest import cypher
 from .blast import build_blast
+from .conftest import cypher
 from .diamond import TimedClient, build_lineage
 
 
@@ -99,8 +99,8 @@ def test_impact_carries_timestamps_per_facet(world, lin):
 
 
 def test_impact_5000_fact_blast_answers_in_under_2_s_with_exact_totals(client, empty_graph, clock):
-    """P9-int regression (L6-A): the old statement carried the fact list as a grouping key through three UNWINDs and
-    never finished at 5,000 facts. Noise (5,000 unrelated facts, 7,500 reads) must not be walked."""
+    """P9-int regression (L6-A): the old statement carried the fact list as a grouping key through three
+    UNWINDs and never finished at 5,000 facts. Noise (5,000 unrelated facts, 7,500 reads) must not be walked."""
     d = build_blast(client, empty_graph, n=5000, noise=5000)
     tc = TimedClient(client)
     lin = Lineage(tc, empty_graph, clock=clock)
@@ -111,7 +111,10 @@ def test_impact_5000_fact_blast_answers_in_under_2_s_with_exact_totals(client, e
     assert [e["id"] for e in got["facts"]["earliest"]] == d["earliest"]
     assert got["decisions"]["ids"] == d["decisions"] and got["handoffs"]["ids"] == d["handoffs"]
     assert got["readers"]["steps_total"] == d["steps_blast"] and got["readers"]["agents_total"] == 20
-    assert got["decisions"]["earliest_at"] == 3000 and got["handoffs"]["latest_at"] == 4000 + len(d["handoffs"]) - 1
+    assert (
+        got["decisions"]["earliest_at"] == 3000
+        and got["handoffs"]["latest_at"] == 4000 + len(d["handoffs"]) - 1
+    )
     assert got["tasks"] == {"total": 1, "ids": ["t-b"]}
 
 
@@ -119,6 +122,8 @@ def test_plan_shape_impact_does_not_scan_unrelated_edges(client, empty_graph):
     from tests.plan_util import max_records, profile_ops
 
     d = build_blast(client, empty_graph, n=600, levels=6, noise=1500)
-    ops = profile_ops(client, empty_graph, "lineage/impact_source", {"id": d["source"], "depth": 12, "limit": 5000})
+    ops = profile_ops(
+        client, empty_graph, "lineage/impact_source", {"id": d["source"], "depth": 12, "limit": 5000}
+    )
     # the busiest operator produces the blast's own READ edges, never the 2,250 reads of the unrelated noise
     assert max_records(ops).records <= d["reads_blast"], (max_records(ops), d["reads_blast"])
