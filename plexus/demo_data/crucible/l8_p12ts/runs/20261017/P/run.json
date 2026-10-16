@@ -1,0 +1,1021 @@
+{
+ "kind": "crucible-l8-run",
+ "prompt_version": "l8-v1",
+ "seed": 20261017,
+ "arm": "P",
+ "tenant": "l8_p_20261017_045048",
+ "status": "completed",
+ "error": "",
+ "git": {
+  "commit": "f3c134b69686511464d67a4632575d8d3c6ab8ef",
+  "short": "f3c134b",
+  "branch": "p12",
+  "dirty": false,
+  "dirty_files": [],
+  "results_files_uncommitted": 2
+ },
+ "claude_version": "2.1.296 (Claude Code)",
+ "model_alias": "sonnet",
+ "max_turns": 25,
+ "toolset": "core",
+ "history_seconds": 31.3,
+ "initial_sha": "8364d6f0b96147a00bd9910511b9115504894a5e",
+ "turns": [
+  {
+   "turn": 1,
+   "agent": "planner",
+   "name": "init",
+   "kind": "init",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792191983241,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192000195,
+   "killed": false,
+   "prompt_chars": 2761
+  },
+  {
+   "turn": 2,
+   "agent": "researcher",
+   "name": "t01-gather-requirements",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192000272,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192032723,
+   "killed": false,
+   "prompt_chars": 2772
+  },
+  {
+   "turn": 3,
+   "agent": "planner",
+   "name": "t02-choose-api-version",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192032757,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192062216,
+   "killed": false,
+   "prompt_chars": 1284
+  },
+  {
+   "turn": 4,
+   "agent": "builder",
+   "name": "t03-design-endpoints",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192062262,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192091257,
+   "killed": false,
+   "prompt_chars": 1444
+  },
+  {
+   "turn": 5,
+   "agent": "researcher",
+   "name": "t04-survey-infra-security",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192091301,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192119940,
+   "killed": false,
+   "prompt_chars": 3001
+  },
+  {
+   "turn": 6,
+   "agent": "planner",
+   "name": "t05-choose-auth",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192119980,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192169687,
+   "killed": false,
+   "prompt_chars": 2467
+  },
+  {
+   "turn": 7,
+   "agent": "planner",
+   "name": "t13-reuse-billing-cycle",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192173458,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192204192,
+   "killed": false,
+   "prompt_chars": 1841
+  },
+  {
+   "turn": 8,
+   "agent": "builder",
+   "name": "t06-write-db-schema",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192207893,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192217686,
+   "killed": true,
+   "prompt_chars": 1653
+  },
+  {
+   "turn": 9,
+   "agent": "researcher",
+   "name": "t06-write-db-schema",
+   "kind": "task",
+   "reclaim_from": "builder",
+   "attempt": 2,
+   "start_ms": 1792192263756,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192518332,
+   "killed": false,
+   "prompt_chars": 1870
+  },
+  {
+   "turn": 10,
+   "agent": "researcher",
+   "name": "t14-ratelimit-spec",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192522105,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192544956,
+   "killed": false,
+   "prompt_chars": 2539
+  },
+  {
+   "turn": 11,
+   "agent": "builder",
+   "name": "t07-implement-crud-spec",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192548587,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192581216,
+   "killed": false,
+   "prompt_chars": 1885
+  },
+  {
+   "turn": 12,
+   "agent": "researcher",
+   "name": "ingest-v2",
+   "kind": "special",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192584747,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192598754,
+   "killed": false,
+   "prompt_chars": 2192
+  },
+  {
+   "turn": 13,
+   "agent": "planner",
+   "name": "adopt-v2",
+   "kind": "special",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192602412,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192615178,
+   "killed": false,
+   "prompt_chars": 1617
+  },
+  {
+   "turn": 14,
+   "agent": "builder",
+   "name": "t12-update-endpoints-for-v2",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192618886,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192645844,
+   "killed": false,
+   "prompt_chars": 2025
+  },
+  {
+   "turn": 15,
+   "agent": "builder",
+   "name": "t15-config-matrix",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192645885,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192667042,
+   "killed": false,
+   "prompt_chars": 2119
+  },
+  {
+   "turn": 16,
+   "agent": "researcher",
+   "name": "t08-write-test-plan",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192670756,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192695630,
+   "killed": false,
+   "prompt_chars": 2407
+  },
+  {
+   "turn": 17,
+   "agent": "planner",
+   "name": "t09-review-spec",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192699287,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192720635,
+   "killed": true,
+   "prompt_chars": 2329
+  },
+  {
+   "turn": 18,
+   "agent": "researcher",
+   "name": "t09-review-spec",
+   "kind": "task",
+   "reclaim_from": "planner",
+   "attempt": 2,
+   "start_ms": 1792192766844,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192796059,
+   "killed": false,
+   "prompt_chars": 2546
+  },
+  {
+   "turn": 19,
+   "agent": "researcher",
+   "name": "t10-write-docs",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192796104,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192816368,
+   "killed": false,
+   "prompt_chars": 2158
+  },
+  {
+   "turn": 20,
+   "agent": "researcher",
+   "name": "t16-release-notes",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192816404,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192836103,
+   "killed": true,
+   "prompt_chars": 2568
+  },
+  {
+   "turn": 21,
+   "agent": "planner",
+   "name": "t16-release-notes",
+   "kind": "task",
+   "reclaim_from": "researcher",
+   "attempt": 2,
+   "start_ms": 1792192883502,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192906462,
+   "killed": false,
+   "prompt_chars": 2779
+  },
+  {
+   "turn": 22,
+   "agent": "builder",
+   "name": "t11-package-release",
+   "kind": "task",
+   "reclaim_from": "",
+   "attempt": 1,
+   "start_ms": 1792192906500,
+   "model": "claude-sonnet-5-5",
+   "claude_code_version": "2.1.296",
+   "end_ms": 1792192929336,
+   "killed": false,
+   "prompt_chars": 2412
+  }
+ ],
+ "events": [
+  {
+   "event": "commit",
+   "turn": 6,
+   "step": 50,
+   "t_ms": 1792192173418,
+   "k": 1,
+   "kind": "sibling",
+   "funcs": [
+    "auth.hash_rounds",
+    "auth.key_header"
+   ],
+   "sha": "d72d0a85a9"
+  },
+  {
+   "event": "commit",
+   "turn": 7,
+   "step": 56,
+   "t_ms": 1792192207857,
+   "k": 2,
+   "kind": "module-comment",
+   "funcs": [],
+   "sha": "1dc7ee57f1"
+  },
+  {
+   "event": "kill",
+   "turn": 8,
+   "step": 59,
+   "t_ms": 1792192217650,
+   "kill": "K1",
+   "agent": "builder",
+   "task": "t06-write-db-schema",
+   "holds": true
+  },
+  {
+   "event": "lease_wait",
+   "turn": 8,
+   "step": 59,
+   "t_ms": 1792192217691,
+   "task": "t06-write-db-schema",
+   "wait_s": 42.5
+  },
+  {
+   "event": "commit",
+   "turn": 8,
+   "step": 59,
+   "t_ms": 1792192263720,
+   "k": 3,
+   "kind": "delete",
+   "funcs": [
+    "auth.session_cookie"
+   ],
+   "sha": "0c1bd16729"
+  },
+  {
+   "event": "reclaim",
+   "turn": 8,
+   "step": 59,
+   "t_ms": 1792192263756,
+   "task": "t06-write-db-schema",
+   "agent": "researcher",
+   "reclaimed_from": "builder"
+  },
+  {
+   "event": "commit",
+   "turn": 9,
+   "step": 64,
+   "t_ms": 1792192522067,
+   "k": 4,
+   "kind": "value",
+   "funcs": [
+    "auth.token_ttl"
+   ],
+   "sha": "1b9d1427fa"
+  },
+  {
+   "event": "commit",
+   "turn": 10,
+   "step": 73,
+   "t_ms": 1792192548552,
+   "k": 5,
+   "kind": "docstring",
+   "funcs": [
+    "notes.archive_days"
+   ],
+   "sha": "eb0005983d"
+  },
+  {
+   "event": "commit",
+   "turn": 11,
+   "step": 80,
+   "t_ms": 1792192584747,
+   "k": 6,
+   "kind": "add",
+   "funcs": [],
+   "sha": "02ba9f705b"
+  },
+  {
+   "event": "publish_v2",
+   "turn": 11,
+   "step": 80,
+   "t_ms": 1792192584747
+  },
+  {
+   "event": "commit",
+   "turn": 12,
+   "step": 84,
+   "t_ms": 1792192602412,
+   "k": 7,
+   "kind": "whitespace",
+   "funcs": [],
+   "sha": "80298df4ab"
+  },
+  {
+   "event": "commit",
+   "turn": 13,
+   "step": 88,
+   "t_ms": 1792192618849,
+   "k": 8,
+   "kind": "value",
+   "funcs": [
+    "db.engine",
+    "search.analyzer"
+   ],
+   "sha": "28f3ca1187"
+  },
+  {
+   "event": "commit",
+   "turn": 15,
+   "step": 98,
+   "t_ms": 1792192670719,
+   "k": 9,
+   "kind": "reorder",
+   "funcs": [],
+   "sha": "d160de7801"
+  },
+  {
+   "event": "commit",
+   "turn": 16,
+   "step": 107,
+   "t_ms": 1792192699250,
+   "k": 10,
+   "kind": "value",
+   "funcs": [
+    "config.secret_store"
+   ],
+   "sha": "b512432545"
+  },
+  {
+   "event": "kill",
+   "turn": 17,
+   "step": 114,
+   "t_ms": 1792192720593,
+   "kill": "K3",
+   "agent": "planner",
+   "task": "t09-review-spec",
+   "holds": true
+  },
+  {
+   "event": "lease_wait",
+   "turn": 17,
+   "step": 114,
+   "t_ms": 1792192720642,
+   "task": "t09-review-spec",
+   "wait_s": 46.2
+  },
+  {
+   "event": "reclaim",
+   "turn": 17,
+   "step": 114,
+   "t_ms": 1792192766844,
+   "task": "t09-review-spec",
+   "agent": "researcher",
+   "reclaimed_from": "planner"
+  },
+  {
+   "event": "kill",
+   "turn": 20,
+   "step": 130,
+   "t_ms": 1792192836070,
+   "kill": "K2",
+   "agent": "researcher",
+   "task": "t16-release-notes",
+   "holds": true
+  },
+  {
+   "event": "lease_wait",
+   "turn": 20,
+   "step": 130,
+   "t_ms": 1792192836109,
+   "task": "t16-release-notes",
+   "wait_s": 47.4
+  },
+  {
+   "event": "reclaim",
+   "turn": 20,
+   "step": 130,
+   "t_ms": 1792192883502,
+   "task": "t16-release-notes",
+   "agent": "planner",
+   "reclaimed_from": "researcher"
+  }
+ ],
+ "commits_landed": [
+  {
+   "k": 1,
+   "kind": "sibling",
+   "funcs": [
+    "auth.hash_rounds",
+    "auth.key_header"
+   ],
+   "sched_turn": 7,
+   "landed_before_turn": 7,
+   "sha": "d72d0a85a97c192d13046f755a2e5118287bdd6f",
+   "t_ms": 1792192173418,
+   "hook": {
+    "changes_before": 0,
+    "changes_after": 1
+   }
+  },
+  {
+   "k": 2,
+   "kind": "module-comment",
+   "funcs": [],
+   "sched_turn": 8,
+   "landed_before_turn": 8,
+   "sha": "1dc7ee57f1d2a3771996826f818a14d31d6129d6",
+   "t_ms": 1792192207857,
+   "hook": {
+    "changes_before": 1,
+    "changes_after": 2
+   }
+  },
+  {
+   "k": 3,
+   "kind": "delete",
+   "funcs": [
+    "auth.session_cookie"
+   ],
+   "sched_turn": 9,
+   "landed_before_turn": 9,
+   "sha": "0c1bd1672901f7e43ae5f1b3c03dd86e474fefa0",
+   "t_ms": 1792192263720,
+   "hook": {
+    "changes_before": 2,
+    "changes_after": 3
+   }
+  },
+  {
+   "k": 4,
+   "kind": "value",
+   "funcs": [
+    "auth.token_ttl"
+   ],
+   "sched_turn": 10,
+   "landed_before_turn": 10,
+   "sha": "1b9d1427fa15735a41ff4a91f96186235bf0cf5e",
+   "t_ms": 1792192522067,
+   "hook": {
+    "changes_before": 3,
+    "changes_after": 4
+   }
+  },
+  {
+   "k": 5,
+   "kind": "docstring",
+   "funcs": [
+    "notes.archive_days"
+   ],
+   "sched_turn": 11,
+   "landed_before_turn": 11,
+   "sha": "eb0005983dacc9f4b3d77c3c49f148ead51176f3",
+   "t_ms": 1792192548552,
+   "hook": {
+    "changes_before": 4,
+    "changes_after": 5
+   }
+  },
+  {
+   "k": 6,
+   "kind": "add",
+   "funcs": [],
+   "sched_turn": 12,
+   "landed_before_turn": 12,
+   "sha": "02ba9f705b087e1c8f927deac10c8742b856e4f7",
+   "t_ms": 1792192584747,
+   "hook": {
+    "changes_before": 5,
+    "changes_after": 6
+   }
+  },
+  {
+   "k": 7,
+   "kind": "whitespace",
+   "funcs": [],
+   "sched_turn": 13,
+   "landed_before_turn": 13,
+   "sha": "80298df4ab4a3b02496a7eb2b6d9b7b5552db8db",
+   "t_ms": 1792192602412,
+   "hook": {
+    "changes_before": 6,
+    "changes_after": 7
+   }
+  },
+  {
+   "k": 8,
+   "kind": "value",
+   "funcs": [
+    "db.engine",
+    "search.analyzer"
+   ],
+   "sched_turn": 14,
+   "landed_before_turn": 14,
+   "sha": "28f3ca1187adaaa460f391cbb5b9d470931216e6",
+   "t_ms": 1792192618849,
+   "hook": {
+    "changes_before": 7,
+    "changes_after": 8
+   }
+  },
+  {
+   "k": 9,
+   "kind": "reorder",
+   "funcs": [],
+   "sched_turn": 16,
+   "landed_before_turn": 16,
+   "sha": "d160de780131dcc8b675d0d3465977e62ad5d885",
+   "t_ms": 1792192670719,
+   "hook": {
+    "changes_before": 8,
+    "changes_after": 9
+   }
+  },
+  {
+   "k": 10,
+   "kind": "value",
+   "funcs": [
+    "config.secret_store"
+   ],
+   "sched_turn": 17,
+   "landed_before_turn": 17,
+   "sha": "b5124325458b564e800a478db362d419f90e509e",
+   "t_ms": 1792192699250,
+   "hook": {
+    "changes_before": 9,
+    "changes_after": 10
+   }
+  }
+ ],
+ "commits_not_landed": [],
+ "kills_fired": {
+  "K1": 8,
+  "K3": 17,
+  "K2": 20
+ },
+ "hook": {
+  "installed": true,
+  "url": "http://127.0.0.1:8865",
+  "baseline": "plexus code baseline: 12 files, 72 entries sent in 1 call(s); 0 differed from what the graph already knew, 0 memories made suspect"
+ },
+ "hook_failed_commits": [],
+ "claude": {
+  "model": "sonnet",
+  "max_turns_per_agent_turn": 25,
+  "claude_turns": 204,
+  "tokens": {
+   "input_tokens": 250,
+   "output_tokens": 37631,
+   "cache_creation_input_tokens": 169289,
+   "cache_read_input_tokens": 2785709
+  },
+  "total_cost_usd": 1.3325,
+  "permission_denials": [],
+  "claude_processes": 22
+ },
+ "per_turn": [
+  {
+   "turn": 1,
+   "agent": "planner",
+   "name": "init",
+   "killed": false,
+   "plexus_calls": 2,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 3,
+   "duration_ms": 13227,
+   "total_cost_usd": 0.1050235,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 2,
+   "agent": "researcher",
+   "name": "t01-gather-requirements",
+   "killed": false,
+   "plexus_calls": 12,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 15,
+   "duration_ms": 28893,
+   "total_cost_usd": 0.0830967,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 3,
+   "agent": "planner",
+   "name": "t02-choose-api-version",
+   "killed": false,
+   "plexus_calls": 5,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 9,
+   "duration_ms": 25562,
+   "total_cost_usd": 0.05473049999999999,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 4,
+   "agent": "builder",
+   "name": "t03-design-endpoints",
+   "killed": false,
+   "plexus_calls": 6,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 10,
+   "duration_ms": 25103,
+   "total_cost_usd": 0.0723611,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 5,
+   "agent": "researcher",
+   "name": "t04-survey-infra-security",
+   "killed": false,
+   "plexus_calls": 17,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 20,
+   "duration_ms": 24969,
+   "total_cost_usd": 0.08923,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 6,
+   "agent": "planner",
+   "name": "t05-choose-auth",
+   "killed": false,
+   "plexus_calls": 8,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 12,
+   "duration_ms": 46030,
+   "total_cost_usd": 0.08348670000000001,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 7,
+   "agent": "planner",
+   "name": "t13-reuse-billing-cycle",
+   "killed": false,
+   "plexus_calls": 6,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 10,
+   "duration_ms": 26609,
+   "total_cost_usd": 0.0737464,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 8,
+   "agent": "builder",
+   "name": "t06-write-db-schema",
+   "killed": true,
+   "plexus_calls": 3,
+   "subtype": null,
+   "is_error": null,
+   "num_turns": null,
+   "duration_ms": null,
+   "total_cost_usd": null,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 9,
+   "agent": "researcher",
+   "name": "t06-write-db-schema",
+   "killed": false,
+   "plexus_calls": 5,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 9,
+   "duration_ms": 250650,
+   "total_cost_usd": 0.0544958,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 10,
+   "agent": "researcher",
+   "name": "t14-ratelimit-spec",
+   "killed": false,
+   "plexus_calls": 9,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 12,
+   "duration_ms": 19054,
+   "total_cost_usd": 0.059599900000000004,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 11,
+   "agent": "builder",
+   "name": "t07-implement-crud-spec",
+   "killed": false,
+   "plexus_calls": 7,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 14,
+   "duration_ms": 28480,
+   "total_cost_usd": 0.1064476,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 12,
+   "agent": "researcher",
+   "name": "ingest-v2",
+   "killed": false,
+   "plexus_calls": 4,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 5,
+   "duration_ms": 10102,
+   "total_cost_usd": 0.03259430000000001,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 13,
+   "agent": "planner",
+   "name": "adopt-v2",
+   "killed": false,
+   "plexus_calls": 4,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 5,
+   "duration_ms": 9075,
+   "total_cost_usd": 0.0349113,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 14,
+   "agent": "builder",
+   "name": "t12-update-endpoints-for-v2",
+   "killed": false,
+   "plexus_calls": 6,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 10,
+   "duration_ms": 23216,
+   "total_cost_usd": 0.0657696,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 15,
+   "agent": "builder",
+   "name": "t15-config-matrix",
+   "killed": false,
+   "plexus_calls": 4,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 11,
+   "duration_ms": 17411,
+   "total_cost_usd": 0.053147599999999996,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 16,
+   "agent": "researcher",
+   "name": "t08-write-test-plan",
+   "killed": false,
+   "plexus_calls": 9,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 12,
+   "duration_ms": 21052,
+   "total_cost_usd": 0.06900680000000001,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 17,
+   "agent": "planner",
+   "name": "t09-review-spec",
+   "killed": true,
+   "plexus_calls": 7,
+   "subtype": null,
+   "is_error": null,
+   "num_turns": null,
+   "duration_ms": null,
+   "total_cost_usd": null,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 18,
+   "agent": "researcher",
+   "name": "t09-review-spec",
+   "killed": false,
+   "plexus_calls": 9,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 15,
+   "duration_ms": 25572,
+   "total_cost_usd": 0.11246959999999999,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 19,
+   "agent": "researcher",
+   "name": "t10-write-docs",
+   "killed": false,
+   "plexus_calls": 4,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 10,
+   "duration_ms": 16655,
+   "total_cost_usd": 0.0578414,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 20,
+   "agent": "researcher",
+   "name": "t16-release-notes",
+   "killed": true,
+   "plexus_calls": 3,
+   "subtype": null,
+   "is_error": null,
+   "num_turns": null,
+   "duration_ms": null,
+   "total_cost_usd": null,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 21,
+   "agent": "planner",
+   "name": "t16-release-notes",
+   "killed": false,
+   "plexus_calls": 5,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 14,
+   "duration_ms": 19293,
+   "total_cost_usd": 0.0764627,
+   "permission_denials": [],
+   "problems": []
+  },
+  {
+   "turn": 22,
+   "agent": "builder",
+   "name": "t11-package-release",
+   "killed": false,
+   "plexus_calls": 4,
+   "subtype": "success",
+   "is_error": false,
+   "num_turns": 8,
+   "duration_ms": 18926,
+   "total_cost_usd": 0.04811539999999999,
+   "permission_denials": [],
+   "problems": []
+  }
+ ],
+ "wall_s": 980.7,
+ "workdir": "C:/Users/ACER/AppData/Local/hermes/cache/scratch/l8ts/l8-20261017-P-6gq3sw74/work",
+ "all_tokens_count": 68
+}
