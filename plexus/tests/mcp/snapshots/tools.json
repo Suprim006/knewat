@@ -173,6 +173,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "predicate": {
           "description": "Fact attribute.",
           "maxLength": 512,
@@ -353,6 +370,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "limit": {
           "default": 5,
           "maximum": 20,
@@ -409,6 +443,23 @@
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
+        },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
         },
         "step": {
           "anyOf": [
@@ -770,6 +821,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "limit": {
           "default": 50,
           "description": "Max documents to return.",
@@ -819,6 +887,23 @@
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
+        },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
         },
         "predicate": {
           "description": "Attribute, e.g. 'version'.",
@@ -876,6 +961,23 @@
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
+        },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
         },
         "limit": {
           "default": 50,
@@ -1221,6 +1323,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "step": {
           "anyOf": [
             {
@@ -1492,6 +1611,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "fact_id": {
           "description": "The fact to inspect.",
           "maxLength": 128,
@@ -1688,6 +1824,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "limit": {
           "default": 20,
           "maximum": 200,
@@ -1743,6 +1896,23 @@
           "default": null,
           "description": "Epoch milliseconds: answer as the world was then (includes since-replaced values).",
           "title": "As Of"
+        },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
         },
         "budget_chars": {
           "default": 2000,
@@ -2230,6 +2400,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "step": {
           "anyOf": [
             {
@@ -2425,6 +2612,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "fact_id": {
           "description": "A fact id.",
           "maxLength": 128,
@@ -2467,6 +2671,23 @@
           "title": "Agent Id",
           "type": "string"
         },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
+        },
         "node_id": {
           "description": "A decision id or a fact id.",
           "maxLength": 128,
@@ -2508,6 +2729,23 @@
           "minLength": 1,
           "title": "Agent Id",
           "type": "string"
+        },
+        "audit": {
+          "anyOf": [
+            {
+              "enum": [
+                "light",
+                "full"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
+          "title": "Audit"
         },
         "recall_id": {
           "description": "A recall id.",

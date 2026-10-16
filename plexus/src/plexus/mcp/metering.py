@@ -14,11 +14,24 @@ AUXILIARY_PREFIX = (
 )
 
 
-class MeteredClient:
-    """Per-call proxy over :class:`GraphClient` that sums the server-side ``run_time_ms`` of every query."""
+class ReadOnlyViolation(RuntimeError):
+    """A tool that ran under a read-only client (audit mode ``off``) tried to write: it fails closed."""
 
-    def __init__(self, inner: GraphClient):
+
+_WRITE_ATTRS = frozenset({"rw", "rw_script", "delete_graph"})
+
+
+class MeteredClient:
+    """Per-call proxy over :class:`GraphClient` that sums the server-side ``run_time_ms`` of every query.
+
+    With ``read_only=True`` (a tenant in audit mode ``off``) every write entry point raises
+    :class:`ReadOnlyViolation` instead of reaching the database, so a read tool that is mislabelled, or grows a
+    write later, cannot mutate an observer tenant.
+    """
+
+    def __init__(self, inner: GraphClient, read_only: bool = False):
         self._inner = inner
+        self.read_only = read_only
         self.run_time_ms = 0.0
         self.queries: list[str] = []
         self.writes: list[str] = []
@@ -36,11 +49,15 @@ class MeteredClient:
         return rows
 
     def rw(self, graph: str, name: str, params: dict | None = None, timeout_ms: int | None = None) -> Rows:
+        if self.read_only:
+            raise ReadOnlyViolation(f"write query {name!r} refused: this call runs on a read-only client")
         rows = self._inner.rw(graph, name, params, timeout_ms)
         self._note(name, rows, True)
         return rows
 
     def __getattr__(self, item: str) -> Any:
+        if self.read_only and item in _WRITE_ATTRS:
+            raise ReadOnlyViolation(f"{item!r} is not available on a read-only client")
         return getattr(self._inner, item)
 
     @property

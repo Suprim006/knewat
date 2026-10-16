@@ -33,6 +33,7 @@ from plexus.graph.queries import QueryError
 from plexus.graph.schema import apply_schema
 from plexus.graph.tenancy import graph_name
 from plexus.mcp import lineage_hook
+from plexus.mcp.audit_policy import AuditMode, AuditPolicy, ToolKind
 from plexus.mcp.embedding import CheckedEmbedder, make_embedder
 from plexus.mcp.lineage_hook import HOOK_NODE_KEYS, LINK_CHUNK, WROTE_LABELS
 from plexus.mcp.metering import AUXILIARY_PREFIX, MeteredClient, Outcome
@@ -68,8 +69,10 @@ class Runtime:
         embedder: Embedder | None = None,
         stdio_tenant: str | None = None,
         schema_recheck_s: float | None = None,
+        audit_policy: AuditPolicy | None = None,
     ):
         self.client = client or GraphClient()
+        self.audit = audit_policy or AuditPolicy.from_env()  # a bad PLEXUS_AUDIT_MODE(S) fails at start
         self.schema_recheck_s = (
             schema_recheck_s
             if schema_recheck_s is not None
@@ -103,8 +106,11 @@ class Runtime:
             raise ToolError(str(exc)) from None
         return tenant
 
-    def state(self, tenant: str) -> TenantState:
+    def state(self, tenant: str, *, create: bool = True) -> TenantState:
         """TenantState for ``tenant``; the first use applies the schema (idempotent) under a lock.
+
+        ``create=False`` (a tenant in audit mode ``off``) never applies a schema: a tenant whose graph does not
+        exist is refused, so a request can not make the server create graphs.
 
         The state is not trusted forever: every ``schema_recheck_s`` seconds the graph's indexes are looked at
         again, and if the graph was deleted or replaced under a running server (a demo reset, a restore) the
@@ -120,6 +126,16 @@ class Runtime:
                 return ts
             if ts is not None and self._schema_intact(ts.graph):
                 ts.verified_at = now
+                return ts
+            if not create:
+                graph = graph_name(tenant)
+                if not self._schema_intact(graph):
+                    self._tenants.pop(tenant, None)
+                    raise ToolError(
+                        f"unknown tenant '{tenant}': it is read-only here and read-only tenants are not created "
+                        "by requests"
+                    )
+                ts = self._tenants[tenant] = TenantState(tenant, graph, self.client, self.embedder)
                 return ts
             if ts is not None:
                 log.warning("tenant %s: graph or schema is gone; re-applying the schema", tenant)
@@ -169,34 +185,69 @@ class Runtime:
         agent_id: str,
         step: int | None,
         fn: Callable[[TenantState, MeteredClient], Outcome],
+        *,
+        kind: ToolKind = "write",
+        exposure: bool = False,
+        audit: str | None = None,
     ) -> dict[str, Any]:
-        """Run ``fn`` for the bound tenant, record a ToolCall, return its data (+ ``tool_call_id``)."""
+        """Run ``fn`` for the bound tenant, record a ToolCall, return its data (+ ``tool_call_id``).
+
+        ``kind`` / ``exposure`` come from the tool's :class:`~plexus.mcp.toolkit.ToolDef` and ``audit`` is the
+        caller's per-call request; with the tenant's mode they pick how much is recorded (see
+        :mod:`plexus.mcp.audit_policy`). A write tool on an ``off`` tenant is refused before anything is touched.
+        """
         if not agent_id or not agent_id.strip():
             raise ToolError("agent_id is required")
         tenant = self.tenant_of(headers)
+        mode = self.audit.effective(tenant, kind, exposure, audit)
+        if kind == "write" and mode == "off":
+            raise ToolError(f"{tool}: this tenant is read-only (audit mode 'off'): writes are disabled")
         try:
+            if mode != "full":
+                # No Step is opened, so there is no step number to keep in call order: no per-agent lock either
+                started = time.time_ns() // 1_000_000
+                return await anyio.to_thread.run_sync(
+                    self._run, tenant, tool, agent_id, step, fn, started, mode
+                )
             async with self._agent_lock(tenant, agent_id):
                 started = time.time_ns() // 1_000_000  # taken inside the lock: n and at agree
-                return await anyio.to_thread.run_sync(self._run, tenant, tool, agent_id, step, fn, started)
+                return await anyio.to_thread.run_sync(
+                    self._run, tenant, tool, agent_id, step, fn, started, mode
+                )
         except ToolError:
             raise
         except Exception as exc:
             raise _to_tool_error(tool, exc) from None
 
-    def _run(self, tenant, tool, agent_id, step, fn, started: int) -> dict[str, Any]:
-        ts, m, out = self._execute(tenant, fn)
+    def _run(
+        self, tenant, tool, agent_id, step, fn, started: int, mode: AuditMode = "full"
+    ) -> dict[str, Any]:
+        ts, m, out = self._execute(tenant, fn, read_only=mode == "off")
+        if mode != "full" and m.writes:
+            # The tool is labelled 'read' but wrote: the label is wrong. Audit this call in full (the write is
+            # there to be explained) and say so loudly. On an 'off' tenant the write was refused instead.
+            log.error("tool %s is declared 'read' but wrote (%s); auditing it in full", tool, m.writes)
+            mode = "full"
         # The Step is opened only after the tool succeeded (a rejected call leaves no Step and registers no
         # agent), but stamped with the time the call started: "what the agent knew at this step" is then the
         # state it acted on, not the state after its own write.
         degraded: list[str] = []
-        step_id = self._open_step(ts, agent_id, step, started, degraded)
+        if mode == "full":
+            step_id = self._open_step(ts, agent_id, step, started, degraded)
+            extra = self._attach(ts, step_id, out, degraded)
+        else:  # light / off: no Step, no READ/WROTE edges, no Recall; a hook's result keys are reported as null
+            step_id = None
+            extra = dict.fromkeys(HOOK_NODE_KEYS) if out.after is not None else {}
         data = dict(out.data)
-        extra = self._attach(ts, step_id, out, degraded)
         data.update(extra)
+        if mode == "off":
+            data["tool_call_id"] = None
+            data["audit"] = "off"
+            return data
         # nodes the Lineage hook created (e.g. the Recall record) are CREATED by this ToolCall too
         created = [
             *out.created,
-            *((label, extra[key]) for key, label in HOOK_NODE_KEYS.items() if key in extra),
+            *((label, extra[key]) for key, label in HOOK_NODE_KEYS.items() if extra.get(key)),
         ]
         try:
             data["tool_call_id"] = record_tool_call(
@@ -215,6 +266,8 @@ class Runtime:
         except Exception:  # the tool's own write already happened; never fail the call over the audit row
             log.exception("audit: could not record ToolCall for %s", tool)
             data["audit_degraded"] = True
+        if mode == "light":
+            data["audit"] = "light"
         if degraded:
             data["lineage_degraded"] = (
                 True  # the write succeeded but its Step / WROTE / READ edges are incomplete
@@ -222,12 +275,15 @@ class Runtime:
         return data
 
     def _execute(
-        self, tenant: str, fn: Callable[[TenantState, MeteredClient], Outcome]
+        self, tenant: str, fn: Callable[[TenantState, MeteredClient], Outcome], *, read_only: bool = False
     ) -> tuple[TenantState, MeteredClient, Outcome]:
-        """Run the tool function, once more on a fresh tenant state if the cached one was stale."""
-        ts = self.state(tenant)
+        """Run the tool function, once more on a fresh tenant state if the cached one was stale.
+
+        ``read_only`` (audit mode ``off``): the tenant must already exist and the client refuses every write.
+        """
+        ts = self.state(tenant, create=not read_only)
         for attempt in (0, 1):
-            m = MeteredClient(self.client)
+            m = MeteredClient(self.client, read_only=read_only)
             try:
                 return ts, m, fn(ts, m)
             except Exception as exc:
@@ -238,7 +294,7 @@ class Runtime:
                         "tenant %s: stale cached state (%s); retrying once", tenant, type(exc).__name__
                     )
                     self.invalidate(tenant)
-                    ts = self.state(tenant)
+                    ts = self.state(tenant, create=not read_only)
                     continue
                 raise
         raise AssertionError("unreachable")  # pragma: no cover (the second attempt returns or raises)

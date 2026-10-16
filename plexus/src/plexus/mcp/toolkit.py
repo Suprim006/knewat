@@ -106,7 +106,7 @@ class ToolTable:
         for d in self._defs:
             if d.requires is not None and available is not None and d.requires not in available:
                 continue
-            mcp.tool()(_handler(rt, d.work))
+            mcp.tool()(_handler(rt, d))
             names.append(d.name)
         return names
 
@@ -122,26 +122,44 @@ def _check_signature(work: WorkFn) -> None:
         raise TypeError(f"{work.__name__}: a tool's first two parameters must be (ts, m)")
     if "agent_id" not in params or "step" not in params or _CTX in params:
         raise TypeError(f"{work.__name__}: a tool takes agent_id and step, and never declares '{_CTX}'")
+    if _AUDIT in params:
+        raise TypeError(
+            f"{work.__name__}: '{_AUDIT}' is added by the toolkit to read tools; do not declare it"
+        )
 
 
-def _handler(rt: Runtime, work: WorkFn):
+def _handler(rt: Runtime, d: ToolDef):
     """The async function FastMCP registers for ``work``.
 
     FastMCP derives the input schema from the handler's signature and finds the ``Context`` parameter from its
     annotations, so both are rebuilt from the work function: ``(ts, m)`` dropped, ``ctx`` inserted before the first
     parameter with a default (as in a hand-written ``def f(required, ctx, optional=...)``), result ``dict``.
     """
-    name = work.__name__
+    work, name = d.work, d.name
     sig = inspect.signature(work, eval_str=True)
     params = list(sig.parameters.values())[_INJECTED:]
     ctx = inspect.Parameter(_CTX, inspect.Parameter.POSITIONAL_OR_KEYWORD, annotation=Context)
     at = next((i for i, p in enumerate(params) if p.default is not p.empty), len(params))
     params.insert(at, ctx)
+    if (
+        d.kind == "read"
+    ):  # the per-call audit level: offered on read tools only, never upgrades the tenant mode
+        params.append(
+            inspect.Parameter(_AUDIT, inspect.Parameter.KEYWORD_ONLY, default=None, annotation=AuditArg)
+        )
 
     async def handler(**kwargs: Any) -> _RESULT:
         context = kwargs.pop(_CTX)
+        audit = kwargs.pop(_AUDIT, None)
         return await rt.call(
-            context.headers, name, kwargs["agent_id"], kwargs["step"], lambda ts, m: work(ts, m, **kwargs)
+            context.headers,
+            name,
+            kwargs["agent_id"],
+            kwargs["step"],
+            lambda ts, m: work(ts, m, **kwargs),
+            kind=d.kind,
+            exposure=d.exposure,
+            audit=audit,
         )
 
     handler.__name__ = handler.__qualname__ = name
