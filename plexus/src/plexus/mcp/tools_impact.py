@@ -17,7 +17,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
 from plexus.lineage.service import DEFAULT_CASCADE_DEPTH, DEFAULT_IMPACT_DETAIL, MAX_DEPTH
-from plexus.mcp.limits import AgentId, IdStr, Step
+from plexus.mcp.limits import MAX_LIST, AgentId, IdStr, Step
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 from plexus.mcp.toolkit import ToolTable
 from plexus.relay import service as relay_service
@@ -54,7 +54,13 @@ def impact(
         ),
     ] = DEFAULT_CASCADE_DEPTH,
     max_items: Annotated[
-        int, Field(description="Ids listed per category (totals are always exact).", ge=1, le=MAX_ITEMS)
+        int,
+        Field(
+            description="Ids listed per category (totals are always exact; a cut list says so with "
+            "ids_truncated=true: page the facts with offset / next_offset, or ask probe_ids).",
+            ge=1,
+            le=MAX_ITEMS,
+        ),
     ] = DEFAULT_IMPACT_DETAIL,
     order: Annotated[
         Literal["id", "valid_from", "created_at"],
@@ -63,6 +69,23 @@ def impact(
             "lists the earliest first: order='valid_from', max_items=5 gives the 5 earliest affected facts."
         ),
     ] = "id",
+    offset: Annotated[
+        int,
+        Field(
+            description="Skip this many facts (or tasks for kind='task') in the listed order: pass the "
+            "previous answer's next_offset to get the next page.",
+            ge=0,
+            le=relay_service.MAX_BLOCKED_NODES,
+        ),
+    ] = 0,
+    probe_ids: Annotated[
+        list[IdStr],
+        Field(
+            description="Fact ids (or task ids for kind='task') to test for membership in the WHOLE affected "
+            "set, not just the listed page: returns probes {id: true|false}.",
+            max_length=MAX_LIST,
+        ),
+    ] = [],  # noqa: B006 (pydantic copies the default)
     step: Step = None,
 ) -> Outcome:
     """Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.
@@ -76,13 +99,25 @@ def impact(
         if relay.task_status(id) is None:
             raise ToolError(f"impact: unknown task id: {id}")
         ids = relay.blocked_by_failure(id, depth=depth)
+        page = ids[offset : offset + max_items]
+        end = offset + len(page)
+        tasks = {
+            "total": len(ids),
+            "ids": page,
+            "offset": offset,
+            "next_offset": end if end < len(ids) else None,
+            "ids_truncated": len(page) < len(ids),
+        }
+        if probe_ids:
+            blocked = set(ids)
+            tasks["probes"] = {i: i in blocked for i in dict.fromkeys(probe_ids)}
         return Outcome(
             {
                 "impact": {
                     "kind": "task",
                     "id": id,
                     "depth": depth,
-                    "tasks": {"total": len(ids), "ids": ids[:max_items]},
+                    "tasks": tasks,
                     "truncated": len(ids) >= relay_service.MAX_BLOCKED_NODES,
                 }
             }
@@ -92,4 +127,10 @@ def impact(
     lin = ts.lineage(m)
     if lin is None:
         raise ToolError("impact: lineage is not available")
-    return Outcome({"impact": lin.impact(kind, id, depth=depth, max_detail=max_items, order=order)})
+    return Outcome(
+        {
+            "impact": lin.impact(
+                kind, id, depth=depth, max_detail=max_items, order=order, offset=offset, probe_ids=probe_ids
+            )
+        }
+    )

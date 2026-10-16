@@ -25,9 +25,9 @@ def test_impact_source_matches_the_quarantine_blast_radius_and_writes_nothing(wo
     assert got["facts"]["by_status"] == {"active": 2}
     assert got["readers"]["agents"] == q["agents"]
     assert got["readers"]["steps_total"] == len({x["step_id"] for x in q["readers"]})
-    assert got["decisions"] == {"total": 1, "ids": [w.decision]}
-    assert got["tasks"] == {"total": 1, "ids": ["t-build"]}
-    assert got["handoffs"] == {"total": q["handoffs_total"], "ids": q["handoff_ids"]}
+    assert got["decisions"] == {"total": 1, "ids": [w.decision], "ids_truncated": False}
+    assert got["tasks"] == {"total": 1, "ids": ["t-build"], "ids_truncated": False}
+    assert got["handoffs"] == {"total": q["handoffs_total"], "ids": q["handoff_ids"], "ids_truncated": False}
     assert got["truncated"] is False
 
 

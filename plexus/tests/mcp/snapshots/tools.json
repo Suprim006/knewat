@@ -1479,10 +1479,18 @@
         },
         "max_items": {
           "default": 50,
-          "description": "Ids listed per category (totals are always exact).",
+          "description": "Ids listed per category (totals are always exact; a cut list says so with ids_truncated=true: page the facts with offset / next_offset, or ask probe_ids).",
           "maximum": 200,
           "minimum": 1,
           "title": "Max Items",
+          "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Skip this many facts (or tasks for kind='task') in the listed order: pass the previous answer's next_offset to get the next page.",
+          "maximum": 5000,
+          "minimum": 0,
+          "title": "Offset",
           "type": "integer"
         },
         "order": {
@@ -1495,6 +1503,18 @@
           ],
           "title": "Order",
           "type": "string"
+        },
+        "probe_ids": {
+          "default": [],
+          "description": "Fact ids (or task ids for kind='task') to test for membership in the WHOLE affected set, not just the listed page: returns probes {id: true|false}.",
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 200,
+          "title": "Probe Ids",
+          "type": "array"
         },
         "step": {
           "anyOf": [

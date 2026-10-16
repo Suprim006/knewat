@@ -396,19 +396,26 @@ class Lineage:
         limit: int = MAX_FORGET_FACTS,
         max_detail: int = DEFAULT_IMPACT_DETAIL,
         order: str = "id",
+        offset: int = 0,
+        probe_ids: Iterable[str] = (),
     ) -> dict[str, Any]:
         """What would be affected if a ``'source'`` or a ``'fact'`` were wrong? Nothing is written.
 
         Expands ``DERIVED_FROM`` (up to ``depth`` hops, 1..12, default 8) level by level over distinct
         facts, as :meth:`forget_source` / :meth:`quarantine` do, in one read-only statement (one snapshot).
-        Returns ``{kind, id, depth, facts: {total, by_status, ids, records, order}, readers: {steps_total,
-        agents_total, agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids},
-        truncated}``. For a fact, the fact itself is part of ``facts``. ``tasks`` are the tasks the affected
+        Returns ``{kind, id, depth, facts: {total, by_status, ids, records, order, offset, next_offset,
+        ids_truncated[, probes]}, readers: {steps_total, agents_total, agents, agents_truncated}, decisions:
+        {total, ids, ids_truncated}, tasks: {...}, handoffs: {...}, truncated}``. For a fact, the fact itself
+        is part of ``facts``. ``tasks`` are the tasks the affected
         decisions are ``FOR``. ``facts.records`` = ``[{id, status, valid_from, created_at}]``, the same facts
         as ``facts.ids`` in the same order; ``order`` (``'id'``, ``'valid_from'`` or ``'created_at'``, P9-f)
         sorts them, so ``order='valid_from', max_detail=5`` gives the 5 earliest affected facts (ties by id).
         Lists hold at most ``max_detail`` (1..5000, default 50) ids; totals are exact up to ``limit`` facts
-        (``truncated`` says whether that bound was hit). Raises :class:`UnknownNode`.
+        (``truncated`` says whether that bound was hit). A cut list is never silent (P9-f): every list has an
+        ``*_truncated`` flag, and the fact list pages: ``offset`` skips that many facts in ``order`` and
+        ``next_offset`` is the offset of the next page (``None`` on the last one). ``probe_ids`` (at most
+        200) asks "is this fact affected?" against the whole set, not the listed page:
+        ``facts.probes = {id: bool}``. Raises :class:`UnknownNode`.
         """
         if kind not in ("source", "fact"):
             raise ValueError("kind must be 'source' or 'fact'")
@@ -417,6 +424,11 @@ class Lineage:
         check_between("depth", depth, MAX_DEPTH)
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("max_detail", max_detail, MAX_DETAIL)
+        if offset < 0:
+            raise ValueError("offset must be >= 0")
+        probes = unique(probe_ids)
+        if len(probes) > MAX_LINK_IDS:
+            raise ValueError(f"at most {MAX_LINK_IDS} probe_ids")
         rows = self.client.ro(
             self.graph,
             f"lineage/impact_{kind}",
@@ -439,27 +451,41 @@ class Lineage:
             records.sort(key=lambda x: x["id"])
         else:  # a fact without the time sorts last, then by id
             records.sort(key=lambda x: (x[order] is None, x[order] or 0, x["id"]))
-        page = records[:max_detail]
+        page = records[offset : offset + max_detail]
+        end = offset + len(page)
 
         def cut(ids: Iterable[str]) -> dict[str, Any]:
             ordered = sorted(ids)
-            return {"total": len(ordered), "ids": ordered[:max_detail]}
+            return {
+                "total": len(ordered),
+                "ids": ordered[:max_detail],
+                "ids_truncated": len(ordered) > max_detail,
+            }
+
+        facts: dict[str, Any] = {
+            "total": len(records),
+            "ids": [x["id"] for x in page],
+            "records": page,
+            "order": order,
+            "offset": offset,
+            "next_offset": end if end < len(records) else None,
+            "ids_truncated": len(page) < len(records),
+            "by_status": dict(sorted(by_status.items())),
+        }
+        if probes:
+            affected = set(r["fact_ids"])
+            facts["probes"] = {i: i in affected for i in probes}
 
         return {
             "kind": kind,
             "id": node_id,
             "depth": depth,
-            "facts": {
-                "total": len(records),
-                "ids": [x["id"] for x in page],
-                "records": page,
-                "order": order,
-                "by_status": dict(sorted(by_status.items())),
-            },
+            "facts": facts,
             "readers": {
                 "steps_total": r["steps_total"],
                 "agents_total": len(agents),
                 "agents": agents[:max_detail],
+                "agents_truncated": len(agents) > max_detail,
             },
             "decisions": cut(r["decision_ids"]),
             "tasks": cut(r["task_ids"]),

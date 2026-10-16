@@ -30,6 +30,14 @@ def test_impact_on_a_5000_fact_blast_is_exact_and_well_under_5_s(client, graph, 
     assert r["facts"]["ids"] == sorted(blast["facts"])
     assert r["readers"]["steps_total"] == blast["steps"]
     assert r["readers"]["agents"] == blast["agents"]
-    assert r["decisions"] == {"total": len(blast["decisions"]), "ids": blast["decisions"]}
-    assert r["handoffs"] == {"total": len(blast["handoffs"]), "ids": blast["handoffs"]}
-    assert r["tasks"] == {"total": len(blast["tasks"]), "ids": blast["tasks"]}
+    assert r["decisions"] == {
+        "total": len(blast["decisions"]),
+        "ids": blast["decisions"],
+        "ids_truncated": False,
+    }
+    assert r["handoffs"] == {
+        "total": len(blast["handoffs"]),
+        "ids": blast["handoffs"],
+        "ids_truncated": False,
+    }
+    assert r["tasks"] == {"total": len(blast["tasks"]), "ids": blast["tasks"], "ids_truncated": False}
