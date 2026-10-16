@@ -297,8 +297,9 @@ def test_two_failed_backdates_mark_the_old_fact_degraded_and_say_so(suspect, mem
     )
     flag = cypher(client, graph, "MATCH (f:Fact {id:$f}) RETURN f.verify_degraded", f=suspect)
     assert flag == [[True]]
-    assert cypher(client, graph, "MATCH (d:Decision {id:$d}) RETURN coalesce(d.flagged,false)", d=d) == [
-        [False]
+    # not flagged by the backdate, but the provisional flag of mark_unfinished (P12-F3) is on
+    assert cypher(client, graph, "MATCH (d:Decision {id:$d}) RETURN d.flagged, d.flag_reason", d=d) == [
+        [True, f"fact changed (verification unfinished): {suspect}"]
     ]
 
 
@@ -390,3 +391,122 @@ def test_backdate_still_uses_a_change_that_came_after_the_confirmation(stale, su
     clock.t = 2_500_000
     out = stale.verify_fact(suspect, False, new_value="45 seconds", agent_id="carol")
     assert out["valid_to"] == 2_300_000
+
+
+# -- P12-F3: a kill between the marker, the supersede and the backdate is detectable -----------------------
+class _Kill(BaseException):
+    """A process kill: not an Exception, so no handler in verify_fact can swallow it."""
+
+
+class _KillAt:
+    """A client that 'kills the process' just before the named write runs."""
+
+    def __init__(self, inner, name):
+        self._inner, self.name = inner, name
+
+    def rw(self, graph, name, params=None, *a, **kw):
+        if name == self.name:
+            raise _Kill(name)
+        return self._inner.rw(graph, name, params, *a, **kw)
+
+    def __getattr__(self, item):
+        return getattr(self._inner, item)
+
+
+class _KillEngram:
+    """An Engram whose assert_fact 'kills the process' before it writes."""
+
+    def assert_fact(self, *a, **kw):
+        raise _Kill("assert_fact")
+
+
+def _marker(client, graph, fid):
+    return cypher(
+        client, graph, "MATCH (f:Fact {id:$f}) RETURN f.status, f.verify_degraded, f.verify_state", f=fid
+    )[0]
+
+
+def _decision(client, graph, did):
+    return cypher(client, graph, "MATCH (d:Decision {id:$d}) RETURN d.flagged, d.flag_reason", d=did)[0]
+
+
+def _killed_before_supersede(client, graph, clock, fid):
+    with pytest.raises(_Kill):
+        Staleness(client, graph, engram=_KillEngram(), clock=clock).verify_fact(
+            fid, False, new_value="60 seconds", agent_id="bob"
+        )
+
+
+def test_kill_after_the_marker_before_the_supersede_leaves_an_active_marked_fact(
+    suspect, mem, eng, client, graph, clock
+):
+    d = mem.decision(suspect)
+    _killed_before_supersede(client, graph, clock, suspect)
+    assert _marker(client, graph, suspect) == ["active", True, "suspect"]
+    assert _decision(client, graph, d) == [True, f"fact changed (verification unfinished): {suspect}"]
+    assert cypher(client, graph, "MATCH (f:Fact) RETURN count(f)") == [[1]]  # no successor
+    st = Staleness(client, graph, engram=eng, clock=clock)
+    (row,) = [r for r in st.facts_to_verify() if r["fact_id"] == suspect]
+    assert "verification unfinished" in row["reason"]
+    out = st.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")  # finishes normally
+    assert out["outcome"] == "changed" and out["flagged_decisions"] == [d] and "verify_degraded" not in out
+    assert _marker(client, graph, suspect)[:2] == ["superseded", None]
+    assert _decision(client, graph, d) == [True, f"fact changed: {suspect}"]
+
+
+def test_confirming_after_a_kill_before_the_supersede_clears_marker_and_provisional_flags(
+    suspect, mem, eng, client, graph, clock
+):
+    d = mem.decision(suspect)
+    other = mem.decision(suspect, text="flagged for another reason")
+    client.graph(graph).query(
+        "MATCH (x:Decision {id:$d}) SET x.flagged = true, x.flag_reason = 'other'", {"d": other}
+    )
+    _killed_before_supersede(client, graph, clock, suspect)
+    out = Staleness(client, graph, engram=eng, clock=clock).verify_fact(suspect, True, agent_id="bob")
+    assert out["outcome"] == "confirmed"
+    assert _marker(client, graph, suspect) == ["active", None, "verified"]
+    assert _decision(client, graph, d) == [False, None]
+    assert _decision(client, graph, other) == [True, "other"]  # foreign flags stay
+
+
+def test_old_value_again_after_a_kill_before_the_supersede_is_a_confirmation(
+    suspect, eng, client, graph, clock
+):
+    _killed_before_supersede(client, graph, clock, suspect)
+    out = Staleness(client, graph, engram=eng, clock=clock).verify_fact(
+        suspect, False, new_value="30 seconds", agent_id="bob"
+    )
+    assert out["outcome"] == "confirmed" and _marker(client, graph, suspect)[1] is None
+
+
+def test_kill_between_the_supersede_and_the_backdate_is_finished_by_calling_again(
+    suspect, mem, eng, client, graph, clock
+):
+    d = mem.decision(suspect)
+    with pytest.raises(_Kill):
+        Staleness(_KillAt(client, "staleness/backdate"), graph, engram=eng, clock=clock).verify_fact(
+            suspect, False, new_value="60 seconds", agent_id="bob"
+        )
+    assert _marker(client, graph, suspect)[:2] == ["superseded", True]
+    assert _decision(client, graph, d)[0] is True
+    assert _edges(client, graph, suspect) == []
+    st = Staleness(client, graph, engram=eng, clock=clock)
+    (row,) = [r for r in st.facts_to_verify() if r["fact_id"] == suspect]  # superseded, still listed
+    assert "verification unfinished" in row["reason"]
+    fixed = st.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+    assert fixed["outcome"] == "changed" and fixed["flagged_decisions"] == [d]
+    assert _marker(client, graph, suspect)[:2] == ["superseded", None]
+    assert _decision(client, graph, d) == [True, f"fact changed: {suspect}"]
+    assert [r for r in st.facts_to_verify() if r["fact_id"] == suspect] == []
+    assert cypher(client, graph, "MATCH (f:Fact) RETURN count(f)") == [[2]]
+
+
+def test_normal_path_leaves_no_marker(suspect, mem, stale, client, graph):
+    d = mem.decision(suspect)
+    out = stale.verify_fact(suspect, False, new_value="60 seconds", agent_id="bob")
+    assert "verify_degraded" not in out
+    q = "MATCH (f:Fact) WHERE f.verify_degraded IS NOT NULL RETURN count(f)"
+    assert cypher(client, graph, q) == [[0]]
+    assert _decision(client, graph, d) == [True, f"fact changed: {suspect}"]
+    assert [r for r in stale.facts_to_verify() if r["fact_id"] == suspect] == []
