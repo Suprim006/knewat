@@ -73,8 +73,13 @@ def used_memory(r: redis.Redis) -> int:
     return int(r.info("memory")["used_memory"])
 
 
+SKIP_RDB = False  # --skip-rdb: no BGSAVE (a fork + copy-on-write needs memory a near-full container lacks)
+
+
 def rdb_size(r: redis.Redis) -> int | None:
     """BGSAVE, wait for it, return the size of dump.rdb in the container's data dir (docker exec ls -l)."""
+    if SKIP_RDB:
+        return None
     try:
         r.bgsave()
     except redis.ResponseError:
@@ -737,7 +742,12 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--out", default=str(common.DEMO))
     r.add_argument("--parts", default="G1,G2,G3,G4")
     r.add_argument("--flush", action="store_true", help="FLUSHALL plexus-db-65 at the end")
+    r.add_argument(
+        "--skip-rdb", action="store_true", help="never BGSAVE (RDB size per tenant is then not measured)"
+    )
     a = ap.parse_args(argv)
+    global SKIP_RDB
+    SKIP_RDB = bool(a.skip_rdb)
     if a.port != 6365:
         print("family G uses port 6365 only", file=sys.stderr)
         return 2

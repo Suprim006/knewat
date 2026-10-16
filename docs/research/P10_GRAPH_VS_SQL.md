@@ -429,6 +429,20 @@ run** is made with the same code and parameters, `maxmemory 0`, and the protecti
 update --memory 3800m --memory-swap 3800m plexus-db-65` (the kernel kills that container, and only it, if its
 physical memory passes 3.8 GB; the VM had 4.08 GB available). It is reported as post-hoc next to the registered one.
 
+### Amendment 4 (POST-HOC: after the second G run, before a third)
+
+The second G run (amendment 3) created **all 2,000 FalkorDB tenants** (`apply_schema` p50 142 ms; the last 1,800
+took 601 s) and was then killed by the kernel (`OOMKilled=true`, exit 137) in the next step, the per-N footprint
+measurement, whose `BGSAVE` forks: resident memory was ~3.5 GB, Redis's default `save` policy had also forked every
+60 s (copy-on-write 295-357 MB each, in the container log), and fork + copy-on-write passed the 3.8 GB cgroup cap.
+Its explicit `BGSAVE` at N = 2,000 did complete first: 108.6 MB RDB for 2,000 tenants (~54 KB per tenant). Its
+N <= 200 levels are in `partial-20261016T125705Z-g.json`. A **third, post-hoc run** gets the N = 2,000 query and
+leakage numbers: same code and parameters, parts G1, G3, G4 (G2's empty-tenant experiment is skipped), `--skip-rdb`
+(no `BGSAVE`), and on the container `CONFIG SET save ""` and `CONFIG SET auto-aof-rewrite-percentage 0` (no fork at
+all), the same 3.8 GB cgroup cap, a fresh container. Persistence is the price: this configuration would not survive a
+restart without replaying the whole AOF, which is itself a finding (the 2,000-tenant population fits in memory only
+if nothing forks).
+
 ---
 
 # Results (written after the runs; the text above is unchanged except for the amendments)
