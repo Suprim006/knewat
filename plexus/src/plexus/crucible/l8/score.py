@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from collections import defaultdict
 from dataclasses import dataclass, field
 from itertools import combinations
@@ -23,6 +24,7 @@ from plexus.crucible.l8 import scenario as S
 from plexus.crucible.l8.repo import TOKEN_RE
 
 MCP_PREFIX = "mcp__plexus__"
+TASK_ID_RE = re.compile(r"^[\s|*-]*`?(t\d\d-[a-z0-9-]+)")
 WRITE_ACK_ID = {"assert_fact": "fact_id", "record_decision": "decision_id", "handoff": "handoff_id",
                 "verify_fact": "new_fact_id", "complete_task": "task_id"}  # fmt: skip
 
@@ -239,6 +241,7 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
     c2_seq: set[int] = set()
     reads_per_turn: dict[int, dict[str, int]] = defaultdict(lambda: defaultdict(int))
     mem_text: dict[str, str] = {}
+    b0_done: dict[str, set[int]] = {}
     R4 = 0
     for e in uses:
         task = S.TASK_BY_ID.get(e.name)
@@ -318,13 +321,34 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
                 txt = chr(10).join(x for x in txt.splitlines() if x not in have)
                 if ok(e):
                     mem_text[rel] = str(e.input.get("content", ""))
-            elif ok(e):
+            else:  # Edit: only the lines new_string adds (anchor lines copied from old_string are not new)
+                have = set(str(e.input.get("old_string", "")).splitlines())
+                txt = chr(10).join(x for x in txt.splitlines() if x not in have)
+            if e.tool == "Edit" and ok(e):
                 o = str(e.input.get("old_string", ""))
                 mem_text[rel] = (
                     before.replace(o, str(e.input.get("new_string", "")), 1)
                     if o and o in before
                     else before + str(e.input.get("new_string", ""))
                 )
+            # B0' R1 (amendment 2): a task marked done again in a later turn (lines this write adds; the first
+            # task id on a line is its subject; reclaim turns excluded)
+            if ok(e) and rel.endswith("tasks.md"):
+                for line in (txt or "").splitlines():
+                    m_id = TASK_ID_RE.search(line)
+                    tid0 = m_id.group(1) if m_id else ""
+                    subject = tid0 in S.TASK_BY_ID and (
+                        S.TASK_BY_ID[tid0].title.lower() in line.lower()  # a table row (its title cell)
+                        or bool(
+                            re.match(r"^[\s*-]*`?" + re.escape(tid0) + r"`?\s*:", line)
+                        )  # a 'tid: done' note
+                    )  # a dependency list that happens to start a line is not a record of that task
+                    if subject and "done" in line.lower():
+                        prev_turns = b0_done.setdefault(tid0, set())
+                        if prev_turns and e.turn not in prev_turns and e.turn not in reclaim_turns:
+                            R1 += 1
+                            rep_seq.add(e.seq)
+                        prev_turns.add(e.turn)
         if txt is None or (e.result is not None and e.result.is_error):
             continue
         toks = T.tracked(txt)
@@ -339,13 +363,11 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
             "tokens": toks, "stale": stale, "dependent": bool(dep_toks),
             "dependent_stale": [x for x in stale if T.func(x) in dep_funcs],
             "repetition": e.seq in rep_seq, "c2": e.seq in c2_seq,
+            # post-hoc flags (amendment 2), for robustness variants only
+            "stale_deleted_only": bool(stale) and all(T.current(T.func(x), e.turn) is None for x in stale),
+            "x2_brief_write": bool(stale) and e.name == "t14-ratelimit-spec" and stale == [sched["x2_old_token"]]
+            and (e.tool == "assert_fact" or (not e.mcp and under(e, "memory"))),
         })  # fmt: skip
-    # B0': R1 from the final tasks.md (a second 'done' entry for the same task)
-    if not mcp:
-        tasks_md = (dump.get("memory_files") or {}).get("memory/tasks.md", "")
-        for t in S.TASKS:
-            n = sum(1 for line in tasks_md.splitlines() if t.id in line and "done" in line.lower())
-            R1 += max(0, n - 1)
 
     n_act = len(actions)
     n_stale = sum(1 for a in actions if a["stale"])
@@ -547,6 +569,7 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
                       "artifact_files_only": {"n": len(art_files), "stale": sum(1 for a in art_files if a["stale"]),
                                               "rate": rate(sum(1 for a in art_files if a["stale"]), len(art_files))},
                       "propagated_t16": {"n": t16_actions, "propagated": propagated},
+                      "post_hoc": _post_hoc(actions),
                       "stale_facts_live_at_end": live_stale},
         "time_to_notice": {"cases": notices, "level1_median_turns": med([n["level1_turns"] for n in notices]),
                            "level2_median_turns": med([n["level2_turns"] for n in notices]),
@@ -569,6 +592,20 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
         "history_recall": hist,
         "actions": actions,
     }  # fmt: skip
+
+
+def _post_hoc(actions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Robustness variants added after the gate run (amendment 2); never the headline."""
+    out = {}
+    for name, drop in (
+        ("excl_x2_brief_write", lambda a: a["x2_brief_write"]),
+        ("excl_deleted_only", lambda a: a["stale_deleted_only"]),
+        ("excl_both", lambda a: a["x2_brief_write"] or a["stale_deleted_only"]),
+    ):
+        keep = [a for a in actions if not drop(a)]
+        k = sum(1 for a in keep if a["stale"])
+        out[name] = {"n": len(keep), "stale": k, "rate": rate(k, len(keep))}
+    return out
 
 
 def _suspect_hit(data: Any, old: str) -> bool:

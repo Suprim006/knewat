@@ -781,3 +781,32 @@ plan was not implementable as written, this is what was done:
     commit history, which B1 does not store; the probe uses Q1, Q2, Q3 (3 questions × 2 languages × 3 = 18 calls, as
     budgeted). The audit statements (Cypher for P, SQL for B1) are written while the gate run is in flight and
     committed before any run output is inspected.
+
+### Amendment 2 (2026-10-16, after the gate run; paid calls before this text: 3 gate runs = 66 `claude -p` turns, $4.29, plus 3 reader calls on $0 fake data, $0.19, logged in `discarded.json`)
+
+**Gate (seed 20261017, §11 step 4).** P $1.86 (22 turns, stopped with `t13`/`t16` not done, see below), B1 $1.16
+(22 turns, 16/16), B0′ $1.26 (22 turns, 16/16). All 10 commits landed in every arm; the P hook fired on all 10
+(Change count +1 per commit); K1, K2, K3 fired in every arm; model id `claude-sonnet-5-5`, Claude Code 2.1.296. No
+harness fault, nothing discarded. **Cut rule:** re-estimated cost of all required arms = 5 × (P ≈ $2.0 + B1 $1.16 +
+B0′ $1.26 + B0 ≈ $1.2 + B3 ≈ $2.0) + readers/probe ≈ $4 ≈ $42 > $40 → step 2 applies: **B0 is cut** (as the owner had
+already deferred it). Round A as approved: 5 × ≈ $4.4 ≈ $22 + $0.19 + readers ≈ $1, under the owner's $25 hard cap; the
+§6.9 probe runs last and only with the money left under $25 (reported incomplete if cut, never padded).
+
+**Observed in the gate, not changed (they are results, not faults):** the P agents made **0 `anchor_fact` calls**, so
+no fact was ever flagged suspect (the mediating variable of §5.1 is 0 in this run); in P the planner and then the
+researcher could not find the S07 billing-cycle fact (the L2-scale history stores it in scope `project:billing-s07`,
+which a default-scope `recall` does not search) and the researcher called `fail_task` (a P-only tool), which blocks
+`t16`; the scheduler then has nothing ready and stops. Scored as it stands (§8: agents doing badly is never a discard).
+
+**Scorer fixes (bugs found on the gate data; the rules they implement are those of amendment 1):**
+1. B0′ R1 read the final `tasks.md` and counted every line that mentioned a task id and "done" (a status table plus a
+   notes list gave 38 false repeats). Now: a task is "marked done" by a `tasks.md` write in a turn when a line the
+   write *adds* is that task's own record (its table row, recognised by its title, or a `tid: done` note) and says
+   done; R1 counts a later turn marking an already-marked task done again (reclaim turns excluded), as for
+   `complete_task`.
+2. B0′ memory `Edit`s counted the anchor lines that `new_string` repeats from `old_string`; now only added lines, as
+   amendment 1 item 6 says for `Write`.
+3. **Post-hoc robustness variants** (labelled post-hoc, never the headline): the stale-act rate also excluding (a)
+   the store write of the S03 note's value that `t14`'s brief itself asks for (X2 scaffolding, every arm), and (b)
+   actions whose only stale tokens are of a *deleted* function (agents often quote the last value with "removed from
+   the code"; string matching cannot read the annotation).
