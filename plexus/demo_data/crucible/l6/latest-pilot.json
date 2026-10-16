@@ -2,19 +2,19 @@
  "schema": "crucible-l6/1",
  "kind": "pilot",
  "run": {
-  "id": "20261016T055334Z-pilot",
-  "started_at": "2026-10-16T05:44:03Z",
-  "finished_at": "2026-10-16T05:53:34Z",
+  "id": "20261016T060222Z-pilot",
+  "started_at": "2026-10-16T05:56:36Z",
+  "finished_at": "2026-10-16T06:02:22Z",
   "stage": "rest",
-  "llm_calls": 77,
-  "calls_run_live": 71,
-  "cost_usd": 5.2569,
-  "cost_live_usd": 4.9993,
-  "cost_cumulative_usd": 5.4552
+  "llm_calls": 88,
+  "calls_run_live": 9,
+  "cost_usd": 7.0855,
+  "cost_live_usd": 1.6303,
+  "cost_cumulative_usd": 7.0855
  },
  "git": {
-  "commit": "40fcafea8e6bf08f2bf58b05b58284c42b82bd08",
-  "short": "40fcafe",
+  "commit": "5871d3098d6b6b8d928c3fcbb417134a36645045",
+  "short": "5871d30",
   "dirty": false,
   "branch": "p9a"
  },
@@ -24,7 +24,7 @@
   "machine": "AMD64",
   "cpu_count": 12,
   "in_docker": false,
-  "git_commit": "40fcafe",
+  "git_commit": "5871d30",
   "embedder": "none",
   "falkordb": {
    "host": "127.0.0.1",
@@ -42,7 +42,7 @@
    "B0r": 3.0,
    "B1a": 7.0,
    "B0g": 8.0,
-   "P": 2.0
+   "P": 6.0
   },
   "per_call_cap_usd": 0.8,
   "gate_usd": 16.0,
@@ -52,7 +52,7 @@
    "B0g": 0.6522,
    "B0r": 1.8747,
    "B1a": 0.5612,
-   "P": 2.3672
+   "P": 3.9975
   }
  },
  "partial": false,
@@ -83,11 +83,11 @@
      "latency_s_median": 10.2,
      "components_correct": {
       "probes": 0,
-      "handoffs": 0,
-      "facts": 0,
       "agents": 0,
       "decisions": 0,
-      "earliest5": 0
+      "earliest5": 0,
+      "handoffs": 0,
+      "facts": 0
      },
      "questions": [
       {
@@ -115,7 +115,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31637,
        "reply_format": "prose_then_json",
        "expected": {
@@ -172,7 +172,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31636,
        "reply_format": "prose_then_json",
        "expected": {
@@ -229,7 +229,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31657,
        "reply_format": "prose_then_json",
        "expected": {
@@ -286,7 +286,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31691,
        "reply_format": "prose_then_json",
        "expected": {
@@ -343,7 +343,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31685,
        "reply_format": "unparseable",
        "expected": {
@@ -400,7 +400,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31681,
        "reply_format": "unparseable",
        "expected": {
@@ -457,7 +457,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31688,
        "reply_format": "unparseable",
        "expected": {
@@ -514,7 +514,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31636,
        "reply_format": "prose_then_json",
        "expected": {
@@ -561,11 +561,11 @@
      "latency_s_median": 18.6,
      "components_correct": {
       "probes": 8,
-      "handoffs": 8,
-      "facts": 8,
       "agents": 8,
       "decisions": 8,
-      "earliest5": 8
+      "earliest5": 8,
+      "handoffs": 8,
+      "facts": 8
      },
      "questions": [
       {
@@ -595,7 +595,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -630,7 +630,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -665,7 +665,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -700,7 +700,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -735,7 +735,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -770,7 +770,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -805,7 +805,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -840,7 +840,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -863,11 +863,11 @@
      "latency_s_median": 30.1,
      "components_correct": {
       "probes": 8,
-      "handoffs": 8,
-      "facts": 8,
       "agents": 8,
       "decisions": 8,
-      "earliest5": 8
+      "earliest5": 8,
+      "handoffs": 8,
+      "facts": 8
      },
      "questions": [
       {
@@ -897,7 +897,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -932,7 +932,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -967,7 +967,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1002,7 +1002,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1037,7 +1037,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1072,7 +1072,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1107,7 +1107,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -1142,7 +1142,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1153,23 +1153,23 @@
      ]
     },
     "P": {
-     "n": 5,
-     "strict_correct": 1,
-     "completed": false,
+     "n": 8,
+     "strict_correct": 2,
+     "completed": true,
      "strict_whole_reply_json": 0,
      "errors": 1,
-     "tokens_per_question": 332254.8,
-     "cost_usd": 2.1688,
-     "cost_per_question_usd": 0.4338,
-     "tool_calls_per_question": 22.0,
-     "latency_s_median": 67.3,
+     "tokens_per_question": 324317.2,
+     "cost_usd": 3.3108,
+     "cost_per_question_usd": 0.4139,
+     "tool_calls_per_question": 18.38,
+     "latency_s_median": 79.0,
      "components_correct": {
-      "probes": 3,
-      "handoffs": 3,
-      "facts": 3,
-      "agents": 3,
-      "decisions": 3,
-      "earliest5": 1
+      "probes": 5,
+      "agents": 6,
+      "decisions": 5,
+      "earliest5": 2,
+      "handoffs": 5,
+      "facts": 5
      },
      "questions": [
       {
@@ -1200,7 +1200,7 @@
         "mcp__plexus__impact",
         "mcp__plexus__why"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1236,7 +1236,7 @@
         "mcp__plexus__impact",
         "mcp__plexus__why"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": {
@@ -1296,7 +1296,7 @@
         "mcp__plexus__impact",
         "mcp__plexus__why"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": {
@@ -1356,7 +1356,7 @@
         "mcp__plexus__impact",
         "mcp__plexus__why"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": {
@@ -1409,7 +1409,7 @@
         "mcp__plexus__impact",
         "mcp__plexus__why"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "no_reply",
        "expected": {
@@ -1439,6 +1439,162 @@
        },
        "got": "null",
        "reply": "",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A11",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 315971,
+       "usage": {
+        "input_tokens": 10,
+        "output_tokens": 3288,
+        "cache_read_input_tokens": 202597,
+        "cache_creation_input_tokens": 110076
+       },
+       "cost_usd": 0.493464,
+       "latency_ms": 90756.9,
+       "num_turns": 13,
+       "tool_calls": 12,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": {
+        "facts": 1000,
+        "agents": 39,
+        "decisions": 16,
+        "handoffs": 14,
+        "probes": [
+         false,
+         false,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f025559",
+         "f036944",
+         "f026242",
+         "f025475",
+         "f051273"
+        ]
+       },
+       "got": "{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, true, false, true, true, true, false, false, true], \"earliest5\": [\"f034207\", \"f033332\", \"f036649\", \"f023254\", \"f033222\"]}",
+       "reply": "I could confirm the four counts and the ten probes. The `earliest5` list is a best guess, not a verified answer.\n\n- **Counts:** `impact` on s0021 gave totals of 1000 facts, 39 distinct reading agents, 16 decisions and 14 handoffs. The totals are exact. It listed only 200 of the 1000 fact ids, so I could not read the full set.\n- **Probes:** For each probe fact, `why` showed its full ancestry. A fact is affected if any ancestor links to s0021.\n  - **Affected:** f042036 (links directly to s0021), f",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 106908,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 1646,
+        "cache_read_input_tokens": 81362,
+        "cache_creation_input_tokens": 23894
+       },
+       "cost_usd": 0.120184,
+       "latency_ms": 24672.5,
+       "num_turns": 12,
+       "tool_calls": 11,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "Source s0025 affects 10 facts, 10 agents, 3 decisions and 2 handoffs. I got these from one `impact` call on s0025 at depth 12, which wasn't truncated, plus a `why` call on each affected fact.\n\n- **Facts (10):** f013345, f013817, f015530, f018813, f020172, f033764, f036025, f036725, f041882, f050721.\n- **Agents (10):** a007, a018, a028, a033, a043, a046, a049, a069, a070, a080.\n- **Decisions (3):** d00299, d00780, d00781.\n- **Handoffs (2):** h00523, h00524.\n- **Probes:** f018813, f033764, f013817",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "A16",
+       "strict": false,
+       "components": {
+        "facts": false,
+        "agents": true,
+        "decisions": false,
+        "handoffs": false,
+        "probes": false,
+        "earliest5": false
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 510385,
+       "usage": {
+        "input_tokens": 16,
+        "output_tokens": 3838,
+        "cache_read_input_tokens": 393894,
+        "cache_creation_input_tokens": 112637
+       },
+       "cost_usd": 0.528349,
+       "latency_ms": 105237.9,
+       "num_turns": 15,
+       "tool_calls": 14,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "prose_then_json",
+       "expected": {
+        "facts": 5000,
+        "agents": 31,
+        "decisions": 69,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f001863",
+         "f033081",
+         "f043169",
+         "f012160",
+         "f027639"
+        ]
+       },
+       "got": "{\"facts\": 3328, \"agents\": 31, \"decisions\": 59, \"handoffs\": 39, \"probes\": [false, false, true, true, false, true, true, true, true, false], \"earliest5\": [\"f000004\", \"f000010\", \"f000013\", \"f000040\", \"f000110\"]}",
+       "reply": "Status: the `impact` call and most of the `why` probes are done. Two things I couldn't establish are flagged below.\n\n**What the data supports**\n- **Totals:** `impact` on s0031 reports 3,328 affected facts, 31 distinct reading agents, 59 decisions and 39 handoffs. The result was not truncated.\n- **Probes confirmed affected:** f002255 is in the affected id list. f004376 and f038888 both link directly to s0031. f032325 reaches s0031 through f044374 and f024193, which sit in f004376's s0031 chain.\n-",
        "model": "claude-sonnet-5-5"
       }
      ]
@@ -1524,7 +1680,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31627,
        "reply_format": "unparseable",
        "expected": {
@@ -1560,7 +1716,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31685,
        "reply_format": "unparseable",
        "expected": {
@@ -1597,7 +1753,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31629,
        "reply_format": "unparseable",
        "expected": {
@@ -1673,7 +1829,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31640,
        "reply_format": "unparseable",
        "expected": {
@@ -1712,7 +1868,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31662,
        "reply_format": "unparseable",
        "expected": {
@@ -1753,7 +1909,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31645,
        "reply_format": "unparseable",
        "expected": {
@@ -1849,7 +2005,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1880,7 +2036,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1911,7 +2067,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -1973,7 +2129,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2004,7 +2160,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2035,7 +2191,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2115,7 +2271,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2146,7 +2302,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2177,7 +2333,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2239,7 +2395,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2270,7 +2426,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2301,12 +2457,279 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
        "got": null,
        "reply": "The decision's single fact is f000784. I followed derived-from links from it down to s00593. At each step I took the first parent, and that path reached s00593. I did not check whether the other parents at each step also lead to s00593, so I'm assuming this chain is the intended one. The last fact, f000740, lists s00593 as a direct parent and was asserted by a06.\n\n{\"chain\": [\"f000784\",\"f000780\",\"f000776\",\"f000772\",\"f000768\",\"f000764\",\"f000760\",\"f000756\",\"f000752\",\"f000748\",\"f000744\",\"f000740\"], ",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "P": {
+     "n": 8,
+     "strict_correct": 8,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 83349.5,
+     "cost_usd": 0.6866,
+     "cost_per_question_usd": 0.0858,
+     "tool_calls_per_question": 1.88,
+     "latency_s_median": 16.0,
+     "components_correct": {
+      "chain": 8,
+      "agent": 8
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 60541,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 223,
+        "cache_read_input_tokens": 27814,
+        "cache_creation_input_tokens": 32500
+       },
+       "cost_usd": 0.135019,
+       "latency_ms": 25150.6,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00001 is based on one fact, f000008. That fact is derived from f000004, and f000004 is derived directly from s00001. The chain is f000008 \u2192 f000004.\n\nf000004 was asserted by a15.\n\nThe other facts that f000008 and f000004 derive from lead to other sources, not s00001. So they aren't part of this chain.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 62829,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 224,
+        "cache_read_input_tokens": 52775,
+        "cache_creation_input_tokens": 9826
+       },
+       "cost_usd": 0.04683,
+       "latency_ms": 15475.1,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00009 is based on one fact, f000076. Following derived-from links, f000076 derives from f000072. f000072 derives from f000068. f000068 derives directly from s00057, and a25 asserted it.\n\nThe chain from the decision's fact down to the fact derived directly from s00057 is f000076, f000072, f000068.\n\n{\"chain\": [\"f000076\", \"f000072\", \"f000068\"], \"agent\": \"a25\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 64656,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 213,
+        "cache_read_input_tokens": 52775,
+        "cache_creation_input_tokens": 11664
+       },
+       "cost_usd": 0.054072,
+       "latency_ms": 11664.3,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision rests on one fact, f000176. Following derived-from links, f000176 leads to f000172, then f000168, then f000164. f000164 derives directly from s00137, and agent a30 asserted it.\n\nThe chain is f000176 \u2192 f000172 \u2192 f000168 \u2192 f000164.\n\n{\"chain\": [\"f000176\", \"f000172\", \"f000168\", \"f000164\"], \"agent\": \"a30\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 64775,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 243,
+        "cache_read_input_tokens": 52776,
+        "cache_creation_input_tokens": 11752
+       },
+       "cost_usd": 0.054724,
+       "latency_ms": 12101.8,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00019 is based on one fact, f000208. Following the derived-from links, that fact reaches s00163 through three more facts:\n\n- f000208 is derived from f000204 (among others).\n- f000204 is derived from f000200.\n- f000200 is derived from f000196.\n- f000196 is derived directly from s00163.\n\nThe asserting agent of f000196 is a06.\n\n{\"chain\": [\"f000208\", \"f000204\", \"f000200\", \"f000196\"], \"agent\": \"a06\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 66698,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 393,
+        "cache_read_input_tokens": 52773,
+        "cache_creation_input_tokens": 13528
+       },
+       "cost_usd": 0.063327,
+       "latency_ms": 16200.7,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's single fact reaches s00241 through five derived-from links. I read them from the `why` result for d00025:\n\n- d00025 is based on f000312.\n- f000312 derives from f000308.\n- f000308 derives from f000304.\n- f000304 derives from f000300.\n- f000300 derives from f000296.\n- f000296 derives from f000292.\n- f000292 derives directly from s00241, and a10 asserted f000292.\n\n{\"chain\": [\"f000312\", \"f000308\", \"f000304\", \"f000300\", \"f000296\", \"f000292\"], \"agent\": \"a10\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 66703,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 316,
+        "cache_read_input_tokens": 52776,
+        "cache_creation_input_tokens": 13607
+       },
+       "cost_usd": 0.062874,
+       "latency_ms": 15774.1,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision rests on f000360. Following the derived-from links, s00279 is reached only through f000340, which derives from it directly. The chain is:\n\nf000360 \u2192 f000356 \u2192 f000352 \u2192 f000348 \u2192 f000344 \u2192 f000340 \u2192 s00279\n\nEach link is a recorded derived-from edge:\n- f000360 derives from f000356.\n- f000356 derives from f000352.\n- f000352 derives from f000348.\n- f000348 derives from f000344.\n- f000344 derives from f000340.\n- f000340 derives from s00279.\n\nf000340 was asserted by a05.\n\n{\"chain\": [\"f00",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 112398,
+       "usage": {
+        "input_tokens": 6,
+        "output_tokens": 956,
+        "cache_read_input_tokens": 91355,
+        "cache_creation_input_tokens": 20081
+       },
+       "cost_usd": 0.099031,
+       "latency_ms": 17781.4,
+       "num_turns": 6,
+       "tool_calls": 5,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs from the decision's fact f000512 down to f000484, which is derived directly from s00393. Agent a24 asserted f000484.\n\nThe links, each checked against the DERIVED_FROM edges:\n- Decision d00033 is based on one fact, f000512.\n- f000512 is derived from f000508.\n- f000508 is derived from f000504.\n- f000504 is derived from f000500.\n- f000500 is derived from f000496.\n- f000496 is derived from f000492.\n- f000492 is derived from f000488.\n- f000488 is derived from f000484.\n- f000484 is deri",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 168196,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 1209,
+        "cache_read_input_tokens": 130579,
+        "cache_creation_input_tokens": 36400
+       },
+       "cost_usd": 0.170764,
+       "latency_ms": 24936.4,
+       "num_turns": 5,
+       "tool_calls": 4,
+       "tools": [
+        "mcp__plexus__impact",
+        "mcp__plexus__why"
+       ],
+       "cached": false,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs through twelve facts and ends at f000740, which was asserted by a06.\n\nd00041 is based on one fact, f000784. Each fact in the chain is derived from the next, following the DERIVED_FROM edges returned by `why` on d00041, f000760 and f000764. The impact report for s00593 confirms the result. It lists f000740 among the facts derived from s00593, and the edges show f000740 is the only fact in this chain derived directly from it.\n\nThe chain, in order:\n- f000784 is derived from f000780.\n",
        "model": "claude-sonnet-5-5"
       }
      ]
@@ -2339,9 +2762,9 @@
      "latency_s_median": 11.0,
      "components_correct": {
       "count": 0,
+      "agent": 1,
       "set": 0,
-      "ordered": 1,
-      "agent": 1
+      "ordered": 1
      },
      "questions": [
       {
@@ -2364,7 +2787,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31691,
        "reply_format": "prose_then_json",
        "expected": 477,
@@ -2392,7 +2815,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31662,
        "reply_format": "prose_then_json",
        "expected": 243,
@@ -2421,7 +2844,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31697,
        "reply_format": "unparseable",
        "expected": {
@@ -2452,7 +2875,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31670,
        "reply_format": "prose_then_json",
        "expected": [
@@ -2493,7 +2916,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31662,
        "reply_format": "prose_then_json",
        "expected": [
@@ -2533,7 +2956,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31656,
        "reply_format": "prose_then_json",
        "expected": 239,
@@ -2561,7 +2984,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31697,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2589,7 +3012,7 @@
        "num_turns": 1,
        "tool_calls": 0,
        "tools": [],
-       "cached": false,
+       "cached": true,
        "context_chars": 31656,
        "reply_format": "prose_then_json",
        "expected": 552,
@@ -2612,9 +3035,9 @@
      "latency_s_median": 12.7,
      "components_correct": {
       "count": 5,
+      "agent": 1,
       "set": 2,
-      "ordered": 1,
-      "agent": 1
+      "ordered": 1
      },
      "questions": [
       {
@@ -2639,7 +3062,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2669,7 +3092,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2700,7 +3123,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "unparseable",
        "expected": null,
@@ -2730,7 +3153,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2760,7 +3183,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2790,7 +3213,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2820,7 +3243,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2850,7 +3273,7 @@
        "tools": [
         "mcp__sql__query"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2873,9 +3296,9 @@
      "latency_s_median": 20.2,
      "components_correct": {
       "count": 5,
+      "agent": 1,
       "set": 2,
-      "ordered": 1,
-      "agent": 1
+      "ordered": 1
      },
      "questions": [
       {
@@ -2900,7 +3323,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2930,7 +3353,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2961,7 +3384,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -2991,7 +3414,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -3021,7 +3444,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -3051,7 +3474,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -3081,7 +3504,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,
@@ -3111,7 +3534,7 @@
        "tools": [
         "Bash"
        ],
-       "cached": false,
+       "cached": true,
        "context_chars": 0,
        "reply_format": "prose_then_json",
        "expected": null,

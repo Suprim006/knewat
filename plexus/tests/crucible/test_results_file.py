@@ -107,3 +107,29 @@ def test_view_fixture_is_a_copy_of_the_committed_file():
     assert VIEW_COPY.read_bytes() == ALL.read_bytes(), (
         "plexus-view/src/fixtures/results.real.json drifted from crucible/results/latest-all.json: cp it again"
     )
+
+
+def test_b1h_and_l6_layers_are_opt_in_and_do_not_change_the_committed_default(tmp_path):
+    from plexus.crucible.combine import (
+        DEFAULT_B1H,
+        DEFAULT_BASE,
+        DEFAULT_L2,
+        DEFAULT_L2_SCALE,
+        DEFAULT_L6,
+        combine,
+        render,
+    )
+
+    default = render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE))
+    assert default == ALL.read_text(
+        encoding="utf-8"
+    )  # the committed file does not carry the new layers (P9-int flips this)
+    full = combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_L6)
+    assert full["run"]["layers"][-2:] == ["B1h", "L6"] and {"B1h", "L6"} <= set(full["layers"])
+    assert (
+        full["layers"]["B1h"]["layers"]["L2"]["arm"]
+        and full["layers"]["L6"]["summary"]["A"]["det"]["B1h"] == "24/24"
+    )
+    assert render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_L6)) == render(
+        full
+    )  # deterministic

@@ -334,7 +334,7 @@ def main(argv: list[str] | None = None) -> int:
     started = time.time()
     cmd = "python -m plexus.crucible.l6.run " + " ".join(argv if argv is not None else sys.argv[1:])
     if a.cmd == "layer":
-        print(json.dumps(build_layer(a.out), indent=1)[:2000])
+        print(json.dumps(build_layer(a.out)["summary"], indent=1))
         return 0
     client = GraphClient(host=a.host, port=a.port)
     tmp = Path(tempfile.mkdtemp(prefix="crucible-l6-"))
@@ -396,18 +396,54 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def build_layer(root: Path) -> dict[str, Any]:
-    """Merge the latest deterministic, concurrency, crash and pilot results into one L6 layer dict."""
-    layer: dict[str, Any] = {"title": "Beat-SQL families (pre-registered)", "families": {}, "sources": {}}
+    """Merge the latest deterministic, concurrency, crash and pilot results into one L6 layer dict (deterministic)."""
+    layer: dict[str, Any] = {
+        "title": "Beat-SQL families (pre-registered)",
+        "families": {},
+        "sources": {},
+        "summary": {},
+    }
     for kind in ("det", "conc", "crash", "pilot"):
         p = root / f"latest-{kind}.json"
         if not p.exists():
             continue
         d = json.loads(p.read_text(encoding="utf-8"))
-        layer["sources"][kind] = {"run": d["run"]["id"], "git": d.get("git", {})}
+        layer["sources"][kind] = {
+            "run": d["run"]["id"],
+            "git": d.get("git", {}),
+            "llm_calls": d["run"].get("llm_calls", 0),
+            "cost_usd": d["run"].get("cost_usd", 0.0),
+        }
         for fam, v in d.get("families", {}).items():
             layer["families"].setdefault(fam, {})[kind] = v
         if kind == "pilot":
             layer["pilot"] = {k: d[k] for k in d if k not in ("schema", "kind", "environment", "families")}
+    summ: dict[str, Any] = {}
+    for fam, kinds in layer["families"].items():
+        row: dict[str, Any] = {}
+        for kind, v in kinds.items():
+            arms = v.get("arms", {})
+            if kind in ("det", "pilot") and isinstance(arms, dict):
+                for nm, a in arms.items():
+                    if "strict_correct" in a and "n" in a:
+                        row.setdefault(kind, {})[nm] = f"{a['strict_correct']}/{a['n']}"
+            elif kind == "conc":
+                row["conc"] = {
+                    nm: {k: t["totals"][k] for k in ("v1", "v2", "v3", "reads")} for nm, t in v.items()
+                }
+            elif kind == "crash":
+                row["crash"] = {
+                    nm: {
+                        "orphans": t["orphans_total"],
+                        "acked": t["acknowledged_writes"],
+                        "lost": t["lost_acknowledged_total"],
+                    }
+                    for nm, t in v.items()
+                }
+        summ[fam] = row
+    layer["summary"] = summ
+    layer["llm_calls_total"] = sum(s["llm_calls"] for s in layer["sources"].values())
+    layer["cost_usd_total"] = round(sum(s["cost_usd"] for s in layer["sources"].values()), 4)
     return layer
 
 

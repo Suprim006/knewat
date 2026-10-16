@@ -1,0 +1,60 @@
+{
+ "qid": "A11",
+ "arm": "P",
+ "family": "A",
+ "reply": "I could confirm the four counts and the ten probes. The `earliest5` list is a best guess, not a verified answer.\n\n- **Counts:** `impact` on s0021 gave totals of 1000 facts, 39 distinct reading agents, 16 decisions and 14 handoffs. The totals are exact. It listed only 200 of the 1000 fact ids, so I could not read the full set.\n- **Probes:** For each probe fact, `why` showed its full ancestry. A fact is affected if any ancestor links to s0021.\n  - **Affected:** f042036 (links directly to s0021), f050526 (via f034230 and f000046), f013155, f027292 and f048406 (via f002513, f040084 and f016577).\n  - **Not affected:** f049603, f026438 and f045352 trace only to s0022. f002059 and f039528 trace to no source (for f002059, f001001 and f020881 link to s0022). None of the ancestors of these five link to s0021.\n- **`earliest5`:** I could not retrieve all 1000 affected facts with their timestamps. I picked the five earliest `valid_from` values among the affected facts I saw: f034207 (…008985), f033332 (…010746), f036649 (…011822), f023254 (…014685) and f033222 (…017551). An affected fact I never saw could be earlier.\n\n{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, true, false, true, true, true, false, false, true], \"earliest5\": [\"f034207\", \"f033332\", \"f036649\", \"f023254\", \"f033222\"]}",
+ "answer": {
+  "facts": 1000,
+  "agents": 39,
+  "decisions": 16,
+  "handoffs": 14,
+  "probes": [
+   false,
+   false,
+   true,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f034207",
+   "f033332",
+   "f036649",
+   "f023254",
+   "f033222"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 10,
+  "output_tokens": 3288,
+  "cache_read_input_tokens": 202597,
+  "cache_creation_input_tokens": 110076
+ },
+ "cost_usd": 0.4934637,
+ "latency_ms": 90756.9,
+ "num_turns": 13,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__plexus__impact",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why",
+  "mcp__plexus__why"
+ ],
+ "permission_denials": [],
+ "key": "68efc8bbba03291c7b2cc65ca5cb849f074f176437fd3f435ad2bbeccd34e13d",
+ "context_chars": 0
+}
