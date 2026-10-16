@@ -76,6 +76,7 @@ def git_state() -> dict[str, Any]:
         "plexus/demo_data/crucible/l8/",
         "plexus/demo_data/crucible/l8_postfix/",
         "plexus/demo_data/crucible/l8_p12tok/",
+        "plexus/demo_data/crucible/l8_p12ts/",
     )  # P12: + the re-runs
     code = [x for x in lines if not any(r in x for r in out_rels)]
     return {
@@ -699,10 +700,13 @@ def copy_history_b0(dest: Path, tenant: str, scratch: Path) -> int:
 def run_arm(
     arm: str, seed: int, out: Path, *, host: str = "127.0.0.1", port: int = 6365, model: str = "sonnet",
     max_turns: int = 25, launcher: list[str] | None = None, scratch: Path | None = None, log: Any = print,
-    hook: HookServer | None = None, tag: str = "",
+    hook: HookServer | None = None, tag: str = "", toolset: str | None = None,
 ) -> dict[str, Any]:  # fmt: skip
     """One arm x one seed. Writes ``out/runs/<seed>/<arm>/``: run.json, transcripts/, store_dump.json, final
-    artifacts / memory, the repo's git log. Returns run.json's content."""
+    artifacts / memory, the repo's git log. Returns run.json's content. ``toolset`` (arm P only) starts the
+    agents' plexus-mcp with ``--toolset`` (default: no flag = every tool); the hook server is unaffected."""
+    if toolset is not None and arm != "P":
+        raise ValueError("--toolset applies to arm P only")
     sched, sentinels = load_seed(out, seed)
     run_dir = out / "runs" / str(seed) / arm
     if run_dir.exists():
@@ -742,8 +746,8 @@ def run_arm(
             "PLEXUS_EMBEDDER": "hash",
             "PLEXUS_AUDIT_MODE": "full",
         }
-        cfg_json = {"mcpServers": {"plexus": {"command": plexus_mcp_command(),
-                    "args": ["--transport", "stdio", "--tenant", tenant], "env": env}}}  # fmt: skip
+        p_args = ["--transport", "stdio", "--tenant", tenant, *(["--toolset", toolset] if toolset else [])]
+        cfg_json = {"mcpServers": {"plexus": {"command": plexus_mcp_command(), "args": p_args, "env": env}}}
         store = PlexusStore(tenant, host, port)
     elif arm == "B1":
         from plexus.crucible.api import BackendSpec
@@ -818,7 +822,7 @@ def run_arm(
     rec = {
         "kind": "crucible-l8-run", "prompt_version": S.PROMPT_VERSION, "seed": seed, "arm": arm, "tenant": tenant,
         "status": status, "error": error, "git": git0, "claude_version": claude_version() if not launcher else "launcher",
-        "model_alias": model, "max_turns": max_turns, "history_seconds": hist_s, "initial_sha": init_sha,
+        "model_alias": model, "max_turns": max_turns, "toolset": (toolset or "full") if arm == "P" else None, "history_seconds": hist_s, "initial_sha": init_sha,
         "turns": driver.turn_meta, "events": st.events, "commits_landed": st.landed,
         "commits_not_landed": [c["k"] for c in sched["commits"] if not any(x["k"] == c["k"] for x in st.landed)],
         "kills_fired": st.fired, "hook": hook_info, "hook_failed_commits": hook_failed,
@@ -849,6 +853,9 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--model", default="sonnet")
     r.add_argument("--scratch", type=Path, default=None)
     r.add_argument("--launcher", default=None, help="tests: a stand-in for claude (space-separated argv)")
+    r.add_argument(
+        "--toolset", default=None, help="arm P: plexus-mcp --toolset for the agents (default: all)"
+    )
     a = ap.parse_args(argv)
     if a.cmd == "prepare":
         prepare(a.out)
@@ -861,6 +868,7 @@ def main(argv: list[str] | None = None) -> int:
         hook.start(a.out / "logs" / f"hook-{a.seed}.log")
     try:
         rec = run_arm(a.arm, a.seed, a.out, port=a.port, model=a.model, scratch=a.scratch, hook=hook,
+                      toolset=a.toolset,
                       launcher=a.launcher.split() if a.launcher else None,
                       log=lambda s: print(s, flush=True))  # fmt: skip
     finally:

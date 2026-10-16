@@ -1,0 +1,27 @@
+{
+ "none": {
+  "prompt_tokens": 5965,
+  "cost_usd": 0.0094933,
+  "tool_list_tokens": 0
+ },
+ "compact": {
+  "prompt_tokens": 25842,
+  "cost_usd": 0.103404,
+  "tool_list_tokens": 19877
+ },
+ "toolset:core": {
+  "prompt_tokens": 18845,
+  "cost_usd": 0.075416,
+  "tool_list_tokens": 12880
+ },
+ "toolset:core,staleness": {
+  "prompt_tokens": 22079,
+  "cost_usd": 0.088352,
+  "tool_list_tokens": 16114
+ },
+ "toolset:relay": {
+  "prompt_tokens": 11076,
+  "cost_usd": 0.044340000000000004,
+  "tool_list_tokens": 5111
+ }
+}

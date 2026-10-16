@@ -1,12 +1,15 @@
 """How many prompt tokens does the Plexus MCP tool list cost per API call? One ``claude -p`` call per variant.
 
     python -m plexus.crucible.l8.manifest_probe --workdir DIR --port 6366 [--head-src PATH]
+        [--toolset core --toolset core,staleness ...] [--no-verbose]
 
 Variants: ``none`` (no MCP server: Claude Code's own prompt + the five file tools), ``full``
 (``PLEXUS_MCP_SCHEMA=full``: pydantic's verbose schemas), ``compact`` (the default) and, with ``--head-src``, the
 server of another source tree (e.g. ``git archive HEAD plexus/src plexus/queries`` unpacked somewhere) run as
 ``python -m plexus.mcp.server`` with that ``PYTHONPATH``. The prompt is one short line and ``--max-turns 1``, so a
 variant's prompt tokens minus ``none``'s are the tool list's tokens, exactly as the API counts them (~$0.14 a variant).
+Each ``--toolset NAME`` adds a variant ``toolset:NAME`` (the compact list scoped with ``plexus-mcp --toolset NAME``,
+see :mod:`plexus.mcp.toolsets`); ``--no-verbose`` skips the ``full`` (verbose-schema) variant.
 """
 
 from __future__ import annotations
@@ -40,6 +43,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--workdir", type=Path, required=True)
     ap.add_argument("--port", default="6366")
     ap.add_argument("--head-src", default=None, help="PYTHONPATH of another plexus source tree to probe")
+    ap.add_argument("--toolset", action="append", default=[], help="add a scoped variant (repeatable)")
+    ap.add_argument("--no-verbose", action="store_true", help="skip the PLEXUS_MCP_SCHEMA=full variant")
     ap.add_argument("--out", type=Path)
     a = ap.parse_args(argv)
     a.workdir.mkdir(parents=True, exist_ok=True)
@@ -51,6 +56,10 @@ def main(argv: list[str] | None = None) -> int:
         "full": {"command": py, "args": args, "env": {**env, "PLEXUS_MCP_SCHEMA": "full"}},
         "compact": {"command": py, "args": args, "env": env},
     }
+    if a.no_verbose:
+        del variants["full"]
+    for ts in a.toolset:
+        variants[f"toolset:{ts}"] = {"command": py, "args": [*args, "--toolset", ts], "env": env}
     if a.head_src:
         variants["head"] = {"command": py, "args": args, "env": {**env, "PYTHONPATH": a.head_src}}
     out = {k: probe(a.workdir, k, v) for k, v in variants.items()}
@@ -58,7 +67,7 @@ def main(argv: list[str] | None = None) -> int:
     for k, v in out.items():
         v["tool_list_tokens"] = v["prompt_tokens"] - base
         print(
-            f"{k:<8} prompt {v['prompt_tokens']:>7,}  tool list {v['tool_list_tokens']:>7,}  ${v['cost_usd']:.4f}"
+            f"{k:<24} prompt {v['prompt_tokens']:>7,}  tool list {v['tool_list_tokens']:>7,}  ${v['cost_usd']:.4f}"
         )
     if a.out:
         a.out.write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
