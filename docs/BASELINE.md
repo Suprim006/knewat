@@ -750,3 +750,11 @@ The pre-registered L6 run above exposed product defects. They were fixed on bran
 * **F.** `assert_fact`, `record_decision` and `handoff` create `(Step)-[:WROTE]->(node)` in their own write statement; the runtime opens the Step first and removes it again if the call is rejected. A crash can now leave an empty `Step` (not counted above) but no record without its edge. Kill test in the suite: 50 kills, 0 orphans. The pre-registered "P expected to lose" is therefore only true of the pre-fix code; the other tools (`complete_task`, `fail_task`, `create_tasks`, ...) are still linked by a second statement.
 * **Not re-run:** B (the MCP `why` tool now accepts `depth`, up to 12; the 16/24 tool-path figure above is the old one and the service path with `depth=12` was already 24/24), D, E, the LLM pilot (88 calls, $7.0855, unchanged). Nothing above changes the reading of L6: no family shows the graph beating hand-written SQL.
 
+
+## L7 / P10: graph vs SQL strengths and weaknesses by scale (pre-registered)
+
+Pre-registration, design and (later) results: [`docs/research/P10_GRAPH_VS_SQL.md`](research/P10_GRAPH_VS_SQL.md).
+Four deterministic families (no LLM call): **G** multi-tenancy at 1-2,000 tenants, **H** query expressiveness and
+traversal (motifs, multi-relationship traversal, constrained shortest path), **I** atomic multi-entity writes under
+crashes and conflicting writers, **J** concurrent session populations of 2-1,000 replaying the recorded tool-call mix.
+Arms: FalkorDB (graph per tenant), SQLite file per tenant, SQLite shared file with `tenant_id`.
