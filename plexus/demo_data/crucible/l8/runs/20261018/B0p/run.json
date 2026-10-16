@@ -722,7 +722,7 @@
    "total_cost_usd": 0.0505825,
    "permission_denials": [],
    "problems": [
-    "Read failed: File does not exist. Note: your current working directory is C:\\Users\\ACER\\AppData\\Local\\hermes\\cache\\scratch\\l8runs\\l8-20261018-B0p-_2l2a9pt\\work.",
+    "Read failed: File does not exist. Note: your current working directory is <home>\\AppData\\Local\\hermes\\cache\\scratch\\l8runs\\l8-20261018-B0p-_2l2a9pt\\work.",
     "Edit failed: <tool_use_error>No changes to make: old_string and new_string are exactly the same.</tool_use_error>",
     "Edit failed: <tool_use_error>Found 2 matches of the string to replace, but replace_all is false. To replace all occurrences, set replace_all to true. To replace only one occurrence, please provide more context to "
    ]
@@ -1006,6 +1006,6 @@
   }
  ],
  "wall_s": 558.6,
- "workdir": "C:/Users/ACER/AppData/Local/hermes/cache/scratch/l8runs/l8-20261018-B0p-_2l2a9pt/work",
+ "workdir": "<home>/AppData/Local/hermes/cache/scratch/l8runs/l8-20261018-B0p-_2l2a9pt/work",
  "all_tokens_count": 69
 }

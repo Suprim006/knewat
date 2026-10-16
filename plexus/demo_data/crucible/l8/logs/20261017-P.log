@@ -1,4 +1,4 @@
-== L8 seed 20261017 arm P: workdir C:\Users\ACER\AppData\Local\hermes\cache\scratch\l8runs\l8-20261017-P-g_qtdsq9\work
+== L8 seed 20261017 arm P: workdir <home>\AppData\Local\hermes\cache\scratch\l8runs\l8-20261017-P-g_qtdsq9\work
 --- turn 1: planner / init
 step   1  planner    start_session
 step   2  planner    create_tasks

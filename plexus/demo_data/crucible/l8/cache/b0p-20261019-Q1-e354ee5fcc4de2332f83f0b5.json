@@ -1,0 +1,41 @@
+{
+ "reply": "Decisions that \"Build against\" a style-guide version rely directly on the first-version fact, which comes from the v1 family (`02_api_style_guide_v1`). The \"Adopt\" decisions rely on the superseding v2-family fact instead, so they don't count. The same holds for D-t02-v2 and D-t09 in S21, which rely on the v2 guide.\n\nThe records contain 11 qualifying decisions:\n- **S01:** v1\n- **S02:** v3\n- **S04:** v7\n- **S05:** v9\n- **S07:** v13\n- **S09:** v17\n- **S10:** v19\n- **S11:** v21\n- **S16:** v31\n- **S18:** v35\n- **S21:** D-t02, which builds on v1 and cites `acme-docs/02_api_style_guide_v1.md` directly\n\nFor the 10 probes:\n1. S11, build against v21: yes.\n2. S10, adopt v20: no.\n3. S01, adopt v2: no.\n4. S09, adopt v18: no.\n5. S12, adopt v24: no. There is no S12 decision in the records.\n6. S18, adopt v36: no.\n7. S07, build against v13: yes.\n8. S16, build against v31: yes.\n9. S19, build against v37: no. There is no S19 decision in the records, so I can't count it.\n10. S04, build against v7: yes.\n\nThe count covers only what the records show. Sprints S03, S06, S08, S12\u2013S15, S17, S19 and S20 have no style-guide decision there.\n\n{\"answer\": {\"count\": 11, \"probes\": [true, false, false, false, false, false, true, true, false, true], \"earliest5\": [\"S01\", \"S02\", \"S04\", \"S05\", \"S07\"]}}",
+ "cost": 0.0818695,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 17648,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1122,
+  "output_tokens_details": {
+   "thinking_tokens": 554
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 17648,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1122,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 17648,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 17648
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 11.2,
+ "tag": "b0p-20261019-Q1"
+}
