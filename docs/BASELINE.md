@@ -448,3 +448,23 @@ All four hypotheses held. Reading, without softening:
 - **The sweep stays lossy.** `on+sweep` recall@5 is 88.6% (cold@5 72.5%): a sweep hides exactly the unprotected facts nobody has used for 90 days, which includes 14 real cold facts and 160 noise facts. It never touched a critical or hot fact and is reversible (`restore_fact`), but it is not an accuracy-neutral tidy-up, and it stays optional and dry-run by default.
 - The post-hoc diagnostic still shows protected (critical) and hot twins as the main displacers (`on`: critical 82, hot 7, noise 0); the floor limits how far they can lift themselves, it does not remove the effect.
 - Limits as before: one synthetic scenario of near-identical sprints, template noise, simulated reads, fact-lookup probes only, one run.
+
+
+## B1h: a hand-written-SQL control for L2 and L2-scale (P9-a, $0)
+
+Source of truth: `plexus/demo_data/crucible/b1h/20261016T035419Z-b1h/{results.json,report.md}` (also `latest.json`); code `plexus/src/plexus/crucible/l2/sql_answerer.py` (the 34 operations), `l2/sql_run.py` (the runner), `backends/sqlite_h.py` (one added table), tests `tests/crucible/l2/test_sql_answerer.py`. **No LLM call, no FalkorDB, cost $0.**
+
+**Why.** In L2 and L2-scale the SQLite arm (B1) is a one-shot LLM reader of a CSV dump (`l2/contexts.py`), while Plexus (P) runs a developer-written query per question. The comparison is therefore *query against reader*, and says nothing on *graph against SQL*. `docs/research/BEAT_SQL_ANALYSIS.md` §1 predicted that the same 34 question operations written in SQL on the existing SQLite store would tie P; this is that run.
+
+**What B1h is.** The existing B1 store (same schema, same transactions, same indexes) played with the same scripts, plus one table, `claims(task_id, agent_id, reclaimed_from, at, lease_until)`, written inside the claim's own `BEGIN IMMEDIATE` transaction. B1 keeps only a task's final claimer, so the Recovery questions are not answerable from its tables; Plexus keeps a `CLAIMED {reclaimed_from}` edge, and a competent SQL schema keeps the same fact. B1's LLM-facing dump (`contexts.B1_TABLES`) is untouched, so the B0/B1/B2 cache and results are unchanged. Each operation is one parameterised read-only statement (a `WITH RECURSIVE ... UNION` for the dependency and forgetting closures, joins elsewhere); the decision name (first four words) is computed in Python over the rows exactly as the Cypher arm does. Scoring is the same `score` over the committed `questions.yaml` / `questions_scale.yaml` (answers derived from the script ledger, never typed); the replay's ledger must equal the reference ledger (it does); L2-scale asks the same 36 questions as the paid run.
+
+| Set | B1h (hand-written SQL) | P (hand-written Cypher) | B1 (reader) | B0 (reader) | B2 (reader) |
+|---|---|---|---|---|---|
+| L2, 43 q | **43/43** | 43/43 | 43/43 | 43/43 | 40/43 |
+| L2-scale, 36 q | **36/36** | 36/36 | 32/36 | 30/36 | 23/36 |
+
+Paired with the committed P rows: 43 both right and 36 both right, 0 questions where they differ. Median per-question latency: B1h 0.1 ms (L2) and 0.2 ms (L2-scale), in-process; P 2.5 ms and 7.5 ms client-side (0.2 / 0.6 ms server-side), across a container network. Author effort, counted as non-blank non-comment lines: the Cypher answerer 174 lines + 82 lines of `.cypher` statements (the scale variant is in a further file, not counted); the SQL answerer 379 lines, which include the scale variant. So the SQL needed no more effort than the Cypher, and it was not shorter either.
+
+**The sentence for the submission (BEAT_SQL §6.3).** On L2 and L2-scale a hand-written-SQL arm on the same SQLite store ties Plexus on correctness (43/43 and 36/36) and is faster per call in process: the accuracy gap between Plexus and the B1/B0 readers (36/36 against 32/36 and 30/36) is *reader against query*, not *graph against SQL*. Plexus's measured edge on these two layers is over tool-less LLM readers (zero tokens, milliseconds, deterministic), not over a relational schema with recursive CTEs.
+
+Limits. The SQL was written by the same author who wrote the Cypher, who knew the questions and the scenario (this is what a control means, but it is not a blind arm). B1h needed one schema addition. In-process SQLite and networked FalkorDB are not a like-for-like speed comparison. Both question sets are shallow (≤ 2 joins, dependency depth ≤ 4); L6 below is where depth and size are varied.
