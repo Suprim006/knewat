@@ -371,27 +371,19 @@ class Relay:
     def blocked_by_failure(self, task_id: str, depth: int = MAX_BLOCKED_DEPTH) -> list[str]:
         """Not-done tasks that depend (transitively, up to ``depth`` hops, 1..50) on ``task_id``.
 
-        Nearest first.
-
-        Level-wise BFS over distinct tasks (``relay/dependents_of``): linear in the edges touched, unlike the
-        old path enumeration, which was exponential on layered DAGs. At most 5,000 tasks are returned. Tasks
-        are listed by hop distance, then id; done tasks are walked through but not reported.
+        Nearest first, then by id. Level-wise expansion over distinct tasks (linear in the edges touched,
+        unlike path enumeration, which is exponential on layered DAGs) inside ONE read statement,
+        ``relay/dependents_closure`` (P9-f): the answer is one snapshot even while tasks are being added; the
+        old loop (one ``relay/dependents_of`` statement per level) could mix levels from different moments.
+        At most 5,000 tasks are returned. Done tasks are walked through but not reported.
         """
         check_between("depth", depth, MAX_BLOCKED_DEPTH)
-        seen = {task_id}
-        frontier = [task_id]
-        out: list[str] = []
-        for _ in range(depth):
-            rows = self.client.ro(self.graph, "relay/dependents_of", {"frontier": frontier})
-            level = {r["id"]: r["status"] for r in rows if r["id"] not in seen}
-            if not level:
-                break
-            seen.update(level)
-            out.extend(sorted(i for i, s in level.items() if s != "done"))
-            if len(out) >= MAX_BLOCKED_NODES:
-                return out[:MAX_BLOCKED_NODES]
-            frontier = sorted(level)
-        return out
+        rows = self.client.ro(
+            self.graph,
+            "relay/dependents_closure",
+            {"id": task_id, "depth": depth, "limit": MAX_BLOCKED_NODES},
+        )
+        return [r["id"] for r in rows]
 
     def task_status(self, task_id: str) -> dict[str, Any] | None:
         rows = self.client.ro(self.graph, "relay/task_status", {"id": task_id})
