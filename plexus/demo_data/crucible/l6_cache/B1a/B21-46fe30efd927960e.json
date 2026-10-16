@@ -1,0 +1,41 @@
+{
+ "qid": "B21",
+ "arm": "B1a",
+ "family": "B",
+ "reply": "The decision's fact is f000784, and the chain follows derived-from links down to f000740. That fact derives directly from s00593 and was asserted by a06.\n\nThe query started from d00041's single fact in `decision_facts` and followed `derived_from` links recursively. At each step exactly one fact derives from another fact. The other parents are sources other than s00593.\n\n{\"chain\": [\"f000784\",\"f000780\",\"f000776\",\"f000772\",\"f000768\",\"f000764\",\"f000760\",\"f000756\",\"f000752\",\"f000748\",\"f000744\",\"f000740\"], \"agent\": \"a06\"}",
+ "answer": {
+  "chain": [
+   "f000784",
+   "f000780",
+   "f000776",
+   "f000772",
+   "f000768",
+   "f000764",
+   "f000760",
+   "f000756",
+   "f000752",
+   "f000748",
+   "f000744",
+   "f000740"
+  ],
+  "agent": "a06"
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 471,
+  "cache_read_input_tokens": 5146,
+  "cache_creation_input_tokens": 5783
+ },
+ "cost_usd": 0.028364599999999997,
+ "latency_ms": 11954.0,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "46fe30efd927960e86f6f4efc4b494b49e32698bd77cb08b8e6b006b53e20f82",
+ "context_chars": 0
+}

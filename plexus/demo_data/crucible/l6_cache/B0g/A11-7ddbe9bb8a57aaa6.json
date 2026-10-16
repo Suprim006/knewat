@@ -1,0 +1,51 @@
+{
+ "qid": "A11",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "Starting from s0021, I followed `derived_from` links through facts at any depth. That gave 1000 affected facts. I then counted the agents, decisions and handoffs that touch those facts.\n\n- **Agents:** 39 distinct agents read at least one affected fact, judged from the per-agent log files.\n- **Decisions:** 16 are based on an affected fact.\n- **Handoffs:** 14 carry an affected fact.\n- **Probes:** f042036, f050526, f013155, f027292 and f048406 are affected. f049603, f002059, f026438, f045352 and f039528 are not.\n- **Earliest five:** the five affected facts with the smallest `at`, oldest first, are f025559, f036944, f026242, f025475 and f051273.\n\n{\"facts\": 1000, \"agents\": 39, \"decisions\": 16, \"handoffs\": 14, \"probes\": [false, false, true, false, true, true, true, false, false, true], \"earliest5\": [\"f025559\", \"f036944\", \"f026242\", \"f025475\", \"f051273\"]}",
+ "answer": {
+  "facts": 1000,
+  "agents": 39,
+  "decisions": 16,
+  "handoffs": 14,
+  "probes": [
+   false,
+   false,
+   true,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f025559",
+   "f036944",
+   "f026242",
+   "f025475",
+   "f051273"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 8,
+  "output_tokens": 1248,
+  "cache_read_input_tokens": 29227,
+  "cache_creation_input_tokens": 4613
+ },
+ "cost_usd": 0.033870700000000004,
+ "latency_ms": 30214.8,
+ "num_turns": 4,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "7ddbe9bb8a57aaa64dd9026c403fc44bb2fbcf980fb05400dc74fe39a70d488f",
+ "context_chars": 0
+}

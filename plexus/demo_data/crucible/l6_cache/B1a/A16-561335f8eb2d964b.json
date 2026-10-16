@@ -1,0 +1,49 @@
+{
+ "qid": "A16",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "Source s0031 affects 5000 facts, 31 agents, 69 decisions and 50 handoffs.\n\n- **Method:** I started from the facts that derive directly from s0031. I then followed `derived_from` links downward through other facts until no new facts turned up.\n- **Agents:** I counted an agent as affected if any of its steps read an affected fact.\n- **Earliest five:** I ordered affected facts by `valid_from`, since the database has no `at` column on facts.\n\nOf the ten probe facts, f040559, f002255, f004376, f038888 and f032325 are affected. The other five are not.\n\n{\"facts\": 5000, \"agents\": 31, \"decisions\": 69, \"handoffs\": 50, \"probes\": [false, true, true, false, false, true, true, true, false, false], \"earliest5\": [\"f001863\", \"f033081\", \"f043169\", \"f012160\", \"f027639\"]}",
+ "answer": {
+  "facts": 5000,
+  "agents": 31,
+  "decisions": 69,
+  "handoffs": 50,
+  "probes": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false
+  ],
+  "earliest5": [
+   "f001863",
+   "f033081",
+   "f043169",
+   "f012160",
+   "f027639"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 1028,
+  "cache_read_input_tokens": 5287,
+  "cache_creation_input_tokens": 4324
+ },
+ "cost_usd": 0.028112699999999997,
+ "latency_ms": 19581.1,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "561335f8eb2d964b0ae46af6b5f02bee3fd7aa96777933b41f42bc3c12d62d24",
+ "context_chars": 0
+}

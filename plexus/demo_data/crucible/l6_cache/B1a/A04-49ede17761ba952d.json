@@ -1,0 +1,49 @@
+{
+ "qid": "A04",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "Source s0007 affects 5,000 facts, found by following `derived_from` links from s0007 through other facts at any depth. Those facts lead to 65 distinct agents who read them, 81 decisions based on them and 49 handoffs carrying them.\n\nOf the 10 probe facts, f047976, f037168, f013754, f018071 and f002695 are affected. f004619, f019026, f026538, f036502 and f033610 are not.\n\nThe 5 earliest affected facts, oldest first by `valid_from`, are f014091, f005047, f012510, f039444 and f009582.\n\n{\"facts\": 5000, \"agents\": 65, \"decisions\": 81, \"handoffs\": 49, \"probes\": [true, true, false, true, true, true, false, false, false, false], \"earliest5\": [\"f014091\", \"f005047\", \"f012510\", \"f039444\", \"f009582\"]}",
+ "answer": {
+  "facts": 5000,
+  "agents": 65,
+  "decisions": 81,
+  "handoffs": 49,
+  "probes": [
+   true,
+   true,
+   false,
+   true,
+   true,
+   true,
+   false,
+   false,
+   false,
+   false
+  ],
+  "earliest5": [
+   "f014091",
+   "f005047",
+   "f012510",
+   "f039444",
+   "f009582"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 976,
+  "cache_read_input_tokens": 5287,
+  "cache_creation_input_tokens": 4119
+ },
+ "cost_usd": 0.0267727,
+ "latency_ms": 18504.4,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "49ede17761ba952d81c02bdda95c0e6f6bb9e78c760f58018c818872ec5c8ca3",
+ "context_chars": 0
+}

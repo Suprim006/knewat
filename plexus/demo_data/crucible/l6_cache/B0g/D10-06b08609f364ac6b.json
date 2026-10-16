@@ -1,0 +1,37 @@
+{
+ "qid": "D10",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "Eleven shared sources are cited by decisions in more than 8 different sprints within S001–S100.\n\nI found them with a script. For each decision, it took the facts the decision is based on and used each fact's sprint scope. It then followed each fact's `derived_from` chain through parent facts until it reached a `shared-` source. Finally it counted the distinct sprints per source.\n\nI kept only sources with a count above 8. `shared-19` has 9 sprints and `shared-11` and `shared-15` have 10 each. `shared-13`, `shared-16` and `shared-28` have 8 each, so they fall just short.\n\n{\"answer\": [\"shared-01\",\"shared-02\",\"shared-03\",\"shared-04\",\"shared-05\",\"shared-06\",\"shared-07\",\"shared-08\",\"shared-11\",\"shared-15\",\"shared-19\"]}",
+ "answer": [
+  "shared-01",
+  "shared-02",
+  "shared-03",
+  "shared-04",
+  "shared-05",
+  "shared-06",
+  "shared-07",
+  "shared-08",
+  "shared-11",
+  "shared-15",
+  "shared-19"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 765,
+  "cache_read_input_tokens": 12028,
+  "cache_creation_input_tokens": 4074
+ },
+ "cost_usd": 0.0251568,
+ "latency_ms": 20502.5,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "06b08609f364ac6b4b93a42b1df6a3b22f480b8efb5936a82bd2e4b3b7b1edfd",
+ "context_chars": 0
+}

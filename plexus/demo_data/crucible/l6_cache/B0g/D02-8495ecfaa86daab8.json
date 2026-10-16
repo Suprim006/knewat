@@ -1,0 +1,25 @@
+{
+ "qid": "D02",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "243 of the decisions in sprints S001–S100 are based on at least one fact that was later superseded.\n\nI counted a decision if any fact in its `based_on` list has status `superseded`. I took each decision's sprint from the scope of its first `based_on` fact, which is valid because all its facts sit in one sprint. As a cross-check, the 600 facts marked `superseded` are exactly the 600 facts named in other facts' `supersedes` lists. Counting by either measure gives the same 243.\n\n{\"answer\": 243}",
+ "answer": 243,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 585,
+  "cache_read_input_tokens": 11993,
+  "cache_creation_input_tokens": 3595
+ },
+ "cost_usd": 0.0214373,
+ "latency_ms": 20171.5,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "8495ecfaa86daab8d8c3f2d57ba92490606f0e2332b833faa54c58de5857f822",
+ "context_chars": 0
+}

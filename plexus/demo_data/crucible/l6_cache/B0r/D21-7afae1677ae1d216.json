@@ -1,0 +1,23 @@
+{
+ "qid": "D21",
+ "arm": "B0r",
+ "family": "D",
+ "reply": "I can't compute this exactly from the excerpt. It shows only the superseded facts (about 169 of them) and none of the facts that replaced them. It also has no `supersedes` links, so I can't tell which agent asserted each replacement.\n\nMy answer is an estimate. With 12 agents, a replacement by a different agent is about 11/12 likely if agents are assigned independently. That gives 169 × 11/12 ≈ 155.\n\n{\"answer\": 155}",
+ "answer": 155,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 1221,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 17356
+ },
+ "cost_usd": 0.0816924,
+ "latency_ms": 12571.6,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "7afae1677ae1d21650edd2571561ef5fa8e3da24ac83b7d21241d3675a047f38",
+ "context_chars": 31656
+}

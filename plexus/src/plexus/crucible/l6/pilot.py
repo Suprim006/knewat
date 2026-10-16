@@ -41,7 +41,7 @@ PILOT_IDS = {
     "D": [0, 4, 8, 12, 16, 20, 1, 9],
 }
 ARMS = ("B0r", "B1a", "B0g", "P")
-ARM_CAPS = {"B0r": 3.0, "B1a": 7.0, "B0g": 8.0, "P": 2.0}
+ARM_CAPS = {"B0r": 3.0, "B1a": 7.0, "B0g": 8.0, "P": 6.0}  # P: 2.0 until amendment 5
 P_FAMILIES = ("A", "B")  # no product tool exists for D (P8 is not built): P-mcp is not asked D
 TOTAL_CAP = 20.0
 GATE_USD = 16.0

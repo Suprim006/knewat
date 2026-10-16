@@ -1,0 +1,50 @@
+{
+ "qid": "A07",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "Source s0013 affects 1000 facts, read by 70 agents, with 10 affected decisions and 10 affected handoffs. I traced it by following `derived_from` links from s0013 until no new facts were added. Agents, decisions and handoffs were then matched against that fact set.\n\n{\"facts\": 1000, \"agents\": 70, \"decisions\": 10, \"handoffs\": 10, \"probes\": [true, false, false, false, false, true, true, false, true, true], \"earliest5\": [\"f020574\", \"f009422\", \"f023187\", \"f014125\", \"f040407\"]}",
+ "answer": {
+  "facts": 1000,
+  "agents": 70,
+  "decisions": 10,
+  "handoffs": 10,
+  "probes": [
+   true,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   false,
+   true,
+   true
+  ],
+  "earliest5": [
+   "f020574",
+   "f009422",
+   "f023187",
+   "f014125",
+   "f040407"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 855,
+  "cache_read_input_tokens": 20447,
+  "cache_creation_input_tokens": 4176
+ },
+ "cost_usd": 0.027310700000000004,
+ "latency_ms": 29933.2,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "980373be541e8552c29de4a7de37702232b1a1eff0803317123d8f57e0e01754",
+ "context_chars": 0
+}

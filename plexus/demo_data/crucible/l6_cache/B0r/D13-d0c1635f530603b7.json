@@ -1,0 +1,23 @@
+{
+ "qid": "D13",
+ "arm": "B0r",
+ "family": "D",
+ "reply": "I can't determine this from the excerpt. It shows no handoffs.jsonl lines, so I can't see which facts any handoff carries. All I can see is that superseded facts appear in 115 distinct sprints. A handoff can only carry a superseded fact in one of those sprints, so 115 is a rough upper-bound estimate, not a counted result.\n\n{\"answer\": 115}",
+ "answer": 115,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 2,
+  "output_tokens": 1028,
+  "cache_read_input_tokens": 544,
+  "cache_creation_input_tokens": 17350
+ },
+ "cost_usd": 0.0797384,
+ "latency_ms": 11579.0,
+ "num_turns": 1,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [],
+ "permission_denials": [],
+ "key": "d0c1635f530603b7b3cac95a61ed22f8a1152075d89bad0b7a8ca085c0eae01e",
+ "context_chars": 31656
+}

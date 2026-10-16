@@ -1,0 +1,38 @@
+{
+ "qid": "D09",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "Twelve shared sources are cited by decisions in more than 16 different sprints. I traced each decision's `based_on` facts back through `derived_from` (following fact-to-fact links) to the `shared-` sources they come from. I then counted the distinct sprints in which each source appeared.\n\nI did not filter by fact status, so superseded and forgotten facts are included.\n\nThe sources above the threshold of 16 sprints:\n\n| Source | Sprints |\n|---|---|\n| `shared-01` | 69 |\n| `shared-02` | 68 |\n| `shared-03` | 36 |\n| `shared-04` | 45 |\n| `shared-05` | 35 |\n| `shared-06` | 32 |\n| `shared-07` | 31 |\n| `shared-08` | 28 |\n| `shared-09` | 19 |\n| `shared-11` | 18 |\n| `shared-14` | 17 |\n| `shared-15` | 18 |\n\n`shared-12`, `shared-13`, `shared-19` and `shared-25` have exactly 16 sprints, so they are not \"more than 16\". `shared-10`, `shared-16` and `shared-18` fall below that.\n\n{\"answer\": [\"shared-01\",\"shared-02\",\"shared-03\",\"shared-04\",\"shared-05\",\"shared-06\",\"shared-07\",\"shared-08\",\"shared-09\",\"shared-11\",\"shared-14\",\"shared-15\"]}",
+ "answer": [
+  "shared-01",
+  "shared-02",
+  "shared-03",
+  "shared-04",
+  "shared-05",
+  "shared-06",
+  "shared-07",
+  "shared-08",
+  "shared-09",
+  "shared-11",
+  "shared-14",
+  "shared-15"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 954,
+  "cache_read_input_tokens": 12026,
+  "cache_creation_input_tokens": 4511
+ },
+ "cost_usd": 0.0287946,
+ "latency_ms": 19536.6,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "b33a281e21db7a06fb957d177f08e8dac19678872550eb5690d6b57608d4c694",
+ "context_chars": 0
+}

@@ -1,0 +1,49 @@
+{
+ "qid": "A07",
+ "arm": "B1a",
+ "family": "A",
+ "reply": "In total, 1000 facts are affected by the poisoned source s0013, whether they derive from it directly or through other facts. Those facts reach 70 distinct agents, 10 decisions and 10 handoffs. I found the affected facts by following `derived_from` links outward from s0013 at any depth. I then counted the agents whose steps read an affected fact, the decisions based on one, and the handoffs that carry one.\n\nOf the ten probe facts, f030679, f040904, f039736, f046287 and f030735 are affected. The other five are not.\n\nI ranked the five earliest affected facts by `valid_from`.\n\n{\"facts\": 1000, \"agents\": 70, \"decisions\": 10, \"handoffs\": 10, \"probes\": [true, false, false, false, false, true, true, false, true, true], \"earliest5\": [\"f020574\", \"f009422\", \"f023187\", \"f014125\", \"f040407\"]}",
+ "answer": {
+  "facts": 1000,
+  "agents": 70,
+  "decisions": 10,
+  "handoffs": 10,
+  "probes": [
+   true,
+   false,
+   false,
+   false,
+   false,
+   true,
+   true,
+   false,
+   true,
+   true
+  ],
+  "earliest5": [
+   "f020574",
+   "f009422",
+   "f023187",
+   "f014125",
+   "f040407"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 1014,
+  "cache_read_input_tokens": 5287,
+  "cache_creation_input_tokens": 4309
+ },
+ "cost_usd": 0.0279127,
+ "latency_ms": 17787.7,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "1c3ca50db771402401a9dc298a1c242dd86f0a9244af730132239d35106e2666",
+ "context_chars": 0
+}

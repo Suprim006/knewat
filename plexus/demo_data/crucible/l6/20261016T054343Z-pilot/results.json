@@ -1,0 +1,437 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "pilot",
+ "run": {
+  "id": "20261016T054343Z-pilot",
+  "started_at": "2026-10-16T05:43:13Z",
+  "finished_at": "2026-10-16T05:43:43Z",
+  "stage": "measure",
+  "llm_calls": 8,
+  "calls_run_live": 0,
+  "cost_usd": 0.456,
+  "cost_live_usd": 0.0,
+  "cost_cumulative_usd": 0.456
+ },
+ "git": {
+  "commit": "40fcafea8e6bf08f2bf58b05b58284c42b82bd08",
+  "short": "40fcafe",
+  "dirty": false,
+  "branch": "p9a"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "40fcafe",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 0,
+   "reachable": false,
+   "error": "ConnectionError: Error 10049 connecting to 127.0.0.1:0. The requested address is not valid in its context."
+  },
+  "claude": "claude -p, model sonnet"
+ },
+ "prompt_version": "l6-v1",
+ "model": "sonnet",
+ "budget": {
+  "total_cap_usd": 20.0,
+  "arm_caps_usd": {
+   "B0r": 3.0,
+   "B1a": 7.0,
+   "B0g": 8.0,
+   "P": 2.0
+  },
+  "per_call_cap_usd": 0.8,
+  "gate_usd": 16.0,
+  "projected_usd": 4.6781872,
+  "measured_mean_cost": {
+   "B0r": 0.07152539999999999,
+   "B1a": 0.0228338,
+   "B0g": 0.0344497,
+   "P": 0.09917335
+  },
+  "arm_spent_cumulative_usd": {
+   "B0g": 0.0689,
+   "B0r": 0.1431,
+   "B1a": 0.0457,
+   "P": 0.1983
+  }
+ },
+ "partial": true,
+ "families": {
+  "A": {
+   "pilot_ids": [
+    "A01",
+    "A04",
+    "A06",
+    "A07",
+    "A10",
+    "A11",
+    "A13",
+    "A16"
+   ],
+   "n_questions": 8,
+   "arms": {}
+  },
+  "B": {
+   "pilot_ids": [
+    "B01",
+    "B05",
+    "B09",
+    "B10",
+    "B13",
+    "B14",
+    "B17",
+    "B21"
+   ],
+   "n_questions": 8,
+   "arms": {
+    "B0r": {
+     "n": 2,
+     "strict_correct": 1,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 17686.0,
+     "cost_usd": 0.1431,
+     "cost_per_question_usd": 0.0715,
+     "tool_calls_per_question": 0.0,
+     "latency_s_median": 9.5,
+     "components_correct": {
+      "agent": 2,
+      "chain": 1
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17571,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 434,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16591
+       },
+       "cost_usd": 0.070762,
+       "latency_ms": 11026.1,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31665,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The excerpt doesn't include f000008, so I could not trace the chain link by link. This answer is a best guess.\n\n- d00001 is based on f000008.\n- The only fact shown that derives directly from s00001 is f000004, asserted by a15. Its `derived_from` is `[\"s00001\", \"f000001\", \"f000002\", \"f000003\"]`.\n- I assumed f000008 links straight to f000004. Any intermediate facts between them are not visible, so the chain may be longer than shown.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": false,
+       "components": {
+        "chain": false,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 17801,
+       "usage": {
+        "input_tokens": 2,
+        "output_tokens": 535,
+        "cache_read_input_tokens": 544,
+        "cache_creation_input_tokens": 16720
+       },
+       "cost_usd": 0.072288,
+       "latency_ms": 7993.7,
+       "num_turns": 1,
+       "tool_calls": 0,
+       "tools": [],
+       "cached": true,
+       "context_chars": 31652,
+       "reply_format": "unparseable",
+       "expected": {
+        "chain": [
+         "f000312",
+         "f000308",
+         "f000304",
+         "f000300",
+         "f000296",
+         "f000292"
+        ],
+        "agent": "a10"
+       },
+       "got": "{\"chain\": [\"f000312\", \"f000292\"], \"agent\": \"a10\"}",
+       "reply": "The excerpt does not show f000312's `derived_from`, so I can't confirm the full chain. This is a best guess.\n\n- d00025 is based on exactly one fact, f000312.\n- The only fact in the excerpt that derives directly from s00241 is f000292, asserted by a10. Its sources are s00241, f000289, f000290 and f000291.\n- I assumed f000312 links to f000292 with no intermediate facts. The excerpt doesn't show whether any exist, so the chain may be longer.\n\n{\"chain\": [\"f000312\", \"f000292\"], \"agent\": \"a10\"}",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B1a": {
+     "n": 2,
+     "strict_correct": 2,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 9523.0,
+     "cost_usd": 0.0457,
+     "cost_per_question_usd": 0.0228,
+     "tool_calls_per_question": 1.0,
+     "latency_s_median": 18.3,
+     "components_correct": {
+      "agent": 2,
+      "chain": 2
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9460,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 465,
+        "cache_read_input_tokens": 4121,
+        "cache_creation_input_tokens": 4870
+       },
+       "cost_usd": 0.02455,
+       "latency_ms": 19691.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain is f000008 \u2192 f000004. Fact f000004 is derived directly from s00001, and agent a15 asserted it.\n\nI followed the derived-from links starting from the one fact that decision d00001 is based on, f000008. f000008 derives from f000004, f000005, f000006 and f000007. Of those, only f000004 links straight to s00001. The other branches reach different sources: f000005 to s00005, f000006 to s00006, f000007 to s00007.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 9586,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 455,
+        "cache_read_input_tokens": 5115,
+        "cache_creation_input_tokens": 4012
+       },
+       "cost_usd": 0.021118,
+       "latency_ms": 16859.5,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__sql__query"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs through the facts that lead to s00241: f000312 \u2192 f000308 \u2192 f000304 \u2192 f000300 \u2192 f000296 \u2192 f000292. Fact f000292 is derived directly from s00241, and agent a10 asserted it.\n\nI checked the decision's fact links with a recursive query. Decision d00025 rests on one fact, f000312. At each step I followed the one derived-from link that continues toward s00241. The other links at each step end at different sources, so they don't lead there.\n\n{\"chain\": [\"f000312\",\"f000308\",\"f000304\",\"f0003",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "B0g": {
+     "n": 2,
+     "strict_correct": 2,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 36301.5,
+     "cost_usd": 0.0689,
+     "cost_per_question_usd": 0.0345,
+     "tool_calls_per_question": 5.0,
+     "latency_s_median": 19.0,
+     "components_correct": {
+      "agent": 2,
+      "chain": 2
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 27096,
+       "usage": {
+        "input_tokens": 8,
+        "output_tokens": 733,
+        "cache_read_input_tokens": 21858,
+        "cache_creation_input_tokens": 4497
+       },
+       "cost_usd": 0.02752,
+       "latency_ms": 16389.2,
+       "num_turns": 5,
+       "tool_calls": 4,
+       "tools": [
+        "Grep"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision is based on only one fact, f000008. That fact is derived from f000004, f000005, f000006 and f000007. Of those four, only f000004 is derived directly from s00001, and agent a15 asserted it.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 45507,
+       "usage": {
+        "input_tokens": 12,
+        "output_tokens": 1273,
+        "cache_read_input_tokens": 38016,
+        "cache_creation_input_tokens": 6206
+       },
+       "cost_usd": 0.04138,
+       "latency_ms": 21617.4,
+       "num_turns": 7,
+       "tool_calls": 6,
+       "tools": [
+        "Grep"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The chain runs from the decision's fact, f000312, down to f000292, the fact derived directly from s00241. I traced it by following each fact's `derived_from` list.\n\nd00025 is based on only f000312. Each link below is a `derived_from` entry of the fact before it:\n\n- f000312 derives from f000308.\n- f000308 derives from f000304.\n- f000304 derives from f000300.\n- f000300 derives from f000296.\n- f000296 derives from f000292.\n- f000292 derives from s00241 directly.\n\nThe other parents of each of these ",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    },
+    "P": {
+     "n": 2,
+     "strict_correct": 2,
+     "completed": true,
+     "strict_whole_reply_json": 0,
+     "errors": 0,
+     "tokens_per_question": 63619.5,
+     "cost_usd": 0.1983,
+     "cost_per_question_usd": 0.0992,
+     "tool_calls_per_question": 1.0,
+     "latency_s_median": 20.7,
+     "components_correct": {
+      "agent": 2,
+      "chain": 2
+     },
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 60541,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 223,
+        "cache_read_input_tokens": 27814,
+        "cache_creation_input_tokens": 32500
+       },
+       "cost_usd": 0.135019,
+       "latency_ms": 25150.6,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision d00001 is based on one fact, f000008. That fact is derived from f000004, and f000004 is derived directly from s00001. The chain is f000008 \u2192 f000004.\n\nf000004 was asserted by a15.\n\nThe other facts that f000008 and f000004 derive from lead to other sources, not s00001. So they aren't part of this chain.\n\n{\"chain\": [\"f000008\", \"f000004\"], \"agent\": \"a15\"}",
+       "model": "claude-sonnet-5-5"
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "parse_error": "",
+       "tokens": 66698,
+       "usage": {
+        "input_tokens": 4,
+        "output_tokens": 393,
+        "cache_read_input_tokens": 52773,
+        "cache_creation_input_tokens": 13528
+       },
+       "cost_usd": 0.063327,
+       "latency_ms": 16200.7,
+       "num_turns": 2,
+       "tool_calls": 1,
+       "tools": [
+        "mcp__plexus__why"
+       ],
+       "cached": true,
+       "context_chars": 0,
+       "reply_format": "unparseable",
+       "expected": null,
+       "got": null,
+       "reply": "The decision's single fact reaches s00241 through five derived-from links. I read them from the `why` result for d00025:\n\n- d00025 is based on f000312.\n- f000312 derives from f000308.\n- f000308 derives from f000304.\n- f000304 derives from f000300.\n- f000300 derives from f000296.\n- f000296 derives from f000292.\n- f000292 derives directly from s00241, and a10 asserted f000292.\n\n{\"chain\": [\"f000312\", \"f000308\", \"f000304\", \"f000300\", \"f000296\", \"f000292\"], \"agent\": \"a10\"}",
+       "model": "claude-sonnet-5-5"
+      }
+     ]
+    }
+   }
+  },
+  "D": {
+   "pilot_ids": [
+    "D01",
+    "D05",
+    "D09",
+    "D13",
+    "D17",
+    "D21",
+    "D02",
+    "D10"
+   ],
+   "n_questions": 8,
+   "arms": {}
+  }
+ },
+ "scoring": "reply may start with prose and must END with one {\"answer\": ...} object; strict = every component exact; whole-reply-JSON variant reported",
+ "cache": "demo_data/crucible/l6_cache"
+}

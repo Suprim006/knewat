@@ -1,0 +1,35 @@
+{
+ "qid": "B10",
+ "arm": "B0g",
+ "family": "B",
+ "reply": "Decision d00019 is based on exactly one fact, f000208. Following the derived-from links, the only path from f000208 to s00163 is f000208 → f000204 → f000200 → f000196. Fact f000196 is derived directly from s00163, and agent a06 asserted it.\n\n{\"chain\": [\"f000208\", \"f000204\", \"f000200\", \"f000196\"], \"agent\": \"a06\"}",
+ "answer": {
+  "chain": [
+   "f000208",
+   "f000204",
+   "f000200",
+   "f000196"
+  ],
+  "agent": "a06"
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 8,
+  "output_tokens": 691,
+  "cache_read_input_tokens": 27913,
+  "cache_creation_input_tokens": 4043
+ },
+ "cost_usd": 0.025889299999999997,
+ "latency_ms": 28207.3,
+ "num_turns": 4,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "2377fb93ad1e91c7420caa87619353608be1c92433cf60349117c2e6006f5f02",
+ "context_chars": 0
+}

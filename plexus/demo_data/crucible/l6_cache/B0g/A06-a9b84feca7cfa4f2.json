@@ -1,0 +1,49 @@
+{
+ "qid": "A06",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "I traced the poisoning from s0011 through the facts' `derived_from` links until no new facts turned up. Then I checked which agent logs, decisions and handoffs touch those facts.\n\n- **Facts:** 100 are affected.\n- **Agents:** 16 distinct agents read at least one affected fact.\n- **Decisions:** 2 are based on an affected fact.\n- **Handoffs:** 3 carry an affected fact.\n- **Probes:** f025760, f021796, f012407, f010365 and f014619 are affected. The other five are not.\n- **Earliest five:** f032441, f016923, f048671, f020806, f007475, oldest first.\n\nI didn't separately check for facts with status superseded or forgotten, so they are counted if they derive from s0011.\n\n{\"facts\": 100, \"agents\": 16, \"decisions\": 2, \"handoffs\": 3, \"probes\": [false, false, true, true, false, false, true, true, false, true], \"earliest5\": [\"f032441\", \"f016923\", \"f048671\", \"f020806\", \"f007475\"]}",
+ "answer": {
+  "facts": 100,
+  "agents": 16,
+  "decisions": 2,
+  "handoffs": 3,
+  "probes": [
+   false,
+   false,
+   true,
+   true,
+   false,
+   false,
+   true,
+   true,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f032441",
+   "f016923",
+   "f048671",
+   "f020806",
+   "f007475"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 899,
+  "cache_read_input_tokens": 12106,
+  "cache_creation_input_tokens": 3929
+ },
+ "cost_usd": 0.0259246,
+ "latency_ms": 27964.9,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "a9b84feca7cfa4f22f2cb9804b6cd59657d71d84873669ecb2175fad4b856de5",
+ "context_chars": 0
+}

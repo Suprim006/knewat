@@ -1,0 +1,26 @@
+{
+ "qid": "D21",
+ "arm": "B0g",
+ "family": "D",
+ "reply": "Across all sprints, 552 facts were superseded by a fact from a different agent than the one who recorded the original.\n\nI counted each superseded fact once, comparing the agent on the original fact with the agent on the fact whose `supersedes` list names it. 600 facts have status `superseded`, and 600 distinct fact ids appear in some `supersedes` list. Of those 600, 552 were replaced by a different agent.\n\n{\"answer\": 552}",
+ "answer": 552,
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 679,
+  "cache_read_input_tokens": 19940,
+  "cache_creation_input_tokens": 3851
+ },
+ "cost_usd": 0.024200000000000003,
+ "latency_ms": 20255.4,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "02b0fdca935730138b462eec1ab40144315e7533b929e6be0912b06973b91705",
+ "context_chars": 0
+}

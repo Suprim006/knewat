@@ -1,0 +1,50 @@
+{
+ "qid": "A10",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "Starting from s0019, 100 facts are affected, counting facts that derive from it directly or through other affected facts.\n\n- **Agents:** 57 distinct agents read at least one affected fact.\n- **Decisions:** 4 are based on an affected fact.\n- **Handoffs:** 3 carry an affected fact.\n- **Probes:** f017581, f046578, f028841, f004585 and f048923 are affected. The other five (f027199, f013722, f009494, f024195, f007582) are not.\n- **Earliest five:** f049469, f007868, f007497, f029912, f011381, oldest first by `at`.\n\n{\"facts\": 100, \"agents\": 57, \"decisions\": 4, \"handoffs\": 3, \"probes\": [false, true, true, false, false, false, true, true, true, false], \"earliest5\": [\"f049469\", \"f007868\", \"f007497\", \"f029912\", \"f011381\"]}",
+ "answer": {
+  "facts": 100,
+  "agents": 57,
+  "decisions": 4,
+  "handoffs": 3,
+  "probes": [
+   false,
+   true,
+   true,
+   false,
+   false,
+   false,
+   true,
+   true,
+   true,
+   false
+  ],
+  "earliest5": [
+   "f049469",
+   "f007868",
+   "f007497",
+   "f029912",
+   "f011381"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 6,
+  "output_tokens": 1039,
+  "cache_read_input_tokens": 20524,
+  "cache_creation_input_tokens": 4273
+ },
+ "cost_usd": 0.029546399999999997,
+ "latency_ms": 31315.0,
+ "num_turns": 3,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash",
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "c43262deb59f2d320ecac8f9d13b626bf08422787a7f0d9307bb3c0c4840ec8e",
+ "context_chars": 0
+}

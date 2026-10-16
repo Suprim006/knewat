@@ -1,0 +1,35 @@
+{
+ "qid": "B14",
+ "arm": "B1a",
+ "family": "B",
+ "reply": "The chain runs f000360 → f000356 → f000352 → f000348 → f000344 → f000340. Fact f000340 is derived directly from s00279. Agent a05 asserted f000340.\n\nI followed the derived-from links from d00027's single fact. At each level, exactly one of the parent facts led onward. The other parents were derived from other sources.\n\n{\"chain\": [\"f000360\",\"f000356\",\"f000352\",\"f000348\",\"f000344\",\"f000340\"], \"agent\": \"a05\"}",
+ "answer": {
+  "chain": [
+   "f000360",
+   "f000356",
+   "f000352",
+   "f000348",
+   "f000344",
+   "f000340"
+  ],
+  "agent": "a05"
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 421,
+  "cache_read_input_tokens": 5141,
+  "cache_creation_input_tokens": 4040
+ },
+ "cost_usd": 0.0208921,
+ "latency_ms": 11143.8,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "7482c4bfb4e0cfe3b6d83d3fb76da7401639f1432aaf951d645fc4d6bfb93086",
+ "context_chars": 0
+}

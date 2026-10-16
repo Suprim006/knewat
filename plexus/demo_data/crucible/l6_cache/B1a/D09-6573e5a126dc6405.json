@@ -1,0 +1,38 @@
+{
+ "qid": "D09",
+ "arm": "B1a",
+ "family": "D",
+ "reply": "Twelve shared sources are cited by decisions in more than 16 different sprints. I followed each decision's facts back through their `derived_from` links to the shared sources, then counted distinct fact scopes (sprints) per source.\n\n| Source | Sprints |\n|---|---|\n| shared-01 | 69 |\n| shared-02 | 68 |\n| shared-03 | 36 |\n| shared-04 | 45 |\n| shared-05 | 35 |\n| shared-06 | 32 |\n| shared-07 | 31 |\n| shared-08 | 28 |\n| shared-09 | 19 |\n| shared-11 | 18 |\n| shared-14 | 17 |\n| shared-15 | 18 |\n\nI didn't filter on fact status, so superseded and forgotten facts are included in the counts.\n\n{\"answer\": [\"shared-01\",\"shared-02\",\"shared-03\",\"shared-04\",\"shared-05\",\"shared-06\",\"shared-07\",\"shared-08\",\"shared-09\",\"shared-11\",\"shared-14\",\"shared-15\"]}",
+ "answer": [
+  "shared-01",
+  "shared-02",
+  "shared-03",
+  "shared-04",
+  "shared-05",
+  "shared-06",
+  "shared-07",
+  "shared-08",
+  "shared-09",
+  "shared-11",
+  "shared-14",
+  "shared-15"
+ ],
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 769,
+  "cache_read_input_tokens": 5199,
+  "cache_creation_input_tokens": 3768
+ },
+ "cost_usd": 0.023289900000000002,
+ "latency_ms": 12821.6,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "mcp__sql__query"
+ ],
+ "permission_denials": [],
+ "key": "6573e5a126dc6405dbbad87d44f4dc14bf572261c07d890e79c4623f89de240d",
+ "context_chars": 0
+}

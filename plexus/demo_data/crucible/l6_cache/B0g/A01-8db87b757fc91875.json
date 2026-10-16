@@ -1,0 +1,49 @@
+{
+ "qid": "A01",
+ "arm": "B0g",
+ "family": "A",
+ "reply": "I computed this with a script over the data files. It follows `derived_from` links from s0001 until no new facts turn up, then checks which agents, decisions and handoffs touch those facts.\n\n- 10 facts are affected.\n- 18 agents read at least one affected fact. I counted one agent per file in `logs/`.\n- 2 decisions are based on an affected fact.\n- 2 handoffs carry an affected fact.\n- Of the probe facts, f043558, f023895, f050274, f005300 and f006332 are affected. The other five are not.\n- The five earliest affected facts, oldest first, are f006332, f005300, f043558, f025922 and f023895.\n\n{\"facts\": 10, \"agents\": 18, \"decisions\": 2, \"handoffs\": 2, \"probes\": [false, true, false, false, true, true, false, true, false, true], \"earliest5\": [\"f006332\", \"f005300\", \"f043558\", \"f025922\", \"f023895\"]}",
+ "answer": {
+  "facts": 10,
+  "agents": 18,
+  "decisions": 2,
+  "handoffs": 2,
+  "probes": [
+   false,
+   true,
+   false,
+   false,
+   true,
+   true,
+   false,
+   true,
+   false,
+   true
+  ],
+  "earliest5": [
+   "f006332",
+   "f005300",
+   "f043558",
+   "f025922",
+   "f023895"
+  ]
+ },
+ "parse_error": "",
+ "error": "",
+ "usage": {
+  "input_tokens": 4,
+  "output_tokens": 929,
+  "cache_read_input_tokens": 7669,
+  "cache_creation_input_tokens": 8398
+ },
+ "cost_usd": 0.0436569,
+ "latency_ms": 30792.4,
+ "num_turns": 2,
+ "model": "claude-sonnet-5-5",
+ "tools_used": [
+  "Bash"
+ ],
+ "permission_denials": [],
+ "key": "8db87b757fc9187516eca299ac0f0c5e0b4c85b25aacc9d957db64d08acbe198",
+ "context_chars": 0
+}
