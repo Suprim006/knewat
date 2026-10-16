@@ -276,8 +276,12 @@ class Relay:
         artifact_ids: Iterable[str] = (),
         fact_ids: Iterable[str] = (),
         now: int | None = None,
+        *,
+        step_id: str | None = None,
     ) -> str:
         """Create a Handoff node carrying artifacts and facts; returns its id.
+
+        ``step_id`` (an existing Step) makes the same statement also write ``(Step)-[:WROTE]->(Handoff)``.
 
         All-or-nothing: raises :class:`UnknownReference` (and writes nothing) if either agent, the task, or
         any artifact/fact id does not exist.
@@ -296,6 +300,7 @@ class Relay:
                 "note": note,
                 "artifact_ids": arts,
                 "fact_ids": facts,
+                "step_id": step_id or "",
                 "now": self._clock() if now is None else now,
             },
         )
@@ -321,8 +326,13 @@ class Relay:
         text: str,
         based_on_fact_ids: Iterable[str] = (),
         now: int | None = None,
+        *,
+        step_id: str | None = None,
     ) -> str:
-        """Record a Decision BASED_ON facts; returns its id. If any fact id is unknown, nothing is written."""
+        """Record a Decision BASED_ON facts; returns its id. If any fact id is unknown, nothing is written.
+
+        ``step_id`` (an existing Step) makes the same statement also write ``(Step)-[:WROTE]->(Decision)``.
+        """
         facts = unique(based_on_fact_ids)
         _bound_refs([], facts)
         did = new_id()
@@ -335,6 +345,7 @@ class Relay:
                 "task": task_id,
                 "text": text,
                 "fact_ids": facts,
+                "step_id": step_id or "",
                 "now": self._clock() if now is None else now,
             },
         )

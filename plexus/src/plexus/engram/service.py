@@ -73,6 +73,20 @@ def token_key(text: str) -> str:
     return " ".join(numeric_tokens(text))
 
 
+_TRAILING_LETTER = re.compile(r"[a-z0-9][-_]([a-z])$")
+
+
+def entity_key(name: str) -> str:
+    """The key two entity names must share for the vector path to merge them (``Entity.num_key``).
+
+    P9-c's discriminator key (numbers, unit-normalised quantities, number words, negation / antonyms; see
+    ``plexus.engram.dedup``) plus a hyphenated trailing single letter: ``auth-service-a`` and
+    ``auth-service-b`` are two services, although every other token is the same and the embeddings are close.
+    """
+    letter = _TRAILING_LETTER.search(name.strip().lower())
+    return " ".join(x for x in (features(name).key, f"s:{letter.group(1)}" if letter else "") if x)
+
+
 def _query_words(query: str) -> list[str]:
     """The query words the full-text side searches for (>= 3 characters, at most ``MAX_KEYWORDS``)."""
     return list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
@@ -195,7 +209,7 @@ class Engram:
             "kind": kind,
             "tok": tok,
             # entities that differ only in numbers/versions are different things
-            "num_key": token_key(name),
+            "num_key": entity_key(name),
             # OR of the tokens; a name without a word character gets a sentinel that matches nothing
             "q": "|".join(tok[:MAX_ENTITY_QUERY_TOKENS]) or NO_TOKEN,
             "emb": emb,
@@ -292,8 +306,11 @@ class Engram:
         subject_kind: str = "thing",
         step: int | None = None,  # noqa: ARG002 - reserved: Lineage appends the Step edges to the statement
         dup_threshold: float | None = None,
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
+
+        ``step_id`` (an existing Step): a NEW fact is linked ``(Step)-[:WROTE]->(Fact)`` by that statement.
 
         Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id, surprise}``. ``surprise`` is the
         value stored on the new fact (0.9 contradiction, 0.6 supersede, else novelty in 0..0.5; ``None`` for a
@@ -347,6 +364,7 @@ class Engram:
                 "agent_id": agent_id,
                 "source_id": source_id,
                 "episode_id": episode_id,
+                "step_id": step_id or "",
                 "confidence": float(confidence),
                 "supersede": bool(supersede),
                 "now": t,

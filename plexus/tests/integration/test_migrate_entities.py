@@ -80,7 +80,7 @@ def test_backfill_sets_tok_and_num_key_and_is_idempotent(client, lg):
     rep = backfill_entity_keys(client, lg)
     assert (rep["total"], rep["missing"], rep["updated"]) == (6, 6, 6)
     assert props(client, lg, "e2") == [["auth", "gateway", "service"], ""]
-    assert props(client, lg, "e5") == [["1", "service"], "1"]
+    assert props(client, lg, "e5") == [["1", "service"], "n:1"]  # the discriminator key (P9-int)
     again = backfill_entity_keys(client, lg)
     assert (again["missing"], again["updated"]) == (0, 0)
 

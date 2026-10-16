@@ -11,7 +11,7 @@ import pytest
 from plexus.common import normalize
 from plexus.embed import FastEmbedder, HashEmbedder
 from plexus.engram import Engram
-from plexus.engram.service import ENTITY_NEAR, FULLTEXT_JACCARD, _tokens, token_key
+from plexus.engram.service import ENTITY_NEAR, FULLTEXT_JACCARD, _tokens, entity_key
 
 
 @pytest.fixture(scope="module")
@@ -39,7 +39,7 @@ def _stmt(eng: Engram, name: str, kind: str = "thing", *, k: int = 5, thr: float
             "name": " ".join(name.split()),
             "kind": kind,
             "tok": tok,
-            "num_key": token_key(name),
+            "num_key": entity_key(name),
             "q": "|".join(tok) or "plexusnomatchtoken",
             "emb": eng._embed([name])[0],
             "entity_id": f"id-{normalize(name)}",

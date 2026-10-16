@@ -123,6 +123,11 @@ class Lineage:
             raise StepOrderError(f"agent '{agent_id}' already has a step after n={r['n']}")
         return r["step_id"]
 
+    def discard_step(self, step_id: str) -> bool:
+        """Delete a Step nothing was linked to (its call failed); ``False`` if it is not an empty Step."""
+        rows = self.client.rw(self.graph, "lineage/discard_step", {"step_id": step_id})
+        return bool(rows and rows[0]["discarded"])
+
     def link_step(
         self,
         step_id: str,
@@ -224,16 +229,21 @@ class Lineage:
             self._raise_unknown(([step_id] if step_id else []) + [r["fact_id"] for r in rows])
         return recall_id
 
-    def link_assert_result(self, step_id: str, result: dict[str, Any]) -> dict[str, int]:
+    def link_assert_result(
+        self, step_id: str, result: dict[str, Any], *, wrote_linked: bool = False
+    ) -> dict[str, int]:
         """Link the outcome of ``Engram.assert_fact`` to a step.
 
         A new fact is WROTE; a duplicate, and the facts the assertion superseded or contradicts, are READ (the
-        writer had to look at them).
+        writer had to look at them). ``wrote_linked``: the assert statement already wrote the WROTE edge
+        (``assert_fact(step_id=...)``), so only the READ edges are left.
         """
         fid = result["fact_id"]
         read = [*result.get("superseded", ()), *result.get("contradicts", ())]
         if result.get("duplicate_of"):
             return self.link_step(step_id, read_ids=[fid, *read])
+        if wrote_linked:
+            return self.link_step(step_id, read_ids=read) if read else {"read": 0, "wrote": 0}
         return self.link_step(step_id, wrote_ids=[fid], read_ids=read)
 
     # -- forgetting -------------------------------------------------------------------------------------

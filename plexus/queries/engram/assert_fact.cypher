@@ -1,7 +1,7 @@
 // name: engram/assert_fact
 // purpose: ONE atomic statement: classify the new assertion against the current facts of the same entity+predicate+scope (duplicate / supersede / contradiction), then write it with provenance.
 // params: entity_id:str, predicate:str, value:str, norm_value:str, value_tokens:str, dup_key:str, tok:list[str], tok_seq:list[str], scope_id:str, agent_id:str,
-//   source_id:str, episode_id:str, confidence:float, supersede:bool, now:int, open_to:int,
+//   source_id:str, episode_id:str, step_id:str ('' = none), confidence:float, supersede:bool, now:int, open_to:int,
 //   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float, jac2:float, cos2:float, maybe_cos:float, maybe_jac:float, maybe_cap:int,
 //   novelty:float, surprise_supersede:float, surprise_contradict:float
 // returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, or a given episode/source does not exist (nothing is written, not even the Agent)
@@ -33,6 +33,8 @@
 //                of windows stays contiguous and non-negative. ASSERTED_BY.at / recorded_at keep the caller's `now`.
 //   otherwise  -> clashing  = the remaining current facts (other agents' view)
 //                 new Fact (valid_from=ts); closing get valid_to=ts,status='superseded' + (new)-[:SUPERSEDES]->(old); clashing get (new)-[:CONTRADICTS]->(old) and stay active
+// step_id (P9-int): the Step the runtime opened before this call ('' = none). A NEW fact is linked (Step)-[:WROTE]->(fact) in this same
+// statement, so a crash cannot leave a fact without its WROTE edge (L6-F). A duplicate writes no fact and no WROTE.
 // Plan shape (P5 review Q2): the current-fact lookup is anchored at the Entity (its ABOUT edges, then the predicate / status / valid_to
 // filters, then the scope test via Expand Into). With `Fact {subject_id: ...}-[:IN_SCOPE]->(sc)` the planner started at the bound Scope
 // and enumerated every fact of it, so the write-serialised assert path cost O(facts in the scope). subject_id always equals the ABOUT
@@ -48,17 +50,18 @@
 MATCH (e:Entity {id: $entity_id}), (sc:Scope {id: $scope_id})
 OPTIONAL MATCH (ep:Episode {id: $episode_id})
 OPTIONAL MATCH (src:Source {id: $source_id})
+OPTIONAL MATCH (stp:Step {id: $step_id})
 OPTIONAL MATCH (e)<-[:ABOUT]-(f:Fact {predicate: $predicate, valid_to: $open_to})-[:IN_SCOPE]->(sc)
 WHERE f.status IN ['active', 'dormant']
-WITH e, sc, ep, src, collect(f) AS cur
+WITH e, sc, ep, src, stp, collect(f) AS cur
 WHERE ($episode_id = '' OR ep IS NOT NULL) AND ($source_id = '' OR src IS NOT NULL)
 MERGE (ag:Agent {id: $agent_id})
   ON CREATE SET ag.name = $agent_id, ag.created_at = $now
-WITH ag, e, sc, ep, src, cur,
+WITH ag, e, sc, ep, src, stp, cur,
      [xk IN cur WHERE xk.dup_key = $dup_key
       | {n: xk, cos: vec.cosineDistance(xk.value_embedding, vecf32($value_emb)),
          inter: size([kt IN $tok WHERE kt IN xk.tok]), nt: size(xk.tok)}] AS keyed0
-WITH ag, e, sc, ep, src, cur,
+WITH ag, e, sc, ep, src, stp, cur,
      [xk IN keyed0
       | {n: xk.n, cos: xk.cos,
          jac: CASE WHEN size($tok) + xk.nt = 0 THEN 0.0 ELSE toFloat(xk.inter) / (size($tok) + xk.nt - xk.inter) END,
@@ -66,24 +69,24 @@ WITH ag, e, sc, ep, src, cur,
                   OR (size($tok) - xk.inter = 1 AND xk.nt - xk.inter = 1)
                   OR (size(xk.n.tok_seq) = size($tok_seq)
                       AND size([qi IN range(0, size($tok_seq) - 1) WHERE xk.n.tok_seq[qi] <> $tok_seq[qi]]) = 1)}] AS keyed
-WITH ag, e, sc, ep, src, cur, keyed,
+WITH ag, e, sc, ep, src, stp, cur, keyed,
      head([xe IN cur WHERE xe.norm_value = $norm_value]
           + [xn IN keyed WHERE NOT xn.blocked AND xn.cos <= $dup_threshold | xn.n]
           + [xj IN keyed WHERE NOT xj.blocked AND $dup_threshold >= 0 AND xj.jac >= $jac2 AND xj.cos <= $cos2 | xj.n]) AS dup
-WITH ag, e, sc, ep, src, cur, dup, keyed,
+WITH ag, e, sc, ep, src, stp, cur, dup, keyed,
      [xc IN cur WHERE (dup IS NULL OR xc.id <> dup.id)
                       AND ($supersede OR all(ac IN [(xc)-[:ASSERTED_BY]->(oc:Agent) | oc.id] WHERE ac = $agent_id))] AS closing
-WITH ag, e, sc, ep, src, cur, dup, closing,
+WITH ag, e, sc, ep, src, stp, cur, dup, closing,
      CASE WHEN dup IS NULL AND $maybe_cap > 0 THEN
        [sx IN keyed WHERE sx.cos <= $maybe_cos OR sx.jac >= $maybe_jac][0..$maybe_cap]
      ELSE [] END AS soft
-WITH ag, e, sc, ep, src, cur, dup, closing, soft,
+WITH ag, e, sc, ep, src, stp, cur, dup, closing, soft,
      reduce(m = $now, xt IN closing | CASE WHEN xt.valid_from > m THEN xt.valid_from ELSE m END) AS ts
-WITH ag, e, sc, ep, src, dup, closing, soft, ts,
+WITH ag, e, sc, ep, src, stp, dup, closing, soft, ts,
      CASE WHEN dup IS NULL THEN
        [xk IN cur WHERE NOT ($supersede OR all(ak IN [(xk)-[:ASSERTED_BY]->(ok:Agent) | ok.id] WHERE ak = $agent_id))]
      ELSE [] END AS clashing
-WITH ag, e, sc, ep, src, dup, closing, soft, ts, clashing,
+WITH ag, e, sc, ep, src, stp, dup, closing, soft, ts, clashing,
      CASE WHEN size(clashing) > 0 THEN $surprise_contradict
           WHEN size(closing) > 0 THEN $surprise_supersede
           ELSE $novelty END AS sp
@@ -104,6 +107,7 @@ FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   CREATE (nf)-[:ABOUT]->(e)
   CREATE (nf)-[:IN_SCOPE]->(sc)
   CREATE (nf)-[:ASSERTED_BY {at: $now}]->(ag)
+  FOREACH (sw IN CASE WHEN stp IS NULL THEN [] ELSE [stp] END | CREATE (sw)-[:WROTE]->(nf))
   FOREACH (ne IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | CREATE (nf)-[:DERIVED_FROM]->(ne))
   FOREACH (ns IN CASE WHEN src IS NULL THEN [] ELSE [src] END | CREATE (nf)-[:DERIVED_FROM]->(ns))
   FOREACH (c IN closing | SET c.valid_to = ts, c.status = 'superseded' CREATE (nf)-[:SUPERSEDES]->(c))

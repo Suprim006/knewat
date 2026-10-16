@@ -32,6 +32,8 @@ MATCH ()-[r:DESCRIBES]->() WITH count(r) AS n WHERE n > 0 RETURN 'DESCRIBES' AS 
 UNION ALL
 MATCH ()-[r:DUPLICATES]->() WITH count(r) AS n WHERE n > 0 RETURN 'DUPLICATES' AS type, n
 UNION ALL
+MATCH ()-[r:DUPLICATES_MAYBE]->() WITH count(r) AS n WHERE n > 0 RETURN 'DUPLICATES_MAYBE' AS type, n
+UNION ALL
 MATCH ()-[r:FOR]->() WITH count(r) AS n WHERE n > 0 RETURN 'FOR' AS type, n
 UNION ALL
 MATCH ()-[r:FROM]->() WITH count(r) AS n WHERE n > 0 RETURN 'FROM' AS type, n
