@@ -33,11 +33,14 @@ def test_numeric_difference_from_other_agent_is_a_contradiction(eng, proj):
     assert r2["duplicate_of"] is None and r2["contradicts"] == [r1["fact_id"]]
 
 
-def test_reordered_value_with_same_numbers_is_still_a_paraphrase_duplicate(eng, client, graph, proj):
+def test_reordered_value_with_same_numbers_is_a_soft_duplicate_not_a_merge(eng, client, graph, proj):
+    """P9-c B0: the same words in another order may be the opposite statement ('A calls B' / 'B calls A'), so
+    the sequence guard never auto-merges them; the new fact is stored and linked as a possible duplicate."""
     r1 = eng.assert_fact("Acme", "release", "build 12 acme service", proj, "a1", now=1000)
     r2 = eng.assert_fact("Acme", "release", "service acme build 12", proj, "a2", now=2000)
-    assert r2["duplicate_of"] == r1["fact_id"]
-    assert _count(client, graph, "MATCH (f:Fact) RETURN count(f)") == 1
+    assert r2["duplicate_of"] is None
+    assert [p["fact_id"] for p in r2["possible_duplicates"]] == [r1["fact_id"]]
+    assert _count(client, graph, "MATCH (f:Fact) RETURN count(f)") == 2
 
 
 def test_same_words_different_version_tokens_never_duplicate(eng, proj):

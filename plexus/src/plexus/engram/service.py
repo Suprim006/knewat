@@ -21,6 +21,7 @@ from plexus.common import OPEN, check_between, normalize
 from plexus.common import new_id as _new_id
 from plexus.common import now_ms as _now_ms  # module attribute: crucible's l5 pins it to fake the clock
 from plexus.embed import Embedder, embed_checked, get_embedder
+from plexus.engram.dedup import MAYBE_CAP, DedupSettings, features
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
 
@@ -99,12 +100,14 @@ class Engram:
         *,
         entity_threshold: float = ENTITY_NEAR,
         dup_threshold: float = FACT_DUP,
+        dedup: DedupSettings | None = None,
     ):
         self.client = client
         self.graph = graph
         self.embedder = embedder or get_embedder()
         self.entity_threshold = entity_threshold
         self.dup_threshold = dup_threshold
+        self.dedup = dedup or DedupSettings.from_env()
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
         """Embed ``texts`` and refuse a vector that is not 384 floats (FalkorDB would store it silently)."""
@@ -334,6 +337,8 @@ class Engram:
         )
         text_emb, value_emb = self._embed([fact_text(entity["name"], pred, value), value])
         novelty = self._novelty(text_emb, scope_id)
+        dup_t = self.dup_threshold if dup_threshold is None else dup_threshold
+        feat = features(value)
         rows = self.client.rw(
             self.graph,
             "engram/assert_fact",
@@ -343,6 +348,9 @@ class Engram:
                 "value": " ".join(value.split()),
                 "norm_value": norm_value,
                 "value_tokens": token_key(value),
+                "dup_key": feat.key,
+                "tok": feat.tok,
+                "tok_seq": feat.seq,
                 "scope_id": scope_id,
                 "agent_id": agent_id,
                 "source_id": source_id,
@@ -354,7 +362,14 @@ class Engram:
                 "fact_id": _new_id(),
                 "emb": text_emb,
                 "value_emb": value_emb,
-                "dup_threshold": self.dup_threshold if dup_threshold is None else dup_threshold,
+                "dup_threshold": dup_t,
+                "jac2": self.dedup.jaccard,
+                "cos2": self.dedup.tier2_cos,
+                "maybe_cos": self.dedup.maybe_cos,
+                "maybe_jac": self.dedup.maybe_jaccard,
+                "maybe_cap": MAYBE_CAP
+                if dup_t >= 0
+                else 0,  # a negative threshold = exact duplicates only (verify_fact)
                 "novelty": novelty,
                 "surprise_supersede": act.SURPRISE_SUPERSEDE,
                 "surprise_contradict": act.SURPRISE_CONTRADICT,
@@ -371,6 +386,15 @@ class Engram:
             "contradicts": list(r["contradicts"]),
             "entity_id": entity["id"],
             "surprise": r["surprise"],
+            "possible_duplicates": [
+                {
+                    "fact_id": m["id"],
+                    "value": m["value"],
+                    "cos": round(m["cos"], 4),
+                    "jaccard": round(m["jac"], 4),
+                }
+                for m in sorted(r["maybe"], key=lambda m: m["cos"])
+            ],
         }
 
     def _novelty(self, text_emb: list[float], scope_id: str) -> float:
@@ -563,6 +587,7 @@ class Engram:
             "surprise": r["surprise"],
             "activation": None if fa is None else fa.activation,
             "protected": None if fa is None else fa.protected,
+            "maybe_duplicate_of": list(r.get("maybe_dup") or []),
             **self._suspect_fields(r, t, reasons),
         }
 
