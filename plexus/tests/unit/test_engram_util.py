@@ -33,6 +33,8 @@ def test_every_engram_query_loads_and_modes():
         "engram/find_entity_exact",
         "engram/find_entity_fulltext",
         "engram/find_entity_vector",
+        "engram/entities_page",
+        "engram/entity_duplicate_names",
         "engram/missing_refs",
     }
     # R: one statement per operation

@@ -310,11 +310,40 @@ def _add_mcp_config(sub) -> None:
     m.set_defaults(fn=cmd_mcp_config)
 
 
+def cmd_migrate_entities(a: argparse.Namespace) -> int:
+    """Backfill Entity.tok / num_key, add UNIQUE(norm_name), report duplicate names and near-duplicate entities."""
+    from plexus.engram import migrate
+
+    graph = graph_name(a.tenant)
+    client = _client()
+    if graph not in client.db.list_graphs():
+        raise SystemExit(f"tenant '{a.tenant}' has no graph ({graph}) on this server")
+    rep = migrate.run(client, graph, dry_run=a.dry_run)
+    print(migrate.to_json(rep) if a.json else migrate.format_report(rep, a.max_pairs))
+    return 2 if rep["duplicate_names"] else 0  # 2: two entities share a name; resolve them by hand
+
+
+def _add_migrate_commands(sub) -> None:
+    """``plexus migrate entities``: P9-d, move a tenant to atomic entity resolution."""
+    mig = sub.add_parser("migrate", help="one-off data migrations of an existing tenant")
+    ms = mig.add_subparsers(dest="cmd", required=True)
+    s = ms.add_parser(
+        "entities",
+        help="backfill Entity.tok/num_key, add UNIQUE(Entity.norm_name), list duplicate and near-duplicate entities",
+    )
+    s.add_argument("--tenant", required=True, help="tenant (graph plexus_t_<tenant>); no default on purpose")
+    s.add_argument("--dry-run", action="store_true", help="write nothing: only count and report")
+    s.add_argument("--json", action="store_true", help="print the full report as JSON")
+    s.add_argument("--max-pairs", type=int, default=50, help="near-duplicate pairs to print (default 50)")
+    s.set_defaults(fn=cmd_migrate_entities)
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="plexus", description="Plexus command line")
     sub = p.add_subparsers(dest="group", required=True)
     _add_demo_commands(sub)
     _add_mcp_config(sub)
+    _add_migrate_commands(sub)  # P9-d: plexus migrate entities
     add_code_commands(sub)  # P7-J: plexus code scan | baseline | hook-claude | hook-git | hook-run
     return p
 

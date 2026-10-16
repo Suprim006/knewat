@@ -37,6 +37,9 @@ MAX_K = 50  # recall clamps k to this
 MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 10  # distinct query words sent to the Fact.value full-text index
+MAX_ENTITY_QUERY_TOKENS = 24  # name tokens OR-ed into the Entity.name full-text query
+ENTITY_NEIGHBOURS = 5  # nearest entities the vector lookup of resolve_entity considers
+NO_TOKEN = "plexusnomatchtoken"  # full-text query for a name without any word character: matches nothing
 DEFAULT_HISTORY = 200  # fact_history default
 MAX_HISTORY = 10_000  # fact_history ceiling: versions of ONE entity+predicate in one scope
 
@@ -71,17 +74,6 @@ def token_key(text: str) -> str:
 def _query_words(query: str) -> list[str]:
     """The query words the full-text side searches for (>= 3 characters, at most ``MAX_KEYWORDS``)."""
     return list(dict.fromkeys(w for w in _tokens(query) if len(w) >= 3))[:MAX_KEYWORDS]
-
-
-def _entity_match(row: dict[str, Any], matched_by: str) -> dict[str, Any]:
-    """The ``resolve_entity_ex`` result for an existing entity found by ``matched_by``."""
-    return {
-        "id": row["id"],
-        "name": row["name"],
-        "kind": row["kind"],
-        "created": False,
-        "matched_by": matched_by,
-    }
 
 
 def fact_text(entity_name: str, predicate: str, value: str) -> str:
@@ -162,19 +154,24 @@ class Engram:
         now: int | None = None,
         before_create: Callable[[], None] | None = None,
     ) -> dict[str, Any]:
-        """Resolve ``name`` to an Entity, creating it if needed.
+        """Resolve ``name`` to an Entity, creating it if needed. Atomic (``engram/resolve_entity``).
 
-        ``before_create`` runs right before the only write (the ``upsert_entity`` MERGE), i.e. only when no
-        existing entity matched. :meth:`assert_fact` uses it to reject a bad scope / episode / source *before*
-        an Entity is created for a call that will be rejected (P5 review Q8).
+        Hot path: one ``find_entity_exact`` read; an existing normalised name never writes. On a miss ONE
+        write statement does the rest: exact name again (a concurrent creator may have won since the read),
+        full-text candidates (OR over the name tokens, same kind and numeric tokens, token Jaccard >=
+        ``FULLTEXT_JACCARD``), vector nearest (same kind and numeric tokens, distance <=
+        ``entity_threshold``), then ``MERGE (e:Entity {norm_name})``. FalkorDB serialises writes per graph,
+        so no other creator can interleave between those lookups and the create: concurrent callers with the
+        same name *or* with different spellings/paraphrases of it converge on one node (the oldest candidate
+        wins ties).
 
-        Order: exact normalised name -> full-text (token Jaccard >= 0.6, same kind) -> vector (distance <=
-        ``entity_threshold``, same kind) -> ``MERGE (e:Entity {norm_name})``.
+        ``before_create`` runs before that statement, i.e. only when the exact read missed.
+        :meth:`assert_fact` uses it to reject a bad scope / episode / source *before* an Entity is created
+        for a call that will be rejected (P5 review Q8).
 
-        Race behaviour: the lookups are reads, the create is an atomic MERGE on ``norm_name``. Two concurrent
-        calls with the *same* name converge on one node. Two concurrent calls with *different* spellings of
-        the same thing (a paraphrase) can both miss and create two entities; a later call resolves to the
-        nearest (older) one but the two nodes are not merged.
+        Not transitive: A~B and B~C does not make A~C; the statement matches against what exists, so a third
+        spelling joins whichever candidate ranks first. A UNIQUE(``Entity.norm_name``) constraint is the
+        backstop; on its error the statement is retried once (the retry then finds the winner).
         """
         norm = normalize(name)
         if not norm:
@@ -184,68 +181,41 @@ class Engram:
         if exact:
             return {**exact[0], "created": False, "matched_by": "exact"}
 
-        num_key = token_key(name)  # entities that differ only in numbers/versions are different things
-        hit = self._match_entity_fulltext(name, kind, num_key)
-        if hit:
-            return hit
-        emb = self._embed([name])[0]
-        hit = self._match_entity_vector(emb, kind, num_key)
-        if hit:
-            return hit
-
+        emb = self._embed([name])[0]  # a wrong-sized vector is refused before anything is written
         if before_create is not None:
             before_create()
-        rows = self.client.rw(
-            self.graph,
-            "engram/upsert_entity",
-            {
-                "norm_name": norm,
-                "entity_id": _new_id(),
-                "name": " ".join(name.split()),
-                "kind": kind,
-                "emb": emb,
-                "now": now if now is not None else _now_ms(),
-            },
-        )
+        tok = sorted(set(_tokens(name)))
+        params = {
+            "norm": norm,
+            "name": " ".join(name.split()),
+            "kind": kind,
+            "tok": tok,
+            # entities that differ only in numbers/versions are different things
+            "num_key": token_key(name),
+            # OR of the tokens; a name without a word character gets a sentinel that matches nothing
+            "q": "|".join(tok[:MAX_ENTITY_QUERY_TOKENS]) or NO_TOKEN,
+            "emb": emb,
+            "entity_id": _new_id(),
+            "jac": FULLTEXT_JACCARD,
+            "thr": self.entity_threshold,
+            "k": ENTITY_NEIGHBOURS,
+            "now": now if now is not None else _now_ms(),
+        }
+        try:
+            rows = self.client.rw(self.graph, "engram/resolve_entity", params)
+        except ResponseError as exc:
+            if "unique constraint" not in str(exc).lower():
+                raise
+            params["entity_id"] = _new_id()  # lost a race to a creator outside the statement: retry once
+            rows = self.client.rw(self.graph, "engram/resolve_entity", params)
         r = rows[0]
         return {
             "id": r["id"],
             "name": r["name"],
             "kind": r["kind"],
-            "created": bool(r["created"]),
-            "matched_by": "new" if r["created"] else "exact",
+            "created": r["how"] == "new",
+            "matched_by": r["how"],
         }
-
-    def _match_entity_fulltext(self, name: str, kind: str, num_key: str) -> dict[str, Any] | None:
-        """The best same-kind full-text hit with token Jaccard >= ``FULLTEXT_JACCARD``, else ``None``."""
-        q_tokens = set(_tokens(name))
-        if not q_tokens:
-            return None
-        cands = self.client.ro(
-            self.graph,
-            "engram/find_entity_fulltext",
-            {"q": " ".join(sorted(q_tokens)), "limit": 5},
-        )
-        best, best_j = None, 0.0
-        for c in cands:
-            if c["kind"] != kind or token_key(c["name"]) != num_key:
-                continue
-            j = _jaccard(q_tokens, set(_tokens(c["norm_name"] or c["name"])))
-            if j >= FULLTEXT_JACCARD and j > best_j:
-                best, best_j = c, j
-        return _entity_match(best, "fulltext") if best else None
-
-    def _match_entity_vector(self, emb: list[float], kind: str, num_key: str) -> dict[str, Any] | None:
-        """The first same-kind entity within ``entity_threshold`` with equal numeric tokens, else ``None``."""
-        near = self.client.ro(self.graph, "engram/find_entity_vector", {"emb": emb, "k": 3})
-        for c in near:
-            if (
-                c["kind"] == kind
-                and c["distance"] <= self.entity_threshold
-                and token_key(c["name"]) == num_key
-            ):
-                return _entity_match(c, "vector")
-        return None
 
     def resolve_entity(self, name: str, kind: str = "thing", *, now: int | None = None) -> str:
         """Entity id for ``name`` (existing or newly created). See :meth:`resolve_entity_ex`."""

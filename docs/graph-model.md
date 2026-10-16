@@ -59,7 +59,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Scope` | `id, kind: user\|project\|global, name` | Engram |
 | `Session` | `id, agent_id, started_at, ended_at` | Engram |
 | `Episode` | `id, role, text, at, step, embedding` | Engram |
-| `Entity` | `id, name, norm_name, kind, embedding` | Engram |
+| `Entity` | `id, name, norm_name, kind, embedding, tok, num_key` | Engram. `tok`: sorted distinct casefolded name tokens (full-text candidate Jaccard); `num_key`: numbers/versions in the name (two names are the same thing only if equal). Both written by `engram/resolve_entity`; `plexus migrate entities` backfills older entities (P9-d) |
 | `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten\|dormant, confidence, embedding`; P7: `verify_state: verified\|suspect, suspect_since, verified_at, verify_after (OPEN), surprise, pinned` | Engram (P7: Staleness, Activation) |
 | `Source` | `id, uri, kind: doc\|tool\|note\|code\|external\|…, trust: normal\|high, title, text`; P7: `content_hash, commit, repo` | Lineage (P7: Staleness) |
 | `Procedure` | `id, name, task_type, steps_json` | Engram |
@@ -124,7 +124,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | Range | `Task.status` | ready-task scans for `claim_next_task` |
 | Range | `Step.n`, `Step.agent_id` | time-machine (step N); the agent's latest step and `knew_at` |
 | Range | `ToolCall.at` | flow feed ordering |
-| Range | `Entity.norm_name` | entity MERGE key |
+| Range | `Entity.norm_name` | entity MERGE key (also `UNIQUE`, see below) |
 | Range | `created_at` on **every** label (18) | `view/subgraph`: the Explorer's label / time-window filter is one index range seek per label instead of an All Node Scan |
 | Range | `CodeAnchor.path`, `Change.at` | P7: the file-level symbol lookup of `anchor_fact`, and the change feed of `docs_to_update` |
 | Range | `Fact.verify_state`, `Fact.verify_after` | P7: the suspect scan (`staleness/suspect_ids`): an equality branch and a review-date range branch instead of one OR |
@@ -133,6 +133,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | Full-text | `Entity.name`, `Fact.value`, `Episode.text` | keyword entity resolution and recall |
 | Vector (384-d, cosine) | `Entity.embedding`, `Fact.embedding`, `Episode.embedding` | semantic seeds for recall |
 | UNIQUE constraint | `Task.id`, `Fact.id`, `Agent.id`, `Decision.id`, `Handoff.id` | no duplicate ids; `apply_schema` waits until each is `OPERATIONAL` |
+| UNIQUE constraint | `Entity.norm_name` | backstop behind `engram/resolve_entity` (which already MERGEs on it). `resolve_entity_ex` retries once on `unique constraint violation`. A graph that still holds two entities with one `norm_name` ends this constraint `FAILED`: `apply_schema` logs a warning instead of raising, and `plexus migrate entities` lists the duplicates |
 
 ## Conventions
 
