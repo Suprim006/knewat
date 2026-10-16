@@ -162,6 +162,8 @@ def det_a(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
         "P-tuned": A.TunedArm(g).blast, "P-anchored": A.AnchoredArm(g).blast, "P-naive": A.NaiveArm(g).blast,
         "P-product-tool": A.ProductImpactA(Lineage(client, name), 200).blast,
         "P-product-service": A.ProductImpactA(Lineage(client, name), 5000).blast,
+        # P9-f (added after the run): the fixed tool's order='valid_from' + probe_ids, 200-id page as the MCP tool
+        "P-product-tool-p9f": A.ProductImpactA(Lineage(client, name), 200, p9f=True).blast,
     }  # fmt: skip
     out = {nm: measure(nm, "A", qs, fn) for nm, fn in arms.items()}
     for nm, v in out.items():
@@ -256,6 +258,8 @@ def det_b(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
         "B1h": B.SqlB(path).answer, "P-tuned": B.TunedB(g).answer, "P-naive": B.NaiveB(g).answer,
         "P-product-tool": B.ProductWhyB(Lineage(client, name)).answer,
         "P-product-service": B.ProductWhyB(Lineage(client, name), depth=12, max_elements=5000).answer,
+        # P9-f (added after the run): the why tool now takes depth (max 12); max_elements left at the tool default 200
+        "P-product-tool-p9f": B.ProductWhyB(Lineage(client, name), depth=12).answer,
     }  # fmt: skip
     out = {nm: measure(nm, "B", qs, fn) for nm, fn in arms.items()}
     by_depth = {}

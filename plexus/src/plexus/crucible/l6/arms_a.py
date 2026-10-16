@@ -318,19 +318,27 @@ class ProductImpactA:
     no timestamps, so ``earliest5`` is left empty: this arm cannot be strictly correct on A.
     """
 
-    def __init__(self, lineage: Any, max_detail: int):
+    def __init__(self, lineage: Any, max_detail: int, *, p9f: bool = False):
         self.lineage = lineage
         self.max_detail = max_detail
+        self.p9f = p9f  # P9-f arm (added after the L6 run): order='valid_from' and probe_ids, as the fixed tool offers
 
     def blast(self, q: QuestionA) -> tuple[dict[str, Any], dict[str, Any]]:
         t0 = time.perf_counter()
+        kw: dict[str, Any] = {"order": "valid_from", "probe_ids": list(q.probes)} if self.p9f else {}
         try:
-            r = self.lineage.impact("source", q.source, depth=12, max_detail=self.max_detail)
+            r = self.lineage.impact("source", q.source, depth=12, max_detail=self.max_detail, **kw)
         except Exception as exc:  # noqa: BLE001
             return {}, meta(t0, 0, 1, f"{type(exc).__name__}: {exc}"[:120])
-        ids = set(r["facts"]["ids"])
+        if (
+            self.p9f
+        ):  # the earliest five are the first five records; probes are answered against the whole blast
+            earliest = [x["id"] for x in r["facts"]["records"][:5]]
+            present = {p for p, hit in r["facts"]["probes"].items() if hit}
+        else:
+            earliest, present = [], set(r["facts"]["ids"])
         ans = shape(
             r["facts"]["total"], r["readers"]["agents_total"], r["decisions"]["total"], r["handoffs"]["total"],
-            q.probes, ids, [],
+            q.probes, present, earliest,
         )  # fmt: skip
         return ans, meta(t0, 0, 1)
