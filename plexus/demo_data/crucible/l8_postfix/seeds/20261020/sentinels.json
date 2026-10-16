@@ -1,0 +1,543 @@
+{
+ "seed": 20261020,
+ "functions": {
+  "auth.token_ttl": [
+   {
+    "token": "AX-70256",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-62079",
+    "from_turn": 9,
+    "change": 3
+   }
+  ],
+  "auth.hash_rounds": [
+   {
+    "token": "AX-95437",
+    "from_turn": 0
+   }
+  ],
+  "auth.session_cookie": [
+   {
+    "token": "AX-51120",
+    "from_turn": 0
+   }
+  ],
+  "auth.mfa_window": [
+   {
+    "token": "AX-37869",
+    "from_turn": 0
+   }
+  ],
+  "auth.key_header": [
+   {
+    "token": "AX-73094",
+    "from_turn": 0
+   }
+  ],
+  "api.base_path": [
+   {
+    "token": "AX-18174",
+    "from_turn": 0
+   }
+  ],
+  "api.page_size": [
+   {
+    "token": "AX-95295",
+    "from_turn": 0
+   }
+  ],
+  "api.max_body": [
+   {
+    "token": "AX-74907",
+    "from_turn": 0
+   }
+  ],
+  "api.cors_origin": [
+   {
+    "token": "AX-20729",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-10863",
+    "from_turn": 11,
+    "change": 5
+   }
+  ],
+  "api.error_format": [
+   {
+    "token": "AX-29401",
+    "from_turn": 0
+   }
+  ],
+  "db.engine": [
+   {
+    "token": "AX-14196",
+    "from_turn": 0
+   }
+  ],
+  "db.pool_size": [
+   {
+    "token": "AX-52276",
+    "from_turn": 0
+   }
+  ],
+  "db.schema_name": [
+   {
+    "token": "AX-76631",
+    "from_turn": 0
+   }
+  ],
+  "db.replica_count": [
+   {
+    "token": "AX-36687",
+    "from_turn": 0
+   }
+  ],
+  "db.backup_window": [
+   {
+    "token": "AX-18584",
+    "from_turn": 0
+   }
+  ],
+  "ratelimit.window": [
+   {
+    "token": "AX-37629",
+    "from_turn": -1,
+    "note": "S03 note (old sprint document)"
+   },
+   {
+    "token": "AX-42266",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-80728",
+    "from_turn": 15,
+    "change": 7
+   }
+  ],
+  "ratelimit.burst": [
+   {
+    "token": "AX-65974",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-62704",
+    "from_turn": 15,
+    "change": 7
+   }
+  ],
+  "ratelimit.per_user": [
+   {
+    "token": "AX-21835",
+    "from_turn": 0
+   }
+  ],
+  "ratelimit.per_key": [
+   {
+    "token": "AX-82951",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-35027",
+    "from_turn": 9,
+    "change": 3
+   }
+  ],
+  "ratelimit.retry_after": [
+   {
+    "token": "AX-39153",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-76091",
+    "from_turn": 16,
+    "change": 8
+   }
+  ],
+  "notes.max_length": [
+   {
+    "token": "AX-92553",
+    "from_turn": 0
+   }
+  ],
+  "notes.tag_limit": [
+   {
+    "token": "AX-97908",
+    "from_turn": 0
+   }
+  ],
+  "notes.archive_days": [
+   {
+    "token": "AX-79153",
+    "from_turn": 0
+   }
+  ],
+  "notes.share_mode": [
+   {
+    "token": "AX-38006",
+    "from_turn": 0
+   }
+  ],
+  "notes.title_max": [
+   {
+    "token": "AX-30149",
+    "from_turn": 0
+   }
+  ],
+  "users.id_format": [
+   {
+    "token": "AX-16616",
+    "from_turn": 0
+   }
+  ],
+  "users.quota_mb": [
+   {
+    "token": "AX-15111",
+    "from_turn": 0
+   }
+  ],
+  "users.invite_ttl": [
+   {
+    "token": "AX-30737",
+    "from_turn": 0
+   }
+  ],
+  "users.role_default": [
+   {
+    "token": "AX-24925",
+    "from_turn": 0
+   }
+  ],
+  "users.locale_default": [
+   {
+    "token": "AX-45313",
+    "from_turn": 0
+   }
+  ],
+  "search.index_name": [
+   {
+    "token": "AX-71019",
+    "from_turn": 0
+   }
+  ],
+  "search.analyzer": [
+   {
+    "token": "AX-63346",
+    "from_turn": 0
+   }
+  ],
+  "search.max_hits": [
+   {
+    "token": "AX-46055",
+    "from_turn": 0
+   }
+  ],
+  "search.fuzzy_level": [
+   {
+    "token": "AX-37038",
+    "from_turn": 0
+   }
+  ],
+  "search.refresh_ms": [
+   {
+    "token": "AX-99875",
+    "from_turn": 0
+   }
+  ],
+  "export.format": [
+   {
+    "token": "AX-68281",
+    "from_turn": 0
+   }
+  ],
+  "export.max_rows": [
+   {
+    "token": "AX-21878",
+    "from_turn": 0
+   }
+  ],
+  "export.signed_url_ttl": [
+   {
+    "token": "AX-51833",
+    "from_turn": 0
+   }
+  ],
+  "export.compression": [
+   {
+    "token": "AX-36780",
+    "from_turn": 0
+   }
+  ],
+  "export.schedule": [
+   {
+    "token": "AX-22201",
+    "from_turn": 0
+   }
+  ],
+  "billing.cycle": [
+   {
+    "token": "AX-86101",
+    "from_turn": 0
+   }
+  ],
+  "billing.currency": [
+   {
+    "token": "AX-86464",
+    "from_turn": 0
+   }
+  ],
+  "billing.grace_days": [
+   {
+    "token": "AX-16465",
+    "from_turn": 0
+   }
+  ],
+  "billing.invoice_prefix": [
+   {
+    "token": "AX-76339",
+    "from_turn": 0
+   }
+  ],
+  "billing.tax_mode": [
+   {
+    "token": "AX-37121",
+    "from_turn": 0
+   }
+  ],
+  "audit.retention_days": [
+   {
+    "token": "AX-70013",
+    "from_turn": 0
+   }
+  ],
+  "audit.sink": [
+   {
+    "token": "AX-38265",
+    "from_turn": 0
+   }
+  ],
+  "audit.sample_rate": [
+   {
+    "token": "AX-71017",
+    "from_turn": 0
+   }
+  ],
+  "audit.pii_mask": [
+   {
+    "token": "AX-52039",
+    "from_turn": 0
+   },
+   {
+    "token": null,
+    "from_turn": 12,
+    "change": 6
+   }
+  ],
+  "audit.event_version": [
+   {
+    "token": "AX-32279",
+    "from_turn": 0
+   }
+  ],
+  "config.region": [
+   {
+    "token": "AX-50843",
+    "from_turn": 0
+   }
+  ],
+  "config.feature_flags": [
+   {
+    "token": "AX-84563",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-82288",
+    "from_turn": 11,
+    "change": 5
+   }
+  ],
+  "config.log_level": [
+   {
+    "token": "AX-89241",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-93449",
+    "from_turn": 16,
+    "change": 8
+   }
+  ],
+  "config.env_name": [
+   {
+    "token": "AX-28160",
+    "from_turn": 0
+   }
+  ],
+  "config.secret_store": [
+   {
+    "token": "AX-22163",
+    "from_turn": 0
+   }
+  ],
+  "release.channel": [
+   {
+    "token": "AX-16040",
+    "from_turn": 0
+   }
+  ],
+  "release.version_tag": [
+   {
+    "token": "AX-58080",
+    "from_turn": 0
+   }
+  ],
+  "release.rollout_pct": [
+   {
+    "token": "AX-22447",
+    "from_turn": 0
+   }
+  ],
+  "release.freeze_day": [
+   {
+    "token": "AX-35135",
+    "from_turn": 0
+   },
+   {
+    "token": "AX-62680",
+    "from_turn": 16,
+    "change": 8
+   }
+  ],
+  "release.changelog_path": [
+   {
+    "token": "AX-98942",
+    "from_turn": 0
+   }
+  ]
+ },
+ "final": {
+  "auth.token_ttl": "AX-62079",
+  "auth.hash_rounds": "AX-95437",
+  "auth.session_cookie": "AX-51120",
+  "auth.mfa_window": "AX-37869",
+  "auth.key_header": "AX-73094",
+  "api.base_path": "AX-18174",
+  "api.page_size": "AX-95295",
+  "api.max_body": "AX-74907",
+  "api.cors_origin": "AX-10863",
+  "api.error_format": "AX-29401",
+  "db.engine": "AX-14196",
+  "db.pool_size": "AX-52276",
+  "db.schema_name": "AX-76631",
+  "db.replica_count": "AX-36687",
+  "db.backup_window": "AX-18584",
+  "ratelimit.window": "AX-80728",
+  "ratelimit.burst": "AX-62704",
+  "ratelimit.per_user": "AX-21835",
+  "ratelimit.per_key": "AX-35027",
+  "ratelimit.retry_after": "AX-76091",
+  "notes.max_length": "AX-92553",
+  "notes.tag_limit": "AX-97908",
+  "notes.archive_days": "AX-79153",
+  "notes.share_mode": "AX-38006",
+  "notes.title_max": "AX-30149",
+  "users.id_format": "AX-16616",
+  "users.quota_mb": "AX-15111",
+  "users.invite_ttl": "AX-30737",
+  "users.role_default": "AX-24925",
+  "users.locale_default": "AX-45313",
+  "search.index_name": "AX-71019",
+  "search.analyzer": "AX-63346",
+  "search.max_hits": "AX-46055",
+  "search.fuzzy_level": "AX-37038",
+  "search.refresh_ms": "AX-99875",
+  "export.format": "AX-68281",
+  "export.max_rows": "AX-21878",
+  "export.signed_url_ttl": "AX-51833",
+  "export.compression": "AX-36780",
+  "export.schedule": "AX-22201",
+  "billing.cycle": "AX-86101",
+  "billing.currency": "AX-86464",
+  "billing.grace_days": "AX-16465",
+  "billing.invoice_prefix": "AX-76339",
+  "billing.tax_mode": "AX-37121",
+  "audit.retention_days": "AX-70013",
+  "audit.sink": "AX-38265",
+  "audit.sample_rate": "AX-71017",
+  "audit.pii_mask": "AX-52039",
+  "audit.event_version": "AX-32279",
+  "config.region": "AX-50843",
+  "config.feature_flags": "AX-82288",
+  "config.log_level": "AX-93449",
+  "config.env_name": "AX-28160",
+  "config.secret_store": "AX-22163",
+  "release.channel": "AX-16040",
+  "release.version_tag": "AX-58080",
+  "release.rollout_pct": "AX-22447",
+  "release.freeze_day": "AX-62680",
+  "release.changelog_path": "AX-98942"
+ },
+ "alive_at_end": [
+  "api.base_path",
+  "api.cors_origin",
+  "api.error_format",
+  "api.max_body",
+  "api.page_size",
+  "audit.event_version",
+  "audit.retention_days",
+  "audit.sample_rate",
+  "audit.sink",
+  "auth.hash_rounds",
+  "auth.key_header",
+  "auth.mfa_window",
+  "auth.session_cookie",
+  "auth.token_ttl",
+  "billing.currency",
+  "billing.cycle",
+  "billing.grace_days",
+  "billing.invoice_prefix",
+  "billing.tax_mode",
+  "config.env_name",
+  "config.feature_flags",
+  "config.log_level",
+  "config.region",
+  "config.secret_store",
+  "db.backup_window",
+  "db.engine",
+  "db.pool_size",
+  "db.replica_count",
+  "db.schema_name",
+  "export.compression",
+  "export.format",
+  "export.max_rows",
+  "export.schedule",
+  "export.signed_url_ttl",
+  "notes.archive_days",
+  "notes.max_length",
+  "notes.share_mode",
+  "notes.tag_limit",
+  "notes.title_max",
+  "ratelimit.burst",
+  "ratelimit.per_key",
+  "ratelimit.per_user",
+  "ratelimit.retry_after",
+  "ratelimit.window",
+  "release.changelog_path",
+  "release.channel",
+  "release.freeze_day",
+  "release.rollout_pct",
+  "release.version_tag",
+  "search.analyzer",
+  "search.fuzzy_level",
+  "search.index_name",
+  "search.max_hits",
+  "search.refresh_ms",
+  "users.id_format",
+  "users.invite_ttl",
+  "users.locale_default",
+  "users.quota_mb",
+  "users.role_default"
+ ]
+}

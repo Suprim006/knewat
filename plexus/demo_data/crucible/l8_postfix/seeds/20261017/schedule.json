@@ -1,0 +1,319 @@
+{
+ "seed": 20261017,
+ "initial_tokens": {
+  "auth.token_ttl": "AX-46764",
+  "auth.hash_rounds": "AX-13975",
+  "auth.session_cookie": "AX-67390",
+  "auth.mfa_window": "AX-33950",
+  "auth.key_header": "AX-96963",
+  "api.base_path": "AX-25930",
+  "api.page_size": "AX-73505",
+  "api.max_body": "AX-78618",
+  "api.cors_origin": "AX-79535",
+  "api.error_format": "AX-78362",
+  "db.engine": "AX-82757",
+  "db.pool_size": "AX-82535",
+  "db.schema_name": "AX-53228",
+  "db.replica_count": "AX-86955",
+  "db.backup_window": "AX-33109",
+  "ratelimit.window": "AX-72602",
+  "ratelimit.burst": "AX-77238",
+  "ratelimit.per_user": "AX-62017",
+  "ratelimit.per_key": "AX-82083",
+  "ratelimit.retry_after": "AX-83852",
+  "notes.max_length": "AX-21323",
+  "notes.tag_limit": "AX-33384",
+  "notes.archive_days": "AX-34286",
+  "notes.share_mode": "AX-31441",
+  "notes.title_max": "AX-43136",
+  "users.id_format": "AX-51280",
+  "users.quota_mb": "AX-68909",
+  "users.invite_ttl": "AX-84024",
+  "users.role_default": "AX-27896",
+  "users.locale_default": "AX-10568",
+  "search.index_name": "AX-52843",
+  "search.analyzer": "AX-33347",
+  "search.max_hits": "AX-11638",
+  "search.fuzzy_level": "AX-82754",
+  "search.refresh_ms": "AX-21049",
+  "export.format": "AX-57255",
+  "export.max_rows": "AX-52379",
+  "export.signed_url_ttl": "AX-60016",
+  "export.compression": "AX-76678",
+  "export.schedule": "AX-54893",
+  "billing.cycle": "AX-74889",
+  "billing.currency": "AX-59699",
+  "billing.grace_days": "AX-31513",
+  "billing.invoice_prefix": "AX-41539",
+  "billing.tax_mode": "AX-50384",
+  "audit.retention_days": "AX-52286",
+  "audit.sink": "AX-56242",
+  "audit.sample_rate": "AX-62545",
+  "audit.pii_mask": "AX-52071",
+  "audit.event_version": "AX-66254",
+  "config.region": "AX-49629",
+  "config.feature_flags": "AX-57969",
+  "config.log_level": "AX-19232",
+  "config.env_name": "AX-28152",
+  "config.secret_store": "AX-85001",
+  "release.channel": "AX-32779",
+  "release.version_tag": "AX-84443",
+  "release.rollout_pct": "AX-56187",
+  "release.freeze_day": "AX-64608",
+  "release.changelog_path": "AX-59495"
+ },
+ "x2_old_token": "AX-30346",
+ "commits": [
+  {
+   "k": 1,
+   "turn": 7,
+   "kind": "sibling",
+   "module": "auth",
+   "funcs": [
+    "auth.hash_rounds",
+    "auth.key_header"
+   ],
+   "new_tokens": {
+    "auth.hash_rounds": "AX-15064",
+    "auth.key_header": "AX-47833"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 2,
+   "turn": 8,
+   "kind": "module-comment",
+   "module": "export",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 3,
+   "turn": 9,
+   "kind": "delete",
+   "module": "auth",
+   "funcs": [
+    "auth.session_cookie"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 4,
+   "turn": 10,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.token_ttl"
+   ],
+   "new_tokens": {
+    "auth.token_ttl": "AX-92098"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": "X3: auth.token_ttl in the first value commit after t04's nominal turn"
+  },
+  {
+   "k": 5,
+   "turn": 11,
+   "kind": "docstring",
+   "module": "notes",
+   "funcs": [
+    "notes.archive_days"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 6,
+   "turn": 12,
+   "kind": "add",
+   "module": "notes",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "name": "extra_6",
+    "token": "AX-48555"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 7,
+   "turn": 13,
+   "kind": "whitespace",
+   "module": "db",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "fn": "replica_count"
+   },
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 8,
+   "turn": 14,
+   "kind": "value",
+   "module": "db",
+   "funcs": [
+    "db.engine",
+    "search.analyzer"
+   ],
+   "new_tokens": {
+    "db.engine": "AX-50215",
+    "search.analyzer": "AX-30774"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 9,
+   "turn": 16,
+   "kind": "reorder",
+   "module": "config",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "a": 3,
+    "b": 1
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 10,
+   "turn": 17,
+   "kind": "value",
+   "module": "config",
+   "funcs": [
+    "config.secret_store"
+   ],
+   "new_tokens": {
+    "config.secret_store": "AX-49941"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  }
+ ],
+ "v2_turn": 12,
+ "kills": {
+  "K1": {
+   "agent": "builder",
+   "from_turn": 6,
+   "after": "first tool call after the claim"
+  },
+  "K2": {
+   "agent": "researcher",
+   "from_turn": 11,
+   "tasks": [
+    "t14-ratelimit-spec",
+    "t16-release-notes"
+   ],
+   "after": "first Write of an artifact file"
+  },
+  "K3": {
+   "agent": "planner",
+   "from_turn": 17,
+   "after": "first memory write (MCP write or Write)"
+  }
+ },
+ "nominal_order": [
+  [
+   1,
+   "init"
+  ],
+  [
+   2,
+   "t01-gather-requirements"
+  ],
+  [
+   3,
+   "t02-choose-api-version"
+  ],
+  [
+   4,
+   "t03-design-endpoints"
+  ],
+  [
+   5,
+   "t04-survey-infra-security"
+  ],
+  [
+   6,
+   "t05-choose-auth"
+  ],
+  [
+   7,
+   "t13-reuse-billing-cycle"
+  ],
+  [
+   8,
+   "t06-write-db-schema"
+  ],
+  [
+   9,
+   "t14-ratelimit-spec"
+  ],
+  [
+   10,
+   "t07-implement-crud-spec"
+  ],
+  [
+   11,
+   "t15-config-matrix"
+  ],
+  [
+   12,
+   "ingest-v2"
+  ],
+  [
+   13,
+   "adopt-v2"
+  ],
+  [
+   14,
+   "t12-update-endpoints-for-v2"
+  ],
+  [
+   15,
+   "t08-write-test-plan"
+  ],
+  [
+   16,
+   "t09-review-spec"
+  ],
+  [
+   17,
+   "t10-write-docs"
+  ],
+  [
+   18,
+   "t16-release-notes"
+  ],
+  [
+   19,
+   "t11-package-release"
+  ]
+ ],
+ "invalidated": [
+  "auth.hash_rounds",
+  "auth.key_header",
+  "auth.session_cookie",
+  "auth.token_ttl",
+  "config.secret_store",
+  "db.engine",
+  "search.analyzer"
+ ]
+}

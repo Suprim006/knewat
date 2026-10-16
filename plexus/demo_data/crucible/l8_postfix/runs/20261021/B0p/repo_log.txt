@@ -1,0 +1,11 @@
+1830cefe8a4786d72b8ca5c010e0ea1679f3232f change 10: docstring in auth
+89b1d64f8fdc1085a35bb8990dc95697bafafd81 change 9: delete in config
+fffa78786fae3db9c7955faeb913e6668ee2baaf change 8: reorder in auth
+f30e87616f0f138009602b5a185e1e20356a13ef change 7: sibling in billing
+f60a67cdbb53e2f65c754152e82046bf31111a9b change 6: value in config
+b73be60586daf86efa5b30ef8d6e3382b893ef31 change 5: add in users
+4fb630b6ba69af10b3ebcab2c1be6e27555b74bd change 4: module-comment in release
+caead266ec22a5d71fbd7cb67cbe3552a3933ff2 change 3: value in auth
+aeefcc2d57cbcfc62fa1f6ec543659e914ddc57c change 2: whitespace in config
+db36e53ab97ab1cb9dd43bedfa89ecfc15af36f4 change 1: value in users
+b3402e440918ac2179a0f7b1b0a7180f7f454c0c initial
