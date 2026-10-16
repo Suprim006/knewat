@@ -218,7 +218,8 @@ def answer_p(
 
 
 def b1_db(run: dict[str, Any]) -> Path:
-    root = Path(run["workdir"]).parent / "store"
+    # committed run records write the home directory as "<home>" (privacy scrub); the scratch store stays local
+    root = Path(str(run["workdir"]).replace("<home>", Path.home().as_posix())).parent / "store"
     return next(root.rglob("crucible.db"))
 
 
@@ -329,7 +330,9 @@ def reader_prompt(context: str, question: str, fmt: str) -> str:
 def answer_b0p(
     run_dir: Path, run: dict[str, Any], cstar: dict[str, Any] | None, probes: list[tuple[str, bool]]
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    hist = Path(run["workdir"]) / "history"
+    # committed run records write the home directory as "<home>" (privacy scrub); the scratch workdir stays local
+    hist = Path(str(run["workdir"]).replace("<home>", Path.home().as_posix())) / "history"
+    assert hist.is_dir(), hist
     calls, out = [], {}
     probe_txt = "\n".join(f"{i + 1}. {t}" for i, (t, _) in enumerate(probes))
     qs = {
