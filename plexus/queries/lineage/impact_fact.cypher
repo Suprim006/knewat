@@ -1,7 +1,7 @@
 // name: lineage/impact_fact
 // purpose: READ-ONLY blast radius of a Fact: the Fact itself and every Fact derived from it through up to $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and the Tasks those decisions are FOR) and the Handoffs that CARRY them. Nothing is written.
 // params: id:str, depth:int, limit:int, limit_plus:int (= limit + 1)
-// returns: fact_ids, statuses (parallel lists; at most `limit` facts, any status), truncated (true when more than `limit` facts reach it), steps_total, agent_ids (every agent that read one; never cut), decision_ids, task_ids, handoff_ids (all distinct, uncut: the caller slices). Zero rows = no such Fact.
+// returns: fact_ids, statuses, valid_froms, created_ats (parallel lists, P9-f: the times let a caller find the earliest facts; at most `limit` facts, any status), truncated (true when more than `limit` facts reach it), steps_total, agent_ids (every agent that read one; never cut), decision_ids, task_ids, handoff_ids (all distinct, uncut: the caller slices). Zero rows = no such Fact.
 // mode: ro
 // Same level-wise expansion as lineage/forget_source (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. One statement = one snapshot.
 // P9-f (Crucible L6-A: a 5,000-fact blast was cancelled by TIMEOUT_MAX after 10 s): the reader / decision / handoff / task joins
@@ -67,5 +67,6 @@ OPTIONAL MATCH (d)-[:FOR]->(t:Task)
 WITH src, collect(DISTINCT f) AS fs, collect(DISTINCT s.id) AS step_ids, collect(DISTINCT s.agent_id) AS agent_ids,
      collect(DISTINCT d) AS ds, collect(DISTINCT h) AS hs, collect(DISTINCT t) AS tks
 WITH fs[0..$limit] AS fs, size(fs) > $limit AS truncated, step_ids, agent_ids, ds, hs, tks
-RETURN [a IN fs | a.id] AS fact_ids, [a IN fs | a.status] AS statuses, truncated, size(step_ids) AS steps_total,
+RETURN [a IN fs | a.id] AS fact_ids, [a IN fs | a.status] AS statuses, [a IN fs | a.valid_from] AS valid_froms,
+       [a IN fs | a.created_at] AS created_ats, truncated, size(step_ids) AS steps_total,
        agent_ids, [b IN ds | b.id] AS decision_ids, [c IN tks | c.id] AS task_ids, [e IN hs | e.id] AS handoff_ids

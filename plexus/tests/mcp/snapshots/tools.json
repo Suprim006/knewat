@@ -1442,7 +1442,7 @@
     }
   },
   "impact": {
-    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,\nthe decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them.\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
+    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status; each listed fact with its status,\nvalid_from and created_at), the agents and steps that READ them, the decisions BASED_ON them, the tasks\nthose decisions are FOR and the handoffs that CARRY them.\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1484,6 +1484,17 @@
           "minimum": 1,
           "title": "Max Items",
           "type": "integer"
+        },
+        "order": {
+          "default": "id",
+          "description": "How the listed facts are sorted (source/fact only). 'valid_from' or 'created_at' lists the earliest first: order='valid_from', max_items=5 gives the 5 earliest affected facts.",
+          "enum": [
+            "id",
+            "valid_from",
+            "created_at"
+          ],
+          "title": "Order",
+          "type": "string"
         },
         "step": {
           "anyOf": [

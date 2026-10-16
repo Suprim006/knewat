@@ -25,6 +25,7 @@ MAX_DEPTH = 12  # DERIVED_FROM hops a cascade / why may follow (P9-b: was 5 / 3,
 DEFAULT_CASCADE_DEPTH = 8  # forget_source / quarantine / release_quarantine
 DEFAULT_WHY_DEPTH = 6
 DEFAULT_IMPACT_DETAIL = 50  # impact: ids listed per category
+IMPACT_ORDERS = ("id", "valid_from", "created_at")  # impact: how facts.ids / facts.records are sorted (P9-f)
 
 
 TRUSTS = ("normal", "high")
@@ -394,19 +395,25 @@ class Lineage:
         depth: int = DEFAULT_CASCADE_DEPTH,
         limit: int = MAX_FORGET_FACTS,
         max_detail: int = DEFAULT_IMPACT_DETAIL,
+        order: str = "id",
     ) -> dict[str, Any]:
         """What would be affected if a ``'source'`` or a ``'fact'`` were wrong? Nothing is written.
 
         Expands ``DERIVED_FROM`` (up to ``depth`` hops, 1..12, default 8) level by level over distinct
         facts, as :meth:`forget_source` / :meth:`quarantine` do, in one read-only statement (one snapshot).
-        Returns ``{kind, id, depth, facts: {total, by_status, ids}, readers: {steps_total, agents_total,
-        agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids}, truncated}``. For a
-        fact, the fact itself is part of ``facts``. ``tasks`` are the tasks the affected decisions are
-        ``FOR``. Lists hold at most ``max_detail`` (1..5000, default 50) ids; the totals are exact up to
-        ``limit`` facts (``truncated`` says whether that bound was hit). Raises :class:`UnknownNode`.
+        Returns ``{kind, id, depth, facts: {total, by_status, ids, records, order}, readers: {steps_total,
+        agents_total, agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids},
+        truncated}``. For a fact, the fact itself is part of ``facts``. ``tasks`` are the tasks the affected
+        decisions are ``FOR``. ``facts.records`` = ``[{id, status, valid_from, created_at}]``, the same facts
+        as ``facts.ids`` in the same order; ``order`` (``'id'``, ``'valid_from'`` or ``'created_at'``, P9-f)
+        sorts them, so ``order='valid_from', max_detail=5`` gives the 5 earliest affected facts (ties by id).
+        Lists hold at most ``max_detail`` (1..5000, default 50) ids; totals are exact up to ``limit`` facts
+        (``truncated`` says whether that bound was hit). Raises :class:`UnknownNode`.
         """
         if kind not in ("source", "fact"):
             raise ValueError("kind must be 'source' or 'fact'")
+        if order not in IMPACT_ORDERS:
+            raise ValueError(f"order must be one of {', '.join(IMPACT_ORDERS)}")
         check_between("depth", depth, MAX_DEPTH)
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("max_detail", max_detail, MAX_DETAIL)
@@ -422,6 +429,17 @@ class Lineage:
         for st in r["statuses"]:
             by_status[st] = by_status.get(st, 0) + 1
         agents = sorted(r["agent_ids"])
+        records = [
+            {"id": i, "status": st, "valid_from": vf, "created_at": ca}
+            for i, st, vf, ca in zip(
+                r["fact_ids"], r["statuses"], r["valid_froms"], r["created_ats"], strict=True
+            )
+        ]
+        if order == "id":
+            records.sort(key=lambda x: x["id"])
+        else:  # a fact without the time sorts last, then by id
+            records.sort(key=lambda x: (x[order] is None, x[order] or 0, x["id"]))
+        page = records[:max_detail]
 
         def cut(ids: Iterable[str]) -> dict[str, Any]:
             ordered = sorted(ids)
@@ -431,7 +449,13 @@ class Lineage:
             "kind": kind,
             "id": node_id,
             "depth": depth,
-            "facts": {**cut(r["fact_ids"]), "by_status": dict(sorted(by_status.items()))},
+            "facts": {
+                "total": len(records),
+                "ids": [x["id"] for x in page],
+                "records": page,
+                "order": order,
+                "by_status": dict(sorted(by_status.items())),
+            },
             "readers": {
                 "steps_total": r["steps_total"],
                 "agents_total": len(agents),

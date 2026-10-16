@@ -56,11 +56,19 @@ def impact(
     max_items: Annotated[
         int, Field(description="Ids listed per category (totals are always exact).", ge=1, le=MAX_ITEMS)
     ] = DEFAULT_IMPACT_DETAIL,
+    order: Annotated[
+        Literal["id", "valid_from", "created_at"],
+        Field(
+            description="How the listed facts are sorted (source/fact only). 'valid_from' or 'created_at' "
+            "lists the earliest first: order='valid_from', max_items=5 gives the 5 earliest affected facts."
+        ),
+    ] = "id",
     step: Step = None,
 ) -> Outcome:
     """Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.
-    kind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,
-    the decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them.
+    kind='source' or 'fact' returns the derived facts (count by status; each listed fact with its status,
+    valid_from and created_at), the agents and steps that READ them, the decisions BASED_ON them, the tasks
+    those decisions are FOR and the handoffs that CARRY them.
     kind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,
     forget_source or fail_task to see the damage first."""
     if kind == "task":
@@ -84,4 +92,4 @@ def impact(
     lin = ts.lineage(m)
     if lin is None:
         raise ToolError("impact: lineage is not available")
-    return Outcome({"impact": lin.impact(kind, id, depth=depth, max_detail=max_items)})
+    return Outcome({"impact": lin.impact(kind, id, depth=depth, max_detail=max_items, order=order)})

@@ -61,6 +61,17 @@ async def test_impact_source_fact_and_task(server, client, tenant):
         assert capped["facts"]["total"] == 2 and len(capped["facts"]["ids"]) == 1
 
 
+async def test_impact_lists_facts_with_their_times_earliest_first(server, client, tenant):
+    async with Client(server) as c:
+        src, f1, f2, dec = await _world(c)
+        r = (await ok(c, "impact", agent_id="a", kind="source", id=src, order="created_at", max_items=1))[
+            "impact"
+        ]
+        rec = r["facts"]["records"]
+        assert r["facts"]["order"] == "created_at" and len(rec) == 1 and rec[0]["id"] == f1  # f1 came first
+        assert rec[0]["status"] == "active" and rec[0]["created_at"] > 0 and rec[0]["valid_from"] > 0
+
+
 async def test_impact_writes_no_memory_and_no_read_edges(server, client, tenant):
     async with Client(server) as c:
         src, f1, f2, dec = await _world(c)
