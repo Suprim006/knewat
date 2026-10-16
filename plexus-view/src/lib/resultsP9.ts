@@ -193,6 +193,8 @@ export interface L6Family {
   conc: L6Conc[];
   crash: L6Crash[];
   pilot: L6Pilot[];
+  /** D: median over the questions of (Plexus latency / SQL latency); undefined for other families */
+  medianSlowdown?: number;
   /** the re-run after the P9-int fixes: A (the impact arms) and F (arm P only) */
   postfixA: (L6Arm & { max?: number })[];
   postfixF: L6Crash[];
@@ -232,6 +234,25 @@ function detArms(fam: unknown): L6Arm[] {
     const lat = obj(o.latency_ms);
     return [{ arm, strict: `${c}/${n}`, p50: num(lat.p50), p99: num(lat.p99), timeouts: num(o.timeouts) }];
   });
+}
+
+function medianSlowdown(fam: unknown): number | undefined {
+  const arms = obj(obj(obj(fam).det).arms);
+  const lat = (arm: string): Map<string, number> =>
+    new Map(
+      (Array.isArray(obj(arms[arm]).questions) ? (obj(arms[arm]).questions as unknown[]) : []).flatMap(
+        (q) => {
+          const v = num(obj(q).latency_ms_median);
+          return v === undefined ? [] : [[str(obj(q).id), v] as [string, number]];
+        },
+      ),
+    );
+  const p = lat('P');
+  const sql = lat('B1h');
+  const r = [...p].flatMap(([id, v]) => (sql.get(id) ? [v / sql.get(id)!] : [])).sort((a, b) => a - b);
+  if (r.length === 0) return undefined;
+  const mid = r.length >> 1;
+  return r.length % 2 ? r[mid]! : (r[mid - 1]! + r[mid]!) / 2;
 }
 
 function crashRows(raw: unknown): L6Crash[] {
@@ -304,6 +325,7 @@ export function parseL6(layer: unknown): L6Info | undefined {
       }),
       crash: crashRows(f.crash),
       pilot: pilotRows(f),
+      medianSlowdown: id === 'D' ? medianSlowdown(f) : undefined,
       postfixA: Object.entries(pa).flatMap(([arm, a]) => {
         const o = obj(a);
         const lat = obj(o.latency_ms);

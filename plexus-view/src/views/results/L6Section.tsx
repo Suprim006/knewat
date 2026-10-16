@@ -114,9 +114,7 @@ function BeforeAfter({ f }: { f: L6Family }) {
 
 function FamilyBlock({ f }: { f: L6Family }) {
   const id = f.id;
-  const p = f.det.find((a) => a.arm === 'P');
-  const sql = f.det.find((a) => a.arm === 'B1h');
-  const speed = id === 'D' && p?.p50 && sql?.p50 ? p.p50 / sql.p50 : undefined;
+  const speed = id === 'D' ? f.medianSlowdown : undefined;
   return (
     <div className="l6-family" data-testid={`l6-${id}`}>
       <h3>{f.title}</h3>
@@ -130,8 +128,8 @@ function FamilyBlock({ f }: { f: L6Family }) {
       {id === 'A' && <BeforeAfter f={f} />}
       {speed !== undefined && (
         <p data-testid="l6-D-speed">
-          Same questions, same answers: SQL is <b>{speed.toFixed(1)}x faster</b> at the median (in-process
-          SQLite against FalkorDB over the container network).
+          Same questions, same answers: SQL is <b>{speed.toFixed(1)}x faster</b> (median over the questions of
+          the per-question latency ratio; in-process SQLite against FalkorDB over the container network).
         </p>
       )}
       {f.conc.length > 0 && (

@@ -1,0 +1,2748 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "postfix",
+ "run": {
+  "id": "20261016T072750Z-postfix",
+  "started_at": "2026-10-16T07:27:50Z",
+  "finished_at": "2026-10-16T07:38:09Z",
+  "command": "python -m plexus.crucible.l6.run postfix --port 6366 --kills 200",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "a58b783785f9f1ea3bf298b74926b3ac868e8f85",
+  "short": "a58b783",
+  "dirty": false,
+  "branch": "p9int"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "a58b783",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6366,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "MAX_QUEUED_QUERIES",
+      "25",
+      "TIMEOUT",
+      "1000",
+      "RESULTSET_SIZE",
+      "10000"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 0,
+    "TIMEOUT_DEFAULT": 0,
+    "MAX_QUEUED_QUERIES": 25,
+    "RESULTSET_SIZE": 10000,
+    "QUERY_MEM_CAPACITY": 0,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "config": {
+  "A_arms": [
+   "B1h",
+   "P-tuned",
+   "P-product-tool",
+   "P-product-service"
+  ],
+  "F_kills": 200,
+  "F_seed": 20261016,
+  "scale": 1.0
+ },
+ "families": {
+  "A": {
+   "world": {
+    "agents": 100,
+    "sources": 49,
+    "facts": 51424,
+    "derived_edges": 80851,
+    "steps": 26683,
+    "reads": 66534,
+    "decisions": 819,
+    "based_on": 1635,
+    "handoffs": 562,
+    "carries": 843,
+    "tasks": 1,
+    "depends_on": 0,
+    "supersedes": 0
+   },
+   "loader_counts_checked": true,
+   "arms": {
+    "B1h": {
+     "arm": "B1h",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "facts": 24,
+      "agents": 24,
+      "decisions": 24,
+      "handoffs": 24,
+      "probes": 24,
+      "earliest5": 24
+     },
+     "strict_without_earliest5": 24,
+     "latency_ms": {
+      "p50": 32.99,
+      "p99": 181.76,
+      "max": 181.76
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 30.67,
+       "latency_ms_all": [
+        31.4,
+        26.46,
+        30.67
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A02",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 31.66,
+       "latency_ms_all": [
+        31.66,
+        31.96,
+        26.82
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A03",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 52.53,
+       "latency_ms_all": [
+        56.18,
+        52.53,
+        51.22
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A04",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 116.96,
+       "latency_ms_all": [
+        113.67,
+        116.96,
+        130.45
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A05",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 22.9,
+       "latency_ms_all": [
+        22.9,
+        24.45,
+        20.53
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A06",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 30.03,
+       "latency_ms_all": [
+        30.03,
+        29.59,
+        32.99
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A07",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 56.38,
+       "latency_ms_all": [
+        55.64,
+        61.54,
+        56.38
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A08",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 171.21,
+       "latency_ms_all": [
+        171.21,
+        153.41,
+        171.96
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A09",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 23.51,
+       "latency_ms_all": [
+        24.16,
+        23.08,
+        23.51
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A10",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 29.94,
+       "latency_ms_all": [
+        27.73,
+        31.34,
+        29.94
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A11",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 57.65,
+       "latency_ms_all": [
+        57.65,
+        57.85,
+        56.06
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A12",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 142.6,
+       "latency_ms_all": [
+        142.6,
+        152.07,
+        131.3
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 19.27,
+       "latency_ms_all": [
+        19.27,
+        19.69,
+        18.44
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A14",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 25.92,
+       "latency_ms_all": [
+        25.76,
+        25.92,
+        26.16
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A15",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 51.15,
+       "latency_ms_all": [
+        51.75,
+        51.15,
+        49.64
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A16",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 123.23,
+       "latency_ms_all": [
+        118.89,
+        131.38,
+        123.23
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A17",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 20.39,
+       "latency_ms_all": [
+        20.39,
+        18.35,
+        20.55
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A18",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 30.57,
+       "latency_ms_all": [
+        28.74,
+        31.4,
+        30.57
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A19",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 56.42,
+       "latency_ms_all": [
+        65.24,
+        56.42,
+        47.25
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A20",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 102.91,
+       "latency_ms_all": [
+        102.91,
+        102.39,
+        113.46
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A21",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 22.16,
+       "latency_ms_all": [
+        21.66,
+        22.16,
+        22.23
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A22",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 28.89,
+       "latency_ms_all": [
+        31.8,
+        28.27,
+        28.89
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A23",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 49.03,
+       "latency_ms_all": [
+        48.2,
+        55.58,
+        49.03
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A24",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 179.81,
+       "latency_ms_all": [
+        135.17,
+        179.81,
+        181.76
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      }
+     ]
+    },
+    "P-tuned": {
+     "arm": "P-tuned",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "facts": 24,
+      "agents": 24,
+      "decisions": 24,
+      "handoffs": 24,
+      "probes": 24,
+      "earliest5": 24
+     },
+     "strict_without_earliest5": 24,
+     "latency_ms": {
+      "p50": 50.77,
+      "p99": 520.56,
+      "max": 520.56
+     },
+     "server_ms_median": 21.797,
+     "statements_per_answer_median": 10.0,
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 14.44,
+       "latency_ms_all": [
+        19.85,
+        12.25,
+        14.44
+       ],
+       "server_ms_median": 1.539,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A02",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 22.14,
+       "latency_ms_all": [
+        22.14,
+        22.13,
+        22.33
+       ],
+       "server_ms_median": 5.327,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A03",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 76.02,
+       "latency_ms_all": [
+        69.6,
+        76.02,
+        101.79
+       ],
+       "server_ms_median": 42.455,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A04",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 436.99,
+       "latency_ms_all": [
+        460.4,
+        431.47,
+        436.99
+       ],
+       "server_ms_median": 300.949,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A05",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 17.89,
+       "latency_ms_all": [
+        24.0,
+        16.89,
+        17.89
+       ],
+       "server_ms_median": 1.507,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A06",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 37.73,
+       "latency_ms_all": [
+        29.66,
+        39.2,
+        37.73
+       ],
+       "server_ms_median": 7.033,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A07",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 93.21,
+       "latency_ms_all": [
+        88.81,
+        93.21,
+        102.91
+       ],
+       "server_ms_median": 51.395,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A08",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 475.01,
+       "latency_ms_all": [
+        475.01,
+        432.35,
+        513.46
+       ],
+       "server_ms_median": 298.695,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A09",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 12,
+       "latency_ms_median": 30.34,
+       "latency_ms_all": [
+        30.26,
+        32.59,
+        30.34
+       ],
+       "server_ms_median": 2.314,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A10",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 12,
+       "latency_ms_median": 37.39,
+       "latency_ms_all": [
+        50.77,
+        37.39,
+        37.33
+       ],
+       "server_ms_median": 6.321,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A11",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 12,
+       "latency_ms_median": 93.35,
+       "latency_ms_all": [
+        107.68,
+        90.33,
+        93.35
+       ],
+       "server_ms_median": 45.05,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A12",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 18,
+       "latency_ms_median": 397.06,
+       "latency_ms_all": [
+        397.06,
+        392.17,
+        413.64
+       ],
+       "server_ms_median": 261.357,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 39.18,
+       "latency_ms_all": [
+        39.18,
+        39.54,
+        35.16
+       ],
+       "server_ms_median": 2.789,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A14",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 16,
+       "latency_ms_median": 38.59,
+       "latency_ms_all": [
+        38.59,
+        48.79,
+        38.06
+       ],
+       "server_ms_median": 5.453,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A15",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 16,
+       "latency_ms_median": 86.67,
+       "latency_ms_all": [
+        89.17,
+        86.67,
+        80.89
+       ],
+       "server_ms_median": 36.561,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A16",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 22,
+       "latency_ms_median": 380.99,
+       "latency_ms_all": [
+        362.15,
+        380.99,
+        391.25
+       ],
+       "server_ms_median": 237.163,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A17",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 11.76,
+       "latency_ms_all": [
+        13.26,
+        11.41,
+        11.76
+       ],
+       "server_ms_median": 1.052,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A18",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 22.3,
+       "latency_ms_all": [
+        22.13,
+        22.3,
+        23.37
+       ],
+       "server_ms_median": 5.206,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A19",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 75.15,
+       "latency_ms_all": [
+        68.83,
+        98.38,
+        75.15
+       ],
+       "server_ms_median": 42.021,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A20",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 428.55,
+       "latency_ms_all": [
+        428.55,
+        417.39,
+        520.56
+       ],
+       "server_ms_median": 280.652,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A21",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 21.93,
+       "latency_ms_all": [
+        21.93,
+        23.73,
+        21.78
+       ],
+       "server_ms_median": 1.626,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A22",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 30.43,
+       "latency_ms_all": [
+        32.03,
+        30.43,
+        20.79
+       ],
+       "server_ms_median": 5.933,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A23",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 76.26,
+       "latency_ms_all": [
+        81.86,
+        74.74,
+        76.26
+       ],
+       "server_ms_median": 41.639,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A24",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 474.71,
+       "latency_ms_all": [
+        474.71,
+        471.09,
+        490.81
+       ],
+       "server_ms_median": 338.608,
+       "expected": null,
+       "got": null
+      }
+     ]
+    },
+    "P-product-tool": {
+     "arm": "P-product-tool",
+     "n": 24,
+     "strict_correct": 18,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "facts": 24,
+      "agents": 24,
+      "decisions": 24,
+      "handoffs": 24,
+      "probes": 18,
+      "earliest5": 24
+     },
+     "strict_without_earliest5": 18,
+     "latency_ms": {
+      "p50": 13.1,
+      "p99": 669.0,
+      "max": 669.0
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.6,
+       "latency_ms_all": [
+        9.16,
+        6.6,
+        6.16
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A02",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 7.57,
+       "latency_ms_all": [
+        9.44,
+        7.57,
+        7.37
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A03",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 54.58,
+       "latency_ms_all": [
+        54.58,
+        55.55,
+        46.23
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A04",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 551.84,
+       "latency_ms_all": [
+        461.07,
+        615.71,
+        551.84
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 65,
+        "decisions": 81,
+        "handoffs": 49,
+        "probes": [
+         true,
+         true,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f014091",
+         "f005047",
+         "f012510",
+         "f039444",
+         "f009582"
+        ]
+       },
+       "got": "{\"facts\": 5000, \"agents\": 65, \"decisions\": 81, \"handoffs\": 49, \"probes\": [false, false, false, true, true, true, false, false, false, false], \"earliest5\": [\"f014091\", \"f005047\", \"f012510\", \"f039444\", \"f009582\"]}"
+      },
+      {
+       "id": "A05",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 8.45,
+       "latency_ms_all": [
+        8.45,
+        8.9,
+        8.43
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A06",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 9.97,
+       "latency_ms_all": [
+        9.93,
+        9.97,
+        13.1
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A07",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 54.27,
+       "latency_ms_all": [
+        55.19,
+        47.02,
+        54.27
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A08",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 471.02,
+       "latency_ms_all": [
+        465.15,
+        471.02,
+        494.27
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 61,
+        "decisions": 64,
+        "handoffs": 54,
+        "probes": [
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f033540",
+         "f019457",
+         "f026462",
+         "f050556",
+         "f022000"
+        ]
+       },
+       "got": "{\"facts\": 5000, \"agents\": 61, \"decisions\": 64, \"handoffs\": 54, \"probes\": [true, true, false, false, false, false, false, false, false, true], \"earliest5\": [\"f033540\", \"f019457\", \"f026462\", \"f050556\", \"f022000\"]}"
+      },
+      {
+       "id": "A09",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 5.84,
+       "latency_ms_all": [
+        5.84,
+        5.52,
+        6.3
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A10",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 8.39,
+       "latency_ms_all": [
+        7.35,
+        9.53,
+        8.39
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A11",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 43.14,
+       "latency_ms_all": [
+        40.17,
+        44.84,
+        43.14
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A12",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 505.22,
+       "latency_ms_all": [
+        604.82,
+        505.22,
+        466.26
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 47,
+        "decisions": 93,
+        "handoffs": 59,
+        "probes": [
+         false,
+         false,
+         true,
+         true,
+         false,
+         true,
+         false,
+         true,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f044364",
+         "f045945",
+         "f039240",
+         "f049447",
+         "f022922"
+        ]
+       },
+       "got": "{\"facts\": 5000, \"agents\": 47, \"decisions\": 93, \"handoffs\": 59, \"probes\": [false, false, false, false, false, false, false, true, false, true], \"earliest5\": [\"f044364\", \"f045945\", \"f039240\", \"f049447\", \"f022922\"]}"
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 5.49,
+       "latency_ms_all": [
+        5.49,
+        5.07,
+        5.53
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A14",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 8.86,
+       "latency_ms_all": [
+        10.15,
+        8.86,
+        6.54
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A15",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 42.33,
+       "latency_ms_all": [
+        42.2,
+        48.14,
+        42.33
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A16",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 595.11,
+       "latency_ms_all": [
+        577.64,
+        595.11,
+        616.01
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 31,
+        "decisions": 69,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         false,
+         false,
+         true,
+         true,
+         true,
+         false,
+         false
+        ],
+        "earliest5": [
+         "f001863",
+         "f033081",
+         "f043169",
+         "f012160",
+         "f027639"
+        ]
+       },
+       "got": "{\"facts\": 5000, \"agents\": 31, \"decisions\": 69, \"handoffs\": 50, \"probes\": [false, false, true, false, false, true, false, false, false, false], \"earliest5\": [\"f001863\", \"f033081\", \"f043169\", \"f012160\", \"f027639\"]}"
+      },
+      {
+       "id": "A17",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.24,
+       "latency_ms_all": [
+        6.38,
+        6.01,
+        6.24
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A18",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.46,
+       "latency_ms_all": [
+        9.6,
+        10.55,
+        10.46
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A19",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 48.09,
+       "latency_ms_all": [
+        42.03,
+        61.25,
+        48.09
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A20",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 574.27,
+       "latency_ms_all": [
+        470.69,
+        624.18,
+        574.27
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 52,
+        "decisions": 79,
+        "handoffs": 50,
+        "probes": [
+         false,
+         true,
+         true,
+         true,
+         false,
+         true,
+         false,
+         false,
+         false,
+         true
+        ],
+        "earliest5": [
+         "f035284",
+         "f024890",
+         "f020210",
+         "f050230",
+         "f001015"
+        ]
+       },
+       "got": "{\"facts\": 5000, \"agents\": 52, \"decisions\": 79, \"handoffs\": 50, \"probes\": [false, true, false, false, false, false, false, false, false, true], \"earliest5\": [\"f035284\", \"f024890\", \"f020210\", \"f050230\", \"f001015\"]}"
+      },
+      {
+       "id": "A21",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.92,
+       "latency_ms_all": [
+        7.34,
+        6.92,
+        6.79
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A22",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.2,
+       "latency_ms_all": [
+        10.2,
+        10.96,
+        8.66
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A23",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 68.66,
+       "latency_ms_all": [
+        53.81,
+        84.18,
+        68.66
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A24",
+       "strict": false,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": false,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 637.95,
+       "latency_ms_all": [
+        669.0,
+        637.95,
+        512.84
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "facts": 5000,
+        "agents": 55,
+        "decisions": 71,
+        "handoffs": 43,
+        "probes": [
+         false,
+         false,
+         false,
+         true,
+         true,
+         true,
+         true,
+         false,
+         true,
+         false
+        ],
+        "earliest5": [
+         "f043945",
+         "f037641",
+         "f027122",
+         "f011780",
+         "f037268"
+        ]
+       },
+       "got": "{\"facts\": 5000, \"agents\": 55, \"decisions\": 71, \"handoffs\": 43, \"probes\": [false, false, false, false, false, false, false, false, false, false], \"earliest5\": [\"f043945\", \"f037641\", \"f027122\", \"f011780\", \"f037268\"]}"
+      }
+     ]
+    },
+    "P-product-service": {
+     "arm": "P-product-service",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "facts": 24,
+      "agents": 24,
+      "decisions": 24,
+      "handoffs": 24,
+      "probes": 24,
+      "earliest5": 24
+     },
+     "strict_without_earliest5": 24,
+     "latency_ms": {
+      "p50": 13.24,
+      "p99": 626.49,
+      "max": 626.49
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "A01",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 5.27,
+       "latency_ms_all": [
+        5.18,
+        5.27,
+        5.56
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A02",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 7.87,
+       "latency_ms_all": [
+        7.17,
+        7.87,
+        8.81
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A03",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 46.58,
+       "latency_ms_all": [
+        42.11,
+        46.58,
+        54.97
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A04",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 553.64,
+       "latency_ms_all": [
+        558.45,
+        463.38,
+        553.64
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A05",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 7.38,
+       "latency_ms_all": [
+        7.38,
+        6.83,
+        7.5
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A06",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.77,
+       "latency_ms_all": [
+        10.77,
+        13.24,
+        8.07
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A07",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 50.32,
+       "latency_ms_all": [
+        50.32,
+        55.72,
+        47.75
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A08",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 553.35,
+       "latency_ms_all": [
+        626.49,
+        546.78,
+        553.35
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A09",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 4.99,
+       "latency_ms_all": [
+        5.15,
+        4.51,
+        4.99
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A10",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 7.49,
+       "latency_ms_all": [
+        7.12,
+        8.54,
+        7.49
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A11",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 51.51,
+       "latency_ms_all": [
+        51.51,
+        48.01,
+        56.51
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A12",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 539.47,
+       "latency_ms_all": [
+        520.67,
+        539.47,
+        583.06
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A13",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.12,
+       "latency_ms_all": [
+        5.88,
+        6.12,
+        6.3
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A14",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 9.12,
+       "latency_ms_all": [
+        9.08,
+        9.12,
+        9.73
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A15",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 52.65,
+       "latency_ms_all": [
+        46.21,
+        52.65,
+        59.8
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A16",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 470.2,
+       "latency_ms_all": [
+        581.9,
+        470.2,
+        443.61
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A17",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 4.05,
+       "latency_ms_all": [
+        4.86,
+        3.67,
+        4.05
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A18",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 6.48,
+       "latency_ms_all": [
+        6.53,
+        6.48,
+        6.01
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A19",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 38.71,
+       "latency_ms_all": [
+        39.77,
+        38.19,
+        38.71
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A20",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 529.86,
+       "latency_ms_all": [
+        452.8,
+        559.04,
+        529.86
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A21",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 4.89,
+       "latency_ms_all": [
+        4.89,
+        4.97,
+        3.65
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A22",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 9.65,
+       "latency_ms_all": [
+        7.29,
+        9.65,
+        10.34
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A23",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 46.45,
+       "latency_ms_all": [
+        68.02,
+        46.45,
+        44.27
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "A24",
+       "strict": true,
+       "components": {
+        "facts": true,
+        "agents": true,
+        "decisions": true,
+        "handoffs": true,
+        "probes": true,
+        "earliest5": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 547.12,
+       "latency_ms_all": [
+        492.72,
+        547.12,
+        556.75
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      }
+     ]
+    }
+   },
+   "pairs_vs_B1h": [
+    {
+     "a": "B1h",
+     "b": "P-tuned",
+     "only_a_right": 0,
+     "only_b_right": 0,
+     "both_right": 24,
+     "p_two_sided": 1.0
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-tool",
+     "only_a_right": 6,
+     "only_b_right": 0,
+     "both_right": 18,
+     "p_two_sided": 0.0312
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-service",
+     "only_a_right": 0,
+     "only_b_right": 0,
+     "both_right": 24,
+     "p_two_sided": 1.0
+    }
+   ],
+   "questions": [
+    {
+     "id": "A01",
+     "blast": 10,
+     "depth": 2,
+     "source": "s0001"
+    },
+    {
+     "id": "A02",
+     "blast": 100,
+     "depth": 2,
+     "source": "s0003"
+    },
+    {
+     "id": "A03",
+     "blast": 1000,
+     "depth": 2,
+     "source": "s0005"
+    },
+    {
+     "id": "A04",
+     "blast": 5000,
+     "depth": 2,
+     "source": "s0007"
+    },
+    {
+     "id": "A05",
+     "blast": 10,
+     "depth": 4,
+     "source": "s0009"
+    },
+    {
+     "id": "A06",
+     "blast": 100,
+     "depth": 4,
+     "source": "s0011"
+    },
+    {
+     "id": "A07",
+     "blast": 1000,
+     "depth": 4,
+     "source": "s0013"
+    },
+    {
+     "id": "A08",
+     "blast": 5000,
+     "depth": 4,
+     "source": "s0015"
+    },
+    {
+     "id": "A09",
+     "blast": 10,
+     "depth": 8,
+     "source": "s0017"
+    },
+    {
+     "id": "A10",
+     "blast": 100,
+     "depth": 8,
+     "source": "s0019"
+    },
+    {
+     "id": "A11",
+     "blast": 1000,
+     "depth": 8,
+     "source": "s0021"
+    },
+    {
+     "id": "A12",
+     "blast": 5000,
+     "depth": 8,
+     "source": "s0023"
+    },
+    {
+     "id": "A13",
+     "blast": 10,
+     "depth": 10,
+     "source": "s0025"
+    },
+    {
+     "id": "A14",
+     "blast": 100,
+     "depth": 12,
+     "source": "s0027"
+    },
+    {
+     "id": "A15",
+     "blast": 1000,
+     "depth": 12,
+     "source": "s0029"
+    },
+    {
+     "id": "A16",
+     "blast": 5000,
+     "depth": 12,
+     "source": "s0031"
+    },
+    {
+     "id": "A17",
+     "blast": 10,
+     "depth": 2,
+     "source": "s0033"
+    },
+    {
+     "id": "A18",
+     "blast": 100,
+     "depth": 2,
+     "source": "s0035"
+    },
+    {
+     "id": "A19",
+     "blast": 1000,
+     "depth": 2,
+     "source": "s0037"
+    },
+    {
+     "id": "A20",
+     "blast": 5000,
+     "depth": 2,
+     "source": "s0039"
+    },
+    {
+     "id": "A21",
+     "blast": 10,
+     "depth": 4,
+     "source": "s0041"
+    },
+    {
+     "id": "A22",
+     "blast": 100,
+     "depth": 4,
+     "source": "s0043"
+    },
+    {
+     "id": "A23",
+     "blast": 1000,
+     "depth": 4,
+     "source": "s0045"
+    },
+    {
+     "id": "A24",
+     "blast": 5000,
+     "depth": 4,
+     "source": "s0047"
+    }
+   ]
+  },
+  "F": {
+   "P": {
+    "totals": {
+     "facts": 1005,
+     "decisions": 431,
+     "handoffs": 406
+    },
+    "orphans": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "orphans_total": 0,
+    "missing_derived_from": 13,
+    "lost_acknowledged": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "lost_acknowledged_total": 0,
+    "rule_of_three_upper_pct": null,
+    "kills": 200,
+    "acknowledged_writes": 1776
+   }
+  }
+ }
+}
