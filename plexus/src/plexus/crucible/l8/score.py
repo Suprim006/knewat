@@ -24,6 +24,8 @@ from plexus.crucible.l8 import scenario as S
 from plexus.crucible.l8.repo import TOKEN_RE
 
 MCP_PREFIX = "mcp__plexus__"
+DONE_RE = re.compile(r"\bdone\b", re.I)
+NOT_DONE_RE = re.compile(r"\bnot\s+(yet\s+)?done\b", re.I)
 TASK_ID_RE = re.compile(r"^[\s|*-]*`?(t\d\d-[a-z0-9-]+)")
 WRITE_ACK_ID = {"assert_fact": "fact_id", "record_decision": "decision_id", "handoff": "handoff_id",
                 "verify_fact": "new_fact_id", "complete_task": "task_id"}  # fmt: skip
@@ -235,7 +237,7 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
     actions: list[dict[str, Any]] = []
     asserted: set[tuple[str, str, str]] = set()
     completed: dict[str, int] = {}  # task -> turn of the first acknowledged complete_task
-    R1 = R2 = R3 = 0
+    R1 = R2 = R3 = R2_reclaim = 0
     C1 = C2 = 0
     rep_seq: set[int] = set()
     c2_seq: set[int] = set()
@@ -265,7 +267,6 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
                     and owner is not None
                     and need_ok(owner, prev, e.turn)
                     and e.turn not in reclaim_turns
-                    and file_exists_at.get(rel, e.turn) < e.turn
                 ):
                     R3 += 1
                     rep_seq.add(e.seq)
@@ -308,8 +309,11 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
             k3 = (" ".join(str(e.input.get("subject", "")).lower().split()), str(e.input.get("predicate", "")).strip().lower(),
                   " ".join(str(e.input.get("value", "")).split()))  # fmt: skip
             if k3 in asserted:
-                R2 += 1
-                rep_seq.add(e.seq)
+                if e.turn in reclaim_turns:
+                    R2_reclaim += 1  # attributed to recovery (§6.8), not to step repetition (amendment 3)
+                else:
+                    R2 += 1
+                    rep_seq.add(e.seq)
             asserted.add(k3)
         # scored action? (B0' memory Write: only the lines it adds, the analogue of one assert_fact; §13 amendment)
         txt = action_text(e)
@@ -343,13 +347,19 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
                             re.match(r"^[\s*-]*`?" + re.escape(tid0) + r"`?\s*:", line)
                         )  # a 'tid: done' note
                     )  # a dependency list that happens to start a line is not a record of that task
-                    if subject and "done" in line.lower():
+                    if subject and DONE_RE.search(line) and not NOT_DONE_RE.search(line):
                         prev_turns = b0_done.setdefault(tid0, set())
                         if prev_turns and e.turn not in prev_turns and e.turn not in reclaim_turns:
                             R1 += 1
                             rep_seq.add(e.seq)
                         prev_turns.add(e.turn)
-        if txt is None or (e.result is not None and e.result.is_error):
+                        if tid0 not in completed:
+                            completed[tid0] = e.turn
+                            t0 = S.TASK_BY_ID[tid0]
+                            toks0 = file_tokens.get(t0.artifact_path)
+                            if toks0 is None or not need_ok(t0, toks0, e.turn):
+                                C2 += 1  # the lead deems it done on the artifact; checked at the done mark
+        if txt is None or e.result is None or e.result.is_error:
             continue
         toks = T.tracked(txt)
         if not toks:
@@ -405,13 +415,6 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
             )  # fmt: skip
         if not done_here:
             C3 += 1
-    # B0': C2 = the lead deemed the task done (artifact present at turn end) while a current required token is missing
-    if not mcp:
-        for t in S.TASKS:
-            if t.artifact_path in file_tokens:
-                tn = file_exists_at[t.artifact_path]
-                if not need_ok(t, file_tokens[t.artifact_path], tn):
-                    C2 += 1
 
     # ---- M1-M3
     M1 = M2 = M3 = 0
@@ -522,7 +525,7 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
     cost = float(run["claude"]["total_cost_usd"])
 
     # ---- §6.7 provenance
-    prov = provenance(uses, dump, killed_turns, arm)
+    prov = provenance(uses, dump, killed_turns, arm, turn_info)
 
     # ---- §6.8 recovery
     recov = recovery(run, uses, T, file_tokens_at=_file_state_fn(uses), mcp=mcp, dump=dump, completed=completed,
@@ -551,8 +554,9 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
             ):
                 live_stale += 1
     else:
-        for text in (dump.get("memory_files") or {}).values():
-            for line in text.splitlines():
+        facts_md = (dump.get("memory_files") or {}).get("memory/facts.md", "")
+        for line in facts_md.splitlines():
+            if re.search(r"[\w.]+\s*[=:]\s*`?AX-\d{5}", line) and "supersed" not in line.lower():
                 live_stale += bool(T.stale_tokens(line, end_turn))
 
     n_dep_stale = sum(1 for a in dep if a["dependent_stale"])
@@ -576,7 +580,7 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
                            "level1_censored": sum(1 for n in notices if n["level1_turns"] is None),
                            "level2_censored": sum(1 for n in notices if n["level2_turns"] is None),
                            "false_alarm": false_alarm},
-        "mast": {"R1": R1, "R2": R2 if mcp else "n/a (no assert)", "R3": R3, "R4_wasted_reads": R4,
+        "mast": {"R1": R1, "R2": R2 if mcp else "n/a (no assert)", "R2_in_reclaim_turns": R2_reclaim if mcp else "n/a", "R3": R3, "R4_wasted_reads": R4,
                  "step_repetition_rate": rate(reps if mcp else R1 + R3, n_act),
                  "C1": C1, "C2": C2, "C3": C3, "missing_completion_rate": rate(C1 + C2 + C3, len(S.TASKS)),
                  "M1": M1, "M2": M2 if mcp else "n/a (no decision object)", "M3": M3 if mcp else "n/a (no handoff object)",
@@ -606,6 +610,13 @@ def _post_hoc(actions: list[dict[str, Any]]) -> dict[str, Any]:
         k = sum(1 for a in keep if a["stale"])
         out[name] = {"n": len(keep), "stale": k, "rate": rate(k, len(keep))}
     return out
+
+
+def common_task_rate(metrics: list[dict[str, Any]], tasks: set[str]) -> dict[str, Any]:
+    """Post-hoc: stale-act rate over actions of ``tasks`` only (tasks every arm of the seed reached)."""
+    acts = [a for m in metrics for a in m["actions"] if a["task"] in tasks]
+    k = sum(1 for a in acts if a["stale"])
+    return {"n": len(acts), "stale": k, "rate": rate(k, len(acts))}
 
 
 def _suspect_hit(data: Any, old: str) -> bool:
@@ -659,24 +670,34 @@ def contradictions(
 ) -> dict[str, Any]:
     out: dict[str, Any] = {}
 
-    def first_both(after_turn: int, a: str, b: str, ci: bool = False) -> int | None:
+    def first_both(after_seq: int, a: str, b: str, ci: bool = False) -> int | None:
         for e in evs:
-            if e.turn < after_turn:
+            if e.seq <= after_seq:
                 continue
-            txt = (e.text if e.kind in ("result", "text") else json.dumps(e.input)) or ""
+            if e.kind in ("result", "text"):
+                txt = e.text or ""
+            elif e.kind == "use" and (
+                (e.mcp and e.tool == "record_decision")
+                or (not e.mcp and e.tool in ("Write", "Edit") and under(e, "memory"))
+            ):
+                txt = json.dumps(e.input)
+            else:
+                continue
             t2 = txt.lower() if ci else txt
             if (a.lower() if ci else a) in t2 and (b.lower() if ci else b) in t2:
                 return e.turn
         return None
 
     # X1 (keywords; documents give 'JWT' vs 'API key')
-    x1 = [e for e in uses if e.name == "t05-choose-auth" and ((e.mcp and e.tool == "assert_fact" and "auth" in str(e.input.get("predicate", "")).lower())
-          or (not e.mcp and e.tool in ("Write", "Edit") and under(e, "memory")))]  # fmt: skip
+    x1 = [e for e in uses if ok(e) and e.name == "t05-choose-auth" and (
+          (e.mcp and e.tool == "assert_fact" and str(e.input.get("predicate", "")).strip().lower() == "auth_method")
+          or (not e.mcp and e.tool in ("Write", "Edit") and under(e, "memory")
+              and re.search(r"api[ -]?key", str(e.input.get("new_string") or e.input.get("content") or ""), re.I)))]  # fmt: skip
     if x1:
-        e = x1[-1] if not mcp else x1[0]
+        e = x1[0]
         t2 = e.turn
         at_write = bool(mcp and e.result and (e.result.data.get("contradicts")))
-        surf = t2 if at_write else first_both(t2, "JWT", "API key", ci=True)
+        surf = t2 if at_write else first_both(e.seq, "JWT", "API key", ci=True)
         out["X1"] = {"second_assertion_turn": t2, "surfaced_at_write": at_write,
                      "latency_turns": None if surf is None else surf - t2, "method": "keywords 'JWT' and 'API key'"}  # fmt: skip
     else:
@@ -694,7 +715,7 @@ def contradictions(
     if second is not None:
         at_write = bool(mcp and second.result and second.result.data.get("contradicts"))
         code_tok = next(c for c in code_toks if c in json.dumps(second.input))
-        surf = second.turn if at_write else first_both(second.turn, old, code_tok)
+        surf = second.turn if at_write else first_both(second.seq, old, code_tok)
         post_use = sum(
             1
             for e in uses
@@ -745,34 +766,61 @@ def _both_live(dump: dict[str, Any], mcp: bool, a: str, b: str) -> bool | None:
     return a in live and b in live
 
 
-def provenance(uses: list[Ev], dump: dict[str, Any], killed_turns: set[int], arm: str) -> dict[str, Any]:
+def provenance(uses: list[Ev], dump: dict[str, Any], killed_turns: set[int], arm: str,
+               turn_info: dict[int, dict[str, Any]]) -> dict[str, Any]:  # fmt: skip
+    """§6.7: an acknowledged write has a provenance record if the store holds a WROTE row to its node by the acting
+    agent with a step time inside the turn (amendment 3: a row from an earlier step, e.g. the kickoff create_tasks
+    of a Task node, does not count)."""
     if arm == "B0p":
         return {"overall": "n/a (no provenance model)"}
-    wrote = {w["node"] for w in dump.get("wrote", [])}
+    wrote: dict[str, list[tuple[str, int, int | None]]] = defaultdict(list)
+    for w in dump.get("wrote_steps") or dump.get("wrote", []):
+        try:
+            n = w.get("n")
+            wrote[str(w["node"])].append(
+                (str(w.get("agent") or ""), int(w.get("at") or 0), None if n is None else int(n))
+            )
+        except (TypeError, ValueError):
+            continue
     per: dict[str, list[int]] = defaultdict(lambda: [0, 0])
     kill = [0, 0]
     lost = []
+    dup_acks = 0
     for e in uses:
         if not (e.mcp and e.tool in WRITE_ACK_ID and ok(e)):
             continue
         d = e.result.data if e.result else {}
-        nid = d.get(WRITE_ACK_ID[e.tool]) or (d.get("fact_id") if e.tool == "verify_fact" else None)
-        if e.tool == "complete_task":
-            nid = e.input.get("task_id")
+        if e.tool == "assert_fact" and d.get("duplicate_of"):
+            dup_acks += 1
+            continue
+        nid = e.input.get("task_id") if e.tool == "complete_task" else d.get(WRITE_ACK_ID[e.tool])
         if not nid:
             continue
-        has = nid in wrote
+        ti = turn_info.get(e.turn, {})
+        lo, hi = int(ti.get("start_ms") or 0), int(ti.get("end_ms") or 10**15) + 5000
+        step_n = e.input.get("step")
+        rows = wrote.get(str(nid), [])
+        if step_n is not None and any(n is not None for _, _, n in rows):
+            # P keys a Step by (agent, n); the S21 step numbers restart at 1 and merge into the history's Steps of
+            # the same number (amendment 3), so the Step's time is the history's: match on the number instead
+            has = any(a == e.agent and n == int(step_n) for a, _, n in rows)
+        else:
+            has = any(a == e.agent and lo <= at <= hi for a, at, _ in rows)
         per[e.tool][0] += has
         per[e.tool][1] += 1
-        if e.turn in killed_turns:
+        if e.tool != "complete_task" and e.turn in killed_turns:
             kill[0] += has
             kill[1] += 1
         if not has:
             lost.append({"turn": e.turn, "tool": e.tool, "id": nid})
-    tot = [sum(v[0] for v in per.values()), sum(v[1] for v in per.values())]
-    return {"overall": {"with_record": tot[0], "acknowledged": tot[1], "rate": rate(*tot)},
+    core = [v for k, v in per.items() if k != "complete_task"]
+    tot = [sum(v[0] for v in core), sum(v[1] for v in core)]
+    return {"overall": {"with_record": tot[0], "acknowledged": tot[1], "rate": rate(*tot),
+                        "tools": "assert_fact, record_decision, handoff, verify_fact (complete_task per tool only)",
+                        "rule_of_three_upper_bound_missing": round(3 / tot[1], 4) if tot[1] and tot[0] == tot[1] else None},
             "by_tool": {k: {"with_record": v[0], "acknowledged": v[1], "rate": rate(*v)} for k, v in per.items()},
             "kill_turns": {"with_record": kill[0], "acknowledged": kill[1], "rate": rate(*kill)},
+            "duplicate_acks_skipped": dup_acks,
             "without_record": lost[:50]}  # fmt: skip
 
 
@@ -847,6 +895,7 @@ def pool(metrics: list[dict[str, Any]]) -> dict[str, Any]:
             return [fn(m) for m in ms]
 
         def mmm(vals: list[Any]) -> dict[str, Any]:
+            vals = [math.inf if x == "inf" else x for x in vals]
             v = [x for x in vals if isinstance(x, (int, float))]
             return {
                 "values": vals,
@@ -902,7 +951,7 @@ def pool(metrics: list[dict[str, Any]]) -> dict[str, Any]:
                 p = perm_test(pa, pb)
                 overlap = bool(pa and pb and not (max(pa) < min(pb) or max(pb) < min(pa)))
                 tests[f"P_vs_{other}_{metric}"] = {"P": pa, other: pb, "perm_p": p, "ranges_overlap": overlap,
-                                                   "separated": (p is not None and p <= 0.05 and not overlap)}  # fmt: skip
+                                                   "P_lower": bool(pa and pb and median(pa) < median(pb)), "separated": (p is not None and p <= 0.05 and not overlap)}  # fmt: skip
     return {"arms": arms, "tests": tests}
 
 
@@ -923,3 +972,27 @@ def score_all(out: Path, arms: tuple[str, ...] = ("P", "B1", "B0p")) -> dict[str
         )
         metrics.append(m)
     return {"runs": [{k: m[k] for k in ("seed", "arm", "status")} for m in metrics], **pool(metrics)}
+
+
+def redump_p_steps(run_dir: Path, host: str = "127.0.0.1", port: int = 6365) -> int:
+    """Add ``wrote_steps`` (node, agent, step n, at) to a P run's store_dump.json from its (unchanged) tenant graph.
+
+    The runner's dump kept WROTE rows without the Step number; amendment 3 matches provenance on it. Read-only."""
+    from plexus.graph.client import GraphClient
+    from plexus.graph.tenancy import graph_name
+
+    run = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
+    p = run_dir / "store_dump.json"
+    dump = json.loads(p.read_text(encoding="utf-8"))
+    gc = GraphClient(host=host, port=port)
+    try:
+        rows = (
+            gc.graph(graph_name(run["tenant"]))
+            .ro_query("MATCH (s:Step)-[:WROTE]->(x) RETURN x.id, s.agent_id, s.n, s.at")
+            .result_set
+        )
+    finally:
+        gc.close()
+    dump["wrote_steps"] = [{"node": r[0], "agent": r[1], "n": r[2], "at": r[3]} for r in rows]
+    p.write_text(json.dumps(dump, indent=0, default=str) + "\n", encoding="utf-8")
+    return len(rows)

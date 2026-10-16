@@ -810,3 +810,34 @@ which a default-scope `recall` does not search) and the researcher called `fail_
    the store write of the S03 note's value that `t14`'s brief itself asks for (X2 scaffolding, every arm), and (b)
    actions whose only stale tokens are of a *deleted* function (agents often quote the last value with "removed from
    the code"; string matching cannot read the annotation).
+
+### Amendment 3 (2026-10-16, during round A; paid runs before this text: seeds 20261017 complete and 20261018 in flight; no prompt, brief, schedule or harness change)
+
+An independent read-only review of `score.py` against §6 (one Sonnet subagent, transcripts of seed 20261017 checked
+by hand) found deviations; they are fixed in the scorer only (scoring is post-hoc and deterministic, so every run is
+re-scored by the same code):
+
+1. **R2 in reclaim turns** was counted as step repetition while R1, R3 and C1 exclude reclaim turns. A reclaimer
+   re-asserting the dead agent's facts is §6.8's "re-asserted facts (R2 attributed to the reclaim turn)": it now goes
+   to recovery (`R2_in_reclaim_turns`, `recovery.reasserted_facts`) and not to the step-repetition rate.
+2. **Provenance (§6.7)** checked only that *some* WROTE row pointed at the node, so `complete_task` passed on the
+   kickoff `create_tasks` row. Now: a WROTE row by the acting agent from that call's step. While checking this, a
+   harness interaction surfaced: **P keys a `Step` by (agent, n), the S21 step counter restarts at 1, and the
+   20-sprint history already has Steps 1..N for the same three agents**, so S21 writes attach to history Steps (and
+   carry their 2025 times). Provenance is therefore matched on the step number the agent passed (the P dumps get a
+   read-only `wrote_steps` re-dump from the unchanged tenant graphs); B1 creates its own steps with real times and is
+   matched on the turn's time window. Consequence for the audit: Q2 asks "read before the commit landed", and P's
+   pre-registered statement filters on `Step.at`, which for S21 is the history's time; its answer is reported as it
+   comes out, with this explanation. No agent-facing behaviour depends on Step times. The `overall` provenance figure
+   excludes `complete_task` (B1 keeps no step for it, amendment 1 item 7) and acknowledgements that were duplicates
+   (`duplicate_of`); `verify_fact` counts only acknowledgements with a `new_fact_id`.
+3. B0′: C1 and C2 now use the turn at which a task's own record in `tasks.md` is marked done (C2 is checked against
+   the artifact's state then, as for `complete_task`); "done" is matched as a word and "not done" is excluded.
+4. R3 no longer requires the earlier write to be in an earlier turn (§6.3 has no such condition). Actions whose
+   tool call never returned a result are not scored.
+5. X1 uses `predicate == auth_method` (B0′: the first memory write in `t05` that adds an API-key claim); "surfaced
+   later" only looks at events after the second assertion and only at tool results, agent text, decisions and B0′
+   memory writes (not artifact writes). B0′ "stale facts live at end" counts `memory/facts.md` setting lines only.
+6. Pooling keeps an infinite median as `inf`; each separation test also reports its direction (`P_lower`).
+7. Post-hoc (observed in seeds 1-2: P's researcher calls `fail_task` on `t13`, which blocks `t16`, the latest and most
+   exposed task): the stale-act rate is also reported over the tasks every arm of a seed reached. Descriptive only.

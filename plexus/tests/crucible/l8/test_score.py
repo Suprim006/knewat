@@ -101,7 +101,7 @@ def _write_run(tmp: Path) -> tuple[Path, Path]:
             _res("g", {"task_id": "t07-implement-crud-spec"}),
             # duplicate assert of the same triple -> R2 (current, scored)
             _use("h", P + "assert_fact", {"subject": "S", "predicate": "auth.token_ttl", "value": OLD}),
-            _res("h", {"fact_id": "f1"}),
+            _res("h", {"fact_id": "f1", "duplicate_of": "f1"}),
             # handoff with a token and no fact ids -> M3 (stale: OLD after the commit, NEW absent)
             _use(
                 "i",
@@ -118,15 +118,15 @@ def _write_run(tmp: Path) -> tuple[Path, Path]:
         (run / "transcripts" / f"{name}.jsonl").write_text("\n".join(lines) + "\n")
     rec = {"seed": 1, "arm": "P", "status": "completed",
            "turns": [{"turn": 1, "agent": "planner", "name": "init", "kind": "init"},
-                     {"turn": 2, "agent": "researcher", "name": "t04-survey-infra-security", "kind": "task"},
-                     {"turn": 3, "agent": "builder", "name": "t07-implement-crud-spec", "kind": "task"}],
+                     {"turn": 2, "agent": "researcher", "name": "t04-survey-infra-security", "kind": "task", "start_ms": 1000, "end_ms": 2000},
+                     {"turn": 3, "agent": "builder", "name": "t07-implement-crud-spec", "kind": "task", "start_ms": 3000, "end_ms": 4000}],
            "commits_landed": [{"k": 1, "kind": "value", "funcs": ["auth.token_ttl"], "landed_before_turn": 3, "sha": "s1"}],
            "events": [], "kills_fired": {},
            "claude": {"tokens": {"input_tokens": 100, "output_tokens": 50, "cache_read_input_tokens": 1000,
                                  "cache_creation_input_tokens": 200}, "total_cost_usd": 0.5}}  # fmt: skip
     (run / "run.json").write_text(json.dumps(rec))
     (run / "store_dump.json").write_text(json.dumps({"facts": [{"id": "f1", "value": OLD, "status": "active"}],
-                                                    "wrote": [{"node": "f1"}], "tasks": [], "changes": []}))  # fmt: skip
+                                                    "wrote": [{"node": "f1", "agent": "researcher", "at": 1500}, {"node": "h1", "agent": "planner", "at": 3500}], "tasks": [], "changes": []}))  # fmt: skip
     return run, seed
 
 
@@ -152,7 +152,11 @@ def test_score_hand_counts(tmp_path: Path) -> None:
     # correct = scored - stale - repetition(g; h is both) = 7 - 3 - 1 = 3
     assert m["tokens"]["correct_actions"] == 3
     assert m["tokens"]["total"] == 1350 and m["tokens"]["billing_weighted"] == round(150 + 100 + 250)
-    assert m["provenance"]["by_tool"]["assert_fact"] == {"with_record": 2, "acknowledged": 2, "rate": 1.0}
+    # f1 written by the researcher inside turn 2 -> has a record; the duplicate ack (h) is skipped; the handoff's
+    # WROTE row is by another agent -> no record (amendment 3 rule)
+    assert m["provenance"]["by_tool"]["assert_fact"] == {"with_record": 1, "acknowledged": 1, "rate": 1.0}
+    assert m["provenance"]["by_tool"]["handoff"] == {"with_record": 0, "acknowledged": 1, "rate": 0.0}
+    assert m["provenance"]["duplicate_acks_skipped"] == 1
 
 
 def test_stats() -> None:
