@@ -45,7 +45,9 @@ async def test_impact_source_fact_and_task(server, client, tenant):
         src, f1, f2, dec = await _world(c)
         r = (await ok(c, "impact", agent_id="a", kind="source", id=src))["impact"]
         assert r["facts"]["ids"] == sorted([f1, f2]) and r["facts"]["by_status"] == {"active": 2}
-        assert r["decisions"] == {"total": 1, "ids": [dec]}
+        assert (r["decisions"]["total"], r["decisions"]["ids"]) == (1, [dec])
+        assert r["decisions"]["earliest_at"] == r["decisions"]["latest_at"] > 0
+        assert r["facts"]["earliest_at"] <= r["facts"]["latest_at"] and len(r["facts"]["earliest"]) == 2
         assert r["tasks"] == {"total": 1, "ids": ["t2"]}
         assert "b" in r["readers"]["agents"] and r["readers"]["steps_total"] >= 1
         assert r["truncated"] is False and r["depth"] == 8

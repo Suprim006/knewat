@@ -7,6 +7,7 @@ import pytest
 from plexus.lineage import Lineage, UnknownNode
 
 from .conftest import cypher
+from .blast import build_blast
 from .diamond import TimedClient, build_lineage
 
 
@@ -25,9 +26,9 @@ def test_impact_source_matches_the_quarantine_blast_radius_and_writes_nothing(wo
     assert got["facts"]["by_status"] == {"active": 2}
     assert got["readers"]["agents"] == q["agents"]
     assert got["readers"]["steps_total"] == len({x["step_id"] for x in q["readers"]})
-    assert got["decisions"] == {"total": 1, "ids": [w.decision]}
+    assert (got["decisions"]["total"], got["decisions"]["ids"]) == (1, [w.decision])
     assert got["tasks"] == {"total": 1, "ids": ["t-build"]}
-    assert got["handoffs"] == {"total": q["handoffs_total"], "ids": q["handoff_ids"]}
+    assert (got["handoffs"]["total"], got["handoffs"]["ids"]) == (q["handoffs_total"], q["handoff_ids"])
     assert got["truncated"] is False
 
 
@@ -81,3 +82,43 @@ def test_plan_shape_impact_touches_edges_not_paths(client, graph):
     for kind, ident in (("source", d["source"]), ("fact", d["layers"][0][0])):
         ops = profile_ops(client, graph, f"lineage/impact_{kind}", {"id": ident, "depth": 12, "limit": 5000})
         assert max_records(ops).records <= total_edges, (kind, max_records(ops))
+
+
+def test_impact_carries_timestamps_per_facet(world, lin):
+    w = world
+    got = lin.impact("source", w.bad)
+    facts = got["facts"]
+    assert facts["earliest_at"] <= facts["latest_at"] and facts["earliest_at"] is not None
+    assert [e["id"] for e in facts["earliest"]] == sorted(
+        facts["ids"], key=lambda i: next(e["at"] for e in facts["earliest"] if e["id"] == i)
+    )
+    assert len(facts["earliest"]) == 2 and facts["earliest"][0]["at"] == facts["earliest_at"]
+    assert got["readers"]["earliest_at"] is not None and got["decisions"]["earliest_at"] == 4000
+    none = lin.impact("fact", w.sessstore)
+    assert none["handoffs"] == {"total": 0, "ids": [], "earliest_at": None, "latest_at": None}
+
+
+def test_impact_5000_fact_blast_answers_in_under_2_s_with_exact_totals(client, empty_graph, clock):
+    """P9-int regression (L6-A): the old statement carried the fact list as a grouping key through three UNWINDs and
+    never finished at 5,000 facts. Noise (5,000 unrelated facts, 7,500 reads) must not be walked."""
+    d = build_blast(client, empty_graph, n=5000, noise=5000)
+    tc = TimedClient(client)
+    lin = Lineage(tc, empty_graph, clock=clock)
+    got = lin.impact("source", d["source"], depth=12, max_detail=2000)
+    assert tc.server_ms < 2000, tc.server_ms
+    assert got["facts"]["total"] == 5000 and len(got["facts"]["ids"]) == 2000 and not got["truncated"]
+    assert got["facts"]["by_status"] == {"active": 5000}
+    assert [e["id"] for e in got["facts"]["earliest"]] == d["earliest"]
+    assert got["decisions"]["ids"] == d["decisions"] and got["handoffs"]["ids"] == d["handoffs"]
+    assert got["readers"]["steps_total"] == d["steps_blast"] and got["readers"]["agents_total"] == 20
+    assert got["decisions"]["earliest_at"] == 3000 and got["handoffs"]["latest_at"] == 4000 + len(d["handoffs"]) - 1
+    assert got["tasks"] == {"total": 1, "ids": ["t-b"]}
+
+
+def test_plan_shape_impact_does_not_scan_unrelated_edges(client, empty_graph):
+    from tests.plan_util import max_records, profile_ops
+
+    d = build_blast(client, empty_graph, n=600, levels=6, noise=1500)
+    ops = profile_ops(client, empty_graph, "lineage/impact_source", {"id": d["source"], "depth": 12, "limit": 5000})
+    # the busiest operator produces the blast's own READ edges, never the 2,250 reads of the unrelated noise
+    assert max_records(ops).records <= d["reads_blast"], (max_records(ops), d["reads_blast"])
