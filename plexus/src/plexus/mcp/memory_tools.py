@@ -67,7 +67,7 @@ def unpin_fact(
     return _set_pin(ts, m, fact_id, False)
 
 
-@tool
+@tool(kind="read")
 def memory_strength(
     ts: TenantState,
     m: MeteredClient,

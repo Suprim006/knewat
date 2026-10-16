@@ -11,6 +11,7 @@ import json
 import pytest
 
 from deploy.guard import (
+    OBSERVER_TOOLS,
     ActivityLog,
     ApiRateLimit,
     GuardConfig,
@@ -21,6 +22,7 @@ from deploy.guard import (
     TokenBucket,
     classify,
     client_ip,
+    ensure_demo_audit_off,
     tenant_of,
 )
 
@@ -201,7 +203,7 @@ def test_refusal_is_a_valid_mcp_call_tool_result():
     from mcp.types import CallToolResult
 
     g, _, _ = make_guard()
-    _, _, body = call(g, path="/mcp/t/demo", body=rpc("tools/call", name="recall", arguments={}))
+    _, _, body = call(g, path="/mcp/t/demo", body=rpc("tools/call", name="assert_fact", arguments={}))
     res = CallToolResult.model_validate(json.loads(body)["result"])
     assert res.is_error and "read-only" in res.content[0].text
 
@@ -308,3 +310,109 @@ def test_sweep_starts_the_idle_clock_for_graphs_it_never_saw_active():
     assert sw.sweep_once() == []  # first sight: grace period, not deletion
     clock.t += 101
     assert sw.sweep_once() == ["team_zzzz"]
+
+
+# ----------------------------------------------------------------------------------------------- P9-e: readable demo
+def tool_call(name, **arguments):
+    return rpc("tools/call", name=name, arguments=arguments)
+
+
+def test_demo_read_tools_are_forwarded_and_each_tool_is_on_the_allowlist():
+    g, inner, activity = make_guard(cfg=GuardConfig(demo_rate_per_min=100, rate_per_min=1000))
+    for name in sorted(OBSERVER_TOOLS):
+        status, _, body = call(g, path="/mcp/t/demo", body=tool_call(name, agent_id="visitor"))
+        assert (status, body) == (202, b"ok"), name
+    assert len(inner.calls) == len(OBSERVER_TOOLS)
+    assert "demo" not in activity.last  # demo tenants are never touched for the idle sweep
+
+
+def test_demo_forwarding_works_through_the_header_route_too():
+    g, inner, _ = make_guard()
+    status, _, _ = call(g, path="/mcp", headers={"X-Plexus-Tenant": "demo_scripted"}, body=tool_call("recall"))
+    assert status == 202 and len(inner.calls) == 1
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "assert_fact",
+        "start_session",
+        "create_tasks",
+        "forget_source",
+        "memory_sweep",
+        "pin_fact",
+        "Recall",
+        "recall ",
+        "",
+    ],
+)
+def test_demo_write_tools_and_unknown_names_are_refused_with_a_clear_tool_error(name):
+    g, inner, _ = make_guard()
+    status, _, body = call(g, path="/mcp/t/demo", body=tool_call(name, agent_id="x"))
+    msg = json.loads(body)
+    assert status == 200 and msg["result"]["isError"] is True
+    text = msg["result"]["content"][0]["text"]
+    assert "read-only" in text and "reads are allowed" in text and "team_" in text
+    assert inner.calls == []
+
+
+@pytest.mark.parametrize("params", [{}, {"name": None}, {"name": ["recall"]}, {"name": {"a": 1}}, {"name": 5}])
+def test_demo_tools_call_with_a_malformed_name_is_refused_not_crashed(params):
+    g, inner, _ = make_guard()
+    status, _, body = call(g, path="/mcp/t/demo", body=rpc("tools/call", **params))
+    assert status == 200 and json.loads(body)["result"]["isError"] is True
+    assert inner.calls == []
+
+
+def test_a_demo_tenant_without_a_graph_is_refused_so_a_request_cannot_create_one():
+    listed: list[str] = ["plexus_t_demo"]
+    g, inner, _ = make_guard(graphs=listed)
+    status, _, body = call(g, path="/mcp/t/demo_new", body=tool_call("recall", agent_id="v", query="x"))
+    msg = json.loads(body)
+    assert status == 200 and msg["result"]["isError"] is True
+    assert "does not exist" in msg["result"]["content"][0]["text"]
+    assert inner.calls == [] and listed == ["plexus_t_demo"]  # nothing forwarded, nothing created
+    # the handshake still works for any demo name (it touches no graph)
+    assert call(g, path="/mcp/t/demo_new", body=rpc("initialize"))[0] == 202
+
+
+def test_demo_reads_have_their_own_smaller_rate_limit_and_team_tenants_are_unaffected():
+    clock = Clock()
+    cfg = GuardConfig(rate_per_min=1000, global_rate_per_min=10_000, demo_rate_per_min=3, demo_global_rate_per_min=100)
+    g, inner, _ = make_guard(
+        cfg, limiter=RateLimiter(1000, 10_000, clock=clock), demo_limiter=RateLimiter(3, 100, clock=clock)
+    )
+    codes = [call(g, path="/mcp/t/demo", body=tool_call("recall"))[0] for _ in range(5)]
+    assert codes == [202, 202, 202, 429, 429]
+    status, hdrs, _ = call(g, path="/mcp/t/demo", body=tool_call("recall"))
+    assert status == 429 and int(hdrs[b"retry-after"]) >= 1
+    # a refused write and the handshake do not spend the demo-read budget; a team tenant has its own path
+    assert call(g, path="/mcp/t/demo", body=tool_call("assert_fact"))[0] == 200
+    assert call(g, path="/mcp/t/demo", body=rpc("tools/list"))[0] == 202
+    assert call(g, body=tool_call("recall"))[0] == 202
+    assert len(inner.calls) == 3 + 1 + 1
+
+
+def test_team_tenants_are_unchanged_by_the_allowlist():
+    g, inner, _ = make_guard()
+    for name in ("assert_fact", "recall", "anything"):
+        assert call(g, body=tool_call(name))[0] == 202
+    assert len(inner.calls) == 3
+
+
+def test_demo_batches_and_oversized_bodies_are_still_refused():
+    g, inner, _ = make_guard(cfg=GuardConfig(max_body_bytes=1024))
+    assert call(g, path="/mcp/t/demo", body=b"[" + tool_call("recall") + b"]")[0] == 400
+    assert call(g, path="/mcp/t/demo", body=b"x" * 2048)[0] == 413
+    assert inner.calls == []
+
+
+def test_demo_audit_off_is_forced_into_the_runtime_environment():
+    env: dict[str, str] = {}
+    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"] == "demo*=off"
+    env = {"PLEXUS_AUDIT_MODES": "team_*=light"}
+    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"] == "demo*=off,team_*=light"
+    # an operator's own demo rule can not weaken it: ours is first and the first match wins
+    env = {"PLEXUS_AUDIT_MODES": "demo*=full,team_*=light"}
+    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"] == "demo*=off,demo*=full,team_*=light"
+    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"].count("demo*=off") == 1  # idempotent

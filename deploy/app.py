@@ -20,7 +20,15 @@ from starlette.exceptions import HTTPException
 from starlette.responses import PlainTextResponse
 from starlette.staticfiles import StaticFiles
 
-from deploy.guard import ActivityLog, ApiRateLimit, GuardConfig, IdleSweeper, PublicGuard, TenantDirectory
+from deploy.guard import (
+    ActivityLog,
+    ApiRateLimit,
+    GuardConfig,
+    IdleSweeper,
+    PublicGuard,
+    TenantDirectory,
+    ensure_demo_audit_off,
+)
 from plexus.api.view_api import create_app as create_view_api
 from plexus.graph.client import GraphClient
 from plexus.mcp.http import TenantPathMiddleware
@@ -114,6 +122,7 @@ def build_app(
     os.environ.setdefault("PLEXUS_CORS_ORIGINS", "")  # same origin: no cross-origin caller needs the API
     api = ApiRateLimit(create_view_api(client=client, results_path=results), cfg)
 
+    ensure_demo_audit_off()  # demo* tenants are served in audit mode `off`: read-only, nothing written
     rt = Runtime(client=client)
     mcp_inner = build_server(rt).streamable_http_app(
         streamable_http_path="/mcp",

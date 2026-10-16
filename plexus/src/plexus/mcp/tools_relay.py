@@ -239,7 +239,7 @@ def record_decision(
 
 
 # ---------------------------------------------------------------- reads
-@tool
+@tool(kind="read")
 def ready_tasks(
     ts: TenantState,
     m: MeteredClient,
@@ -252,7 +252,7 @@ def ready_tasks(
     return Outcome({"tasks": rows, "count": len(rows)})
 
 
-@tool
+@tool(kind="read")
 def task_status(
     ts: TenantState,
     m: MeteredClient,
@@ -267,7 +267,7 @@ def task_status(
     return Outcome({"task": st})
 
 
-@tool
+@tool(kind="read")
 def blocked_by_failure(
     ts: TenantState,
     m: MeteredClient,

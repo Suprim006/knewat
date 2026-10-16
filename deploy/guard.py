@@ -3,11 +3,14 @@
 The MCP endpoint is public ("bring your own agent"), so everything in front of it is deny-by-default:
 
 * **Tenant policy.** Only ``team_[a-z0-9]{4,24}`` tenants can be written through MCP. ``demo`` / ``demo_*`` tenants are
-  read-only: the MCP handshake (``initialize``, ``tools/list``...) works so an agent can look, but every
-  ``tools/call`` is refused with a tool error that says why (each Plexus tool call writes an audit ``ToolCall`` node,
-  so even ``recall`` would mutate the demo graph). Any other tenant name is refused with 403.
+  **readable and not writable**: the MCP handshake works, a ``tools/call`` of one of the :data:`OBSERVER_TOOLS` (the
+  read tools) is forwarded, and every other call is refused with a tool error that says why. The real enforcement is
+  the Plexus runtime, which serves ``demo*`` in audit mode ``off`` (no write of any kind, writes refused, no graph
+  created; see :func:`ensure_demo_audit_off`); the allowlist here is a second gate. A demo tenant whose graph does not
+  exist is refused too, so a request can not make the server create graphs. Any other tenant name is refused with 403.
 * **Per-IP token bucket** (default 60 requests/min) plus a global bucket as a backstop (the client IP is only as
-  trustworthy as the proxy in front, see :func:`client_ip`).
+  trustworthy as the proxy in front, see :func:`client_ip`). Demo reads (a ``recall`` costs an embedding) also spend a
+  smaller, separate bucket.
 * **Request body cap** (default 512 KiB) enforced on ``Content-Length`` and while streaming.
 * **Graph cap.** At most ``max_tenants`` (50) tenant graphs; a request that would create one more is refused (503).
 * **Idle sweep.** :class:`IdleSweeper` deletes ``team_*`` graphs with no MCP traffic for 24 h.
@@ -25,7 +28,7 @@ import re
 import threading
 import time
 from collections import OrderedDict
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, MutableMapping
 from dataclasses import dataclass, field
 
 import anyio.to_thread
@@ -37,6 +40,41 @@ TEAM_RE = re.compile(r"team_[a-z0-9]{4,24}")
 DEMO_RE = re.compile(r"demo(_[a-z0-9_]*)?")
 MCP_PREFIX = "/mcp/t/"
 TENANT_HEADER = b"x-plexus-tenant"
+
+# The read tools a public demo tenant may call. This is the set of tools declared ``kind="read"`` in
+# ``plexus.mcp`` (``memory_sweep`` stays out: its ``dry_run`` is an argument). A test in the Plexus suite asserts
+# the two lists are equal, so they can not drift; this file imports no Plexus code.
+OBSERVER_TOOLS = frozenset(
+    {
+        "recall",
+        "fact_history",
+        "as_of",
+        "why",
+        "why_recalled",
+        "who_knew",
+        "knew_at",
+        "ready_tasks",
+        "task_status",
+        "blocked_by_failure",
+        "best_procedure",
+        "memory_strength",
+        "facts_to_verify",
+        "docs_to_update",
+    }
+)
+DEMO_AUDIT_RULE = "demo*=off"  # PLEXUS_AUDIT_MODES entry: public demo tenants write nothing, ever
+
+
+def ensure_demo_audit_off(environ: MutableMapping[str, str] | None = None) -> MutableMapping[str, str]:
+    """Put ``demo*=off`` first in ``PLEXUS_AUDIT_MODES`` (first match wins, so an operator can not weaken it).
+
+    Call before the Plexus ``Runtime`` is created: it reads the variable once, at start. Idempotent.
+    """
+    env = os.environ if environ is None else environ
+    rules = [r.strip() for r in (env.get("PLEXUS_AUDIT_MODES") or "").split(",") if r.strip()]
+    if DEMO_AUDIT_RULE not in rules:
+        env["PLEXUS_AUDIT_MODES"] = ",".join([DEMO_AUDIT_RULE, *rules])
+    return env
 
 
 def _env_int(name: str, default: int) -> int:
@@ -59,6 +97,8 @@ class GuardConfig:
     rate_per_min: int = 60  # per client IP, /mcp
     global_rate_per_min: int = 600  # all clients together, /mcp (backstop when the client IP is spoofable)
     api_rate_per_min: int = 300  # per client IP, /api (the read-only View API)
+    demo_rate_per_min: int = 30  # per client IP, tool calls on demo tenants (a recall embeds its query)
+    demo_global_rate_per_min: int = 120  # all clients together, tool calls on demo tenants
     max_body_bytes: int = 512 * 1024
     idle_hours: float = 24.0
     sweep_interval_s: float = 600.0
@@ -73,6 +113,8 @@ class GuardConfig:
             rate_per_min=_env_int("PLEXUS_RATE_PER_MIN", 60),
             global_rate_per_min=_env_int("PLEXUS_GLOBAL_RATE_PER_MIN", 600),
             api_rate_per_min=_env_int("PLEXUS_API_RATE_PER_MIN", 300),
+            demo_rate_per_min=_env_int("PLEXUS_DEMO_RATE_PER_MIN", 30),
+            demo_global_rate_per_min=_env_int("PLEXUS_DEMO_GLOBAL_RATE_PER_MIN", 120),
             max_body_bytes=_env_int("PLEXUS_MAX_BODY_BYTES", 512 * 1024),
             idle_hours=_env_float("PLEXUS_TEAM_IDLE_HOURS", 24.0),
             sweep_interval_s=_env_float("PLEXUS_SWEEP_INTERVAL_S", 600.0),
@@ -84,7 +126,7 @@ class GuardConfig:
 
 # ------------------------------------------------------------------------------------------ tenant policy
 def classify(tenant: str) -> str:
-    """``team`` (read/write), ``demo`` (read-only) or ``deny``."""
+    """``team`` (read/write), ``demo`` (read tools only) or ``deny``."""
     if TEAM_RE.fullmatch(tenant):
         return "team"
     if DEMO_RE.fullmatch(tenant):
@@ -276,9 +318,14 @@ def _replay(body: bytes, receive):
 
 
 READ_ONLY_MESSAGE = (
-    "This is a read-only demo tenant: tool calls are disabled on the public site (every Plexus tool call, even "
-    "recall, writes an audit record). Connect to /mcp/t/team_<name> (team_ + 4 to 24 lowercase letters or digits, "
+    "This is a read-only demo tenant: writes are disabled; reads are allowed (recall, fact_history, as_of, why, "
+    "why_recalled, who_knew, knew_at, ready_tasks, task_status, blocked_by_failure, best_procedure, memory_strength, "
+    "facts_to_verify, docs_to_update). Connect to /mcp/t/team_<name> (team_ + 4 to 24 lowercase letters or digits, "
     "e.g. /mcp/t/team_alice01) to write; explore the demo data in the View."
+)
+NO_SUCH_DEMO_MESSAGE = (
+    "This demo tenant does not exist (read-only tenants are never created by a request). Demo tenants on this "
+    "deployment: see /api/tenants."
 )
 
 
@@ -301,12 +348,14 @@ class PublicGuard:
         directory: TenantDirectory,
         activity: ActivityLog,
         limiter: RateLimiter | None = None,
+        demo_limiter: RateLimiter | None = None,
     ):
         self.app = app
         self.cfg = cfg
         self.directory = directory
         self.activity = activity
         self.limiter = limiter or RateLimiter(cfg.rate_per_min, cfg.global_rate_per_min)
+        self.demo_limiter = demo_limiter or RateLimiter(cfg.demo_rate_per_min, cfg.demo_global_rate_per_min)
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -367,23 +416,58 @@ class PublicGuard:
                 return None
             if kind == "demo":
                 refusal = self._demo_refusal(body)
+                if refusal is None and self._is_demo_read(body):
+                    refusal = await self._demo_read_admission(tenant, body, client_ip(scope, self.cfg))
                 if refusal is not None:
-                    status, payload = refusal
-                    return await reply_json(send, status, payload)
+                    status, payload, *extra = refusal
+                    return await reply_json(send, status, payload, extra[0] if extra else None)
             receive = _replay(body, receive)
         return await self.app(scope, receive, send)
 
     @staticmethod
-    def _demo_refusal(body: bytes) -> tuple[int, dict] | None:
-        """For a read-only tenant: ``None`` to forward, else ``(status, JSON body)`` to answer directly."""
+    def _message(body: bytes):
         try:
-            msg = json.loads(body) if body else None
+            return json.loads(body) if body else None
         except ValueError:
             return None  # not JSON: the MCP layer produces its own parse error
+
+    @classmethod
+    def _is_demo_read(cls, body: bytes) -> bool:
+        msg = cls._message(body)
+        return isinstance(msg, dict) and msg.get("method") == "tools/call"
+
+    @classmethod
+    def _demo_refusal(cls, body: bytes) -> tuple[int, dict] | None:
+        """For a demo tenant: ``None`` to carry on, else ``(status, JSON body)`` to answer directly.
+
+        Batches and every ``tools/call`` that is not a plain call of an :data:`OBSERVER_TOOLS` tool are refused.
+        """
+        msg = cls._message(body)
         if isinstance(msg, list):
             return 400, {"error": "JSON-RPC batches are not supported on the public deployment"}
         if isinstance(msg, dict) and msg.get("method") == "tools/call":
-            return 200, _tool_error(msg.get("id"), READ_ONLY_MESSAGE)
+            params = msg.get("params")
+            name = params.get("name") if isinstance(params, dict) else None
+            if not isinstance(name, str) or name not in OBSERVER_TOOLS:
+                return 200, _tool_error(msg.get("id"), READ_ONLY_MESSAGE)
+        return None
+
+    async def _demo_read_admission(self, tenant: str, body: bytes, ip: str):
+        """May this demo read go on? Needs an existing graph and a token from the demo bucket."""
+        try:
+            known = await anyio.to_thread.run_sync(self.directory.names)
+        except Exception:
+            log.exception("graph listing failed")
+            return 503, {"error": "graph database unavailable"}
+        if tenant not in known:
+            return 200, _tool_error((self._message(body) or {}).get("id"), NO_SUCH_DEMO_MESSAGE)
+        wait = self.demo_limiter.check(ip)
+        if wait:
+            return (
+                429,
+                {"error": f"rate limit exceeded: {self.cfg.demo_rate_per_min} demo reads/min per client; retry later"},
+                [(b"retry-after", str(max(1, int(wait + 0.999))).encode())],
+            )
         return None
 
 

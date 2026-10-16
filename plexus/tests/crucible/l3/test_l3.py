@@ -51,7 +51,9 @@ def test_server_exposes_the_plexus_tool_names_and_arguments():
     real = snap  # {tool name: {description, inputSchema}}
     for name in TOOLS:
         mine = set(tools[name].input_schema["properties"])
-        theirs = set(real[name]["inputSchema"]["properties"])
+        theirs = set(real[name]["inputSchema"]["properties"]) - {
+            "audit"
+        }  # P9-e: Plexus-only audit level on reads
         if (
             name == "recall"
         ):  # P7-K: optional Plexus-only arguments (activation forgetting); baselines have none
