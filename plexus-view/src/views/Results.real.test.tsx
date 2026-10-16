@@ -20,7 +20,7 @@ describe('parseResults on the real combined file', () => {
   const r = parseResults(REAL);
 
   it('finds every layer and nothing it cannot draw', () => {
-    expect(r.run?.layers).toEqual(['L1', 'L4', 'ablation', 'L2', 'L2_scale']);
+    expect(r.run?.layers).toEqual(['L1', 'L4', 'ablation', 'L2', 'L2_scale', 'B1h', 'C7x', 'L6']);
     expect(r.unknown).toEqual([]);
     expect(r.arms.map((a) => a.id)).toEqual(expect.arrayContaining(['B0', 'B1', 'B2', 'P']));
     expect(r.l1?.rows.map((x) => x.id)).toEqual(['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8']);
@@ -214,5 +214,65 @@ describe('Results page: L2 at scale section', () => {
     expect(await screen.findByTestId('l2scale-changes')).toHaveTextContent(
       'Nine operations ask about a whole class',
     );
+  });
+});
+
+describe('P9 layers on the real combined file', () => {
+  const r = parseResults(REAL);
+
+  it('B1h: hand-written SQL ties Plexus on L2 and L2-scale', () => {
+    const rows = Object.fromEntries((r.b1h?.rows ?? []).map((x) => [x.layer, x]));
+    expect(rows.L2).toMatchObject({ correct: 43, total: 43, plexusCorrect: 43 });
+    expect(rows.L2_scale).toMatchObject({ correct: 36, total: 36, plexusCorrect: 36 });
+  });
+
+  it('C7 extended: 0 false merges of 150, and the heavy-paraphrase target is reported as missed', () => {
+    const p = r.c7x!.arms.find((a) => a.arm === 'P')!;
+    expect(p).toMatchObject({ pairs: 226, notMergePairs: 150, falseMerges: 0, autoMerged: 51, surfaced: 70 });
+    expect(r.c7x!.arms.find((a) => a.arm === 'B2')!.falseMerges).toBe(68);
+    const missed = r.c7x!.targets.filter((t) => t.missed).map((t) => t.category);
+    expect([...missed].sort()).toEqual(['heavy', 'light', 'unit_same']); // each below its pre-registered auto target
+  });
+
+  it('L6: the pilot totals, the pre-registered families and the post-fix re-run', () => {
+    const l6 = r.l6!;
+    expect(l6.families.map((f) => f.id)).toEqual(['A', 'B', 'D', 'E', 'F']);
+    const pilot = Object.fromEntries(l6.pilotTotals.map((p) => [p.arm, `${p.correct}/${p.n}`]));
+    expect(pilot).toEqual({ B1a: '24/24', B0g: '24/24', B0r: '2/24', 'P-mcp': '10/16' });
+    expect(l6.llmCalls).toBe(88);
+    expect(l6.costUsd).toBeCloseTo(7.0855, 3);
+    const a = l6.families.find((f) => f.id === 'A')!;
+    expect(a.det.find((x) => x.arm === 'P-product-service')!.strict).toBe('0/24'); // before the fix
+    expect(a.postfixA.find((x) => x.arm === 'P-product-service')).toMatchObject({
+      strict: '24/24',
+      timeouts: 0,
+    });
+    expect(a.postfixA.find((x) => x.arm === 'P-product-tool')!.strict).toBe('18/24'); // the 2,000-item cap
+    const f = l6.families.find((x) => x.id === 'F')!;
+    expect(f.crash.find((c) => c.arm === 'P')!.orphans).toBe(94);
+    expect(f.postfixF.find((c) => c.arm === 'P')!.orphans).toBe(0);
+    expect(l6.families.find((x) => x.id === 'D')!.medianSlowdown!).toBeCloseTo(4.6, 1);
+  });
+});
+
+describe('Results page: P9 sections on the real combined file', () => {
+  it('shows B1h, C7 extended and L6 with the pre-registered expectation next to the result', async () => {
+    renderApp('/results', createFixtureApi(acme, REAL));
+    const b1h = await screen.findByTestId('b1h');
+    expect(within(b1h).getByTestId('b1h-L2')).toHaveTextContent('43/43');
+    expect(within(b1h).getByTestId('b1h-L2_scale')).toHaveTextContent('SQL ties');
+    const c7x = await screen.findByTestId('c7x');
+    expect(within(c7x).getByTestId('c7x-headline')).toHaveTextContent('0 false merges in 150 pairs');
+    expect(within(c7x).getByTestId('c7x-missed')).toHaveTextContent('heavy paraphrases');
+    const l6 = await screen.findByTestId('l6');
+    for (const fam of ['A', 'B', 'D', 'E', 'F']) {
+      expect(within(l6).getByTestId(`l6-${fam}-expect`)).toHaveTextContent('Pre-registered');
+    }
+    expect(within(l6).getByTestId('l6-A-fix-P-product-service')).toHaveTextContent('24/24');
+    expect(within(l6).getByTestId('l6-F-crash-P')).toHaveTextContent('94');
+    expect(within(l6).getByTestId('l6-F-fix-P')).toHaveTextContent('0 of 1842');
+    expect(within(l6).getByTestId('l6-D-speed')).toHaveTextContent('4.6x faster');
+    expect(within(l6).getByTestId('l6-pilot-P-mcp')).toHaveTextContent('10/16');
+    expect(within(l6).getByTestId('l6-pilot-B0r')).toHaveTextContent('2/24');
   });
 });

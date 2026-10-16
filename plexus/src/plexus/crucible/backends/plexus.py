@@ -32,6 +32,7 @@ from plexus.embed import Embedder, get_embedder
 from plexus.engram.errors import UnknownReference as EngramUnknown
 from plexus.graph.client import GraphClient
 from plexus.graph.tenancy import graph_name
+from plexus.mcp.lineage_hook import FOLDS_WROTE, discard_step
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 from plexus.relay import errors as relay_errors
 
@@ -121,11 +122,19 @@ class PlexusBackend:
                 data = self.rt._run(self.tenant, tool, agent_id, None, wrapped, self._now())
             else:
                 m = MeteredClient(self.client)
-                wrapped_out = wrapped(self.ts, m)
+                degraded: list[str] = []
+                if (
+                    self._steps_enabled and tool in FOLDS_WROTE
+                ):  # as Runtime._run: Step first, WROTE in the write
+                    m.step_id = self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
+                try:
+                    wrapped_out = wrapped(self.ts, m)
+                except Exception:
+                    discard_step(self.client, self.ts, m.step_id)
+                    raise
                 data = dict(wrapped_out.data)
                 if self._steps_enabled and tool in TRACKED:
-                    degraded: list[str] = []
-                    step_id = self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
+                    step_id = m.step_id or self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
                     data.update(self.rt._attach(self.ts, step_id, wrapped_out, degraded))
         except ToolError as exc:  # e.g. an invalid scope spec: a caller mistake, like a ValueError
             raise ValueError(str(exc)) from None
@@ -196,7 +205,7 @@ class PlexusBackend:
                     raise UnknownReference(f"unknown origin id: {', '.join(missing)}")
             r = ts.engram(m).assert_fact(
                 subject, predicate, value, sid, agent_id,
-                source_id=source_id, confidence=confidence, supersede=supersede, now=now,
+                source_id=source_id, confidence=confidence, supersede=supersede, now=now, step_id=m.step_id,
             )  # fmt: skip
             if origins:
                 ts.lineage(m).derive_from(r["fact_id"], origins)
@@ -204,7 +213,10 @@ class PlexusBackend:
             updated = [_ref(f) for f in r["superseded"]]
             if r["duplicate_of"]:
                 updated.append(_ref(r["duplicate_of"]))
-            return Outcome({**r, "scope_id": sid}, created=created, updated=updated, assert_result=r)
+            linked = [r["fact_id"]] if m.step_id and not r["duplicate_of"] else []
+            return Outcome(
+                {**r, "scope_id": sid}, created=created, updated=updated, assert_result=r, linked=linked
+            )
 
         d = self._call("assert_fact", agent_id, work)
         return {
@@ -347,8 +359,15 @@ class PlexusBackend:
         facts = list(fact_ids)
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            hid = ts.relay(m).handoff(agent_id, to_agent, task_id, note, list(artifact_ids), facts)
-            return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=facts)
+            hid = ts.relay(m).handoff(
+                agent_id, to_agent, task_id, note, list(artifact_ids), facts, step_id=m.step_id
+            )
+            return Outcome(
+                {"handoff_id": hid},
+                created=[("Handoff", hid)],
+                read_ids=facts,
+                linked=[hid] if m.step_id else (),
+            )
 
         return self._call("handoff", agent_id, work)["handoff_id"]
 
@@ -358,8 +377,13 @@ class PlexusBackend:
         facts = list(based_on_fact_ids)
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            did = ts.relay(m).record_decision(agent_id, task_id, text, facts)
-            return Outcome({"decision_id": did}, created=[("Decision", did)], read_ids=facts)
+            did = ts.relay(m).record_decision(agent_id, task_id, text, facts, step_id=m.step_id)
+            return Outcome(
+                {"decision_id": did},
+                created=[("Decision", did)],
+                read_ids=facts,
+                linked=[did] if m.step_id else (),
+            )
 
         return self._call("record_decision", agent_id, work)["decision_id"]
 

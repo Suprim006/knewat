@@ -222,18 +222,25 @@ class Runtime:
     def _run(
         self, tenant, tool, agent_id, step, fn, started: int, mode: AuditMode = "full"
     ) -> dict[str, Any]:
-        ts, m, out = self._execute(tenant, fn, read_only=mode == "off")
+        degraded: list[str] = []
+        # assert_fact / record_decision / handoff: the Step is opened BEFORE the tool, so the tool's own write
+        # statement creates (Step)-[:WROTE]->(node) (crash-consistency, L6-F). Everyone else is linked after.
+        pre = (
+            (agent_id, step, started, degraded)
+            if mode == "full" and tool in lineage_hook.FOLDS_WROTE
+            else None
+        )
+        ts, m, out = self._execute(tenant, fn, read_only=mode == "off", pre_step=pre)
         if mode != "full" and m.writes:
             # The tool is labelled 'read' but wrote: the label is wrong. Audit this call in full (the write is
             # there to be explained) and say so loudly. On an 'off' tenant the write was refused instead.
             log.error("tool %s is declared 'read' but wrote (%s); auditing it in full", tool, m.writes)
             mode = "full"
-        # The Step is opened only after the tool succeeded (a rejected call leaves no Step and registers no
-        # agent), but stamped with the time the call started: "what the agent knew at this step" is then the
+        # The Step is opened only after the tool succeeded (a rejected call leaves no Step; the three tools that
+        # fold WROTE into their write open it first and remove it again on failure), but stamped with the time the call started: "what the agent knew at this step" is then the
         # state it acted on, not the state after its own write.
-        degraded: list[str] = []
         if mode == "full":
-            step_id = self._open_step(ts, agent_id, step, started, degraded)
+            step_id = m.step_id or self._open_step(ts, agent_id, step, started, degraded)
             extra = self._attach(ts, step_id, out, degraded)
         else:  # light / off: no Step, no READ/WROTE edges, no Recall; a hook's result keys are reported as null
             step_id = None
@@ -275,18 +282,29 @@ class Runtime:
         return data
 
     def _execute(
-        self, tenant: str, fn: Callable[[TenantState, MeteredClient], Outcome], *, read_only: bool = False
+        self,
+        tenant: str,
+        fn: Callable[[TenantState, MeteredClient], Outcome],
+        *,
+        read_only: bool = False,
+        pre_step: tuple[str, int | None, int, list[str]] | None = None,
     ) -> tuple[TenantState, MeteredClient, Outcome]:
         """Run the tool function, once more on a fresh tenant state if the cached one was stale.
 
         ``read_only`` (audit mode ``off``): the tenant must already exist and the client refuses every write.
+        ``pre_step`` = (agent_id, step, at, degraded): open the agent's Step first and expose it as
+        ``m.step_id``; if the tool then fails, the still-empty Step is removed again (a rejected call leaves no Step).
         """
         ts = self.state(tenant, create=not read_only)
         for attempt in (0, 1):
             m = MeteredClient(self.client, read_only=read_only)
+            if pre_step is not None:
+                pre_step[3].clear()
+                m.step_id = self._open_step(ts, *pre_step)
             try:
                 return ts, m, fn(ts, m)
             except Exception as exc:
+                lineage_hook.discard_step(self.client, ts, m.step_id)
                 if attempt == 0 and _is_stale_graph(exc):
                     # the graph was replaced under us: nothing was written (the failure is the first read or an
                     # all-or-nothing write), so rebuild the tenant state and run the tool once more

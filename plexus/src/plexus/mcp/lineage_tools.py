@@ -18,6 +18,7 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
+from plexus.lineage.service import DEFAULT_CASCADE_DEPTH, DEFAULT_WHY_DEPTH, MAX_DEPTH
 from plexus.mcp.limits import (
     MAX_INT,
     AgentId,
@@ -88,11 +89,20 @@ def why(
     m: MeteredClient,
     agent_id: AgentId,
     node_id: Annotated[IdStr, Field(description="A decision id or a fact id.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow back from the decision or fact (1..{MAX_DEPTH}, default {DEFAULT_WHY_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_WHY_DEPTH,
     step: Step = None,
 ) -> Outcome:
     """Explain WHY a decision was made (or where a fact comes from): the graph paths from a decision_id
     or fact_id to the facts it rests on, who asserted them, their sources, and the steps that wrote them."""
-    return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id))})
+    return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id, depth=depth))})
 
 
 @tool.when("why_recalled", kind="read")
@@ -194,13 +204,22 @@ def forget_source(
     m: MeteredClient,
     agent_id: AgentId,
     source_id: Annotated[IdStr, Field(description="Source whose derived facts should be forgotten.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the source (1..{MAX_DEPTH}, default {DEFAULT_CASCADE_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_CASCADE_DEPTH,
     step: Step = None,
 ) -> Outcome:
     """Permanently forget a source and every fact derived from it (cascade): they stop appearing in
     recall and as_of. Decisions that rested on them are flagged, not deleted. Returns the affected
     fact_ids, decision_ids and handoff_ids. Use quarantine_source instead if you are unsure (it can be
     undone)."""
-    r = _jsonable(_lineage(ts, m).forget_source(source_id))
+    r = _jsonable(_lineage(ts, m).forget_source(source_id, depth=depth))
     return Outcome({"forgotten": r}, updated=[("Fact", f) for f in r["fact_ids"]])
 
 
@@ -210,13 +229,22 @@ def quarantine_source(
     m: MeteredClient,
     agent_id: AgentId,
     source_id: Annotated[IdStr, Field(description="The suspected (poisoned or wrong) source.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the source (1..{MAX_DEPTH}, default {DEFAULT_CASCADE_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_CASCADE_DEPTH,
     step: Step = None,
 ) -> Outcome:
     """Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,
     but nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which
     agents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on
     them, so you know what to re-check."""
-    r = _jsonable(_lineage(ts, m).quarantine(source_id))
+    r = _jsonable(_lineage(ts, m).quarantine(source_id, depth=depth))
     return Outcome({"quarantined": r}, updated=[("Fact", f) for f in r["fact_ids"]])
 
 
@@ -226,9 +254,18 @@ def release_quarantine(
     m: MeteredClient,
     agent_id: AgentId,
     source_id: Annotated[IdStr, Field(description="A source previously passed to quarantine_source.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the source (at least the depth quarantine_source used) (1..{MAX_DEPTH}, default {DEFAULT_CASCADE_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_CASCADE_DEPTH,
     step: Step = None,
 ) -> Outcome:
     """Undo quarantine_source: the source's facts get their previous status back and show up in recall
     again. Use it when the source turned out to be fine. Returns the restored fact_ids."""
-    r = _jsonable(_lineage(ts, m).release_quarantine(source_id))
+    r = _jsonable(_lineage(ts, m).release_quarantine(source_id, depth=depth))
     return Outcome({"released": r}, updated=[("Fact", f) for f in r["fact_ids"]])

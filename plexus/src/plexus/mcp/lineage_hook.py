@@ -24,6 +24,10 @@ WROTE_LABELS = frozenset(
     {"Decision", "Handoff", "Task"}
 )  # nodes a Step can WROTE besides Facts (see link_step)
 HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
+# Tools whose write statement creates (Step)-[:WROTE]->(node) itself (P9-int, L6-F): the Runtime opens their Step
+# BEFORE the tool runs and hands it over as ``MeteredClient.step_id``. A crash can then no longer leave the new
+# fact / decision / handoff without its WROTE edge. Every other tool is still linked after its write.
+FOLDS_WROTE = frozenset({"assert_fact", "record_decision", "handoff"})
 LINK_CHUNK = 200  # ids per link_step call (lineage.MAX_LINK_IDS)
 
 
@@ -60,6 +64,18 @@ def open_step(
     return None
 
 
+def discard_step(client: GraphClient, ts: TenantState, step_id: str | None) -> None:
+    """Best effort: remove the Step opened for a call that failed before writing anything (see ``Runtime._run``)."""
+    if step_id is None:
+        return
+    try:
+        lin = ts.lineage(MeteredClient(client))
+        if lin is not None:
+            lin.discard_step(step_id)
+    except Exception:
+        log.exception("lineage: could not discard the empty step %s", step_id)
+
+
 def attach(
     client: GraphClient, ts: TenantState, step_id: str | None, out: Outcome, degraded: list[str]
 ) -> dict[str, Any]:
@@ -70,12 +86,15 @@ def attach(
     lin = ts.lineage(MeteredClient(client))
     if lin is None:
         return extra
-    wrote = _ids(i for label, i in (*out.created, *out.updated) if label in WROTE_LABELS)
+    done = set(out.linked)  # WROTE edges the write statement itself already created
+    wrote = _ids(i for label, i in (*out.created, *out.updated) if label in WROTE_LABELS and i not in done)
     read = _ids(out.read_ids)
 
     def link() -> None:
         if out.assert_result is not None:
-            lin.link_assert_result(step_id, out.assert_result)
+            lin.link_assert_result(
+                step_id, out.assert_result, wrote_linked=out.assert_result["fact_id"] in done
+            )
         for i in range(0, max(len(wrote), len(read)), LINK_CHUNK):
             lin.link_step(step_id, wrote_ids=wrote[i : i + LINK_CHUNK], read_ids=read[i : i + LINK_CHUNK])
 

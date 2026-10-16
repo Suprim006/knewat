@@ -59,14 +59,23 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 ## Tools
 
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
-45 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools, `impact`, `assert_relation` and 2
-soft-duplicate tools (the three sections after this list).
+45 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools, 2
+soft-duplicate tools, `impact` and `assert_relation` (the sections after this list).
 - **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
-  `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure`.
+  `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
+  1..50, default 50).
 - **Lineage** (registered when `plexus.lineage` is installed; see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
-  `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`.
+  `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`. `why` takes an
+  optional `depth` (1..12, default 6); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
+  (1..12, default 8; release with at least the depth the quarantine used). A derivation chain longer than `depth` is cut there:
+  Crucible L6-B scored 16/24 through the tool because it could not be asked for depth 12.
+
+`assert_fact`, `record_decision` and `handoff` write their `(Step)-[:WROTE]->(node)` edge in the same statement as the node
+(P9-int): the runtime opens the agent's `Step` before these three tools and removes it again if the call is rejected, so a
+crash can leave an empty `Step` but never a fact, decision or handoff without its edge (L6-F: 94 of 1,240 records before, 0 of
+1,842 after 200 SIGKILLs). All other tools are still linked right after their write.
 
 `add_source` takes `trust='normal'|'high'` (default: keep the source's trust, new = `normal`); `'high'` protects the facts
 derived from it from fading (`docs/forgetting.md`). A number 0..1 is still accepted and means `normal`.
@@ -235,7 +244,7 @@ Audit: facts a call made suspect or verified are `UPDATED` edges of the ToolCall
 `CodeAnchor` is a `CREATED` edge. `facts_to_verify` adds no `READ` edges (a suspect fact is not strengthened by being listed).
 ## Memory-strength tools (P7-K, `plexus/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
 
-Five more tools, registered by `register_memory` (29 + 7 staleness + these 5 = 41; `impact`, `assert_relation` and the 2 soft-duplicate tools make 45). Forgetting
+Five more tools, registered by `register_memory` (the 41 tools above are 29 + 7 staleness + these 5; the 2 soft-duplicate tools below make 43, `impact` and `assert_relation` 45). Forgetting
 lowers a fact's **rank only**; none of these deletes anything.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
@@ -253,12 +262,12 @@ changed; `ToolCall.query_name` of a forgetting-on `recall` is still `engram/reca
 
 ## Impact tool (P9-b, `plexus/mcp/tools_impact.py`)
 
-One read-only tool, registered by `register_impact` (45 tools in total: the 41 above, `impact`, `assert_relation` and the 2 soft-duplicate tools). It answers "what breaks if this is wrong?" before
+One read-only tool, registered by `register_impact` (45 tools in total: the 41 above, the 2 soft-duplicate tools, `impact` and `assert_relation`). It answers "what breaks if this is wrong?" before
 `quarantine_source` / `forget_source` / `fail_task` write anything, in one call instead of three.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|
-| `impact` | `kind='source'\|'fact'\|'task'`, `id`, `depth=8` (1..12 for source/fact, 1..50 for task), `max_items=50` (1..200) | `{impact: {kind, id, depth, facts: {total, ids, by_status}, readers: {steps_total, agents_total, agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids}, truncated}}` for a source (facts reaching it through `DERIVED_FROM`) or a fact (itself plus the facts derived from it); `tasks` are the tasks the affected decisions are `FOR`. For `kind='task'`: `{impact: {kind, id, depth, tasks: {total, ids}, truncated}}`, the unfinished tasks that transitively depend on it (what `blocked_by_failure` returns). Totals are exact up to 5000 facts / 5000 tasks (`truncated`); lists are cut at `max_items`. Unknown id -> a tool error naming it. |
+| `impact` | `kind='source'\|'fact'\|'task'`, `id`, `depth=8` (1..12 for source/fact, 1..50 for task), `max_items=50` (1..2000) | `{impact: {kind, id, depth, facts: {total, ids, by_status, earliest_at, latest_at, earliest: [{id, at}]}, readers: {steps_total, agents_total, agents, earliest_at, latest_at}, decisions: {total, ids, earliest_at, latest_at}, tasks: {total, ids}, handoffs: {total, ids, earliest_at, latest_at}, truncated}}` for a source (facts reaching it through `DERIVED_FROM`) or a fact (itself plus the facts derived from it); `tasks` are the tasks the affected decisions are `FOR`. For `kind='task'`: `{impact: {kind, id, depth, tasks: {total, ids}, truncated}}`, the unfinished tasks that transitively depend on it (what `blocked_by_failure` returns). Totals are exact up to 5000 facts / 5000 tasks (`truncated` is true only when a further fact exists); lists are cut at `max_items`; `earliest_at` / `latest_at` (epoch ms) cover the whole set, and `facts.earliest` names the 5 earliest affected facts. A 5,000-fact blast answers in about 0.4 s of server time (it did not finish before P9-int: Crucible L6-A). Unknown id -> a tool error naming it. |
 
 Nothing is written (no `READ` edges either: looking at the damage must not make the facts look used); the audit `ToolCall` +
 `Step` are the only rows. The expansion is the level-wise, distinct-node one of `lineage/impact_source` / `lineage/impact_fact`
@@ -266,8 +275,8 @@ Nothing is written (no `READ` edges either: looking at the damage must not make 
 
 `Lineage.forget_source`, `quarantine` and `release_quarantine` gained an optional `depth` (1..12, default 8; was a fixed 5 hops),
 `Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
-(1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source` and `blocked_by_failure` keep their
-schemas and use the new defaults.
+(1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source`, `release_quarantine` and `blocked_by_failure` expose the same
+`depth` since P9-int (same bounds and defaults).
 ## Soft-duplicate tools (P9-c, `plexus/mcp/tools_dedup.py`; `plexus/engram/dedup.py`)
 
 `assert_fact` decides whether a new value is the same statement as a current one (same entity, predicate and scope):

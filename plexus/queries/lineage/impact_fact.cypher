@@ -1,9 +1,9 @@
 // name: lineage/impact_fact
 // purpose: READ-ONLY blast radius of a Fact: the Fact itself and every Fact derived from it through up to $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and the Tasks those decisions are FOR) and the Handoffs that CARRY them. Nothing is written.
 // params: id:str, depth:int, limit:int
-// returns: fact_ids, statuses (parallel lists; at most `limit` facts, any status), truncated (true when `limit` facts were hit), steps_total, agent_ids (every agent that read one; never cut), decision_ids, task_ids, handoff_ids (all distinct, uncut: the caller slices). Zero rows = no such Fact.
+// returns: fact_ids, statuses, fact_ats (parallel lists; at most `limit` facts, any status; fact_ats = valid_from), truncated (true when `limit` facts were hit), steps_total, agent_ids (every agent that read one; never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such Fact.
 // mode: ro
-// Same level-wise expansion as lineage/forget_source (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. One statement = one snapshot.
+// Same level-wise expansion as lineage/forget_source (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. The joins are four CALL subqueries, each reading the collected fact list ONCE as one Unwind -> Conditional Traverse from the bound fact (P9-int: the old form carried the 5,000-element list as a grouping key through three UNWINDs, which hashed it once per row and never finished). One statement = one snapshot.
 MATCH (src:Fact {id: $id})
 OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(src)
 WITH src, collect(DISTINCT n1) AS l1
@@ -52,22 +52,35 @@ UNWIND CASE WHEN size(fr) = 0 OR $depth < 12 THEN [null] ELSE fr END AS x12
 OPTIONAL MATCH (n12:Fact)-[:DERIVED_FROM]->(x12)
 WITH src, reach, collect(DISTINCT n12) AS l12
 WITH src, reach + l12 AS reach, l12 AS fr
-WITH src, reach
 WITH src, reach + [src] AS reach
 UNWIND CASE WHEN size(reach) = 0 THEN [null] ELSE reach END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
-OPTIONAL MATCH (s:Step)-[:READ]->(x)
-WITH src, fs, collect(DISTINCT s.id) AS step_ids, collect(DISTINCT s.agent_id) AS agent_ids
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
-OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(y)
-WITH src, fs, step_ids, agent_ids, collect(DISTINCT d) AS ds
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS w
-OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(w)
-WITH src, fs, step_ids, agent_ids, ds, collect(DISTINCT h) AS hs
-UNWIND CASE WHEN size(ds) = 0 THEN [null] ELSE ds END AS dd
-OPTIONAL MATCH (dd)-[:FOR]->(t:Task)
-WITH fs, step_ids, agent_ids, ds, hs, collect(DISTINCT t) AS tks
-RETURN [a IN fs | a.id] AS fact_ids, [a IN fs | a.status] AS statuses, size(fs) >= $limit AS truncated, size(step_ids) AS steps_total,
-       agent_ids, [b IN ds | b.id] AS decision_ids, [c IN tks | c.id] AS task_ids, [e IN hs | e.id] AS handoff_ids
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
+  OPTIONAL MATCH (s:Step)-[:READ]->(x)
+  RETURN count(DISTINCT s) AS steps_total, collect(DISTINCT s.agent_id) AS agent_ids, min(s.at) AS step_first, max(s.at) AS step_last
+}
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
+  OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(y)
+  RETURN collect(DISTINCT d) AS ds
+}
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS w
+  OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(w)
+  RETURN collect(DISTINCT h) AS hs
+}
+CALL {
+  WITH ds
+  UNWIND CASE WHEN size(ds) = 0 THEN [null] ELSE ds END AS dd
+  OPTIONAL MATCH (dd)-[:FOR]->(t:Task)
+  RETURN collect(DISTINCT t) AS tks
+}
+RETURN [a IN fs | a.id] AS fact_ids, [a IN fs | a.status] AS statuses, [a IN fs | a.valid_from] AS fact_ats,
+       size(fs) >= $limit AS truncated, steps_total, agent_ids, step_first, step_last,
+       [b IN ds | b.id] AS decision_ids, [b IN ds | b.at] AS decision_ats,
+       [e IN hs | e.id] AS handoff_ids, [e IN hs | e.at] AS handoff_ats, [c IN tks | c.id] AS task_ids

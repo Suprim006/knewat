@@ -124,17 +124,25 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       .map((n) => ({ id: n.id(), label: String(n.data('label')), props: n.data('props') as Props }));
     const a0 = givenA0 ?? medianActivation(all);
     const t = now();
-    const counts: MemoryCounts = { suspect: 0, pinned: 0, dormant: 0, faded: 0 };
+    const counts: MemoryCounts = { suspect: 0, pinned: 0, dormant: 0, duplicate: 0, faded: 0 };
     cy.batch(() => {
       for (const g of all) {
         const el = cy.getElementById(g.id);
         const d = memoryNodeData(g, displayName(g.label, g.props), { now: t, a0, reasons });
-        el.data({ display: d.display, suspect: d.suspect, pinned: d.pinned, dormant: d.dormant, tip: d.tip });
+        el.data({
+          display: d.display,
+          suspect: d.suspect,
+          pinned: d.pinned,
+          dormant: d.dormant,
+          duplicate: d.duplicate,
+          tip: d.tip,
+        });
         if (d.opacity === undefined) el.removeData('opacity');
         else el.data('opacity', d.opacity);
         if (d.suspect) counts.suspect++;
         if (d.pinned) counts.pinned++;
         if (d.dormant) counts.dormant++;
+        if (d.duplicate) counts.duplicate++;
         if (d.opacity !== undefined) counts.faded++;
       }
     });

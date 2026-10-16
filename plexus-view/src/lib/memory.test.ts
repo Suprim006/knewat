@@ -154,3 +154,20 @@ describe('strengthCounts', () => {
     expect(strengthCounts({})).toBe('no events');
   });
 });
+
+describe('possible duplicate marker (P9-c soft link)', () => {
+  it('marks a fact that carries maybe_duplicate_of, with a glyph, a tip and the older id', () => {
+    const d = memoryNodeData(fact({ maybe_duplicate_of: 'f-old', status: 'active' }), 'Cache ttl', {
+      now: T,
+    });
+    expect(d.duplicate).toBe(true);
+    expect(d.display).toBe('⧉ Cache ttl');
+    expect(d.tip).toContain('possible duplicate of f-old');
+    expect(factMemory({ maybe_duplicate_of: 'f-old' }, T).maybeDuplicateOf).toBe('f-old');
+  });
+  it('leaves other facts and other labels alone', () => {
+    expect(memoryNodeData(fact({ status: 'active' }), 'x', { now: T }).duplicate).toBe(false);
+    const dec: GraphNode = { id: 'd1', label: 'Decision', props: { maybe_duplicate_of: 'x' } };
+    expect(memoryNodeData(dec, 'x', { now: T }).duplicate).toBe(false);
+  });
+});

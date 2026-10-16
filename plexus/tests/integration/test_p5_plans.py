@@ -59,6 +59,7 @@ def _assert_params(**over):
         "scope_id": "S",
         "agent_id": "a2",
         "source_id": "",
+        "step_id": "",
         "episode_id": "",
         "confidence": 1.0,
         "supersede": False,

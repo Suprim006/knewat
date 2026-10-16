@@ -23,7 +23,7 @@ from plexus.mcp.toolkit import ToolTable
 from plexus.relay import service as relay_service
 from plexus.relay.service import MAX_BLOCKED_DEPTH
 
-MAX_ITEMS = 200  # ids listed per category
+MAX_ITEMS = 2000  # ids listed per category (totals are always exact)
 
 IMPACT_TOOLS = ToolTable()
 tool = IMPACT_TOOLS
@@ -60,7 +60,8 @@ def impact(
 ) -> Outcome:
     """Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.
     kind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,
-    the decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them.
+    the decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them, with
+    exact totals, earliest_at / latest_at (epoch ms) per category and the 5 earliest affected facts.
     kind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,
     forget_source or fail_task to see the damage first."""
     if kind == "task":

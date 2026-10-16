@@ -25,6 +25,7 @@ MAX_DEPTH = 12  # DERIVED_FROM hops a cascade / why may follow (P9-b: was 5 / 3,
 DEFAULT_CASCADE_DEPTH = 8  # forget_source / quarantine / release_quarantine
 DEFAULT_WHY_DEPTH = 6
 DEFAULT_IMPACT_DETAIL = 50  # impact: ids listed per category
+IMPACT_EARLIEST = 5  # impact: the earliest affected facts, with their times
 
 
 TRUSTS = ("normal", "high")
@@ -121,6 +122,11 @@ class Lineage:
         if r["step_id"] is None:
             raise StepOrderError(f"agent '{agent_id}' already has a step after n={r['n']}")
         return r["step_id"]
+
+    def discard_step(self, step_id: str) -> bool:
+        """Delete a Step nothing was linked to (its call failed); ``False`` if it is not an empty Step."""
+        rows = self.client.rw(self.graph, "lineage/discard_step", {"step_id": step_id})
+        return bool(rows and rows[0]["discarded"])
 
     def link_step(
         self,
@@ -223,16 +229,21 @@ class Lineage:
             self._raise_unknown(([step_id] if step_id else []) + [r["fact_id"] for r in rows])
         return recall_id
 
-    def link_assert_result(self, step_id: str, result: dict[str, Any]) -> dict[str, int]:
+    def link_assert_result(
+        self, step_id: str, result: dict[str, Any], *, wrote_linked: bool = False
+    ) -> dict[str, int]:
         """Link the outcome of ``Engram.assert_fact`` to a step.
 
         A new fact is WROTE; a duplicate, and the facts the assertion superseded or contradicts, are READ (the
-        writer had to look at them).
+        writer had to look at them). ``wrote_linked``: the assert statement already wrote the WROTE edge
+        (``assert_fact(step_id=...)``), so only the READ edges are left.
         """
         fid = result["fact_id"]
         read = [*result.get("superseded", ()), *result.get("contradicts", ())]
         if result.get("duplicate_of"):
             return self.link_step(step_id, read_ids=[fid, *read])
+        if wrote_linked:
+            return self.link_step(step_id, read_ids=read) if read else {"read": 0, "wrote": 0}
         return self.link_step(step_id, wrote_ids=[fid], read_ids=read)
 
     # -- forgetting -------------------------------------------------------------------------------------
@@ -403,7 +414,10 @@ class Lineage:
         agents}, decisions: {total, ids}, tasks: {total, ids}, handoffs: {total, ids}, truncated}``. For a
         fact, the fact itself is part of ``facts``. ``tasks`` are the tasks the affected decisions are
         ``FOR``. Lists hold at most ``max_detail`` (1..5000, default 50) ids; the totals are exact up to
-        ``limit`` facts (``truncated`` says whether that bound was hit). Raises :class:`UnknownNode`.
+        ``limit`` facts (``truncated`` says whether that bound was hit). Every list category also carries
+        ``earliest_at`` / ``latest_at`` over the WHOLE set (epoch ms: ``valid_from``, step / decision /
+        handoff ``at``; ``None`` when empty), and ``facts.earliest`` is the 5 earliest affected facts
+        ``[{id, at}]``. Raises :class:`UnknownNode`.
         """
         if kind not in ("source", "fact"):
             raise ValueError("kind must be 'source' or 'fact'")
@@ -411,33 +425,49 @@ class Lineage:
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("max_detail", max_detail, MAX_DETAIL)
         rows = self.client.ro(
-            self.graph, f"lineage/impact_{kind}", {"id": node_id, "depth": depth, "limit": limit}
-        )
+            self.graph, f"lineage/impact_{kind}", {"id": node_id, "depth": depth, "limit": limit + 1}
+        )  # one more than the bound: "truncated" means a further fact exists, not "exactly `limit` found"
         if not rows:
             raise UnknownNode(f"no {kind} with id '{node_id}'")
-        r = rows[0]
+        r = dict(rows[0])
+        if r["truncated"]:
+            for key in ("fact_ids", "statuses", "fact_ats"):
+                r[key] = r[key][:limit]
         by_status: dict[str, int] = {}
         for st in r["statuses"]:
             by_status[st] = by_status.get(st, 0) + 1
         agents = sorted(r["agent_ids"])
 
-        def cut(ids: Iterable[str]) -> dict[str, Any]:
-            ordered = sorted(ids)
-            return {"total": len(ordered), "ids": ordered[:max_detail]}
+        def span(ats: Iterable[int | None]) -> dict[str, int | None]:
+            vals = [a for a in ats if a is not None]
+            return {"earliest_at": min(vals) if vals else None, "latest_at": max(vals) if vals else None}
 
+        def cut(ids: Iterable[str], ats: Iterable[int | None]) -> dict[str, Any]:
+            ordered = sorted(ids)
+            return {"total": len(ordered), "ids": ordered[:max_detail], **span(ats)}
+
+        by_time = sorted(
+            zip(r["fact_ats"], r["fact_ids"], strict=True),
+            key=lambda p: (2**62 if p[0] is None else p[0], p[1]),
+        )
         return {
             "kind": kind,
             "id": node_id,
             "depth": depth,
-            "facts": {**cut(r["fact_ids"]), "by_status": dict(sorted(by_status.items()))},
+            "facts": {
+                **cut(r["fact_ids"], r["fact_ats"]),
+                "by_status": dict(sorted(by_status.items())),
+                "earliest": [{"id": i, "at": at} for at, i in by_time[:IMPACT_EARLIEST]],
+            },
             "readers": {
                 "steps_total": r["steps_total"],
                 "agents_total": len(agents),
                 "agents": agents[:max_detail],
+                **span([r["step_first"], r["step_last"]]),
             },
-            "decisions": cut(r["decision_ids"]),
-            "tasks": cut(r["task_ids"]),
-            "handoffs": cut(r["handoff_ids"]),
+            "decisions": cut(r["decision_ids"], r["decision_ats"]),
+            "tasks": {"total": len(r["task_ids"]), "ids": sorted(r["task_ids"])[:max_detail]},
+            "handoffs": cut(r["handoff_ids"], r["handoff_ats"]),
             "truncated": bool(r["truncated"]),
         }
 

@@ -1,4 +1,4 @@
-# Plexus graph model v1 (with the v1.1 / v1.2 additions of P1, P2 and P7)
+# Plexus graph model v1 (with the v1.1 / v1.2 / v1.3 additions of P1, P2 and P7, and v1.4 of P9)
 
 Source of truth: `docs/PLAN.md` §2. The schema is applied by `plexus/queries/schema/*.cypher` through
 `plexus.graph.schema.apply_schema`, and `plexus/tests/test_schema.py` checks the live indexes and constraints
@@ -59,8 +59,8 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Scope` | `id, kind: user\|project\|global, name` | Engram |
 | `Session` | `id, agent_id, started_at, ended_at` | Engram |
 | `Episode` | `id, role, text, at, step, embedding` | Engram |
-| `Entity` | `id, name, norm_name, kind, embedding, tok, num_key` | Engram. `tok`: sorted distinct casefolded name tokens (full-text candidate Jaccard); `num_key`: numbers/versions in the name (two names are the same thing only if equal). Both written by `engram/resolve_entity`; `plexus migrate entities` backfills older entities (P9-d) |
-| `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten\|dormant, confidence, embedding`; P7: `verify_state: verified\|suspect, suspect_since, verified_at, verify_after (OPEN), surprise, pinned` | Engram (P7: Staleness, Activation) |
+| `Entity` | `id, name, norm_name, kind, embedding, tok, num_key` | Engram. `tok`: sorted distinct casefolded name tokens (full-text candidate Jaccard); `num_key`: the discriminator key of the name (`engram.service.entity_key`: P9-c's numbers, unit-normalised quantities, number words and negation tokens, plus a hyphenated trailing letter, so `auth-service-a` and `auth-service-b` stay apart); two names are the same thing only if their keys are equal. Both written by `engram/resolve_entity`; `plexus migrate entities` backfills older entities (P9-d, P9-int). `norm_name` is UNIQUE |
+| `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten\|dormant, confidence, embedding`; P7: `verify_state: verified\|suspect, suspect_since, verified_at, verify_after (OPEN), surprise, pinned`; P9: `dup_key, tok, tok_seq` (duplicate-detection features, see v1.4) | Engram (P7: Staleness, Activation) |
 | `Source` | `id, uri, kind: doc\|tool\|note\|code\|external\|…, trust: normal\|high, title, text`; P7: `content_hash, commit, repo` | Lineage (P7: Staleness) |
 | `Procedure` | `id, name, task_type, steps_json` | Engram |
 | `Run` | `id, at, success, notes` | Engram |
@@ -86,8 +86,10 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Engram | `(Fact)-[:IN_SCOPE]->(Scope)` | |
 | Engram | `(Scope)-[:INHERITS]->(Scope)` | |
 | Engram | `(Fact)-[:SUPERSEDES]->(Fact)` | |
-| Engram | `(Fact)-[:DUPLICATES\|CONTRADICTS]->(Fact)` | |
-| Engram | `(Fact)-[:ASSERTED_BY]->(Agent)` | |
+| Engram | `(Fact)-[:CONTRADICTS]->(Fact)` | |
+| Engram | `(Fact)-[:DUPLICATES]->(Fact)` | `at, reopened` (P9-c: written by `confirm_duplicate`: the new fact is a merged duplicate of the old one; `split_duplicate` / undo removes it) |
+| Engram | `(Fact)-[:DUPLICATES_MAYBE]->(Fact)` | `score, cos, jaccard, at` (P9-c: soft link from a NEW fact to an older one it may repeat; resolved by `confirm_duplicate` / `reject_duplicate`) |
+| Engram | `(Fact)-[:ASSERTED_BY]->(Agent)` | `at`; P9: `text` (the agent's own wording), `via` (id of the fact whose merge created the edge) |
 | Engram | `(Entity)-[:RELATES]->(Entity)` | `kind, scope_id, at` (P9-b: typed entity relation written by `assert_relation`, walked by `recall(hops)`; unique per (kind, scope)) |
 | Engram | `(Procedure)-[:USED_IN]->(Run)` | |
 | Engram | `(Run)-[:BY]->(Agent)` | |
@@ -103,7 +105,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Relay | `(Artifact)-[:VERIFIED_BY]->(Agent)` | |
 | Lineage | `(Step)-[:BY]->(Agent)` | |
 | Lineage | `(Step)-[:READ]->(Fact)` | P7: `via: recall\|use, at, suspect` |
-| Lineage | `(Step)-[:WROTE]->(Fact\|Decision\|Handoff\|Task)` | |
+| Lineage | `(Step)-[:WROTE]->(Fact\|Decision\|Handoff\|Task)` | P9-int: for a new Fact, Decision and Handoff the write statement itself creates the edge (the Step is opened first), so a crash cannot leave one without it |
 | Lineage | `(Step)-[:NEXT]->(Step)` | |
 | audit | `(ToolCall)-[:IN_STEP]->(Step)` | |
 | audit | `(ToolCall)-[:CREATED\|UPDATED]->(any)` | |
@@ -183,7 +185,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | `ASSERTED_BY` edge | `at` | when each agent asserted (also for duplicates) |
 | `VERIFIED_BY` edge | `independent` | self-verification is allowed but marked |
 | `(Artifact)-[:FOR]->(Task)` | new edge (the `task_id` property is kept) | the artifact links to its task in the graph |
-| Step attachment | a separate `link_step` statement right after the write | Lineage decision: atomicity of a provenance edge vs. editing every Engram/Relay query (see `docs/queries.md`) |
+| Step attachment | a separate `link_step` statement right after the write | Lineage decision: atomicity of a provenance edge vs. editing every Engram/Relay query (see `docs/queries.md`). **Since P9-int `assert_fact`, `record_decision` and `handoff` fold the `WROTE` edge into their own statement** (v1.4 below); every other tool still links after its write |
 
 ## Additions during P7 (graph model v1.3): staleness and activation forgetting
 
@@ -213,3 +215,24 @@ D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/s
 A fact is **suspect at time t** if `coalesce(verify_state,'verified') = 'suspect'` OR `coalesce(verify_after, OPEN) <= t`.
 Canonical paths (`CodeAnchor.path`, doc `Source.uri`) are absolute, `/`-separated, with an upper-case drive letter and no
 trailing slash.
+
+## Additions during P9 (graph model v1.4): duplicates, typed relations, atomic entities
+
+All additive. Facts and entities written before P9 lack the new properties; every query reads them through a guard
+(a fact without `dup_key` only matches by `norm_value`: a missed merge, never a wrong one).
+
+| Where | Addition | Why |
+|---|---|---|
+| `Entity` | `tok` (sorted distinct name tokens), `num_key` (discriminator key, see the node table) | the Jaccard / key guards of the atomic `engram/resolve_entity` statement (P9-d) |
+| `Entity` | UNIQUE(`norm_name`) | backstop behind the resolve-or-create statement; `resolve_entity_ex` retries once on its error |
+| `Fact` | `dup_key` | P9-c discriminator multiset (numbers, quantities, number words, negation / antonyms) as one string; a duplicate needs equal keys |
+| `Fact` | `tok`, `tok_seq` | stemmed content tokens (sorted unique, and in order) for the Jaccard tier and the word-order / one-word-substitution guards |
+| `ASSERTED_BY` edge | `text`, `via` | the raw wording the agent used (so a merge is reversible) and the merged fact that created the edge |
+| `(Fact)-[:DUPLICATES]->(Fact)` | `at`, `reopened` | `confirm_duplicate` decision record (the merged fact keeps a zero-width window) |
+| `(Fact)-[:DUPLICATES_MAYBE]->(Fact)` | `score, cos, jaccard, at` | the soft link between a new fact and the older one it may duplicate; `recall` rows carry `maybe_duplicate_of`; the View marks the fact |
+| `(Entity)-[:RELATES]->(Entity)` | `kind, scope_id, at` | typed relation (`assert_relation`), walked by `recall(hops)` (P9-b) |
+| `(Step)-[:WROTE]->(x)` | written by the write statement of `assert_fact` / `record_decision` / `handoff` | crash-consistency (L6-F: 94 of 1,240 records had no edge when the link was a second statement) |
+
+Not graph elements, but part of the same release: the MCP tool table carries a `kind` (`read` or `write`) per tool, and
+the per-tenant audit mode (`off` / `light` / `full`, see `docs/mcp.md` "Audit modes") decides whether a read tool writes a
+`ToolCall`, a `Step` and `READ` edges.

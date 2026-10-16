@@ -33,3 +33,4 @@ mcp.local.json
 
 # scratch probes
 plexus/probe_*.db
+.worktrees/

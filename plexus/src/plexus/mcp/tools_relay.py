@@ -28,6 +28,7 @@ from plexus.mcp.limits import (
 )
 from plexus.mcp.runtime import MeteredClient, Outcome, TenantState
 from plexus.mcp.toolkit import ToolTable
+from plexus.relay.service import MAX_BLOCKED_DEPTH
 
 MAX_TASKS = 200
 
@@ -199,8 +200,13 @@ def handoff(
 ) -> Outcome:
     """Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything
     referenced must exist, otherwise nothing is written."""
-    hid = ts.relay(m).handoff(agent_id, to_agent, task_id, note, artifact_ids, fact_ids)
-    return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=fact_ids)
+    hid = ts.relay(m).handoff(agent_id, to_agent, task_id, note, artifact_ids, fact_ids, step_id=m.step_id)
+    return Outcome(
+        {"handoff_id": hid},
+        created=[("Handoff", hid)],
+        read_ids=fact_ids,
+        linked=[hid] if m.step_id else (),
+    )
 
 
 @tool
@@ -234,8 +240,13 @@ def record_decision(
 ) -> Outcome:
     """Log a decision you made and the facts it is based on. Later anyone can ask WHY it was made. All fact ids
     must exist or nothing is written."""
-    did = ts.relay(m).record_decision(agent_id, task_id, text, based_on_fact_ids)
-    return Outcome({"decision_id": did}, created=[("Decision", did)], read_ids=based_on_fact_ids)
+    did = ts.relay(m).record_decision(agent_id, task_id, text, based_on_fact_ids, step_id=m.step_id)
+    return Outcome(
+        {"decision_id": did},
+        created=[("Decision", did)],
+        read_ids=based_on_fact_ids,
+        linked=[did] if m.step_id else (),
+    )
 
 
 # ---------------------------------------------------------------- reads
@@ -273,10 +284,18 @@ def blocked_by_failure(
     m: MeteredClient,
     agent_id: AgentId,
     task_id: Annotated[IdStr, Field(description="The failed (or stuck) task.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many dependency hops to follow (1..{MAX_BLOCKED_DEPTH}, default {MAX_BLOCKED_DEPTH}).",
+            ge=1,
+            le=MAX_BLOCKED_DEPTH,
+        ),
+    ] = MAX_BLOCKED_DEPTH,
     step: Step = None,
 ) -> Outcome:
     """List every unfinished task that transitively depends on this one (what a failure is blocking)."""
     if ts.relay(m).task_status(task_id) is None:
         raise ToolError(f"blocked_by_failure: unknown task id: {task_id}")
-    ids = ts.relay(m).blocked_by_failure(task_id)
+    ids = ts.relay(m).blocked_by_failure(task_id, depth=depth)
     return Outcome({"blocked": ids, "count": len(ids)})

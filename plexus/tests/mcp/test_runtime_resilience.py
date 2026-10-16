@@ -120,18 +120,27 @@ async def test_failed_step_link_is_retried_once_and_then_reported(monkeypatch, s
             raise RedisConnectionError("transient")
         return real(self, *a, **kw)
 
-    monkeypatch.setattr(Lineage, "link_step", flaky_once)
     async with Client(server) as c:
-        r = await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="v")
-        assert "lineage_degraded" not in r and r["tool_call_id"]
-        assert q(client, tenant, "MATCH (:Step)-[w:WROTE]->(:Fact) RETURN count(w)") == [[1]]
+        # the WROTE edge of a new fact is written by the assert statement itself (no link_step call); a new
+        # value for the same subject + predicate supersedes (READs) the old fact: that READ is linked after
+        await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="v")
+        monkeypatch.setattr(Lineage, "link_step", flaky_once)
+        r = await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="w")
+        assert (
+            "lineage_degraded" not in r and r["tool_call_id"] and calls["n"] == 2
+        )  # failed once, retried once
+        assert q(client, tenant, "MATCH (:Step)-[w:WROTE]->(:Fact) RETURN count(w)") == [[2]]
 
         def always_fail(self, *a, **kw):
             raise RedisConnectionError("down")
 
         monkeypatch.setattr(Lineage, "link_step", always_fail)
-        r = await ok(c, "assert_fact", agent_id="a", subject="S2", predicate="p", value="v")
+        r = await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="x")
         assert r["lineage_degraded"] is True and r["fact_id"] and r["tool_call_id"]
+        # ... but the new fact still has its WROTE edge: that is the point of folding it into the write
+        assert q(
+            client, tenant, "MATCH (:Step)-[w:WROTE]->(:Fact {id: $i}) RETURN count(w)", i=r["fact_id"]
+        ) == [[1]]
 
 
 async def test_failed_step_is_reported(monkeypatch, server):

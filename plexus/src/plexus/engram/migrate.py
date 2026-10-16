@@ -24,7 +24,7 @@ from plexus.engram.service import (
     MAX_ENTITY_QUERY_TOKENS,
     _jaccard,
     _tokens,
-    token_key,
+    entity_key,
 )
 from plexus.graph.client import GraphClient
 from plexus.graph.schema import ENTITY_KEY, apply_schema
@@ -47,7 +47,7 @@ def _page(client: GraphClient, graph: str) -> Iterator[list[dict[str, Any]]]:
 
 
 def _keys(name: str) -> tuple[list[str], str]:
-    return sorted(set(_tokens(name))), token_key(name)
+    return sorted(set(_tokens(name))), entity_key(name)
 
 
 def duplicate_names(client: GraphClient, graph: str, limit: int = 100) -> list[dict[str, Any]]:

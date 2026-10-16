@@ -134,12 +134,14 @@ def assert_fact(
         supersede=supersede,
         subject_kind=subject_kind,
         step=step,
+        step_id=m.step_id,
     )
     created = [] if r["duplicate_of"] else [_fact_ref(r["fact_id"])]
     updated = [_fact_ref(f) for f in r["superseded"]]
     if r["duplicate_of"]:
         updated.append(_fact_ref(r["duplicate_of"]))
-    return Outcome({**r, "scope_id": sid}, created=created, updated=updated, assert_result=r)
+    linked = [r["fact_id"]] if m.step_id and not r["duplicate_of"] else []
+    return Outcome({**r, "scope_id": sid}, created=created, updated=updated, assert_result=r, linked=linked)
 
 
 @tool(kind="read", exposure=True)

@@ -199,10 +199,10 @@ def numbers() -> None:
         ("graph cap", deploy, "at most 50 tenant graphs", readme, "50 tenant graphs"),
         ("idle sweep", deploy, "no MCP traffic for 24 h", readme, "deleted after 24 h"),
         ("fresh clone time", testing, "**216 s**", readme, "216 s"),
-        ("python tests", testing, "**1168 passed**", readme, "1168 Python tests"),
-        ("view tests", testing, "**150 passed**", readme, "150 View tests"),
-        ("guard tests", deploy, "(34, no database)", readme, "34 unit tests for the deploy guard"),
-        ("tools driven by real run", testing, "11 distinct tools", readme, "only 14 of the 41 tools"),
+        ("python tests", testing, "**1512 passed**", readme, "1512 Python tests"),
+        ("view tests", testing, "**229 passed**", readme, "229 View tests"),
+        ("guard tests", deploy, "(55, no database)", readme, "55 unit tests for the deploy guard"),
+        ("tools driven by real run", testing, "11 distinct tools", readme, "only 14 of the 45 tools"),
         ("recording counts", demo, "| `acme-claude-sonnet` | 16 `claude -p` (sonnet) | 247 | 708 |", readme, "247 nodes, 708 edges"),
         ("blog 36 of 36", baseline, "P answered 36/36" if "P answered 36/36" in baseline else "Plexus answered 36/36", blog, "Plexus scored 36 of 36, SQLite 32, files 30"),
     ]
@@ -222,10 +222,60 @@ def numbers() -> None:
 
     # (d) counts derived from the tree
     n_cypher = len(list((ROOT / "plexus/queries").rglob("*.cypher")))
-    check(n_cypher == 93, f"plexus/queries has {n_cypher} .cypher files, README says 93")
-    check("90 files" in readme, "README does not state 90 query files")
+    check(f"{n_cypher} files in all" in readme, f"README does not say '{n_cypher} files in all' (plexus/queries has {n_cypher})")
+    check(f"({n_cypher} files)" in readme, f"README repo layout does not say ({n_cypher} files)")
+    snap = json.loads((ROOT / "plexus/tests/mcp/snapshots/tools.json").read_text(encoding="utf-8"))
+    n_tools = len(snap)
     mcp_tools = len(re.findall(r"^\s*- \*\*(?:Engram|Relay|Lineage)", read("docs/mcp.md"), flags=re.M))
-    check("41 tools" in read("docs/mcp.md") and "41 tools" in readme and mcp_tools == 3, "41 tools claim not in docs/mcp.md and README")
+    check(
+        f"{n_tools} tools" in read("docs/mcp.md") and f"{n_tools} tools" in readme and mcp_tools == 3,
+        f"{n_tools} tools (the MCP snapshot) not stated in docs/mcp.md and README",
+    )
+    check(f"14 of the {n_tools} tools" in readme, f"README: real-run tool coverage is not '14 of the {n_tools} tools'")
+    # P9: B1h, C7 extended and L6 as the README prints them, from the layers of latest-all.json
+    b1h = L["B1h"]["layers"]
+    check(
+        (b1h["L2"]["arm"]["accuracy"]["correct"], b1h["L2"]["arm"]["accuracy"]["total"]) == (43, 43)
+        and (b1h["L2_scale"]["arm"]["accuracy"]["correct"], b1h["L2_scale"]["arm"]["accuracy"]["total"]) == (36, 36),
+        "latest-all.json B1h is not 43/43 and 36/36",
+    )
+    check("B1h 43/43 on L2 and 36/36 on L2-scale" in readme, "README: B1h line missing")
+    c7 = L["C7x"]["arms"]
+    check(
+        (c7["P"]["metrics"]["false_merges"], c7["P"]["metrics"]["not_merge_pairs"], c7["B2"]["metrics"]["false_merges"])
+        == (0, 150, 68),
+        "latest-all.json C7x is not 0 false merges of 150 (B2: 68)",
+    )
+    check("0 false merges in 150 pairs" in readme and "falsely merged 68 of 150" in readme, "README: C7 extended line missing")
+    heavy = L["C7x"]["by_category"]["heavy"]
+    check(
+        (heavy["merged"], heavy["maybe"], heavy["pairs"]) == (10, 9, 24)
+        and "auto-merged 10 of 24 and surfaced for review 19 of 24" in readme,
+        "README: heavy-paraphrase miss differs from latest-all.json",
+    )
+    s6 = L["L6"]["summary"]
+    tot: dict[str, list[int]] = {}
+    for fam in "ABD":
+        for arm, v in s6[fam]["pilot"].items():
+            c, n = map(int, v.split("/"))
+            tot.setdefault(arm, [0, 0])
+            tot[arm][0] += c
+            tot[arm][1] += n
+    check(
+        {a: tuple(v) for a, v in tot.items()} == {"B0r": (2, 24), "B1a": (24, 24), "B0g": (24, 24), "P": (10, 16)},
+        f"latest-all.json L6 pilot totals differ from B1a 24/24, B0g 24/24, B0r 2/24, P-mcp 10/16: {tot}",
+    )
+    check(
+        "B1a 24/24, B0g 24/24, B0r 2/24, Plexus MCP tools 10/16, 88 calls, $7.09" in readme
+        and L["L6"]["llm_calls_total"] == 88
+        and round(L["L6"]["cost_usd_total"], 2) == 7.09,
+        "README: L6 pilot line differs from latest-all.json",
+    )
+    post = s6["A"]["postfix"]
+    check(
+        post["P-product-service"]["strict"] == "24/24" and s6["F"]["postfix"]["P"]["orphans"] == 0,
+        f"latest-all.json L6 post-fix: A impact {post['P-product-service']['strict']}, F orphans {s6['F']['postfix']['P']['orphans']}",
+    )
     print("ok    numbers checked against latest-all.json, the recording and the cited docs")
 
 

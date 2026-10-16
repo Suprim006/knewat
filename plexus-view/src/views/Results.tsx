@@ -8,7 +8,10 @@ import { useAsync } from '../lib/useAsync';
 import { AblationSection } from './results/AblationSection';
 import { L1Section } from './results/L1Section';
 import { L2Section } from './results/L2Section';
+import { B1hSection } from './results/B1hSection';
+import { C7xSection } from './results/C7xSection';
 import { L4Section } from './results/L4Section';
+import { L6Section } from './results/L6Section';
 import { StringList } from './results/StringList';
 
 function RunMeta({ run }: { run: NonNullable<ParsedResults['run']> }) {
@@ -38,6 +41,10 @@ function Content({ r }: { r: ParsedResults }) {
       {r.l2 && <L2Section rows={r.l2} info={r.l2Info} armLabel={armLabel} kind="l2" />}
       {r.l2Scale && <L2Section rows={r.l2Scale} info={r.l2ScaleInfo} armLabel={armLabel} kind="l2scale" />}
 
+      {r.b1h && <B1hSection b1h={r.b1h} />}
+      {r.c7x && <C7xSection c7x={r.c7x} />}
+      {r.l6 && <L6Section l6={r.l6} />}
+
       <L4Section r={r} />
 
       {r.ablation && <AblationSection ablation={r.ablation} />}
@@ -64,6 +71,9 @@ export function Results() {
     !parsed.l1 &&
     !parsed.l2 &&
     !parsed.l2Scale &&
+    !parsed.b1h &&
+    !parsed.c7x &&
+    !parsed.l6 &&
     parsed.l4.length === 0 &&
     !parsed.ablation &&
     parsed.headline.length === 0;

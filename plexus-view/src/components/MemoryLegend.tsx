@@ -1,5 +1,5 @@
 import type { MemoryCounts } from '../lib/memory';
-import { PIN_GLYPH, SUSPECT_GLYPH } from '../lib/memory';
+import { DUPLICATE_GLYPH, PIN_GLYPH, SUSPECT_GLYPH } from '../lib/memory';
 
 function Item({ id, mark, text, count }: { id: string; mark: React.ReactNode; text: string; count: number }) {
   return (
@@ -17,7 +17,7 @@ function Item({ id, mark, text, count }: { id: string; mark: React.ReactNode; te
 
 /** Explains the P7 markers on Fact nodes, with how many of each are on the canvas. */
 export function MemoryLegend({ counts }: { counts: MemoryCounts }) {
-  const any = counts.suspect + counts.pinned + counts.dormant + counts.faded > 0;
+  const any = counts.suspect + counts.pinned + counts.dormant + counts.duplicate + counts.faded > 0;
   return (
     <section aria-labelledby="mem-legend-h" className="memory-legend">
       <h3 id="mem-legend-h">Memory markers</h3>
@@ -36,6 +36,12 @@ export function MemoryLegend({ counts }: { counts: MemoryCounts }) {
             mark={<span className="legend-glyph">{PIN_GLYPH}</span>}
             text="pinned: never fades"
             count={counts.pinned}
+          />
+          <Item
+            id="duplicate"
+            mark={<span className="legend-glyph">{DUPLICATE_GLYPH}</span>}
+            text="possible duplicate of an older fact (confirm or reject it)"
+            count={counts.duplicate}
           />
           <Item
             id="dormant"

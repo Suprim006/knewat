@@ -1,7 +1,7 @@
-"""The committed combined results file (L1 + L4 + ablation + L2) that the View's Results page reads.
+"""The committed combined results file (L1 + L4 + ablation + L2 + L2-scale + B1h + C7x + L6) that the View's Results page reads.
 
 ``latest.json`` is what ``crucible all`` writes (and overwrites on every run); ``latest-all.json`` is that file with
-the full L2 run and the L2-scale run merged in: ``python -m plexus.crucible.combine`` (``--check`` verifies it). The
+the L2, L2-scale, B1h, C7-extended and L6 results merged in: ``python -m plexus.crucible.combine`` (``--check`` verifies it). The
 test below proves the committed file is exactly that merge. plexus-view carries a byte-identical copy as the
 fixture of its Results test, so a drift between the two shows up here.
 """
@@ -26,8 +26,8 @@ def doc() -> dict:
 
 def test_envelope_and_layers(doc):
     assert doc["schema_version"] == 1 and doc["kind"] == "crucible-results"
-    assert doc["run"]["layers"] == ["L1", "L4", "ablation", "L2", "L2_scale"]
-    assert set(doc["layers"]) == {"L1", "L4", "ablation", "L2", "L2_scale"}
+    assert doc["run"]["layers"] == ["L1", "L4", "ablation", "L2", "L2_scale", "B1h", "C7x", "L6"]
+    assert set(doc["layers"]) == {"L1", "L4", "ablation", "L2", "L2_scale", "B1h", "C7x", "L6"}
 
 
 def test_l2_keys_the_view_reads(doc):
@@ -69,24 +69,45 @@ def test_l2_scale_honesty_travels_with_the_layer_verbatim(doc):
     assert any("NOT in this set" in h for h in src["honesty"])
 
 
-def test_combined_file_is_exactly_the_merge_of_its_parts():
-    from plexus.crucible.combine import DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, combine, render
+def _all():
+    from plexus.crucible.combine import (
+        DEFAULT_B1H,
+        DEFAULT_BASE,
+        DEFAULT_C7X,
+        DEFAULT_L2,
+        DEFAULT_L2_SCALE,
+        DEFAULT_L6,
+        combine,
+        render,
+    )
 
-    assert ALL.read_text(encoding="utf-8") == render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)), (
+    return render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_L6, DEFAULT_C7X))
+
+
+def test_combined_file_is_exactly_the_merge_of_its_parts():
+    assert ALL.read_text(encoding="utf-8") == _all(), (
         "latest-all.json is stale: run `python -m plexus.crucible.combine` and copy it to "
         "plexus-view/src/fixtures/results.real.json"
     )
 
 
 def test_combine_does_not_touch_its_inputs(tmp_path):
-    from plexus.crucible.combine import DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, main
+    from plexus.crucible.combine import (
+        DEFAULT_B1H,
+        DEFAULT_BASE,
+        DEFAULT_C7X,
+        DEFAULT_L2,
+        DEFAULT_L2_SCALE,
+        main,
+    )
 
-    before = [p.read_bytes() for p in (DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)]
+    parts = (DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_C7X)
+    before = [p.read_bytes() for p in parts]
     out = tmp_path / "all.json"
     assert main(["--out", str(out)]) == 0
     assert main(["--out", str(out), "--check"]) == 0
     assert main(["--out", str(out), "--l2", "none", "--check"]) == 1  # different parts, different file
-    assert before == [p.read_bytes() for p in (DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)]
+    assert before == [p.read_bytes() for p in parts]
     assert out.read_bytes() == ALL.read_bytes()
 
 
@@ -109,27 +130,28 @@ def test_view_fixture_is_a_copy_of_the_committed_file():
     )
 
 
-def test_b1h_and_l6_layers_are_opt_in_and_do_not_change_the_committed_default(tmp_path):
+def test_b1h_c7x_and_l6_are_in_by_default_and_can_be_left_out(tmp_path):
     from plexus.crucible.combine import (
-        DEFAULT_B1H,
         DEFAULT_BASE,
         DEFAULT_L2,
         DEFAULT_L2_SCALE,
-        DEFAULT_L6,
         combine,
+        main,
         render,
     )
 
-    default = render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE))
-    assert default == ALL.read_text(
-        encoding="utf-8"
-    )  # the committed file does not carry the new layers (P9-int flips this)
-    full = combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_L6)
-    assert full["run"]["layers"][-2:] == ["B1h", "L6"] and {"B1h", "L6"} <= set(full["layers"])
-    assert (
-        full["layers"]["B1h"]["layers"]["L2"]["arm"]
-        and full["layers"]["L6"]["summary"]["A"]["det"]["B1h"] == "24/24"
-    )
-    assert render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE, DEFAULT_B1H, DEFAULT_L6)) == render(
-        full
-    )  # deterministic
+    full = json.loads(ALL.read_text(encoding="utf-8"))
+    assert full["run"]["layers"][-3:] == ["B1h", "C7x", "L6"]
+    assert full["layers"]["B1h"]["layers"]["L2"]["arm"]["accuracy"]["correct"] == 43
+    assert full["layers"]["B1h"]["layers"]["L2_scale"]["arm"]["accuracy"]["correct"] == 36
+    assert full["layers"]["C7x"]["arms"]["P"]["metrics"]["false_merges"] == 0
+    assert full["layers"]["L6"]["summary"]["A"]["det"]["B1h"] == "24/24"
+    assert full["layers"]["L6"]["summary"]["A"]["postfix"]["P-product-service"]["strict"] == "24/24"
+    assert full["layers"]["L6"]["summary"]["F"]["postfix"]["P"]["orphans"] == 0
+    # the pre-P9 five-layer file is still one flag away
+    out = tmp_path / "old.json"
+    assert main(["--out", str(out), "--b1h", "none", "--c7x", "none", "--l6", "none"]) == 0
+    old = json.loads(out.read_text(encoding="utf-8"))
+    assert old["run"]["layers"] == ["L1", "L4", "ablation", "L2", "L2_scale"]
+    assert render(combine(DEFAULT_BASE, DEFAULT_L2, DEFAULT_L2_SCALE)) == out.read_text(encoding="utf-8")
+    assert _all() == _all()  # deterministic

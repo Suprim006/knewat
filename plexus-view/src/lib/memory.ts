@@ -8,6 +8,8 @@ import type { GraphNode, Props } from '../api/types';
 
 export const SUSPECT_GLYPH = '⚠';
 export const PIN_GLYPH = '📌';
+/** A fact with an open soft-duplicate link (DUPLICATES_MAYBE): the id of the older fact it may repeat. */
+export const DUPLICATE_GLYPH = '⧉';
 /** Opacity range of a Fact node: 0.35 (long forgotten) .. 1 (hot). */
 export const MIN_OPACITY = 0.35;
 
@@ -55,6 +57,8 @@ export interface FactMemory {
   reason: string;
   pinned: boolean;
   dormant: boolean;
+  /** The older fact this one may duplicate (`props.maybe_duplicate_of`), '' when none. */
+  maybeDuplicateOf: string;
   /** null when the API sent no activation (forgetting off, no events, or a tenant without P7). */
   activation: number | null;
   protected: boolean;
@@ -68,6 +72,7 @@ export function factMemory(p: Props, t: number, reason?: string): FactMemory {
     reason: suspect ? (reason ?? suspectReason(p)) : '',
     pinned: p.pinned === true,
     dormant: p.status === 'dormant',
+    maybeDuplicateOf: typeof p.maybe_duplicate_of === 'string' ? p.maybe_duplicate_of : '',
     activation: num(p.activation),
     protected: p.protected === true,
     surprise: num(p.surprise) ?? 0,
@@ -104,6 +109,7 @@ export interface MemoryNodeData {
   suspect: boolean;
   pinned: boolean;
   dormant: boolean;
+  duplicate: boolean;
   /** Hover text ('' for nodes with nothing to say). */
   tip: string;
   /** Set only when the fact has an activation and a fade centre is known. */
@@ -112,12 +118,21 @@ export interface MemoryNodeData {
 
 /** Cytoscape data for one node: badges in the label, a tooltip, and the activation-driven opacity. */
 export function memoryNodeData(node: GraphNode, name: string, ctx: MemoryContext): MemoryNodeData {
-  if (node.label !== 'Fact') return { display: name, suspect: false, pinned: false, dormant: false, tip: '' };
+  if (node.label !== 'Fact')
+    return { display: name, suspect: false, pinned: false, dormant: false, duplicate: false, tip: '' };
   const m = factMemory(node.props, ctx.now, ctx.reasons?.get(node.id));
-  const glyphs = [m.suspect ? SUSPECT_GLYPH : '', m.pinned ? PIN_GLYPH : ''].filter(Boolean);
+  const dup = m.maybeDuplicateOf !== '';
+  const glyphs = [
+    m.suspect ? SUSPECT_GLYPH : '',
+    m.pinned ? PIN_GLYPH : '',
+    dup ? DUPLICATE_GLYPH : '',
+  ].filter(Boolean);
   const tip = [
     m.suspect ? `${SUSPECT_GLYPH} suspect: ${m.reason}` : '',
     m.pinned ? `${PIN_GLYPH} pinned: never faded or swept` : '',
+    dup
+      ? `${DUPLICATE_GLYPH} possible duplicate of ${m.maybeDuplicateOf} (confirm_duplicate / reject_duplicate)`
+      : '',
     m.dormant ? 'dormant: swept out of recall, still stored (restore_fact brings it back)' : '',
     m.activation !== null ? `activation ${m.activation.toFixed(2)}${m.protected ? ' (protected)' : ''}` : '',
     m.surprise > 0 ? `surprise ${m.surprise.toFixed(2)}` : '',
@@ -129,6 +144,7 @@ export function memoryNodeData(node: GraphNode, name: string, ctx: MemoryContext
     suspect: m.suspect,
     pinned: m.pinned,
     dormant: m.dormant,
+    duplicate: dup,
     tip: tip ? `${name}\n${tip}` : '',
   };
   if (m.activation !== null && ctx.a0 !== null && ctx.a0 !== undefined)
@@ -159,7 +175,15 @@ export interface MemoryCounts {
   suspect: number;
   pinned: number;
   dormant: number;
+  /** Facts with an open possible-duplicate link. */
+  duplicate: number;
   /** Facts drawn with an activation-driven opacity. */
   faded: number;
 }
-export const EMPTY_MEMORY_COUNTS: MemoryCounts = { suspect: 0, pinned: 0, dormant: 0, faded: 0 };
+export const EMPTY_MEMORY_COUNTS: MemoryCounts = {
+  suspect: 0,
+  pinned: 0,
+  dormant: 0,
+  duplicate: 0,
+  faded: 0,
+};
