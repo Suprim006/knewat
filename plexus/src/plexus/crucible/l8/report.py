@@ -213,6 +213,38 @@ def robustness(out: Path) -> dict[str, Any]:
     return res
 
 
+def claim_latency(out: Path) -> dict[str, Any]:
+    """§7 footnote: median wall time from a claim_next_task tool_use event to its tool_result event, per arm.
+
+    From the stream-json event timestamps (client side: includes the MCP stdio hop and the server; not a DB timing)."""
+    from datetime import datetime
+    from statistics import median
+
+    def ts(x: str) -> float:
+        return datetime.fromisoformat(x.replace("Z", "+00:00")).timestamp()
+
+    res: dict[str, Any] = {}
+    for arm_dir in sorted((out / "runs").glob("*/*")):
+        arm = arm_dir.name
+        for f in sorted((arm_dir / "transcripts").glob("*.jsonl")):
+            pend: dict[str, float] = {}
+            for line in f.read_text(encoding="utf-8").splitlines():
+                try:
+                    ev = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                t = ev.get("timestamp")
+                msg = ev.get("message") if isinstance(ev.get("message"), dict) else {}
+                for b in msg.get("content", []) if isinstance(msg.get("content"), list) else []:
+                    if not isinstance(b, dict) or not t:
+                        continue
+                    if b.get("type") == "tool_use" and str(b.get("name", "")).endswith("claim_next_task"):
+                        pend[b["id"]] = ts(t)
+                    elif b.get("type") == "tool_result" and b.get("tool_use_id") in pend:
+                        res.setdefault(arm, []).append(1000 * (ts(t) - pend.pop(b["tool_use_id"])))
+    return {a: {"n": len(v), "median_ms": round(median(v)) if v else None} for a, v in res.items()}
+
+
 def robust_table(rb: dict[str, Any]) -> str:
     arms = [x for x in ("P", "B1", "B0p") if x in rb]
     w = ["", "Post-hoc robustness variants of the stale-act rate (amendments 2-3; descriptive, not the headline):", "",
@@ -263,6 +295,7 @@ def assemble(
             redump_p_steps(rj.parent, host, port)  # amendment 3: provenance is matched on the Step number
     scored = score_all(out)
     robust = robustness(out)
+    latency = claim_latency(out)
     runs = []
     for rj in sorted((out / "runs").glob("*/*/run.json")):
         r = json.loads(rj.read_text(encoding="utf-8"))
@@ -303,7 +336,7 @@ def assemble(
         "git": git_state(), "environment": environment.collect(host, port, "hash"),
         "config": {"prompt_version": "l8-v1", "arms": ["P", "B1", "B0p"], "model": "sonnet", "max_turns": 25,
                    "seeds": sorted({r["seed"] for r in runs})},
-        "runs": runs, "pooled": {k: v for k, v in scored.items() if k != "runs"}, "robustness_post_hoc": robust,
+        "runs": runs, "pooled": {k: v for k, v in scored.items() if k != "runs"}, "robustness_post_hoc": robust, "claim_latency_ms": latency,
         "audit": audit_rows, "probe": probe,
     }  # fmt: skip
     doc["headline"] = headline(doc["pooled"])
