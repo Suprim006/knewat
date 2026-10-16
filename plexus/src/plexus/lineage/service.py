@@ -411,7 +411,9 @@ class Lineage:
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("max_detail", max_detail, MAX_DETAIL)
         rows = self.client.ro(
-            self.graph, f"lineage/impact_{kind}", {"id": node_id, "depth": depth, "limit": limit}
+            self.graph,
+            f"lineage/impact_{kind}",
+            {"id": node_id, "depth": depth, "limit": limit, "limit_plus": limit + 1},
         )
         if not rows:
             raise UnknownNode(f"no {kind} with id '{node_id}'")

@@ -79,5 +79,6 @@ def test_plan_shape_impact_touches_edges_not_paths(client, graph):
     d = build_lineage(client, graph, levels=12, width=5, fan_in=3)
     total_edges = 5 + 11 * 5 * 3
     for kind, ident in (("source", d["source"]), ("fact", d["layers"][0][0])):
-        ops = profile_ops(client, graph, f"lineage/impact_{kind}", {"id": ident, "depth": 12, "limit": 5000})
+        params = {"id": ident, "depth": 12, "limit": 5000, "limit_plus": 5001}
+        ops = profile_ops(client, graph, f"lineage/impact_{kind}", params)
         assert max_records(ops).records <= total_edges, (kind, max_records(ops))
