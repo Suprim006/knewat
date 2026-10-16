@@ -23,6 +23,7 @@ from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 from tests.lineage.diamond import TimedClient, build_lineage, build_tasks
 
 REPS = 7
+NOISE = 5000  # unrelated tasks (one long chain) added around the diamond DAG
 
 
 def med(xs: list[float]) -> float:
@@ -68,6 +69,34 @@ def main() -> None:
                 g, f"MATCH (t:Task)-[:DEPENDS_ON*1..{n}]->(:Task {{id: 'root'}}) RETURN DISTINCT t.id", {}
             )
             print(f"tasks 145/8/3  path-enumerating *1..{n}: server {ms} ms  rows/err={rows}")
+
+        # ---- tasks in a big graph: each BFS level must cost the frontier, not the graph ----
+        for lo in range(0, NOISE, 500):
+            g.query(
+                "UNWIND range($lo, $lo + 499) AS i "
+                "CREATE (:Task {id: 'N' + toString(i), status: 'open', title: 'n'})",
+                {"lo": lo},
+            )
+        for lo in range(1, NOISE, 500):
+            g.query(
+                "UNWIND range($lo, $lo + 499) AS i MATCH (a:Task {id: 'N' + toString(i)}), "
+                "(b:Task {id: 'N' + toString(i - 1)}) CREATE (a)-[:DEPENDS_ON]->(b)",
+                {"lo": lo},
+            )
+        for who, cl in (("NEW", c), ("OLD", old)):
+            if cl is None:
+                continue
+            tn = TimedClient(cl)
+            rn = Relay(tn, name)
+            times = []
+            for _ in range(REPS):
+                tn.reset()
+                got = rn.blocked_by_failure("root")
+                times.append(tn.server_ms)
+            print(
+                f"tasks 145/8/3 + {NOISE} noise: blocked_by_failure with {who} relay/dependents_of: "
+                f"server {med(times)} ms over {tn.calls} calls, {len(got)} tasks"
+            )
 
         # ---- lineage: depth 12 fan-in 3 ----
         d = build_lineage(c, name, levels=12, width=5, fan_in=3)

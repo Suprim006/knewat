@@ -39,3 +39,21 @@ def test_blocked_by_failure_walks_a_24_level_dag_past_the_old_10_level_cap(clien
     assert (
         len(relay.blocked_by_failure("root", depth=3)) == 18
     )  # optional depth bound: layers 1..3 (the root's 2 children + their layers)
+
+
+def test_dependents_of_follows_the_frontier_not_the_graph(client, graph):
+    from tests.plan_util import max_records, profile_ops
+
+    g = client.graph(graph)
+    g.query("UNWIND range(0, 399) AS i CREATE (:Task {id: 'T' + toString(i), status: 'open', title: 'x'})")
+    g.query(
+        "UNWIND range(1, 399) AS i MATCH (a:Task {id: 'T' + toString(i)}), "
+        "(b:Task {id: 'T' + toString(i - 1)}) "
+        "CREATE (a)-[:DEPENDS_ON]->(b)"
+    )
+    ops = profile_ops(client, graph, "relay/dependents_of", {"frontier": ["T5"]})
+    assert max_records(ops).records < 20, "\n".join(map(str, ops))  # was 399: every edge, then a filter
+    assert [r["id"] for r in client.ro(graph, "relay/dependents_of", {"frontier": ["T5", "T9"]})] == [
+        "T6",
+        "T10",
+    ]
