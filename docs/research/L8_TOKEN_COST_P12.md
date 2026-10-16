@@ -186,3 +186,160 @@ correct action: B1 $0.018, P fixed $0.023, B0′ $0.026, P A2 $0.032 (P now does
   the paid runs (with one write in a killed turn, recorded).
 * Contradictions surfaced at write: X1 3/3, X2 3/3.
 * Tasks: 16/16 on every seed.
+
+## 6. Round 2: tool-list reduction (redundancy audit, then scoped toolsets)
+
+§4 left the tool list as the whole remaining gap. This round asked two things in order: are any of the 45 tools
+genuinely redundant across the product (not just unused by L8), and can a session publish fewer tools for real.
+Spend: probe $0.32 + two paid P seeds $2.59 = **$2.91**.
+
+### 6.1 Redundancy audit (all 45 tools, no LLM)
+
+Method: every tool declared on a `ToolTable`; for each, the test files under `plexus/tests/` that call it by name
+(quoted name or a direct call), counting the generic `test_contract.py` once and not counting `test_validation.py` /
+`test_audit_modes.py` / `test_tool_coverage.py`; whether it appears in `plexus/demo_data` (recordings, demo and
+crucible data); whether `docs/PLEXUS_REPORT.md` §2.2 names it under a module and gap (all 45 are); and whether its
+query overlaps another tool's. "L8" = called by any L8 P-arm agent (A2 + P12 transcripts).
+
+| Tool | Module | Test files (incl. contract), e.g. | Demo/crucible data | L8 | Overlap |
+|---|---|---|---|---|---|
+| `start_session` | engram | 14, `integration/test_engram_sessions.py` | yes | yes | also MERGEs the Agent (see `register_agent`) |
+| `remember_episode` | engram | 12, `integration/test_engram_sessions.py` | yes | yes | - |
+| `assert_fact` | engram | 60 | yes | yes | - |
+| `recall` | engram | 45 | yes | yes | - |
+| `fact_history` | engram | 8, `integration/test_engram_facts.py` | yes | yes | `as_of` is one point of it |
+| `log_procedure_run` | engram | 2, `integration/test_engram_procedures.py` | no | no | - (G7) |
+| `best_procedure` | engram | 2, `integration/test_engram_procedures.py` | no | no | - (G7) |
+| `register_agent` | relay | 29, `relay/test_agents_tasks.py` | yes | no | partial: `start_session` also MERGEs the Agent |
+| `create_tasks` | relay | 33, `relay/test_agents_tasks.py` | yes | yes | - |
+| `claim_next_task` | relay | 20, `relay/test_claims.py` | yes | yes | - |
+| `heartbeat` | relay | 7, `relay/test_p5_lease.py` | no | no | - (leases) |
+| `complete_task` | relay | 11, `relay/test_completion.py` | yes | yes | - |
+| `fail_task` | relay | 6, `relay/test_completion.py` | yes | no | - |
+| `reopen_task` | relay | 4, `relay/test_p1fix.py` | yes | no | inverse of `fail_task` |
+| `handoff` | relay | 15, `relay/test_handoffs_decisions.py` | yes | yes | - |
+| `verify_artifact` | relay | 4, `relay/test_handoffs_decisions.py` | yes | yes | - |
+| `record_decision` | relay | 23, `relay/test_handoffs_decisions.py` | yes | yes | - |
+| `ready_tasks` | relay | 5, `relay/test_claims.py` | yes | no | a peek of `claim_next_task` (claims nothing) |
+| `task_status` | relay | 6, `relay/test_claims.py` | yes | no | - |
+| `blocked_by_failure` | relay | 8, `relay/test_p9b_diamond.py` | yes | no | **same query as `impact(kind='task')`** |
+| `add_source` | lineage | 13, `mcp/test_source_trust_tool.py` | yes | yes | - |
+| `why` | lineage | 15, `lineage/test_why.py` | yes | no | backward; `impact` is forward |
+| `why_recalled` | lineage | 5, `lineage/test_time_travel.py` | no | no | - (G6) |
+| `who_knew` | lineage | 6, `lineage/test_time_travel.py` | yes | no | opposite direction of `knew_at` |
+| `knew_at` | lineage | 8, `lineage/test_time_travel.py` | yes | no | opposite direction of `who_knew` |
+| `as_of` | lineage | 11, `lineage/test_time_travel.py` | yes | no | one point of `fact_history` |
+| `forget_source` | lineage | 12, `lineage/test_forget.py` | yes | no | - |
+| `quarantine_source` | lineage | 3, `mcp/test_lineage_integration.py` | yes | no | inverse: `release_quarantine` |
+| `release_quarantine` | lineage | 7, `lineage/test_quarantine.py` | no | no | inverse of the above |
+| `anchor_fact` | staleness | 12, `staleness/test_anchors.py` | no | no | - |
+| `describe_code` | staleness | 6, `staleness/test_anchors.py` | no | no | - |
+| `mark_changed` | staleness | 9, `staleness/test_mark_changed.py` | no | via the hook | - |
+| `verify_fact` | staleness | 6, `staleness/test_verify.py`, `crucible/l6/test_verify_crash.py` | yes | no | - |
+| `facts_to_verify` | staleness | 9, `staleness/test_to_verify.py` | yes | no | - |
+| `docs_to_update` | staleness | 4, `staleness/test_to_verify.py` | yes | no | - |
+| `set_review_date` | staleness | 4, `staleness/test_to_verify.py` | no | no | - |
+| `pin_fact` / `unpin_fact` | forgetting | 2 each, `mcp/test_memory_tools.py` | no | no | inverse pair |
+| `memory_strength` | forgetting | 3, `mcp/test_memory_tools.py` | no | no | - |
+| `memory_sweep` / `restore_fact` | forgetting | 3 / 2, `mcp/test_memory_tools.py` | no | no | inverse pair |
+| `assert_relation` | relations | 3, `integration/test_p9b_relations.py` | no | no | - |
+| `impact` | relations | 3, `lineage/test_p9b_impact.py`, `mcp/test_impact_tool.py` | yes | no | `kind='task'` = `blocked_by_failure` |
+| `confirm_duplicate` / `reject_duplicate` | dedup | 2 each, `mcp/test_dedup_tools.py` | no | no | inverse pair |
+
+**Verdict: no tool is removed.** Every one of the 45 has a dedicated test file beyond the generic contract test and is
+named in §2.2 under a module and gap, so none meets the "no tests, no documented purpose, and overlapping" bar. The
+overlaps that do exist, and why each is kept:
+
+* `blocked_by_failure` vs `impact(kind='task')`: the one real duplicate query (`impact` calls
+  `Relay.blocked_by_failure` and adds an unknown-task check and a `truncated` flag). Kept: `blocked_by_failure` is a
+  `kind='read'` tool and so on the read-only demo tenants' allow-list (`impact` is declared `kind='write'` although it
+  writes nothing, and is not), it is the cross-backend Crucible op (L2 questions, ablation), and removing it would save
+  one ~300-token tool. If one of the two goes, it should be `impact`'s `task` branch, not the read tool.
+* `register_agent` vs `start_session`: both MERGE the Agent. Kept: it is the only way a Relay-only session (no Engram)
+  joins the team, and it sets a display name.
+* `as_of` vs `fact_history`, `who_knew` vs `knew_at`, `ready_tasks` vs `claim_next_task`, and the inverse pairs
+  (pin/unpin, sweep/restore, quarantine/release, confirm/reject, fail/reopen): different questions or opposite
+  writes. Merging pairs into flag arguments would save a few hundred tokens at the price of an API break.
+
+Pruning could not close the gap anyway: the tools L8 never calls are rarely used, not dead. The lever is not
+publishing them to sessions that do not need them.
+
+### 6.2 Scoped toolsets (built: `d0221f9`, `plexus/mcp/toolsets.py`)
+
+The server had no such mechanism (one `MCPServer`, every tool listed to every session; `PLEXUS_MCP_SCHEMA` only
+changes the schema form). Added, following the §2.2 module boundaries one-to-one (one `ToolTable` per module; a test
+parses the §2.2 table and fails if the two drift):
+
+* modules `engram` 7, `relay` 13, `lineage` 9, `staleness` 7, `forgetting` 5, `relations` 2 (`assert_relation`,
+  `impact`), `dedup` 2; profiles `core` = engram + relay + lineage (29, the P0-P6 product) and `full` (45, the
+  default); any comma-separated combination (`core,staleness`).
+* stdio `plexus-mcp --toolset core` / env `PLEXUS_TOOLSET`; HTTP `?toolset=` or `X-Plexus-Toolset`, pinned to the MCP
+  session like the tenant. Unknown or empty names are a 400 / a startup error listing the valid names; a tool outside
+  the session's toolset is neither listed nor callable (one-line error naming its module). Not access control.
+* Tests (`tests/mcp/test_toolsets.py`, 29): no flag = the same 45 tools with byte-identical schemas; each profile and
+  module lists exactly its tools in the usual order; unknown/empty names refused (unit, CLI, HTTP); out-of-toolset
+  call refused; HTTP pinning, mismatch 400, header/query conflict 400, pin eviction.
+* L8 harness: `crucible.l8.run arm --toolset NAME` (arm P agents only; the code-change hook server keeps every tool),
+  recorded as `toolset` in `run.json` (`52923ac`).
+
+Which profile L8 realistically needs: every tool any L8 P agent called in 8 runs is in `core` (tested). The P arm
+also installs the staleness hook, but agents never called a staleness tool (the hook reaches `mark_changed` through
+its own server), so `core` is what they used; `core,staleness` is the conservative choice for a deployment that
+wants agents to re-verify suspect facts.
+
+### 6.3 Re-measured
+
+Tool-list probe (`manifest_probe --toolset ...`, `l8_p12tok/manifest_probe-toolsets.json`), prompt tokens per API
+call:
+
+| Tool list | Tools | Tokens per call |
+|---|---|---|
+| A2 (verbose schemas) | 45 | 28,873 |
+| round 1, compact (`full`) | 45 | 19,877 |
+| `core,staleness` | 36 | 16,114 |
+| **`core`** | 29 | **12,880** (−35% vs round 1, −55% vs A2) |
+| `relay` | 13 | 5,111 |
+
+The earlier "~6.4 k" estimate assumed publishing exactly the 12 tools L8 called; that is a benchmark-shaped list, not
+a product module, and was not built.
+
+Paid sanity check (`l8_p12ts/`, seeds 20261017 and 20261018, `--toolset core`, same harness, prompts and FalkorDB
+`plexus-db-66`; projected ≈ $1.2 a seed, real $1.33 + $1.26). Same two seeds in every row:
+
+| | tokens / correct action | × B0′ | prefix / call | $ / correct action | billing-weighted / correct |
+|---|---|---|---|---|---|
+| P A2 | 90,520 | 3.86× | 36.6 k | $0.032 | 14,660 |
+| P round 1 (compact) | 64,396 | 2.74× | 27,618 | $0.023 | 10,100 |
+| **P `core`** | **48,130** | **2.05×** | **20,623** | **$0.021** | **8,307** |
+| B1 (SQLite, 12 tools) | 35,019 | 1.49× | | $0.018 | 6,552 |
+| B0′ (files, no MCP) | 23,465 | 1.00× | | $0.026 | 7,590 |
+
+The five- and three-seed figures quoted before (89.5 k, 64.7 k, B0′ 22.2-22.9 k) are on other seed sets; on these two
+seeds B0′ is 23.5 k (against 22,910 the `core` figure is 2.10×). The prefix fell by 6,995 tokens per call (the probe
+says 6,997) on an identical 277 API calls, so the whole drop is the tool list. Per seed: 49,064 and 47,240.
+
+### 6.4 Not regressed
+
+* Tasks 16/16 on both seeds; history facts 6/6 (S07, S13, S20 on each); provenance 84/84; X1 surfaced at write 2/2.
+* **X2 surfaced at write 1/2.** In seed 20261018 the researcher asserted the old window token (from history) and
+  superseded it with the code's value itself one step later (same agent, same predicate), so when the builder wrote
+  the code value there was no live contradiction left to flag (`both_live_at_end: false`, 0 later actions on the old
+  value). Detection is untouched (`assert_fact` is in `core`); the scorer only counts a flag on the cross-agent write.
+  Agent behaviour, n = 1, not a detection failure, but it is a 1/2 in the table.
+* Stale actions 7/133 (5.3%) vs round 1's 9/129 on the same seeds: noise range, as in §3.
+* Write atomicity: no write path changed; the fold and `verify_fact` kill tests pass in the full suite.
+
+### 6.5 What is left
+
+At 2.05× the remaining gap is still the tool list: 12,880 tokens × 277 calls ≈ 28.5 k of the 48.1 k per correct
+action; without it P would be ≈ 19.6 k, below B0′. Going further would take shorter tool descriptions (29 tools at
+≈ 444 tokens each; descriptions steer behaviour, so it needs its own A/B), fewer round trips (`start_session` +
+`claim_next_task` + `complete_task` are 38% of the round-trip view), or client-side deferred tool loading (Claude
+Code can defer MCP tool schemas behind a tool search; not active in these `claude -p` runs, not measured here). A
+profile cut to L8's 12 tools would reach ≈ 1.6× but is fitted to this benchmark.
+
+Whether it matters: in **dollars** P `core` is already cheaper per correct action than B0′ ($0.021 vs $0.026), and
+billing-weighted tokens are 1.09× B0′, because the tool list is a cached prefix billed at a tenth. The extra raw tokens
+buy contradictions flagged at write, 100% provenance on every write, history recall from the graph and crash-safe
+claims. Plexus does not separate from B0′ or B1 on the stale-action rate (§3, A2), so the case for it rests on those
+properties, not on outcomes; on raw tokens it is still about twice plain Claude Code.
