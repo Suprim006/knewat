@@ -1,0 +1,11 @@
+b5124325458b564e800a478db362d419f90e509e change 10: value in config
+d160de780131dcc8b675d0d3465977e62ad5d885 change 9: reorder in config
+28f3ca1187adaaa460f391cbb5b9d470931216e6 change 8: value in db
+80298df4ab4a3b02496a7eb2b6d9b7b5552db8db change 7: whitespace in db
+02ba9f705b087e1c8f927deac10c8742b856e4f7 change 6: add in notes
+eb0005983dacc9f4b3d77c3c49f148ead51176f3 change 5: docstring in notes
+1b9d1427fa15735a41ff4a91f96186235bf0cf5e change 4: value in auth
+0c1bd1672901f7e43ae5f1b3c03dd86e474fefa0 change 3: delete in auth
+1dc7ee57f1d2a3771996826f818a14d31d6129d6 change 2: module-comment in export
+d72d0a85a97c192d13046f755a2e5118287bdd6f change 1: sibling in auth
+8364d6f0b96147a00bd9910511b9115504894a5e initial

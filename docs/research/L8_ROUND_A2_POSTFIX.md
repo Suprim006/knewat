@@ -117,3 +117,67 @@ per recall, ~25 recalls per run: roughly +$0.4 per run in cache writes and reads
 ≈ $11 for 5 (range $9.5-$12.5)**, under the $12 stop line. Rule: after seed 20261017, re-project from its real cost;
 if 5 × (its cost) > $12, run only as many further seeds as fit under $12 and report the round as incomplete (never
 padded). Spend is the sum of `total_cost_usd` of every `claude -p` process, including any discarded run.
+
+## Part 2. Results (appended after the runs; Part 1 unchanged)
+
+### 2.1 Runs and spend
+
+Five P runs, all `completed`, 22 turns each, one `claude -p` process per turn, no discarded runs. Cost per run
+$2.09 (seed 20261017, the cost gate; re-projection 5 × $2.09 = $10.44 < $12, so the other four ran), $1.85, $1.91,
+$1.92, $1.85: **total $9.62** (projection was $11). The audit (Q1-Q3) of the P runs reads the graph directly, $0.
+B1 and B0′ audits are Round A's (not re-run: B0′'s audit calls an LLM reader). Scored with the Round A scorer at
+this commit (`python -m plexus.crucible.l8.report --out plexus/demo_data/crucible/l8_postfix`; the B1/B0′ metrics it
+rewrote are byte-identical to Round A's) and `python -m plexus.crucible.l8.compare_a2` →
+`plexus/demo_data/crucible/l8_postfix/compare_a2.json`.
+
+### 2.2 Metrics: post-fix P next to the unchanged Round A arms (5 seeds each, pooled unless noted)
+
+| Metric | **P after fixes (A2)** | P Round A | B1 SQLite + MCP (Round A) | B0′ Claude Code, own files (Round A) |
+|---|---|---|---|---|
+| Stale-act rate (headline) | **4.08%** (13/319) | 4.49% (14/312) | 5.72% (19/332) | **2.42%** (6/248) |
+| Wilson 95% | 2.4-6.9% | 2.7-7.4% | 3.7-8.8% | 1.1-5.2% |
+| Seed rates (min / median / max) | 1.5 / 4.6 / 7.9% | 1.5 / 4.9 / 8.7% | 1.5 / 4.6 / 10.5% | 0 / 0 / 8.3% |
+| Step repetition | 0.0% | 0.3% (1 event) | 0.0% | 0.0% |
+| **History recall (long-horizon facts found, of 15)** | **15/15** | 3/15 | 5/15 | 15/15 |
+| Tasks done (of 16 per seed) | **16,16,16,16,16** | 14,14,14,16,14 | 16 × 5 | 16 × 5 |
+| Tasks failed for "memory has no such fact" (`fail_task` on t13) | **0** | 4 of 5 seeds | n/a (no such tool; 0 of 5 seeds missed t13) | n/a (0) |
+| Tokens per correct action (raw) | 89,521 | 85,840 | 34,248 | **22,190** |
+| Tokens per correct action (cost-weighted) | 14,348 | 12,878 | 6,421 | 7,345 |
+| Cost for 5 runs (notional) | $9.62 | $8.14 | $5.61 | $6.12 |
+| Contradiction X1 surfaced at write | 5/5 | 5/5 | 5/5 | 0/5 |
+| Contradiction X2 surfaced at write | 5/5 | 4/5 | 5/5 | 0/5 |
+| Provenance (acknowledged writes with a record) | 210/210 | 209/209 | 210/210 | n/a |
+| Kills recovered / finished units repeated after a kill | 15/15, 7 of 8 | 12/12, 5 of 5 | 15/15, 9 of 9 | 15/15, **0 of 9** |
+| Time to notice a change, level 1 median (censored) | 3 turns (4) | 7.5 (11) | 3 (4) | 2 (2) |
+| Audit Q1-Q3 (sum over 5 seeds, of 15) | 9 | 9 | 8 | 3 |
+
+Separation tests (pre-registered exact permutation on seed-level stale-act rates, Round A scorer): P(A2) vs B1
+p = 0.52, ranges overlap; P(A2) vs B0′ p = 0.44, ranges overlap. **Nothing is separated.**
+
+### 2.3 Verdict on the ordering
+
+**The ordering did not change: B0′ (2.4%) ≤ P (4.1%) < B1 (5.7%), with no pair statistically separated.** By the
+Part 1 rule, "changed" needed P ≤ 2.4% or ≥ 5.7%; P moved from 4.5% to 4.1%, one stale action fewer out of ~315, inside
+run-to-run noise.
+
+What the fixes did change, and it is large: the history-recall failure is gone. Round A P recalled 3 of 15
+long-horizon facts and four of five seeds gave up on `t13` with "team memory has no S07 billing cycle"; post-fix P
+recalled 15/15 and finished all 16 tasks on every seed, the same as B0′. That was the defect the synthesis §3 blamed,
+and it was real, but it was not what drove the stale-act rate: the stale actions in L8 come from values that changed
+mid-run in the repo (the fault schedule), and P's agents still act on a remembered value after the repo changed about
+as often as before. The scorer's post-hoc variants say the same (e.g. seed 20261021: P 5 of 63 dependent actions stale,
+B0′ 2 of 51, B1 5 of 69).
+
+Where P is now level or better: tasks done (= B0′, > Round A P), history recall (= B0′, > B1), contradiction detection
+at write (= B1, ≫ B0′, which detects none), provenance (complete), audit questions (9/15 vs B1 8, B0′ 3), time to notice
+(= B1, slightly behind B0′). Where it still loses: stale-act rate (behind B0′, not significantly), tokens per correct
+action (4× B0′, 2.6× B1, and slightly worse than before because recall now returns up to 20 facts), and redoing
+finished work after a crash (7 of 8 units repeated; B0′ 0 of 9, B1 9 of 9).
+
+### 2.4 Caveats
+
+n = 5 seeds per arm; `claude -p` has no seed; one scenario family, one model (Sonnet), synthetic sentinels; the P runs
+ran a day after the baselines and two at a time instead of three. The agents were not told about the staleness tools
+(as in Round A), so Fix 3's change is not exercised by this benchmark; Fix 2 shows only as complete provenance (it
+already was 209/209 in Round A: the orphan window needs a kill inside a millisecond-wide gap, which the kill tests in
+Part 1 measure directly).

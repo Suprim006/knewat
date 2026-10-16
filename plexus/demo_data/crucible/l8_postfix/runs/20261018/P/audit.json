@@ -1,0 +1,57 @@
+{
+ "Q1": {
+  "count_ok": true,
+  "probes_ok": true,
+  "earliest_ok": true,
+  "correct": true,
+  "probes_right": 10,
+  "truth_count": 21,
+  "answer": {
+   "count": 21,
+   "probes": [
+    false,
+    true,
+    true,
+    true,
+    false,
+    false,
+    true,
+    true,
+    false,
+    false
+   ],
+   "earliest5": [
+    "S01",
+    "S02",
+    "S03",
+    "S04",
+    "S05"
+   ]
+  }
+ },
+ "Q2": {
+  "truth": [],
+  "answer": [],
+  "correct": true,
+  "cstar": {
+   "k": 2,
+   "funcs": [
+    "auth.token_ttl"
+   ],
+   "old": [
+    "AX-36331"
+   ],
+   "turn": 5,
+   "t_ms": 1792182855971
+  }
+ },
+ "Q3": {
+  "truth": [
+   "t14-ratelimit-spec"
+  ],
+  "answer": [],
+  "correct": false
+ },
+ "reader_calls": [],
+ "score": 2
+}
