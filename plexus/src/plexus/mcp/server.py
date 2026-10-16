@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import threading
+from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
@@ -49,8 +50,68 @@ def validation_message(tool: str, exc: ValidationError) -> str:
     return f"{tool}: {shown}" + (f" (+{more} more)" if more > 0 else "")
 
 
+_GUARD_KEYS = frozenset({"title", "maxLength", "minLength", "maxItems"})
+_BOUND_KEYS = frozenset({"maximum", "minimum", "exclusiveMaximum", "exclusiveMinimum"})
+_NULL = {"type": "null"}
+GUARD_BOUND = (
+    10_000  # |bound| at or above this is a resource guard (20 000 chars, 2**31-1, OPEN), not meaning
+)
+
+
+def compact_schema(s: Any) -> Any:
+    """The published form of a tool's input schema (P12 token fix): what a model needs to call the tool, without
+    the boilerplate pydantic emits for every field. Dropped: ``title``; ``maxLength`` / ``minLength`` /
+    ``maxItems``; numeric bounds of 10 000 or more and ``minimum: 0``; ``default: null``. ``anyOf [X, null]``
+    becomes ``X`` (the field is optional either way: it is not in ``required``). Kept: every description,
+    type, enum, ``required``, ``$defs`` / ``$ref``, small bounds (``k`` 1..50, ``hops`` 0..2) and non-null
+    defaults. The server still validates every argument against the full pydantic model, so a dropped bound
+    is still enforced (an over-long value gets the usual one-line error)."""
+    if isinstance(s, list):
+        return [compact_schema(x) for x in s]
+    if not isinstance(s, dict):
+        return s
+    out: dict[str, Any] = {}
+    for k, v in s.items():
+        if k in _GUARD_KEYS:
+            continue
+        if (
+            k in _BOUND_KEYS
+            and isinstance(v, int | float)
+            and (abs(v) >= GUARD_BOUND or (k == "minimum" and v == 0))
+        ):
+            continue
+        if k in ("properties", "$defs") and isinstance(v, dict):
+            out[k] = {
+                name: compact_schema(sub) for name, sub in v.items()
+            }  # keys are names, not schema keywords
+        else:
+            out[k] = compact_schema(v)
+    alts = out.get("anyOf")
+    if isinstance(alts, list) and len(alts) == 2 and _NULL in alts:
+        other = next(x for x in alts if x != _NULL)
+        del out["anyOf"]
+        out = {**other, **out}
+    if "default" in out and out["default"] is None:
+        del out["default"]
+    return out
+
+
+def schema_mode() -> str:
+    """``PLEXUS_MCP_SCHEMA=full`` publishes pydantic's verbose schemas (the pre-P12 tool list); default compact."""
+    return "full" if os.environ.get("PLEXUS_MCP_SCHEMA", "").strip().lower() == "full" else "compact"
+
+
 class PlexusServer(MCPServer):
-    """MCPServer that reports argument-validation failures as one short line instead of a pydantic dump."""
+    """MCPServer that reports argument-validation failures as one short line instead of a pydantic dump, and
+    publishes compact tool schemas (see :func:`compact_schema`)."""
+
+    async def list_tools(self):
+        tools = await super().list_tools()
+        if schema_mode() == "full":
+            return tools
+        # outputSchema is pydantic's generic {"type": "object", "additionalProperties": true} for every tool
+        return [t.model_copy(update={"input_schema": compact_schema(t.input_schema), "output_schema": None})
+                for t in tools]  # fmt: skip
 
     async def call_tool(self, name, arguments, context=None):
         try:

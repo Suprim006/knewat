@@ -69,6 +69,11 @@ soft-duplicate tools, `impact` and `assert_relation` (the sections after this li
   `relation_path`). `detail: "full"` returns the pre-P12 hit (`text`, provenance `path`, `surprise`, `activation` and every
   flag). Same facts, same order either way.
 
+Published tool schemas are **compact** (P12, `plexus.mcp.server.compact_schema`): no `title`, no length limits, no numeric
+bounds of 10 000 or more, `anyOf [X, null]` written as `X`, no `outputSchema`. Every description, type, enum, `required`,
+small bound and non-null default is kept, and the server still validates arguments against the full model (an
+over-long value still gets the one-line error). Measured with `claude -p` 2.1.296: the 45-tool list costs 19,877 prompt
+tokens per API call instead of 28,873. `PLEXUS_MCP_SCHEMA=full` publishes the verbose schemas.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
   1..50, default 50).

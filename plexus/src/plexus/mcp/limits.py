@@ -29,7 +29,7 @@ ALL_SCOPES = "all"  # recall's scope spec for every scope of the tenant graph (P
 AgentId = Annotated[
     str,
     Field(
-        description="Your stable agent id, e.g. 'planner' or 'builder-2'. Identifies who is acting.",
+        description="Your stable agent id, e.g. 'planner'.",
         min_length=1,
         max_length=MAX_ID,
     ),
@@ -37,8 +37,8 @@ AgentId = Annotated[
 Step = Annotated[
     int | None,
     Field(
-        description="Optional: your own step counter (1, 2, 3...); calls with the same step share one step. "
-        "If omitted, every call becomes the next step automatically. Never go backwards.",
+        description="Optional step counter (1, 2, 3...; never backwards): calls with the same step share one "
+        "step. Omit to make each call the next step.",
         ge=1,
         le=MAX_INT,
     ),
