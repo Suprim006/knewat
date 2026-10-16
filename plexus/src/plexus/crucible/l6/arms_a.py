@@ -313,9 +313,10 @@ class TunedArm(CypherArm):
 class ProductImpactA:
     """P-product: ``Lineage.impact('source', ...)``, the service behind the read-only ``impact`` MCP tool (amendment 2).
 
-    ``max_detail=200`` is the largest list the MCP tool lets an agent ask for ("tool"); 5000 is what the service allows
-    ("service"). Counts are the exact totals; a probe is affected iff its id is in the returned fact list. The tool returns
-    no timestamps, so ``earliest5`` is left empty: this arm cannot be strictly correct on A.
+    ``max_detail`` is the largest list the MCP tool lets an agent ask for ("tool": 200 when this arm was first run, 2,000
+    after P9-int) or what the service allows ("service": 5,000). Counts are the exact totals; a probe is affected iff its id
+    is in the returned fact list. Before P9-int the product returned no timestamps, so ``earliest5`` was left empty
+    (strict 0/24 by construction); ``facts.earliest`` (the 5 earliest affected facts) now supplies it.
     """
 
     def __init__(self, lineage: Any, max_detail: int):
@@ -331,6 +332,6 @@ class ProductImpactA:
         ids = set(r["facts"]["ids"])
         ans = shape(
             r["facts"]["total"], r["readers"]["agents_total"], r["decisions"]["total"], r["handoffs"]["total"],
-            q.probes, ids, [],
+            q.probes, ids, [e["id"] for e in r["facts"].get("earliest", [])],
         )  # fmt: skip
         return ans, meta(t0, 0, 1)

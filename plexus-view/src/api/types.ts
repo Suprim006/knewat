@@ -40,6 +40,7 @@ export const EDGE_TYPES = [
   'INHERITS',
   'SUPERSEDES',
   'DUPLICATES',
+  'DUPLICATES_MAYBE',
   'CONTRADICTS',
   'ASSERTED_BY',
   'USED_IN',
@@ -64,6 +65,7 @@ export const EDGE_TYPES = [
   'DESCRIBES',
   'TOUCHED',
   'SUSPECTED',
+  'RELATES',
 ] as const;
 export type EdgeType = (typeof EDGE_TYPES)[number];
 

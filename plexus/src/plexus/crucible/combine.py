@@ -1,6 +1,7 @@
-"""Build the combined results file the View's Results page reads: L1 + L4 + ablation, plus L2 and L2_scale.
+"""Build the combined results file the View's Results page reads: L1 + L4 + ablation, plus L2, L2_scale, B1h, C7 extended and L6.
 
-    python -m plexus.crucible.combine                 # -> crucible/results/latest-all.json (the defaults below)
+    python -m plexus.crucible.combine                 # -> crucible/results/latest-all.json (every layer below)
+    python -m plexus.crucible.combine --b1h none --c7x none --l6 none   # the pre-P9 file (L1, L4, ablation, L2, L2-scale)
     python -m plexus.crucible.combine --check         # exit 1 if the committed latest-all.json is not what this would write
 
 ``crucible all`` writes (and overwrites) ``results/latest.json`` with L1, L4 and the ablation; the L2 and L2-scale runs write
@@ -27,6 +28,7 @@ DEFAULT_L2_SCALE = DEMO_DATA / "l2_scale" / "latest-full.json"
 DEFAULT_OUT = RESULTS_DIR / "latest-all.json"
 DEFAULT_B1H = DEMO_DATA / "b1h" / "latest.json"
 DEFAULT_L6 = DEMO_DATA / "l6"
+DEFAULT_C7X = DEMO_DATA / "c7x_results.json"
 
 
 def merge_l2_scale(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
@@ -65,6 +67,28 @@ def merge_b1h(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
+def merge_c7x(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
+    """``base`` with the extended duplicate corpus (C7x, P9-c) as ``layers["C7x"]``: per arm the headline metrics, and the
+    per-category outcomes of the Plexus service arm (not the per-pair rows: those stay in ``c7x_results.json``)."""
+    out = copy.deepcopy(base)
+    arms = {}
+    for name, a in doc["arms"].items():
+        arms[name] = {"violations": a["violations"], "metrics": a["metrics"]}
+    p = doc["arms"]["P"]["details"]
+    out.setdefault("layers", {})["C7x"] = {
+        "title": "C7 extended: does the duplicate rule merge two different statements?",
+        "note": doc["note"],
+        "arms": arms,
+        "by_category": p["by_category"],
+        "false_merge_upper_95": p["false_merge_upper_95"],
+        "targets": {"heavy_auto_pct": 75.0, "heavy_surfaced_pct": 95.0, "other_merge_categories_auto_pct": 100.0},
+    }
+    run_layers = out.setdefault("run", {}).setdefault("layers", [])
+    if "C7x" not in run_layers:
+        run_layers.append("C7x")
+    return out
+
+
 def merge_l6(base: dict[str, Any], layer: dict[str, Any]) -> dict[str, Any]:
     """``base`` with the L6 beat-SQL layer (``plexus.crucible.l6.run.build_layer``) as ``layers["L6"]``."""
     out = copy.deepcopy(base)
@@ -76,9 +100,14 @@ def merge_l6(base: dict[str, Any], layer: dict[str, Any]) -> dict[str, Any]:
 
 
 def combine(
-    base: Path, l2: Path | None, l2_scale: Path | None, b1h: Path | None = None, l6: Path | None = None
+    base: Path,
+    l2: Path | None,
+    l2_scale: Path | None,
+    b1h: Path | None = None,
+    l6: Path | None = None,
+    c7x: Path | None = None,
 ) -> dict[str, Any]:
-    """The committed default (no ``b1h``/``l6``) is L1 + L4 + ablation + L2 + L2-scale; the two newer layers are opt-in."""
+    """Every layer the Results page draws; ``None`` leaves a layer out (the CLI defaults include all of them)."""
     doc = json.loads(base.read_text(encoding="utf-8"))
     if l2 is not None:
         doc = merge_into(doc, json.loads(l2.read_text(encoding="utf-8")))
@@ -86,6 +115,8 @@ def combine(
         doc = merge_l2_scale(doc, json.loads(l2_scale.read_text(encoding="utf-8")))
     if b1h is not None:
         doc = merge_b1h(doc, json.loads(b1h.read_text(encoding="utf-8")))
+    if c7x is not None:
+        doc = merge_c7x(doc, json.loads(c7x.read_text(encoding="utf-8")))
     if l6 is not None:
         from plexus.crucible.l6.run import build_layer
 
@@ -105,13 +136,16 @@ def main(argv: list[str] | None = None) -> int:
         "--l2-scale", type=Path, default=DEFAULT_L2_SCALE, help="L2-scale results.json ('none' to skip)"
     )
     ap.add_argument(
-        "--b1h", type=Path, default=Path("none"), help="B1h results.json to add as layers.B1h (opt-in)"
+        "--b1h", type=Path, default=DEFAULT_B1H, help="B1h results.json, layers.B1h ('none' to skip)"
+    )
+    ap.add_argument(
+        "--c7x", type=Path, default=DEFAULT_C7X, help="C7-extended c7x_results.json, layers.C7x ('none' to skip)"
     )
     ap.add_argument(
         "--l6",
         type=Path,
-        default=Path("none"),
-        help="demo_data/crucible/l6 directory to add as layers.L6 (opt-in)",
+        default=DEFAULT_L6,
+        help="demo_data/crucible/l6 directory, layers.L6 ('none' to skip)",
     )
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--check", action="store_true", help="compare with --out instead of writing it")
@@ -124,6 +158,7 @@ def main(argv: list[str] | None = None) -> int:
             None if a.l2_scale == skip else a.l2_scale,
             None if a.b1h == skip else a.b1h,
             None if a.l6 == skip else a.l6,
+            None if a.c7x == skip else a.c7x,
         )
     )
     if a.check:

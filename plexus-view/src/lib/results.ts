@@ -7,6 +7,9 @@
  * so a newer or partial file still renders what it can. Pinned against a copy of the real combined file by
  * `src/fixtures/results.real.json` (see results.real.test.ts).
  */
+import { parseB1h, parseC7x, parseL6 } from './resultsP9';
+import type { B1hInfo, C7xInfo, L6Info } from './resultsP9';
+
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
 const num = (v: unknown): number | undefined => (typeof v === 'number' && Number.isFinite(v) ? v : undefined);
@@ -154,6 +157,12 @@ export interface ParsedResults {
   l2Info?: L2Info;
   l2Scale?: L2Row[];
   l2ScaleInfo?: L2Info;
+  /** P9: hand-written SQL control on L2 / L2-scale (`layers.B1h`). */
+  b1h?: B1hInfo;
+  /** P9: the extended duplicate corpus (`layers.C7x`). */
+  c7x?: C7xInfo;
+  /** P9: the pre-registered beat-SQL families, the LLM pilot and the post-fix re-run (`layers.L6`). */
+  l6?: L6Info;
   l4: L4Sweep[];
   /** `layers.L4.notes`, verbatim. */
   l4Notes: string[];
@@ -528,6 +537,10 @@ export function parseResults(raw: unknown): ParsedResults {
     }
   }
   out.ablation = parseAblation(layers.ablation);
+  const plexusCorrect = (rows?: L2Row[]) => rows?.find((x) => x.arm === 'P')?.correct;
+  out.b1h = parseB1h(layers.B1h, { L2: plexusCorrect(out.l2), L2_scale: plexusCorrect(out.l2Scale) });
+  out.c7x = parseC7x(layers.C7x);
+  out.l6 = parseL6(layers.L6);
   out.unknown = Object.keys(raw).filter((k) => !KNOWN_TOP.has(k));
   return out;
 }

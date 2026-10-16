@@ -65,7 +65,9 @@ class GraphNode(BaseModel):
     props: dict[str, PropValue] = Field(
         description="Whitelisted display properties; nulls dropped; embeddings never sent. Fact nodes always carry "
         "verify_state ('verified' | 'suspect'), suspect_since (epoch ms, 0 = never), surprise (0..1), pinned and status "
-        "(active | superseded | dormant | forgotten | quarantined), with defaults for facts written before P7; and, "
+        "(active | superseded | dormant | forgotten | quarantined), with defaults for facts written before P7; "
+        "maybe_duplicate_of (the id of an older fact this one may duplicate, from the soft DUPLICATES_MAYBE link; "
+        "present only while unresolved); and, "
         "unless PLEXUS_FORGETTING=off, activation (float, omitted when -inf) and protected (bool)."
     )
 

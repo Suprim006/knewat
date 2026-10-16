@@ -87,7 +87,7 @@ describe('graph controller: staleness and forgetting markers', () => {
     ctl?.destroy();
     ctl = createGraphController({ headless: true });
     ctl.load(buildAcme().nodes, buildAcme().edges);
-    expect(ctl.memoryCounts()).toEqual({ suspect: 0, pinned: 0, dormant: 0, faded: 0 });
+    expect(ctl.memoryCounts()).toEqual({ suspect: 0, pinned: 0, dormant: 0, duplicate: 0, faded: 0 });
     expect(ctl.cy.nodes().filter((n) => n.data('opacity') !== undefined)).toHaveLength(0);
   });
 

@@ -147,7 +147,14 @@ def loc(obj: Any) -> int:
 
 
 # ------------------------------------------------------------------------------------------------ the families
-def det_a(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: float = 1.0) -> dict[str, Any]:
+def det_a(
+    client: GraphClient,
+    tmp: Path,
+    log: Callable[[str], None],
+    scale: float = 1.0,
+    only: set[str] | None = None,
+) -> dict[str, Any]:
+    """Family A, all arms; ``only`` restricts it to the named arms (the P9-int post-fix re-run)."""
     from plexus.lineage.service import Lineage
 
     t = time.time()
@@ -160,14 +167,22 @@ def det_a(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
     arms: dict[str, Callable[[Any], tuple[Any, dict[str, Any]]]] = {
         "B1h": A.SqlArm(p_tuned).blast, "B1h-untuned": A.SqlArm(p_untuned, tuned=False).blast,
         "P-tuned": A.TunedArm(g).blast, "P-anchored": A.AnchoredArm(g).blast, "P-naive": A.NaiveArm(g).blast,
-        "P-product-tool": A.ProductImpactA(Lineage(client, name), 200).blast,
+        "P-product-tool": A.ProductImpactA(Lineage(client, name), 2000).blast,  # the MCP tool cap: 200 until P9-int
         "P-product-service": A.ProductImpactA(Lineage(client, name), 5000).blast,
     }  # fmt: skip
-    out = {nm: measure(nm, "A", qs, fn) for nm, fn in arms.items()}
+    out = {nm: measure(nm, "A", qs, fn) for nm, fn in arms.items() if only is None or nm in only}
     for nm, v in out.items():
         log(
             f"A {nm}: {v['strict_correct']}/{v['n']} strict, {v['timeouts']} timeouts, p50 {v['latency_ms']['p50']} ms, p99 {v['latency_ms']['p99']} ms"
         )
+    plans: dict[str, str] = {}
+    if only is not None:
+        client.delete_graph(name)
+        return {
+            "world": w.counts(), "loader_counts_checked": True, "arms": out,
+            "pairs_vs_B1h": [paired(out["B1h"], out[n]) for n in out if n != "B1h" and "B1h" in out],
+            "questions": [{"id": q.id, "blast": q.blast, "depth": q.depth, "source": q.source} for q in qs],
+        }  # fmt: skip
     plans = {
         "B1h_explain_A12": A.SqlArm(p_tuned).explain(qs[11]),
         "B1h_untuned_explain_A12": A.SqlArm(p_untuned, tuned=False).explain(qs[11]),
@@ -318,7 +333,7 @@ def write(doc: dict[str, Any], out: Path) -> Path:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="crucible-l6")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("det", "conc", "crash", "layer"):
+    for name in ("det", "conc", "crash", "layer", "postfix"):
         p = sub.add_parser(name)
         p.add_argument("--host", default="127.0.0.1")
         p.add_argument("--port", type=int, default=6361)
@@ -329,6 +344,8 @@ def main(argv: list[str] | None = None) -> int:
     sub.choices["conc"].add_argument("--seconds", type=float, default=6.0)
     sub.choices["crash"].add_argument("--kills", type=int, default=200)
     sub.choices["crash"].add_argument("--arms", default="B1h,P,B0")
+    sub.choices["postfix"].add_argument("--kills", type=int, default=200)
+    sub.choices["postfix"].add_argument("--arms", default="B1h,P-tuned,P-product-tool,P-product-service")
     a = ap.parse_args(argv)
     log: Callable[[str], None] = lambda s: print(s, flush=True)  # noqa: E731
     started = time.time()
@@ -351,6 +368,24 @@ def main(argv: list[str] | None = None) -> int:
                 res["B"] = det_b(client, tmp, log, a.scale)
             if "D" in fams:
                 res["D"] = det_d(client, tmp, log, a.scale)
+            doc["families"] = res
+        elif a.cmd == "postfix":
+            # P9-int: the two families whose product defects were fixed, re-run deterministically ($0): A with the
+            # `impact` arms (after the CALL-subquery rewrite) and F for arm P only (the WROTE edge folded into the
+            # write statement). Same worlds, seeds and questions as the pre-registered runs.
+            doc = envelope("postfix", a.host, a.port, started, cmd)
+            doc["config"] = {"A_arms": a.arms.split(","), "F_kills": a.kills, "F_seed": 20261016, "scale": a.scale}
+            res = {"A": det_a(client, tmp, log, a.scale, only=set(a.arms.split(",")))}
+            root = tempfile.mkdtemp(prefix="l6f-")
+            tenant = f"l6f_p_{int(time.time()) % 100000}"
+            try:
+                res["F"] = {"P": crash.kill_loop("P", a.kills, root, tenant, a.host, a.port, 20261016, log=log)}
+            finally:
+                from plexus.graph.tenancy import graph_name
+
+                client.delete_graph(graph_name(tenant))
+                shutil.rmtree(root, ignore_errors=True)
+            log(f"F P: orphans {res['F']['P']['orphans']}, lost {res['F']['P']['lost_acknowledged_total']}")
             doc["families"] = res
         elif a.cmd == "conc":
             doc = envelope("conc", a.host, a.port, started, cmd)
@@ -403,7 +438,7 @@ def build_layer(root: Path) -> dict[str, Any]:
         "sources": {},
         "summary": {},
     }
-    for kind in ("det", "conc", "crash", "pilot"):
+    for kind in ("det", "conc", "crash", "pilot", "postfix"):
         p = root / f"latest-{kind}.json"
         if not p.exists():
             continue
@@ -414,11 +449,15 @@ def build_layer(root: Path) -> dict[str, Any]:
             "llm_calls": d["run"].get("llm_calls", 0),
             "cost_usd": d["run"].get("cost_usd", 0.0),
         }
+        if kind == "postfix":  # kept apart: the same families again, after the P9-int fixes (before / after)
+            layer["postfix"] = {"run": d["run"]["id"], "config": d.get("config", {}), "families": d["families"]}
+            continue
         for fam, v in d.get("families", {}).items():
             layer["families"].setdefault(fam, {})[kind] = v
         if kind == "pilot":
             layer["pilot"] = {k: d[k] for k in d if k not in ("schema", "kind", "environment", "families")}
     summ: dict[str, Any] = {}
+    post = layer.get("postfix", {}).get("families", {})
     for fam, kinds in layer["families"].items():
         row: dict[str, Any] = {}
         for kind, v in kinds.items():
@@ -441,6 +480,24 @@ def build_layer(root: Path) -> dict[str, Any]:
                     for nm, t in v.items()
                 }
         summ[fam] = row
+    for fam, v in post.items():
+        row = summ.setdefault(fam, {})
+        if fam == "A":
+            row["postfix"] = {
+                nm: {
+                    "strict": f"{a['strict_correct']}/{a['n']}", "timeouts": a["timeouts"],
+                    "p50_ms": a["latency_ms"]["p50"], "p99_ms": a["latency_ms"]["p99"], "max_ms": a["latency_ms"]["max"],
+                }
+                for nm, a in v["arms"].items()
+            }  # fmt: skip
+        else:
+            row["postfix"] = {
+                nm: {
+                    "orphans": t["orphans_total"], "orphans_by_kind": t["orphans"], "acked": t["acknowledged_writes"],
+                    "lost": t["lost_acknowledged_total"], "totals": t["totals"], "missing_derived": t["missing_derived_from"],
+                }
+                for nm, t in v.items()
+            }  # fmt: skip
     layer["summary"] = summ
     layer["llm_calls_total"] = sum(s["llm_calls"] for s in layer["sources"].values())
     layer["cost_usd_total"] = round(sum(s["cost_usd"] for s in layer["sources"].values()), 4)

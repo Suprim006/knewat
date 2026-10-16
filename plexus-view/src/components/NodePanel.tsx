@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { formatProp, labelColor } from '../lib/labels';
-import { factMemory, PIN_GLYPH, SUSPECT_GLYPH } from '../lib/memory';
+import { DUPLICATE_GLYPH, factMemory, PIN_GLYPH, SUSPECT_GLYPH } from '../lib/memory';
 import { useNow } from '../lib/useNow';
 import { MemoryStrengthSection } from './MemoryStrength';
 import type { NeighborInfo, NodeDescription } from '../lib/graphController';
@@ -42,7 +42,7 @@ export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClos
         </button>
       </div>
       <h2 className="side-title">{node.name}</h2>
-      {mem && (mem.suspect || mem.pinned || mem.dormant) && (
+      {mem && (mem.suspect || mem.pinned || mem.dormant || mem.maybeDuplicateOf !== '') && (
         <ul className="mem-badges" aria-label="Memory state">
           {mem.suspect && (
             <li className="mem-badge suspect" data-testid="badge-suspect" title={mem.reason}>
@@ -52,6 +52,11 @@ export function NodePanel({ node, focused = false, onFocus, onSelectNode, onClos
           {mem.pinned && (
             <li className="mem-badge pinned" data-testid="badge-pinned">
               {PIN_GLYPH} pinned
+            </li>
+          )}
+          {mem.maybeDuplicateOf !== '' && (
+            <li className="mem-badge duplicate" data-testid="badge-duplicate" title={mem.maybeDuplicateOf}>
+              {DUPLICATE_GLYPH} possible duplicate of {mem.maybeDuplicateOf}
             </li>
           )}
           {mem.dormant && (

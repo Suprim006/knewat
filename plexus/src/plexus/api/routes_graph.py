@@ -22,6 +22,20 @@ GRAPH_LIMIT_DEFAULT = 500
 GRAPH_LIMIT_MAX = 2000
 
 
+def _maybe_duplicates(ctx: ApiContext, tenant: str, fact_ids: list[str]) -> dict[str, str]:
+    """``{fact id: id of the older fact it may duplicate}`` (P9-c ``DUPLICATES_MAYBE``, nearest first).
+
+    One read for all the facts of the subgraph (index seek per id, see the query).
+    """
+    if not fact_ids:
+        return {}
+    rows = ctx.run(tenant, "view/maybe_duplicates", {"ids": fact_ids})
+    out: dict[str, str] = {}
+    for r in rows:
+        out.setdefault(r["id"], r["other"])
+    return out
+
+
 def router(ctx: ApiContext) -> APIRouter:
     r = APIRouter()
 
@@ -41,7 +55,9 @@ def router(ctx: ApiContext) -> APIRouter:
         truncated = len(raw_nodes) > limit
         raw_nodes = raw_nodes[:limit]
         ids = {n["id"] for n in raw_nodes}
-        act = ctx.activations(tenant, [n["id"] for n in raw_nodes if n["label"] == "Fact"])
+        fact_ids = [n["id"] for n in raw_nodes if n["label"] == "Fact"]
+        act = ctx.activations(tenant, fact_ids)
+        maybe = _maybe_duplicates(ctx, tenant, fact_ids)
         nodes = []
         for n in raw_nodes:
             props = clean(n["props"])
@@ -50,6 +66,8 @@ def router(ctx: ApiContext) -> APIRouter:
                     props.setdefault(k, v)
                 if n["id"] in act:
                     props.update(activation_props(act[n["id"]]))
+                if n["id"] in maybe:
+                    props["maybe_duplicate_of"] = maybe[n["id"]]
             nodes.append(M.GraphNode(id=n["id"], label=n["label"], props=props))
         return M.GraphResponse(
             nodes=nodes,
