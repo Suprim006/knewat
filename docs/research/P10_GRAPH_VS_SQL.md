@@ -707,3 +707,45 @@ A FalkorDB read does not queue behind the graph's writers (F-service `why` stays
 wait seconds), and SQLite's WAL readers do not either. **Through the product's MCP path the same read takes seconds**,
 because every MCP call, reads included, writes a Step and a ToolCall and so joins the per-graph write queue. That is a
 property of Plexus's audit design, not of the graph.
+
+## Verdict against the hypothesis
+
+> Graph (FalkorDB) gives query expressiveness, easier multi-tenancy, and easier traversal. SQL (SQLite) gives atomic
+> writes.
+
+| Component | Pre-registered criterion | What the numbers say | Verdict |
+|---|---|---|---|
+| **Graph: query expressiveness** | Cypher >= 30% shorter on >= 4 of 5 (H1a, H1b, H1c, H2, H4) **and** >= 1 question needs app code / several statements in SQL only | Shorter on 4 of 5 (Cypher/SQL lines 0.42, 0.35, 0.65, 0.43; H4 0.88). But **no** question needed application code or more than one statement in SQL: every H question, the constrained shortest path included, is one SQL statement. And the shortest Cypher was not always usable: the natural 7-line H1c returned a silently wrong count on FalkorDB 6.0.2 (fixed only by 6 `WITH` barriers); H2's hop bound cannot be a parameter. | **Refined.** Cypher is roughly half as long for pattern-shaped questions (motifs, multi-relationship joins), which is real; "SQL cannot express it" did not occur, and the engine's planner made the short form unreliable once. The second half of the confirm rule failed, so it is not a confirmation. |
+| **Graph: easier traversal** | write: fewer lines/statements on H2-H4; run: Cypher faster on a majority of traversal cells | write: fewer lines on H2 (6 vs 14), H3 (4 vs 8), tie on H4 (7 vs 8). run: SQL faster in every traversal cell (H2: 0.64 vs 575 ms at 50k facts; H3: 0.11 vs 2.7 ms); **unbounded** traversal breaks Cypher (H3 `*1..`: 6/12 timeouts; H4: all three Cypher forms time out at 50k facts, SQL 7.4 s) because FalkorDB enumerates paths and filters afterwards while a recursive CTE prunes and deduplicates per step. In J-trav, FalkorDB's own `why`/`impact` were fast (4-16 ms) and did not queue behind writers, SQLite's 0.6-0.9 ms. | **Write: confirmed for bounded, pattern-like traversals. Run: refuted** at every scale tested, by 25x to 900x on deep closures, and Cypher fails outright on unbounded closures where SQL finishes. |
+| **Graph: easier multi-tenancy** | F beats both SQLite layouts on >= 1 G axis and loses none by > 3x | Isolation: product path 0 leaks for all three (gate met); raw channel closes with one switch for F (ACL key pattern) **and** for S-file (authorizer), the shared file needs views + authorizer + a tenant predicate in every statement (15). Latency vs N: **F flat** (0.91-1.09x from 1 to 2,000 tenants), SQLite cached 14-40x worse at 2,000 (still faster in absolute terms). Creation: F 9x slower (135 vs 15 ms). Footprint: F 744 KB empty / 1.7-3.4 MB loaded in RAM vs 184 / 229 KB on disk: **> 3x worse**. 2,000 tenants did not fit with persistence forks on this 7.4 GiB machine. Under 1,000 sessions over 200 tenants, F rejected ~90% of calls (`Max pending queries exceeded`); S-file none. | **Refined, partly refuted.** What makes multi-tenancy easy is "one database object per tenant", which a file per tenant gives as well (same isolation, same one-switch raw-channel lock-down). Graph-per-tenant wins on flat per-call latency and one server to operate; it loses by more than 3x on footprint and creation, and its capacity limits (RAM, queue length) arrive first. Against a shared SQL schema it is clearly easier. |
+| **SQL: atomic writes** | S-txn 0 partial (I1, I2), Plexus product path > 0, no FalkorDB primitive with crash atomicity + rollback | S-txn 0 partial in 200 kills and 103 aborts; **Plexus product path 86 partial close-outs in 200 kills** and 103/103 on aborts; `MULTI`/`EXEC` is crash-atomic (0 partial) but has **no rollback** (103/103 partial on aborts); `WATCH` gives optimistic isolation but retries at whole-graph granularity (437k retries for 10k increments). **But one Cypher statement matched the SQL transaction everywhere** (0 partial in I1, I2 guard-first and guard-last, and I3 server kills) in 1 round trip vs 13 and 26 vs 39 lines. Also: FalkorDB's AOF replay crashed on restart in 10 of 11 attempts on preserved data. | **Confirmed for writes that span statements or tool calls** (which is how Plexus's product composes a close-out today), **refined by I5**: for a write that fits in one Cypher statement, FalkorDB's statement atomicity is sufficient and simpler. Durability-on-restart is an additional FalkorDB weakness this round found. |
+
+### Surprises outside the four components
+
+* **Silent wrong answers from the FalkorDB 6.0.2 planner** (H1c): an inline map that refers to an earlier `MATCH`
+  variable matches nothing, and a `MATCH` on bound variables after a hash join becomes a Cartesian product. Found
+  only because ground truth was independent of both engines.
+* **AOF replay crash** (I3): a FalkorDB container that has run the test suite may not restart; reproduced 3/3 and 7/8,
+  nondeterministic, with graph deletion on a background thread in the stack. A crashed Redis also stays "Up" in Docker.
+* **Plexus's audit turns reads into writes.** Through the MCP path, `why` under one hot tenant takes 1-5 s instead of
+  16 ms, because each call writes a Step and a ToolCall and joins the graph's write queue (J-trav). FalkorDB itself
+  serves reads concurrently with writes.
+* **`Max pending queries exceeded` is a many-graphs failure**, not a one-hot-graph one (J, P = 1,000): with 200
+  graphs FalkorDB admitted more concurrent work and hit the global queue limit; with one graph the calls queued
+  inside and none were refused (but waited 8-10 s at p50).
+* **SQLite's weak point under load is tail latency, not errors**: 0 errors in every J cell, but p99 13-39 s with
+  200-1,000 sessions in one tenant (unfair busy-wait), against FalkorDB's 3-29 s.
+* Redis `used_memory` reports about twice the resident memory of FalkorDB graphs; `MEMORY USAGE <graph key>` returns
+  40 bytes and `GRAPH.MEMORY USAGE` whole MB, so per-tenant memory has to be measured from deltas.
+
+### Limits (read with every number above)
+
+One machine, one seed per family (I2/I4 seeded draws, J 3 repetitions), synthetic worlds from my own generators,
+SQLite embedded against FalkorDB across a Docker port-forward (so every latency gap includes the network hop; FalkorDB
+has no embedded mode to compare), Python clients (GIL) driving both, the same author wrote the Cypher and the SQL
+and knew the questions, no Postgres arm (row-level security, real MVCC and a network hop on the SQL side are not
+tested: they would narrow several gaps above), FalkorDB 6.0.2 only (the planner bugs and the AOF crash may be fixed
+in later versions), and SQLite durability tested against process kills only (no power-loss test). Families G and I
+deviate from the pre-registration where the amendments say so; G's N = 2,000 numbers are post-hoc (amendments 3-4)
+and the registered G run reached N = 1,088 of 2,000. H1c at 50,000 facts was answered by neither language within the
+10 s budget, so H1c is not scored at the large scale.
