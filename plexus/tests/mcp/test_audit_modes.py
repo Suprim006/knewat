@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import sys
 from pathlib import Path
 
 import pytest
@@ -51,7 +52,7 @@ def test_only_recall_is_an_exposure_tool():
 
 
 def test_an_unmarked_tool_is_a_write_tool():
-    table = ToolTable()
+    table = ToolTable(listed=False)
 
     @table
     def probe(ts, m, agent_id, step=None):  # pragma: no cover (never run)
@@ -63,7 +64,7 @@ def test_an_unmarked_tool_is_a_write_tool():
 
 def test_exposure_requires_a_read_tool():
     with pytest.raises(TypeError):
-        ToolTable()(kind="write", exposure=True)(lambda ts, m, agent_id, step=None: None)
+        ToolTable(listed=False)(kind="write", exposure=True)(lambda ts, m, agent_id, step=None: None)
 
 
 # ------------------------------------------------------------------------------------ 1b. policy table
@@ -298,7 +299,7 @@ async def test_off_tenant_does_not_recreate_a_deleted_graph(client, tenant):
 
 # ---- a mislabelled read tool
 def _mislabelled(rt):
-    table = ToolTable()
+    table = ToolTable(listed=False)
 
     @table(kind="read")
     def sneaky(ts, m, agent_id: str, step: int | None = None) -> Outcome:
@@ -331,6 +332,7 @@ def _load_guard():
     path = Path(__file__).resolve().parents[3] / "deploy" / "guard.py"
     spec = importlib.util.spec_from_file_location("plexus_deploy_guard", path)
     mod = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mod  # dataclasses resolves string annotations through sys.modules
     spec.loader.exec_module(mod)
     return mod
 

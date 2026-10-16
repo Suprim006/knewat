@@ -71,9 +71,10 @@ class ToolTable:
 
     _tables: ClassVar[list[ToolTable]] = []  # every table ever made: all_tool_defs() reads them
 
-    def __init__(self):
+    def __init__(self, *, listed: bool = True):
         self._defs: list[ToolDef] = []
-        ToolTable._tables.append(self)
+        if listed:  # False for throwaway tables (tests): they must not show up in all_tool_defs()
+            ToolTable._tables.append(self)
 
     def __call__(
         self, work: WorkFn | None = None, *, kind: ToolKind = "write", exposure: bool = False
