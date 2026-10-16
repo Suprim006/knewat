@@ -59,7 +59,7 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 ## Tools
 
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
-43 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools and 2
+45 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools, `impact`, `assert_relation` and 2
 soft-duplicate tools (the three sections after this list).
 - **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
@@ -235,7 +235,7 @@ Audit: facts a call made suspect or verified are `UPDATED` edges of the ToolCall
 `CodeAnchor` is a `CREATED` edge. `facts_to_verify` adds no `READ` edges (a suspect fact is not strengthened by being listed).
 ## Memory-strength tools (P7-K, `plexus/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
 
-Five more tools, registered by `register_memory` (the 41 tools above are 29 + 7 staleness + these 5; the 2 soft-duplicate tools below make 43). Forgetting
+Five more tools, registered by `register_memory` (29 + 7 staleness + these 5 = 41; `impact`, `assert_relation` and the 2 soft-duplicate tools make 45). Forgetting
 lowers a fact's **rank only**; none of these deletes anything.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
@@ -253,7 +253,7 @@ changed; `ToolCall.query_name` of a forgetting-on `recall` is still `engram/reca
 
 ## Impact tool (P9-b, `plexus/mcp/tools_impact.py`)
 
-One read-only tool, registered by `register_impact` (43 tools in total: the 41 above, `impact` and `assert_relation` below). It answers "what breaks if this is wrong?" before
+One read-only tool, registered by `register_impact` (45 tools in total: the 41 above, `impact`, `assert_relation` and the 2 soft-duplicate tools). It answers "what breaks if this is wrong?" before
 `quarantine_source` / `forget_source` / `fail_task` write anything, in one call instead of three.
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |

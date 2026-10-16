@@ -57,7 +57,7 @@ def test_server_exposes_the_plexus_tool_names_and_arguments():
         if (
             name == "recall"
         ):  # P7-K: optional Plexus-only arguments (activation forgetting); baselines have none
-            theirs -= {"include_dormant", "forgetting"}
+            theirs -= {"include_dormant", "forgetting", "hops"}  # + P9-b typed-relation hops
         assert mine == theirs, (name, mine ^ theirs)
 
 
