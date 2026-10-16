@@ -111,6 +111,8 @@ async def test_different_agents_do_not_wait_for_each_other(server):
 
 # ---------------------------------------------------------------- P5C-05: degraded bookkeeping is reported
 async def test_failed_step_link_is_retried_once_and_then_reported(monkeypatch, server, client, tenant):
+    # create_tasks still links its Step in a second statement (assert_fact / record_decision / handoff write
+    # the Step in their own statement since P9-f, so a link_step failure cannot touch them: checked below)
     real = Lineage.link_step
     calls = {"n": 0}
 
@@ -122,16 +124,19 @@ async def test_failed_step_link_is_retried_once_and_then_reported(monkeypatch, s
 
     monkeypatch.setattr(Lineage, "link_step", flaky_once)
     async with Client(server) as c:
-        r = await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="v")
+        r = await ok(c, "create_tasks", agent_id="a", tasks=[{"id": "t1", "title": "one"}])
         assert "lineage_degraded" not in r and r["tool_call_id"]
-        assert q(client, tenant, "MATCH (:Step)-[w:WROTE]->(:Fact) RETURN count(w)") == [[1]]
+        assert q(client, tenant, "MATCH (:Step)-[w:WROTE]->(:Task) RETURN count(w)") == [[1]]
 
         def always_fail(self, *a, **kw):
             raise RedisConnectionError("down")
 
         monkeypatch.setattr(Lineage, "link_step", always_fail)
+        r = await ok(c, "create_tasks", agent_id="a", tasks=[{"id": "t2", "title": "two"}])
+        assert r["lineage_degraded"] is True and r["tool_call_id"]
         r = await ok(c, "assert_fact", agent_id="a", subject="S2", predicate="p", value="v")
-        assert r["lineage_degraded"] is True and r["fact_id"] and r["tool_call_id"]
+        assert "lineage_degraded" not in r and r["fact_id"]  # its Step / WROTE came with the fact
+        assert q(client, tenant, "MATCH (:Step)-[w:WROTE]->(:Fact) RETURN count(w)") == [[1]]
 
 
 async def test_failed_step_is_reported(monkeypatch, server):
@@ -140,8 +145,10 @@ async def test_failed_step_is_reported(monkeypatch, server):
 
     monkeypatch.setattr(Lineage, "record_step", boom)
     async with Client(server) as c:
+        r = await ok(c, "create_tasks", agent_id="a", tasks=[{"id": "t1", "title": "one"}])
+        assert r["lineage_degraded"] is True
         r = await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="v")
-        assert r["lineage_degraded"] is True and r["fact_id"]
+        assert "lineage_degraded" not in r and r["fact_id"]  # P9-f: no separate record_step for a fact
 
 
 async def test_failed_audit_row_is_reported(monkeypatch, server):

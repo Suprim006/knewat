@@ -79,12 +79,13 @@ def attach(
         for i in range(0, max(len(wrote), len(read)), LINK_CHUNK):
             lin.link_step(step_id, wrote_ids=wrote[i : i + LINK_CHUNK], read_ids=read[i : i + LINK_CHUNK])
 
-    with _degrade_on_error(degraded, "link", "lineage: could not link step %s", step_id):
-        try:
-            link()
-        except (RedisError, OSError):  # transient: every link statement is idempotent, so try once more
-            log.warning("lineage: retrying link_step for %s", step_id)
-            link()
+    if not out.linked:  # P9-f: a write that linked its own Step in its statement needs no second statement
+        with _degrade_on_error(degraded, "link", "lineage: could not link step %s", step_id):
+            try:
+                link()
+            except (RedisError, OSError):  # transient: every link statement is idempotent, so try once more
+                log.warning("lineage: retrying link_step for %s", step_id)
+                link()
     if out.after is not None:
         with _degrade_on_error(degraded, "after", "lineage: after-hook failed for step %s", step_id):
             extra = out.after(lin, step_id) or {}

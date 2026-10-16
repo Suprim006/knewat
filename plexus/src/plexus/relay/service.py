@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
-from plexus.common import check_between, new_id, now_ms, unique
+from plexus.common import StepIntent, check_between, new_id, now_ms, step_params, unique
 from plexus.graph.client import GraphClient
 from plexus.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask, InvalidDag, UnknownReference
 
@@ -276,11 +276,15 @@ class Relay:
         artifact_ids: Iterable[str] = (),
         fact_ids: Iterable[str] = (),
         now: int | None = None,
+        *,
+        step_intent: StepIntent | None = None,
     ) -> str:
         """Create a Handoff node carrying artifacts and facts; returns its id.
 
         All-or-nothing: raises :class:`UnknownReference` (and writes nothing) if either agent, the task, or
-        any artifact/fact id does not exist.
+        any artifact/fact id does not exist. With a ``step_intent`` for ``from_agent`` the Step that WROTE the
+        handoff (and READ its facts) is written in the same statement (P9-f); ``step_intent.used_id`` names
+        it.
         """
         arts, facts = unique(artifact_ids), unique(fact_ids)
         _bound_refs(arts, facts)
@@ -297,10 +301,13 @@ class Relay:
                 "artifact_ids": arts,
                 "fact_ids": facts,
                 "now": self._clock() if now is None else now,
+                **step_params(step_intent, from_agent),
             },
         )
         if not rows:
             self._explain_missing(agents=[from_agent, to_agent], tasks=[task_id], facts=facts, artifacts=arts)
+        if step_intent is not None:
+            step_intent.used_id = rows[0]["step_id"]
         return hid
 
     def verify_artifact(self, agent_id: str, artifact_id: str, now: int | None = None) -> dict[str, Any]:
@@ -321,8 +328,14 @@ class Relay:
         text: str,
         based_on_fact_ids: Iterable[str] = (),
         now: int | None = None,
+        *,
+        step_intent: StepIntent | None = None,
     ) -> str:
-        """Record a Decision BASED_ON facts; returns its id. If any fact id is unknown, nothing is written."""
+        """Record a Decision BASED_ON facts; returns its id. If any fact id is unknown, nothing is written.
+
+        With a ``step_intent`` for ``agent_id`` the Step that WROTE the decision (and READ its facts) is
+        written in the same statement (P9-f); ``step_intent.used_id`` names it.
+        """
         facts = unique(based_on_fact_ids)
         _bound_refs([], facts)
         did = new_id()
@@ -336,10 +349,13 @@ class Relay:
                 "text": text,
                 "fact_ids": facts,
                 "now": self._clock() if now is None else now,
+                **step_params(step_intent, agent_id),
             },
         )
         if not rows:
             self._explain_missing(agents=[agent_id], tasks=[task_id], facts=facts, artifacts=[])
+        if step_intent is not None:
+            step_intent.used_id = rows[0]["step_id"]
         return did
 
     def _explain_missing(

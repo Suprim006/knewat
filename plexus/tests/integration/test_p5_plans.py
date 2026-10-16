@@ -76,6 +76,11 @@ def _assert_params(**over):
         "novelty": 0.5,
         "surprise_supersede": 0.6,
         "surprise_contradict": 0.9,
+        "derived_ids": [],  # P9-f: origins and the Step are written by the same statement
+        "with_step": True,
+        "step_id": "STEP-NEW",
+        "step_n": -1,
+        "step_at": 5,
     }
     p.update(over)
     return p

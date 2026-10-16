@@ -25,6 +25,7 @@ from typing import Any
 from falkordb import FalkorDB
 from mcp.server.mcpserver.exceptions import ToolError
 
+from plexus.common import StepIntent
 from plexus.crucible import api
 from plexus.crucible.api import ClaimConflict, UnknownReference
 from plexus.crucible.backends.base import claim_result, list_row, recall_hit, task_status_view
@@ -32,6 +33,7 @@ from plexus.embed import Embedder, get_embedder
 from plexus.engram.errors import UnknownReference as EngramUnknown
 from plexus.graph.client import GraphClient
 from plexus.graph.tenancy import graph_name
+from plexus.mcp.metering import step_link
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 from plexus.relay import errors as relay_errors
 
@@ -121,11 +123,15 @@ class PlexusBackend:
                 data = self.rt._run(self.tenant, tool, agent_id, None, wrapped, self._now())
             else:
                 m = MeteredClient(self.client)
+                track = self._steps_enabled and tool in TRACKED
+                at = self._now()
+                if track:  # P9-f: the write creates its own Step in its statement when it can (crash-atomic)
+                    m.step_intent = StepIntent(agent_id, -1, at)
                 wrapped_out = wrapped(self.ts, m)
                 data = dict(wrapped_out.data)
-                if self._steps_enabled and tool in TRACKED:
+                if track:
                     degraded: list[str] = []
-                    step_id = self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
+                    step_id = wrapped_out.step_id or self.rt._open_step(self.ts, agent_id, None, at, degraded)
                     data.update(self.rt._attach(self.ts, step_id, wrapped_out, degraded))
         except ToolError as exc:  # e.g. an invalid scope spec: a caller mistake, like a ValueError
             raise ValueError(str(exc)) from None
@@ -189,22 +195,19 @@ class PlexusBackend:
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
             sid = ts.scope_id(scope, m)
-            if origins:  # derived_from is a second statement: check the ids first so a bad id writes nothing
-                have = {r["id"] for r in m.ro(self.graph, "lineage/existing_ids", {"ids": origins})}
-                missing = [o for o in origins if o not in have]
-                if missing:
-                    raise UnknownReference(f"unknown origin id: {', '.join(missing)}")
+            # P9-f: DERIVED_FROM and the Step / WROTE are written by the assert_fact statement itself
             r = ts.engram(m).assert_fact(
                 subject, predicate, value, sid, agent_id,
                 source_id=source_id, confidence=confidence, supersede=supersede, now=now,
+                derived_from=origins, step_intent=m.step_intent,
             )  # fmt: skip
-            if origins:
-                ts.lineage(m).derive_from(r["fact_id"], origins)
             created = [] if r["duplicate_of"] else [_ref(r["fact_id"])]
             updated = [_ref(f) for f in r["superseded"]]
             if r["duplicate_of"]:
                 updated.append(_ref(r["duplicate_of"]))
-            return Outcome({**r, "scope_id": sid}, created=created, updated=updated, assert_result=r)
+            return Outcome(
+                {**r, "scope_id": sid}, created=created, updated=updated, assert_result=r, **step_link(m)
+            )
 
         d = self._call("assert_fact", agent_id, work)
         return {
@@ -347,8 +350,10 @@ class PlexusBackend:
         facts = list(fact_ids)
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            hid = ts.relay(m).handoff(agent_id, to_agent, task_id, note, list(artifact_ids), facts)
-            return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=facts)
+            hid = ts.relay(m).handoff(
+                agent_id, to_agent, task_id, note, list(artifact_ids), facts, step_intent=m.step_intent
+            )
+            return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=facts, **step_link(m))
 
         return self._call("handoff", agent_id, work)["handoff_id"]
 
@@ -358,8 +363,8 @@ class PlexusBackend:
         facts = list(based_on_fact_ids)
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
-            did = ts.relay(m).record_decision(agent_id, task_id, text, facts)
-            return Outcome({"decision_id": did}, created=[("Decision", did)], read_ids=facts)
+            did = ts.relay(m).record_decision(agent_id, task_id, text, facts, step_intent=m.step_intent)
+            return Outcome({"decision_id": did}, created=[("Decision", did)], read_ids=facts, **step_link(m))
 
         return self._call("record_decision", agent_id, work)["decision_id"]
 

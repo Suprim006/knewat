@@ -297,3 +297,26 @@ keeps every critical probe and 96.4% recall@5 while still cutting noise (23% →
 `PLEXUS_ACT_FLOOR=0.9`, confirmed by a second, pre-registered run (`docs/BASELINE.md`, L5b confirmatory). The
 `memory_sweep` is lossy for cold-but-true facts in this benchmark (cold@5 ~35–70%) and stays optional, dry-run by
 default and reversible. Protection prevents sweeping, not outranking: the docs say so.
+
+## D-013 — A memory write carries its own provenance (Step, WROTE, DERIVED_FROM) in one statement
+
+**Context.** Crucible L6-F (pre-registered "P expected to lose") killed a writer process 200 times: 94 of 1,240
+records (7.6%) had no `(Step)-[:WROTE]->` link and 9 facts lacked the `DERIVED_FROM` link they were written with,
+against 0 for SQLite's single transaction. The MCP runtime wrote the memory node, then `record_step`, then
+`link_step` (and the backend `derive_from`) as separate statements; FalkorDB has no multi-statement transaction.
+
+**Decision (P9-f).** `engram/assert_fact`, `relay/record_decision` and `relay/handoff` create the writer's Step
+(same rules as `lineage/record_step`: next n, or reuse an existing explicit n, append-only `NEXT`) and its `BY`,
+`WROTE` and `READ` edges, and `assert_fact` its `DERIVED_FROM` origins, inside the memory write statement. The
+runtime passes a `StepIntent` (`plexus.common`) on the metered client in audit mode `full`; a tool that used it
+returns `Outcome(step_id=..., linked=True)` and the runtime skips its own `record_step` / `link_step`. Other write
+tools (tasks, episodes, relations, staleness, dedup) keep the two-statement path; their records are not memory
+evidence in the same sense, and are listed as not covered.
+
+**Why not recovery-on-next-write.** Re-attaching an orphan later can only guess its Step (the agent's next one), and a
+lost `DERIVED_FROM` cannot be recovered at all, because the origins were never stored. One statement makes the
+crash window empty instead of repairing it.
+
+**Result.** The kill loop (`tests/crucible/l6/test_p9f_crash_atomic.py`, and the L6-F re-run in
+`docs/BASELINE.md` "L6 post-fix") finds no record without its Step/WROTE.
+

@@ -26,6 +26,7 @@ from plexus.mcp.limits import (
     Value,
     Version,
 )
+from plexus.mcp.metering import step_link
 from plexus.mcp.runtime import MeteredClient, Outcome, TenantState
 from plexus.mcp.toolkit import ToolTable
 
@@ -199,8 +200,10 @@ def handoff(
 ) -> Outcome:
     """Hand work to another agent with a note plus the artifacts and facts it should rely on. Everything
     referenced must exist, otherwise nothing is written."""
-    hid = ts.relay(m).handoff(agent_id, to_agent, task_id, note, artifact_ids, fact_ids)
-    return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=fact_ids)
+    hid = ts.relay(m).handoff(
+        agent_id, to_agent, task_id, note, artifact_ids, fact_ids, step_intent=m.step_intent
+    )
+    return Outcome({"handoff_id": hid}, created=[("Handoff", hid)], read_ids=fact_ids, **step_link(m))
 
 
 @tool
@@ -234,8 +237,10 @@ def record_decision(
 ) -> Outcome:
     """Log a decision you made and the facts it is based on. Later anyone can ask WHY it was made. All fact ids
     must exist or nothing is written."""
-    did = ts.relay(m).record_decision(agent_id, task_id, text, based_on_fact_ids)
-    return Outcome({"decision_id": did}, created=[("Decision", did)], read_ids=based_on_fact_ids)
+    did = ts.relay(m).record_decision(agent_id, task_id, text, based_on_fact_ids, step_intent=m.step_intent)
+    return Outcome(
+        {"decision_id": did}, created=[("Decision", did)], read_ids=based_on_fact_ids, **step_link(m)
+    )
 
 
 # ---------------------------------------------------------------- reads

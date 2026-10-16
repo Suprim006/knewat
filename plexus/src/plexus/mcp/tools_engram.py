@@ -27,6 +27,7 @@ from plexus.mcp.limits import (
     TextReq,
     Value,
 )
+from plexus.mcp.metering import step_link
 from plexus.mcp.runtime import MeteredClient, Outcome, TenantState
 from plexus.mcp.toolkit import ToolTable
 
@@ -134,12 +135,16 @@ def assert_fact(
         supersede=supersede,
         subject_kind=subject_kind,
         step=step,
+        step_intent=m.step_intent,
     )
     created = [] if r["duplicate_of"] else [_fact_ref(r["fact_id"])]
     updated = [_fact_ref(f) for f in r["superseded"]]
     if r["duplicate_of"]:
         updated.append(_fact_ref(r["duplicate_of"]))
-    return Outcome({**r, "scope_id": sid}, created=created, updated=updated, assert_result=r)
+    data = {k: v for k, v in r.items() if k != "step_id"}
+    return Outcome(
+        {**data, "scope_id": sid}, created=created, updated=updated, assert_result=r, **step_link(m)
+    )
 
 
 @tool(kind="read", exposure=True)

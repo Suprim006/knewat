@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from typing import Any
 
 from redis.exceptions import ResponseError
@@ -17,7 +17,7 @@ from plexus.activation import model as act
 from plexus.activation.rank import rerank
 from plexus.activation.service import Activation
 from plexus.activation.settings import Settings
-from plexus.common import OPEN, check_between, normalize
+from plexus.common import OPEN, StepIntent, check_between, normalize, step_params
 from plexus.common import new_id as _new_id
 from plexus.common import now_ms as _now_ms  # module attribute: crucible's l5 pins it to fake the clock
 from plexus.embed import Embedder, embed_checked, get_embedder
@@ -27,6 +27,7 @@ from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
 
 NO_STEP = -1  # Episode.step when the caller has no step
+MAX_ORIGINS = 100  # derived_from ids per fact (= Lineage.MAX_DERIVE_IDS)
 
 ENTITY_NEAR = 0.10  # cosine distance: entity-name vector match (and the numeric tokens must agree)
 FACT_DUP = 0.08  # cosine distance: value paraphrase duplicate (and the numeric tokens must agree)
@@ -290,8 +291,10 @@ class Engram:
         *,
         supersede: bool = False,
         subject_kind: str = "thing",
-        step: int | None = None,  # noqa: ARG002 - reserved: Lineage appends the Step edges to the statement
+        step: int | None = None,  # noqa: ARG002 - reserved (the Step comes from step_intent)
         dup_threshold: float | None = None,
+        derived_from: Iterable[str] = (),
+        step_intent: StepIntent | None = None,
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
@@ -314,6 +317,13 @@ class Engram:
         were checked, so a rejected call leaves no orphan Entity (P5 Q8).
         The classification and the writes happen in one Cypher statement (``engram/assert_fact``); the
         entity resolution before it is a separate (idempotent) step.
+
+        P9-f: ``derived_from`` (Source / Episode / Fact ids) is linked ``DERIVED_FROM`` in that same
+        statement (an unknown id raises :class:`UnknownReference` ``'origin'``, nothing written); with a
+        ``step_intent`` for ``agent_id`` the statement also writes the agent's Step with ``WROTE`` (new
+        fact) / ``READ`` (duplicate, closed and contradicted facts), so no hard kill can leave the fact
+        without its provenance.
+        ``step_intent.used_id`` and the returned ``step_id`` name that Step (``None`` without an intent).
         """
         pred = normalize(predicate)
         norm_value = normalize(value)
@@ -321,12 +331,15 @@ class Engram:
             raise ValueError("predicate and value must not be empty")
         t = now if now is not None else _now_ms()
         episode_id, source_id = episode_id or "", source_id or ""
-        entity = self.resolve_entity_ex(
-            subject,
-            subject_kind,
-            now=t,
-            before_create=lambda: self._check_refs(scope_id, episode_id, source_id),
-        )
+        origins = list(dict.fromkeys(derived_from or ()))
+        if len(origins) > MAX_ORIGINS:
+            raise ValueError(f"at most {MAX_ORIGINS} derived_from ids per fact")
+
+        def check() -> None:
+            self._check_refs(scope_id, episode_id, source_id)
+            self._check_origins(origins)
+
+        entity = self.resolve_entity_ex(subject, subject_kind, now=t, before_create=check)
         text_emb, value_emb = self._embed([fact_text(entity["name"], pred, value), value])
         novelty = self._novelty(text_emb, scope_id)
         dup_t = self.dup_threshold if dup_threshold is None else dup_threshold
@@ -347,6 +360,8 @@ class Engram:
                 "agent_id": agent_id,
                 "source_id": source_id,
                 "episode_id": episode_id,
+                "derived_ids": origins,
+                **step_params(step_intent, agent_id),
                 "confidence": float(confidence),
                 "supersede": bool(supersede),
                 "now": t,
@@ -368,10 +383,13 @@ class Engram:
             },
         )
         if not rows:
-            self._check_refs(scope_id, episode_id, source_id)
+            check()
             raise RuntimeError("assert_fact rejected although every referenced id exists")  # pragma: no cover
         r = rows[0]
+        if step_intent is not None:
+            step_intent.used_id = r["step_id"]
         return {
+            "step_id": r["step_id"],
             "fact_id": r["fact_id"],
             "superseded": list(r["superseded"]),
             "duplicate_of": r["duplicate_of"],
@@ -397,6 +415,15 @@ class Engram:
             {"q": text_emb, "scope_id": scope_id, "over": act.NOVELTY_OVER, "k": act.NOVELTY_K},
         )
         return act.novelty(near[0]["distance"] if near else None)
+
+    def _check_origins(self, origins: list[str]) -> None:
+        """Raise :class:`UnknownReference` ``'origin'`` for ids that name no Fact, Source or Episode."""
+        if not origins:
+            return
+        have = {r["id"] for r in self.client.ro(self.graph, "engram/existing_origins", {"ids": origins})}
+        missing = [o for o in origins if o not in have]
+        if missing:
+            raise UnknownReference("origin", missing)
 
     def _check_refs(self, scope_id: str, episode_id: str, source_id: str) -> None:
         """Raise :class:`UnknownReference` for the first scope / episode / source id that does not exist."""

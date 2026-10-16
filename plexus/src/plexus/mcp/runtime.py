@@ -26,6 +26,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from redis.exceptions import RedisError, ResponseError
 
 from plexus.audit import record_tool_call
+from plexus.common import StepIntent
 from plexus.embed import Embedder
 from plexus.engram.errors import UnknownReference
 from plexus.graph.client import GraphClient
@@ -222,7 +223,9 @@ class Runtime:
     def _run(
         self, tenant, tool, agent_id, step, fn, started: int, mode: AuditMode = "full"
     ) -> dict[str, Any]:
-        ts, m, out = self._execute(tenant, fn, read_only=mode == "off")
+        # P9-f: in full mode the tool's write may create the Step itself, in the same statement (crash-atomic)
+        intent = StepIntent(agent_id, -1 if step is None else int(step), started) if mode == "full" else None
+        ts, m, out = self._execute(tenant, fn, read_only=mode == "off", step_intent=intent)
         if mode != "full" and m.writes:
             # The tool is labelled 'read' but wrote: the label is wrong. Audit this call in full (the write is
             # there to be explained) and say so loudly. On an 'off' tenant the write was refused instead.
@@ -233,7 +236,7 @@ class Runtime:
         # state it acted on, not the state after its own write.
         degraded: list[str] = []
         if mode == "full":
-            step_id = self._open_step(ts, agent_id, step, started, degraded)
+            step_id = out.step_id or self._open_step(ts, agent_id, step, started, degraded)
             extra = self._attach(ts, step_id, out, degraded)
         else:  # light / off: no Step, no READ/WROTE edges, no Recall; a hook's result keys are reported as null
             step_id = None
@@ -275,7 +278,12 @@ class Runtime:
         return data
 
     def _execute(
-        self, tenant: str, fn: Callable[[TenantState, MeteredClient], Outcome], *, read_only: bool = False
+        self,
+        tenant: str,
+        fn: Callable[[TenantState, MeteredClient], Outcome],
+        *,
+        read_only: bool = False,
+        step_intent: StepIntent | None = None,
     ) -> tuple[TenantState, MeteredClient, Outcome]:
         """Run the tool function, once more on a fresh tenant state if the cached one was stale.
 
@@ -284,6 +292,8 @@ class Runtime:
         ts = self.state(tenant, create=not read_only)
         for attempt in (0, 1):
             m = MeteredClient(self.client, read_only=read_only)
+            if step_intent is not None and ts.lineage(m) is not None:  # no Lineage, no Step (as open_step)
+                m.step_intent = step_intent
             try:
                 return ts, m, fn(ts, m)
             except Exception as exc:

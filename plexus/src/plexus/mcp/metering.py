@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from plexus.audit.recorder import Ref
+from plexus.common import StepIntent
 from plexus.graph.client import GraphClient, Rows
 
 AUXILIARY_PREFIX = (
@@ -35,6 +36,9 @@ class MeteredClient:
         self.run_time_ms = 0.0
         self.queries: list[str] = []
         self.writes: list[str] = []
+        # P9-f: the Step this call's write should create in its own statement (audit mode full); a tool hands
+        # it to the service and reports ``Outcome(step_id=intent.used_id, linked=True)`` when it was used
+        self.step_intent: StepIntent | None = None
 
     def _note(self, name: str, rows: Rows | None, write: bool) -> None:
         self.queries.append(name)
@@ -83,9 +87,22 @@ class Outcome:
     data: dict[str, Any]
     created: Sequence[Ref] = ()
     updated: Sequence[Ref] = ()
-    step_id: str | None = None  # ignored: the runtime sets it from Lineage.record_step
+    step_id: str | None = (
+        None  # P9-f: the Step the tool's own write statement created (else the runtime opens one)
+    )
+    linked: bool = (
+        False  # P9-f: that statement also wrote the WROTE / READ edges: the runtime adds no link_step
+    )
     # Lineage attachment (ignored when plexus.lineage is not installed):
     read_ids: Sequence[str] = ()  # Facts the call looked at -> (Step)-[:READ]->(Fact)
     assert_result: dict[str, Any] | None = None  # Engram.assert_fact result -> Lineage.link_assert_result
     after: Callable[[Any, str | None], dict[str, Any] | None] | None = None
     """``after(lineage, step_id)`` runs once the Step exists; the dict it returns is merged into the result."""
+
+
+def step_link(m: MeteredClient) -> dict[str, Any]:
+    """``Outcome`` keywords for a tool whose write used ``m.step_intent`` (P9-f): its Step id, already linked."""
+    intent = m.step_intent
+    if intent is None or intent.used_id is None:
+        return {}
+    return {"step_id": intent.used_id, "linked": True}
