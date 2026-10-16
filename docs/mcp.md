@@ -266,8 +266,10 @@ Nothing is written (no `READ` edges either: looking at the damage must not make 
 
 `Lineage.forget_source`, `quarantine` and `release_quarantine` gained an optional `depth` (1..12, default 8; was a fixed 5 hops),
 `Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
-(1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source` and `blocked_by_failure` keep their
-schemas and use the new defaults.
+(1..50, default 50; was a fixed 10). The MCP tools `forget_source`, `quarantine_source` and `blocked_by_failure` keep their
+schemas and use the new defaults. P9-f: the MCP `why` tool takes optional `depth` (1..12, default 6) and `max_elements`
+(2..5000, default 200), the values it used to hard-code (Crucible L6-B: chains deeper than 6 hops were unanswerable through
+the tool).
 ## Soft-duplicate tools (P9-c, `plexus/mcp/tools_dedup.py`; `plexus/engram/dedup.py`)
 
 `assert_fact` decides whether a new value is the same statement as a current one (same entity, predicate and scope):

@@ -18,6 +18,7 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
+from plexus.lineage.service import DEFAULT_WHY_DEPTH, MAX_DEPTH, MAX_DETAIL, MAX_WHY_ELEMENTS
 from plexus.mcp.limits import (
     MAX_INT,
     AgentId,
@@ -88,11 +89,29 @@ def why(
     m: MeteredClient,
     agent_id: AgentId,
     node_id: Annotated[IdStr, Field(description="A decision id or a fact id.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the base facts (default {DEFAULT_WHY_DEPTH}, "
+            f"at most {MAX_DEPTH}). Raise it when the chain to the source is longer.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_WHY_DEPTH,
+    max_elements: Annotated[
+        int,
+        Field(
+            description=f"Nodes + edges returned (default {MAX_WHY_ELEMENTS}, closest to the root first; "
+            "'truncated' says whether anything was cut).",
+            ge=2,
+            le=MAX_DETAIL,
+        ),
+    ] = MAX_WHY_ELEMENTS,
     step: Step = None,
 ) -> Outcome:
     """Explain WHY a decision was made (or where a fact comes from): the graph paths from a decision_id
     or fact_id to the facts it rests on, who asserted them, their sources, and the steps that wrote them."""
-    return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id))})
+    return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id, depth=depth, max_elements=max_elements))})
 
 
 @tool.when("why_recalled", kind="read")

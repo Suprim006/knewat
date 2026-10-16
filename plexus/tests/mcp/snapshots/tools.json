@@ -2975,6 +2975,22 @@
           "description": "Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it.",
           "title": "Audit"
         },
+        "depth": {
+          "default": 6,
+          "description": "How many DERIVED_FROM hops to follow from the base facts (default 6, at most 12). Raise it when the chain to the source is longer.",
+          "maximum": 12,
+          "minimum": 1,
+          "title": "Depth",
+          "type": "integer"
+        },
+        "max_elements": {
+          "default": 200,
+          "description": "Nodes + edges returned (default 200, closest to the root first; 'truncated' says whether anything was cut).",
+          "maximum": 5000,
+          "minimum": 2,
+          "title": "Max Elements",
+          "type": "integer"
+        },
         "node_id": {
           "description": "A decision id or a fact id.",
           "maxLength": 128,
