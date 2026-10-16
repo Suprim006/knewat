@@ -72,8 +72,8 @@ def git_state() -> dict[str, Any]:
         ).stdout.strip()
 
     lines = g("status", "--porcelain", "--untracked-files=all").splitlines()
-    out_rel = "plexus/demo_data/crucible/l8/"
-    code = [x for x in lines if out_rel not in x]
+    out_rels = ("plexus/demo_data/crucible/l8/", "plexus/demo_data/crucible/l8_postfix/")  # P12: + the re-run
+    code = [x for x in lines if not any(r in x for r in out_rels)]
     return {
         "commit": g("rev-parse", "HEAD"),
         "short": g("rev-parse", "--short", "HEAD"),
