@@ -1,0 +1,41 @@
+{
+ "reply": "```sql\nWITH RECURSIVE d(id) AS (\n  SELECT fl.src FROM fact_links fl\n  JOIN sources s ON (s.id = fl.dst OR s.uri = fl.dst)\n  WHERE fl.kind LIKE 'DERIV%' AND instr(s.uri, '02_api_style_guide_v1') > 0\n  UNION\n  SELECT fl.dst FROM fact_links fl\n  JOIN sources s ON (s.id = fl.src OR s.uri = fl.src)\n  WHERE fl.kind LIKE 'DERIV%' AND instr(s.uri, '02_api_style_guide_v1') > 0\n  UNION\n  SELECT fl.src FROM fact_links fl\n  JOIN d ON fl.dst = d.id\n  WHERE fl.kind LIKE 'DERIV%'\n)\nSELECT DISTINCT dec.text\nFROM decisions dec\nJOIN decision_facts df ON df.decision_id = dec.id\nWHERE df.fact_id IN (SELECT id FROM d)\n```",
+ "cost": 0.0279115,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 4576,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 955,
+  "output_tokens_details": {
+   "thinking_tokens": 583
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 4576,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 955,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 4576,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 4576
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 13.9,
+ "tag": "probe-sql-Q1-r2-i1"
+}

@@ -1,0 +1,41 @@
+{
+ "reply": "```sql\nSELECT DISTINCT t.id\nFROM tasks t\nJOIN artifacts a ON a.task_id = t.id\nJOIN facts f ON f.value LIKE 'AX-%'\n  AND f.valid_to <= t.done_at\n  AND instr(a.summary, f.value) > 0\nWHERE t.status = 'done'\n```",
+ "cost": 0.018471500000000002,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 4296,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 123,
+  "output_tokens_details": {
+   "thinking_tokens": 0
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 4296,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 123,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 4296,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 4296
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 7.4,
+ "tag": "probe-sql-Q3-r2-i0"
+}

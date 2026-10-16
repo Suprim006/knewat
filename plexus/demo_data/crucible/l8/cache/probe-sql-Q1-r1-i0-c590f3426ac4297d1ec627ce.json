@@ -1,0 +1,41 @@
+{
+ "reply": "```sql\nWITH RECURSIVE tainted(fid) AS (\n  SELECT fl.src FROM fact_links fl\n  JOIN sources s ON s.id = fl.dst\n  WHERE fl.kind = 'DERIVED_FROM' AND s.uri LIKE '%02_api_style_guide_v1%'\n  UNION\n  SELECT fl.src FROM fact_links fl\n  JOIN tainted t ON fl.dst = t.fid\n  WHERE fl.kind = 'DERIVED_FROM'\n)\nSELECT DISTINCT d.text\nFROM decisions d\nJOIN decision_facts df ON df.decision_id = d.id\nWHERE df.fact_id IN (SELECT fid FROM tainted);\n```",
+ "cost": 0.0226595,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 4283,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 547,
+  "output_tokens_details": {
+   "thinking_tokens": 287
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 4283,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 547,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 4283,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 4283
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 7.1,
+ "tag": "probe-sql-Q1-r1-i0"
+}

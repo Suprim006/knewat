@@ -416,7 +416,7 @@ def extract_stmt(reply: str) -> str:
 
 
 def run_probe(seed_run_p: dict[str, Any], seed_run_b1: dict[str, Any], sent: dict[str, Any], host: str, port: int,
-              reps: int = 3) -> dict[str, Any]:  # fmt: skip
+              reps: int = 3, max_cost: float = 3.0) -> dict[str, Any]:  # fmt: skip
     from plexus.crucible.backends.sqlite import SCHEMA as B1_DDL
     from plexus.graph.client import GraphClient
     from plexus.graph.tenancy import graph_name
@@ -451,34 +451,50 @@ def run_probe(seed_run_p: dict[str, Any], seed_run_b1: dict[str, Any], sent: dic
         "cypher": {"Q1": run_c(CYPHER["Q1"]), "Q2": run_c(CYPHER["Q2"]), "Q3": run_c(CYPHER["Q3"])},
         "sql": {"Q1": run_s(SQL["Q1"]), "Q2": run_s(SQL["Q2"]), "Q3": run_s(SQL["Q3"])},
     }
-    rows = []
-    for lang, schema, runner in (("cypher", doc, run_c), ("sql", B1_DDL, run_s)):
-        for qid in ("Q1", "Q2", "Q3"):
-            for rep in range(1, reps + 1):
-                stmt, err, iters, calls, exact, defects = "", "", 0, [], False, []
-                for it in range(0, 4):
-                    r = ask_claude(
-                        probe_prompt(lang, schema, qid, err, stmt), f"probe-{lang}-{qid}-r{rep}-i{it}"
-                    )
-                    calls.append({k: v for k, v in r.items() if k != "reply"})
-                    stmt = extract_stmt(r["reply"])
-                    try:
-                        got = runner(stmt)
-                    except Exception as exc:  # noqa: BLE001
-                        err = f"{type(exc).__name__}: {str(exc)[:300]}"
-                        defects.append("error")
-                        iters = it
-                        continue
-                    if got == ref[lang][qid]:
-                        exact, iters = True, it
-                        break
-                    err = f"wrong result ({len(got)} rows; expected a different set)"
-                    defects.append("wrong")
-                    iters = it
-                rows.append({"lang": lang, "q": qid, "rep": rep, "first_try_exact": exact and iters == 0, "exact": exact,
-                             "fix_iterations": iters, "defects": defects, "lines": len([x for x in stmt.splitlines() if x.strip()]),
-                             "statement": stmt, "cost": round(sum(c["cost"] for c in calls if not c.get("cached")), 4),
-                             "cost_incl_cached": round(sum(c["cost"] for c in calls), 4)})  # fmt: skip
+    rows: list[dict[str, Any]] = []
+    spent = 0.0
+    # interleaved (rep, question, language) so a budget stop cuts both languages equally
+    order = [
+        (rep, qid, lang)
+        for rep in range(1, reps + 1)
+        for qid in ("Q1", "Q2", "Q3")
+        for lang in ("cypher", "sql")
+    ]
+    for rep, qid, lang in order:
+        schema, runner = (doc, run_c) if lang == "cypher" else (B1_DDL, run_s)
+        if spent >= max_cost:
+            rows.append(
+                {
+                    "lang": lang,
+                    "q": qid,
+                    "rep": rep,
+                    "not_run": f"budget (spent ${spent:.2f} of ${max_cost:.2f})",
+                }
+            )
+            continue
+        stmt, err, iters, calls, exact, defects = "", "", 0, [], False, []
+        for it in range(0, 4):
+            r = ask_claude(probe_prompt(lang, schema, qid, err, stmt), f"probe-{lang}-{qid}-r{rep}-i{it}")
+            calls.append({k: v for k, v in r.items() if k != "reply"})
+            spent += 0.0 if r.get("cached") else float(r.get("cost") or 0)
+            stmt = extract_stmt(r["reply"])
+            try:
+                got = runner(stmt)
+            except Exception as exc:  # noqa: BLE001
+                err = f"{type(exc).__name__}: {str(exc)[:300]}"
+                defects.append("error")
+                iters = it
+                continue
+            if got == ref[lang][qid]:
+                exact, iters = True, it
+                break
+            err = f"wrong result ({len(got)} rows; expected a different set)"
+            defects.append("wrong")
+            iters = it
+        rows.append({"lang": lang, "q": qid, "rep": rep, "first_try_exact": exact and iters == 0, "exact": exact,
+                     "fix_iterations": iters, "defects": defects, "lines": len([x for x in stmt.splitlines() if x.strip()]),
+                     "statement": stmt, "cost": round(sum(c["cost"] for c in calls if not c.get("cached")), 4),
+                     "cost_incl_cached": round(sum(c["cost"] for c in calls), 4)})  # fmt: skip
     gc.close()
     db.close()
     return {
