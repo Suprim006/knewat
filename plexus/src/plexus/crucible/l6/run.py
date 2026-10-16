@@ -198,7 +198,7 @@ def det_dag(client: GraphClient, tmp: Path, log: Callable[[str], None]) -> dict[
             ids = sorted(relay.blocked_by_failure("root"))
             return {
                 "tasks": len(ids),
-                "probes": [p in set(ids) for p in q.probes],
+                "probes": [p in set(ids) for p in probes],
                 "first5": ids[:5],
             }, A.meta(t0, 0, 1 + len(ids) // 1000)
 
