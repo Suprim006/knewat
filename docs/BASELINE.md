@@ -216,6 +216,54 @@ run the same corpus and their false merges are *reported*, not gated: they do no
 
 **Embedder.** Real `fastembed` (`BAAI/bge-small-en-v1.5`, 384-d); the hash embedder is used only in the unit tests.
 
+## C7 extended results (P9-c; real fastembed embedder, one sequential run per arm, after the pre-registration above)
+
+Raw numbers: `plexus/demo_data/crucible/c7x_results.json` (per-pair outcomes included). Code at the commit that follows the pre-registration commit `262705e`.
+
+**Gate: passed.** Arm `P` (service path) and `P-mcp` (MCP path): **0 false merges in all 16 categories, on both splits** (train 0 of 75 non-`merge` pairs, test 0 of
+75, together 0 of 150). The 95% upper bound by the rule of three is **< 4.0%** for each split alone and **< 2.0%** for the 150 pairs together; it says nothing
+about antonyms or phrasings the corpus does not contain. For contrast, arm `B2` (the vector baseline, which replicates the *old* Plexus rule: cosine <= 0.08 and
+equal digit tokens) **falsely merged 68 of the 150** (unit_diff 12/14, long_one_word 12/12, antonym 10/20, direction_swap 10/10, quantifier 9/14, negation 8/20,
+number_word_diff 6/10, sprint_twin 1/16). `B0` (files) and `B1` (SQLite) merge only identical normalised text, so they merge none of the 76 true paraphrases either.
+
+| category | expected | pairs | train: merged / maybe / new | test: merged / maybe / new | false merges (P) | false merges (B2) |
+|---|---|---|---|---|---|---|
+| punctuation | merge | 12 | 6/0/0 | 6/0/0 | n/a | n/a |
+| light | merge | 20 | 5/5/0 | 5/4/1 | n/a | n/a |
+| heavy | merge | 24 | 6/4/2 | 4/5/3 | n/a | n/a |
+| number_word_same | merge | 8 | 4/0/0 | 4/0/0 | n/a | n/a |
+| unit_same | merge | 12 | 5/1/0 | 6/0/0 | n/a | n/a |
+| negation | distinct | 20 | 0/0/10 | 0/0/10 | **0** | 8 |
+| antonym | distinct | 20 | 0/0/10 | 0/2/8 | **0** | 10 |
+| quantifier | distinct | 14 | 0/0/7 | 0/0/7 | **0** | 9 |
+| number_word_diff | distinct | 10 | 0/0/5 | 0/0/5 | **0** | 6 |
+| unit_diff | distinct | 14 | 0/0/7 | 0/0/7 | **0** | 12 |
+| entity_swap | distinct | 12 | 0/3/3 | 0/5/1 | **0** | 0 |
+| near_numeric | distinct | 14 | 0/0/7 | 0/0/7 | **0** | 0 |
+| sprint_twin | distinct | 16 | 0/0/8 | 0/1/7 | **0** | 1 |
+| long_one_word | distinct | 12 | 0/3/3 | 0/3/3 | **0** | 12 |
+| bare_boolean | distinct | 8 | 0/0/4 | 0/0/4 | **0** | 0 |
+| direction_swap | maybe | 10 | 0/5/0 | 0/5/0 | **0** | 10 |
+
+(`merged` = stored as one fact, `maybe` = two facts joined by `DUPLICATES_MAYBE`, `new` = two facts, no link. For `distinct` rows `maybe` is a harmless soft link:
+nothing is lost and a reviewer can reject it; entity_swap and long_one_word pairs get one because they share most words.)
+
+**Recall of the 76 true paraphrases (`merge`).** Auto-merged **51 / 76 = 67.1%** (train 26/38, test 25/38); auto-merged or surfaced as a soft duplicate
+**70 / 76 = 92.1%** (train 36/38, test 34/38). Exact numbers per category: punctuation 12/12, number words 8/8, unit changes 11/12 auto (the 12th, `1 GiB` / `1024 MiB`,
+is surfaced), light paraphrases 10/20 auto and 19/20 surfaced, **heavy paraphrases 10/24 = 41.7% auto and 19/24 = 79.2% surfaced (train 6/12 and 10/12, test 4/12 and
+9/12)**. **The pre-registered heavy-paraphrase target (>= 75% auto or >= 95% surfaced) was missed.** The old rule caught 1 of 4 heavy pairs (25%) on the original
+corpus; on this one the new rule auto-merges 42% and surfaces 79%, with 0 false merges. Why: the sequence guard sends every re-ordered rewording (passive / active:
+'Builds are triggered on every push' / 'Every push triggers a build') to the soft tier, because the same bag of words can be the opposite statement ('A calls B' / 'B calls A'),
+and the 5 heavy pairs that share almost no words (e.g. 'Customer data never leaves the EU region' / 'Data about customers stays inside the EU region') are not
+found by any lexical or embedding rule at these thresholds. Raising recall means relaxing a guard, which the 0-false-merge gate does not allow without evidence; it is
+left for an agent to confirm through `confirm_duplicate`.
+
+**Regression row.** The original C7 (12 + 4 pairs, concurrent and sequential) is unchanged and still runs as `C7`; `C7X` is selected with `--tests C7X` (not in the default test list).
+`B2` and `P` auto-merged the same number of true paraphrases (51), but only 33 of them are the same pairs.
+
+**Reproduce.** `PLEXUS_EMBEDDER=fastembed python -m plexus.crucible.cli l1 --tests C7X --arms P,P-mcp,B0,B1,B2 --reps 1 --port <db port> --out <dir>` (a DB on that port is needed); the
+unit tests (`tests/crucible/test_c7x.py`) check the corpus invariants and that the gate fires on a store that merges everything.
+
 ## L2-scale (pre-registered)
 
 Written and committed **before any `claude -p` call of this experiment**. LLM calls made before this pre-registration: **0** (pilot calls made before pre-registration: 0; `plexus/demo_data/crucible/l2_scale_cache/` does not exist yet).

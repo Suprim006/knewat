@@ -960,8 +960,10 @@ def c7x(run: ArmRun, seed: int, cfg: L1Config, pairs: list[dict[str, Any]] | Non
     res = RunResult(seed=seed, params={"pairs": len(corpus)})
     b = run.open("c7x")
     cats: dict[str, dict[str, Any]] = {}
+    outcomes: dict[str, str] = {}
     for p in corpus:
         out = _c7x_outcome(b, p)
+        outcomes[p["id"]] = out
         c = cats.setdefault(
             p["category"],
             {"expected": p["expected"], "pairs": 0, "merged": 0, "maybe": 0, "new": 0, "false_merges": 0,
@@ -1002,6 +1004,7 @@ def c7x(run: ArmRun, seed: int, cfg: L1Config, pairs: list[dict[str, Any]] | Non
         },
         details={
             "by_category": cats,
+            "outcomes": outcomes,
             "false_merge_upper_95": rule_of_three(n_not_merge) if not false_total else None,
         },
     )
