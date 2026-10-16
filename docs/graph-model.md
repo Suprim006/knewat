@@ -133,6 +133,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | Full-text | `Entity.name`, `Fact.value`, `Episode.text` | keyword entity resolution and recall |
 | Vector (384-d, cosine) | `Entity.embedding`, `Fact.embedding`, `Episode.embedding` | semantic seeds for recall |
 | UNIQUE constraint | `Task.id`, `Fact.id`, `Agent.id`, `Decision.id`, `Handoff.id` | no duplicate ids; `apply_schema` waits until each is `OPERATIONAL` |
+| UNIQUE constraint | `Entity.norm_name` | backstop behind `engram/resolve_entity` (which already MERGEs on it). `resolve_entity_ex` retries once on `unique constraint violation`. A graph that still holds two entities with one `norm_name` ends this constraint `FAILED`: `apply_schema` logs a warning instead of raising, and `plexus migrate entities` lists the duplicates |
 
 ## Conventions
 
