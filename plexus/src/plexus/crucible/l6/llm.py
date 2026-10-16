@@ -26,7 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded
-from plexus.crucible.l2.questions import parse_reply
+from plexus.crucible.l2.questions import parse_reply as _parse_l2
 
 PROMPT_VERSION = "l6-v1"
 MODEL = "sonnet"
@@ -106,6 +106,31 @@ ROLES = {
         "If the excerpt cannot support an answer, give your best answer from what is shown. " + COMMON
     ),
 }
+
+
+_DEC = json.JSONDecoder()
+
+
+def parse_reply(text: str) -> tuple[Any, str]:
+    """The L2 rule, plus one form-only leniency (amendment 4): a reply that ends with a JSON object that has no ``answer``
+    key (the model wrote the object of the question's format directly) has that object as its answer. Nothing else is
+    relaxed: the object must run to the end of the reply (a closing code fence allowed) and be valid JSON."""
+    ans, err = _parse_l2(text)
+    if not err:
+        return ans, err
+    s = text.strip()
+    if s.endswith("```"):
+        s = s[:-3].rstrip()
+    i = s.find("{")
+    while i != -1:
+        try:
+            obj, end = _DEC.raw_decode(s[i:])
+        except json.JSONDecodeError:
+            obj, end = None, 0
+        if isinstance(obj, dict) and not s[i + end :].strip():
+            return (obj["answer"], "") if set(obj) == {"answer"} else (obj, "")
+        i = s.find("{", i + 1)
+    return None, err
 
 
 @dataclass

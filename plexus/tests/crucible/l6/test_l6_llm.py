@@ -160,3 +160,18 @@ def test_toy_pilot_end_to_end_with_the_fake(tmp_path, monkeypatch):
         "all", tmp_path / "out2", 0.05, FAKE, log=lambda s: None, cache=tmp_path / "cache", graphs=False
     )
     assert doc2["run"]["calls_run_live"] == 0 and doc2["run"]["cost_live_usd"] == 0
+
+
+def test_parse_reply_accepts_the_bare_object_of_the_format_and_nothing_else():
+    assert L.parse_reply('Reasoning.\n{"answer": 5}') == (5, "")
+    assert L.parse_reply('Reasoning.\n```json\n{"chain": ["f1"], "agent": "a1"}\n```') == (
+        {"chain": ["f1"], "agent": "a1"},
+        "",
+    )
+    assert L.parse_reply('So: {"x": 1}\n{"chain": ["f1"], "agent": "a1"}') == (
+        {"chain": ["f1"], "agent": "a1"},
+        "",
+    )
+    assert L.parse_reply('{"chain": ["f1"]} and that is all')[0] is None  # text after the object
+    assert L.parse_reply("no json at all")[0] is None
+    assert L.parse_reply('{"answer": 1, "why": "x"}') == ({"answer": 1, "why": "x"}, "")
