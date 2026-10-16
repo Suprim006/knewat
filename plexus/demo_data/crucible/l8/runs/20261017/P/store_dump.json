@@ -22597,5 +22597,7285 @@
 "claimed_by": "builder",
 "version": 2
 }
+],
+"wrote_steps": [
+{
+"node": "s01-t01-gather-requirements",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t02-choose-api-version",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t03-design-endpoints",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t04-survey-infra-security",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t05-choose-auth",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t06-write-db-schema",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t08-write-test-plan",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t09-review-spec",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t10-write-docs",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t11-package-release",
+"agent": "crucible",
+"n": 1,
+"at": 1760000000004
+},
+{
+"node": "s01-t01-gather-requirements",
+"agent": "researcher",
+"n": 2,
+"at": 1760000001001
+},
+{
+"node": "8d650da1-c0ba-4df8-a4ed-d395152d89ef",
+"agent": "researcher",
+"n": 3,
+"at": 1760000002001
+},
+{
+"node": "53b2f40f-c283-458e-bf46-9ba0be75323b",
+"agent": "researcher",
+"n": 4,
+"at": 1760000003001
+},
+{
+"node": "t01-gather-requirements",
+"agent": "researcher",
+"n": 4,
+"at": 1760000003001
+},
+{
+"node": "s01-t01-gather-requirements",
+"agent": "researcher",
+"n": 5,
+"at": 1760000003002
+},
+{
+"node": "s01-t02-choose-api-version",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t01-gather-requirements",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t02-choose-api-version",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t03-design-endpoints",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t04-survey-infra-security",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t05-choose-auth",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t06-write-db-schema",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t07-implement-crud-spec",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t08-write-test-plan",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t09-review-spec",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t10-write-docs",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t11-package-release",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t13-reuse-billing-cycle",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t14-ratelimit-spec",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t15-config-matrix",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "t16-release-notes",
+"agent": "planner",
+"n": 2,
+"at": 1760000005001
+},
+{
+"node": "7365830a-623b-404a-9049-c88dbd27a5e2",
+"agent": "planner",
+"n": 3,
+"at": 1760000005002
+},
+{
+"node": "s01-t02-choose-api-version",
+"agent": "planner",
+"n": 4,
+"at": 1760000006001
+},
+{
+"node": "s01-t03-design-endpoints",
+"agent": "builder",
+"n": 2,
+"at": 1760000008001
+},
+{
+"node": "s01-t03-design-endpoints",
+"agent": "researcher",
+"n": 6,
+"at": 1760000012501
+},
+{
+"node": "d4822acb-6bfd-441f-b3af-0e14685f4302",
+"agent": "researcher",
+"n": 7,
+"at": 1760000012502
+},
+{
+"node": "bc9d4ccb-b650-44a9-a65e-4880ec645bfc",
+"agent": "researcher",
+"n": 8,
+"at": 1760000013501
+},
+{
+"node": "s01-t03-design-endpoints",
+"agent": "researcher",
+"n": 9,
+"at": 1760000014501
+},
+{
+"node": "4deddeb0-afd7-43ac-a808-93afc8f21f39",
+"agent": "researcher",
+"n": 9,
+"at": 1760000014501
+},
+{
+"node": "8d226a52-2e0e-41d0-b34b-907fb5ae7edb",
+"agent": "researcher",
+"n": 10,
+"at": 1760000015501
+},
+{
+"node": "fef89144-0f12-4084-ba71-772c876e9405",
+"agent": "researcher",
+"n": 10,
+"at": 1760000015501
+},
+{
+"node": "dcba45c3-1310-429f-991f-a2ac601f2a17",
+"agent": "researcher",
+"n": 11,
+"at": 1760000017501
+},
+{
+"node": "3543f24e-a8a3-4056-9aad-cf49617fb833",
+"agent": "researcher",
+"n": 11,
+"at": 1760000017501
+},
+{
+"node": "7610fc32-99d8-46aa-b5b3-7172d32082c0",
+"agent": "researcher",
+"n": 12,
+"at": 1760000017502
+},
+{
+"node": "9861ef83-b6ee-4056-a50b-a0df432d5108",
+"agent": "planner",
+"n": 6,
+"at": 1760000019501
+},
+{
+"node": "s01-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 2,
+"at": 1760000020501
+},
+{
+"node": "s01-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 4,
+"at": 1760000021501
+},
+{
+"node": "s01-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 7,
+"at": 1760000023501
+},
+{
+"node": "1c1e1ea0-e022-4e49-bd6c-128551132e35",
+"agent": "builder",
+"n": 8,
+"at": 1760000024501
+},
+{
+"node": "s01-t04-survey-infra-security",
+"agent": "researcher",
+"n": 13,
+"at": 1760000026501
+},
+{
+"node": "af9af4a6-a71f-4156-b8ad-9865f3943e38",
+"agent": "researcher",
+"n": 13,
+"at": 1760000026501
+},
+{
+"node": "f0a43133-cad7-42bd-ad3d-118e2edf40db",
+"agent": "researcher",
+"n": 14,
+"at": 1760000027501
+},
+{
+"node": "t01-gather-requirements",
+"agent": "researcher",
+"n": 14,
+"at": 1760000027501
+},
+{
+"node": "24122c34-9bdb-42e3-bc2b-fce3fc3dfeae",
+"agent": "researcher",
+"n": 15,
+"at": 1760000028501
+},
+{
+"node": "s01-t04-survey-infra-security",
+"agent": "researcher",
+"n": 16,
+"at": 1760000028502
+},
+{
+"node": "s01-t05-choose-auth",
+"agent": "planner",
+"n": 7,
+"at": 1760000030501
+},
+{
+"node": "685269a8-a827-4a6b-a09f-576cde0eef19",
+"agent": "planner",
+"n": 9,
+"at": 1760000032501
+},
+{
+"node": "a1c161d2-d17a-4359-8f1b-e5c9f95fcac2",
+"agent": "planner",
+"n": 10,
+"at": 1760000032502
+},
+{
+"node": "s01-t05-choose-auth",
+"agent": "planner",
+"n": 11,
+"at": 1760000033501
+},
+{
+"node": "56f05b19-7d22-4d94-9667-8ca95d8004bd",
+"agent": "planner",
+"n": 12,
+"at": 1760000035501
+},
+{
+"node": "aad3873b-cf73-4331-9af4-7ce7214205d7",
+"agent": "planner",
+"n": 13,
+"at": 1760000035502
+},
+{
+"node": "a4ff5c11-4ca9-4c59-ac4b-868d60568211",
+"agent": "researcher",
+"n": 18,
+"at": 1760000039501
+},
+{
+"node": "8fff884d-aa5e-4bbe-a04a-609ce277ce68",
+"agent": "planner",
+"n": 14,
+"at": 1760000040501
+},
+{
+"node": "s01-t06-write-db-schema",
+"agent": "builder",
+"n": 9,
+"at": 1760000041501
+},
+{
+"node": "c3dce427-ba78-4d9d-9a3f-e699918c09cd",
+"agent": "builder",
+"n": 12,
+"at": 1760000043501
+},
+{
+"node": "s01-t06-write-db-schema",
+"agent": "builder",
+"n": 13,
+"at": 1760000044501
+},
+{
+"node": "s01-t07-implement-crud-spec",
+"agent": "builder",
+"n": 14,
+"at": 1760000046501
+},
+{
+"node": "s01-t07-implement-crud-spec",
+"agent": "builder",
+"n": 17,
+"at": 1760000048501
+},
+{
+"node": "b652200c-fab8-4a03-afdf-64c22bf8f086",
+"agent": "builder",
+"n": 18,
+"at": 1760000049501
+},
+{
+"node": "s01-t08-write-test-plan",
+"agent": "researcher",
+"n": 19,
+"at": 1760000051501
+},
+{
+"node": "s01-t08-write-test-plan",
+"agent": "researcher",
+"n": 21,
+"at": 1760000052501
+},
+{
+"node": "s01-t09-review-spec",
+"agent": "planner",
+"n": 15,
+"at": 1760000054501
+},
+{
+"node": "t02-choose-api-version",
+"agent": "planner",
+"n": 16,
+"at": 1760000054502
+},
+{
+"node": "e5d2c497-c939-4564-886b-6436a42e29aa",
+"agent": "planner",
+"n": 17,
+"at": 1760000055501
+},
+{
+"node": "s01-t09-review-spec",
+"agent": "planner",
+"n": 18,
+"at": 1760000056501
+},
+{
+"node": "b1323b35-887f-4f4c-a395-e4913e788987",
+"agent": "planner",
+"n": 18,
+"at": 1760000056501
+},
+{
+"node": "s01-t10-write-docs",
+"agent": "researcher",
+"n": 22,
+"at": 1760000058501
+},
+{
+"node": "s01-t10-write-docs",
+"agent": "researcher",
+"n": 24,
+"at": 1760000059501
+},
+{
+"node": "s01-t11-package-release",
+"agent": "builder",
+"n": 19,
+"at": 1760000061501
+},
+{
+"node": "s01-t11-package-release",
+"agent": "builder",
+"n": 20,
+"at": 1760000061502
+},
+{
+"node": "6f23e4a7-f775-49d5-9c48-88ed434390f0",
+"agent": "builder",
+"n": 21,
+"at": 1760000062501
+},
+{
+"node": "t03-design-endpoints",
+"agent": "builder",
+"n": 21,
+"at": 1760000062501
+},
+{
+"node": "s02-t01-gather-requirements",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t02-choose-api-version",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t03-design-endpoints",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t04-survey-infra-security",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t05-choose-auth",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t06-write-db-schema",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t08-write-test-plan",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t09-review-spec",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t10-write-docs",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t11-package-release",
+"agent": "crucible",
+"n": 3,
+"at": 1760000068501
+},
+{
+"node": "s02-t01-gather-requirements",
+"agent": "researcher",
+"n": 25,
+"at": 1760000069501
+},
+{
+"node": "749c2b1c-e105-42d7-a72e-0f4beae916c4",
+"agent": "researcher",
+"n": 26,
+"at": 1760000070501
+},
+{
+"node": "d1896092-3756-48bf-89f3-a552aa68eff7",
+"agent": "researcher",
+"n": 27,
+"at": 1760000071501
+},
+{
+"node": "t04-survey-infra-security",
+"agent": "researcher",
+"n": 27,
+"at": 1760000071501
+},
+{
+"node": "s02-t01-gather-requirements",
+"agent": "researcher",
+"n": 28,
+"at": 1760000071502
+},
+{
+"node": "s02-t02-choose-api-version",
+"agent": "planner",
+"n": 19,
+"at": 1760000073501
+},
+{
+"node": "t02-choose-api-version",
+"agent": "planner",
+"n": 19,
+"at": 1760000073501
+},
+{
+"node": "9ebcfc48-3166-45f5-b4d8-f4b84afa95a2",
+"agent": "planner",
+"n": 20,
+"at": 1760000073502
+},
+{
+"node": "s02-t02-choose-api-version",
+"agent": "planner",
+"n": 21,
+"at": 1760000074501
+},
+{
+"node": "s02-t03-design-endpoints",
+"agent": "builder",
+"n": 22,
+"at": 1760000076501
+},
+{
+"node": "s02-t03-design-endpoints",
+"agent": "researcher",
+"n": 29,
+"at": 1760000081001
+},
+{
+"node": "520075b8-5ac9-43f1-863f-17b080a81f94",
+"agent": "researcher",
+"n": 30,
+"at": 1760000081002
+},
+{
+"node": "22cca8a1-f6b0-41fe-a90c-7da7498f5033",
+"agent": "researcher",
+"n": 31,
+"at": 1760000082001
+},
+{
+"node": "s02-t03-design-endpoints",
+"agent": "researcher",
+"n": 32,
+"at": 1760000083001
+},
+{
+"node": "e4a1b092-71e5-4b7a-b8d3-861c786cc511",
+"agent": "researcher",
+"n": 32,
+"at": 1760000083001
+},
+{
+"node": "784e952b-24e1-4720-9ea3-6488a902ebd2",
+"agent": "researcher",
+"n": 33,
+"at": 1760000084001
+},
+{
+"node": "424cd0d2-59e1-4057-a41a-07ea0a0789ae",
+"agent": "researcher",
+"n": 33,
+"at": 1760000084001
+},
+{
+"node": "aece675a-61e9-4169-80e4-091c3441e9cd",
+"agent": "researcher",
+"n": 34,
+"at": 1760000086001
+},
+{
+"node": "494c2fe0-85f2-4179-a670-fdc72960ad19",
+"agent": "researcher",
+"n": 34,
+"at": 1760000086001
+},
+{
+"node": "85a41bf4-cc20-4208-8708-06212a2caccb",
+"agent": "researcher",
+"n": 35,
+"at": 1760000086002
+},
+{
+"node": "a8dff933-ce74-4642-a82e-547980507cf7",
+"agent": "planner",
+"n": 23,
+"at": 1760000088001
+},
+{
+"node": "s02-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 4,
+"at": 1760000089001
+},
+{
+"node": "s02-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 24,
+"at": 1760000090001
+},
+{
+"node": "t03-design-endpoints",
+"agent": "builder",
+"n": 24,
+"at": 1760000090001
+},
+{
+"node": "6847404e-ce37-414d-acdc-86bdb411cc79",
+"agent": "builder",
+"n": 25,
+"at": 1760000090002
+},
+{
+"node": "s02-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 27,
+"at": 1760000092001
+},
+{
+"node": "8e0bcf7e-7a7d-4392-9d4c-046b6b8278c2",
+"agent": "builder",
+"n": 28,
+"at": 1760000093001
+},
+{
+"node": "s02-t04-survey-infra-security",
+"agent": "researcher",
+"n": 36,
+"at": 1760000095001
+},
+{
+"node": "859fa7cd-1423-4abd-8301-12ee860326ed",
+"agent": "researcher",
+"n": 36,
+"at": 1760000095001
+},
+{
+"node": "9e3abdfe-62a2-4f3f-95a7-b7baa01c500b",
+"agent": "researcher",
+"n": 37,
+"at": 1760000096001
+},
+{
+"node": "e413ed02-80a0-4d61-ac45-ce3259821587",
+"agent": "researcher",
+"n": 37,
+"at": 1760000096001
+},
+{
+"node": "95c1471c-0db6-462a-9a34-8e7ef1a30e49",
+"agent": "researcher",
+"n": 38,
+"at": 1760000097001
+},
+{
+"node": "3f4f8336-388a-4a48-88f2-e899068483e9",
+"agent": "researcher",
+"n": 38,
+"at": 1760000097001
+},
+{
+"node": "s02-t04-survey-infra-security",
+"agent": "researcher",
+"n": 39,
+"at": 1760000097002
+},
+{
+"node": "6512e9a0-7711-4377-848e-5165af5cd8a9",
+"agent": "researcher",
+"n": 39,
+"at": 1760000097002
+},
+{
+"node": "s02-t05-choose-auth",
+"agent": "planner",
+"n": 24,
+"at": 1760000099001
+},
+{
+"node": "f97c58e2-5c33-4c0d-975a-fa0ed626d275",
+"agent": "planner",
+"n": 26,
+"at": 1760000101001
+},
+{
+"node": "d43145f6-b1b3-42cf-8d52-36269389cb5c",
+"agent": "planner",
+"n": 27,
+"at": 1760000101002
+},
+{
+"node": "s02-t05-choose-auth",
+"agent": "planner",
+"n": 28,
+"at": 1760000102001
+},
+{
+"node": "e730c92d-5f81-461a-b9e9-6707bcad3904",
+"agent": "planner",
+"n": 29,
+"at": 1760000104001
+},
+{
+"node": "53579b24-b149-4e00-82b5-c1797e51f20b",
+"agent": "planner",
+"n": 30,
+"at": 1760000104002
+},
+{
+"node": "86d95e3d-311d-4ed7-b9af-b896019f7165",
+"agent": "researcher",
+"n": 40,
+"at": 1760000105001
+},
+{
+"node": "63adb368-0976-47a7-bc2e-2fb3d918dadd",
+"agent": "researcher",
+"n": 41,
+"at": 1760000108001
+},
+{
+"node": "85bdc71b-c096-4811-9506-00d2e4de5d6c",
+"agent": "researcher",
+"n": 41,
+"at": 1760000108001
+},
+{
+"node": "ebfa8d5a-1ffe-4c7d-b607-cfa1432d212a",
+"agent": "planner",
+"n": 31,
+"at": 1760000109001
+},
+{
+"node": "s02-t06-write-db-schema",
+"agent": "builder",
+"n": 29,
+"at": 1760000110001
+},
+{
+"node": "c341b878-1ff5-44ce-a854-866e624787e5",
+"agent": "builder",
+"n": 32,
+"at": 1760000112001
+},
+{
+"node": "s02-t06-write-db-schema",
+"agent": "builder",
+"n": 33,
+"at": 1760000113001
+},
+{
+"node": "s02-t07-implement-crud-spec",
+"agent": "builder",
+"n": 34,
+"at": 1760000115001
+},
+{
+"node": "s02-t07-implement-crud-spec",
+"agent": "builder",
+"n": 37,
+"at": 1760000117001
+},
+{
+"node": "0d924306-0e5f-449f-a027-7b1eded3a506",
+"agent": "builder",
+"n": 38,
+"at": 1760000118001
+},
+{
+"node": "s02-t08-write-test-plan",
+"agent": "researcher",
+"n": 42,
+"at": 1760000120001
+},
+{
+"node": "t04-survey-infra-security",
+"agent": "researcher",
+"n": 42,
+"at": 1760000120001
+},
+{
+"node": "s02-t08-write-test-plan",
+"agent": "researcher",
+"n": 44,
+"at": 1760000121001
+},
+{
+"node": "s02-t09-review-spec",
+"agent": "planner",
+"n": 32,
+"at": 1760000123001
+},
+{
+"node": "04e1d7c3-2775-4e23-aa9e-3d843be17e21",
+"agent": "planner",
+"n": 34,
+"at": 1760000124001
+},
+{
+"node": "s02-t09-review-spec",
+"agent": "planner",
+"n": 35,
+"at": 1760000125001
+},
+{
+"node": "s02-t10-write-docs",
+"agent": "researcher",
+"n": 45,
+"at": 1760000127001
+},
+{
+"node": "s02-t10-write-docs",
+"agent": "researcher",
+"n": 47,
+"at": 1760000128001
+},
+{
+"node": "s02-t11-package-release",
+"agent": "builder",
+"n": 39,
+"at": 1760000130001
+},
+{
+"node": "s02-t11-package-release",
+"agent": "builder",
+"n": 40,
+"at": 1760000130002
+},
+{
+"node": "211a1a37-4ab9-4876-a8e6-6ea704c8403e",
+"agent": "builder",
+"n": 41,
+"at": 1760000131001
+},
+{
+"node": "s03-t01-gather-requirements",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t02-choose-api-version",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t03-design-endpoints",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t04-survey-infra-security",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t05-choose-auth",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t06-write-db-schema",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t08-write-test-plan",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t09-review-spec",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t10-write-docs",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t11-package-release",
+"agent": "crucible",
+"n": 5,
+"at": 1760000137001
+},
+{
+"node": "s03-t01-gather-requirements",
+"agent": "researcher",
+"n": 48,
+"at": 1760000138001
+},
+{
+"node": "9346ce53-17af-4be6-9f92-df19fd05d9f8",
+"agent": "researcher",
+"n": 49,
+"at": 1760000139001
+},
+{
+"node": "d78a451a-cafa-4bdb-98e9-a176d9db0a70",
+"agent": "researcher",
+"n": 50,
+"at": 1760000140001
+},
+{
+"node": "s03-t01-gather-requirements",
+"agent": "researcher",
+"n": 51,
+"at": 1760000140002
+},
+{
+"node": "s03-t02-choose-api-version",
+"agent": "planner",
+"n": 36,
+"at": 1760000142001
+},
+{
+"node": "24f14335-2d8c-4571-b58f-062dac905583",
+"agent": "planner",
+"n": 37,
+"at": 1760000142002
+},
+{
+"node": "s03-t02-choose-api-version",
+"agent": "planner",
+"n": 38,
+"at": 1760000143001
+},
+{
+"node": "s03-t03-design-endpoints",
+"agent": "builder",
+"n": 42,
+"at": 1760000145001
+},
+{
+"node": "s03-t03-design-endpoints",
+"agent": "researcher",
+"n": 52,
+"at": 1760000149501
+},
+{
+"node": "s03-t03-design-endpoints",
+"agent": "researcher",
+"n": 55,
+"at": 1760000151501
+},
+{
+"node": "f340bab6-4323-4d76-8887-469ccb7bac99",
+"agent": "researcher",
+"n": 56,
+"at": 1760000152501
+},
+{
+"node": "1f64eba7-4aa0-446d-b180-a5721b14777f",
+"agent": "researcher",
+"n": 57,
+"at": 1760000154501
+},
+{
+"node": "a7ce1fa4-1eb6-4f38-91a8-c282d2475ce9",
+"agent": "planner",
+"n": 40,
+"at": 1760000156501
+},
+{
+"node": "s03-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 6,
+"at": 1760000157501
+},
+{
+"node": "s03-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 44,
+"at": 1760000158501
+},
+{
+"node": "s03-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 47,
+"at": 1760000160501
+},
+{
+"node": "c9efe365-c9c5-4c6f-8f42-7cf7d7f6d20a",
+"agent": "builder",
+"n": 48,
+"at": 1760000161501
+},
+{
+"node": "s03-t04-survey-infra-security",
+"agent": "researcher",
+"n": 59,
+"at": 1760000163501
+},
+{
+"node": "2d23451d-1ec0-481f-8a10-d728aabd3446",
+"agent": "researcher",
+"n": 60,
+"at": 1760000164501
+},
+{
+"node": "f469722b-2753-48c7-835d-044b2a5d7e1c",
+"agent": "researcher",
+"n": 61,
+"at": 1760000165501
+},
+{
+"node": "s03-t04-survey-infra-security",
+"agent": "researcher",
+"n": 62,
+"at": 1760000165502
+},
+{
+"node": "t13-reuse-billing-cycle",
+"agent": "researcher",
+"n": 62,
+"at": 1760000165502
+},
+{
+"node": "s03-t05-choose-auth",
+"agent": "planner",
+"n": 41,
+"at": 1760000167501
+},
+{
+"node": "b2b4f42e-ea14-40e7-8a34-c9d73564e9f9",
+"agent": "planner",
+"n": 43,
+"at": 1760000169501
+},
+{
+"node": "59ce5da9-3044-4bc5-b7ab-ad3ccd3aada5",
+"agent": "planner",
+"n": 44,
+"at": 1760000169502
+},
+{
+"node": "t05-choose-auth",
+"agent": "planner",
+"n": 44,
+"at": 1760000169502
+},
+{
+"node": "s03-t05-choose-auth",
+"agent": "planner",
+"n": 45,
+"at": 1760000170501
+},
+{
+"node": "a2add4de-1c11-45a7-8576-2d2bdf5754aa",
+"agent": "planner",
+"n": 46,
+"at": 1760000172501
+},
+{
+"node": "3e01c229-01b0-4a33-8ed1-54cf44ee7c8b",
+"agent": "planner",
+"n": 47,
+"at": 1760000172502
+},
+{
+"node": "42cb9fbd-feb8-4630-a99c-293a1273a9b6",
+"agent": "researcher",
+"n": 64,
+"at": 1760000176501
+},
+{
+"node": "ccc99226-05d0-449f-90b2-5aa714f1e578",
+"agent": "planner",
+"n": 48,
+"at": 1760000177501
+},
+{
+"node": "068db622-7b31-4e38-8e37-ce0caaaa5184",
+"agent": "planner",
+"n": 48,
+"at": 1760000177501
+},
+{
+"node": "s03-t06-write-db-schema",
+"agent": "builder",
+"n": 49,
+"at": 1760000178501
+},
+{
+"node": "3089c3ec-8a53-49db-8cc9-2050a0b36fbc",
+"agent": "builder",
+"n": 52,
+"at": 1760000180501
+},
+{
+"node": "s03-t06-write-db-schema",
+"agent": "builder",
+"n": 53,
+"at": 1760000181501
+},
+{
+"node": "s03-t07-implement-crud-spec",
+"agent": "builder",
+"n": 54,
+"at": 1760000183501
+},
+{
+"node": "s03-t07-implement-crud-spec",
+"agent": "builder",
+"n": 57,
+"at": 1760000185501
+},
+{
+"node": "a0bc0e6b-9e14-4315-9f5a-b3a42935045f",
+"agent": "builder",
+"n": 58,
+"at": 1760000186501
+},
+{
+"node": "s03-t08-write-test-plan",
+"agent": "researcher",
+"n": 65,
+"at": 1760000188501
+},
+{
+"node": "s03-t08-write-test-plan",
+"agent": "researcher",
+"n": 67,
+"at": 1760000189501
+},
+{
+"node": "s03-t09-review-spec",
+"agent": "planner",
+"n": 49,
+"at": 1760000191501
+},
+{
+"node": "935afdba-d3df-427b-9d89-1f0207d67542",
+"agent": "planner",
+"n": 49,
+"at": 1760000191501
+},
+{
+"node": "t05-choose-auth",
+"agent": "planner",
+"n": 50,
+"at": 1760000191502
+},
+{
+"node": "58773bfe-bcf6-40c1-9f59-b1b591ee9d25",
+"agent": "planner",
+"n": 51,
+"at": 1760000192501
+},
+{
+"node": "s03-t09-review-spec",
+"agent": "planner",
+"n": 52,
+"at": 1760000193501
+},
+{
+"node": "t13-reuse-billing-cycle",
+"agent": "planner",
+"n": 52,
+"at": 1760000193501
+},
+{
+"node": "s03-t10-write-docs",
+"agent": "researcher",
+"n": 68,
+"at": 1760000195501
+},
+{
+"node": "t13-reuse-billing-cycle",
+"agent": "researcher",
+"n": 69,
+"at": 1760000195502
+},
+{
+"node": "s03-t10-write-docs",
+"agent": "researcher",
+"n": 70,
+"at": 1760000196501
+},
+{
+"node": "s03-t11-package-release",
+"agent": "builder",
+"n": 59,
+"at": 1760000198501
+},
+{
+"node": "t06-write-db-schema",
+"agent": "builder",
+"n": 59,
+"at": 1760000198501
+},
+{
+"node": "s03-t11-package-release",
+"agent": "builder",
+"n": 60,
+"at": 1760000198502
+},
+{
+"node": "17d16f0d-f09d-4842-9e1c-7502a4aacd62",
+"agent": "builder",
+"n": 61,
+"at": 1760000199501
+},
+{
+"node": "s04-t01-gather-requirements",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t02-choose-api-version",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t03-design-endpoints",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t04-survey-infra-security",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t05-choose-auth",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t06-write-db-schema",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t08-write-test-plan",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t09-review-spec",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t10-write-docs",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t11-package-release",
+"agent": "crucible",
+"n": 7,
+"at": 1760000205501
+},
+{
+"node": "s04-t01-gather-requirements",
+"agent": "researcher",
+"n": 71,
+"at": 1760000206501
+},
+{
+"node": "t06-write-db-schema",
+"agent": "researcher",
+"n": 71,
+"at": 1760000206501
+},
+{
+"node": "b809f45d-0ffd-42b7-929d-5167a9a063fc",
+"agent": "researcher",
+"n": 72,
+"at": 1760000207501
+},
+{
+"node": "3a054853-c67e-4c57-b4c3-76ecdb86787f",
+"agent": "researcher",
+"n": 73,
+"at": 1760000208501
+},
+{
+"node": "s04-t01-gather-requirements",
+"agent": "researcher",
+"n": 74,
+"at": 1760000208502
+},
+{
+"node": "s04-t02-choose-api-version",
+"agent": "planner",
+"n": 53,
+"at": 1760000210501
+},
+{
+"node": "13da671c-6f27-4e42-b621-eb013ffe8828",
+"agent": "planner",
+"n": 54,
+"at": 1760000210502
+},
+{
+"node": "s04-t02-choose-api-version",
+"agent": "planner",
+"n": 55,
+"at": 1760000211501
+},
+{
+"node": "s04-t03-design-endpoints",
+"agent": "builder",
+"n": 62,
+"at": 1760000213501
+},
+{
+"node": "s04-t03-design-endpoints",
+"agent": "researcher",
+"n": 75,
+"at": 1760000218001
+},
+{
+"node": "t06-write-db-schema",
+"agent": "researcher",
+"n": 75,
+"at": 1760000218001
+},
+{
+"node": "t14-ratelimit-spec",
+"agent": "researcher",
+"n": 77,
+"at": 1760000219001
+},
+{
+"node": "s04-t03-design-endpoints",
+"agent": "researcher",
+"n": 78,
+"at": 1760000220001
+},
+{
+"node": "732d363a-68dd-4c8a-9186-e7f0aba835e7",
+"agent": "researcher",
+"n": 79,
+"at": 1760000221001
+},
+{
+"node": "a3b67681-7f19-4c4e-aed1-58d5042f3095",
+"agent": "researcher",
+"n": 79,
+"at": 1760000221001
+},
+{
+"node": "8f53f92b-3275-4728-aaa7-7d0aa4e29eae",
+"agent": "researcher",
+"n": 80,
+"at": 1760000223001
+},
+{
+"node": "cf1580d8-cc78-4cb6-925c-c1116bc061b8",
+"agent": "researcher",
+"n": 80,
+"at": 1760000223001
+},
+{
+"node": "954d0a86-22f2-461e-9ae7-5d712e6cad34",
+"agent": "researcher",
+"n": 81,
+"at": 1760000223002
+},
+{
+"node": "6ad90e32-e9f6-4dd3-ac2c-3353b2ddb96e",
+"agent": "planner",
+"n": 57,
+"at": 1760000225001
+},
+{
+"node": "s04-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 8,
+"at": 1760000226001
+},
+{
+"node": "s04-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 64,
+"at": 1760000227001
+},
+{
+"node": "s04-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 67,
+"at": 1760000229001
+},
+{
+"node": "2b0e5800-4a9d-4a34-b73c-4a8a02c5dd3e",
+"agent": "builder",
+"n": 68,
+"at": 1760000230001
+},
+{
+"node": "s04-t04-survey-infra-security",
+"agent": "researcher",
+"n": 82,
+"at": 1760000232001
+},
+{
+"node": "73476ed8-5d27-4909-978b-d051d178886f",
+"agent": "researcher",
+"n": 82,
+"at": 1760000232001
+},
+{
+"node": "d62bf232-5fa2-4ed7-8c45-e7149b6255c1",
+"agent": "researcher",
+"n": 83,
+"at": 1760000233001
+},
+{
+"node": "a0f3b316-a78f-445b-82fc-7fec8799a6e0",
+"agent": "researcher",
+"n": 83,
+"at": 1760000233001
+},
+{
+"node": "bba59a91-6cfe-47cb-9f02-cb1c406d472f",
+"agent": "researcher",
+"n": 84,
+"at": 1760000234001
+},
+{
+"node": "6f8c3d6f-db4d-49de-b067-f32120233669",
+"agent": "researcher",
+"n": 84,
+"at": 1760000234001
+},
+{
+"node": "s04-t04-survey-infra-security",
+"agent": "researcher",
+"n": 85,
+"at": 1760000234002
+},
+{
+"node": "s04-t05-choose-auth",
+"agent": "planner",
+"n": 58,
+"at": 1760000236001
+},
+{
+"node": "c946b218-bdf8-41b8-b246-cf9c2b4f1a2e",
+"agent": "planner",
+"n": 60,
+"at": 1760000238001
+},
+{
+"node": "67cd6243-f562-4666-ab6e-209f9fbe0c25",
+"agent": "planner",
+"n": 61,
+"at": 1760000238002
+},
+{
+"node": "s04-t05-choose-auth",
+"agent": "planner",
+"n": 62,
+"at": 1760000239001
+},
+{
+"node": "5057d3ac-78e8-49b4-916e-4590703a812f",
+"agent": "planner",
+"n": 63,
+"at": 1760000241001
+},
+{
+"node": "693a2483-0a59-4d57-80f9-7b207c07709d",
+"agent": "planner",
+"n": 64,
+"at": 1760000241002
+},
+{
+"node": "880f16ff-281b-4042-a56a-9c0118afdc06",
+"agent": "researcher",
+"n": 87,
+"at": 1760000245001
+},
+{
+"node": "f29deac6-1872-4c70-8287-8977c7a7164c",
+"agent": "researcher",
+"n": 87,
+"at": 1760000245001
+},
+{
+"node": "46ab0e83-2041-42ad-9814-26e74bef5b18",
+"agent": "planner",
+"n": 65,
+"at": 1760000246001
+},
+{
+"node": "s04-t06-write-db-schema",
+"agent": "builder",
+"n": 69,
+"at": 1760000247001
+},
+{
+"node": "7dc46467-a39d-4794-b585-48b5211c24d5",
+"agent": "builder",
+"n": 72,
+"at": 1760000249001
+},
+{
+"node": "s04-t06-write-db-schema",
+"agent": "builder",
+"n": 73,
+"at": 1760000250001
+},
+{
+"node": "s04-t07-implement-crud-spec",
+"agent": "builder",
+"n": 74,
+"at": 1760000252001
+},
+{
+"node": "s04-t07-implement-crud-spec",
+"agent": "builder",
+"n": 77,
+"at": 1760000254001
+},
+{
+"node": "bf5fb696-167e-4b6f-96cb-b82efb6dd4e1",
+"agent": "builder",
+"n": 78,
+"at": 1760000255001
+},
+{
+"node": "s04-t08-write-test-plan",
+"agent": "researcher",
+"n": 88,
+"at": 1760000257001
+},
+{
+"node": "s04-t08-write-test-plan",
+"agent": "researcher",
+"n": 90,
+"at": 1760000258001
+},
+{
+"node": "s04-t09-review-spec",
+"agent": "planner",
+"n": 66,
+"at": 1760000260001
+},
+{
+"node": "cf530d39-c9aa-4fc6-93f5-7d5074de635d",
+"agent": "planner",
+"n": 68,
+"at": 1760000261001
+},
+{
+"node": "s04-t09-review-spec",
+"agent": "planner",
+"n": 69,
+"at": 1760000262001
+},
+{
+"node": "s04-t10-write-docs",
+"agent": "researcher",
+"n": 91,
+"at": 1760000264001
+},
+{
+"node": "s04-t10-write-docs",
+"agent": "researcher",
+"n": 93,
+"at": 1760000265001
+},
+{
+"node": "s04-t11-package-release",
+"agent": "builder",
+"n": 79,
+"at": 1760000267001
+},
+{
+"node": "s04-t11-package-release",
+"agent": "builder",
+"n": 80,
+"at": 1760000267002
+},
+{
+"node": "031cc162-2a89-4469-a67c-73e8f1a7cebc",
+"agent": "builder",
+"n": 81,
+"at": 1760000268001
+},
+{
+"node": "s05-t01-gather-requirements",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t02-choose-api-version",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t03-design-endpoints",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t04-survey-infra-security",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t05-choose-auth",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t06-write-db-schema",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t08-write-test-plan",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t09-review-spec",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t10-write-docs",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t11-package-release",
+"agent": "crucible",
+"n": 9,
+"at": 1760000274001
+},
+{
+"node": "s05-t01-gather-requirements",
+"agent": "researcher",
+"n": 94,
+"at": 1760000275001
+},
+{
+"node": "0bfcf409-74d8-4caa-93fb-8554fa1a4b1d",
+"agent": "researcher",
+"n": 95,
+"at": 1760000276001
+},
+{
+"node": "679b4e97-e775-4ff0-b427-26839f188346",
+"agent": "researcher",
+"n": 96,
+"at": 1760000277001
+},
+{
+"node": "s05-t01-gather-requirements",
+"agent": "researcher",
+"n": 97,
+"at": 1760000277002
+},
+{
+"node": "s05-t02-choose-api-version",
+"agent": "planner",
+"n": 70,
+"at": 1760000279001
+},
+{
+"node": "68f9a23f-9959-4ebd-8666-3f712f9258a7",
+"agent": "planner",
+"n": 71,
+"at": 1760000279002
+},
+{
+"node": "s05-t02-choose-api-version",
+"agent": "planner",
+"n": 72,
+"at": 1760000280001
+},
+{
+"node": "s05-t03-design-endpoints",
+"agent": "builder",
+"n": 82,
+"at": 1760000282001
+},
+{
+"node": "s05-t03-design-endpoints",
+"agent": "researcher",
+"n": 98,
+"at": 1760000286501
+},
+{
+"node": "s05-t03-design-endpoints",
+"agent": "researcher",
+"n": 101,
+"at": 1760000288501
+},
+{
+"node": "435ad22d-3ef4-4cc3-8187-4d588d9882ca",
+"agent": "researcher",
+"n": 102,
+"at": 1760000289501
+},
+{
+"node": "59adf282-0c93-4e6d-89f0-51bd2e593131",
+"agent": "researcher",
+"n": 103,
+"at": 1760000291501
+},
+{
+"node": "52f63d97-04ae-4952-b7eb-c193103d8ef9",
+"agent": "planner",
+"n": 74,
+"at": 1760000293501
+},
+{
+"node": "s05-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 10,
+"at": 1760000294501
+},
+{
+"node": "s05-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 84,
+"at": 1760000295501
+},
+{
+"node": "s05-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 87,
+"at": 1760000297501
+},
+{
+"node": "9c060278-6d89-4a22-9514-35084c572079",
+"agent": "builder",
+"n": 88,
+"at": 1760000298501
+},
+{
+"node": "s05-t04-survey-infra-security",
+"agent": "researcher",
+"n": 105,
+"at": 1760000300501
+},
+{
+"node": "f6f98146-95ec-4415-95eb-022be914771e",
+"agent": "researcher",
+"n": 106,
+"at": 1760000301501
+},
+{
+"node": "1bbb148e-8123-4c85-915f-61e754682c69",
+"agent": "researcher",
+"n": 107,
+"at": 1760000302501
+},
+{
+"node": "s05-t04-survey-infra-security",
+"agent": "researcher",
+"n": 108,
+"at": 1760000302502
+},
+{
+"node": "s05-t05-choose-auth",
+"agent": "planner",
+"n": 75,
+"at": 1760000304501
+},
+{
+"node": "b69791f5-2c6b-4c8d-b10f-b6af64454411",
+"agent": "planner",
+"n": 77,
+"at": 1760000306501
+},
+{
+"node": "b0ec679e-216a-4864-bb00-bb2c366bdef0",
+"agent": "planner",
+"n": 78,
+"at": 1760000306502
+},
+{
+"node": "s05-t05-choose-auth",
+"agent": "planner",
+"n": 79,
+"at": 1760000307501
+},
+{
+"node": "cc983960-bb77-4530-a42d-4475048873d1",
+"agent": "planner",
+"n": 80,
+"at": 1760000309501
+},
+{
+"node": "d4f247c1-9a5d-4623-b331-585cb8ff10ea",
+"agent": "planner",
+"n": 81,
+"at": 1760000309502
+},
+{
+"node": "056af3d9-8d64-4c71-ac90-363b354aa793",
+"agent": "researcher",
+"n": 110,
+"at": 1760000313501
+},
+{
+"node": "7a64f850-7d3c-4915-95fb-74c6a75e8008",
+"agent": "planner",
+"n": 82,
+"at": 1760000314501
+},
+{
+"node": "s05-t06-write-db-schema",
+"agent": "builder",
+"n": 89,
+"at": 1760000315501
+},
+{
+"node": "8c53371b-e425-43c5-92a0-3728e910d31f",
+"agent": "builder",
+"n": 92,
+"at": 1760000317501
+},
+{
+"node": "s05-t06-write-db-schema",
+"agent": "builder",
+"n": 93,
+"at": 1760000318501
+},
+{
+"node": "s05-t07-implement-crud-spec",
+"agent": "builder",
+"n": 94,
+"at": 1760000320501
+},
+{
+"node": "t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 94,
+"at": 1760000320501
+},
+{
+"node": "s05-t07-implement-crud-spec",
+"agent": "builder",
+"n": 97,
+"at": 1760000322501
+},
+{
+"node": "t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 97,
+"at": 1760000322501
+},
+{
+"node": "9b3593f1-cd57-42bf-9c3c-6214a0a7036c",
+"agent": "builder",
+"n": 98,
+"at": 1760000323501
+},
+{
+"node": "cb9a0c75-1179-4893-b26d-3eaad0ae04b9",
+"agent": "builder",
+"n": 98,
+"at": 1760000323501
+},
+{
+"node": "s05-t08-write-test-plan",
+"agent": "researcher",
+"n": 111,
+"at": 1760000325501
+},
+{
+"node": "s05-t08-write-test-plan",
+"agent": "researcher",
+"n": 113,
+"at": 1760000326501
+},
+{
+"node": "s05-t09-review-spec",
+"agent": "planner",
+"n": 83,
+"at": 1760000328501
+},
+{
+"node": "e7489f25-700d-4ebf-a833-7fb07d17966e",
+"agent": "planner",
+"n": 85,
+"at": 1760000329501
+},
+{
+"node": "s05-t09-review-spec",
+"agent": "planner",
+"n": 86,
+"at": 1760000330501
+},
+{
+"node": "s05-t10-write-docs",
+"agent": "researcher",
+"n": 114,
+"at": 1760000332501
+},
+{
+"node": "s05-t10-write-docs",
+"agent": "researcher",
+"n": 116,
+"at": 1760000333501
+},
+{
+"node": "s05-t11-package-release",
+"agent": "builder",
+"n": 99,
+"at": 1760000335501
+},
+{
+"node": "s05-t11-package-release",
+"agent": "builder",
+"n": 100,
+"at": 1760000335502
+},
+{
+"node": "6ee88332-ffb9-4d78-b11f-879be39a9004",
+"agent": "builder",
+"n": 101,
+"at": 1760000336501
+},
+{
+"node": "s06-t01-gather-requirements",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t02-choose-api-version",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t03-design-endpoints",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t04-survey-infra-security",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t05-choose-auth",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t06-write-db-schema",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t08-write-test-plan",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t09-review-spec",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t10-write-docs",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t11-package-release",
+"agent": "crucible",
+"n": 11,
+"at": 1760000342501
+},
+{
+"node": "s06-t01-gather-requirements",
+"agent": "researcher",
+"n": 117,
+"at": 1760000343501
+},
+{
+"node": "1d00c7bf-df55-42a3-8991-2e3e7474fbcf",
+"agent": "researcher",
+"n": 118,
+"at": 1760000344501
+},
+{
+"node": "0ae04da0-71f8-4b47-8d80-55c1d3a3793c",
+"agent": "researcher",
+"n": 119,
+"at": 1760000345501
+},
+{
+"node": "s06-t01-gather-requirements",
+"agent": "researcher",
+"n": 120,
+"at": 1760000345502
+},
+{
+"node": "s06-t02-choose-api-version",
+"agent": "planner",
+"n": 87,
+"at": 1760000347501
+},
+{
+"node": "f9de855a-a6f8-43c0-a315-1f11bc7a7cfe",
+"agent": "planner",
+"n": 88,
+"at": 1760000347502
+},
+{
+"node": "s06-t02-choose-api-version",
+"agent": "planner",
+"n": 89,
+"at": 1760000348501
+},
+{
+"node": "s06-t03-design-endpoints",
+"agent": "builder",
+"n": 102,
+"at": 1760000350501
+},
+{
+"node": "s06-t03-design-endpoints",
+"agent": "researcher",
+"n": 121,
+"at": 1760000355001
+},
+{
+"node": "t08-write-test-plan",
+"agent": "researcher",
+"n": 123,
+"at": 1760000356001
+},
+{
+"node": "s06-t03-design-endpoints",
+"agent": "researcher",
+"n": 124,
+"at": 1760000357001
+},
+{
+"node": "29b6a231-9f9b-435d-9de1-c23a7c74c4c1",
+"agent": "researcher",
+"n": 125,
+"at": 1760000358001
+},
+{
+"node": "e0ab9fb0-6518-44fa-a8c7-7df076d3a943",
+"agent": "researcher",
+"n": 125,
+"at": 1760000358001
+},
+{
+"node": "d9c4fa20-6b75-43fc-b454-d3cdc3f16b89",
+"agent": "researcher",
+"n": 126,
+"at": 1760000360001
+},
+{
+"node": "e239264e-53ba-46a6-83e6-e7bf04966985",
+"agent": "researcher",
+"n": 126,
+"at": 1760000360001
+},
+{
+"node": "1f2b4c02-d5cb-4203-9d4f-6751677eefe9",
+"agent": "researcher",
+"n": 127,
+"at": 1760000360002
+},
+{
+"node": "f357c1d1-d765-4d66-8e59-d9182ee35b6b",
+"agent": "planner",
+"n": 91,
+"at": 1760000362001
+},
+{
+"node": "e6a905e2-afbd-472e-8c16-cf70d279bbcf",
+"agent": "planner",
+"n": 91,
+"at": 1760000362001
+},
+{
+"node": "s06-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 12,
+"at": 1760000363001
+},
+{
+"node": "s06-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 104,
+"at": 1760000364001
+},
+{
+"node": "s06-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 107,
+"at": 1760000366001
+},
+{
+"node": "61c3284a-d805-4578-8dc0-2c43fa02e9f3",
+"agent": "builder",
+"n": 108,
+"at": 1760000367001
+},
+{
+"node": "s06-t04-survey-infra-security",
+"agent": "researcher",
+"n": 128,
+"at": 1760000369001
+},
+{
+"node": "85d70baf-2ef4-4964-bae6-7a87ed585538",
+"agent": "researcher",
+"n": 128,
+"at": 1760000369001
+},
+{
+"node": "895db025-5b9a-428a-a891-5ecea4c67060",
+"agent": "researcher",
+"n": 129,
+"at": 1760000370001
+},
+{
+"node": "959f526e-2789-4155-a050-8ee276ec622a",
+"agent": "researcher",
+"n": 129,
+"at": 1760000370001
+},
+{
+"node": "4dd72862-fb50-4825-8475-0c6733ed7730",
+"agent": "researcher",
+"n": 130,
+"at": 1760000371001
+},
+{
+"node": "t08-write-test-plan",
+"agent": "researcher",
+"n": 130,
+"at": 1760000371001
+},
+{
+"node": "s06-t04-survey-infra-security",
+"agent": "researcher",
+"n": 131,
+"at": 1760000371002
+},
+{
+"node": "s06-t05-choose-auth",
+"agent": "planner",
+"n": 92,
+"at": 1760000373001
+},
+{
+"node": "t12-update-endpoints-for-v2",
+"agent": "planner",
+"n": 92,
+"at": 1760000373001
+},
+{
+"node": "bf73334f-7f31-4bae-8710-5bbe14acc541",
+"agent": "planner",
+"n": 94,
+"at": 1760000375001
+},
+{
+"node": "1fb3482b-3a9d-4831-9c77-a4a8488ad034",
+"agent": "planner",
+"n": 95,
+"at": 1760000375002
+},
+{
+"node": "s06-t05-choose-auth",
+"agent": "planner",
+"n": 96,
+"at": 1760000376001
+},
+{
+"node": "25d40b24-ccf1-4057-92b3-bb9e7545c05b",
+"agent": "planner",
+"n": 97,
+"at": 1760000378001
+},
+{
+"node": "0448197c-5064-431e-865f-be81381e8da7",
+"agent": "planner",
+"n": 98,
+"at": 1760000378002
+},
+{
+"node": "3dc07f28-03f5-4f04-ad53-f1e008f4c9da",
+"agent": "researcher",
+"n": 133,
+"at": 1760000382001
+},
+{
+"node": "011c4db7-29fa-42c7-8a8d-32d68aff56f6",
+"agent": "planner",
+"n": 99,
+"at": 1760000383001
+},
+{
+"node": "s06-t06-write-db-schema",
+"agent": "builder",
+"n": 109,
+"at": 1760000384001
+},
+{
+"node": "b349d05c-da9c-41ae-825f-175ef16d0330",
+"agent": "builder",
+"n": 112,
+"at": 1760000386001
+},
+{
+"node": "s06-t06-write-db-schema",
+"agent": "builder",
+"n": 113,
+"at": 1760000387001
+},
+{
+"node": "t07-implement-crud-spec",
+"agent": "builder",
+"n": 113,
+"at": 1760000387001
+},
+{
+"node": "s06-t07-implement-crud-spec",
+"agent": "builder",
+"n": 114,
+"at": 1760000389001
+},
+{
+"node": "t07-implement-crud-spec",
+"agent": "builder",
+"n": 116,
+"at": 1760000390001
+},
+{
+"node": "s06-t07-implement-crud-spec",
+"agent": "builder",
+"n": 117,
+"at": 1760000391001
+},
+{
+"node": "0546e637-b6e8-4a55-b098-94257cabe909",
+"agent": "builder",
+"n": 117,
+"at": 1760000391001
+},
+{
+"node": "5ea98480-dda0-4a14-9903-32096672f230",
+"agent": "builder",
+"n": 118,
+"at": 1760000392001
+},
+{
+"node": "s06-t08-write-test-plan",
+"agent": "researcher",
+"n": 134,
+"at": 1760000394001
+},
+{
+"node": "s06-t08-write-test-plan",
+"agent": "researcher",
+"n": 136,
+"at": 1760000395001
+},
+{
+"node": "s06-t09-review-spec",
+"agent": "planner",
+"n": 100,
+"at": 1760000397001
+},
+{
+"node": "t14-ratelimit-spec",
+"agent": "planner",
+"n": 100,
+"at": 1760000397001
+},
+{
+"node": "23833a43-e47a-4975-bf6e-ffa0d9124a91",
+"agent": "planner",
+"n": 102,
+"at": 1760000398001
+},
+{
+"node": "s06-t09-review-spec",
+"agent": "planner",
+"n": 103,
+"at": 1760000399001
+},
+{
+"node": "8327b4f8-4d0d-425b-a5e1-21d6cd12b465",
+"agent": "planner",
+"n": 103,
+"at": 1760000399001
+},
+{
+"node": "s06-t10-write-docs",
+"agent": "researcher",
+"n": 137,
+"at": 1760000401001
+},
+{
+"node": "t09-review-spec",
+"agent": "researcher",
+"n": 138,
+"at": 1760000401002
+},
+{
+"node": "s06-t10-write-docs",
+"agent": "researcher",
+"n": 139,
+"at": 1760000402001
+},
+{
+"node": "s06-t11-package-release",
+"agent": "builder",
+"n": 119,
+"at": 1760000404001
+},
+{
+"node": "t15-config-matrix",
+"agent": "builder",
+"n": 119,
+"at": 1760000404001
+},
+{
+"node": "s06-t11-package-release",
+"agent": "builder",
+"n": 120,
+"at": 1760000404002
+},
+{
+"node": "9c64371e-6ec1-4e1c-b1ab-181dd8a0c336",
+"agent": "builder",
+"n": 121,
+"at": 1760000405001
+},
+{
+"node": "t15-config-matrix",
+"agent": "builder",
+"n": 121,
+"at": 1760000405001
+},
+{
+"node": "s07-t01-gather-requirements",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t02-choose-api-version",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t03-design-endpoints",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t04-survey-infra-security",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t05-choose-auth",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t06-write-db-schema",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t08-write-test-plan",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t09-review-spec",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t10-write-docs",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t11-package-release",
+"agent": "crucible",
+"n": 13,
+"at": 1760000411001
+},
+{
+"node": "s07-t01-gather-requirements",
+"agent": "researcher",
+"n": 140,
+"at": 1760000412001
+},
+{
+"node": "58b9a65c-8c71-4f4d-8cc6-19d2403fe789",
+"agent": "researcher",
+"n": 141,
+"at": 1760000413001
+},
+{
+"node": "a84b99ba-6103-4bd1-90f7-1ef4a1507b2b",
+"agent": "researcher",
+"n": 142,
+"at": 1760000414001
+},
+{
+"node": "s07-t01-gather-requirements",
+"agent": "researcher",
+"n": 143,
+"at": 1760000414002
+},
+{
+"node": "0deb08ae-37c3-425e-b816-e7700b400c2a",
+"agent": "researcher",
+"n": 143,
+"at": 1760000414002
+},
+{
+"node": "s07-t02-choose-api-version",
+"agent": "planner",
+"n": 104,
+"at": 1760000416001
+},
+{
+"node": "af4ced7a-8303-4803-bfaf-6aad8389f2e9",
+"agent": "planner",
+"n": 105,
+"at": 1760000416002
+},
+{
+"node": "s07-t02-choose-api-version",
+"agent": "planner",
+"n": 106,
+"at": 1760000417001
+},
+{
+"node": "s07-t03-design-endpoints",
+"agent": "builder",
+"n": 122,
+"at": 1760000419001
+},
+{
+"node": "s07-t03-design-endpoints",
+"agent": "researcher",
+"n": 144,
+"at": 1760000423501
+},
+{
+"node": "t09-review-spec",
+"agent": "researcher",
+"n": 144,
+"at": 1760000423501
+},
+{
+"node": "t10-write-docs",
+"agent": "researcher",
+"n": 146,
+"at": 1760000424501
+},
+{
+"node": "s07-t03-design-endpoints",
+"agent": "researcher",
+"n": 147,
+"at": 1760000425501
+},
+{
+"node": "3bfe15e9-6627-431b-865c-a78dd6975598",
+"agent": "researcher",
+"n": 148,
+"at": 1760000426501
+},
+{
+"node": "t10-write-docs",
+"agent": "researcher",
+"n": 148,
+"at": 1760000426501
+},
+{
+"node": "cbca57f0-cb80-4550-b289-f8307d2bb57f",
+"agent": "researcher",
+"n": 149,
+"at": 1760000428501
+},
+{
+"node": "dcd76282-2d44-42c4-8267-80ae90a3c520",
+"agent": "planner",
+"n": 108,
+"at": 1760000430501
+},
+{
+"node": "s07-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 14,
+"at": 1760000431501
+},
+{
+"node": "s07-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 124,
+"at": 1760000432501
+},
+{
+"node": "s07-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 127,
+"at": 1760000434501
+},
+{
+"node": "77ace98b-3797-4648-bbbb-22988217be97",
+"agent": "builder",
+"n": 128,
+"at": 1760000435501
+},
+{
+"node": "s07-t04-survey-infra-security",
+"agent": "researcher",
+"n": 151,
+"at": 1760000437501
+},
+{
+"node": "84d5e883-f4f4-4b1d-92da-60d6167765d0",
+"agent": "researcher",
+"n": 152,
+"at": 1760000438501
+},
+{
+"node": "1c5e5a9b-9b35-4326-b3b4-9d8366635927",
+"agent": "researcher",
+"n": 153,
+"at": 1760000439501
+},
+{
+"node": "s07-t04-survey-infra-security",
+"agent": "researcher",
+"n": 154,
+"at": 1760000439502
+},
+{
+"node": "s07-t05-choose-auth",
+"agent": "planner",
+"n": 109,
+"at": 1760000441501
+},
+{
+"node": "9ed955a6-9c29-462b-825b-578b0b4b7012",
+"agent": "planner",
+"n": 110,
+"at": 1760000441502
+},
+{
+"node": "81804c27-6083-4e0f-87ce-55ffd5ec2c90",
+"agent": "planner",
+"n": 111,
+"at": 1760000443501
+},
+{
+"node": "t14-ratelimit-spec",
+"agent": "planner",
+"n": 111,
+"at": 1760000443501
+},
+{
+"node": "c3ac9df7-cf96-46bb-a33b-68e399c69313",
+"agent": "planner",
+"n": 112,
+"at": 1760000443502
+},
+{
+"node": "s07-t05-choose-auth",
+"agent": "planner",
+"n": 113,
+"at": 1760000444501
+},
+{
+"node": "48659548-fe22-43ae-8453-f2643dba496d",
+"agent": "planner",
+"n": 114,
+"at": 1760000446501
+},
+{
+"node": "9921f96a-e7be-47f9-b2df-0bc43663ee3b",
+"agent": "planner",
+"n": 115,
+"at": 1760000446502
+},
+{
+"node": "c7e9c169-2a0c-470c-aa26-7d32c0937a18",
+"agent": "researcher",
+"n": 156,
+"at": 1760000450501
+},
+{
+"node": "fa5da920-e2b6-48e0-8a1a-40337416207a",
+"agent": "planner",
+"n": 116,
+"at": 1760000451501
+},
+{
+"node": "s07-t06-write-db-schema",
+"agent": "builder",
+"n": 129,
+"at": 1760000452501
+},
+{
+"node": "eb03cd74-7134-42cc-88c8-bcc7bc26c894",
+"agent": "builder",
+"n": 132,
+"at": 1760000454501
+},
+{
+"node": "s07-t06-write-db-schema",
+"agent": "builder",
+"n": 133,
+"at": 1760000455501
+},
+{
+"node": "s07-t07-implement-crud-spec",
+"agent": "builder",
+"n": 134,
+"at": 1760000457501
+},
+{
+"node": "s07-t07-implement-crud-spec",
+"agent": "builder",
+"n": 137,
+"at": 1760000459501
+},
+{
+"node": "7fee484b-8c06-40b5-a651-c208d60be38c",
+"agent": "builder",
+"n": 138,
+"at": 1760000460501
+},
+{
+"node": "s07-t08-write-test-plan",
+"agent": "researcher",
+"n": 157,
+"at": 1760000462501
+},
+{
+"node": "s07-t08-write-test-plan",
+"agent": "researcher",
+"n": 159,
+"at": 1760000463501
+},
+{
+"node": "s07-t09-review-spec",
+"agent": "planner",
+"n": 117,
+"at": 1760000465501
+},
+{
+"node": "84f4819b-88f2-4a20-b663-644c7380fba9",
+"agent": "planner",
+"n": 119,
+"at": 1760000466501
+},
+{
+"node": "s07-t09-review-spec",
+"agent": "planner",
+"n": 120,
+"at": 1760000467501
+},
+{
+"node": "s07-t10-write-docs",
+"agent": "researcher",
+"n": 160,
+"at": 1760000469501
+},
+{
+"node": "s07-t10-write-docs",
+"agent": "researcher",
+"n": 162,
+"at": 1760000470501
+},
+{
+"node": "s07-t11-package-release",
+"agent": "builder",
+"n": 139,
+"at": 1760000472501
+},
+{
+"node": "s07-t11-package-release",
+"agent": "builder",
+"n": 140,
+"at": 1760000472502
+},
+{
+"node": "73270196-36b6-4cb4-9afa-f3fe4def3aef",
+"agent": "builder",
+"n": 141,
+"at": 1760000473501
+},
+{
+"node": "s08-t01-gather-requirements",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t02-choose-api-version",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t03-design-endpoints",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t04-survey-infra-security",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t05-choose-auth",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t06-write-db-schema",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t08-write-test-plan",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t09-review-spec",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t10-write-docs",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t11-package-release",
+"agent": "crucible",
+"n": 15,
+"at": 1760000479501
+},
+{
+"node": "s08-t01-gather-requirements",
+"agent": "researcher",
+"n": 163,
+"at": 1760000480501
+},
+{
+"node": "782be037-549d-40bb-8315-b07f2dcc8b37",
+"agent": "researcher",
+"n": 164,
+"at": 1760000481501
+},
+{
+"node": "87180608-f8af-4385-98fe-044b582e4bbf",
+"agent": "researcher",
+"n": 165,
+"at": 1760000482501
+},
+{
+"node": "s08-t01-gather-requirements",
+"agent": "researcher",
+"n": 166,
+"at": 1760000482502
+},
+{
+"node": "s08-t02-choose-api-version",
+"agent": "planner",
+"n": 121,
+"at": 1760000484501
+},
+{
+"node": "9b5d92cf-3894-48d0-86cf-cafcdf293b67",
+"agent": "planner",
+"n": 122,
+"at": 1760000484502
+},
+{
+"node": "s08-t02-choose-api-version",
+"agent": "planner",
+"n": 123,
+"at": 1760000485501
+},
+{
+"node": "s08-t03-design-endpoints",
+"agent": "builder",
+"n": 142,
+"at": 1760000487501
+},
+{
+"node": "s08-t03-design-endpoints",
+"agent": "researcher",
+"n": 167,
+"at": 1760000492001
+},
+{
+"node": "s08-t03-design-endpoints",
+"agent": "researcher",
+"n": 170,
+"at": 1760000494001
+},
+{
+"node": "f8600da8-45f7-4b25-82de-84870e3d4aaf",
+"agent": "researcher",
+"n": 171,
+"at": 1760000495001
+},
+{
+"node": "de47d1ad-f3a0-448e-8a7d-40553a1cb49c",
+"agent": "researcher",
+"n": 172,
+"at": 1760000497001
+},
+{
+"node": "dea9118e-0941-42a8-8255-62087a37b077",
+"agent": "planner",
+"n": 125,
+"at": 1760000499001
+},
+{
+"node": "s08-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 16,
+"at": 1760000500001
+},
+{
+"node": "s08-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 144,
+"at": 1760000501001
+},
+{
+"node": "s08-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 147,
+"at": 1760000503001
+},
+{
+"node": "8e69e9e1-fcda-4c21-9259-3890b917a094",
+"agent": "builder",
+"n": 148,
+"at": 1760000504001
+},
+{
+"node": "s08-t04-survey-infra-security",
+"agent": "researcher",
+"n": 174,
+"at": 1760000506001
+},
+{
+"node": "9e37c8fd-3f15-48a4-a135-54e8718d4aa3",
+"agent": "researcher",
+"n": 175,
+"at": 1760000507001
+},
+{
+"node": "6f02791a-d318-4015-8edd-888916d125ac",
+"agent": "researcher",
+"n": 176,
+"at": 1760000508001
+},
+{
+"node": "s08-t04-survey-infra-security",
+"agent": "researcher",
+"n": 177,
+"at": 1760000508002
+},
+{
+"node": "s08-t05-choose-auth",
+"agent": "planner",
+"n": 126,
+"at": 1760000510001
+},
+{
+"node": "287558f1-321e-4f8c-b67a-5cd1708e5720",
+"agent": "planner",
+"n": 128,
+"at": 1760000512001
+},
+{
+"node": "38ae9723-52d4-4676-80b6-af7dbbe9e2fe",
+"agent": "planner",
+"n": 129,
+"at": 1760000512002
+},
+{
+"node": "s08-t05-choose-auth",
+"agent": "planner",
+"n": 130,
+"at": 1760000513001
+},
+{
+"node": "7489d3d2-74fd-431d-a01f-80176edf6064",
+"agent": "planner",
+"n": 131,
+"at": 1760000515001
+},
+{
+"node": "27ab786f-148d-442a-8742-bece7b09cecc",
+"agent": "planner",
+"n": 132,
+"at": 1760000515002
+},
+{
+"node": "t09-review-spec",
+"agent": "planner",
+"n": 132,
+"at": 1760000515002
+},
+{
+"node": "a9fe8343-775a-4020-963f-4955cb69312a",
+"agent": "researcher",
+"n": 179,
+"at": 1760000519001
+},
+{
+"node": "3bef8623-0238-446c-ba70-d7e64b2da4a1",
+"agent": "planner",
+"n": 133,
+"at": 1760000520001
+},
+{
+"node": "s08-t06-write-db-schema",
+"agent": "builder",
+"n": 149,
+"at": 1760000521001
+},
+{
+"node": "t11-package-release",
+"agent": "builder",
+"n": 150,
+"at": 1760000521002
+},
+{
+"node": "6275505d-f8c4-4b05-b679-6fa8b21998c2",
+"agent": "builder",
+"n": 152,
+"at": 1760000523001
+},
+{
+"node": "t11-package-release",
+"agent": "builder",
+"n": 152,
+"at": 1760000523001
+},
+{
+"node": "s08-t06-write-db-schema",
+"agent": "builder",
+"n": 153,
+"at": 1760000524001
+},
+{
+"node": "e4909b16-3ffd-4d3a-8612-7d12e52c195f",
+"agent": "builder",
+"n": 153,
+"at": 1760000524001
+},
+{
+"node": "s08-t07-implement-crud-spec",
+"agent": "builder",
+"n": 154,
+"at": 1760000526001
+},
+{
+"node": "s08-t07-implement-crud-spec",
+"agent": "builder",
+"n": 157,
+"at": 1760000528001
+},
+{
+"node": "2e38cc59-c631-453b-be22-2de6ea78a5c1",
+"agent": "builder",
+"n": 158,
+"at": 1760000529001
+},
+{
+"node": "s08-t08-write-test-plan",
+"agent": "researcher",
+"n": 180,
+"at": 1760000531001
+},
+{
+"node": "s08-t08-write-test-plan",
+"agent": "researcher",
+"n": 182,
+"at": 1760000532001
+},
+{
+"node": "s08-t09-review-spec",
+"agent": "planner",
+"n": 134,
+"at": 1760000534001
+},
+{
+"node": "a7f4c184-4ed4-41bb-b373-34fb62c28c90",
+"agent": "planner",
+"n": 136,
+"at": 1760000535001
+},
+{
+"node": "4edda2e4-87ea-441d-9bbe-dac333897113",
+"agent": "planner",
+"n": 136,
+"at": 1760000535001
+},
+{
+"node": "s08-t09-review-spec",
+"agent": "planner",
+"n": 137,
+"at": 1760000536001
+},
+{
+"node": "s08-t10-write-docs",
+"agent": "researcher",
+"n": 183,
+"at": 1760000538001
+},
+{
+"node": "s08-t10-write-docs",
+"agent": "researcher",
+"n": 185,
+"at": 1760000539001
+},
+{
+"node": "s08-t11-package-release",
+"agent": "builder",
+"n": 159,
+"at": 1760000541001
+},
+{
+"node": "s08-t11-package-release",
+"agent": "builder",
+"n": 160,
+"at": 1760000541002
+},
+{
+"node": "597bb27a-355d-4cdd-800b-1f45e096157f",
+"agent": "builder",
+"n": 161,
+"at": 1760000542001
+},
+{
+"node": "s09-t01-gather-requirements",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t02-choose-api-version",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t03-design-endpoints",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t04-survey-infra-security",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t05-choose-auth",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t06-write-db-schema",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t08-write-test-plan",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t09-review-spec",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t10-write-docs",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t11-package-release",
+"agent": "crucible",
+"n": 17,
+"at": 1760000548001
+},
+{
+"node": "s09-t01-gather-requirements",
+"agent": "researcher",
+"n": 186,
+"at": 1760000549001
+},
+{
+"node": "9c334796-efa7-42d3-817c-515210e6862f",
+"agent": "researcher",
+"n": 187,
+"at": 1760000550001
+},
+{
+"node": "1135aa26-76c9-41a7-bf1f-f0d2bf010ffd",
+"agent": "researcher",
+"n": 188,
+"at": 1760000551001
+},
+{
+"node": "s09-t01-gather-requirements",
+"agent": "researcher",
+"n": 189,
+"at": 1760000551002
+},
+{
+"node": "s09-t02-choose-api-version",
+"agent": "planner",
+"n": 138,
+"at": 1760000553001
+},
+{
+"node": "93535e46-bf66-4a17-8aa7-abee7d4b4e16",
+"agent": "planner",
+"n": 139,
+"at": 1760000553002
+},
+{
+"node": "s09-t02-choose-api-version",
+"agent": "planner",
+"n": 140,
+"at": 1760000554001
+},
+{
+"node": "s09-t03-design-endpoints",
+"agent": "builder",
+"n": 162,
+"at": 1760000556001
+},
+{
+"node": "s09-t03-design-endpoints",
+"agent": "researcher",
+"n": 190,
+"at": 1760000560501
+},
+{
+"node": "s09-t03-design-endpoints",
+"agent": "researcher",
+"n": 193,
+"at": 1760000562501
+},
+{
+"node": "92b64e3f-bf62-4775-97f3-79b37e9498b6",
+"agent": "researcher",
+"n": 194,
+"at": 1760000563501
+},
+{
+"node": "39f67178-3cad-4347-b65b-27a32261e9c4",
+"agent": "researcher",
+"n": 195,
+"at": 1760000565501
+},
+{
+"node": "7fa396d0-566f-4224-8d44-cd773f70f3fb",
+"agent": "planner",
+"n": 142,
+"at": 1760000567501
+},
+{
+"node": "s09-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 18,
+"at": 1760000568501
+},
+{
+"node": "s09-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 164,
+"at": 1760000569501
+},
+{
+"node": "s09-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 167,
+"at": 1760000571501
+},
+{
+"node": "fc0c9046-060e-46a6-85cb-41e5bcd8cbbe",
+"agent": "builder",
+"n": 168,
+"at": 1760000572501
+},
+{
+"node": "s09-t04-survey-infra-security",
+"agent": "researcher",
+"n": 197,
+"at": 1760000574501
+},
+{
+"node": "ecff1a8a-e4d0-4e26-b6d0-fc8d2c387a10",
+"agent": "researcher",
+"n": 198,
+"at": 1760000575501
+},
+{
+"node": "a14cd48a-0836-4409-819e-d1561241ddf0",
+"agent": "researcher",
+"n": 199,
+"at": 1760000576501
+},
+{
+"node": "s09-t04-survey-infra-security",
+"agent": "researcher",
+"n": 200,
+"at": 1760000576502
+},
+{
+"node": "s09-t05-choose-auth",
+"agent": "planner",
+"n": 143,
+"at": 1760000578501
+},
+{
+"node": "68206cba-81f2-4296-bce3-5d7ebe41c416",
+"agent": "planner",
+"n": 145,
+"at": 1760000580501
+},
+{
+"node": "acc7afe2-160b-40f6-bb3f-452a136ca480",
+"agent": "planner",
+"n": 146,
+"at": 1760000580502
+},
+{
+"node": "s09-t05-choose-auth",
+"agent": "planner",
+"n": 147,
+"at": 1760000581501
+},
+{
+"node": "c8caafa8-41c8-40c1-a0ef-dfe083c899c2",
+"agent": "planner",
+"n": 148,
+"at": 1760000583501
+},
+{
+"node": "63631176-2365-4851-a9f7-84aa1fb69dde",
+"agent": "planner",
+"n": 149,
+"at": 1760000583502
+},
+{
+"node": "de68d22c-f66b-4536-8b91-aee52f97b9b7",
+"agent": "researcher",
+"n": 202,
+"at": 1760000587501
+},
+{
+"node": "55e4bc23-1456-4fd5-a923-6ee386f62ff7",
+"agent": "planner",
+"n": 150,
+"at": 1760000588501
+},
+{
+"node": "s09-t06-write-db-schema",
+"agent": "builder",
+"n": 169,
+"at": 1760000589501
+},
+{
+"node": "68e5be9c-2d1a-4de0-b5cb-fa25814b49a4",
+"agent": "builder",
+"n": 172,
+"at": 1760000591501
+},
+{
+"node": "s09-t06-write-db-schema",
+"agent": "builder",
+"n": 173,
+"at": 1760000592501
+},
+{
+"node": "s09-t07-implement-crud-spec",
+"agent": "builder",
+"n": 174,
+"at": 1760000594501
+},
+{
+"node": "s09-t07-implement-crud-spec",
+"agent": "builder",
+"n": 177,
+"at": 1760000596501
+},
+{
+"node": "31042b21-a47b-4d5a-b46a-a2052de4815f",
+"agent": "builder",
+"n": 178,
+"at": 1760000597501
+},
+{
+"node": "s09-t08-write-test-plan",
+"agent": "researcher",
+"n": 203,
+"at": 1760000599501
+},
+{
+"node": "s09-t08-write-test-plan",
+"agent": "researcher",
+"n": 205,
+"at": 1760000600501
+},
+{
+"node": "s09-t09-review-spec",
+"agent": "planner",
+"n": 151,
+"at": 1760000602501
+},
+{
+"node": "7bd99659-3eb1-49f5-b865-363bf60619d7",
+"agent": "planner",
+"n": 153,
+"at": 1760000603501
+},
+{
+"node": "s09-t09-review-spec",
+"agent": "planner",
+"n": 154,
+"at": 1760000604501
+},
+{
+"node": "s09-t10-write-docs",
+"agent": "researcher",
+"n": 206,
+"at": 1760000606501
+},
+{
+"node": "s09-t10-write-docs",
+"agent": "researcher",
+"n": 208,
+"at": 1760000607501
+},
+{
+"node": "s09-t11-package-release",
+"agent": "builder",
+"n": 179,
+"at": 1760000609501
+},
+{
+"node": "s09-t11-package-release",
+"agent": "builder",
+"n": 180,
+"at": 1760000609502
+},
+{
+"node": "f80eb33b-f15c-4276-bd0e-cd6885272391",
+"agent": "builder",
+"n": 181,
+"at": 1760000610501
+},
+{
+"node": "s10-t01-gather-requirements",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t02-choose-api-version",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t03-design-endpoints",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t04-survey-infra-security",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t05-choose-auth",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t06-write-db-schema",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t08-write-test-plan",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t09-review-spec",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t10-write-docs",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t11-package-release",
+"agent": "crucible",
+"n": 19,
+"at": 1760000616501
+},
+{
+"node": "s10-t01-gather-requirements",
+"agent": "researcher",
+"n": 209,
+"at": 1760000617501
+},
+{
+"node": "fb679c69-8d21-42aa-b853-551f01155a5b",
+"agent": "researcher",
+"n": 210,
+"at": 1760000618501
+},
+{
+"node": "d5ce2df5-5d29-4589-b59f-f36f532960d1",
+"agent": "researcher",
+"n": 211,
+"at": 1760000619501
+},
+{
+"node": "s10-t01-gather-requirements",
+"agent": "researcher",
+"n": 212,
+"at": 1760000619502
+},
+{
+"node": "s10-t02-choose-api-version",
+"agent": "planner",
+"n": 155,
+"at": 1760000621501
+},
+{
+"node": "08c9babb-17ae-487e-bd9d-fd381a31f8f2",
+"agent": "planner",
+"n": 156,
+"at": 1760000621502
+},
+{
+"node": "s10-t02-choose-api-version",
+"agent": "planner",
+"n": 157,
+"at": 1760000622501
+},
+{
+"node": "s10-t03-design-endpoints",
+"agent": "builder",
+"n": 182,
+"at": 1760000624501
+},
+{
+"node": "s10-t03-design-endpoints",
+"agent": "researcher",
+"n": 213,
+"at": 1760000629001
+},
+{
+"node": "s10-t03-design-endpoints",
+"agent": "researcher",
+"n": 216,
+"at": 1760000631001
+},
+{
+"node": "c317a705-bcd5-43ac-966d-c7758fc412dc",
+"agent": "researcher",
+"n": 217,
+"at": 1760000632001
+},
+{
+"node": "7d960cb2-d212-4922-907f-3baab8b1c9c0",
+"agent": "researcher",
+"n": 218,
+"at": 1760000634001
+},
+{
+"node": "b10ba3ae-2f6d-4b45-9a6b-037e78e778b5",
+"agent": "planner",
+"n": 159,
+"at": 1760000636001
+},
+{
+"node": "s10-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 20,
+"at": 1760000637001
+},
+{
+"node": "s10-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 184,
+"at": 1760000638001
+},
+{
+"node": "s10-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 187,
+"at": 1760000640001
+},
+{
+"node": "ecf0fe1f-00ce-44ea-b0fe-f8da5ce08d08",
+"agent": "builder",
+"n": 188,
+"at": 1760000641001
+},
+{
+"node": "s10-t04-survey-infra-security",
+"agent": "researcher",
+"n": 220,
+"at": 1760000643001
+},
+{
+"node": "fcc4bccc-8594-47a0-ae6f-fa6286962381",
+"agent": "researcher",
+"n": 221,
+"at": 1760000644001
+},
+{
+"node": "09d75ee2-a9b4-476a-9676-e48a929c67e2",
+"agent": "researcher",
+"n": 222,
+"at": 1760000645001
+},
+{
+"node": "s10-t04-survey-infra-security",
+"agent": "researcher",
+"n": 223,
+"at": 1760000645002
+},
+{
+"node": "s10-t05-choose-auth",
+"agent": "planner",
+"n": 160,
+"at": 1760000647001
+},
+{
+"node": "9e4e06ef-a3a0-4399-bcca-8d670469284f",
+"agent": "planner",
+"n": 162,
+"at": 1760000649001
+},
+{
+"node": "24f3e19f-4823-4887-8171-0cb0f7fbe8d1",
+"agent": "planner",
+"n": 163,
+"at": 1760000649002
+},
+{
+"node": "s10-t05-choose-auth",
+"agent": "planner",
+"n": 164,
+"at": 1760000650001
+},
+{
+"node": "1202dd08-86ab-4e2d-928d-9b65d7338e34",
+"agent": "planner",
+"n": 165,
+"at": 1760000652001
+},
+{
+"node": "248191c3-b82b-432e-8cd3-4cc5163532d2",
+"agent": "planner",
+"n": 166,
+"at": 1760000652002
+},
+{
+"node": "73a50911-6da9-4f44-94b4-4cc1a4dd295b",
+"agent": "researcher",
+"n": 225,
+"at": 1760000656001
+},
+{
+"node": "474ff13d-df6d-4bc8-98b9-5a698152d324",
+"agent": "planner",
+"n": 167,
+"at": 1760000657001
+},
+{
+"node": "s10-t06-write-db-schema",
+"agent": "builder",
+"n": 189,
+"at": 1760000658001
+},
+{
+"node": "8ae87d46-bc17-4144-93d4-be68f6302703",
+"agent": "builder",
+"n": 192,
+"at": 1760000660001
+},
+{
+"node": "s10-t06-write-db-schema",
+"agent": "builder",
+"n": 193,
+"at": 1760000661001
+},
+{
+"node": "s10-t07-implement-crud-spec",
+"agent": "builder",
+"n": 194,
+"at": 1760000663001
+},
+{
+"node": "s10-t07-implement-crud-spec",
+"agent": "builder",
+"n": 197,
+"at": 1760000665001
+},
+{
+"node": "2b542fd6-4091-4edc-8750-1a6a8505018d",
+"agent": "builder",
+"n": 198,
+"at": 1760000666001
+},
+{
+"node": "s10-t08-write-test-plan",
+"agent": "researcher",
+"n": 226,
+"at": 1760000668001
+},
+{
+"node": "s10-t08-write-test-plan",
+"agent": "researcher",
+"n": 228,
+"at": 1760000669001
+},
+{
+"node": "s10-t09-review-spec",
+"agent": "planner",
+"n": 168,
+"at": 1760000671001
+},
+{
+"node": "4d187610-8967-41d9-a311-30ad325a3136",
+"agent": "planner",
+"n": 170,
+"at": 1760000672001
+},
+{
+"node": "s10-t09-review-spec",
+"agent": "planner",
+"n": 171,
+"at": 1760000673001
+},
+{
+"node": "s10-t10-write-docs",
+"agent": "researcher",
+"n": 229,
+"at": 1760000675001
+},
+{
+"node": "s10-t10-write-docs",
+"agent": "researcher",
+"n": 231,
+"at": 1760000676001
+},
+{
+"node": "s10-t11-package-release",
+"agent": "builder",
+"n": 199,
+"at": 1760000678001
+},
+{
+"node": "s10-t11-package-release",
+"agent": "builder",
+"n": 200,
+"at": 1760000678002
+},
+{
+"node": "699e51f1-841f-4672-9543-4a37b2eaae85",
+"agent": "builder",
+"n": 201,
+"at": 1760000679001
+},
+{
+"node": "s11-t01-gather-requirements",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t02-choose-api-version",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t03-design-endpoints",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t04-survey-infra-security",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t05-choose-auth",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t06-write-db-schema",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t08-write-test-plan",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t09-review-spec",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t10-write-docs",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t11-package-release",
+"agent": "crucible",
+"n": 21,
+"at": 1760000685001
+},
+{
+"node": "s11-t01-gather-requirements",
+"agent": "researcher",
+"n": 232,
+"at": 1760000686001
+},
+{
+"node": "02d77afe-2674-4a16-be30-a3c3fff5f57a",
+"agent": "researcher",
+"n": 233,
+"at": 1760000687001
+},
+{
+"node": "b79594ff-7f5b-4b80-8353-317df0ff4732",
+"agent": "researcher",
+"n": 234,
+"at": 1760000688001
+},
+{
+"node": "s11-t01-gather-requirements",
+"agent": "researcher",
+"n": 235,
+"at": 1760000688002
+},
+{
+"node": "s11-t02-choose-api-version",
+"agent": "planner",
+"n": 172,
+"at": 1760000690001
+},
+{
+"node": "2f17fcb5-29fd-48d0-9352-4989647f5079",
+"agent": "planner",
+"n": 173,
+"at": 1760000690002
+},
+{
+"node": "s11-t02-choose-api-version",
+"agent": "planner",
+"n": 174,
+"at": 1760000691001
+},
+{
+"node": "s11-t03-design-endpoints",
+"agent": "builder",
+"n": 202,
+"at": 1760000693001
+},
+{
+"node": "s11-t03-design-endpoints",
+"agent": "researcher",
+"n": 236,
+"at": 1760000697501
+},
+{
+"node": "s11-t03-design-endpoints",
+"agent": "researcher",
+"n": 239,
+"at": 1760000699501
+},
+{
+"node": "4fc27903-e992-4288-9411-1bf093ff633e",
+"agent": "researcher",
+"n": 240,
+"at": 1760000700501
+},
+{
+"node": "662329a6-597f-4059-9aef-e3123b6e33dc",
+"agent": "researcher",
+"n": 241,
+"at": 1760000702501
+},
+{
+"node": "47f7118d-6160-43e6-82d0-a9f370a07d1f",
+"agent": "planner",
+"n": 176,
+"at": 1760000704501
+},
+{
+"node": "s11-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 22,
+"at": 1760000705501
+},
+{
+"node": "s11-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 204,
+"at": 1760000706501
+},
+{
+"node": "s11-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 207,
+"at": 1760000708501
+},
+{
+"node": "5364dee5-d0ed-4139-9788-b2530c244277",
+"agent": "builder",
+"n": 208,
+"at": 1760000709501
+},
+{
+"node": "s11-t04-survey-infra-security",
+"agent": "researcher",
+"n": 243,
+"at": 1760000711501
+},
+{
+"node": "afce086b-d013-4946-96f7-be69f1e8a214",
+"agent": "researcher",
+"n": 244,
+"at": 1760000712501
+},
+{
+"node": "60a8a807-d110-405c-b6cd-2299ec72a76f",
+"agent": "researcher",
+"n": 245,
+"at": 1760000713501
+},
+{
+"node": "s11-t04-survey-infra-security",
+"agent": "researcher",
+"n": 246,
+"at": 1760000713502
+},
+{
+"node": "s11-t05-choose-auth",
+"agent": "planner",
+"n": 177,
+"at": 1760000715501
+},
+{
+"node": "2d5c0d94-b5bb-41f1-a4a4-00b02b67bbd7",
+"agent": "planner",
+"n": 179,
+"at": 1760000717501
+},
+{
+"node": "2ce1713c-17c2-4439-85e6-db0b66b7ecda",
+"agent": "planner",
+"n": 180,
+"at": 1760000717502
+},
+{
+"node": "s11-t05-choose-auth",
+"agent": "planner",
+"n": 181,
+"at": 1760000718501
+},
+{
+"node": "e983b1a5-3803-4ef0-bd35-a745a73ae523",
+"agent": "planner",
+"n": 182,
+"at": 1760000720501
+},
+{
+"node": "c118675c-af15-4362-81d8-bd3a7f35a3ec",
+"agent": "planner",
+"n": 183,
+"at": 1760000720502
+},
+{
+"node": "2d12d2bc-0607-4291-a036-0b0eccc68676",
+"agent": "researcher",
+"n": 248,
+"at": 1760000724501
+},
+{
+"node": "79c8115d-6c8b-44d8-a511-7a84d9a0603b",
+"agent": "planner",
+"n": 184,
+"at": 1760000725501
+},
+{
+"node": "s11-t06-write-db-schema",
+"agent": "builder",
+"n": 209,
+"at": 1760000726501
+},
+{
+"node": "e5e54bbc-74f5-43a4-b8da-52cf179d7ec8",
+"agent": "builder",
+"n": 212,
+"at": 1760000728501
+},
+{
+"node": "s11-t06-write-db-schema",
+"agent": "builder",
+"n": 213,
+"at": 1760000729501
+},
+{
+"node": "s11-t07-implement-crud-spec",
+"agent": "builder",
+"n": 214,
+"at": 1760000731501
+},
+{
+"node": "s11-t07-implement-crud-spec",
+"agent": "builder",
+"n": 217,
+"at": 1760000733501
+},
+{
+"node": "cf02885b-ff4d-4bbe-a342-81bb7a00f0d8",
+"agent": "builder",
+"n": 218,
+"at": 1760000734501
+},
+{
+"node": "s11-t08-write-test-plan",
+"agent": "researcher",
+"n": 249,
+"at": 1760000736501
+},
+{
+"node": "s11-t08-write-test-plan",
+"agent": "researcher",
+"n": 251,
+"at": 1760000737501
+},
+{
+"node": "s11-t09-review-spec",
+"agent": "planner",
+"n": 185,
+"at": 1760000739501
+},
+{
+"node": "f2011f80-2f58-468b-a87f-88eebac372b2",
+"agent": "planner",
+"n": 187,
+"at": 1760000740501
+},
+{
+"node": "s11-t09-review-spec",
+"agent": "planner",
+"n": 188,
+"at": 1760000741501
+},
+{
+"node": "s11-t10-write-docs",
+"agent": "researcher",
+"n": 252,
+"at": 1760000743501
+},
+{
+"node": "s11-t10-write-docs",
+"agent": "researcher",
+"n": 254,
+"at": 1760000744501
+},
+{
+"node": "s11-t11-package-release",
+"agent": "builder",
+"n": 219,
+"at": 1760000746501
+},
+{
+"node": "s11-t11-package-release",
+"agent": "builder",
+"n": 220,
+"at": 1760000746502
+},
+{
+"node": "b398f296-8d19-4e8f-b380-257523d52fd1",
+"agent": "builder",
+"n": 221,
+"at": 1760000747501
+},
+{
+"node": "s12-t01-gather-requirements",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t02-choose-api-version",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t03-design-endpoints",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t04-survey-infra-security",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t05-choose-auth",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t06-write-db-schema",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t08-write-test-plan",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t09-review-spec",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t10-write-docs",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t11-package-release",
+"agent": "crucible",
+"n": 23,
+"at": 1760000753501
+},
+{
+"node": "s12-t01-gather-requirements",
+"agent": "researcher",
+"n": 255,
+"at": 1760000754501
+},
+{
+"node": "6a456847-38ff-49a0-ac75-00b0592c7e5f",
+"agent": "researcher",
+"n": 256,
+"at": 1760000755501
+},
+{
+"node": "6c0d4084-621c-479e-a177-a4b5b42e925e",
+"agent": "researcher",
+"n": 257,
+"at": 1760000756501
+},
+{
+"node": "s12-t01-gather-requirements",
+"agent": "researcher",
+"n": 258,
+"at": 1760000756502
+},
+{
+"node": "s12-t02-choose-api-version",
+"agent": "planner",
+"n": 189,
+"at": 1760000758501
+},
+{
+"node": "49eb1d9b-1984-49db-9b3d-c6b9aef9fc04",
+"agent": "planner",
+"n": 190,
+"at": 1760000758502
+},
+{
+"node": "s12-t02-choose-api-version",
+"agent": "planner",
+"n": 191,
+"at": 1760000759501
+},
+{
+"node": "s12-t03-design-endpoints",
+"agent": "builder",
+"n": 222,
+"at": 1760000761501
+},
+{
+"node": "s12-t03-design-endpoints",
+"agent": "researcher",
+"n": 259,
+"at": 1760000766001
+},
+{
+"node": "s12-t03-design-endpoints",
+"agent": "researcher",
+"n": 262,
+"at": 1760000768001
+},
+{
+"node": "9650dfba-2624-410c-8deb-d5c733bce360",
+"agent": "researcher",
+"n": 263,
+"at": 1760000769001
+},
+{
+"node": "c8915b87-badf-494c-b9b1-30a8f0ff670d",
+"agent": "researcher",
+"n": 264,
+"at": 1760000771001
+},
+{
+"node": "5b599ee6-904b-4214-85a7-a6c251fe780f",
+"agent": "planner",
+"n": 193,
+"at": 1760000773001
+},
+{
+"node": "s12-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 24,
+"at": 1760000774001
+},
+{
+"node": "s12-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 224,
+"at": 1760000775001
+},
+{
+"node": "s12-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 227,
+"at": 1760000777001
+},
+{
+"node": "63bb12d3-069b-48ac-91d4-b33f59c910fa",
+"agent": "builder",
+"n": 228,
+"at": 1760000778001
+},
+{
+"node": "s12-t04-survey-infra-security",
+"agent": "researcher",
+"n": 266,
+"at": 1760000780001
+},
+{
+"node": "6551a76b-5620-4b07-9b80-207a21fae3db",
+"agent": "researcher",
+"n": 267,
+"at": 1760000781001
+},
+{
+"node": "9a5e0ae6-d318-40cf-9550-112b12e39826",
+"agent": "researcher",
+"n": 268,
+"at": 1760000782001
+},
+{
+"node": "s12-t04-survey-infra-security",
+"agent": "researcher",
+"n": 269,
+"at": 1760000782002
+},
+{
+"node": "s12-t05-choose-auth",
+"agent": "planner",
+"n": 194,
+"at": 1760000784001
+},
+{
+"node": "b2910906-c5b2-4020-b3b3-7a58dd3b38dd",
+"agent": "planner",
+"n": 196,
+"at": 1760000786001
+},
+{
+"node": "42226c89-1931-4fb6-b0be-39aa47f25376",
+"agent": "planner",
+"n": 197,
+"at": 1760000786002
+},
+{
+"node": "s12-t05-choose-auth",
+"agent": "planner",
+"n": 198,
+"at": 1760000787001
+},
+{
+"node": "f7c7b5bf-c75c-4596-a72e-6a7622f733a6",
+"agent": "planner",
+"n": 199,
+"at": 1760000789001
+},
+{
+"node": "62ae5102-13c0-4687-871a-8d7ba7da2b71",
+"agent": "planner",
+"n": 200,
+"at": 1760000789002
+},
+{
+"node": "e53b344a-c7ed-4253-b9d5-7df8bc4d78ca",
+"agent": "researcher",
+"n": 271,
+"at": 1760000793001
+},
+{
+"node": "03860adc-269f-49fe-95e8-8cc0b6a28105",
+"agent": "planner",
+"n": 201,
+"at": 1760000794001
+},
+{
+"node": "s12-t06-write-db-schema",
+"agent": "builder",
+"n": 229,
+"at": 1760000795001
+},
+{
+"node": "fc165eb3-7110-4d84-8759-c57b0563a7b5",
+"agent": "builder",
+"n": 232,
+"at": 1760000797001
+},
+{
+"node": "s12-t06-write-db-schema",
+"agent": "builder",
+"n": 233,
+"at": 1760000798001
+},
+{
+"node": "s12-t07-implement-crud-spec",
+"agent": "builder",
+"n": 234,
+"at": 1760000800001
+},
+{
+"node": "s12-t07-implement-crud-spec",
+"agent": "builder",
+"n": 237,
+"at": 1760000802001
+},
+{
+"node": "da6e74dd-bf1b-45ab-a15f-7d7d3b4a2ffa",
+"agent": "builder",
+"n": 238,
+"at": 1760000803001
+},
+{
+"node": "s12-t08-write-test-plan",
+"agent": "researcher",
+"n": 272,
+"at": 1760000805001
+},
+{
+"node": "s12-t08-write-test-plan",
+"agent": "researcher",
+"n": 274,
+"at": 1760000806001
+},
+{
+"node": "s12-t09-review-spec",
+"agent": "planner",
+"n": 202,
+"at": 1760000808001
+},
+{
+"node": "e4fe1bd1-2abc-4882-a7d7-e5d6ce7dec8c",
+"agent": "planner",
+"n": 204,
+"at": 1760000809001
+},
+{
+"node": "s12-t09-review-spec",
+"agent": "planner",
+"n": 205,
+"at": 1760000810001
+},
+{
+"node": "s12-t10-write-docs",
+"agent": "researcher",
+"n": 275,
+"at": 1760000812001
+},
+{
+"node": "s12-t10-write-docs",
+"agent": "researcher",
+"n": 277,
+"at": 1760000813001
+},
+{
+"node": "s12-t11-package-release",
+"agent": "builder",
+"n": 239,
+"at": 1760000815001
+},
+{
+"node": "s12-t11-package-release",
+"agent": "builder",
+"n": 240,
+"at": 1760000815002
+},
+{
+"node": "8b10a14d-bb4a-4a64-898a-b9431b1569fa",
+"agent": "builder",
+"n": 241,
+"at": 1760000816001
+},
+{
+"node": "s13-t01-gather-requirements",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t02-choose-api-version",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t03-design-endpoints",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t04-survey-infra-security",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t05-choose-auth",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t06-write-db-schema",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t08-write-test-plan",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t09-review-spec",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t10-write-docs",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t11-package-release",
+"agent": "crucible",
+"n": 25,
+"at": 1760000822001
+},
+{
+"node": "s13-t01-gather-requirements",
+"agent": "researcher",
+"n": 278,
+"at": 1760000823001
+},
+{
+"node": "1581bcfc-fc47-4a46-bbed-d65a590f3eda",
+"agent": "researcher",
+"n": 279,
+"at": 1760000824001
+},
+{
+"node": "33b88310-bfca-4ae4-a853-2274879be148",
+"agent": "researcher",
+"n": 280,
+"at": 1760000825001
+},
+{
+"node": "s13-t01-gather-requirements",
+"agent": "researcher",
+"n": 281,
+"at": 1760000825002
+},
+{
+"node": "s13-t02-choose-api-version",
+"agent": "planner",
+"n": 206,
+"at": 1760000827001
+},
+{
+"node": "9bd1a9ce-674a-4456-9aa5-52c27c7a8823",
+"agent": "planner",
+"n": 207,
+"at": 1760000827002
+},
+{
+"node": "s13-t02-choose-api-version",
+"agent": "planner",
+"n": 208,
+"at": 1760000828001
+},
+{
+"node": "s13-t03-design-endpoints",
+"agent": "builder",
+"n": 242,
+"at": 1760000830001
+},
+{
+"node": "s13-t03-design-endpoints",
+"agent": "researcher",
+"n": 282,
+"at": 1760000834501
+},
+{
+"node": "s13-t03-design-endpoints",
+"agent": "researcher",
+"n": 285,
+"at": 1760000836501
+},
+{
+"node": "06c7811b-0478-4424-a6f0-1474e2db7f05",
+"agent": "researcher",
+"n": 286,
+"at": 1760000837501
+},
+{
+"node": "f0417b35-5e6c-4144-a09c-c933561501b0",
+"agent": "researcher",
+"n": 287,
+"at": 1760000839501
+},
+{
+"node": "f0d1a646-0573-4a37-b9c0-8b8fd59d9c51",
+"agent": "planner",
+"n": 210,
+"at": 1760000841501
+},
+{
+"node": "s13-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 26,
+"at": 1760000842501
+},
+{
+"node": "s13-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 244,
+"at": 1760000843501
+},
+{
+"node": "s13-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 247,
+"at": 1760000845501
+},
+{
+"node": "8aa81935-048f-43ff-b6ad-e28f87074a25",
+"agent": "builder",
+"n": 248,
+"at": 1760000846501
+},
+{
+"node": "s13-t04-survey-infra-security",
+"agent": "researcher",
+"n": 289,
+"at": 1760000848501
+},
+{
+"node": "af9a682e-8503-4ebb-bb74-533c2a2dfe5f",
+"agent": "researcher",
+"n": 290,
+"at": 1760000849501
+},
+{
+"node": "06ba4b02-a9a5-4a2d-a261-cd30c1065c2f",
+"agent": "researcher",
+"n": 291,
+"at": 1760000850501
+},
+{
+"node": "s13-t04-survey-infra-security",
+"agent": "researcher",
+"n": 292,
+"at": 1760000850502
+},
+{
+"node": "s13-t05-choose-auth",
+"agent": "planner",
+"n": 211,
+"at": 1760000852501
+},
+{
+"node": "eeb2f7f5-28c0-47ef-97bd-08c538782944",
+"agent": "planner",
+"n": 213,
+"at": 1760000854501
+},
+{
+"node": "3d83f157-3eab-494d-ad8e-4bc32889b3b8",
+"agent": "planner",
+"n": 214,
+"at": 1760000854502
+},
+{
+"node": "s13-t05-choose-auth",
+"agent": "planner",
+"n": 215,
+"at": 1760000855501
+},
+{
+"node": "b13c0ffe-9967-4846-8f21-ebe4f5317a94",
+"agent": "planner",
+"n": 216,
+"at": 1760000857501
+},
+{
+"node": "2eefe3ea-0728-46da-acba-eb873a48ee3e",
+"agent": "planner",
+"n": 217,
+"at": 1760000857502
+},
+{
+"node": "62f44906-3ee2-4bb1-8ebe-606635ac5e9d",
+"agent": "researcher",
+"n": 294,
+"at": 1760000861501
+},
+{
+"node": "4a6953ba-8615-4704-bc1e-f093d7f57e05",
+"agent": "planner",
+"n": 218,
+"at": 1760000862501
+},
+{
+"node": "s13-t06-write-db-schema",
+"agent": "builder",
+"n": 249,
+"at": 1760000863501
+},
+{
+"node": "569f8cf9-e9d3-493c-a725-2c05ba1ca786",
+"agent": "builder",
+"n": 252,
+"at": 1760000865501
+},
+{
+"node": "s13-t06-write-db-schema",
+"agent": "builder",
+"n": 253,
+"at": 1760000866501
+},
+{
+"node": "s13-t07-implement-crud-spec",
+"agent": "builder",
+"n": 254,
+"at": 1760000868501
+},
+{
+"node": "s13-t07-implement-crud-spec",
+"agent": "builder",
+"n": 257,
+"at": 1760000870501
+},
+{
+"node": "bb6447a1-294c-4fdd-8077-53927ab7f852",
+"agent": "builder",
+"n": 258,
+"at": 1760000871501
+},
+{
+"node": "s13-t08-write-test-plan",
+"agent": "researcher",
+"n": 295,
+"at": 1760000873501
+},
+{
+"node": "s13-t08-write-test-plan",
+"agent": "researcher",
+"n": 297,
+"at": 1760000874501
+},
+{
+"node": "s13-t09-review-spec",
+"agent": "planner",
+"n": 219,
+"at": 1760000876501
+},
+{
+"node": "20c4ae7c-3c78-4f5e-b477-5215ae84f441",
+"agent": "planner",
+"n": 221,
+"at": 1760000877501
+},
+{
+"node": "s13-t09-review-spec",
+"agent": "planner",
+"n": 222,
+"at": 1760000878501
+},
+{
+"node": "s13-t10-write-docs",
+"agent": "researcher",
+"n": 298,
+"at": 1760000880501
+},
+{
+"node": "s13-t10-write-docs",
+"agent": "researcher",
+"n": 300,
+"at": 1760000881501
+},
+{
+"node": "s13-t11-package-release",
+"agent": "builder",
+"n": 259,
+"at": 1760000883501
+},
+{
+"node": "s13-t11-package-release",
+"agent": "builder",
+"n": 260,
+"at": 1760000883502
+},
+{
+"node": "972bdfda-4017-4454-b762-5e76a78cc827",
+"agent": "builder",
+"n": 261,
+"at": 1760000884501
+},
+{
+"node": "s14-t01-gather-requirements",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t02-choose-api-version",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t03-design-endpoints",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t04-survey-infra-security",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t05-choose-auth",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t06-write-db-schema",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t08-write-test-plan",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t09-review-spec",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t10-write-docs",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t11-package-release",
+"agent": "crucible",
+"n": 27,
+"at": 1760000890501
+},
+{
+"node": "s14-t01-gather-requirements",
+"agent": "researcher",
+"n": 301,
+"at": 1760000891501
+},
+{
+"node": "b382cc48-0dba-4343-a502-11dd5c396655",
+"agent": "researcher",
+"n": 302,
+"at": 1760000892501
+},
+{
+"node": "1dfe60e1-245c-479b-8fd7-3b6b27ddf840",
+"agent": "researcher",
+"n": 303,
+"at": 1760000893501
+},
+{
+"node": "s14-t01-gather-requirements",
+"agent": "researcher",
+"n": 304,
+"at": 1760000893502
+},
+{
+"node": "s14-t02-choose-api-version",
+"agent": "planner",
+"n": 223,
+"at": 1760000895501
+},
+{
+"node": "7fa3d9eb-3fce-4f5e-b69e-13b5be15e328",
+"agent": "planner",
+"n": 224,
+"at": 1760000895502
+},
+{
+"node": "s14-t02-choose-api-version",
+"agent": "planner",
+"n": 225,
+"at": 1760000896501
+},
+{
+"node": "s14-t03-design-endpoints",
+"agent": "builder",
+"n": 262,
+"at": 1760000898501
+},
+{
+"node": "s14-t03-design-endpoints",
+"agent": "researcher",
+"n": 305,
+"at": 1760000903001
+},
+{
+"node": "s14-t03-design-endpoints",
+"agent": "researcher",
+"n": 308,
+"at": 1760000905001
+},
+{
+"node": "b99dee13-7773-4114-846e-f399f672722c",
+"agent": "researcher",
+"n": 309,
+"at": 1760000906001
+},
+{
+"node": "76897183-9601-4881-ad9a-c9aa4f358baf",
+"agent": "researcher",
+"n": 310,
+"at": 1760000908001
+},
+{
+"node": "e4186929-dac5-488a-92ad-7b1da0867c58",
+"agent": "planner",
+"n": 227,
+"at": 1760000910001
+},
+{
+"node": "s14-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 28,
+"at": 1760000911001
+},
+{
+"node": "s14-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 264,
+"at": 1760000912001
+},
+{
+"node": "s14-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 267,
+"at": 1760000914001
+},
+{
+"node": "df3198bd-e8b0-48ae-82f5-2bcd7ffc9eaa",
+"agent": "builder",
+"n": 268,
+"at": 1760000915001
+},
+{
+"node": "s14-t04-survey-infra-security",
+"agent": "researcher",
+"n": 312,
+"at": 1760000917001
+},
+{
+"node": "4331d959-42c0-4f58-89b8-f2e75792a535",
+"agent": "researcher",
+"n": 313,
+"at": 1760000918001
+},
+{
+"node": "6d247319-61cb-4eb0-bd4d-d7c30e371fc1",
+"agent": "researcher",
+"n": 314,
+"at": 1760000919001
+},
+{
+"node": "s14-t04-survey-infra-security",
+"agent": "researcher",
+"n": 315,
+"at": 1760000919002
+},
+{
+"node": "s14-t05-choose-auth",
+"agent": "planner",
+"n": 228,
+"at": 1760000921001
+},
+{
+"node": "54269251-9540-4fa1-8af3-5964cee6d8f2",
+"agent": "planner",
+"n": 230,
+"at": 1760000923001
+},
+{
+"node": "dd37cabf-1b32-44ff-839c-4489bb2d1ea9",
+"agent": "planner",
+"n": 231,
+"at": 1760000923002
+},
+{
+"node": "s14-t05-choose-auth",
+"agent": "planner",
+"n": 232,
+"at": 1760000924001
+},
+{
+"node": "d58f14c6-245a-464a-afa1-dfa775259af3",
+"agent": "planner",
+"n": 233,
+"at": 1760000926001
+},
+{
+"node": "70ccdf9b-c7e7-4050-a299-603062f8f06f",
+"agent": "planner",
+"n": 234,
+"at": 1760000926002
+},
+{
+"node": "44c598bf-d518-48b0-8b54-125335ee465e",
+"agent": "researcher",
+"n": 317,
+"at": 1760000930001
+},
+{
+"node": "6444ebdd-d4e2-48d9-8235-ac7b6f45a2e8",
+"agent": "planner",
+"n": 235,
+"at": 1760000931001
+},
+{
+"node": "s14-t06-write-db-schema",
+"agent": "builder",
+"n": 269,
+"at": 1760000932001
+},
+{
+"node": "083575a2-932c-4684-8f12-cae367b7323d",
+"agent": "builder",
+"n": 272,
+"at": 1760000934001
+},
+{
+"node": "s14-t06-write-db-schema",
+"agent": "builder",
+"n": 273,
+"at": 1760000935001
+},
+{
+"node": "s14-t07-implement-crud-spec",
+"agent": "builder",
+"n": 274,
+"at": 1760000937001
+},
+{
+"node": "s14-t07-implement-crud-spec",
+"agent": "builder",
+"n": 277,
+"at": 1760000939001
+},
+{
+"node": "cce4974f-a65b-493f-997a-072cb8b8af45",
+"agent": "builder",
+"n": 278,
+"at": 1760000940001
+},
+{
+"node": "s14-t08-write-test-plan",
+"agent": "researcher",
+"n": 318,
+"at": 1760000942001
+},
+{
+"node": "s14-t08-write-test-plan",
+"agent": "researcher",
+"n": 320,
+"at": 1760000943001
+},
+{
+"node": "s14-t09-review-spec",
+"agent": "planner",
+"n": 236,
+"at": 1760000945001
+},
+{
+"node": "bfeb5a86-30e8-4dbd-9dad-041aaff11359",
+"agent": "planner",
+"n": 238,
+"at": 1760000946001
+},
+{
+"node": "s14-t09-review-spec",
+"agent": "planner",
+"n": 239,
+"at": 1760000947001
+},
+{
+"node": "s14-t10-write-docs",
+"agent": "researcher",
+"n": 321,
+"at": 1760000949001
+},
+{
+"node": "s14-t10-write-docs",
+"agent": "researcher",
+"n": 323,
+"at": 1760000950001
+},
+{
+"node": "s14-t11-package-release",
+"agent": "builder",
+"n": 279,
+"at": 1760000952001
+},
+{
+"node": "s14-t11-package-release",
+"agent": "builder",
+"n": 280,
+"at": 1760000952002
+},
+{
+"node": "6869cadf-e7fc-4249-af88-b42e45efffa0",
+"agent": "builder",
+"n": 281,
+"at": 1760000953001
+},
+{
+"node": "s15-t01-gather-requirements",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t02-choose-api-version",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t03-design-endpoints",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t04-survey-infra-security",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t05-choose-auth",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t06-write-db-schema",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t08-write-test-plan",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t09-review-spec",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t10-write-docs",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t11-package-release",
+"agent": "crucible",
+"n": 29,
+"at": 1760000959001
+},
+{
+"node": "s15-t01-gather-requirements",
+"agent": "researcher",
+"n": 324,
+"at": 1760000960001
+},
+{
+"node": "f584ce08-1382-4b00-9f30-f59ce87e61da",
+"agent": "researcher",
+"n": 325,
+"at": 1760000961001
+},
+{
+"node": "fe54fbd5-debd-4285-b407-786b1caea4c5",
+"agent": "researcher",
+"n": 326,
+"at": 1760000962001
+},
+{
+"node": "s15-t01-gather-requirements",
+"agent": "researcher",
+"n": 327,
+"at": 1760000962002
+},
+{
+"node": "s15-t02-choose-api-version",
+"agent": "planner",
+"n": 240,
+"at": 1760000964001
+},
+{
+"node": "5143d703-1854-4916-8b62-fc5ce2a6a6ee",
+"agent": "planner",
+"n": 241,
+"at": 1760000964002
+},
+{
+"node": "s15-t02-choose-api-version",
+"agent": "planner",
+"n": 242,
+"at": 1760000965001
+},
+{
+"node": "s15-t03-design-endpoints",
+"agent": "builder",
+"n": 282,
+"at": 1760000967001
+},
+{
+"node": "s15-t03-design-endpoints",
+"agent": "researcher",
+"n": 328,
+"at": 1760000971501
+},
+{
+"node": "s15-t03-design-endpoints",
+"agent": "researcher",
+"n": 331,
+"at": 1760000973501
+},
+{
+"node": "9a4016af-a092-4da0-afb6-3f23afcd67d7",
+"agent": "researcher",
+"n": 332,
+"at": 1760000974501
+},
+{
+"node": "1ce459e9-a13a-4d2f-ab0c-b72560ce1449",
+"agent": "researcher",
+"n": 333,
+"at": 1760000976501
+},
+{
+"node": "0f1326d7-0a90-460b-86d0-890ae0414ff0",
+"agent": "planner",
+"n": 244,
+"at": 1760000978501
+},
+{
+"node": "s15-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 30,
+"at": 1760000979501
+},
+{
+"node": "s15-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 284,
+"at": 1760000980501
+},
+{
+"node": "s15-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 287,
+"at": 1760000982501
+},
+{
+"node": "896efd2d-8c79-4ee4-b1a3-65b6da933dbd",
+"agent": "builder",
+"n": 288,
+"at": 1760000983501
+},
+{
+"node": "s15-t04-survey-infra-security",
+"agent": "researcher",
+"n": 335,
+"at": 1760000985501
+},
+{
+"node": "50894143-865c-403a-a1eb-a6a33d71affe",
+"agent": "researcher",
+"n": 336,
+"at": 1760000986501
+},
+{
+"node": "d62c0947-8f0f-43bd-8550-76e4f7898150",
+"agent": "researcher",
+"n": 337,
+"at": 1760000987501
+},
+{
+"node": "s15-t04-survey-infra-security",
+"agent": "researcher",
+"n": 338,
+"at": 1760000987502
+},
+{
+"node": "s15-t05-choose-auth",
+"agent": "planner",
+"n": 245,
+"at": 1760000989501
+},
+{
+"node": "ccc8c433-58d0-4e9a-9aa3-6aa37065d9e0",
+"agent": "planner",
+"n": 247,
+"at": 1760000991501
+},
+{
+"node": "ad590d71-cac0-4685-a4f3-deb951459aba",
+"agent": "planner",
+"n": 248,
+"at": 1760000991502
+},
+{
+"node": "s15-t05-choose-auth",
+"agent": "planner",
+"n": 249,
+"at": 1760000992501
+},
+{
+"node": "777b1fec-9d65-4310-aaa9-8cee1829d381",
+"agent": "planner",
+"n": 250,
+"at": 1760000994501
+},
+{
+"node": "b1bb2b7f-2aed-41ea-9a70-dfecbeaac1e3",
+"agent": "planner",
+"n": 251,
+"at": 1760000994502
+},
+{
+"node": "bb167435-d92e-42df-8796-d4af6dc34a62",
+"agent": "researcher",
+"n": 340,
+"at": 1760000998501
+},
+{
+"node": "7681d014-734c-4b25-ac86-2df1ac647060",
+"agent": "planner",
+"n": 252,
+"at": 1760000999501
+},
+{
+"node": "s15-t06-write-db-schema",
+"agent": "builder",
+"n": 289,
+"at": 1760001000501
+},
+{
+"node": "737334a9-d3c4-4c3d-b82f-b1f36b11e266",
+"agent": "builder",
+"n": 292,
+"at": 1760001002501
+},
+{
+"node": "s15-t06-write-db-schema",
+"agent": "builder",
+"n": 293,
+"at": 1760001003501
+},
+{
+"node": "s15-t07-implement-crud-spec",
+"agent": "builder",
+"n": 294,
+"at": 1760001005501
+},
+{
+"node": "s15-t07-implement-crud-spec",
+"agent": "builder",
+"n": 297,
+"at": 1760001007501
+},
+{
+"node": "4d98c1ff-37cf-400f-9b7c-492e35e9be0a",
+"agent": "builder",
+"n": 298,
+"at": 1760001008501
+},
+{
+"node": "s15-t08-write-test-plan",
+"agent": "researcher",
+"n": 341,
+"at": 1760001010501
+},
+{
+"node": "s15-t08-write-test-plan",
+"agent": "researcher",
+"n": 343,
+"at": 1760001011501
+},
+{
+"node": "s15-t09-review-spec",
+"agent": "planner",
+"n": 253,
+"at": 1760001013501
+},
+{
+"node": "9c3ff45d-18c2-41ae-a2c1-4965ebe742d6",
+"agent": "planner",
+"n": 255,
+"at": 1760001014501
+},
+{
+"node": "s15-t09-review-spec",
+"agent": "planner",
+"n": 256,
+"at": 1760001015501
+},
+{
+"node": "s15-t10-write-docs",
+"agent": "researcher",
+"n": 344,
+"at": 1760001017501
+},
+{
+"node": "s15-t10-write-docs",
+"agent": "researcher",
+"n": 346,
+"at": 1760001018501
+},
+{
+"node": "s15-t11-package-release",
+"agent": "builder",
+"n": 299,
+"at": 1760001020501
+},
+{
+"node": "s15-t11-package-release",
+"agent": "builder",
+"n": 300,
+"at": 1760001020502
+},
+{
+"node": "066849a2-77b5-4ddf-93d0-7d04c1497a73",
+"agent": "builder",
+"n": 301,
+"at": 1760001021501
+},
+{
+"node": "s16-t01-gather-requirements",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t02-choose-api-version",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t03-design-endpoints",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t04-survey-infra-security",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t05-choose-auth",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t06-write-db-schema",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t08-write-test-plan",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t09-review-spec",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t10-write-docs",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t11-package-release",
+"agent": "crucible",
+"n": 31,
+"at": 1760001027501
+},
+{
+"node": "s16-t01-gather-requirements",
+"agent": "researcher",
+"n": 347,
+"at": 1760001028501
+},
+{
+"node": "85e70ca8-00b4-4d97-9441-5dea0ddf5484",
+"agent": "researcher",
+"n": 348,
+"at": 1760001029501
+},
+{
+"node": "d981166c-0fb4-493a-a530-b9b98ad373e5",
+"agent": "researcher",
+"n": 349,
+"at": 1760001030501
+},
+{
+"node": "s16-t01-gather-requirements",
+"agent": "researcher",
+"n": 350,
+"at": 1760001030502
+},
+{
+"node": "s16-t02-choose-api-version",
+"agent": "planner",
+"n": 257,
+"at": 1760001032501
+},
+{
+"node": "b991f44d-e86a-4ddb-a29e-2fbba7742719",
+"agent": "planner",
+"n": 258,
+"at": 1760001032502
+},
+{
+"node": "s16-t02-choose-api-version",
+"agent": "planner",
+"n": 259,
+"at": 1760001033501
+},
+{
+"node": "s16-t03-design-endpoints",
+"agent": "builder",
+"n": 302,
+"at": 1760001035501
+},
+{
+"node": "s16-t03-design-endpoints",
+"agent": "researcher",
+"n": 351,
+"at": 1760001040001
+},
+{
+"node": "s16-t03-design-endpoints",
+"agent": "researcher",
+"n": 354,
+"at": 1760001042001
+},
+{
+"node": "9d3db514-a3a5-4612-8841-c3b20852cc72",
+"agent": "researcher",
+"n": 355,
+"at": 1760001043001
+},
+{
+"node": "0a6f0c02-cf52-4470-9e96-84b22109e77c",
+"agent": "researcher",
+"n": 356,
+"at": 1760001045001
+},
+{
+"node": "07463800-dca5-4ff2-ab6c-6bb330020d0a",
+"agent": "planner",
+"n": 261,
+"at": 1760001047001
+},
+{
+"node": "s16-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 32,
+"at": 1760001048001
+},
+{
+"node": "s16-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 304,
+"at": 1760001049001
+},
+{
+"node": "s16-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 307,
+"at": 1760001051001
+},
+{
+"node": "69b9bf47-0683-428a-bcab-af70304d3e16",
+"agent": "builder",
+"n": 308,
+"at": 1760001052001
+},
+{
+"node": "s16-t04-survey-infra-security",
+"agent": "researcher",
+"n": 358,
+"at": 1760001054001
+},
+{
+"node": "49b8463b-76ca-4743-8967-e501bb2e4dfb",
+"agent": "researcher",
+"n": 359,
+"at": 1760001055001
+},
+{
+"node": "405202e0-1dba-4bbf-9825-b018271eb4ec",
+"agent": "researcher",
+"n": 360,
+"at": 1760001056001
+},
+{
+"node": "s16-t04-survey-infra-security",
+"agent": "researcher",
+"n": 361,
+"at": 1760001056002
+},
+{
+"node": "s16-t05-choose-auth",
+"agent": "planner",
+"n": 262,
+"at": 1760001058001
+},
+{
+"node": "6777c417-ffce-4872-965b-39daeec7a426",
+"agent": "planner",
+"n": 264,
+"at": 1760001060001
+},
+{
+"node": "6e7a207c-8da6-4ee3-ad97-b23c81d2ef00",
+"agent": "planner",
+"n": 265,
+"at": 1760001060002
+},
+{
+"node": "s16-t05-choose-auth",
+"agent": "planner",
+"n": 266,
+"at": 1760001061001
+},
+{
+"node": "8cc2f1e4-a39c-4a0a-8d75-e200bdbd5e8c",
+"agent": "planner",
+"n": 267,
+"at": 1760001063001
+},
+{
+"node": "c0116015-565c-49d4-bc5f-bf71d5043d44",
+"agent": "planner",
+"n": 268,
+"at": 1760001063002
+},
+{
+"node": "b953b490-bf52-4745-af2f-2304c9d3c4fe",
+"agent": "researcher",
+"n": 363,
+"at": 1760001067001
+},
+{
+"node": "9f448a9f-5a69-4719-a6b1-9717124aa545",
+"agent": "planner",
+"n": 269,
+"at": 1760001068001
+},
+{
+"node": "s16-t06-write-db-schema",
+"agent": "builder",
+"n": 309,
+"at": 1760001069001
+},
+{
+"node": "9cfbbaba-7d26-4cd8-a5d9-0aa289c757fc",
+"agent": "builder",
+"n": 312,
+"at": 1760001071001
+},
+{
+"node": "s16-t06-write-db-schema",
+"agent": "builder",
+"n": 313,
+"at": 1760001072001
+},
+{
+"node": "s16-t07-implement-crud-spec",
+"agent": "builder",
+"n": 314,
+"at": 1760001074001
+},
+{
+"node": "s16-t07-implement-crud-spec",
+"agent": "builder",
+"n": 317,
+"at": 1760001076001
+},
+{
+"node": "fe3cd738-757b-4eb8-a648-54ab1458bdc7",
+"agent": "builder",
+"n": 318,
+"at": 1760001077001
+},
+{
+"node": "s16-t08-write-test-plan",
+"agent": "researcher",
+"n": 364,
+"at": 1760001079001
+},
+{
+"node": "s16-t08-write-test-plan",
+"agent": "researcher",
+"n": 366,
+"at": 1760001080001
+},
+{
+"node": "s16-t09-review-spec",
+"agent": "planner",
+"n": 270,
+"at": 1760001082001
+},
+{
+"node": "7d49a3c7-345b-4b93-9a23-bf0e846cd7da",
+"agent": "planner",
+"n": 272,
+"at": 1760001083001
+},
+{
+"node": "s16-t09-review-spec",
+"agent": "planner",
+"n": 273,
+"at": 1760001084001
+},
+{
+"node": "s16-t10-write-docs",
+"agent": "researcher",
+"n": 367,
+"at": 1760001086001
+},
+{
+"node": "s16-t10-write-docs",
+"agent": "researcher",
+"n": 369,
+"at": 1760001087001
+},
+{
+"node": "s16-t11-package-release",
+"agent": "builder",
+"n": 319,
+"at": 1760001089001
+},
+{
+"node": "s16-t11-package-release",
+"agent": "builder",
+"n": 320,
+"at": 1760001089002
+},
+{
+"node": "644cda07-f5ff-44e2-9535-4c90e77153de",
+"agent": "builder",
+"n": 321,
+"at": 1760001090001
+},
+{
+"node": "s17-t01-gather-requirements",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t02-choose-api-version",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t03-design-endpoints",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t04-survey-infra-security",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t05-choose-auth",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t06-write-db-schema",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t08-write-test-plan",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t09-review-spec",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t10-write-docs",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t11-package-release",
+"agent": "crucible",
+"n": 33,
+"at": 1760001096001
+},
+{
+"node": "s17-t01-gather-requirements",
+"agent": "researcher",
+"n": 370,
+"at": 1760001097001
+},
+{
+"node": "ebf98d6e-5f53-4daa-b7e5-9efcb3c69d6f",
+"agent": "researcher",
+"n": 371,
+"at": 1760001098001
+},
+{
+"node": "6dc30e90-ab0f-4c75-b91e-f24bc44d796b",
+"agent": "researcher",
+"n": 372,
+"at": 1760001099001
+},
+{
+"node": "s17-t01-gather-requirements",
+"agent": "researcher",
+"n": 373,
+"at": 1760001099002
+},
+{
+"node": "s17-t02-choose-api-version",
+"agent": "planner",
+"n": 274,
+"at": 1760001101001
+},
+{
+"node": "a140f8de-3ca0-4cc9-935b-a571572d842e",
+"agent": "planner",
+"n": 275,
+"at": 1760001101002
+},
+{
+"node": "s17-t02-choose-api-version",
+"agent": "planner",
+"n": 276,
+"at": 1760001102001
+},
+{
+"node": "s17-t03-design-endpoints",
+"agent": "builder",
+"n": 322,
+"at": 1760001104001
+},
+{
+"node": "s17-t03-design-endpoints",
+"agent": "researcher",
+"n": 374,
+"at": 1760001108501
+},
+{
+"node": "s17-t03-design-endpoints",
+"agent": "researcher",
+"n": 377,
+"at": 1760001110501
+},
+{
+"node": "250a3926-08ae-441d-94a8-3ca0800e61b8",
+"agent": "researcher",
+"n": 378,
+"at": 1760001111501
+},
+{
+"node": "e0c81b90-9723-434e-a883-21ead2a70f9b",
+"agent": "researcher",
+"n": 379,
+"at": 1760001113501
+},
+{
+"node": "b2e17412-675e-4cf9-84a6-496ca54ec5e7",
+"agent": "planner",
+"n": 278,
+"at": 1760001115501
+},
+{
+"node": "s17-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 34,
+"at": 1760001116501
+},
+{
+"node": "s17-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 324,
+"at": 1760001117501
+},
+{
+"node": "s17-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 327,
+"at": 1760001119501
+},
+{
+"node": "6673b555-cca0-4922-905f-9f04f952625b",
+"agent": "builder",
+"n": 328,
+"at": 1760001120501
+},
+{
+"node": "s17-t04-survey-infra-security",
+"agent": "researcher",
+"n": 381,
+"at": 1760001122501
+},
+{
+"node": "072132c9-8b87-4ec2-a893-ef01b8a93db2",
+"agent": "researcher",
+"n": 382,
+"at": 1760001123501
+},
+{
+"node": "2be5c4af-3cad-4e4e-901c-3436374f98ef",
+"agent": "researcher",
+"n": 383,
+"at": 1760001124501
+},
+{
+"node": "s17-t04-survey-infra-security",
+"agent": "researcher",
+"n": 384,
+"at": 1760001124502
+},
+{
+"node": "s17-t05-choose-auth",
+"agent": "planner",
+"n": 279,
+"at": 1760001126501
+},
+{
+"node": "2dbf606e-12e4-49d9-957e-f94ba42544c6",
+"agent": "planner",
+"n": 281,
+"at": 1760001128501
+},
+{
+"node": "04c8e415-2138-40d2-a82f-5613a165d1d8",
+"agent": "planner",
+"n": 282,
+"at": 1760001128502
+},
+{
+"node": "s17-t05-choose-auth",
+"agent": "planner",
+"n": 283,
+"at": 1760001129501
+},
+{
+"node": "40866c2b-6709-4696-9f2f-59ce78f13edf",
+"agent": "planner",
+"n": 284,
+"at": 1760001131501
+},
+{
+"node": "7626bed1-3cbf-42f3-adff-a1c10df12da0",
+"agent": "planner",
+"n": 285,
+"at": 1760001131502
+},
+{
+"node": "1a65ffda-3cc8-4664-9a30-5405b0a01fed",
+"agent": "researcher",
+"n": 386,
+"at": 1760001135501
+},
+{
+"node": "93aa6611-29c4-46e1-be87-590b083bf270",
+"agent": "planner",
+"n": 286,
+"at": 1760001136501
+},
+{
+"node": "s17-t06-write-db-schema",
+"agent": "builder",
+"n": 329,
+"at": 1760001137501
+},
+{
+"node": "0941b8ff-ff81-4ee7-a10c-017cf1dd052a",
+"agent": "builder",
+"n": 332,
+"at": 1760001139501
+},
+{
+"node": "s17-t06-write-db-schema",
+"agent": "builder",
+"n": 333,
+"at": 1760001140501
+},
+{
+"node": "s17-t07-implement-crud-spec",
+"agent": "builder",
+"n": 334,
+"at": 1760001142501
+},
+{
+"node": "s17-t07-implement-crud-spec",
+"agent": "builder",
+"n": 337,
+"at": 1760001144501
+},
+{
+"node": "da2e2214-d4be-4a68-bda7-2ff985e1ec63",
+"agent": "builder",
+"n": 338,
+"at": 1760001145501
+},
+{
+"node": "s17-t08-write-test-plan",
+"agent": "researcher",
+"n": 387,
+"at": 1760001147501
+},
+{
+"node": "s17-t08-write-test-plan",
+"agent": "researcher",
+"n": 389,
+"at": 1760001148501
+},
+{
+"node": "s17-t09-review-spec",
+"agent": "planner",
+"n": 287,
+"at": 1760001150501
+},
+{
+"node": "400ea5f6-0f7d-49b8-8d11-61d50266d465",
+"agent": "planner",
+"n": 289,
+"at": 1760001151501
+},
+{
+"node": "s17-t09-review-spec",
+"agent": "planner",
+"n": 290,
+"at": 1760001152501
+},
+{
+"node": "s17-t10-write-docs",
+"agent": "researcher",
+"n": 390,
+"at": 1760001154501
+},
+{
+"node": "s17-t10-write-docs",
+"agent": "researcher",
+"n": 392,
+"at": 1760001155501
+},
+{
+"node": "s17-t11-package-release",
+"agent": "builder",
+"n": 339,
+"at": 1760001157501
+},
+{
+"node": "s17-t11-package-release",
+"agent": "builder",
+"n": 340,
+"at": 1760001157502
+},
+{
+"node": "97971ff6-a7d3-4dbb-9030-431b4536caed",
+"agent": "builder",
+"n": 341,
+"at": 1760001158501
+},
+{
+"node": "s18-t01-gather-requirements",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t02-choose-api-version",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t03-design-endpoints",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t04-survey-infra-security",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t05-choose-auth",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t06-write-db-schema",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t08-write-test-plan",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t09-review-spec",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t10-write-docs",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t11-package-release",
+"agent": "crucible",
+"n": 35,
+"at": 1760001164501
+},
+{
+"node": "s18-t01-gather-requirements",
+"agent": "researcher",
+"n": 393,
+"at": 1760001165501
+},
+{
+"node": "64d2c8a1-a1b8-4f53-aabc-dbb02c07f44d",
+"agent": "researcher",
+"n": 394,
+"at": 1760001166501
+},
+{
+"node": "e2356b08-030d-4b5b-ae34-1a85f8ddf054",
+"agent": "researcher",
+"n": 395,
+"at": 1760001167501
+},
+{
+"node": "s18-t01-gather-requirements",
+"agent": "researcher",
+"n": 396,
+"at": 1760001167502
+},
+{
+"node": "s18-t02-choose-api-version",
+"agent": "planner",
+"n": 291,
+"at": 1760001169501
+},
+{
+"node": "48e2fc9a-1a1a-4f29-83a6-e1aaa9e4d275",
+"agent": "planner",
+"n": 292,
+"at": 1760001169502
+},
+{
+"node": "s18-t02-choose-api-version",
+"agent": "planner",
+"n": 293,
+"at": 1760001170501
+},
+{
+"node": "s18-t03-design-endpoints",
+"agent": "builder",
+"n": 342,
+"at": 1760001172501
+},
+{
+"node": "s18-t03-design-endpoints",
+"agent": "researcher",
+"n": 397,
+"at": 1760001177001
+},
+{
+"node": "s18-t03-design-endpoints",
+"agent": "researcher",
+"n": 400,
+"at": 1760001179001
+},
+{
+"node": "875c1430-3a9d-4587-b8a9-d5b726723773",
+"agent": "researcher",
+"n": 401,
+"at": 1760001180001
+},
+{
+"node": "1539137c-d20a-4e75-94dd-22a1d05813ab",
+"agent": "researcher",
+"n": 402,
+"at": 1760001182001
+},
+{
+"node": "ccd2c641-6e93-4037-86d3-fdd6ebcea0f9",
+"agent": "planner",
+"n": 295,
+"at": 1760001184001
+},
+{
+"node": "s18-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 36,
+"at": 1760001185001
+},
+{
+"node": "s18-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 344,
+"at": 1760001186001
+},
+{
+"node": "s18-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 347,
+"at": 1760001188001
+},
+{
+"node": "1ffa84cb-9de3-4061-909d-e87ef248beb1",
+"agent": "builder",
+"n": 348,
+"at": 1760001189001
+},
+{
+"node": "s18-t04-survey-infra-security",
+"agent": "researcher",
+"n": 404,
+"at": 1760001191001
+},
+{
+"node": "6944ed58-0157-4785-ac7c-1a0ea04105f3",
+"agent": "researcher",
+"n": 405,
+"at": 1760001192001
+},
+{
+"node": "b3c370ee-768d-4709-9781-d4d049b0bb18",
+"agent": "researcher",
+"n": 406,
+"at": 1760001193001
+},
+{
+"node": "s18-t04-survey-infra-security",
+"agent": "researcher",
+"n": 407,
+"at": 1760001193002
+},
+{
+"node": "s18-t05-choose-auth",
+"agent": "planner",
+"n": 296,
+"at": 1760001195001
+},
+{
+"node": "4bed3dc1-6756-4d60-8d23-d69364650493",
+"agent": "planner",
+"n": 298,
+"at": 1760001197001
+},
+{
+"node": "612f3428-7c52-487e-9b6f-badd98ae1245",
+"agent": "planner",
+"n": 299,
+"at": 1760001197002
+},
+{
+"node": "s18-t05-choose-auth",
+"agent": "planner",
+"n": 300,
+"at": 1760001198001
+},
+{
+"node": "87553dc2-7bc4-4c5d-bb9b-a2c88d6b7372",
+"agent": "planner",
+"n": 301,
+"at": 1760001200001
+},
+{
+"node": "b05f94ba-e2ed-444f-b98a-82f0c05b5cee",
+"agent": "planner",
+"n": 302,
+"at": 1760001200002
+},
+{
+"node": "c7a1b270-6c69-4b0d-a4d7-587cf54da32a",
+"agent": "researcher",
+"n": 409,
+"at": 1760001204001
+},
+{
+"node": "81a7d673-317f-4f31-8da6-7de6aba3a309",
+"agent": "planner",
+"n": 303,
+"at": 1760001205001
+},
+{
+"node": "s18-t06-write-db-schema",
+"agent": "builder",
+"n": 349,
+"at": 1760001206001
+},
+{
+"node": "1af389cf-84aa-4e4d-a341-4ab5339ea5d2",
+"agent": "builder",
+"n": 352,
+"at": 1760001208001
+},
+{
+"node": "s18-t06-write-db-schema",
+"agent": "builder",
+"n": 353,
+"at": 1760001209001
+},
+{
+"node": "s18-t07-implement-crud-spec",
+"agent": "builder",
+"n": 354,
+"at": 1760001211001
+},
+{
+"node": "s18-t07-implement-crud-spec",
+"agent": "builder",
+"n": 357,
+"at": 1760001213001
+},
+{
+"node": "71ec1b5a-e2fc-4049-8a16-f822b76ddab0",
+"agent": "builder",
+"n": 358,
+"at": 1760001214001
+},
+{
+"node": "s18-t08-write-test-plan",
+"agent": "researcher",
+"n": 410,
+"at": 1760001216001
+},
+{
+"node": "s18-t08-write-test-plan",
+"agent": "researcher",
+"n": 412,
+"at": 1760001217001
+},
+{
+"node": "s18-t09-review-spec",
+"agent": "planner",
+"n": 304,
+"at": 1760001219001
+},
+{
+"node": "a5945ec8-e993-48b4-98b9-1fc9f682d90e",
+"agent": "planner",
+"n": 306,
+"at": 1760001220001
+},
+{
+"node": "s18-t09-review-spec",
+"agent": "planner",
+"n": 307,
+"at": 1760001221001
+},
+{
+"node": "s18-t10-write-docs",
+"agent": "researcher",
+"n": 413,
+"at": 1760001223001
+},
+{
+"node": "s18-t10-write-docs",
+"agent": "researcher",
+"n": 415,
+"at": 1760001224001
+},
+{
+"node": "s18-t11-package-release",
+"agent": "builder",
+"n": 359,
+"at": 1760001226001
+},
+{
+"node": "s18-t11-package-release",
+"agent": "builder",
+"n": 360,
+"at": 1760001226002
+},
+{
+"node": "043a680f-57fd-4c52-b671-946a21adcdf6",
+"agent": "builder",
+"n": 361,
+"at": 1760001227001
+},
+{
+"node": "s19-t01-gather-requirements",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t02-choose-api-version",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t03-design-endpoints",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t04-survey-infra-security",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t05-choose-auth",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t06-write-db-schema",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t08-write-test-plan",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t09-review-spec",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t10-write-docs",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t11-package-release",
+"agent": "crucible",
+"n": 37,
+"at": 1760001233001
+},
+{
+"node": "s19-t01-gather-requirements",
+"agent": "researcher",
+"n": 416,
+"at": 1760001234001
+},
+{
+"node": "969671a5-57aa-4cd9-a7cc-ed572e06ad5d",
+"agent": "researcher",
+"n": 417,
+"at": 1760001235001
+},
+{
+"node": "df481291-d7b6-4717-84b5-2dacaa49856a",
+"agent": "researcher",
+"n": 418,
+"at": 1760001236001
+},
+{
+"node": "s19-t01-gather-requirements",
+"agent": "researcher",
+"n": 419,
+"at": 1760001236002
+},
+{
+"node": "s19-t02-choose-api-version",
+"agent": "planner",
+"n": 308,
+"at": 1760001238001
+},
+{
+"node": "4c7415d8-935c-42f4-ba64-345df47165a2",
+"agent": "planner",
+"n": 309,
+"at": 1760001238002
+},
+{
+"node": "s19-t02-choose-api-version",
+"agent": "planner",
+"n": 310,
+"at": 1760001239001
+},
+{
+"node": "s19-t03-design-endpoints",
+"agent": "builder",
+"n": 362,
+"at": 1760001241001
+},
+{
+"node": "s19-t03-design-endpoints",
+"agent": "researcher",
+"n": 420,
+"at": 1760001245501
+},
+{
+"node": "s19-t03-design-endpoints",
+"agent": "researcher",
+"n": 423,
+"at": 1760001247501
+},
+{
+"node": "aa430ef6-2c5f-439e-84f1-1c0baf89e0f3",
+"agent": "researcher",
+"n": 424,
+"at": 1760001248501
+},
+{
+"node": "630554ba-11f2-43f0-aacf-e016189c3647",
+"agent": "researcher",
+"n": 425,
+"at": 1760001250501
+},
+{
+"node": "782ddfc2-0458-4349-9a43-bccf6707e19d",
+"agent": "planner",
+"n": 312,
+"at": 1760001252501
+},
+{
+"node": "s19-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 38,
+"at": 1760001253501
+},
+{
+"node": "s19-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 364,
+"at": 1760001254501
+},
+{
+"node": "s19-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 367,
+"at": 1760001256501
+},
+{
+"node": "04678ddf-9c7e-47d3-bdeb-36157ea009b6",
+"agent": "builder",
+"n": 368,
+"at": 1760001257501
+},
+{
+"node": "s19-t04-survey-infra-security",
+"agent": "researcher",
+"n": 427,
+"at": 1760001259501
+},
+{
+"node": "7d435469-4f5c-46ca-bbda-812182235a0a",
+"agent": "researcher",
+"n": 428,
+"at": 1760001260501
+},
+{
+"node": "d93c2237-c876-4b0e-8d16-b4bdce6bd5be",
+"agent": "researcher",
+"n": 429,
+"at": 1760001261501
+},
+{
+"node": "s19-t04-survey-infra-security",
+"agent": "researcher",
+"n": 430,
+"at": 1760001261502
+},
+{
+"node": "s19-t05-choose-auth",
+"agent": "planner",
+"n": 313,
+"at": 1760001263501
+},
+{
+"node": "8b75adc9-bb8d-4b35-b1d0-a550779164dd",
+"agent": "planner",
+"n": 315,
+"at": 1760001265501
+},
+{
+"node": "9761f9c2-54f6-4327-8cbe-03472165a307",
+"agent": "planner",
+"n": 316,
+"at": 1760001265502
+},
+{
+"node": "s19-t05-choose-auth",
+"agent": "planner",
+"n": 317,
+"at": 1760001266501
+},
+{
+"node": "cde97e28-2fc9-4da7-a231-2e9583b50512",
+"agent": "planner",
+"n": 318,
+"at": 1760001268501
+},
+{
+"node": "1cc28f50-52d2-47d2-97a7-433d11885e93",
+"agent": "planner",
+"n": 319,
+"at": 1760001268502
+},
+{
+"node": "72cf8e8c-b991-4b09-8178-10f08df5886c",
+"agent": "researcher",
+"n": 432,
+"at": 1760001272501
+},
+{
+"node": "05cbfa57-a135-487f-83e4-3a06534171fa",
+"agent": "planner",
+"n": 320,
+"at": 1760001273501
+},
+{
+"node": "s19-t06-write-db-schema",
+"agent": "builder",
+"n": 369,
+"at": 1760001274501
+},
+{
+"node": "e404d413-8302-450c-a760-57660d489d2a",
+"agent": "builder",
+"n": 372,
+"at": 1760001276501
+},
+{
+"node": "s19-t06-write-db-schema",
+"agent": "builder",
+"n": 373,
+"at": 1760001277501
+},
+{
+"node": "s19-t07-implement-crud-spec",
+"agent": "builder",
+"n": 374,
+"at": 1760001279501
+},
+{
+"node": "s19-t07-implement-crud-spec",
+"agent": "builder",
+"n": 377,
+"at": 1760001281501
+},
+{
+"node": "22ef91d1-9b05-4205-bb91-fe4214bffc3e",
+"agent": "builder",
+"n": 378,
+"at": 1760001282501
+},
+{
+"node": "s19-t08-write-test-plan",
+"agent": "researcher",
+"n": 433,
+"at": 1760001284501
+},
+{
+"node": "s19-t08-write-test-plan",
+"agent": "researcher",
+"n": 435,
+"at": 1760001285501
+},
+{
+"node": "s19-t09-review-spec",
+"agent": "planner",
+"n": 321,
+"at": 1760001287501
+},
+{
+"node": "8b805090-d4f0-4f08-a4da-f9b3c6117171",
+"agent": "planner",
+"n": 323,
+"at": 1760001288501
+},
+{
+"node": "s19-t09-review-spec",
+"agent": "planner",
+"n": 324,
+"at": 1760001289501
+},
+{
+"node": "s19-t10-write-docs",
+"agent": "researcher",
+"n": 436,
+"at": 1760001291501
+},
+{
+"node": "s19-t10-write-docs",
+"agent": "researcher",
+"n": 438,
+"at": 1760001292501
+},
+{
+"node": "s19-t11-package-release",
+"agent": "builder",
+"n": 379,
+"at": 1760001294501
+},
+{
+"node": "s19-t11-package-release",
+"agent": "builder",
+"n": 380,
+"at": 1760001294502
+},
+{
+"node": "3cf88dc1-3af0-4fa0-a198-b7ca5d30192b",
+"agent": "builder",
+"n": 381,
+"at": 1760001295501
+},
+{
+"node": "s20-t01-gather-requirements",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t02-choose-api-version",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t03-design-endpoints",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t04-survey-infra-security",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t05-choose-auth",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t06-write-db-schema",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t07-implement-crud-spec",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t08-write-test-plan",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t09-review-spec",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t10-write-docs",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t11-package-release",
+"agent": "crucible",
+"n": 39,
+"at": 1760001301501
+},
+{
+"node": "s20-t01-gather-requirements",
+"agent": "researcher",
+"n": 439,
+"at": 1760001302501
+},
+{
+"node": "5c841d7e-5d59-4e8d-922c-6750396d2442",
+"agent": "researcher",
+"n": 440,
+"at": 1760001303501
+},
+{
+"node": "d4479840-ed58-4746-8df5-844f86f6f7cd",
+"agent": "researcher",
+"n": 441,
+"at": 1760001304501
+},
+{
+"node": "s20-t01-gather-requirements",
+"agent": "researcher",
+"n": 442,
+"at": 1760001304502
+},
+{
+"node": "s20-t02-choose-api-version",
+"agent": "planner",
+"n": 325,
+"at": 1760001306501
+},
+{
+"node": "3916271e-ac04-4283-9841-f854d35a5211",
+"agent": "planner",
+"n": 326,
+"at": 1760001306502
+},
+{
+"node": "s20-t02-choose-api-version",
+"agent": "planner",
+"n": 327,
+"at": 1760001307501
+},
+{
+"node": "s20-t03-design-endpoints",
+"agent": "builder",
+"n": 382,
+"at": 1760001309501
+},
+{
+"node": "s20-t03-design-endpoints",
+"agent": "researcher",
+"n": 443,
+"at": 1760001314001
+},
+{
+"node": "s20-t03-design-endpoints",
+"agent": "researcher",
+"n": 446,
+"at": 1760001316001
+},
+{
+"node": "13738fa5-0769-4706-8b1c-7bfc9233b985",
+"agent": "researcher",
+"n": 447,
+"at": 1760001317001
+},
+{
+"node": "bdab46a7-ecd6-434c-b534-775b090b28f6",
+"agent": "researcher",
+"n": 448,
+"at": 1760001319001
+},
+{
+"node": "ee4d9799-ffba-44b3-a97a-f35cdbed3835",
+"agent": "planner",
+"n": 329,
+"at": 1760001321001
+},
+{
+"node": "s20-t12-update-endpoints-for-v2",
+"agent": "crucible",
+"n": 40,
+"at": 1760001322001
+},
+{
+"node": "s20-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 384,
+"at": 1760001323001
+},
+{
+"node": "s20-t12-update-endpoints-for-v2",
+"agent": "builder",
+"n": 387,
+"at": 1760001325001
+},
+{
+"node": "5f6b202b-1802-4ecb-b76f-8a882e44dfa2",
+"agent": "builder",
+"n": 388,
+"at": 1760001326001
+},
+{
+"node": "s20-t04-survey-infra-security",
+"agent": "researcher",
+"n": 450,
+"at": 1760001328001
+},
+{
+"node": "f613a2bf-1bca-4f1b-9bff-7c34ad41d24c",
+"agent": "researcher",
+"n": 451,
+"at": 1760001329001
+},
+{
+"node": "f5366406-4475-49b6-91bf-3b3a68eb3aa8",
+"agent": "researcher",
+"n": 452,
+"at": 1760001330001
+},
+{
+"node": "s20-t04-survey-infra-security",
+"agent": "researcher",
+"n": 453,
+"at": 1760001330002
+},
+{
+"node": "s20-t05-choose-auth",
+"agent": "planner",
+"n": 330,
+"at": 1760001332001
+},
+{
+"node": "df270c6b-675b-4627-8c9d-0c08295578b8",
+"agent": "planner",
+"n": 332,
+"at": 1760001334001
+},
+{
+"node": "1b1440e2-5d44-40d6-bfcd-41c2c14b66f0",
+"agent": "planner",
+"n": 333,
+"at": 1760001334002
+},
+{
+"node": "s20-t05-choose-auth",
+"agent": "planner",
+"n": 334,
+"at": 1760001335001
+},
+{
+"node": "3678cdd2-6dbb-4f99-90dd-3868dff424c7",
+"agent": "planner",
+"n": 335,
+"at": 1760001337001
+},
+{
+"node": "b8e019fd-0f8e-42ce-b90e-9f1669288771",
+"agent": "planner",
+"n": 336,
+"at": 1760001337002
+},
+{
+"node": "ea6dc353-6653-468f-94de-b7b45f2e9e13",
+"agent": "researcher",
+"n": 455,
+"at": 1760001341001
+},
+{
+"node": "eef8c6cd-ca23-4936-bc2e-6ca337b46ae2",
+"agent": "planner",
+"n": 337,
+"at": 1760001342001
+},
+{
+"node": "s20-t06-write-db-schema",
+"agent": "builder",
+"n": 389,
+"at": 1760001343001
+},
+{
+"node": "e61229b7-a79f-4b54-b6be-71e845413994",
+"agent": "builder",
+"n": 392,
+"at": 1760001345001
+},
+{
+"node": "s20-t06-write-db-schema",
+"agent": "builder",
+"n": 393,
+"at": 1760001346001
+},
+{
+"node": "s20-t07-implement-crud-spec",
+"agent": "builder",
+"n": 394,
+"at": 1760001348001
+},
+{
+"node": "s20-t07-implement-crud-spec",
+"agent": "builder",
+"n": 397,
+"at": 1760001350001
+},
+{
+"node": "d94d41a3-01da-43a1-ac1d-840784650bda",
+"agent": "builder",
+"n": 398,
+"at": 1760001351001
+},
+{
+"node": "s20-t08-write-test-plan",
+"agent": "researcher",
+"n": 456,
+"at": 1760001353001
+},
+{
+"node": "s20-t08-write-test-plan",
+"agent": "researcher",
+"n": 458,
+"at": 1760001354001
+},
+{
+"node": "s20-t09-review-spec",
+"agent": "planner",
+"n": 338,
+"at": 1760001356001
+},
+{
+"node": "ea8003c0-87d9-4bb7-aa24-dbbcf50c6bc6",
+"agent": "planner",
+"n": 340,
+"at": 1760001357001
+},
+{
+"node": "s20-t09-review-spec",
+"agent": "planner",
+"n": 341,
+"at": 1760001358001
+},
+{
+"node": "s20-t10-write-docs",
+"agent": "researcher",
+"n": 459,
+"at": 1760001360001
+},
+{
+"node": "s20-t10-write-docs",
+"agent": "researcher",
+"n": 461,
+"at": 1760001361001
+},
+{
+"node": "s20-t11-package-release",
+"agent": "builder",
+"n": 399,
+"at": 1760001363001
+},
+{
+"node": "s20-t11-package-release",
+"agent": "builder",
+"n": 400,
+"at": 1760001363002
+},
+{
+"node": "07a02fb4-84c6-4ccf-aea2-83f4d12d0a0e",
+"agent": "builder",
+"n": 401,
+"at": 1760001364001
+}
 ]
 }

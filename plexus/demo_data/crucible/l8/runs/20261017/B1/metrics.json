@@ -40,6 +40,23 @@
    "n": 3,
    "propagated": 0
   },
+  "post_hoc": {
+   "excl_x2_brief_write": {
+    "n": 66,
+    "stale": 6,
+    "rate": 0.0909
+   },
+   "excl_deleted_only": {
+    "n": 64,
+    "stale": 4,
+    "rate": 0.0625
+   },
+   "excl_both": {
+    "n": 63,
+    "stale": 3,
+    "rate": 0.0476
+   }
+  },
   "stale_facts_live_at_end": 6
  },
  "time_to_notice": {
@@ -110,6 +127,7 @@
  "mast": {
   "R1": 0,
   "R2": 0,
+  "R2_in_reclaim_turns": 0,
   "R3": 0,
   "R4_wasted_reads": 0,
   "step_repetition_rate": 0.0,
@@ -157,8 +175,10 @@
  "provenance": {
   "overall": {
    "with_record": 42,
-   "acknowledged": 58,
-   "rate": 0.7241
+   "acknowledged": 42,
+   "rate": 1.0,
+   "tools": "assert_fact, record_decision, handoff, verify_fact (complete_task per tool only)",
+   "rule_of_three_upper_bound_missing": 0.0714
   },
   "by_tool": {
    "assert_fact": {
@@ -187,6 +207,7 @@
    "acknowledged": 1,
    "rate": 1.0
   },
+  "duplicate_acks_skipped": 0,
   "without_record": [
    {
     "turn": 2,
@@ -335,7 +356,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 22,
@@ -351,7 +374,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 24,
@@ -367,7 +392,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 26,
@@ -383,7 +410,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 28,
@@ -399,7 +428,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 30,
@@ -419,7 +450,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 32,
@@ -439,7 +472,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 45,
@@ -456,7 +491,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 47,
@@ -473,7 +510,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 50,
@@ -490,7 +529,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 69,
@@ -508,7 +549,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 72,
@@ -526,7 +569,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 74,
@@ -544,7 +589,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 95,
@@ -560,7 +607,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 97,
@@ -576,7 +625,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 99,
@@ -592,7 +643,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 101,
@@ -608,7 +661,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 103,
@@ -624,7 +679,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 105,
@@ -640,7 +697,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 107,
@@ -656,7 +715,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 109,
@@ -672,7 +733,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 111,
@@ -688,7 +751,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 113,
@@ -704,7 +769,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 115,
@@ -729,7 +796,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 117,
@@ -754,7 +823,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 142,
@@ -771,7 +842,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 144,
@@ -788,7 +861,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 173,
@@ -808,7 +883,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 177,
@@ -825,7 +902,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 201,
@@ -843,7 +922,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 204,
@@ -861,7 +942,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 215,
@@ -877,7 +960,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 217,
@@ -893,7 +978,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 219,
@@ -909,7 +996,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 221,
@@ -925,7 +1014,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 223,
@@ -945,7 +1036,9 @@
     "AX-30346"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": true
   },
   {
    "seq": 225,
@@ -969,7 +1062,9 @@
     "AX-30346"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 227,
@@ -993,7 +1088,9 @@
     "AX-30346"
    ],
    "repetition": false,
-   "c2": true
+   "c2": true,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 257,
@@ -1017,7 +1114,9 @@
     "AX-67390"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 259,
@@ -1040,7 +1139,9 @@
     "AX-67390"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 261,
@@ -1062,7 +1163,9 @@
     "AX-67390"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 299,
@@ -1079,7 +1182,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 303,
@@ -1096,7 +1201,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 305,
@@ -1113,7 +1220,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 322,
@@ -1129,7 +1238,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 324,
@@ -1152,7 +1263,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 326,
@@ -1175,7 +1288,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 340,
@@ -1191,7 +1306,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 342,
@@ -1207,7 +1324,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 344,
@@ -1223,7 +1342,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 346,
@@ -1239,7 +1360,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 348,
@@ -1255,7 +1378,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 351,
@@ -1275,7 +1400,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 354,
@@ -1295,7 +1422,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 380,
@@ -1314,7 +1443,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 382,
@@ -1332,7 +1463,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 406,
@@ -1350,7 +1483,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 408,
@@ -1368,7 +1503,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 410,
@@ -1386,7 +1523,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 431,
@@ -1405,7 +1544,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 433,
@@ -1424,7 +1565,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 464,
@@ -1452,7 +1595,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 495,
@@ -1480,7 +1625,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 497,
@@ -1508,7 +1655,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 510,
@@ -1528,7 +1677,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 512,
@@ -1548,7 +1699,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 514,
@@ -1568,7 +1721,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   }
  ]
 }

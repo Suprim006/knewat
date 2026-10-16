@@ -14,12 +14,12 @@
  },
  "hook_failed_commits": [],
  "stale_act": {
-  "scored_actions": 50,
-  "stale": 6,
-  "rate": 0.12,
+  "scored_actions": 48,
+  "stale": 4,
+  "rate": 0.0833,
   "wilson95": [
-   0.0562,
-   0.238
+   0.0329,
+   0.1955
   ],
   "dependent": {
    "n": 48,
@@ -40,7 +40,24 @@
    "n": 2,
    "propagated": 0
   },
-  "stale_facts_live_at_end": 14
+  "post_hoc": {
+   "excl_x2_brief_write": {
+    "n": 48,
+    "stale": 4,
+    "rate": 0.0833
+   },
+   "excl_deleted_only": {
+    "n": 44,
+    "stale": 0,
+    "rate": 0.0
+   },
+   "excl_both": {
+    "n": 44,
+    "stale": 0,
+    "rate": 0.0
+   }
+  },
+  "stale_facts_live_at_end": 6
  },
  "time_to_notice": {
   "cases": [
@@ -108,11 +125,12 @@
   "false_alarm": null
  },
  "mast": {
-  "R1": 38,
+  "R1": 0,
   "R2": "n/a (no assert)",
+  "R2_in_reclaim_turns": "n/a",
   "R3": 0,
   "R4_wasted_reads": 0,
-  "step_repetition_rate": 0.76,
+  "step_repetition_rate": 0.0,
   "C1": 0,
   "C2": 0,
   "C3": 0,
@@ -133,7 +151,7 @@
    "first_turn": 10,
    "second_assertion_turn": 15,
    "surfaced_at_write": false,
-   "latency_turns": 0,
+   "latency_turns": 1,
    "post_conflict_actions_using_old": 1,
    "both_live_at_end": true
   },
@@ -153,7 +171,7 @@
   "correct_actions": 44,
   "per_correct_action": 25351,
   "weighted_per_correct_action": 8345,
-  "per_scored_action": 22309,
+  "per_scored_action": 23239,
   "cost_per_correct_action": 0.0286
  },
  "provenance": {
@@ -228,7 +246,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 17,
@@ -248,7 +268,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 22,
@@ -268,7 +290,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 36,
@@ -285,7 +309,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 38,
@@ -302,7 +328,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 42,
@@ -319,7 +347,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 60,
@@ -338,7 +368,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 62,
@@ -354,7 +386,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 64,
@@ -373,7 +407,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 68,
@@ -391,7 +427,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 77,
@@ -407,7 +445,6 @@
     "AX-46764",
     "AX-53228",
     "AX-67390",
-    "AX-78362",
     "AX-82535",
     "AX-82757",
     "AX-86955",
@@ -417,7 +454,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 79,
@@ -442,7 +481,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 83,
@@ -453,14 +494,11 @@
    "where": "memory",
    "tokens": [
     "AX-13975",
-    "AX-25930",
     "AX-33109",
     "AX-33950",
     "AX-46764",
     "AX-53228",
     "AX-67390",
-    "AX-73505",
-    "AX-78618",
     "AX-82535",
     "AX-82757",
     "AX-86955",
@@ -470,23 +508,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
-  },
-  {
-   "seq": 98,
-   "turn": 6,
-   "agent": "planner",
-   "task": "t05-choose-auth",
-   "tool": "Edit",
-   "where": "memory",
-   "tokens": [
-    "AX-82757"
-   ],
-   "stale": [],
-   "dependent": false,
-   "dependent_stale": [],
-   "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 100,
@@ -503,7 +527,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 102,
@@ -520,7 +546,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 106,
@@ -530,7 +558,6 @@
    "tool": "Edit",
    "where": "memory",
    "tokens": [
-    "AX-33950",
     "AX-46764",
     "AX-96963"
    ],
@@ -538,7 +565,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 132,
@@ -555,7 +584,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 134,
@@ -572,7 +603,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 138,
@@ -589,7 +622,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 158,
@@ -607,7 +642,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 160,
@@ -617,14 +654,15 @@
    "tool": "Edit",
    "where": "memory",
    "tokens": [
-    "AX-25930",
     "AX-53228"
    ],
    "stale": [],
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 168,
@@ -642,7 +680,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 182,
@@ -657,16 +697,15 @@
     "AX-72602",
     "AX-77238",
     "AX-82083",
-    "AX-83852",
-    "AX-96963"
+    "AX-83852"
    ],
-   "stale": [
-    "AX-96963"
-   ],
+   "stale": [],
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 184,
@@ -687,7 +726,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 188,
@@ -708,7 +749,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 215,
@@ -734,7 +777,9 @@
     "AX-67390"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 217,
@@ -760,7 +805,9 @@
     "AX-67390"
    ],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 221,
@@ -784,23 +831,9 @@
     "AX-67390"
    ],
    "repetition": false,
-   "c2": false
-  },
-  {
-   "seq": 230,
-   "turn": 12,
-   "agent": "researcher",
-   "task": "ingest-v2",
-   "tool": "Edit",
-   "where": "memory",
-   "tokens": [
-    "AX-53228"
-   ],
-   "stale": [],
-   "dependent": false,
-   "dependent_stale": [],
-   "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 269,
@@ -817,7 +850,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 271,
@@ -834,7 +869,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 273,
@@ -845,18 +882,15 @@
    "where": "memory",
    "tokens": [
     "AX-25930",
-    "AX-47833",
-    "AX-67390",
-    "AX-79535",
-    "AX-96963"
+    "AX-79535"
    ],
-   "stale": [
-    "AX-67390"
-   ],
+   "stale": [],
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 277,
@@ -873,7 +907,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 296,
@@ -897,7 +933,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 298,
@@ -918,7 +956,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 302,
@@ -942,7 +982,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 316,
@@ -956,14 +998,15 @@
     "AX-31441",
     "AX-33384",
     "AX-34286",
-    "AX-43136",
-    "AX-83852"
+    "AX-43136"
    ],
    "stale": [],
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 318,
@@ -983,7 +1026,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 322,
@@ -1003,7 +1048,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 348,
@@ -1028,7 +1075,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": true,
+   "x2_brief_write": false
   },
   {
    "seq": 370,
@@ -1048,7 +1097,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 374,
@@ -1068,7 +1119,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 396,
@@ -1087,7 +1140,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 400,
@@ -1106,7 +1161,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 438,
@@ -1139,7 +1196,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 467,
@@ -1168,7 +1227,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 483,
@@ -1188,7 +1249,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 498,
@@ -1208,7 +1271,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   },
   {
    "seq": 500,
@@ -1228,7 +1293,9 @@
    "dependent": true,
    "dependent_stale": [],
    "repetition": false,
-   "c2": false
+   "c2": false,
+   "stale_deleted_only": false,
+   "x2_brief_write": false
   }
  ]
 }
