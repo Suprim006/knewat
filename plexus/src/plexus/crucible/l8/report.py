@@ -265,7 +265,8 @@ def render(doc: dict[str, Any]) -> str:
     p = doc["pooled"]
     w = ["# Crucible L8 round A: long-horizon memory under live change (P, B1, B0′ × seeds)\n",
          f"Run `{doc['run']['id']}`, code `{doc['git']['short']}` (dirty: {doc['git']['dirty']}), model alias `sonnet`, "
-         f"prompts `{doc['config']['prompt_version']}`. Spend: ${doc['run']['cost_usd']:.2f} (notional, subscription).\n",
+         f"prompts `{doc['config']['prompt_version']}`. L8 spend (runs + B0′ readers + probe + discarded shake-down): "
+         f"${doc['run']['cost_usd']:.2f} (notional `total_cost_usd`, owner's subscription).\n",
          "## Headline\n", *[f"- {s}" for s in doc["headline"]["sentences"]], "",
          "## Metrics (MAST rows measure three narrow signatures, not the taxonomy categories)\n", doc["table"], "",
          "## Separation tests (exact permutation on seed-level rates; separated = p ≤ 0.05 and ranges do not overlap)\n"]  # fmt: skip
@@ -273,6 +274,34 @@ def render(doc: dict[str, Any]) -> str:
         w.append(
             f"- {k}: p = {v['perm_p']}, ranges overlap = {v['ranges_overlap']}, **separated = {v['separated']}**"
         )
+    w.append("\n## End-of-run audit (§6.5; P Cypher and B1 SQL deterministic, B0′ a 32k BM25 reader)\n")
+    for arm in ("P", "B1", "B0p"):
+        rows = [a for a in doc["audit"] if a["arm"] == arm]
+        if rows:
+            c = {q: sum(1 for a in rows if a[q]["correct"]) for q in ("Q1", "Q2", "Q3")}
+            w.append(
+                f"- {ARM_NAME[arm]}: Q1 {c['Q1']}/{len(rows)}, Q2 {c['Q2']}/{len(rows)}, Q3 {c['Q3']}/{len(rows)}"
+            )
+    if doc.get("probe"):
+        w.append(
+            "\n## Query-authoring probe (§6.9, seed-1 stores, 3 questions x 3 repetitions per language)\n"
+        )
+        for lang in ("cypher", "sql"):
+            rs = [r for r in doc["probe"]["rows"] if r["lang"] == lang and "not_run" not in r]
+            if rs:
+                lines = sorted(r["lines"] for r in rs)
+                w.append(
+                    f"- {lang}: first-try exact {sum(r['first_try_exact'] for r in rs)}/{len(rs)}, exact within 3 fixes "
+                    f"{sum(r['exact'] for r in rs)}/{len(rs)}, fix iterations {sum(r['fix_iterations'] for r in rs)}, "
+                    f"defects {sum(len(r['defects']) for r in rs)}, non-blank lines median {lines[len(lines) // 2]} (range {lines[0]}-{lines[-1]})"
+                )  # fmt: skip
+        w.append(f"- reference result sizes: {doc['probe']['reference_counts']}")
+    lat = doc.get("claim_latency_ms") or {}
+    w.append(
+        "\n§7 footnote: median `claim_next_task` latency seen by the agent (stream-json timestamps, incl. the MCP stdio hop): "
+        + ", ".join(f"{ARM_NAME[a]} {v['median_ms']} ms (n={v['n']})" for a, v in lat.items())
+        + ". L1 regression gate passed at 42a5750 (amendment 1). Forgetting: product default (on, floor 0.9) in P; no L8 metric depends on it."
+    )  # fmt: skip
     w.append("\n## Honesty\n")
     w += [f"- {h}" for h in doc["honesty"]]
     return "\n".join(w) + "\n"
@@ -328,7 +357,12 @@ def assemble(
         probe = run_probe(rp, rb, sent, host, port)
     cost = sum(r["cost_usd"] for r in runs) + sum(x["reader_cost"] for x in audit_rows)
     if probe:
-        cost += sum(x["cost"] for x in probe["rows"])
+        cost += sum(x.get("cost_incl_cached", 0) for x in probe["rows"])  # paid once (cached on re-runs)
+    disc = out / "discarded.json"
+    if disc.exists():
+        cost += sum(
+            float(e.get("cost_usd") or 0) for e in json.loads(disc.read_text(encoding="utf-8"))["entries"]
+        )
     doc = {
         "schema": "crucible-l8/1", "kind": "roundA",
         "run": {"id": run_stamp() + "-roundA", "started_at": iso_utc(started), "finished_at": iso_utc(), "command": command,
