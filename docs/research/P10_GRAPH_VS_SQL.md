@@ -404,3 +404,16 @@ showed is stated so that the reader can see which choices were made with a numbe
   53,423 of 59,370 F-service calls failed) and **0** with one graph and 1,000 callers (p50 13-24 s instead), which is the
   opposite direction of prediction J4's "in J-one"; S-file 0 errors at every P with p99 14-24 s in J-one at P >= 200.
   Prediction J4 is not changed. 1,000 sessions are feasible (8 processes, ~660 MB of drivers, < 1,700 handles).
+
+### Amendment 2 (after the recorded H run, before the recorded J and G runs)
+
+* G-6 If a tenant cannot be created in some arm (e.g. out of memory), the G driver now records the failure (N,
+  tenant, arm, error, `docker stats`) as `infeasible` and finishes the report with the levels already measured,
+  instead of raising and losing the level (`g.py`, commit after this text). Nothing else in G changes.
+* G-7 Memory safety on a shared VM: the WSL2 VM has 7.4 GiB and other people's containers (one Postgres alone uses
+  1.4 GiB). Before the G run plexus-db-65 gets `CONFIG SET maxmemory 3800mb` (policy stays `noeviction`), so that a
+  FalkorDB tenant population that does not fit fails inside Redis with an `OOM command not allowed` error (reported as
+  the infeasibility point) instead of letting the VM's OOM killer pick a container. If 2,000 tenants hit that limit,
+  that is the result: "2,000 product-schema tenants do not fit in 3.8 GB of FalkorDB memory on this machine", with
+  the N reached.
+* Run order: J (alone), then G (alone).

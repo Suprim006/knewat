@@ -442,7 +442,10 @@ def run(a: argparse.Namespace) -> dict[str, Any]:
         doc["G1"], doc["G2"], doc["G3a"], doc["G3b"], doc["G4"], doc["failures"] = {}, {}, {}, {}, {}, []
         made = 0
         worlds: dict[int, dict[str, Any]] = {}
+        stop: dict[str, Any] | None = None
         for n in sc["ns"]:
+            if stop:
+                break
             t_level = time.time()
             # ---- creation of tenants made..n-1 in every arm
             while made < n:
@@ -484,12 +487,23 @@ def run(a: argparse.Namespace) -> dict[str, Any]:
                             }
                         )
                         log(f"FAILURE creating tenant {k} in {name}: {exc}")
-                        raise
+                        stop = {"N": n, "tenant": k, "arm": name, "error": f"{type(exc).__name__}: {exc}",
+                                "tenants_created_all_arms": made,
+                                "docker_stats": common.docker_stats_once(CONTAINER)}  # fmt: skip
+                        break
+                if stop:
+                    break
                 made += 1
                 if made % 100 == 0:
                     log(
                         f"created {made}/{n} tenants (F p50 create {1000 * sorted(g1['F']['create_s'])[len(g1['F']['create_s']) // 2]:.0f} ms)"
                     )
+            if stop:
+                doc["infeasible"] = (
+                    stop  # the scale that could not be reached, with the failure; nothing is capped silently
+                )
+                log(f"N={n} not reached: {stop['error']}")
+                break
             log(f"N={n}: tenants created in {time.time() - t_level:.1f}s")
             # ---- G1 so far
             doc["G1"][str(n)] = {
