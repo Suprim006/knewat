@@ -11,6 +11,10 @@
 // (fan-in 3, depth 12 = ~500k paths, 60 facts) costs its edges, not its paths. `(f:Fact)-[:DERIVED_FROM*1..N]->(src)` would be planned from the
 // Fact side (a scan of EVERY fact) and enumerates paths. A fact that is only a stepping stone (status not selected) still links the facts behind it
 // to the source.
+// P9-f (Crucible L6-A, 5,000-fact blast: timed out): the reader / decision / handoff joins run in ONE pass over the
+// distinct facts, keyed only by the source. The old form chained `UNWIND fs` joins whose `WITH src, fs, collect(...)`
+// grouped by the whole fact list (a 5,000-element key hashed once per row). Per fact the OPTIONAL MATCHes multiply
+// (readers x decisions x handoffs), which is small for one fact; collect(DISTINCT ...) removes the repeats.
 MATCH (src:Source {id: $source_id})
 OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(src)
 WITH src, collect(DISTINCT n1) AS l1
@@ -63,18 +67,13 @@ WITH src, reach
 WITH src, [r IN reach WHERE r.status IN ['active', 'superseded', 'dormant']] AS cand
 UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
-WITH src, collect(f) AS fs
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
-OPTIONAL MATCH (s:Step)-[:READ]->(x)
-WITH src, fs, x, s ORDER BY s.at ASC, s.agent_id ASC, x.id ASC
-WITH src, fs, collect(CASE WHEN s IS NULL THEN null ELSE {agent_id: s.agent_id, step_id: s.id, n: s.n, at: s.at, fact_id: x.id} END) AS reads,
-     collect(DISTINCT s.agent_id) AS agent_ids
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
-OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(y)
-WITH src, fs, reads, agent_ids, collect(DISTINCT d) AS ds
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS w
-OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(w)
-WITH src, fs, reads, agent_ids, ds, collect(DISTINCT h) AS hs
+OPTIONAL MATCH (s:Step)-[:READ]->(f)
+OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(f)
+OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(f)
+WITH src, f, s, d, h ORDER BY s.at ASC, s.agent_id ASC, f.id ASC
+WITH src, collect(DISTINCT f) AS fs,
+     collect(DISTINCT CASE WHEN s IS NULL THEN null ELSE {agent_id: s.agent_id, step_id: s.id, n: s.n, at: s.at, fact_id: f.id} END) AS reads,
+     collect(DISTINCT s.agent_id) AS agent_ids, collect(DISTINCT d) AS ds, collect(DISTINCT h) AS hs
 FOREACH (z IN fs | SET z.prior_status = z.status, z.status = 'quarantined', z.quarantined_at = $now)
 RETURN [a IN fs | a.id] AS fact_ids, reads[0..$max_detail] AS reads, size(reads) AS reads_total, agent_ids,
        [b IN ds[0..$max_detail] | b.id] AS decision_ids, size(ds) AS decisions_total,
