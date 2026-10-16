@@ -1,0 +1,1574 @@
+{
+ "seed": 20261017,
+ "arm": "B1",
+ "status": "completed",
+ "error": "",
+ "turns": 22,
+ "tasks_done": 16,
+ "tasks_total": 16,
+ "commits_landed": 10,
+ "kills_fired": {
+  "K1": 8,
+  "K3": 17,
+  "K2": 20
+ },
+ "hook_failed_commits": [],
+ "stale_act": {
+  "scored_actions": 67,
+  "stale": 7,
+  "rate": 0.1045,
+  "wilson95": [
+   0.0515,
+   0.2003
+  ],
+  "dependent": {
+   "n": 67,
+   "stale": 6,
+   "rate": 0.0896
+  },
+  "artifact_and_completion": {
+   "n": 34,
+   "stale": 5,
+   "rate": 0.1471
+  },
+  "artifact_files_only": {
+   "n": 18,
+   "stale": 3,
+   "rate": 0.1667
+  },
+  "propagated_t16": {
+   "n": 3,
+   "propagated": 0
+  },
+  "stale_facts_live_at_end": 6
+ },
+ "time_to_notice": {
+  "cases": [
+   {
+    "commit": 1,
+    "kind": "sibling",
+    "function": "auth.hash_rounds",
+    "landed_before_turn": 7,
+    "level1_turns": 4,
+    "level2_turns": 8
+   },
+   {
+    "commit": 1,
+    "kind": "sibling",
+    "function": "auth.key_header",
+    "landed_before_turn": 7,
+    "level1_turns": 4,
+    "level2_turns": null
+   },
+   {
+    "commit": 3,
+    "kind": "delete",
+    "function": "auth.session_cookie",
+    "landed_before_turn": 9,
+    "level1_turns": 2,
+    "level2_turns": "n/a (delete)"
+   },
+   {
+    "commit": 4,
+    "kind": "value",
+    "function": "auth.token_ttl",
+    "landed_before_turn": 10,
+    "level1_turns": 1,
+    "level2_turns": 1
+   },
+   {
+    "commit": 8,
+    "kind": "value",
+    "function": "db.engine",
+    "landed_before_turn": 14,
+    "level1_turns": 1,
+    "level2_turns": 3
+   },
+   {
+    "commit": 8,
+    "kind": "value",
+    "function": "search.analyzer",
+    "landed_before_turn": 14,
+    "level1_turns": null,
+    "level2_turns": null
+   },
+   {
+    "commit": 10,
+    "kind": "value",
+    "function": "config.secret_store",
+    "landed_before_turn": 17,
+    "level1_turns": 3,
+    "level2_turns": 3
+   }
+  ],
+  "level1_median_turns": 3,
+  "level2_median_turns": 5.5,
+  "level1_censored": 1,
+  "level2_censored": 2,
+  "false_alarm": null
+ },
+ "mast": {
+  "R1": 0,
+  "R2": 0,
+  "R3": 0,
+  "R4_wasted_reads": 0,
+  "step_repetition_rate": 0.0,
+  "C1": 0,
+  "C2": 1,
+  "C3": 0,
+  "missing_completion_rate": 0.0625,
+  "M1": 0,
+  "M2": 1,
+  "M3": 2,
+  "mismatch_rate": 0.0448
+ },
+ "contradictions": {
+  "X1": {
+   "second_assertion_turn": 6,
+   "surfaced_at_write": true,
+   "latency_turns": 0,
+   "method": "keywords 'JWT' and 'API key'"
+  },
+  "X2": {
+   "first_turn": 10,
+   "second_assertion_turn": 15,
+   "surfaced_at_write": true,
+   "latency_turns": 0,
+   "post_conflict_actions_using_old": 0,
+   "both_live_at_end": true
+  },
+  "X3": {
+   "commit_turn": 10,
+   "new_value_written_turn": null,
+   "both_live_at_end": null,
+   "note": "nobody wrote the new auth.token_ttl to the store"
+  }
+ },
+ "tokens": {
+  "total": 2184307,
+  "billing_weighted": 415960,
+  "cost_usd": 1.1616,
+  "correct_actions": 60,
+  "per_correct_action": 36405,
+  "weighted_per_correct_action": 6933,
+  "per_scored_action": 32602,
+  "cost_per_correct_action": 0.0194
+ },
+ "provenance": {
+  "overall": {
+   "with_record": 42,
+   "acknowledged": 58,
+   "rate": 0.7241
+  },
+  "by_tool": {
+   "assert_fact": {
+    "with_record": 32,
+    "acknowledged": 32,
+    "rate": 1.0
+   },
+   "complete_task": {
+    "with_record": 0,
+    "acknowledged": 16,
+    "rate": 0.0
+   },
+   "record_decision": {
+    "with_record": 6,
+    "acknowledged": 6,
+    "rate": 1.0
+   },
+   "handoff": {
+    "with_record": 4,
+    "acknowledged": 4,
+    "rate": 1.0
+   }
+  },
+  "kill_turns": {
+   "with_record": 1,
+   "acknowledged": 1,
+   "rate": 1.0
+  },
+  "without_record": [
+   {
+    "turn": 2,
+    "tool": "complete_task",
+    "id": "t01-gather-requirements"
+   },
+   {
+    "turn": 3,
+    "tool": "complete_task",
+    "id": "t02-choose-api-version"
+   },
+   {
+    "turn": 4,
+    "tool": "complete_task",
+    "id": "t03-design-endpoints"
+   },
+   {
+    "turn": 5,
+    "tool": "complete_task",
+    "id": "t04-survey-infra-security"
+   },
+   {
+    "turn": 6,
+    "tool": "complete_task",
+    "id": "t05-choose-auth"
+   },
+   {
+    "turn": 7,
+    "tool": "complete_task",
+    "id": "t13-reuse-billing-cycle"
+   },
+   {
+    "turn": 9,
+    "tool": "complete_task",
+    "id": "t06-write-db-schema"
+   },
+   {
+    "turn": 10,
+    "tool": "complete_task",
+    "id": "t14-ratelimit-spec"
+   },
+   {
+    "turn": 11,
+    "tool": "complete_task",
+    "id": "t07-implement-crud-spec"
+   },
+   {
+    "turn": 14,
+    "tool": "complete_task",
+    "id": "t12-update-endpoints-for-v2"
+   },
+   {
+    "turn": 15,
+    "tool": "complete_task",
+    "id": "t15-config-matrix"
+   },
+   {
+    "turn": 16,
+    "tool": "complete_task",
+    "id": "t08-write-test-plan"
+   },
+   {
+    "turn": 18,
+    "tool": "complete_task",
+    "id": "t09-review-spec"
+   },
+   {
+    "turn": 19,
+    "tool": "complete_task",
+    "id": "t10-write-docs"
+   },
+   {
+    "turn": 21,
+    "tool": "complete_task",
+    "id": "t16-release-notes"
+   },
+   {
+    "turn": 22,
+    "tool": "complete_task",
+    "id": "t11-package-release"
+   }
+  ]
+ },
+ "recovery": [
+  {
+   "kill": "K1",
+   "turn": 8,
+   "task": "t06-write-db-schema",
+   "agent": "builder",
+   "finished_units": 0,
+   "repeated_units": 0,
+   "rewrites_in_reclaim_turn": 1,
+   "reasserted_facts": 0,
+   "reclaim_turn": 9,
+   "recovered": true,
+   "turns_kill_to_done": 1
+  },
+  {
+   "kill": "K3",
+   "turn": 17,
+   "task": "t09-review-spec",
+   "agent": "planner",
+   "finished_units": 1,
+   "repeated_units": 1,
+   "rewrites_in_reclaim_turn": 1,
+   "reasserted_facts": 0,
+   "reclaim_turn": 18,
+   "recovered": true,
+   "turns_kill_to_done": 1
+  },
+  {
+   "kill": "K2",
+   "turn": 20,
+   "task": "t16-release-notes",
+   "agent": "researcher",
+   "finished_units": 1,
+   "repeated_units": 1,
+   "rewrites_in_reclaim_turn": 1,
+   "reasserted_facts": 0,
+   "reclaim_turn": 21,
+   "recovered": true,
+   "turns_kill_to_done": 1
+  }
+ ],
+ "history_recall": {
+  "t13-reuse-billing-cycle": {
+   "S07 billing cycle": false,
+   "S13 API-key header": true
+  },
+  "t16-release-notes": {
+   "S20 release channel": false
+  }
+ },
+ "actions": [
+  {
+   "seq": 20,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-25930"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 22,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-73505"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 24,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-78618"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 26,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-79535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 28,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-78362"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 30,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-25930",
+    "AX-73505",
+    "AX-78362",
+    "AX-78618",
+    "AX-79535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 32,
+   "turn": 2,
+   "agent": "researcher",
+   "task": "t01-gather-requirements",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-73505",
+    "AX-78362",
+    "AX-78618",
+    "AX-79535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 45,
+   "turn": 3,
+   "agent": "planner",
+   "task": "t02-choose-api-version",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-25930",
+    "AX-78362"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 47,
+   "turn": 3,
+   "agent": "planner",
+   "task": "t02-choose-api-version",
+   "tool": "record_decision",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-78362"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 50,
+   "turn": 3,
+   "agent": "planner",
+   "task": "t02-choose-api-version",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-78362"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 69,
+   "turn": 4,
+   "agent": "builder",
+   "task": "t03-design-endpoints",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-25930",
+    "AX-73505",
+    "AX-78618"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 72,
+   "turn": 4,
+   "agent": "builder",
+   "task": "t03-design-endpoints",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-73505",
+    "AX-78618"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 74,
+   "turn": 4,
+   "agent": "builder",
+   "task": "t03-design-endpoints",
+   "tool": "handoff",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-73505",
+    "AX-78618"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 95,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-82757"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 97,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-82535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 99,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-53228"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 101,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-86955"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 103,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-33109"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 105,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-46764"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 107,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-13975"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 109,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-67390"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 111,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-33950"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 113,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-96963"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 115,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-13975",
+    "AX-33109",
+    "AX-33950",
+    "AX-46764",
+    "AX-53228",
+    "AX-67390",
+    "AX-82535",
+    "AX-82757",
+    "AX-86955",
+    "AX-96963"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 117,
+   "turn": 5,
+   "agent": "researcher",
+   "task": "t04-survey-infra-security",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-13975",
+    "AX-33109",
+    "AX-33950",
+    "AX-46764",
+    "AX-53228",
+    "AX-67390",
+    "AX-82535",
+    "AX-82757",
+    "AX-86955",
+    "AX-96963"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 142,
+   "turn": 6,
+   "agent": "planner",
+   "task": "t05-choose-auth",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-46764",
+    "AX-96963"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 144,
+   "turn": 6,
+   "agent": "planner",
+   "task": "t05-choose-auth",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-46764",
+    "AX-96963"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 173,
+   "turn": 7,
+   "agent": "planner",
+   "task": "t13-reuse-billing-cycle",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-59699",
+    "AX-74889",
+    "AX-96963"
+   ],
+   "stale": [
+    "AX-96963"
+   ],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 177,
+   "turn": 7,
+   "agent": "planner",
+   "task": "t13-reuse-billing-cycle",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-59699",
+    "AX-74889"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 201,
+   "turn": 9,
+   "agent": "researcher",
+   "task": "t06-write-db-schema",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-53228",
+    "AX-82535",
+    "AX-82757"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 204,
+   "turn": 9,
+   "agent": "researcher",
+   "task": "t06-write-db-schema",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-53228",
+    "AX-82535",
+    "AX-82757"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 215,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-77238"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 217,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-62017"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 219,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-82083"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 221,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-83852"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 223,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-30346"
+   ],
+   "stale": [
+    "AX-30346"
+   ],
+   "dependent": true,
+   "dependent_stale": [
+    "AX-30346"
+   ],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 225,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-30346",
+    "AX-62017",
+    "AX-77238",
+    "AX-82083",
+    "AX-83852"
+   ],
+   "stale": [
+    "AX-30346"
+   ],
+   "dependent": true,
+   "dependent_stale": [
+    "AX-30346"
+   ],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 227,
+   "turn": 10,
+   "agent": "researcher",
+   "task": "t14-ratelimit-spec",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-30346",
+    "AX-62017",
+    "AX-77238",
+    "AX-82083",
+    "AX-83852"
+   ],
+   "stale": [
+    "AX-30346"
+   ],
+   "dependent": true,
+   "dependent_stale": [
+    "AX-30346"
+   ],
+   "repetition": false,
+   "c2": true
+  },
+  {
+   "seq": 257,
+   "turn": 11,
+   "agent": "builder",
+   "task": "t07-implement-crud-spec",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-21323",
+    "AX-25930",
+    "AX-46764",
+    "AX-67390",
+    "AX-92098"
+   ],
+   "stale": [
+    "AX-67390"
+   ],
+   "dependent": true,
+   "dependent_stale": [
+    "AX-67390"
+   ],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 259,
+   "turn": 11,
+   "agent": "builder",
+   "task": "t07-implement-crud-spec",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-21323",
+    "AX-25930",
+    "AX-67390",
+    "AX-92098"
+   ],
+   "stale": [
+    "AX-67390"
+   ],
+   "dependent": true,
+   "dependent_stale": [
+    "AX-67390"
+   ],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 261,
+   "turn": 11,
+   "agent": "builder",
+   "task": "t07-implement-crud-spec",
+   "tool": "handoff",
+   "where": "store",
+   "tokens": [
+    "AX-46764",
+    "AX-67390",
+    "AX-92098"
+   ],
+   "stale": [
+    "AX-67390"
+   ],
+   "dependent": true,
+   "dependent_stale": [
+    "AX-67390"
+   ],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 299,
+   "turn": 14,
+   "agent": "builder",
+   "task": "t12-update-endpoints-for-v2",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-25930",
+    "AX-79535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 303,
+   "turn": 14,
+   "agent": "builder",
+   "task": "t12-update-endpoints-for-v2",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-79535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 305,
+   "turn": 14,
+   "agent": "builder",
+   "task": "t12-update-endpoints-for-v2",
+   "tool": "handoff",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-79535"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 322,
+   "turn": 15,
+   "agent": "builder",
+   "task": "t15-config-matrix",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-72602"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 324,
+   "turn": 15,
+   "agent": "builder",
+   "task": "t15-config-matrix",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-15064",
+    "AX-28152",
+    "AX-33950",
+    "AX-49629",
+    "AX-72602",
+    "AX-82535",
+    "AX-85001",
+    "AX-86955"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 326,
+   "turn": 15,
+   "agent": "builder",
+   "task": "t15-config-matrix",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-15064",
+    "AX-28152",
+    "AX-33950",
+    "AX-49629",
+    "AX-72602",
+    "AX-82535",
+    "AX-85001",
+    "AX-86955"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 340,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-21323"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 342,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-33384"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 344,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-34286"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 346,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-31441"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 348,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "assert_fact",
+   "where": "store",
+   "tokens": [
+    "AX-43136"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 351,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-21323",
+    "AX-31441",
+    "AX-33384",
+    "AX-34286",
+    "AX-43136"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 354,
+   "turn": 16,
+   "agent": "researcher",
+   "task": "t08-write-test-plan",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-21323",
+    "AX-31441",
+    "AX-33384",
+    "AX-34286",
+    "AX-43136"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 380,
+   "turn": 17,
+   "agent": "planner",
+   "task": "t09-review-spec",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-25930",
+    "AX-50215",
+    "AX-82757",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 382,
+   "turn": 17,
+   "agent": "planner",
+   "task": "t09-review-spec",
+   "tool": "record_decision",
+   "where": "store",
+   "tokens": [
+    "AX-50215",
+    "AX-82757",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 406,
+   "turn": 18,
+   "agent": "researcher",
+   "task": "t09-review-spec",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-25930",
+    "AX-50215",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 408,
+   "turn": 18,
+   "agent": "researcher",
+   "task": "t09-review-spec",
+   "tool": "record_decision",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-50215",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 410,
+   "turn": 18,
+   "agent": "researcher",
+   "task": "t09-review-spec",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-25930",
+    "AX-50215",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 431,
+   "turn": 19,
+   "agent": "researcher",
+   "task": "t10-write-docs",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-21323",
+    "AX-68909",
+    "AX-73505",
+    "AX-78362"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 433,
+   "turn": 19,
+   "agent": "researcher",
+   "task": "t10-write-docs",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-21323",
+    "AX-68909",
+    "AX-73505",
+    "AX-78362"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 464,
+   "turn": 20,
+   "agent": "researcher",
+   "task": "t16-release-notes",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-15064",
+    "AX-25930",
+    "AX-28152",
+    "AX-33950",
+    "AX-49629",
+    "AX-49941",
+    "AX-50215",
+    "AX-59699",
+    "AX-72602",
+    "AX-74889",
+    "AX-82535",
+    "AX-86955",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 495,
+   "turn": 21,
+   "agent": "planner",
+   "task": "t16-release-notes",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-15064",
+    "AX-25930",
+    "AX-28152",
+    "AX-33950",
+    "AX-49629",
+    "AX-49941",
+    "AX-50215",
+    "AX-59699",
+    "AX-72602",
+    "AX-74889",
+    "AX-82535",
+    "AX-86955",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 497,
+   "turn": 21,
+   "agent": "planner",
+   "task": "t16-release-notes",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-15064",
+    "AX-25930",
+    "AX-28152",
+    "AX-33950",
+    "AX-49629",
+    "AX-49941",
+    "AX-50215",
+    "AX-59699",
+    "AX-72602",
+    "AX-74889",
+    "AX-82535",
+    "AX-86955",
+    "AX-92098"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 510,
+   "turn": 22,
+   "agent": "builder",
+   "task": "t11-package-release",
+   "tool": "Write",
+   "where": "artifact",
+   "tokens": [
+    "AX-32779",
+    "AX-56187",
+    "AX-59495",
+    "AX-64608",
+    "AX-84443"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 512,
+   "turn": 22,
+   "agent": "builder",
+   "task": "t11-package-release",
+   "tool": "complete_task",
+   "where": "store",
+   "tokens": [
+    "AX-32779",
+    "AX-56187",
+    "AX-59495",
+    "AX-64608",
+    "AX-84443"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  },
+  {
+   "seq": 514,
+   "turn": 22,
+   "agent": "builder",
+   "task": "t11-package-release",
+   "tool": "handoff",
+   "where": "store",
+   "tokens": [
+    "AX-32779",
+    "AX-56187",
+    "AX-59495",
+    "AX-64608",
+    "AX-84443"
+   ],
+   "stale": [],
+   "dependent": true,
+   "dependent_stale": [],
+   "repetition": false,
+   "c2": false
+  }
+ ]
+}
