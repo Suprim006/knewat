@@ -726,3 +726,58 @@ Whichever applies is the sentence that goes in the report. The run is not repeat
 ---
 
 *Amendments (dated, appended, never edited in place) go below this line.*
+
+### Amendment 1 (2026-10-16, before the first paid call; LLM calls for L8 before this text: 0)
+
+Approval received for **round A only**: P, B1, B0′ × 5 seeds (≈ $17, hard cap $25). B0 and B3 are deferred (cut
+rule steps 2 and B3's own round); nothing for them is built. The harness is at commits `2a6129a` (runner, scenario,
+schedule) and `42a5750` (scorer, unit tests, `seeds/*/schedule.json` + `sentinels.json`, `scenario.json` with the
+frozen `l8-v1` briefs) under `plexus/src/plexus/crucible/l8/` and `plexus/demo_data/crucible/l8/`. L1 regression gate
+(`crucible l1 --quick --tests C1,C2,C4 --arms P,B1 --embedder hash`, FalkorDB 6.0.2 on :6365) at `42a5750`: 16/16 cells
+ok (0 double claims, 0 lost updates, 0 early starts). Where building it forced a choice the plan did not make, or the
+plan was not implementable as written, this is what was done:
+
+1. **16 tasks, not 17.** `tasks.json` has 11 kickoff tasks + `t12` mid-run; + 4 new = 15 at kickoff + `t12` = 16.
+   §6.3's per-task denominator is 16.
+2. **No S03 rate-limit decision exists in the L2-scale history** (its facts are API version, database, auth, JWT key,
+   API-key header, release channel, billing cycle). X2's old value therefore comes only from the S03 note in `t14`'s
+   brief (as §4.3 already says) and is registered in `sentinels.json` as a revision of `ratelimit.window` that is
+   stale from turn 0. The history-dependent tasks are `t13` (S07 billing cycle, S13 API-key header) and `t16` (S20
+   release channel); `t14` is not. Caveat: "general availability" is also the channel of S05/S10/S15, so `t16`'s
+   history check is weak.
+3. **Harness memory channel removed.** L3's per-turn "Ids from earlier work" block listed every fact (predicate =
+   value, id) the harness had seen; in L8 that would be a second memory bypassing the store under test. It keeps
+   only artifact ids (needed by `t09`'s `verify_artifact`).
+4. **B0′ rendering.** Each brief exists in an `mcp` and a `files` rendering with the same instructions; only the verb
+   that stores or reads team memory differs (`scenario.json`). B0′'s conventions are `CLAUDE.md`; its role prompts
+   are the same files with the tool names replaced. B0′'s kickoff turn writes `memory/tasks.md`; `adopt-v2` adds
+   `t12` to the lead's DAG (the harness), as `create_tasks` does in the MCP arms.
+5. **Kills and leases.** Leases are L3's real values (builder 45 s, others 60 s), not 3,000 ms. K1 = first builder
+   task turn at/after turn 6, killed on the result of its first tool call after the claim (B0′: after its first tool
+   call). K3 applies to planner *task* turns only (killing `adopt-v2` would lose a scripted event, not a task). In
+   B0′ a killed task is always reassigned to the reclaimer (the lead knows the agent was interrupted), even when the
+   artifact file already exists; otherwise K2 (kill right after the artifact `Write`) would mark the task done in
+   B0′ but not in the MCP arms.
+6. **B0′ scored actions.** §6.1's list gives B0′ only artifact writes while the MCP arms also score `assert_fact`,
+   `record_decision` and `handoff`. B0′'s `Write`/`Edit` under `memory/` is the analogue and is scored; a memory
+   `Write` counts only the lines it adds (a rewrite of `facts.md` re-states old lines without deciding anything).
+   An **artifact-files-only** stale rate is reported for every arm as the arm-neutral robustness check.
+7. **Provenance.** B1's backend (unchanged since L3) writes no step for `complete_task`; that cell is reported
+   per tool. The comparable headline is over `assert_fact`, `record_decision`, `handoff`, `verify_fact`.
+8. **Execution.** The three arms of a seed run in parallel (separate processes, separate stores; turns stay
+   sequential within an arm), seeds one after another; this replaces §8's rotation (same wall-clock window for all
+   arms of a seed). Per run: at most 3 attempts per task and 40 processes; a run that hits either is scored as it
+   stands, not discarded. Model alias `sonnet` and embedder `hash` as in the L3 pilot; the model id is recorded per
+   turn.
+9. **Toy test.** The P3 scripted agents do not know the L8 tasks, so the $0 end-to-end test uses a stand-in
+   `claude` (`tests/crucible/l8/fake_claude.py`) that plays the tasks against the real stores, plus scorer unit tests
+   on hand-made transcripts with hand-computed counts. With identical scripted behaviour P and B1 score identically
+   (the scorer is arm-neutral).
+10. **Scorer details the plan left open.** X1 "surfaced" is detected by the documents' keywords (`JWT`, `API key`);
+    X2/X3 by tokens. Level-2 notice is undefined for `delete` (no new token) and reported `n/a`. B0′: R2 `n/a`; R1 from
+    the final `tasks.md`; C2 = the lead deemed the task done while the artifact lacked a current required token.
+    Billing-weighted tokens use exactly §6.6's weights (cache read ×0.1, cache write ×1.25, others ×1).
+11. **§6.5/§6.9.** B3 is deferred, so the SQL side of the query-authoring probe targets B1's SQLite DDL. Q4 needs the
+    commit history, which B1 does not store; the probe uses Q1, Q2, Q3 (3 questions × 2 languages × 3 = 18 calls, as
+    budgeted). The audit statements (Cypher for P, SQL for B1) are written while the gate run is in flight and
+    committed before any run output is inspected.
