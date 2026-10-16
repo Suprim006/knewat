@@ -14,7 +14,7 @@ from typing import Any
 
 from plexus.crucible import environment
 from plexus.crucible.l8.run import OUT_DEFAULT, git_state
-from plexus.crucible.l8.score import score_all
+from plexus.crucible.l8.score import common_task_rate, redump_p_steps, score_all
 from plexus.crucible.util import iso_utc, run_stamp
 
 ARM_NAME = {"P": "P (Plexus)", "B1": "B1 (SQLite)", "B0p": "B0′ (Claude Code files)"}
@@ -169,6 +169,66 @@ def table(pooled: dict[str, Any], runs: list[dict[str, Any]], audits: dict[str, 
     return "\n".join(w)
 
 
+def robustness(out: Path) -> dict[str, Any]:
+    """Post-hoc variants (amendments 2-3), pooled per arm. Never the headline."""
+    ms: dict[str, list[dict[str, Any]]] = {}
+    for mj in sorted((out / "runs").glob("*/*/metrics.json")):
+        m = json.loads(mj.read_text(encoding="utf-8"))
+        ms.setdefault(m["arm"], []).append(m)
+    res: dict[str, Any] = {}
+    for arm, lst in ms.items():
+        r: dict[str, Any] = {}
+        for var in ("excl_x2_brief_write", "excl_deleted_only", "excl_both"):
+            k = sum(m["stale_act"]["post_hoc"][var]["stale"] for m in lst)
+            n = sum(m["stale_act"]["post_hoc"][var]["n"] for m in lst)
+            r[var] = {
+                "stale": k,
+                "n": n,
+                "rate": round(k / n, 4) if n else None,
+                "seed_rates": [
+                    m["stale_act"]["post_hoc"][var]["rate"] for m in sorted(lst, key=lambda x: x["seed"])
+                ],
+            }
+        res[arm] = r
+    # common tasks: per seed, tasks in which every arm has at least one scored action
+    by_seed: dict[int, dict[str, dict[str, Any]]] = {}
+    for arm, lst in ms.items():
+        for m in lst:
+            by_seed.setdefault(m["seed"], {})[arm] = m
+    common: dict[str, list[dict[str, Any]]] = {}
+    for seed, arms in by_seed.items():
+        if len(arms) < 3:
+            continue
+        tasks = set.intersection(*({a["task"] for a in m["actions"]} for m in arms.values()))
+        for arm, m in arms.items():
+            common.setdefault(arm, []).append({"seed": seed, **common_task_rate([m], tasks)})
+    for arm, rows in common.items():
+        k, n = sum(x["stale"] for x in rows), sum(x["n"] for x in rows)
+        res[arm]["common_tasks"] = {
+            "stale": k,
+            "n": n,
+            "rate": round(k / n, 4) if n else None,
+            "seed_rates": [x["rate"] for x in sorted(rows, key=lambda x: x["seed"])],
+        }
+    return res
+
+
+def robust_table(rb: dict[str, Any]) -> str:
+    arms = [x for x in ("P", "B1", "B0p") if x in rb]
+    w = ["", "Post-hoc robustness variants of the stale-act rate (amendments 2-3; descriptive, not the headline):", "",
+         "| Variant | " + " | ".join(ARM_NAME[x] for x in arms) + " |", "|---|" + "---|" * len(arms)]  # fmt: skip
+    for var, label in (("excl_x2_brief_write", "excluding the X2 brief-mandated store write"),
+                       ("excl_deleted_only", "excluding actions whose only stale tokens are of deleted functions"),
+                       ("excl_both", "excluding both"),
+                       ("common_tasks", "only tasks every arm of the seed reached")):  # fmt: skip
+        cells = []
+        for a in arms:
+            v = rb[a].get(var)
+            cells.append(f"{pct(v['rate'])} ({v['stale']}/{v['n']})" if v else "n/a")
+        w.append(f"| {label} | " + " | ".join(cells) + " |")
+    return "\n".join(w)
+
+
 def render(doc: dict[str, Any]) -> str:
     p = doc["pooled"]
     w = ["# Crucible L8 round A: long-horizon memory under live change (P, B1, B0′ × seeds)\n",
@@ -198,7 +258,11 @@ HONESTY = [
 def assemble(
     out: Path, *, audit: bool, probe_seed: int | None, host: str, port: int, started: float, command: str
 ) -> Path:
+    for rj in sorted((out / "runs").glob("*/P/run.json")):
+        if "wrote_steps" not in json.loads((rj.parent / "store_dump.json").read_text(encoding="utf-8")):
+            redump_p_steps(rj.parent, host, port)  # amendment 3: provenance is matched on the Step number
     scored = score_all(out)
+    robust = robustness(out)
     runs = []
     for rj in sorted((out / "runs").glob("*/*/run.json")):
         r = json.loads(rj.read_text(encoding="utf-8"))
@@ -239,11 +303,11 @@ def assemble(
         "git": git_state(), "environment": environment.collect(host, port, "hash"),
         "config": {"prompt_version": "l8-v1", "arms": ["P", "B1", "B0p"], "model": "sonnet", "max_turns": 25,
                    "seeds": sorted({r["seed"] for r in runs})},
-        "runs": runs, "pooled": {k: v for k, v in scored.items() if k != "runs"},
+        "runs": runs, "pooled": {k: v for k, v in scored.items() if k != "runs"}, "robustness_post_hoc": robust,
         "audit": audit_rows, "probe": probe,
     }  # fmt: skip
     doc["headline"] = headline(doc["pooled"])
-    doc["table"] = table(doc["pooled"], runs, audits)
+    doc["table"] = table(doc["pooled"], runs, audits) + "\n" + robust_table(robust)
     doc["honesty"] = HONESTY
     d = out / doc["run"]["id"]
     d.mkdir(parents=True, exist_ok=True)
