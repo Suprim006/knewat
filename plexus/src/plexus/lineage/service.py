@@ -189,12 +189,17 @@ class Lineage:
         results: Sequence[dict[str, Any]],
         *,
         now: int | None = None,
+        entities: Sequence[str] = (),
+        separation: bool = False,
     ) -> str:
         """Store what a recall returned so ``why_recalled`` can explain it later. Returns the recall id.
 
-        ``results`` is ``[{fact_id, rank?, score}]``; the output of ``Engram.recall`` can be passed as is
-        (``rank`` defaults to the 1-based position). Creates ``Recall`` + ``BY`` + ``IN_STEP`` + ``RETURNED``
-        and ``(Step)-[:READ]->(Fact)`` for every returned fact, in one statement. All-or-nothing: raises
+        ``results`` is ``[{fact_id, rank?, score, sep?}]``; the output of ``Engram.recall`` can be passed as
+        is (``rank`` defaults to the 1-based position; ``sep`` is the D-013 entity lift, 0 when absent).
+        ``entities`` are the entity ids the query named and ``separation`` whether pattern separation was on
+        (``Recall`` properties; D-013). Creates ``Recall`` + ``BY`` + ``IN_STEP`` + ``RETURNED {rank, score,
+        sep}`` and
+        ``(Step)-[:READ]->(Fact)`` for every returned fact, in one statement. All-or-nothing: raises
         :class:`UnknownStep` if ``step_id`` or a fact id does not exist.
         """
         rows: list[dict[str, Any]] = []
@@ -205,7 +210,12 @@ class Lineage:
                 continue
             seen.add(fid)
             rows.append(
-                {"fact_id": fid, "rank": int(r.get("rank") or pos), "score": float(r.get("score") or 0.0)}
+                {
+                    "fact_id": fid,
+                    "rank": int(r.get("rank") or pos),
+                    "score": float(r.get("score") or 0.0),
+                    "sep": float(r.get("sep") or 0.0),
+                }
             )
         if len(rows) > MAX_RECALL_RESULTS:
             raise ValueError(f"at most {MAX_RECALL_RESULTS} results per recall record")
@@ -223,6 +233,8 @@ class Lineage:
                 "now": self._t(now),
                 "fact_ids": [r["fact_id"] for r in rows],
                 "results": rows,
+                "entities": list(entities),
+                "separation": bool(separation),
             },
         )
         if not res:
@@ -539,9 +551,11 @@ class Lineage:
     def why_recalled(self, recall_id: str, *, max_elements: int = MAX_WHY_ELEMENTS) -> dict[str, Any]:
         """Explain a stored recall: what it returned, in which order, and the provenance of each fact.
 
-        Returns ``{recall: {id, query, at, k, scope_id, agent_id, step}, results: [{rank, score, fact_id,
-        props, entity, asserted_by, derived_from, scope}], nodes, edges, truncated}``. ``results`` are in
-        rank order and match what ``record_recall`` stored. ``nodes`` + ``edges`` are capped at
+        Returns ``{recall: {id, query, at, k, scope_id, agent_id, step, entities, separation}, results:
+        [{rank, score, sep, fact_id, props, entity, asserted_by, derived_from, scope}], nodes, edges,
+        truncated}`` (``entities`` / ``separation`` / ``sep``: D-013 pattern separation, see
+        ``Engram.recall``). ``results`` are in rank order and match what ``record_recall`` stored. ``nodes`` +
+        ``edges`` are capped at
         ``max_elements`` (lowest ranked results are cut first; ``results`` is cut with them). Raises
         :class:`UnknownNode`.
         """
@@ -560,6 +574,8 @@ class Lineage:
             "scope_id": head["scope_id"],
             "agent_id": head["agent_id"],
             "step": step,
+            "entities": list(head.get("entities") or []),
+            "separation": bool(head.get("separation")),
         }
         results = [explain.recall_result(r) for r in rows if r["fact_id"] is not None]
         nodes, edges, results, truncated = explain.recall_graph(recall, results, max_elements)

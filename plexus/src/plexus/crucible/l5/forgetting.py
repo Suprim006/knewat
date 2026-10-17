@@ -11,9 +11,10 @@ No LLM; the clock of the engine is replaced by a virtual ``now`` that is 90 days
 from __future__ import annotations
 
 import random
+import statistics
 import time
 import uuid
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
@@ -43,6 +44,18 @@ NOISE_TEMPLATES = (
 KS = (1, 3, 5)
 HOT_SHARE = 0.15
 NOISE_READ_SHARE = 0.30
+BURST_READS = 90
+BURST_DAY = 45
+# mode -> (settings, forgetting, separation)
+MODE_TABLE: dict[str, tuple[Settings, bool, bool | None]] = {
+    "off": (Settings(), False, False),
+    "on": (Settings(), True, None),
+    "on+sweep": (Settings(), True, None),
+    "on-mult": (Settings(act_mode="mult", kw_bypass="value"), True, False),
+    "kw-fix": (Settings(act_mode="mult", kw_bypass="fact"), True, False),
+    "sep": (Settings(act_mode="mult"), False, True),
+    "sep+add": (Settings(act_mode="add"), True, True),
+}
 
 
 @dataclass
@@ -51,6 +64,7 @@ class Probe:
     query: str
     scope_id: str
     klass: str  # critical | hot | cold
+    subject: str = ""
 
 
 @contextmanager
@@ -102,6 +116,7 @@ def simulate_reads(
     noise: list[str],
     rng: random.Random,
     days: int = 90,
+    burst: bool = False,
 ) -> dict[str, int]:
     """Write the seeded 90-day read schedule as READ edges (batches of <= 1000)."""
     reads: list[dict[str, Any]] = []
@@ -111,10 +126,16 @@ def simulate_reads(
 
     for fid in critical:  # read exactly once, 90 days ago
         add(fid, now - days * DAY_MS, "use", f"l5-crit-{fid}", 1)
-    for d in range(days, 0, -1):
-        at = now - d * DAY_MS + 12 * 3_600_000
-        for fid in rng.sample(hot, min(len(hot), rng.randint(3, 8))) if hot else []:
-            add(fid, at, "use" if rng.random() < 0.5 else "recall", f"l5-day-{d}", days - d + 1)
+    if burst:  # every hot fact: BURST_READS reads inside one hour, BURST_DAY days ago
+        for fid in hot:
+            for i in range(BURST_READS):
+                at = now - BURST_DAY * DAY_MS + 12 * 3_600_000 + i * 40_000
+                add(fid, at, "use" if rng.random() < 0.5 else "recall", f"l5-burst-{i}", days - BURST_DAY + 1)
+    else:
+        for d in range(days, 0, -1):
+            at = now - d * DAY_MS + 12 * 3_600_000
+            for fid in rng.sample(hot, min(len(hot), rng.randint(3, 8))) if hot else []:
+                add(fid, at, "use" if rng.random() < 0.5 else "recall", f"l5-day-{d}", days - d + 1)
     for fid in noise:
         if rng.random() < NOISE_READ_SHARE:
             for _ in range(rng.randint(1, 3)):  # only inside the first 30 days of the window
@@ -129,6 +150,15 @@ def _fact_count(client: GraphClient, graph: str) -> int:
     return int(client.graph(graph).ro_query("MATCH (f:Fact) RETURN count(f)").result_set[0][0])
 
 
+def _quantiles(xs: list[float]) -> dict[str, Any]:
+    """Deterministic p10..p90 by nearest-rank on the sorted values."""
+    ys = sorted(xs)
+    out: dict[str, Any] = {"n": len(ys)}
+    for name, q in (("p10", 0.10), ("p25", 0.25), ("p50", 0.50), ("p75", 0.75), ("p90", 0.90)):
+        out[name] = ys[min(len(ys) - 1, int(q * len(ys)))] if ys else None
+    return out
+
+
 def _measure(
     eng: Engram,
     probes: list[Probe],
@@ -136,6 +166,9 @@ def _measure(
     forgetting: bool,
     hits_off: dict[str, bool] | None = None,
     klass_of: dict[str, str] | None = None,
+    settings: Settings | None = None,
+    separation: bool | None = None,
+    now: int | None = None,
 ) -> dict[str, Any]:
     per_class: dict[str, dict[str, Any]] = {}
     rows_total = noise_rows = chars = 0
@@ -144,8 +177,18 @@ def _measure(
         str, int
     ] = {}  # post-hoc diagnostic: class of the rows ranked above the target (all, on a miss)
     klass_of = klass_of or {}
+    same_entity = other_entity = cold_n = cold_hot_above = 0
+    gaps: list[float] = []
     for p in probes:
-        rows = eng.recall(p.query, p.scope_id, k=max(KS), budget_chars=20_000, forgetting=forgetting)
+        rows = eng.recall(
+            p.query,
+            p.scope_id,
+            k=max(KS),
+            budget_chars=20_000,
+            forgetting=forgetting,
+            separation=separation,
+            settings=settings,
+        )
         ranks = [i for i, r in enumerate(rows) if r["fact_id"] == p.fact_id]
         rank = ranks[0] if ranks else None
         c = per_class.setdefault(p.klass, {"n": 0, **{f"hit@{k}": 0 for k in KS}})
@@ -153,13 +196,32 @@ def _measure(
         for k in KS:
             c[f"hit@{k}"] += int(rank is not None and rank < k)
         hit5[p.fact_id] = rank is not None and rank < max(KS)
-        for r_ in rows[: rank if rank is not None else len(rows)]:
+        above_rows = rows[: rank if rank is not None else len(rows)]
+        if p.klass == "cold":
+            cold_n += 1
+            cold_hot_above += int(any(klass_of.get(r_["fact_id"]) == "hot" for r_ in above_rows))
+        if len(rows) >= 2:
+            gaps.append(float(rows[1]["score"]) - float(rows[0]["score"]))
+        for r_ in above_rows:
+            if r_.get("entity") == p.subject:
+                same_entity += 1
+            else:
+                other_entity += 1
             kind = "noise" if r_["fact_id"] in noise else klass_of.get(r_["fact_id"], "other")
             above[kind] = above.get(kind, 0) + 1
         rows_total += len(rows)
         noise_rows += sum(1 for r in rows if r["fact_id"] in noise)
         chars += sum(len(r["text"]) for r in rows)
     overall = {"n": len(probes), **{f"hit@{k}": sum(c[f"hit@{k}"] for c in per_class.values()) for k in KS}}
+    entity_read_ms: float | None = None
+    if separation is True and probes:
+        t_now = now if now is not None else int(time.time() * 1000)
+        times: list[float] = []
+        for p in probes[:20]:
+            t0 = time.perf_counter()
+            eng._resolve_entities(p.query, p.scope_id, t_now, ["active"])
+            times.append((time.perf_counter() - t0) * 1000)
+        entity_read_ms = float(statistics.median(times))
     out: dict[str, Any] = {
         "recall": {
             name: {"n": c["n"], **{f"recall@{k}": c[f"hit@{k}"] / c["n"] if c["n"] else None for k in KS}}
@@ -169,6 +231,12 @@ def _measure(
         "rows_returned": rows_total,
         "ranked_above_target": above,
         "chars_per_recall": chars / len(probes) if probes else None,
+        "above_same_entity": same_entity,
+        "above_other_entity": other_entity,
+        "hot_above_cold": cold_hot_above / cold_n if cold_n else None,
+        "hot_above_cold_n": cold_hot_above,
+        "gap12": _quantiles(gaps),
+        "entity_read_ms": entity_read_ms,
     }
     if hits_off is not None:
         crit = [p.fact_id for p in probes if p.klass == "critical"]
@@ -186,7 +254,16 @@ def run_forgetting(
     seed: int = SEED,
     tenant: str | None = None,
     keep_graph: bool = False,
+    modes: Sequence[str] = ("off", "on", "on+sweep"),
+    burst: bool = False,
 ) -> dict[str, Any]:
+    for name in modes:
+        if name not in MODE_TABLE:
+            raise ValueError(f"unknown mode {name!r}; known: {sorted(MODE_TABLE)}")
+    # off first (control for critical loss); the sweep mutates the graph, so on+sweep goes last
+    order = ["off"] + [m for m in dict.fromkeys(modes) if m not in ("off", "on+sweep")]
+    if "on+sweep" in modes:
+        order.append("on+sweep")
     tenant = tenant or f"l5f_{uuid.uuid4().hex[:8]}"
     graph = graph_name(tenant)
     t_start = time.time()
@@ -207,13 +284,14 @@ def run_forgetting(
         noise = set(noise_ids)
         t_noise = time.time()
         now = int(time.time() * 1000) + days * DAY_MS
-        reads = simulate_reads(client, graph, now, hot_ids, crit_ids, noise_ids, rng, days)
+        reads = simulate_reads(client, graph, now, hot_ids, crit_ids, noise_ids, rng, days, burst)
         probes = [
             Probe(
                 r["id"],
                 f"{r['subject']} {r['predicate']}",
                 r["scope_id"],
                 "critical" if r["id"] in crit else ("hot" if r["id"] in hot else "cold"),
+                r["subject"],
             )
             for r in real
         ]
@@ -221,22 +299,25 @@ def run_forgetting(
         modes: dict[str, Any] = {}
         with virtual_now(now):
             klass_of = {p.fact_id: p.klass for p in probes}
-            off = _measure(eng, probes, noise, False, None, klass_of)
-            hits_off = off["_hit5"]
-            modes["off"] = off
-            modes["on"] = _measure(eng, probes, noise, True, hits_off, klass_of)
-            act = Activation(client, graph, Settings(), clock=lambda: now)
             moved: set[str] = set()
             overlap = 0
-            for scope_id in sorted({p.scope_id for p in probes}):
-                dry = act.sweep(scope_id, dry_run=True, now=now)
-                overlap += sum(1 for c in dry["candidates"] if c["fact_id"] in crit)
-                for _ in range(200):  # a sweep moves at most 200 facts per call
-                    step = act.sweep(scope_id, dry_run=False, now=now)
-                    moved |= set(step["moved"])
-                    if not step["moved"]:
-                        break
-            modes["on+sweep"] = _measure(eng, probes, noise, True, hits_off, klass_of)
+            hits_off: dict[str, bool] | None = None
+            for name in order:
+                if name == "on+sweep":
+                    act = Activation(client, graph, Settings(), clock=lambda: now)
+                    for scope_id in sorted({p.scope_id for p in probes}):
+                        dry = act.sweep(scope_id, dry_run=True, now=now)
+                        overlap += sum(1 for c in dry["candidates"] if c["fact_id"] in crit)
+                        for _ in range(200):  # a sweep moves at most 200 facts per call
+                            step = act.sweep(scope_id, dry_run=False, now=now)
+                            moved |= set(step["moved"])
+                            if not step["moved"]:
+                                break
+                settings, fg, sep = MODE_TABLE[name]
+                m = _measure(eng, probes, noise, fg, hits_off, klass_of, settings, sep, now)
+                if name == "off":
+                    hits_off = m["_hit5"]
+                modes[name] = m
         facts_after = _fact_count(client, graph)
         by_class = {
             "critical": len(moved & crit),
@@ -254,6 +335,8 @@ def run_forgetting(
                 "seed": seed,
                 "embedder": type(embedder).__name__,
                 "ks": list(KS),
+                "modes": list(order),
+                "burst": burst,
             },
             "history": {**ledger.summary(), "real_active_facts": len(real)},
             "classes": {"critical": len(crit), "hot": len(hot), "cold": len(real) - len(crit) - len(hot)},

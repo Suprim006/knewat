@@ -173,6 +173,7 @@ def recall_result(row: Mapping[str, Any]) -> dict[str, Any]:
     return {
         "rank": row["rank"],
         "score": row["score"],
+        "sep": float(row.get("sep") or 0.0),
         "fact_id": row["fact_id"],
         "props": clean(
             {
@@ -212,7 +213,16 @@ def recall_graph(
     truncated = False
     for res in results:
         trial_nodes, trial_edges = dict(nodes), list(edges)
-        add(recall["id"], "Recall", "RETURNED", res["fact_id"], "Fact", rank=res["rank"], score=res["score"])
+        add(
+            recall["id"],
+            "Recall",
+            "RETURNED",
+            res["fact_id"],
+            "Fact",
+            rank=res["rank"],
+            score=res["score"],
+            sep=res.get("sep", 0.0),
+        )
         if res["entity"]:
             add(res["fact_id"], "Fact", "ABOUT", res["entity"]["id"], "Entity")
         for agent in res["asserted_by"]:

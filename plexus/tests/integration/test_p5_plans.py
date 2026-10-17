@@ -38,6 +38,8 @@ def test_q1_recall_sibling_expansion_does_not_enumerate_the_scope(client, graph,
         "boost": 0.05,
         "sibs": 5,
         "kw_ids": [],
+        "damp": True,
+        "smax": 3.912,
     }
     ops = profile_ops(client, graph, "engram/recall", params)
     _assert_small(ops)

@@ -19,6 +19,8 @@ def test_why_recalled_matches_the_recall_results_and_ranks(world, lin):
         "scope_id": w.proj,
         "agent_id": "planner",
         "step": {"id": w.p1, "n": 1, "at": 3000},
+        "entities": [],
+        "separation": False,
     }
     assert [(r["rank"], r["fact_id"]) for r in res["results"]] == [
         (i, r["fact_id"]) for i, r in enumerate(w.results1, 1)

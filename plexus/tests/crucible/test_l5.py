@@ -89,6 +89,32 @@ def test_forgetting_toy_run(l5_client, emb):
         assert m["recall"]["all"]["n"] == res["history"]["real_active_facts"]
 
 
+def test_forgetting_d013_modes_toy(l5_client, emb):
+    from plexus.crucible.l5.forgetting import run_forgetting
+
+    names = ("off", "on-mult", "kw-fix", "sep", "sep+add")
+    res = run_forgetting(l5_client, emb, k_sprints=2, noise_mult=2, modes=names, burst=True)
+    assert set(res["modes"]) == set(names)
+    assert res["config"]["burst"] is True and list(res["config"]["modes"]) == list(names)
+    for name, m in res["modes"].items():
+        for k in (1, 3, 5):
+            assert 0 <= m["recall"]["all"][f"recall@{k}"] <= 1
+        assert m["above_same_entity"] + m["above_other_entity"] == sum(m["ranked_above_target"].values())
+        assert isinstance(m["entity_read_ms"], float) == (name in ("sep", "sep+add"))
+        assert {"p10", "p25", "p50", "p75", "p90", "n"} <= set(m["gap12"])
+    assert res["modes"]["off"]["gap12"]["n"] >= 1
+    crit = R.criteria({"forgetting": res})
+    assert any(k["id"].startswith("L5b-D013 sep recall@1") for k in crit)
+    assert "L5b-D013 kw-fix recall@1 (report only)" in {k["id"] for k in crit}
+
+
+def test_forgetting_unknown_mode(l5_client, emb):
+    from plexus.crucible.l5.forgetting import run_forgetting
+
+    with pytest.raises(ValueError):
+        run_forgetting(l5_client, emb, k_sprints=1, modes=("nope",))
+
+
 def test_run_all_writes_results_and_report(tmp_path, l5_client):
     out = R.run_all(l5_client, "hash", tmp_path, sprints=1, noise=1, modules=3, funcs=3, commits=8)
     res = json.loads((out / "results.json").read_text(encoding="utf-8"))

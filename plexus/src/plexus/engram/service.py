@@ -14,7 +14,7 @@ from typing import Any
 from redis.exceptions import ResponseError
 
 from plexus.activation import model as act
-from plexus.activation.rank import rerank
+from plexus.activation.rank import Ranked, rerank
 from plexus.activation.service import Activation
 from plexus.activation.settings import Settings
 from plexus.common import OPEN, check_between, normalize
@@ -39,6 +39,7 @@ MAX_K = 50  # recall clamps k to this
 MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 10  # distinct query words sent to the Fact.value full-text index
+RECALL_ENTITIES = 5  # entities the pattern-separation read resolves per recall (D-013 P1)
 MAX_ENTITY_QUERY_TOKENS = 24  # name tokens OR-ed into the Entity.name full-text query
 ENTITY_NEIGHBOURS = 5  # nearest entities the vector lookup of resolve_entity considers
 NO_TOKEN = "plexusnomatchtoken"  # full-text query for a name without any word character: matches nothing
@@ -467,8 +468,54 @@ class Engram:
         include_dormant: bool = False,
         forgetting: bool | None = None,
         hops: int = 0,
+        separation: bool | None = None,
+        settings: Settings | None = None,
     ) -> list[dict[str, Any]]:
         """Top-``k`` facts for ``query`` in ``scope_id`` (and the scopes it inherits), best first.
+
+        See :meth:`recall_with_meta` for the full description; this returns the rows only.
+        """
+        return self.recall_with_meta(
+            query,
+            scope_id,
+            k,
+            as_of,
+            budget_chars,
+            include_dormant=include_dormant,
+            forgetting=forgetting,
+            hops=hops,
+            separation=separation,
+            settings=settings,
+        )[0]
+
+    def recall_with_meta(
+        self,
+        query: str,
+        scope_id: str,
+        k: int = 8,
+        as_of: int | None = None,
+        budget_chars: int = 2000,
+        *,
+        include_dormant: bool = False,
+        forgetting: bool | None = None,
+        hops: int = 0,
+        separation: bool | None = None,
+        settings: Settings | None = None,
+    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+        """Top-``k`` facts for ``query`` in ``scope_id`` (and the scopes it inherits), best first, plus how.
+
+        The second value is the recall's metadata for ``why_recalled``: ``entities`` (the entities the query
+        named, ``{id: {name, fan}}``), ``separation`` and ``forgetting`` (what was on), ``mode``.
+
+        **Pattern separation (D-013 P1).** With ``separation`` on (``True``, or ``None`` and
+        ``PLEXUS_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
+        ``Entity.name`` (one bounded full-text read, ``engram/recall_entities``); an entity counts as *named*
+        when every word of its name is in the query. Facts about a named entity get the lift
+        ``gamma * max(0, 1 - ln(fan) / S_max)`` in log-relevance (``fan`` = the entity's current facts in the
+        searched scopes; a hub entity with >= 50 facts gets nothing), the sibling expansion of
+        ``engram/recall`` is damped by the same factor, and each row reports ``lures``: other candidates with
+        the same predicate about another entity at nearly the same relevance. Rows gain ``entity_match``,
+        ``sep`` and ``lures``.
 
         **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
         not ``off``) and no ``as_of``, ``2*k`` candidates are fetched and re-ranked by ``relevance x (floor +
@@ -500,8 +547,12 @@ class Engram:
         """
         if hops not in range(relations.MAX_HOPS + 1):
             raise ValueError(f"hops must be 0, 1 or {relations.MAX_HOPS}")
+        settings = settings or Settings.from_env()
+        fg = as_of is None and (settings.forgetting if forgetting is None else forgetting)
+        sp = as_of is None and (settings.separation if separation is None else separation)
+        meta: dict[str, Any] = {"entities": {}, "separation": sp, "forgetting": fg, "mode": settings.act_mode}
         if k <= 0:
-            return []
+            return [], meta
         k = min(k, MAX_K)
         budget_chars = min(budget_chars, MAX_BUDGET_CHARS)
         t = as_of if as_of is not None else _now_ms()
@@ -509,35 +560,106 @@ class Engram:
             statuses = ["active", "superseded", "dormant"]
         else:
             statuses = ["active", "dormant"] if include_dormant else ["active"]
-        settings = Settings.from_env()
-        rerank_on = as_of is None and (settings.forgetting if forgetting is None else forgetting)
+        if sp:
+            meta["entities"] = self._resolve_entities(query, scope_id, t, statuses)
+        # Re-rank when use history counts or the query named an entity (a lift to apply). Separation alone
+        # with nothing named leaves the plain order: only the fan-damped expansion inside engram/recall
+        # differs.
+        rerank_on = fg or bool(meta["entities"])
         # With re-ranking, fetch 2*k candidates; the cut back to `k` happens after the re-ranking.
         fetch_k = min(2 * k, 2 * MAX_K) if rerank_on else k
         q = self._embed([query])[0]
         kw_ids = self._keyword_ids(query, scope_id, fetch_k, t, statuses)
-        rows = self._fetch_candidates(q, scope_id, fetch_k, t, statuses, kw_ids)
+        rows = self._fetch_candidates(q, scope_id, fetch_k, t, statuses, kw_ids, damp=sp, smax=settings.s_max)
         acts: dict[str, Any] = {}
+        ranked: dict[str, Ranked] = {}
         if rerank_on:
-            acts = Activation(self.client, self.graph, settings).compute([r["fact_id"] for r in rows], t)
-            ranked = rerank(
+            if fg:
+                acts = Activation(self.client, self.graph, settings).compute([r["fact_id"] for r in rows], t)
+            top = rerank(
                 rows,
                 acts,
                 settings=settings,
                 k=k,
                 kw_ids=set(kw_ids),
                 words=_query_words(query),
+                entities={eid: e["fan"] for eid, e in meta["entities"].items()},
+                forgetting=fg,
+                separation=sp,
             )
-            rows = [x.row for x in ranked]
+            rows = [x.row for x in top]
+            ranked = {x.row["fact_id"]: x for x in top}
         if not hops:
-            return self._apply_budget(rows, acts, t, budget_chars)
-        extra, meta = relations.expand_hops(self, rows, scope_id, hops, q, t, statuses)
-        out = self._apply_budget(rows + extra, acts, t, budget_chars)
+            return self._apply_budget(rows, acts, t, budget_chars, ranked), meta
+        extra, hmeta = relations.expand_hops(self, rows, scope_id, hops, q, t, statuses)
+        out = self._apply_budget(rows + extra, acts, t, budget_chars, ranked)
         for item in out:
-            item.update(meta.get(item["fact_id"], {}))
+            item.update(hmeta.get(item["fact_id"], {}))
+        return out, meta
+
+    def _resolve_entities(
+        self, query: str, scope_id: str, t: int, statuses: list[str]
+    ) -> dict[str, dict[str, Any]]:
+        """The entities the query names, ``{entity_id: {name, fan, score}}`` (D-013 P1, at most 5).
+
+        Candidates come from the ``Entity.name`` full-text index (OR of the query words >= 3 characters) plus
+        an exact ``norm_name`` match of the whole query; an entity is kept only when every word of its name is
+        in the query, so "Acme Notes API S07 api_version" names ``Acme Notes API S07`` but not its ``S08``
+        twin.
+        ``fan`` counts the entity's current facts in the searched scopes. Empty when nothing is named.
+        """
+        words = _query_words(query)
+        if not words:
+            return {}
+        have = set(_tokens(query))
+        out: dict[str, dict[str, Any]] = {}
+        try:
+            rows = self.client.ro(
+                self.graph,
+                "engram/recall_entities",
+                {
+                    "q": "|".join(words),
+                    "scope_id": scope_id,
+                    "limit": RECALL_ENTITIES,
+                    "statuses": statuses,
+                    "t": t,
+                },
+            )
+        except ResponseError:  # every word is a stopword for the index
+            rows = []
+        for r in rows:
+            name_words = _tokens(r["name"] or "")
+            if name_words and all(w in have for w in name_words):
+                out[r["entity_id"]] = {"name": r["name"], "fan": int(r["fan"]), "score": float(r["score"])}
+        if not out:
+            exact = self.client.ro(self.graph, "engram/find_entity_exact", {"norm_name": normalize(query)})
+            if exact:
+                fans = self.client.ro(
+                    self.graph,
+                    "engram/recall_entities",
+                    {
+                        "q": "|".join(_tokens(exact[0]["name"])) or exact[0]["name"],
+                        "scope_id": scope_id,
+                        "limit": RECALL_ENTITIES,
+                        "statuses": statuses,
+                        "t": t,
+                    },
+                )
+                fan = next((int(f["fan"]) for f in fans if f["entity_id"] == exact[0]["id"]), 0)
+                out[exact[0]["id"]] = {"name": exact[0]["name"], "fan": fan, "score": float("inf")}
         return out
 
     def _fetch_candidates(
-        self, q: list[float], scope_id: str, k: int, t: int, statuses: list[str], kw_ids: list[str]
+        self,
+        q: list[float],
+        scope_id: str,
+        k: int,
+        t: int,
+        statuses: list[str],
+        kw_ids: list[str],
+        *,
+        damp: bool = False,
+        smax: float = 1.0,
     ) -> list[dict[str, Any]]:
         """The ``engram/recall`` rows for ``q``: an adaptive over-fetch of the (pre-filter-less) vector index.
 
@@ -560,6 +682,8 @@ class Engram:
                     "boost": EXPAND_BOOST,
                     "sibs": SIBLINGS_PER_ENTITY,
                     "kw_ids": kw_ids,
+                    "damp": bool(damp),
+                    "smax": float(smax),
                 },
             )
             # Stop: enough rows, index exhausted (returned fewer nodes than asked for), or cap hit.
@@ -568,7 +692,12 @@ class Engram:
             over *= RETRY_FACTOR
 
     def _apply_budget(
-        self, rows: list[dict[str, Any]], acts: dict[str, Any], t: int, budget_chars: int
+        self,
+        rows: list[dict[str, Any]],
+        acts: dict[str, Any],
+        t: int,
+        budget_chars: int,
+        ranked: dict[str, Ranked] | None = None,
     ) -> list[dict[str, Any]]:
         """Shape ranked rows into recall results, kept in order until ``budget_chars`` of text is spent."""
         suspects = [r["fact_id"] for r in rows if r["verify_state"] == "suspect"]
@@ -582,15 +711,23 @@ class Engram:
                     break
                 text = text[: max(budget_chars - 1, 0)] + "…"  # first hit alone exceeds the budget
             used += len(text)
-            out.append(self._recall_item(r, text, acts, t, reasons))
+            out.append(self._recall_item(r, text, acts, t, reasons, (ranked or {}).get(r["fact_id"])))
             if used >= budget_chars:
                 break
         return out
 
     def _recall_item(
-        self, r: dict[str, Any], text: str, acts: dict[str, Any], t: int, reasons: dict[str, str]
+        self,
+        r: dict[str, Any],
+        text: str,
+        acts: dict[str, Any],
+        t: int,
+        reasons: dict[str, str],
+        rk: Ranked | None = None,
     ) -> dict[str, Any]:
-        """One recall result: the row's fields, its provenance ``path`` and (when ranked) its activation."""
+        """One recall result: the row's fields, its provenance ``path``, (when ranked) its activation and the
+        D-013 terms (``entity_match``, ``sep``, ``lures``, ``salience``; ``None`` / ``[]`` when not ranked).
+        """
         path: list[dict[str, Any]] = [
             {"rel": "ABOUT", "label": "Entity", "id": r["entity_id"], "name": r["entity_name"]},
             {"rel": "IN_SCOPE", "label": "Scope", "id": r["scope_id"]},
@@ -614,6 +751,10 @@ class Engram:
             "activation": None if fa is None else fa.activation,
             "protected": None if fa is None else fa.protected,
             "maybe_duplicate_of": list(r.get("maybe_dup") or []),
+            "entity_match": None if rk is None else rk.ent_match,
+            "sep": None if rk is None else rk.sep,
+            "lures": [] if rk is None else list(rk.lures),
+            "salience": None if fa is None else fa.salience,
             **self._suspect_fields(r, t, reasons),
         }
 

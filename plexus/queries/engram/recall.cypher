@@ -1,6 +1,6 @@
 // name: engram/recall
 // purpose: Hybrid recall in ONE read: vector (+ keyword) seeds over Fact.embedding, scope-inheritance + validity-window + status filter, 1-hop ABOUT-entity expansion to sibling facts (boosted, capped), nearest first, with provenance for the why-path.
-// params: q:list[float], scope_id:str, over:int, k:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str]
+// params: q:list[float], scope_id:str, over:int, k:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str], damp:bool, smax:float
 // returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), maybe_dup [ids of the facts this one is a possible duplicate of: (n)-[:DUPLICATES_MAYBE]->(o), P9-c]
 // mode: ro
 
@@ -18,6 +18,10 @@
 // the scope test with g0 already bound (separate OPTIONAL MATCH after a WITH). Written as one pattern
 // `(e)<-[:ABOUT]-(g)-[:IN_SCOPE]->(gs:Scope) WHERE gs.id IN sids` the planner starts at the Scope and walks every fact IN_SCOPE of it for
 // every seed, so recall latency grew with the facts in the scope instead of the entity's fan-out (tests/integration/test_p5_plans.py).
+// Fan-damped expansion (D-013 P1, §2.3): with damp = true the sibling boost is scaled by max(0, 1 - ln(fan_e) / smax) where fan_e is the
+// seed entity's number of active facts (ACT-R fan): completing the pattern around a small, specific entity stays strong, expansion from a
+// hub entity (fan >= e^smax, 50 by default) is damped to nothing. damp = false (PLEXUS_RECALL_SEPARATION=off) is the pre-D-013 rank exactly.
+// fan_e is bound by one pattern comprehension in its own WITH, before the collect (an aggregate next to a comprehension misbehaves on 6.0.2).
 // The keyword seeds are looked up one id at a time (`{id: kid}` is an index seek); `kx.id IN $kw_ids` planned a scan of the whole Fact
 // id index even for an empty list. The '' placeholder keeps the row alive when there are no keyword hits (no Fact has the id '').
 MATCH (:Scope {id: $scope_id})-[:INHERITS*0..3]->(a:Scope)
@@ -37,17 +41,20 @@ MATCH (f)-[:ABOUT]->(e:Entity)
 WITH sids, raw, f, e, score
 ORDER BY score ASC
 LIMIT $k
+WITH sids, raw, f, e, score, size([(e)<-[:ABOUT]-(:Fact {status: 'active'}) | 1]) AS fan_e
+WITH sids, raw, f, e, score,
+     CASE WHEN NOT $damp THEN 1.0 WHEN fan_e < 1 THEN 1.0 WHEN log(fan_e) >= $smax THEN 0.0 ELSE 1.0 - log(fan_e) / $smax END AS damp
 OPTIONAL MATCH (e)<-[:ABOUT]-(g0:Fact)
   WHERE g0.id <> f.id AND g0.status IN $statuses AND g0.valid_from <= $t AND $t < g0.valid_to
-WITH sids, raw, f, e, score, g0
+WITH sids, raw, f, e, score, damp, g0
 OPTIONAL MATCH (g0)-[:IN_SCOPE]->(gs:Scope)
   WHERE gs.id IN sids
-WITH raw, f, e, score, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
-WITH raw, f, e, score, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
+WITH raw, f, e, score, damp, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
+WITH raw, f, e, score, damp, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
 ORDER BY gd ASC
-WITH raw, f, e, score, collect({g: g, d: gd})[0..$sibs] AS sibs
+WITH raw, f, e, score, damp, collect({g: g, d: gd})[0..$sibs] AS sibs
 WITH raw, [{n: f, rank: score, dist: score, seed: 1, via: f.id}]
-     + [s IN sibs WHERE s.g IS NOT NULL | {n: s.g, rank: CASE WHEN s.d - $boost < 0 THEN 0.0 ELSE s.d - $boost END, dist: s.d, seed: 0, via: f.id}] AS cands
+     + [s IN sibs WHERE s.g IS NOT NULL | {n: s.g, rank: CASE WHEN s.d - $boost * damp < 0 THEN 0.0 ELSE s.d - $boost * damp END, dist: s.d, seed: 0, via: f.id}] AS cands
 UNWIND cands AS c
 WITH raw, c.n AS n, min(c.rank) AS rank, min(c.dist) AS dist, max(c.seed) AS isseed, collect(CASE WHEN c.seed = 0 THEN c.via END) AS vias
 ORDER BY rank ASC
