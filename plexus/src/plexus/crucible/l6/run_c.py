@@ -23,7 +23,7 @@ from plexus.crucible.l6 import run as R
 from plexus.crucible.l6 import stores_c as S
 from plexus.crucible.l6 import world_c as W
 from plexus.crucible.util import percentile
-from plexus.embed.hash_embedder import HashEmbedder
+from plexus.embed import get_embedder
 from plexus.engram.service import Engram
 from plexus.graph.client import GraphClient
 
@@ -84,8 +84,12 @@ def det_c(
     log: Callable[[str], None],
     scale: float = 1.0,
     arms: set[str] | None = None,
+    embedder_kind: str = "hash",
 ) -> dict[str, Any]:
+    """``embedder_kind`` is ``hash`` in the registered run; ``fastembed`` is the labelled post-hoc re-run of the
+    product arms (the hash embedder ties and collides on two-word names, see BASELINE)."""
     arms = set(ARMS) if arms is None else arms
+    embedder = get_embedder(embedder_kind)
     t = time.time()
     world = W.generate(scale=scale)
     qs = world.questions
@@ -105,14 +109,14 @@ def det_c(
     try:
         if arms & {"P-tuned", "P-product", "P-flat"}:
             t = time.time()
-            name, counts = S.load_plexus_c(world, client, "l6c_run")
+            name, counts = S.load_plexus_c(world, client, "l6c_run", embedder)
             timing["plexus_load_s"] = round(time.time() - t, 2)
             log(f"C: Plexus graph loaded in {timing['plexus_load_s']}s: {counts}")
             if "P-tuned" in arms:
                 fns["P-tuned"] = C.TunedC(client.graph(name)).answer
             for nm, hops in (("P-product", None), ("P-flat", 0)):
                 if nm in arms:
-                    eng = Engram(C.RecordingClient(client), name, HashEmbedder())  # type: ignore[arg-type]
+                    eng = Engram(C.RecordingClient(client), name, embedder)  # type: ignore[arg-type]
                     fns[nm] = C.ProductC(eng, world.scope_id, hops).answer
         out = {nm: measure_c(nm, qs, fns[nm]) for nm in ARMS if nm in fns}
     finally:
@@ -133,7 +137,7 @@ def det_c(
         } | {"n": {str(d): sum(q.depth == d for q in qs) for d in W.DEPTHS}}
     return {
         "world": {"counts": world.counts(), "meta": world.meta}, "timing": timing,
-        "embedder": "HashEmbedder", "arms": out, "pairs": pairs,
+        "embedder": type(embedder).__name__, "arms": out, "pairs": pairs,
         "query_lines": {
             "B1h": R.loc(C.SqlC), "B1h_sql": C.sql_lines(), "P-tuned": R.loc(C.TunedC),
             "P-tuned_cypher": C.cypher_lines(), "P-product": R.loc(C.ProductC),
@@ -154,6 +158,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--scale", type=float, default=1.0)
     ap.add_argument("--out", type=Path, default=R.DEMO)
     ap.add_argument("--arms", default=",".join(ARMS))
+    ap.add_argument("--embedder", choices=("hash", "fastembed"), default="hash")
+    ap.add_argument(
+        "--tag", default="", help="suffix of the result directory (e.g. fastembed for the post-hoc run)"
+    )
     a = ap.parse_args(argv)
     log: Callable[[str], None] = lambda s: print(s, flush=True)  # noqa: E731
     started = time.time()
@@ -165,15 +173,18 @@ def main(argv: list[str] | None = None) -> int:
     tmp = Path(tempfile.mkdtemp(prefix="crucible-l6c-"))
     try:
         doc = R.envelope("c", a.host, a.port, started, cmd)
-        doc["environment"]["embedder"] = "HashEmbedder"
+        doc["environment"]["embedder"] = a.embedder
         doc["config"] = {
             "scale": a.scale,
             "arms": sorted(wanted),
             "reps": REPS,
             "seed": W.SEED,
-            "embedder": "HashEmbedder",
+            "embedder": a.embedder,
+            "tag": a.tag,
         }
-        doc["families"] = {"C": det_c(client, tmp, log, a.scale, wanted)}
+        doc["families"] = {"C": det_c(client, tmp, log, a.scale, wanted, a.embedder)}
+        if a.tag:
+            doc["run"]["id"] += f"-{a.tag}"
         d = R.write(doc, a.out)
         print(f"results: {d / 'results.json'}")
     finally:

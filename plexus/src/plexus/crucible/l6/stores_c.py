@@ -18,7 +18,10 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+from redis.exceptions import TimeoutError as RedisTimeoutError
+
 from plexus.crucible.l6.world_c import T0, WorldC
+from plexus.embed import Embedder
 from plexus.embed.hash_embedder import HashEmbedder
 from plexus.engram.service import fact_text
 from plexus.graph.client import GraphClient
@@ -85,14 +88,19 @@ def build_sqlite_c(world: WorldC, path: str | Path, tuned: bool = True) -> tuple
 
 
 # ------------------------------------------------------------------------------------------------ FalkorDB
-def _wait_indexes(client: GraphClient, name: str, timeout_s: float = 300.0) -> None:
+def _wait_indexes(
+    client: GraphClient, name: str, timeout_s: float = 300.0, allow_empty: bool = False
+) -> None:
     deadline = time.monotonic() + timeout_s
     while True:
-        st = {
-            (r["label"], tuple(r["properties"]), str(r["status"]))
-            for r in client.ro(name, "schema/list_indexes")
-        }
-        if st and all(s == "OPERATIONAL" for _, _, s in st):
+        try:
+            st = {
+                (r["label"], tuple(r["properties"]), str(r["status"]))
+                for r in client.ro(name, "schema/list_indexes")
+            }
+        except (TimeoutError, RedisTimeoutError):  # the server is busy building; keep polling
+            st = {("", (), "BUSY")}
+        if (st or allow_empty) and all(s == "OPERATIONAL" for _, _, s in st):
             return
         if time.monotonic() > deadline:
             raise TimeoutError(
@@ -114,14 +122,18 @@ def plexus_counts_c(g: Any) -> dict[str, int]:
     }  # fmt: skip
 
 
-def load_plexus_c(world: WorldC, client: GraphClient, tenant: str) -> tuple[str, dict[str, int]]:
+def load_plexus_c(
+    world: WorldC, client: GraphClient, tenant: str, embedder: Embedder | None = None
+) -> tuple[str, dict[str, int]]:
     """Drop and recreate graph ``plexus_t_<tenant>`` holding the world. Returns ``(graph name, counts read back)``."""
     name = graph_name(tenant)
     client.delete_graph(name)
     g = client.graph(name)
     for label in ("Scope", "Entity", "Fact"):
         g.query(f"CREATE INDEX FOR (n:{label}) ON (n.id)")  # before the bulk load: every CREATE binds by id
-    emb = HashEmbedder()
+    emb = (
+        embedder or HashEmbedder()
+    )  # the registered run uses the hash embedder; `--embedder fastembed` is the labelled post-hoc
     sid = world.scope_id
     g.query(
         "CREATE (:Scope {id: $id, kind: 'project', name: $name, created_at: $t})",
@@ -157,7 +169,17 @@ def load_plexus_c(world: WorldC, client: GraphClient, tenant: str) -> tuple[str,
             "CREATE (a)-[:RELATES {kind: r.k, scope_id: $sid, at: $t}]->(b)",
             {"rows": ch, "sid": sid, "t": T0},
         )
-    apply_schema(client, name)  # full-text + vector + the remaining range indexes, after the bulk load
+    # full-text + vector + the remaining range indexes, after the bulk load. On a 44k-fact graph the server builds each
+    # index in the background and a later schema statement can wait behind it past the client's 5 s socket timeout:
+    # wait for the indexes to finish and re-run (apply_schema tolerates "already indexed").
+    for attempt in range(30):
+        try:
+            apply_schema(client, name)
+            break
+        except (TimeoutError, RedisTimeoutError):
+            if attempt == 29:
+                raise
+            _wait_indexes(client, name, allow_empty=True)
     _wait_indexes(client, name)
     got = plexus_counts_c(g)
     check_counts(world, got, "P")
