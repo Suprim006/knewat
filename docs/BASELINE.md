@@ -750,3 +750,30 @@ The pre-registered L6 run above exposed product defects. They were fixed on bran
 * **F.** `assert_fact`, `record_decision` and `handoff` create `(Step)-[:WROTE]->(node)` in their own write statement; the runtime opens the Step first and removes it again if the call is rejected. A crash can now leave an empty `Step` (not counted above) but no record without its edge. Kill test in the suite: 50 kills, 0 orphans. The pre-registered "P expected to lose" is therefore only true of the pre-fix code; the other tools (`complete_task`, `fail_task`, `create_tasks`, ...) are still linked by a second statement.
 * **Not re-run:** B (the MCP `why` tool now accepts `depth`, up to 12; the 16/24 tool-path figure above is the old one and the service path with `depth=12` was already 24/24), D, E, the LLM pilot (88 calls, $7.0855, unchanged). Nothing above changes the reading of L6: no family shows the graph beating hand-written SQL.
 
+
+## L5b-D013 pre-registration: pattern separation (P1) and forgetting that cannot cost recall (P2); written before any run
+
+Spec: `docs/research/MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md` §5.1 (and `neuro-memory/CROSS_CHECK.md`). Branch `feature/neuro-memory-research`, worktree `wt-neuro-memory`, FalkorDB `plexus-db-13` (6.0.2). Code under test: commits up to the one that adds this section (P1 + P2 implemented; P3 not built). LLM calls: 0 (fastembed, deterministic scripts).
+
+**Design.** The L5b design above unchanged (K = 20 sprints, 90 simulated days, seed 20261016, fastembed, fact-lookup probes `"<subject> <predicate>"`, same metrics), run at N = 5 and N = 15 noise facts per subject, once each, with the harness `plexus.crucible.l5 --only forgetting --modes off,on-mult,kw-fix,sep,sep+add`. One more run, N = 5 with `--burst` (every hot fact is read 90 times inside one hour at day 45 instead of daily). Modes, each isolating one change:
+
+| mode | what is on |
+|---|---|
+| `off` | flat order: forgetting off, separation off (control; must equal the committed `20261015T205321Z-floor09` `off` numbers within id noise) |
+| `on-mult` | D-012 default as shipped: `PLEXUS_ACT_MODE=mult`, floor 0.9, keyword bypass over `Fact.value` only, separation off (control) |
+| `kw-fix` | `on-mult` with the keyword bypass tested over the whole fact text `entity predicate: value` |
+| `sep` | P1: entity resolution (`engram/recall_entities`, named-entity rule: every word of the entity name in the query), fan-damped lift `gamma · max(0, 1 − ln fan / ln 50)` with `gamma = 0.15`, fan-damped sibling expansion, lures; forgetting **off** |
+| `sep+add` | P1 + P2: `PLEXUS_ACT_MODE=add` (`beta = 0.05`, `s = 1`, Pavlik–Anderson `c = 0.217, a = 0.177`, salience `kappa = 0.4`, band `eps = 0.02`, `delta = 0.03`), forgetting on, separation on, bypass over the fact text |
+
+New standard columns (every mode): the class of the rows ranked above the target split into same-entity / other-entity; `hot_above_cold` (share of cold probes with a hot row above the target); `gap12` (distribution of the relevance gap between rank 1 and rank 2; sets `beta` for a later fit); client-side ms of the entity read.
+
+**Hypotheses and decision rules (plan §5.1, copied; thresholds are for N = 5, the N = 15 run is reported with the same rules as a stress case):**
+1. `sep` recall@1 ≥ 0.90 and recall@5 ≥ `off` − 0.005; critical loss 0. **Falsified** if recall@1 < 0.85.
+2. `kw-fix` alone: report its recall@1; if it already reaches ≥ 0.88, say so and treat the fan/entity term as the hub-entity mechanism only (§5.3), not as the L5b fix.
+3. `sep+add` recall@1 ≥ `sep` − 0.01; recall@5 ≥ `sep` − 0.005; noise share ≤ 15.5%. **Falsified** if recall@1 drops more than 1 point below `sep`: then P2 still costs recall and `beta` is too large.
+4. Rows above the target of class `critical` or `hot` under `sep+add`: ≤ 5 (today 82 + 7).
+5. Burst variant: under `sep+add` a burst twin outranks a cold target in ≤ 1% of cold probes; under `on-mult` it does whenever the relevance gap < 0.06 (reported as `hot_above_cold` for both).
+
+**What I expect, stated plainly before the run.** Confident: hypothesis 3 (P2 is bounded by construction: ±0.05 in log-relevance) and 5 (massed reads self-limit under activation-dependent decay). Unsure: hypothesis 1. The L5b misses in `off` are "critical 42, cold 4, hot 1, noise 2" rows above the target; if most of those rows are about the **same** entity as the target (another predicate of the same sprint subject), the entity lift cannot separate them and `sep` will not reach 0.90 — the same-entity / other-entity split is in the output precisely to show which it was. In that case the honest reading is "P1 fixes cross-entity twins (the mechanism the hub test and L6-C need) and L5b's residual is a predicate-cue problem (CROSS_CHECK §3.2)", not a tuned pass. The harness's recorded pass/fail per criterion is what gets reported, whichever way it goes.
+
+**Implementation choices that deviate from the plan text (documented in `docs/DECISIONS.md` D-013):** the exact-keyword bypass keeps the entity lift (`ln rel + sep`) instead of relevance only, otherwise the bypass would strip P1 from the very rows P1 is for; entities count as named only when every word of their name is in the query (the plan's "top 5 by full-text score" would lift every `Acme Notes API Sxx` twin); the salience cache is written by `pin_fact` only — the activation read recomputes salience from the graph on every call (CROSS_CHECK §3.7 "simpler v1"), so the six-statement cache is deferred.
