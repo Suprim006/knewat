@@ -1210,3 +1210,21 @@ Predictions, stated now: **X2** restores the multiplier's effect (`sep+mult` noi
 >= 5 points above OFF (the lexical term has its own noise cost, because noise values contain the query words). If X1 and X2 both fail their prediction, the hypothesis is falsified and the cause stays unknown
 (reported as such). L8: X1 with lexical OFF is also run through `recall_bench` (`PLEXUS_KW_BYPASS=value`) to see whether narrowing the bypass costs the long-horizon facts; expected
 1000/1000, needed facts 5/5 5/5 1/1, replay 27-28/36. Whatever X1 shows, the shipped bypass default is not changed by this check: that would be a ranking change that needs its own pre-registered confirmatory run.
+
+### Recall-check addendum 2 (written after post-hoc X1-X3, before X4/X5; also post-hoc)
+
+What X1-X3 showed (numbers in the results section): **X1 (`PLEXUS_KW_BYPASS=value`) did not move the noise share** (OFF `sep+mult` 31.6% / 41.1% against the registered 32.3% / 41.6%), so my first
+hypothesis (the breadth of the bypass *text*) is **falsified**. **X2 (no keyword channel)** does remove the noise (`sep+mult` 16.7% / 17.7%, below the published 20-22%) but breaks the ranking it
+was meant to leave alone (recall@1 72.9% / 68.6%, 29 / 27 other-entity rows above the target): with no keyword hit nothing is bypassed, and the multiplier demotes the cold target facts, the
+D-012 loss that the bypass was added to prevent. So the keyword channel is both what shields the targets and (apparently) what shields the noise. **X3 (pool = 2k)** at N = 5 left the noise
+share at 30.3% (the pool is not the cause; N = 15 pending when this is written).
+
+**New hypothesis (post-hoc).** Main's keyword channel matched `Fact.value` only. P12 added `Fact.search_text` (entity name + predicate words) to the full-text index and `engram/recall_keywords`
+searches both: for a probe `"<subject> <predicate>"` every fact of the subject (the 5 real and the N noise facts) is now a keyword hit through its entity name, and a keyword hit whose text
+contains every query word is exempt from the multiplier. On main only the facts whose value mentions a query word were hits.
+
+**Runs.** X4 = lexical OFF, keyword ids restricted to the facts whose `value` contains a query word (main's semantics; a wrapper filters `Engram._keyword_ids`, product code untouched), pool as
+merged; X5 = X4 with pool = 2k (`MIN_POOL=0, POOL_FACTOR=2`), i.e. the closest the merged build can be put to main's candidate rules. L5b `--modes off,sep,sep+mult`, N = 5 and N = 15.
+**Predictions, stated now:** X4 brings `sep+mult` noise to <= 26% at N = 5 and <= 24% at N = 15 with recall@1 >= 84.3% and 0 other-entity rows (falsified otherwise); X5 is within 2 points of X4.
+If X4 fails, the cause of the move stays unattributed in this report (stated as such), and the remaining differences between the two builds (the Python sibling boost, the fused sort, the named-entity merge
+order) are listed as not tested. Nothing here changes a shipped default.
