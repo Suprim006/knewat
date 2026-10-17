@@ -13,9 +13,13 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
+from plexus.common import OPEN
+from plexus.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K
 from plexus.mcp.limits import (
+    ALL_SCOPES,
     MAX_INT,
     MAX_LIST,
+    MAX_NAME,
     AgentId,
     EpochMs,
     IdStr,
@@ -150,8 +154,15 @@ def recall(
     m: MeteredClient,
     agent_id: AgentId,
     query: Annotated[Value, Field(description="Natural-language question or topic, e.g. 'API version'.")],
-    scope: ScopeArg = "global",
-    k: Annotated[int, Field(ge=1, le=50, description="Max number of facts to return.")] = 8,
+    scope: Annotated[
+        str,
+        Field(
+            description="Where to search: 'all' (default: every scope of the team's memory), or 'global', "
+            "'project:<name>', 'user:<name>' or a scope id (that scope plus the scopes it inherits).",
+            max_length=MAX_NAME,
+        ),
+    ] = ALL_SCOPES,
+    k: Annotated[int, Field(ge=1, le=50, description="Max number of facts to return.")] = DEFAULT_K,
     as_of: Annotated[
         EpochMs | None,
         Field(
@@ -160,7 +171,7 @@ def recall(
     ] = None,
     budget_chars: Annotated[
         int, Field(ge=50, le=20000, description="Rough cap on total returned text.")
-    ] = 2000,
+    ] = DEFAULT_BUDGET_CHARS,
     include_dormant: Annotated[
         bool,
         Field(description="True to also search facts a memory_sweep moved to 'dormant' (hidden by default)."),
@@ -182,18 +193,30 @@ def recall(
             "up to 20 extra facts per hop.",
         ),
     ] = 0,
+    detail: Annotated[
+        Literal["compact", "full"],
+        Field(
+            description="'compact' (default): per hit fact_id, entity, predicate, value, valid_from, score, by, "
+            "plus any non-default flag. 'full': also text, provenance path, activation, surprise, the ranking terms and every flag."
+        ),
+    ] = "compact",
     step: Step = None,
 ) -> Outcome:
     """Search shared memory for facts relevant to a question (semantic + graph expansion), best first. Use this
-    before acting, to learn what the team already knows. Each hit has fact_id, text, value, validity window
-    and a 'path' showing where it came from. Facts that are used, decided on, or surprising rank a little
-    higher; unused old facts rank a little lower but are never hidden. Hits also say whether a fact is
-    'suspect' (its code or review date changed: verify before relying on it) and 'protected'; 'maybe_duplicate_of'
-    lists facts it may duplicate (see confirm_duplicate). Also returns
-    recall_id: pass it to why_recalled to see why these facts came back, in this order."""
-    sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
-    if sid is None:
-        return Outcome({"facts": [], "count": 0, "scope_id": None})
+    before acting, to learn what the team already knows. Each hit has fact_id, entity, predicate, value,
+    valid_from and 'by' (who asserted it). Facts that are used, decided on, or surprising rank a little
+    higher; unused old facts rank a little lower but are never hidden. A hit only carries a flag when it is
+    not the default: 'verify_state': 'suspect' (its code or review date changed: verify before relying on it),
+    'status' (not active), 'valid_to' (ended), 'protected', 'maybe_duplicate_of' (see confirm_duplicate).
+    'truncated': true means more facts matched than were returned (raise k / budget_chars or narrow the
+    query). Also returns recall_id: pass it to why_recalled to see why these facts came back, in this order."""
+    all_scopes = (scope or "").strip() == ALL_SCOPES
+    if all_scopes:
+        sid = ts.scope_id("global", m, create=False) or ""  # the walk starts nowhere; $all keeps every scope
+    else:
+        sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
+        if sid is None:
+            return Outcome({"facts": [], "count": 0, "scope_id": None, "truncated": False})
     hits, meta = ts.engram(m).recall_with_meta(
         query,
         sid,
@@ -203,6 +226,7 @@ def recall(
         include_dormant=include_dormant,
         forgetting=forgetting,
         hops=hops,
+        all_scopes=all_scopes,
     )
     for h in hits:
         h["score"] = round(h["score"], 4)
@@ -217,7 +241,7 @@ def recall(
                 agent_id,
                 step_id,
                 query,
-                sid,
+                ALL_SCOPES if all_scopes else sid,
                 k,
                 hits,
                 entities=sorted(meta["entities"]),
@@ -225,7 +249,59 @@ def recall(
             )
         }
 
-    return Outcome({"facts": hits, "count": len(hits), "scope_id": sid}, after=record)
+    out_sid = ALL_SCOPES if all_scopes else sid
+    out: dict[str, Any] = {
+        "facts": hits if detail == "full" else [compact_hit(h) for h in hits],
+        "count": len(hits),
+        "scope_id": out_sid,
+        "truncated": meta["truncated"],
+    }
+    if detail == "full" or meta["omitted_by_budget"]:
+        out["omitted_by_budget"] = meta["omitted_by_budget"]
+    if detail == "full" or meta["more_available"]:
+        out["more_available"] = meta["more_available"]
+    return Outcome(out, after=record)
+
+
+# A compact recall hit leaves out a field whose value is the default below (P12 token fix: in L8 the full hit
+# was ~750 chars, 42% of it the provenance path, and no agent ever used a path id; ``detail='full'`` has it all).
+_COMPACT_DEFAULTS: dict[str, Any] = {
+    "status": "active",
+    "valid_to": OPEN,
+    "via": None,
+    "protected": None,
+    "maybe_duplicate_of": [],
+    "verify_state": "verified",
+    "suspect_since": 0,
+    "suspect_reason": None,
+    "lures": [],  # D-013: only a hit with a same-predicate / other-entity look-alike carries it
+}
+_COMPACT_ALWAYS = ("fact_id", "entity", "predicate", "value", "valid_from", "score")
+# D-013 ranking inputs (entity_match, predicate_match, sep, salience) are in 'full' and in why_recalled only.
+_COMPACT_FULL_ONLY = frozenset(
+    {"text", "path", "surprise", "activation", "entity_match", "predicate_match", "sep", "salience"}
+)
+
+
+def compact_hit(h: dict[str, Any]) -> dict[str, Any]:
+    """One recall hit without the fields an agent rarely needs: ``text`` (= entity + predicate + value),
+    ``path`` (entity/scope/source ids; ``by`` keeps who asserted it), ``surprise``, ``activation`` and the D-013
+    terms ``entity_match`` / ``predicate_match`` / ``sep`` / ``salience`` (ranking inputs, see ``why_recalled``;
+    ``lures`` stays when non-empty), and every flag that has its default value. Unknown keys (``hop``,
+    ``relation_path``) are kept."""
+    out = {k: h[k] for k in _COMPACT_ALWAYS if k in h}
+    by = [p["id"] for p in h.get("path") or [] if p.get("rel") == "ASSERTED_BY"]
+    if by:
+        out["by"] = by[0] if len(by) == 1 else by
+    if h.get("protected") is False:
+        h = {**h, "protected": None}
+    for k, v in h.items():
+        if k in out or k in _COMPACT_FULL_ONLY:
+            continue
+        if k in _COMPACT_DEFAULTS and v == _COMPACT_DEFAULTS[k]:
+            continue
+        out[k] = v
+    return out
 
 
 @tool(kind="read")

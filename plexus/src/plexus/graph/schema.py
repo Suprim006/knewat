@@ -25,6 +25,20 @@ ENTITY_KEY = ("Entity", "norm_name")
 #   CREATE INDEX ...            -> "Attribute 'id' is already indexed"
 #   GRAPH.CONSTRAINT CREATE ... -> "Constraint already exists"
 ALREADY_EXISTS = ("already indexed", "constraint already exists")
+# A schema command that meets another process's in-flight index/constraint build on the same graph fails
+# with this (FalkorDB 6.0.2); it is transient, so apply_schema retries it until timeout_s (P12: two processes
+# applying the schema at once, e.g. the L1 C2 victim and its parent, hit it once the Fact index grew).
+BUSY = "another write is in progress"
+
+
+def _retry_busy(fn, deadline: float, poll_s: float = 0.05):  # noqa: ANN001, ANN202 - tiny local helper
+    while True:
+        try:
+            return fn()
+        except ResponseError as exc:
+            if BUSY not in str(exc).lower() or time.monotonic() >= deadline:
+                raise
+            time.sleep(poll_s)
 
 
 class SchemaError(RuntimeError):
@@ -80,16 +94,18 @@ def wait_for_constraints(
 def apply_schema(client: GraphClient, graph: str, timeout_s: float = 30.0) -> None:
     """Create indexes and UNIQUE constraints on ``graph``. Safe to run any number of times.
 
-    Only errors whose message says the object already exists are ignored; everything else raises.
+    Only errors whose message says the object already exists are ignored; "another write is in progress" (a
+    concurrent schema build on the same graph) is retried until ``timeout_s``; everything else raises.
     """
+    deadline = time.monotonic() + timeout_s
     for name in SCHEMA_QUERIES:
-        client.rw_script(graph, name, tolerate=ALREADY_EXISTS)
+        _retry_busy(lambda name=name: client.rw_script(graph, name, tolerate=ALREADY_EXISTS), deadline)
 
     g = client.graph(graph)
     for label, prop in [(label, "id") for label in UNIQUE_LABELS] + [ENTITY_KEY]:
         try:
             # GRAPH.CONSTRAINT CREATE ... UNIQUE NODE <Label> PROPERTIES 1 <prop>
-            g.create_node_unique_constraint(label, prop)
+            _retry_busy(lambda label=label, prop=prop: g.create_node_unique_constraint(label, prop), deadline)
         except ResponseError as exc:
             if not any(t in str(exc).lower() for t in ALREADY_EXISTS):
                 raise

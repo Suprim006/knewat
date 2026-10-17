@@ -107,7 +107,8 @@ We saw several of these gaps while building Plexus with a multi-agent setup (Her
 
 ### 2.1 In one paragraph
 
-Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **45 tools**. Each tool is
+Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **45 tools** (a session
+can ask for a subset by module, e.g. `toolset=core`, to keep the tool list out of its prompt; `docs/mcp.md`). Each tool is
 **one deterministic, parameterised Cypher query** (or a short fixed sequence of them) against a **FalkorDB graph per
 tenant**:
 - every memory, task, claim, handoff and decision is a node;

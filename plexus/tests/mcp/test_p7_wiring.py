@@ -72,11 +72,19 @@ async def test_end_to_end_repo_source_to_changed_value(server, client, tenant):
         )
         assert out["suspect_fact_ids"] == [fid], "implicit anchoring through the Source uri"
 
-        r = await ok(c, "recall", agent_id="bob", query="payments timeout", scope="project:acme")
+        r = await ok(
+            c, "recall", agent_id="bob", query="payments timeout", scope="project:acme", detail="full"
+        )
         row = next(x for x in r["facts"] if x["fact_id"] == fid)  # still returned, never dropped
         assert row["verify_state"] == "suspect" and row["suspect_since"] == t_change
         assert row["suspect_reason"] == f"changed in abc123 ({REPO_DOC})"
         assert isinstance(row["activation"], float) and row["protected"] is True  # a decision rests on it
+        # the compact default (P12) keeps every non-default flag: the suspect warning is never trimmed
+        r = await ok(c, "recall", agent_id="bob", query="payments timeout", scope="project:acme")
+        row = next(x for x in r["facts"] if x["fact_id"] == fid)
+        assert row["verify_state"] == "suspect" and row["suspect_since"] == t_change
+        assert row["suspect_reason"] == f"changed in abc123 ({REPO_DOC})" and row["protected"] is True
+        assert "path" not in row and "text" not in row and "activation" not in row
 
         v = await ok(
             c, "verify_fact", agent_id="bob", fact_id=fid, still_true=False, new_value="60 seconds",

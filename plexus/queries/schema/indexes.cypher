@@ -11,6 +11,7 @@
 // the MERGE keys of create_source / create_scope / log_procedure_run and the best_procedure filter (P5 review Q4).
 // P7-J staleness (graph model v1.1): CodeAnchor(id, path) serve the anchor MERGE and the file-level symbol lookup, Change(id, at) the
 // change feed (docs_to_update), Fact(verify_state, verify_after) the suspect scan (facts_to_verify: equality branch and review-date range branch). Range indexes only; apply_schema stays idempotent.
+// P12-F3: Fact(verify_degraded) serves the unfinished-verification branch of staleness/suspect_ids.
 // P7-int: created_at on CodeAnchor / Change (so view/subgraph can seek them too) and Fact(pinned) (view/inventory_memory's pinned count).
 // created_at on all 18 labels serves view/subgraph (the Explorer's label / time-window filter): one index range seek per label
 // instead of an All Node Scan of the graph (P5-int Q5).
@@ -66,4 +67,5 @@ CREATE INDEX FOR (n:Fact) ON (n.verify_state);
 CREATE INDEX FOR (n:Fact) ON (n.verify_after);
 CREATE INDEX FOR (n:Change) ON (n.created_at);
 CREATE INDEX FOR (n:CodeAnchor) ON (n.created_at);
+CREATE INDEX FOR (n:Fact) ON (n.verify_degraded);
 CREATE INDEX FOR (n:Fact) ON (n.pinned)

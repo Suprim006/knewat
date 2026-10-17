@@ -10,7 +10,9 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
+import time
 from collections.abc import Callable, Sequence
 from typing import Any
 
@@ -32,11 +34,19 @@ DEFAULT_DETAIL = 50  # decisions listed per call (the total is exact)
 MAX_DETAIL = 5000  # largest max_detail a caller may ask for
 MAX_FLAGGED = 1000  # decisions flagged by one verify_fact
 MAX_EVIDENCE = 500  # evidence text kept on the VERIFIED_BY edge
+UNFINISHED_PREFIX = "fact changed (verification unfinished)"  # provisional flag_reason of mark_unfinished
 _URL = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://\S+$")
 _CODE_EXT = frozenset(
     ".py .pyi .js .jsx .ts .tsx .mjs .go .rs .java .kt .cs .c .h .cpp .hpp .rb .php .swift .sql .sh .ps1 "
     ".yaml .yml .toml .json .ini .cfg .env .dockerfile".split()
 )
+
+
+def _supersede_gap() -> None:
+    """Test-only: ``PLEXUS_TEST_VERIFY_GAP_MS`` sleeps between supersede and backdate (kill window)."""
+    ms = os.environ.get("PLEXUS_TEST_VERIFY_GAP_MS")
+    if ms:
+        time.sleep(int(ms) / 1000)
 
 
 def _change_id(commit: str, t: int, rows: Sequence[dict[str, Any]]) -> str:
@@ -310,12 +320,18 @@ class Staleness:
         {outcome:'changed'}`` and flags the Decisions ``BASED_ON`` the old fact (``flag_reason =
         'fact changed: <id>'``).
 
-        The supersede and the backdate are not atomic together (FalkorDB has no multi-statement
-        transaction): a failed backdate is retried once; if that fails too the new value is still
-        recorded, the old fact gets ``verify_degraded = true`` and the result carries
-        ``verify_degraded: True`` (``valid_to`` then is the supersede time and no decisions are
-        flagged). Calling ``verify_fact`` again on the old fact with the same ``new_value`` finishes
-        the job.
+        Atomicity contract (FalkorDB has no multi-statement transaction, and the supersede is Engram's own
+        write, so supersede and backdate stay two statements): ``staleness/mark_unfinished`` runs first and
+        sets ``verify_degraded = true`` on the old fact, makes it suspect and flags the Decisions
+        ``BASED_ON`` it (``flag_reason = 'fact changed (verification unfinished): <id>'``). A process killed
+        at ANY point after that leaves a detectable state, never a silent one: killed before the
+        supersede, the old fact is still active and marked, and ``verify_fact`` (changed with any value, or
+        ``still_true=true``) finishes or clears it; killed between the supersede and the backdate, the
+        old fact is superseded, marked and has a successor, and calling ``verify_fact`` again with the same
+        ``new_value`` finishes the job. ``staleness/backdate`` clears the marker and sets the final flags;
+        ``facts_to_verify`` lists marked facts even once superseded. A failed backdate is retried once; if
+        that fails too the new value is still recorded and the result carries ``verify_degraded: True``
+        (``valid_to`` then is the supersede time). A kill before the marker writes nothing.
 
         ``evidence`` that is an absolute path or URL becomes (or reuses) a ``Source`` the new fact
         is ``DERIVED_FROM``; any other text is kept on the edge. A new value equal to the old one
@@ -348,6 +364,7 @@ class Staleness:
             self.graph,
             "staleness/verify_confirm",
             {
+                "unfinished_reason": f"{UNFINISHED_PREFIX}: {fact_id}",
                 "fact_id": fact_id,
                 "agent_id": agent_id,
                 "commit": commit,
@@ -407,12 +424,24 @@ class Staleness:
     ) -> dict[str, Any]:
         """Supersede ``old`` with ``new_value`` (Engram), then backdate and flag in one statement.
 
-        Ordered so that a failure leaves a state that can be found and finished: the backdate point is READ
-        first (a failing read writes nothing), then the supersede, then the backdate, retried once. If both
-        attempts fail the old fact gets ``verify_degraded = true`` and the result says so.
+        Ordered so that a failure or a kill leaves a state that can be found and finished: the backdate point
+        is READ first (a failing read writes nothing), then ``staleness/mark_unfinished`` (``verify_degraded``
+        + provisional decision flags, one statement), then the supersede, then the backdate (retried once; it
+        clears the marker). If both backdate attempts fail the marker stays and the result says so.
         """
         source_id = self._evidence_source(note, t)
         change_at = self._change_point(fact_id, t)
+        # Written BEFORE the supersede: a kill from here on leaves a marker (and flagged decisions).
+        self.client.rw(
+            self.graph,
+            "staleness/mark_unfinished",
+            {
+                "fact_id": fact_id,
+                "now": t,
+                "reason": f"{UNFINISHED_PREFIX}: {fact_id}",
+                "max_flag": MAX_FLAGGED,
+            },
+        )
         r = self._engram_().assert_fact(
             old["subject"],
             old["predicate"],
@@ -426,6 +455,7 @@ class Staleness:
             dup_threshold=-1.0,  # a corrected value is never a paraphrase of the old one (real run)
         )
         new_id = r["fact_id"]
+        _supersede_gap()
         b = self._backdate(
             fact_id,
             new_id,
@@ -569,7 +599,9 @@ class Staleness:
                     "at": r["change_at"],
                     "paths": json.loads(r["change_paths"] or "[]"),
                 }
-            if r["verify_state"] == "suspect" and change is not None:
+            if r["verify_degraded"]:
+                reason = f"verification unfinished (fact is {r['status']}): call verify_fact again"
+            elif r["verify_state"] == "suspect" and change is not None:
                 first = change["paths"][0] if change["paths"] else "?"
                 reason = f"changed in {change['commit'] or 'working tree'} ({first})"
             elif r["verify_state"] == "suspect":

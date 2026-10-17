@@ -49,7 +49,7 @@ def history(client, graph):
     return graph
 
 
-PARAMS = {"predicates": ["p", "nope"], "scope_id": "S", "statuses": ["active"], "t": 5}
+PARAMS = {"predicates": ["p", "nope"], "scope_id": "S", "all": False, "statuses": ["active"], "t": 5}
 
 
 def test_the_seek_excludes_history_and_expired_facts(client, history):

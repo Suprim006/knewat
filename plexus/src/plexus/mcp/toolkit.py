@@ -37,8 +37,8 @@ _AUDIT = "audit"  # the optional per-call argument every read tool gets (see ple
 AuditArg = Annotated[
     Literal["light", "full"] | None,
     Field(
-        description="Optional. 'light' = record only a ToolCall for this read (no Step, no Recall/READ edges): "
-        "cheaper under load. It can only lower the audit level the server applies to this tenant, never raise it."
+        description="Optional. 'light' = audit this read as a ToolCall only (no Step/READ edges); can only "
+        "lower the tenant's audit level."
     ),
 ]
 

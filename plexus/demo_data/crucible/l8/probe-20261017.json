@@ -1,0 +1,258 @@
+{
+ "reference_counts": {
+  "cypher": {
+   "Q1": 21,
+   "Q2": 1,
+   "Q3": 0
+  },
+  "sql": {
+   "Q1": 21,
+   "Q2": 0,
+   "Q3": 0
+  }
+ },
+ "rows": [
+  {
+   "lang": "cypher",
+   "q": "Q1",
+   "rep": 1,
+   "first_try_exact": false,
+   "exact": true,
+   "fix_iterations": 1,
+   "defects": [
+    "wrong"
+   ],
+   "lines": 3,
+   "statement": "MATCH (d:Decision)-[:BASED_ON]->(f:Fact)-[:DERIVED_FROM*1..]->(s:Source)\nWHERE s.uri CONTAINS '02_api_style_guide_v1'\nRETURN DISTINCT d.text AS text",
+   "cost": 0.0957,
+   "cost_incl_cached": 0.0957
+  },
+  {
+   "lang": "sql",
+   "q": "Q1",
+   "rep": 1,
+   "first_try_exact": false,
+   "exact": true,
+   "fix_iterations": 1,
+   "defects": [
+    "wrong"
+   ],
+   "lines": 25,
+   "statement": "WITH RECURSIVE edges(child, parent) AS (\n  SELECT src, dst FROM fact_links WHERE kind LIKE 'DERIV%FROM%'\n  UNION\n  SELECT dst, src FROM fact_links WHERE kind IN ('DERIVES','DERIVES_INTO','SOURCE_OF')\n),\ntainted(fid) AS (\n  SELECT fl.src FROM fact_links fl\n  JOIN sources s ON s.id = fl.dst\n  WHERE fl.kind <> 'BASED_ON' AND s.uri LIKE '%02_api_style_guide_v1%'\n  UNION\n  SELECT fl.dst FROM fact_links fl\n  JOIN sources s ON s.id = fl.src\n  WHERE fl.kind <> 'BASED_ON' AND s.uri LIKE '%02_api_style_guide_v1%'\n  UNION\n  SELECT e.child FROM edges e\n  JOIN tainted t ON e.parent = t.fid\n),\ndec_ids(did) AS (\n  SELECT df.decision_id FROM decision_facts df WHERE df.fact_id IN (SELECT fid FROM tainted)\n  UNION\n  SELECT fl.src FROM fact_links fl WHERE fl.kind = 'BASED_ON' AND fl.dst IN (SELECT fid FROM tainted)\n)\nSELECT DISTINCT d.text\nFROM decisions d\nWHERE d.id IN (SELECT did FROM dec_ids)",
+   "cost": 0.0528,
+   "cost_incl_cached": 0.0528
+  },
+  {
+   "lang": "cypher",
+   "q": "Q2",
+   "rep": 1,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 4,
+   "statement": "MATCH (s:Step)-[r:READ]->(f:Fact)\nWHERE f.value IN $old AND s.at < $t AND coalesce(r.via, 'recall') = 'recall'\nMATCH (s)-[:BY]->(a:Agent)\nRETURN DISTINCT a.id AS agent_id",
+   "cost": 0.0467,
+   "cost_incl_cached": 0.0467
+  },
+  {
+   "lang": "sql",
+   "q": "Q2",
+   "rep": 1,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "SELECT DISTINCT s.agent_id\nFROM steps s\nJOIN step_reads sr ON sr.step_id = s.id\nJOIN facts f ON f.id = sr.fact_id\nWHERE f.value IN ({old})\n  AND s.at < :t",
+   "cost": 0.0182,
+   "cost_incl_cached": 0.0182
+  },
+  {
+   "lang": "cypher",
+   "q": "Q3",
+   "rep": 1,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "MATCH (t:Task {status: 'done'})<-[:FOR]-(a:Artifact)\nMATCH (f:Fact)\nWHERE f.value STARTS WITH 'AX-'\n  AND f.valid_to <= t.done_at\n  AND a.summary CONTAINS f.value\nRETURN DISTINCT t.id",
+   "cost": 0.0479,
+   "cost_incl_cached": 0.0479
+  },
+  {
+   "lang": "sql",
+   "q": "Q3",
+   "rep": 1,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 7,
+   "statement": "SELECT DISTINCT t.id\nFROM tasks t\nJOIN artifacts a ON a.task_id = t.id\nJOIN facts f ON f.value LIKE 'AX-%'\n             AND instr(a.summary, f.value) > 0\nWHERE t.status = 'done'\n  AND f.valid_to <= t.done_at",
+   "cost": 0.0185,
+   "cost_incl_cached": 0.0185
+  },
+  {
+   "lang": "cypher",
+   "q": "Q1",
+   "rep": 2,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "MATCH (s:Source)\nWHERE s.uri CONTAINS '02_api_style_guide_v1'\nMATCH (f:Fact)-[:DERIVED_FROM*1..]->(s)\nWITH DISTINCT f\nMATCH (d:Decision)-[:BASED_ON]->(f)\nRETURN DISTINCT d.text",
+   "cost": 0.0456,
+   "cost_incl_cached": 0.0456
+  },
+  {
+   "lang": "sql",
+   "q": "Q1",
+   "rep": 2,
+   "first_try_exact": false,
+   "exact": true,
+   "fix_iterations": 1,
+   "defects": [
+    "wrong"
+   ],
+   "lines": 17,
+   "statement": "WITH RECURSIVE d(id) AS (\n  SELECT fl.src FROM fact_links fl\n  JOIN sources s ON (s.id = fl.dst OR s.uri = fl.dst)\n  WHERE fl.kind LIKE 'DERIV%' AND instr(s.uri, '02_api_style_guide_v1') > 0\n  UNION\n  SELECT fl.dst FROM fact_links fl\n  JOIN sources s ON (s.id = fl.src OR s.uri = fl.src)\n  WHERE fl.kind LIKE 'DERIV%' AND instr(s.uri, '02_api_style_guide_v1') > 0\n  UNION\n  SELECT fl.src FROM fact_links fl\n  JOIN d ON fl.dst = d.id\n  WHERE fl.kind LIKE 'DERIV%'\n)\nSELECT DISTINCT dec.text\nFROM decisions dec\nJOIN decision_facts df ON df.decision_id = dec.id\nWHERE df.fact_id IN (SELECT id FROM d)",
+   "cost": 0.0527,
+   "cost_incl_cached": 0.0527
+  },
+  {
+   "lang": "cypher",
+   "q": "Q2",
+   "rep": 2,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 4,
+   "statement": "MATCH (s:Step)-[r:READ]->(f:Fact)\nWHERE f.value IN $old AND s.at < $t AND coalesce(r.via, 'recall') = 'recall'\nMATCH (s)-[:BY]->(a:Agent)\nRETURN DISTINCT a.id",
+   "cost": 0.0468,
+   "cost_incl_cached": 0.0468
+  },
+  {
+   "lang": "sql",
+   "q": "Q2",
+   "rep": 2,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "SELECT DISTINCT s.agent_id\nFROM steps s\nJOIN step_reads sr ON sr.step_id = s.id\nJOIN facts f ON f.id = sr.fact_id\nWHERE f.value IN ({old})\n  AND s.at < :t",
+   "cost": 0.0182,
+   "cost_incl_cached": 0.0182
+  },
+  {
+   "lang": "cypher",
+   "q": "Q3",
+   "rep": 2,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "MATCH (a:Artifact)-[:FOR]->(t:Task {status: 'done'})\nMATCH (f:Fact)\nWHERE f.value STARTS WITH 'AX-'\n  AND f.valid_to <= t.done_at\n  AND a.summary CONTAINS f.value\nRETURN DISTINCT t.id AS id",
+   "cost": 0.047,
+   "cost_incl_cached": 0.047
+  },
+  {
+   "lang": "sql",
+   "q": "Q3",
+   "rep": 2,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 7,
+   "statement": "SELECT DISTINCT t.id\nFROM tasks t\nJOIN artifacts a ON a.task_id = t.id\nJOIN facts f ON f.value LIKE 'AX-%'\n  AND f.valid_to <= t.done_at\n  AND instr(a.summary, f.value) > 0\nWHERE t.status = 'done'",
+   "cost": 0.0185,
+   "cost_incl_cached": 0.0185
+  },
+  {
+   "lang": "cypher",
+   "q": "Q1",
+   "rep": 3,
+   "first_try_exact": false,
+   "exact": true,
+   "fix_iterations": 1,
+   "defects": [
+    "wrong"
+   ],
+   "lines": 3,
+   "statement": "MATCH (d:Decision)-[:BASED_ON]->(f:Fact)-[:DERIVED_FROM*1..10]->(s:Source)\nWHERE s.uri CONTAINS '02_api_style_guide_v1'\nRETURN DISTINCT d.text",
+   "cost": 0.0967,
+   "cost_incl_cached": 0.0967
+  },
+  {
+   "lang": "sql",
+   "q": "Q1",
+   "rep": 3,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 15,
+   "statement": "WITH RECURSIVE d(id) AS (\n  SELECT fl.src\n  FROM fact_links fl\n  JOIN sources s ON s.id = fl.dst\n  WHERE instr(s.uri, '02_api_style_guide_v1') > 0\n  UNION\n  SELECT fl.src\n  FROM fact_links fl\n  JOIN d ON fl.dst = d.id\n  WHERE fl.kind = 'DERIVED_FROM'\n)\nSELECT DISTINCT dec.text\nFROM decisions dec\nJOIN decision_facts df ON df.decision_id = dec.id\nWHERE df.fact_id IN (SELECT id FROM d)",
+   "cost": 0.0248,
+   "cost_incl_cached": 0.0248
+  },
+  {
+   "lang": "cypher",
+   "q": "Q2",
+   "rep": 3,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 4,
+   "statement": "MATCH (s:Step)-[r:READ]->(f:Fact)\nWHERE f.value IN $old AND s.at < $t AND coalesce(r.via, 'recall') = 'recall'\nMATCH (s)-[:BY]->(a:Agent)\nRETURN DISTINCT a.id AS agent_id",
+   "cost": 0.0468,
+   "cost_incl_cached": 0.0468
+  },
+  {
+   "lang": "sql",
+   "q": "Q2",
+   "rep": 3,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "SELECT DISTINCT s.agent_id\nFROM steps s\nJOIN step_reads r ON r.step_id = s.id\nJOIN facts f ON f.id = r.fact_id\nWHERE f.value IN ({old})\n  AND s.at < :t",
+   "cost": 0.0181,
+   "cost_incl_cached": 0.0181
+  },
+  {
+   "lang": "cypher",
+   "q": "Q3",
+   "rep": 3,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 6,
+   "statement": "MATCH (t:Task {status: 'done'})<-[:FOR]-(a:Artifact)\nMATCH (f:Fact)\nWHERE f.value STARTS WITH 'AX-'\n  AND f.valid_to <= t.done_at\n  AND a.summary CONTAINS f.value\nRETURN DISTINCT t.id",
+   "cost": 0.0456,
+   "cost_incl_cached": 0.0456
+  },
+  {
+   "lang": "sql",
+   "q": "Q3",
+   "rep": 3,
+   "first_try_exact": true,
+   "exact": true,
+   "fix_iterations": 0,
+   "defects": [],
+   "lines": 7,
+   "statement": "SELECT DISTINCT t.id\nFROM tasks t\nJOIN artifacts a ON a.task_id = t.id\nJOIN facts f ON f.value LIKE 'AX-%'\n  AND f.valid_to <= t.done_at\n  AND instr(a.summary, f.value) > 0\nWHERE t.status = 'done'",
+   "cost": 0.0185,
+   "cost_incl_cached": 0.0185
+  }
+ ]
+}

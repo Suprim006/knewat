@@ -1,4 +1,6 @@
-"""Forgetting off + pattern separation off (or as_of) is byte-identical to the retrieval order before P7-K.
+"""Forgetting + separation off (or as_of) is byte-identical to the retrieval order before P7-K.
+
+P12 fuses a lexical score into the relevance, so the identity also needs ``lexical_weight = 0``.
 
 D-013 added ``PLEXUS_RECALL_SEPARATION`` (on by default): with it on, the sibling expansion is fan-damped and
 a query that names an entity is re-ranked, so the identity holds with BOTH switches off (the documented
@@ -9,6 +11,8 @@ of the commit before any P7-K change), not against this branch.
 """
 
 from __future__ import annotations
+
+from typing import Any
 
 import pytest
 
@@ -35,8 +39,10 @@ GOLDEN = [
         ],
     ],
     [
-        [0.80755, ["Acme Notes API hosting: Docker on a single VM"]],
+        # P12: before, "Acme Notes API hosting" ranked first only because zero-similarity Acme facts (distance
+        # 1.0, tied) filled the k seeds in index order and boosted their sibling; such facts are no seeds now
         [0.795876, ["Web Frontend hosting: static files on a CDN"]],
+        [0.80755, ["Acme Notes API hosting: Docker on a single VM"]],
         [
             1.0,
             [
@@ -74,6 +80,12 @@ GOLDEN = [
 ]
 
 
+def _cut_ties(orders: list[list[list[Any]]]) -> list[list[list[Any]]]:
+    """The last group of each query is the tie at the k cut-off: WHICH tied facts make the cut is arbitrary
+    (index return order before P12, fact id order since P12's larger candidate pool): only its size counts."""
+    return [[*q[:-1], [q[-1][0], len(q[-1][1])]] if q else q for q in orders]
+
+
 @pytest.fixture
 def world(eng, scope):
     golden_fixture.build(eng, scope)
@@ -81,15 +93,32 @@ def world(eng, scope):
 
 
 def test_forgetting_off_reproduces_the_pre_change_order(world):
+    # P12 fuses a lexical score into the relevance; with weight 0 the order is the pre-P7-K vector order
     eng, scope = world
-    assert golden_fixture.orders(eng, scope, forgetting=False, separation=False) == GOLDEN
+    eng.lexical_weight = 0.0
+    assert _cut_ties(golden_fixture.orders(eng, scope, forgetting=False, separation=False)) == _cut_ties(
+        GOLDEN
+    )
 
 
 def test_the_environment_switch_does_the_same(world, monkeypatch):
     eng, scope = world
+    eng.lexical_weight = 0.0
     monkeypatch.setenv("PLEXUS_FORGETTING", "off")
     monkeypatch.setenv("PLEXUS_RECALL_SEPARATION", "off")
-    assert golden_fixture.orders(eng, scope) == GOLDEN
+    assert _cut_ties(golden_fixture.orders(eng, scope)) == _cut_ties(GOLDEN)
+
+
+def test_p12_lexical_weight_env_and_default(world, monkeypatch):
+    from plexus.engram.service import LEXICAL_WEIGHT, Engram
+
+    eng, scope = world
+    assert eng.lexical_weight == LEXICAL_WEIGHT == 0.5
+    monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "0")
+    assert Engram(eng.client, eng.graph, eng.embedder).lexical_weight == 0.0
+    monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "2")
+    with pytest.raises(ValueError):
+        Engram(eng.client, eng.graph, eng.embedder)
 
 
 def test_an_explicit_argument_beats_the_environment(world, monkeypatch):

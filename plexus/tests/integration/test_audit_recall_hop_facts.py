@@ -68,6 +68,7 @@ def _hop(client, graph, per_entity: int) -> list[str]:
         {
             "entity_ids": ["e1"],
             "scope_id": "team",
+            "all": False,
             "t": 5,
             "statuses": ["active"],
             "per_entity": per_entity,
@@ -89,6 +90,14 @@ def test_scope_filter_still_applies(client, diamond):
     rows = client.ro(
         diamond,
         "engram/recall_hop_facts",
-        {"entity_ids": ["e1"], "scope_id": "proj", "t": 5, "statuses": ["active"], "per_entity": 10, "q": Q},
+        {
+            "entity_ids": ["e1"],
+            "scope_id": "proj",
+            "all": False,
+            "t": 5,
+            "statuses": ["active"],
+            "per_entity": 10,
+            "q": Q,
+        },
     )
     assert [r["fact_id"] for r in rows] == ["g1", "p1"], "team is not visible from proj"

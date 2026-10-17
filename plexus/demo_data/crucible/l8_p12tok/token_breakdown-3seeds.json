@@ -1,0 +1,477 @@
+{
+ "P": {
+  "runs": [
+   "demo_data\\crucible\\l8_p12tok\\runs\\20261017\\P",
+   "demo_data\\crucible\\l8_p12tok\\runs\\20261018\\P",
+   "demo_data\\crucible\\l8_p12tok\\runs\\20261021\\P"
+  ],
+  "processes": 66,
+  "api_calls": 421,
+  "total_tokens_measured": 12961268,
+  "total_tokens_result_events": 11708452,
+  "negative_deltas": 0,
+  "prefix_tokens_first_call": {
+   "min": 27105,
+   "max": 27947,
+   "mean": 27620
+  },
+  "table": [
+   {
+    "component": "(prefix: system + tool manifest + prompt)",
+    "tokens": 11625490,
+    "share": 0.8969,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 0,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "recall",
+    "tokens": 681483,
+    "share": 0.0526,
+    "calls": 70,
+    "tokens_per_call": 9735,
+    "request_tokens": 13722,
+    "response_tokens": 667054,
+    "output_tokens": 707,
+    "response_size_tokens_avg": 2479,
+    "response_chars_avg": 4561
+   },
+   {
+    "component": "Read",
+    "tokens": 137302,
+    "share": 0.0106,
+    "calls": 99,
+    "tokens_per_call": 1387,
+    "request_tokens": 8878,
+    "response_tokens": 127797,
+    "output_tokens": 626,
+    "response_size_tokens_avg": 414,
+    "response_chars_avg": 663
+   },
+   {
+    "component": "Grep",
+    "tokens": 95105,
+    "share": 0.0073,
+    "calls": 49,
+    "tokens_per_call": 1941,
+    "request_tokens": 14898,
+    "response_tokens": 79643,
+    "output_tokens": 564,
+    "response_size_tokens_avg": 438,
+    "response_chars_avg": 727
+   },
+   {
+    "component": "start_session",
+    "tokens": 85873,
+    "share": 0.0066,
+    "calls": 66,
+    "tokens_per_call": 1301,
+    "request_tokens": 39642,
+    "response_tokens": 44673,
+    "output_tokens": 1558,
+    "response_size_tokens_avg": 126,
+    "response_chars_avg": 129
+   },
+   {
+    "component": "assert_fact",
+    "tokens": 81359,
+    "share": 0.0063,
+    "calls": 96,
+    "tokens_per_call": 847,
+    "request_tokens": 27695,
+    "response_tokens": 53224,
+    "output_tokens": 440,
+    "response_size_tokens_avg": 259,
+    "response_chars_avg": 314
+   },
+   {
+    "component": "claim_next_task",
+    "tokens": 69063,
+    "share": 0.0053,
+    "calls": 57,
+    "tokens_per_call": 1212,
+    "request_tokens": 18102,
+    "response_tokens": 49368,
+    "output_tokens": 1593,
+    "response_size_tokens_avg": 179,
+    "response_chars_avg": 223
+   },
+   {
+    "component": "Write",
+    "tokens": 51569,
+    "share": 0.004,
+    "calls": 52,
+    "tokens_per_call": 992,
+    "request_tokens": 37976,
+    "response_tokens": 12993,
+    "output_tokens": 600,
+    "response_size_tokens_avg": 112,
+    "response_chars_avg": 142
+   },
+   {
+    "component": "Glob",
+    "tokens": 26396,
+    "share": 0.002,
+    "calls": 9,
+    "tokens_per_call": 2933,
+    "request_tokens": 876,
+    "response_tokens": 25449,
+    "output_tokens": 70,
+    "response_size_tokens_avg": 820,
+    "response_chars_avg": 1326
+   },
+   {
+    "component": "add_source",
+    "tokens": 25453,
+    "share": 0.002,
+    "calls": 21,
+    "tokens_per_call": 1212,
+    "request_tokens": 15807,
+    "response_tokens": 9377,
+    "output_tokens": 269,
+    "response_size_tokens_avg": 133,
+    "response_chars_avg": 182
+   },
+   {
+    "component": "complete_task",
+    "tokens": 25138,
+    "share": 0.0019,
+    "calls": 48,
+    "tokens_per_call": 524,
+    "request_tokens": 16175,
+    "response_tokens": 7716,
+    "output_tokens": 1247,
+    "response_size_tokens_avg": 129,
+    "response_chars_avg": 167
+   },
+   {
+    "component": "remember_episode",
+    "tokens": 18279,
+    "share": 0.0014,
+    "calls": 20,
+    "tokens_per_call": 914,
+    "request_tokens": 11283,
+    "response_tokens": 6676,
+    "output_tokens": 320,
+    "response_size_tokens_avg": 108,
+    "response_chars_avg": 159
+   },
+   {
+    "component": "(assistant text)",
+    "tokens": 12660,
+    "share": 0.001,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 8240,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "record_decision",
+    "tokens": 12010,
+    "share": 0.0009,
+    "calls": 18,
+    "tokens_per_call": 667,
+    "request_tokens": 9424,
+    "response_tokens": 2324,
+    "output_tokens": 262,
+    "response_size_tokens_avg": 72,
+    "response_chars_avg": 90
+   },
+   {
+    "component": "handoff",
+    "tokens": 5632,
+    "share": 0.0004,
+    "calls": 12,
+    "tokens_per_call": 469,
+    "request_tokens": 4222,
+    "response_tokens": 1070,
+    "output_tokens": 340,
+    "response_size_tokens_avg": 89,
+    "response_chars_avg": 107
+   },
+   {
+    "component": "create_tasks",
+    "tokens": 4655,
+    "share": 0.0004,
+    "calls": 6,
+    "tokens_per_call": 776,
+    "request_tokens": 3642,
+    "response_tokens": 838,
+    "output_tokens": 175,
+    "response_size_tokens_avg": 140,
+    "response_chars_avg": 250
+   },
+   {
+    "component": "verify_artifact",
+    "tokens": 2619,
+    "share": 0.0002,
+    "calls": 6,
+    "tokens_per_call": 436,
+    "request_tokens": 1180,
+    "response_tokens": 1404,
+    "output_tokens": 35,
+    "response_size_tokens_avg": 88,
+    "response_chars_avg": 144
+   },
+   {
+    "component": "fact_history",
+    "tokens": 1088,
+    "share": 0.0001,
+    "calls": 1,
+    "tokens_per_call": 1088,
+    "request_tokens": 218,
+    "response_tokens": 866,
+    "output_tokens": 3,
+    "response_size_tokens_avg": 289,
+    "response_chars_avg": 516
+   },
+   {
+    "component": "(thinking)",
+    "tokens": 95,
+    "share": 0.0,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 1,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   }
+  ],
+  "round_trip": [
+   {
+    "component": "(process start)",
+    "tokens": 1824516,
+    "share": 0.1408,
+    "calls": 0,
+    "tokens_per_call": null
+   },
+   {
+    "component": "start_session",
+    "tokens": 1813453,
+    "share": 0.1399,
+    "calls": 66,
+    "tokens_per_call": 27477
+   },
+   {
+    "component": "complete_task",
+    "tokens": 1640411,
+    "share": 0.1266,
+    "calls": 48,
+    "tokens_per_call": 34175
+   },
+   {
+    "component": "claim_next_task",
+    "tokens": 1382020,
+    "share": 0.1066,
+    "calls": 57,
+    "tokens_per_call": 24246
+   },
+   {
+    "component": "Read",
+    "tokens": 1256407,
+    "share": 0.0969,
+    "calls": 99,
+    "tokens_per_call": 12691
+   },
+   {
+    "component": "recall",
+    "tokens": 1001899,
+    "share": 0.0773,
+    "calls": 70,
+    "tokens_per_call": 14313
+   },
+   {
+    "component": "Write",
+    "tokens": 986285,
+    "share": 0.0761,
+    "calls": 52,
+    "tokens_per_call": 18967
+   },
+   {
+    "component": "Grep",
+    "tokens": 844682,
+    "share": 0.0652,
+    "calls": 49,
+    "tokens_per_call": 17238
+   },
+   {
+    "component": "assert_fact",
+    "tokens": 553259,
+    "share": 0.0427,
+    "calls": 96,
+    "tokens_per_call": 5763
+   },
+   {
+    "component": "handoff",
+    "tokens": 399174,
+    "share": 0.0308,
+    "calls": 12,
+    "tokens_per_call": 33264
+   },
+   {
+    "component": "add_source",
+    "tokens": 349116,
+    "share": 0.0269,
+    "calls": 21,
+    "tokens_per_call": 16625
+   },
+   {
+    "component": "remember_episode",
+    "tokens": 314027,
+    "share": 0.0242,
+    "calls": 20,
+    "tokens_per_call": 15701
+   },
+   {
+    "component": "record_decision",
+    "tokens": 260258,
+    "share": 0.0201,
+    "calls": 18,
+    "tokens_per_call": 14459
+   },
+   {
+    "component": "create_tasks",
+    "tokens": 134281,
+    "share": 0.0104,
+    "calls": 6,
+    "tokens_per_call": 22380
+   },
+   {
+    "component": "Glob",
+    "tokens": 124165,
+    "share": 0.0096,
+    "calls": 9,
+    "tokens_per_call": 13796
+   },
+   {
+    "component": "verify_artifact",
+    "tokens": 57212,
+    "share": 0.0044,
+    "calls": 6,
+    "tokens_per_call": 9535
+   },
+   {
+    "component": "fact_history",
+    "tokens": 20102,
+    "share": 0.0016,
+    "calls": 1,
+    "tokens_per_call": 20102
+   }
+  ],
+  "recall_response_by_field": [
+   {
+    "field": "fact_id",
+    "tokens": 140479,
+    "share_of_recall_response": 0.2106
+   },
+   {
+    "field": "entity",
+    "tokens": 86524,
+    "share_of_recall_response": 0.1297
+   },
+   {
+    "field": "valid_from",
+    "tokens": 77407,
+    "share_of_recall_response": 0.116
+   },
+   {
+    "field": "predicate",
+    "tokens": 76038,
+    "share_of_recall_response": 0.114
+   },
+   {
+    "field": "value",
+    "tokens": 70488,
+    "share_of_recall_response": 0.1057
+   },
+   {
+    "field": "by",
+    "tokens": 47644,
+    "share_of_recall_response": 0.0714
+   },
+   {
+    "field": "score",
+    "tokens": 39793,
+    "share_of_recall_response": 0.0597
+   },
+   {
+    "field": "path",
+    "tokens": 35671,
+    "share_of_recall_response": 0.0535
+   },
+   {
+    "field": "protected",
+    "tokens": 33844,
+    "share_of_recall_response": 0.0507
+   },
+   {
+    "field": "(envelope + other top-level keys)",
+    "tokens": 32142,
+    "share_of_recall_response": 0.0482
+   },
+   {
+    "field": "text",
+    "tokens": 5011,
+    "share_of_recall_response": 0.0075
+   },
+   {
+    "field": "via",
+    "tokens": 3388,
+    "share_of_recall_response": 0.0051
+   },
+   {
+    "field": "verify_state",
+    "tokens": 2857,
+    "share_of_recall_response": 0.0043
+   },
+   {
+    "field": "valid_to",
+    "tokens": 2747,
+    "share_of_recall_response": 0.0041
+   },
+   {
+    "field": "maybe_duplicate_of",
+    "tokens": 2637,
+    "share_of_recall_response": 0.004
+   },
+   {
+    "field": "suspect_reason",
+    "tokens": 2418,
+    "share_of_recall_response": 0.0036
+   },
+   {
+    "field": "activation",
+    "tokens": 2131,
+    "share_of_recall_response": 0.0032
+   },
+   {
+    "field": "status",
+    "tokens": 1978,
+    "share_of_recall_response": 0.003
+   },
+   {
+    "field": "suspect_since",
+    "tokens": 1978,
+    "share_of_recall_response": 0.003
+   },
+   {
+    "field": "surprise",
+    "tokens": 1879,
+    "share_of_recall_response": 0.0028
+   }
+  ],
+  "recall_facts_per_response": {
+   "n": 67,
+   "mean": 20.2,
+   "mean_chars": 4765
+  }
+ }
+}

@@ -1,0 +1,41 @@
+{
+ "reply": "```cypher\nMATCH (a:Artifact)-[:FOR]->(t:Task {status: 'done'})\nMATCH (f:Fact)\nWHERE f.value STARTS WITH 'AX-'\n  AND f.valid_to <= t.done_at\n  AND a.summary CONTAINS f.value\nRETURN DISTINCT t.id AS id\n```",
+ "cost": 0.0469535,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 11079,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 258,
+  "output_tokens_details": {
+   "thinking_tokens": 132
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 11079,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 258,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 11079,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 11079
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 7.1,
+ "tag": "probe-cypher-Q3-r2-i0"
+}

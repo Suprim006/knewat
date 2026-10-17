@@ -32,7 +32,8 @@ def test_q1_recall_sibling_expansion_does_not_enumerate_the_scope(client, graph,
         "q": list(vec),
         "scope_id": "S",
         "over": 32,
-        "k": 8,
+        "lim": 8,
+        "all": False,
         "t": 5,
         "statuses": ["active"],
         "boost": 0.05,
@@ -42,6 +43,9 @@ def test_q1_recall_sibling_expansion_does_not_enumerate_the_scope(client, graph,
         "smax": 3.912,
     }
     ops = profile_ops(client, graph, "engram/recall", params)
+    _assert_small(ops)
+    # P12: scope 'all' and a P12-sized pool (60) keep the entity-first plan
+    ops = profile_ops(client, graph, "engram/recall", {**params, "all": True, "lim": 60, "over": 240})
     _assert_small(ops)
 
 
@@ -79,6 +83,7 @@ def _assert_params(**over):
         "novelty": 0.5,
         "surprise_supersede": 0.6,
         "surprise_contradict": 0.9,
+        "search_text": "E0 p",
     }
     p.update(over)
     return p

@@ -74,7 +74,15 @@ def fresh(prefix="N") -> str:
 def finish_params(client, g, *, empty: bool, fail: bool = False):
     tid = claimed_task(client, g)
     aid = [] if empty else ["A5"]
-    p = {"agent": "a1", "task": tid, "expected_version": 3, "artifacts": [], "artifact_ids": aid, "now": 10}
+    p = {
+        "agent": "a1",
+        "task": tid,
+        "expected_version": 3,
+        "artifacts": [],
+        "artifact_ids": aid,
+        "step_id": "",
+        "now": 10,
+    }
     return {**p, "reason": "r"} if fail else p
 
 
@@ -86,6 +94,7 @@ def create_tasks_params(client, g, *, empty: bool):
         "edges": edges,
         "ids": [t],
         "ext_dep_ids": [] if empty else ["T5"],
+        "step_id": "",
         "now": 10,
     }
 

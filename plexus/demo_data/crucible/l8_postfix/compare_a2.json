@@ -1,0 +1,979 @@
+{
+ "kind": "crucible-l8-roundA2-compare",
+ "columns": {
+  "P2": {
+   "seeds": [
+    20261017,
+    20261018,
+    20261019,
+    20261020,
+    20261021
+   ],
+   "pooled": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0408,
+     "stale": 13,
+     "n": 319,
+     "wilson95": [
+      0.024,
+      0.0685
+     ],
+     "seed_rates": {
+      "values": [
+       0.0484,
+       0.0455,
+       0.0154,
+       0.0159,
+       0.0794
+      ],
+      "min": 0.0154,
+      "median": 0.0455,
+      "max": 0.0794
+     },
+     "dependent_pooled": 0.0408,
+     "artifact_files_pooled": 0.046,
+     "stale_facts_live_at_end": {
+      "values": [
+       6,
+       6,
+       4,
+       5,
+       2
+      ],
+      "min": 2,
+      "median": 5,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0,
+     "events": 0,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "missing_completion": {
+     "values": [
+      1,
+      1,
+      0,
+      0,
+      1
+     ],
+     "min": 0,
+     "median": 1,
+     "max": 1
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": 2,
+     "M3": 5,
+     "seed_rates": {
+      "values": [
+       0.0161,
+       0.0303,
+       0.0308,
+       0.0159,
+       0.0159
+      ],
+      "min": 0.0159,
+      "median": 0.0161,
+      "max": 0.0308
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       3,
+       3.0,
+       3.0,
+       3.0,
+       5.5
+      ],
+      "min": 3,
+      "median": 3.0,
+      "max": 5.5
+     },
+     "level2_median": {
+      "values": [
+       6.0,
+       6,
+       3,
+       6,
+       7
+      ],
+      "min": 3,
+      "median": 6,
+      "max": 7
+     },
+     "level1_censored": 4,
+     "level2_censored": 10,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       5610421,
+       5432959,
+       5426159,
+       5533212,
+       5390709
+      ],
+      "min": 5390709,
+      "median": 5432959,
+      "max": 5610421
+     },
+     "per_correct_action": {
+      "values": [
+       95092,
+       86237,
+       84784,
+       89245,
+       92943
+      ],
+      "min": 84784,
+      "median": 89245,
+      "max": 95092
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       15859,
+       13537,
+       13595,
+       14202,
+       14681
+      ],
+      "min": 13537,
+      "median": 14202,
+      "max": 15859
+     },
+     "cost_usd": 9.618,
+     "pooled_per_correct_action": 89521,
+     "pooled_weighted_per_correct_action": 14348
+    },
+    "tasks_done": {
+     "values": [
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      22,
+      22,
+      22,
+      22
+     ],
+     "min": 22,
+     "median": 22,
+     "max": 22
+    }
+   },
+   "history_recall": "15/15",
+   "x1_at_write": "5/5",
+   "x2_at_write": "5/5",
+   "provenance_all": "210/210",
+   "provenance_kill_turns": "5/5",
+   "kills_recovered": "15/15",
+   "units_repeated": "7 of 8",
+   "tasks_done": [
+    16,
+    16,
+    16,
+    16,
+    16
+   ],
+   "turns": [
+    22,
+    22,
+    22,
+    22,
+    22
+   ],
+   "cost_usd": 9.618,
+   "fail_task_calls": [
+    [],
+    [],
+    [],
+    [],
+    []
+   ]
+  },
+  "P": {
+   "seeds": [
+    20261017,
+    20261018,
+    20261019,
+    20261020,
+    20261021
+   ],
+   "pooled": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0449,
+     "stale": 14,
+     "n": 312,
+     "wilson95": [
+      0.0269,
+      0.0739
+     ],
+     "seed_rates": {
+      "values": [
+       0.087,
+       0.0175,
+       0.0508,
+       0.0152,
+       0.0492
+      ],
+      "min": 0.0152,
+      "median": 0.0492,
+      "max": 0.087
+     },
+     "dependent_pooled": 0.0449,
+     "artifact_files_pooled": 0.05,
+     "stale_facts_live_at_end": {
+      "values": [
+       5,
+       6,
+       4,
+       5,
+       2
+      ],
+      "min": 2,
+      "median": 5,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0032,
+     "events": 1,
+     "seed_rates": {
+      "values": [
+       0.0145,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0145
+     }
+    },
+    "missing_completion": {
+     "values": [
+      0,
+      0,
+      2,
+      0,
+      2
+     ],
+     "min": 0,
+     "median": 0,
+     "max": 2
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": 0,
+     "M3": 3,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0169,
+       0.0152,
+       0.0164
+      ],
+      "min": 0.0,
+      "median": 0.0152,
+      "max": 0.0169
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       7,
+       7.5,
+       10.5,
+       3.0,
+       Infinity
+      ],
+      "min": 3.0,
+      "median": 7.5,
+      "max": Infinity
+     },
+     "level2_median": {
+      "values": [
+       8.0,
+       6,
+       15,
+       6,
+       Infinity
+      ],
+      "min": 6,
+      "median": 8.0,
+      "max": Infinity
+     },
+     "level1_censored": 11,
+     "level2_censored": 14,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       5318089,
+       5009529,
+       4907904,
+       5305633,
+       4953340
+      ],
+      "min": 4907904,
+      "median": 5009529,
+      "max": 5318089
+     },
+     "per_correct_action": {
+      "values": [
+       85776,
+       89456,
+       87641,
+       81625,
+       85402
+      ],
+      "min": 81625,
+      "median": 85776,
+      "max": 89456
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       13648,
+       13209,
+       12766,
+       12160,
+       12648
+      ],
+      "min": 12160,
+      "median": 12766,
+      "max": 13648
+     },
+     "cost_usd": 8.1383,
+     "pooled_per_correct_action": 85840,
+     "pooled_weighted_per_correct_action": 12878
+    },
+    "tasks_done": {
+     "values": [
+      14,
+      14,
+      14,
+      16,
+      14
+     ],
+     "min": 14,
+     "median": 14,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      20,
+      20,
+      22,
+      20
+     ],
+     "min": 20,
+     "median": 20,
+     "max": 22
+    }
+   },
+   "history_recall": "3/15",
+   "x1_at_write": "5/5",
+   "x2_at_write": "4/5",
+   "provenance_all": "209/209",
+   "provenance_kill_turns": "11/11",
+   "kills_recovered": "12/12",
+   "units_repeated": "5 of 5",
+   "tasks_done": [
+    14,
+    14,
+    14,
+    16,
+    14
+   ],
+   "turns": [
+    22,
+    20,
+    20,
+    22,
+    20
+   ],
+   "cost_usd": 8.1383,
+   "fail_task_calls": [
+    [
+     {
+      "task": "t13-reuse-billing-cycle",
+      "reason": "Team memory has no Bolt Billing API / S07 billing-cycle fact. Four recalls returned only Acme Notes API S-series facts, and none is about billing. The S13 key header is recorded (fact eeb2f7f5-28c0-47ef-97bd-08c538782944: API key in X-Core-Key header). repo/billing.py holds only placeholder values (billing.cycle AX-74889, billing.currency AX-59699) with no source. I did not write the artifact or record the decision because that would mean inventing the cycle value."
+     }
+    ],
+    [
+     {
+      "task": "t13-reuse-billing-cycle",
+      "reason": "Team memory has no recorded S07 billing cycle for the Bolt Billing API. Four recalls only returned Acme Notes API facts (S07 has api_version, auth_method, database and purpose). The S13 key header is recorded: \"API key in X-Core-Key header\" (fact 3b20b0e6-cfdd-4ddb-a1e3-c46b0fe66dcb). I did not write a billing-plan.md or a reuse decision because that would mean inventing the cycle. The researcher needs to record the S07 Bolt Billing cycle first."
+     }
+    ],
+    [
+     {
+      "task": "t13-reuse-billing-cycle",
+      "reason": "The S07 Bolt Billing API billing cycle is not in team memory. Four recalls returned no billing or Bolt Billing facts. Only the S13 header (X-Core-Key, fact 3a549fa0-a4bc-4d5c-b312-1b915fa2ebb6) was found. I did not guess the cycle or record a decision. The researcher needs to record the S07 billing cycle first."
+     }
+    ],
+    [],
+    [
+     {
+      "task": "t13-reuse-billing-cycle",
+      "reason": "Team memory has no fact for the S07 Bolt Billing API billing cycle (4 recalls, only Acme Notes API facts returned). S13 key header found: X-Core-Key (fact 4cc7c256-54f8-406f-bbd0-f1f29320d1ef). No decision recorded because the reuse decision needs both facts. The cycle must be recorded first."
+     }
+    ]
+   ]
+  },
+  "B1": {
+   "seeds": [
+    20261017,
+    20261018,
+    20261019,
+    20261020,
+    20261021
+   ],
+   "pooled": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0572,
+     "stale": 19,
+     "n": 332,
+     "wilson95": [
+      0.0369,
+      0.0876
+     ],
+     "seed_rates": {
+      "values": [
+       0.1045,
+       0.0152,
+       0.0462,
+       0.0462,
+       0.0725
+      ],
+      "min": 0.0152,
+      "median": 0.0462,
+      "max": 0.1045
+     },
+     "dependent_pooled": 0.0542,
+     "artifact_files_pooled": 0.0778,
+     "stale_facts_live_at_end": {
+      "values": [
+       6,
+       6,
+       4,
+       5,
+       2
+      ],
+      "min": 2,
+      "median": 5,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0,
+     "events": 0,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "missing_completion": {
+     "values": [
+      1,
+      0,
+      1,
+      1,
+      1
+     ],
+     "min": 0,
+     "median": 1,
+     "max": 1
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": 3,
+     "M3": 5,
+     "seed_rates": {
+      "values": [
+       0.0448,
+       0.0303,
+       0.0154,
+       0.0154,
+       0.0145
+      ],
+      "min": 0.0145,
+      "median": 0.0154,
+      "max": 0.0448
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       3,
+       3.0,
+       3.0,
+       3.0,
+       7.5
+      ],
+      "min": 3,
+      "median": 3.0,
+      "max": 7.5
+     },
+     "level2_median": {
+      "values": [
+       5.5,
+       6,
+       3,
+       6,
+       9
+      ],
+      "min": 3,
+      "median": 6,
+      "max": 9
+     },
+     "level1_censored": 4,
+     "level2_censored": 10,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       2184307,
+       2193120,
+       2049300,
+       2043097,
+       2249724
+      ],
+      "min": 2043097,
+      "median": 2184307,
+      "max": 2249724
+     },
+     "per_correct_action": {
+      "values": [
+       36405,
+       33740,
+       33053,
+       32953,
+       35152
+      ],
+      "min": 32953,
+      "median": 33740,
+      "max": 36405
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       6933,
+       6201,
+       6337,
+       6110,
+       6550
+      ],
+      "min": 6110,
+      "median": 6337,
+      "max": 6933
+     },
+     "cost_usd": 5.6124,
+     "pooled_per_correct_action": 34248,
+     "pooled_weighted_per_correct_action": 6421
+    },
+    "tasks_done": {
+     "values": [
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      22,
+      22,
+      22,
+      23
+     ],
+     "min": 22,
+     "median": 22,
+     "max": 23
+    }
+   },
+   "history_recall": "5/15",
+   "x1_at_write": "5/5",
+   "x2_at_write": "5/5",
+   "provenance_all": "210/210",
+   "provenance_kill_turns": "10/10",
+   "kills_recovered": "15/15",
+   "units_repeated": "9 of 9",
+   "tasks_done": [
+    16,
+    16,
+    16,
+    16,
+    16
+   ],
+   "turns": [
+    22,
+    22,
+    22,
+    22,
+    23
+   ],
+   "cost_usd": 5.6124,
+   "fail_task_calls": "n/a"
+  },
+  "B0p": {
+   "seeds": [
+    20261017,
+    20261018,
+    20261019,
+    20261020,
+    20261021
+   ],
+   "pooled": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0242,
+     "stale": 6,
+     "n": 248,
+     "wilson95": [
+      0.0111,
+      0.0518
+     ],
+     "seed_rates": {
+      "values": [
+       0.0833,
+       0.0,
+       0.0,
+       0.0,
+       0.0392
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0833
+     },
+     "dependent_pooled": 0.0202,
+     "artifact_files_pooled": 0.0375,
+     "stale_facts_live_at_end": {
+      "values": [
+       6,
+       6,
+       4,
+       6,
+       1
+      ],
+      "min": 1,
+      "median": 6,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0,
+     "events": 0,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "missing_completion": {
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      1
+     ],
+     "min": 0,
+     "median": 0,
+     "max": 1
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": "n/a",
+     "M3": "n/a",
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       2,
+       3.0,
+       1.5,
+       1.5,
+       5.5
+      ],
+      "min": 1.5,
+      "median": 2,
+      "max": 5.5
+     },
+     "level2_median": {
+      "values": [
+       3.5,
+       6,
+       3,
+       6,
+       7
+      ],
+      "min": 3,
+      "median": 6,
+      "max": 7
+     },
+     "level1_censored": 2,
+     "level2_censored": 9,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       1115449,
+       1090238,
+       1092843,
+       1001121,
+       1070441
+      ],
+      "min": 1001121,
+      "median": 1090238,
+      "max": 1115449
+     },
+     "per_correct_action": {
+      "values": [
+       25351,
+       21805,
+       21857,
+       20431,
+       21846
+      ],
+      "min": 20431,
+      "median": 21846,
+      "max": 25351
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       8345,
+       6925,
+       7325,
+       7049,
+       7190
+      ],
+      "min": 6925,
+      "median": 7190,
+      "max": 8345
+     },
+     "cost_usd": 6.1214,
+     "pooled_per_correct_action": 22190,
+     "pooled_weighted_per_correct_action": 7345
+    },
+    "tasks_done": {
+     "values": [
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      22,
+      22,
+      22,
+      22
+     ],
+     "min": 22,
+     "median": 22,
+     "max": 22
+    }
+   },
+   "history_recall": "15/15",
+   "x1_at_write": "0/5",
+   "x2_at_write": "0/5",
+   "provenance_all": "n/a",
+   "provenance_kill_turns": "n/a",
+   "kills_recovered": "15/15",
+   "units_repeated": "0 of 9",
+   "tasks_done": [
+    16,
+    16,
+    16,
+    16,
+    16
+   ],
+   "turns": [
+    22,
+    22,
+    22,
+    22,
+    22
+   ],
+   "cost_usd": 6.1214,
+   "fail_task_calls": "n/a"
+  }
+ },
+ "tests_P2_vs_baselines": {
+  "P_vs_B1_stale_act": {
+   "P": [
+    0.0484,
+    0.0455,
+    0.0154,
+    0.0159,
+    0.0794
+   ],
+   "B1": [
+    0.1045,
+    0.0152,
+    0.0462,
+    0.0462,
+    0.0725
+   ],
+   "perm_p": 0.5238,
+   "ranges_overlap": true,
+   "P_lower": true,
+   "separated": false
+  },
+  "P_vs_B1_step_repetition": {
+   "P": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "B1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "perm_p": 1.0,
+   "ranges_overlap": true,
+   "P_lower": false,
+   "separated": false
+  },
+  "P_vs_B0p_stale_act": {
+   "P": [
+    0.0484,
+    0.0455,
+    0.0154,
+    0.0159,
+    0.0794
+   ],
+   "B0p": [
+    0.0833,
+    0.0,
+    0.0,
+    0.0,
+    0.0392
+   ],
+   "perm_p": 0.4365,
+   "ranges_overlap": true,
+   "P_lower": false,
+   "separated": false
+  },
+  "P_vs_B0p_step_repetition": {
+   "P": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "B0p": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "perm_p": 1.0,
+   "ranges_overlap": true,
+   "P_lower": false,
+   "separated": false
+  }
+ }
+}

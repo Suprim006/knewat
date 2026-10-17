@@ -1,0 +1,322 @@
+{
+ "seed": 20261021,
+ "initial_tokens": {
+  "auth.token_ttl": "AX-81591",
+  "auth.hash_rounds": "AX-60445",
+  "auth.session_cookie": "AX-86065",
+  "auth.mfa_window": "AX-11418",
+  "auth.key_header": "AX-59960",
+  "api.base_path": "AX-63003",
+  "api.page_size": "AX-51173",
+  "api.max_body": "AX-93646",
+  "api.cors_origin": "AX-94293",
+  "api.error_format": "AX-40567",
+  "db.engine": "AX-73157",
+  "db.pool_size": "AX-62301",
+  "db.schema_name": "AX-63172",
+  "db.replica_count": "AX-10016",
+  "db.backup_window": "AX-38796",
+  "ratelimit.window": "AX-12377",
+  "ratelimit.burst": "AX-17064",
+  "ratelimit.per_user": "AX-99296",
+  "ratelimit.per_key": "AX-91877",
+  "ratelimit.retry_after": "AX-86887",
+  "notes.max_length": "AX-92475",
+  "notes.tag_limit": "AX-18114",
+  "notes.archive_days": "AX-25751",
+  "notes.share_mode": "AX-70519",
+  "notes.title_max": "AX-63550",
+  "users.id_format": "AX-21862",
+  "users.quota_mb": "AX-24299",
+  "users.invite_ttl": "AX-50385",
+  "users.role_default": "AX-98271",
+  "users.locale_default": "AX-43963",
+  "search.index_name": "AX-33429",
+  "search.analyzer": "AX-28450",
+  "search.max_hits": "AX-29998",
+  "search.fuzzy_level": "AX-25526",
+  "search.refresh_ms": "AX-95467",
+  "export.format": "AX-17225",
+  "export.max_rows": "AX-24976",
+  "export.signed_url_ttl": "AX-16564",
+  "export.compression": "AX-43187",
+  "export.schedule": "AX-32303",
+  "billing.cycle": "AX-56904",
+  "billing.currency": "AX-11674",
+  "billing.grace_days": "AX-87059",
+  "billing.invoice_prefix": "AX-83191",
+  "billing.tax_mode": "AX-57986",
+  "audit.retention_days": "AX-46664",
+  "audit.sink": "AX-79291",
+  "audit.sample_rate": "AX-23879",
+  "audit.pii_mask": "AX-29969",
+  "audit.event_version": "AX-23545",
+  "config.region": "AX-49725",
+  "config.feature_flags": "AX-70425",
+  "config.log_level": "AX-21262",
+  "config.env_name": "AX-23213",
+  "config.secret_store": "AX-83924",
+  "release.channel": "AX-38240",
+  "release.version_tag": "AX-84412",
+  "release.rollout_pct": "AX-61963",
+  "release.freeze_day": "AX-94005",
+  "release.changelog_path": "AX-22467"
+ },
+ "x2_old_token": "AX-39930",
+ "commits": [
+  {
+   "k": 1,
+   "turn": 4,
+   "kind": "value",
+   "module": "users",
+   "funcs": [
+    "users.quota_mb"
+   ],
+   "new_tokens": {
+    "users.quota_mb": "AX-60176"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 2,
+   "turn": 5,
+   "kind": "whitespace",
+   "module": "config",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "fn": "env_name"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 3,
+   "turn": 6,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.token_ttl",
+    "ratelimit.per_key"
+   ],
+   "new_tokens": {
+    "auth.token_ttl": "AX-65554",
+    "ratelimit.per_key": "AX-36680"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": "X3: auth.token_ttl in the first value commit after t04's nominal turn"
+  },
+  {
+   "k": 4,
+   "turn": 8,
+   "kind": "module-comment",
+   "module": "release",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 5,
+   "turn": 10,
+   "kind": "add",
+   "module": "users",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "name": "extra_5",
+    "token": "AX-95729"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 6,
+   "turn": 11,
+   "kind": "value",
+   "module": "config",
+   "funcs": [
+    "config.feature_flags",
+    "export.signed_url_ttl"
+   ],
+   "new_tokens": {
+    "config.feature_flags": "AX-11983",
+    "export.signed_url_ttl": "AX-30556"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 7,
+   "turn": 13,
+   "kind": "sibling",
+   "module": "billing",
+   "funcs": [
+    "billing.currency",
+    "billing.cycle"
+   ],
+   "new_tokens": {
+    "billing.currency": "AX-53118",
+    "billing.cycle": "AX-82972"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 8,
+   "turn": 16,
+   "kind": "reorder",
+   "module": "auth",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "a": 0,
+    "b": 3
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 9,
+   "turn": 17,
+   "kind": "delete",
+   "module": "config",
+   "funcs": [
+    "config.secret_store"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 10,
+   "turn": 18,
+   "kind": "docstring",
+   "module": "auth",
+   "funcs": [
+    "auth.mfa_window"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  }
+ ],
+ "v2_turn": 12,
+ "kills": {
+  "K1": {
+   "agent": "builder",
+   "from_turn": 6,
+   "after": "first tool call after the claim"
+  },
+  "K2": {
+   "agent": "researcher",
+   "from_turn": 11,
+   "tasks": [
+    "t14-ratelimit-spec",
+    "t16-release-notes"
+   ],
+   "after": "first Write of an artifact file"
+  },
+  "K3": {
+   "agent": "planner",
+   "from_turn": 16,
+   "after": "first memory write (MCP write or Write)"
+  }
+ },
+ "nominal_order": [
+  [
+   1,
+   "init"
+  ],
+  [
+   2,
+   "t01-gather-requirements"
+  ],
+  [
+   3,
+   "t02-choose-api-version"
+  ],
+  [
+   4,
+   "t03-design-endpoints"
+  ],
+  [
+   5,
+   "t04-survey-infra-security"
+  ],
+  [
+   6,
+   "t05-choose-auth"
+  ],
+  [
+   7,
+   "t13-reuse-billing-cycle"
+  ],
+  [
+   8,
+   "t06-write-db-schema"
+  ],
+  [
+   9,
+   "t14-ratelimit-spec"
+  ],
+  [
+   10,
+   "t07-implement-crud-spec"
+  ],
+  [
+   11,
+   "t15-config-matrix"
+  ],
+  [
+   12,
+   "ingest-v2"
+  ],
+  [
+   13,
+   "adopt-v2"
+  ],
+  [
+   14,
+   "t12-update-endpoints-for-v2"
+  ],
+  [
+   15,
+   "t08-write-test-plan"
+  ],
+  [
+   16,
+   "t09-review-spec"
+  ],
+  [
+   17,
+   "t10-write-docs"
+  ],
+  [
+   18,
+   "t16-release-notes"
+  ],
+  [
+   19,
+   "t11-package-release"
+  ]
+ ],
+ "invalidated": [
+  "auth.token_ttl",
+  "billing.currency",
+  "billing.cycle",
+  "config.feature_flags",
+  "config.secret_store",
+  "export.signed_url_ttl",
+  "ratelimit.per_key",
+  "users.quota_mb"
+ ]
+}

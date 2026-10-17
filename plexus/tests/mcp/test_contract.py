@@ -131,7 +131,9 @@ async def test_engram_flow_and_toolcall_audit(server, client, tenant):
         r = _data(await _call(c, "recall", agent_id="smoke", query="API version", k=3))
         assert r["count"] >= 1
         assert r["facts"][0]["value"] in {"v1", "v2"}
-        assert any(x["fact_id"] == f2["fact_id"] and x["status"] == "active" for x in r["facts"])
+        assert any(
+            x["fact_id"] == f2["fact_id"] and x.get("status", "active") == "active" for x in r["facts"]
+        )
         h = _data(await _call(c, "fact_history", agent_id="smoke", subject="API", predicate="version"))
         assert [x["value"] for x in h["history"]] == ["v1", "v2"]
         assert e["episode_id"]

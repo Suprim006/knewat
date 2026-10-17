@@ -88,13 +88,17 @@ def expand_hops(
     q: list[float],
     t: int,
     statuses: list[str],
+    *,
+    all_scopes: bool = False,
 ) -> tuple[list[dict[str, Any]], dict[str, dict[str, Any]]]:
     """Facts of the entities up to ``hops`` RELATES edges away from the entities of ``rows``.
 
     Returns ``(extra_rows, meta)``: ``extra_rows`` are in the ``engram/recall`` row shape (``rank`` = own
     distance + ``HOP_PENALTY`` x hop), ordered by (hop, rank), without any fact already in ``rows``;
     ``meta[fact_id] = {hop, relation_path}`` where the path lists ``{from, kind, to, dir}`` edges from the
-    seed entity. Empty when there are no seeds, no relations or no hops.
+    seed entity. Empty when there are no seeds, no relations or no hops. ``all_scopes`` (recall's scope
+    ``all``) follows relations and keeps facts of every scope instead of ``scope_id`` and the scopes it
+    inherits.
     """
     if hops <= 0 or not rows:
         return [], {}
@@ -107,7 +111,7 @@ def expand_hops(
         edges = eng.client.ro(
             eng.graph,
             "engram/relates_level",
-            {"frontier": frontier, "scope_id": scope_id, "limit": HOP_EDGE_FETCH},
+            {"frontier": frontier, "scope_id": scope_id, "all": all_scopes, "limit": HOP_EDGE_FETCH},
         )
         found: dict[str, dict[str, Any]] = {}
         for e in sorted(edges, key=lambda e: (e["to_name"], e["to_id"], e["from_id"], e["kind"], e["dir"])):
@@ -134,6 +138,7 @@ def expand_hops(
         {
             "entity_ids": sorted(hop_of),
             "scope_id": scope_id,
+            "all": all_scopes,
             "t": t,
             "statuses": statuses,
             "per_entity": HOP_FACTS_PER_ENTITY,

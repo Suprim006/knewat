@@ -51,7 +51,15 @@ class CheckedEmbedder:
         self.inner = inner
 
     def embed(self, texts: list[str]) -> list[list[float]]:
-        vecs = self.inner.embed(texts)
+        return self._check(texts, self.inner.embed(texts))
+
+    def embed_query(self, texts: list[str]) -> list[list[float]]:
+        """The inner embedder's query form when it has one (BGE's retrieval instruction, P12), else ``embed``."""
+        fn = getattr(self.inner, "embed_query", None)
+        return self._check(texts, fn(texts) if callable(fn) else self.inner.embed(texts))
+
+    @staticmethod
+    def _check(texts: list[str], vecs: list[list[float]]) -> list[list[float]]:
         if len(vecs) != len(texts) or any(len(v) != DIM for v in vecs):
             raise ValueError(f"embedder returned vectors that are not {DIM}-dimensional; refusing to write")
         return vecs
