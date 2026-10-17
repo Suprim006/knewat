@@ -933,3 +933,86 @@ Spec: `docs/research/neuro-memory/CROSS_CHECK.md` §3.2 (the predicate as a seco
 **What I expect, stated plainly.** `off` and `sep-entity` close to each other and well below 0.9 (relevance alone among 200 near-identical fact texts, fastembed); `sep-flat` equal to `sep-entity` on recall@1 (a flat lift reorders nothing within the hub); `sep` ≥ 0.9 if the asked fact is among the candidates — the §3.3 union adds the 10 nearest hub facts to the query, which should contain it, but "should" is the thing under test. If `sep` fails while `entity_facts_added` is 0 for the missed probes, the defect is candidate starvation (§3.3's bound), not the cue; both are reported.
 
 **What is not claimed, whatever the result.** The §5.4 SQL arm (B1h-L5) implements the single-cue term and is not re-run here: a gap between Plexus and that arm after this change would be the arm lacking a feature, not a graph advantage (plan §0: every scoring rule here is a function of columns a relational arm can hold, and the predicate fan is a `GROUP BY predicate` count). The "tie on L5b" and "no family beats SQL on quality" readings of §5.4 and `PLEXUS_REPORT.md` stand; only the *flat-retrieval* margins of the product change.
+
+## Predicate cue results (registered runs; 0 LLM calls) and a labelled post-hoc sensitivity
+
+Source: `plexus/demo_data/crucible/l5/20261017T125546Z-pc-n5/`, `…T125634Z-pc-n15/`, `…T125738Z-pc-n5-burst/`, `…T125826Z-pc-hub/` (`results.json`, `report.md`); code `468601e` (the pre-registration commit); FalkorDB 6.0.2 on `plexus-db-13`, fastembed, seed 20261016. Each L5b run ~45 s, the hub run ~2 min.
+
+### Part 1: L5b — falsified; the 20 rows were never a predicate-cue problem
+
+| Run | Mode | recall@1 | recall@5 | noise share | critical loss | above target: same entity / other entity | statements / probe | probe ms p50 (server) |
+|---|---|---|---|---|---|---|---|---|
+| N = 5 | `off` | 75.7% | 98.6% | 22.9% | n/a | 38 / 13 | 2 | 14.2 (2.1) |
+| N = 5 | `sep-entity` (single cue, P1 as shipped + §3.3) | 85.7% | 100% | 28.4% | 0 | 20 / 0 | 5 | 26.0 (5.0) |
+| N = 5 | **`sep` (two cues, 0.6 / 0.4 / S = 5)** | **85.7%** | **100%** | **32.3%** | 0 | **20 / 0** | 5 | 25.6 (5.0) |
+| N = 5 | `sep+mult` (two cues + multiplier) | 85.7% | 100% | 28.1% | 0 | 20 / 0 | 6 | 40.5 (9.2) |
+| N = 15 | `off` | 76.4% | 98.6% | 31.0% | n/a | 40 / 11 | 2 | 15.0 (2.7) |
+| N = 15 | `sep-entity` | 85.7% | 100% | 32.9% | 0 | 20 / 0 | 5 | 26.7 (6.2) |
+| N = 15 | **`sep`** | **85.7%** | **100%** | **43.6%** | 0 | **20 / 0** | 5 | 26.8 (6.1) |
+| N = 15 | `sep+mult` | 85.7% | 100% | 31.6% | 0 | 20 / 0 | 6 | 40.3 (10.0) |
+| burst | `off` | 75.0% | 98.6% | 24.9% | n/a | 40 / 12 | 2 | 13.9 (2.0) |
+| burst | `sep-entity` | 85.7% | 100% | 29.6% | 0 | 20 / 0 | 5 | 26.3 (5.3) |
+| burst | **`sep`** | **85.7%** | **100%** | **33.1%** | 0 | **20 / 0** | 5 | 25.6 (5.1) |
+| burst | `sep+mult` | 85.7% | 100% | 26.9% | 0 | 20 / 0 | 6 | 42.0 (9.8) |
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. `sep` recall@1 ≥ 0.95; **falsified** if ≤ `sep-entity` + 0.02 | **FALSIFIED** at every N: `sep` = `sep-entity` = 85.7%, the same 20 probes miss, the same 20 rows sit above them. |
+| 2. Same-entity rows above the target ≤ 5; other-entity 0 | **FAIL** (20) / PASS (0). |
+| 3. recall@5 ≥ `sep-entity`'s; critical loss 0 | PASS (100%, 0). |
+| 4. Noise share ≤ `sep-entity` + 0.01 | **FAIL** at every N: +3.9 / +10.7 / +3.5 points (N = 5 / 15 / burst). |
+| 5. `sep+mult` within 1 probe of `sep` | PASS (identical). |
+
+**Why, found after the run on a kept graph (`$TMPDIR/pc/diag_misses.py`, same seed).** Every one of the 20 misses is the scenario's designed **auth conflict**: `scale_scenario.py` asserts, for each of the 20 sprint subjects, `auth_method = JWT bearer tokens (…)` and then `auth_method = API key in X-…-Key header` as a `CONTRADICTS` pair, and both stay *active* in the same scope. Both are real facts, both are probes (`"<subject> auth_method"`), and for either probe the other is a candidate that matches **both cues identically** (entity fan 10, predicate fan 40, `sep` 2.14 nats each): the only thing that separates them is the value, which the probe does not name. One of each pair must therefore lose rank 1, so **85.7% (120 / 140) is the recall@1 ceiling of L5b for any scorer that does not read the value** — and P1 had already reached it in L5b-D013. Two earlier readings were wrong and are corrected here: the L5b-D013 results section called the residual "another predicate of the same sprint subject" (it is the *same* predicate, a contradicting pair), and CROSS_CHECK §3.2's claim that the L5b residual is a predicate-cue problem was built on that reading. The plan's 0.90 target was unreachable by construction. The ordering inside a contradicting pair is a different question (recency? the P3 reliability term? `resolve_contradiction`), not a cue question, and it is not decided here.
+
+**Where the noise went.** Two separate effects, both costs of this change on L5b, where neither mechanism had anything to fix:
+- `sep-entity` (28.4%) sits above the committed `sep` of L5b-D013 (23.3%) although it is the same scoring term; the only code difference is the **§3.3 union** (the named entity's `2k` nearest facts always join the candidates — on L5b that is the subject's 5 noise facts, whose values mention the predicate word, which the 4·k vector over-fetch had often missed). The union makes recall *complete* about the named entity; the noise-share metric counts that completeness as worse. (Attribution by elimination, not by a switch: the union has no off switch.)
+- `sep` above `sep-entity` (+3.9 / +10.7 / +3.5 points) is the **magnitude of the entity cue** under CROSS_CHECK's constants: `0.6 · (5 − ln 12) ≈ 1.26` nats (×3.5 in relevance) against P1's `0.075` (×1.08). At ×3.5 every fact about the named entity, noise included, outranks every real fact about any other entity; at ×1.08 only near-ties flip. The predicate cue itself cannot raise the noise share (noise predicates are unique and never named), and the post-hoc rows below confirm the dependence is on the weights.
+Rank-1/rank-2 gap p50: `off` 0.0167, `sep-entity` 0.0262, `sep` 0.0309 (the cues widen the margin at rank 1 — but on the 20 pairs it is 0 by construction). Statements per probe 5 (`sep`) / 6 (`sep+mult`), against 4 / 5 before: the entity-facts read and the predicate-fan read; `sep+mult` probe ms p50 40.5 against the §5.4 run's 30.6 for the same mode (two more round trips at ~5 ms each on Docker Desktop).
+
+### Part 2: the hub variant — passes, but relevance alone nearly passes it too
+
+Source: `…T125826Z-pc-hub/`. World as registered: hub fan 200 (resolved by name), 40 × 5 ordinary facts, 400 facts, predicate fan mean 2.00 (max 6), 200 probes; the keyword path returned nothing (values carry no query word), `entity_facts_added` 0.0 for every arm (the 10 vector seeds already held the hub's nearest facts).
+
+| Arm | recall@1 | recall@5 | other hub fact above the target | other hub fact in the top 5 | probe ms p50 | statements / probe |
+|---|---|---|---|---|---|---|
+| `off` | 97.5% | 100% | 2.5% | 100% | 15.5 | 2 |
+| `sep-entity` (single cue, zero at fan 200) | 97.5% | 100% | 2.5% | 100% | 29.5 | 5 |
+| `sep-flat` (flat entity boost, `S_max = 20`) | 97.5% | 100% | 2.5% | 100% | 29.2 | 5 |
+| **`sep` (two cues)** | **100%** | 100% | **0.0%** | 100% | 29.8 | 5 |
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. `sep` recall@1 ≥ 0.90; falsified if < 0.80 | **PASS** (100%). |
+| 2. Flat boost: another hub fact above the target ≥ 30%; in the top 5 ≥ 30% | **FAIL** (2.5%) / PASS (100%, as predicted in rule 6: uninformative). |
+| 3. `sep` − `sep-entity` ≥ 0.10 | **FAIL** (+2.5 points: 5 probes). |
+| 4. `sep-entity` within 0.01 of `off` | PASS (equal). |
+| 5. `sep`: another hub fact above the target ≤ 10% | PASS (0%). |
+
+**Reading.** The plan's §5.3 world, as specified (200 distinct predicates, one entity), is solved by cosine relevance alone with fastembed: 195 of 200 probes put the asked fact first with no cue at all, so the plan's prediction that a flat entity boost "returns an arbitrary fact of the hub in the top 5 for ≥ 30%" is false in its sharp reading (2.5% above the target) and vacuous in its literal one (100% under every arm, since the hub is half the graph). The predicate cue fixed the remaining 5 (97.5 → 100%, 0 hub facts above the target) — real, small, and the only measured benefit of this change. My pre-run expectation ("`off` well below 0.9") was wrong; the variant is weak evidence either way. What would make it informative is a hub whose facts share words across predicates or a weaker embedder; not run.
+
+### Labelled post-hoc sensitivity (weights chosen after the registered run; not confirmatory)
+
+`plexus/demo_data/crucible/l5_posthoc/pc/20261017T130229Z-sens-n5/` (L5b, N = 5) and `…T130406Z-sens-hub/` (the hub world), same seed and code, the two-cue term with the weights scaled down 10× and 20× (the 0.6 : 0.4 ratio and `S = 5` kept):
+
+| Term | L5b recall@1 | L5b recall@5 | L5b noise share | same / other entity | hub recall@1 | hub: other hub fact above target |
+|---|---|---|---|---|---|---|
+| `off` | 75.7% | 98.6% | 23.6% | 36 / 13 | 97.5% | 2.5% |
+| `sep-entity` (single cue) | 85.7% | 100% | 29.4% | 20 / 0 | 97.5% | 2.5% |
+| `sep` 0.6 / 0.4 (registered) | 85.7% | 100% | 33.6% | 20 / 0 | 100% | 0% |
+| `sep` 0.06 / 0.04 | 85.7% | 100% | 31.9% | 20 / 0 | 100% | 0% |
+| `sep` **0.03 / 0.02** | 85.7% | 100% | **27.9%** | 20 / 0 | 100% | 0% |
+
+The noise share is monotone in the entity-cue weight and at `w_entity = 0.03` — the scale at which the entity cue at fan 12 (`0.03 · (5 − ln 12) = 0.075`) equals the P1 lift that cleared every cross-entity twin — the two-cue term is below the single-cue form on noise (27.9 vs 29.4%) at the same recall, and still 100% on the hub. In other words CROSS_CHECK §3.2's *structure* (two cues, `S − ln fan`, no zero at fan 50) holds up; its *magnitude* (per-nat weights 0.6 / 0.4) is ~20× too large for a term that is added to ln-cosine, where the twin gaps are 0.02–0.07 nats. The number of record for this task stays the registered one (85.7% recall@1, noise 32.3% at N = 5); what to ship is decided by the confirmatory run below, not by this table.
+
+## Predicate cue confirmatory pre-registration (post-hoc weights, D-012-floor precedent); written before the run
+
+Candidate default: `PLEXUS_ACT_W_ENTITY = 0.03`, `PLEXUS_ACT_W_PREDICATE = 0.02`, `PLEXUS_ACT_CUE_S = 5`, `PLEXUS_ACT_CUES = entity+predicate` (the structure of CROSS_CHECK §3.2 at P1's magnitude). Runs: L5b N = 5, N = 15, N = 5 burst, `--modes off,sep-entity,sep[w_entity=0.03;w_predicate=0.02],sep+mult[w_entity=0.03;w_predicate=0.02] --tag pcc-*` (fresh plays: new ids; the N = 5 sensitivity row above is *not* reused). The hub world is deterministic in the seed and was measured at these weights in the sensitivity run (100%); it is not re-run.
+
+Decision rules (all three runs; a failure in any one is a failure):
+1. `sep[0.03/0.02]` recall@1 = `sep-entity` recall@1 (the ceiling, 85.7%); **falsified** if lower by ≥ 1 probe.
+2. `sep[0.03/0.02]` noise share ≤ `sep-entity` noise share + 0.005 in every run (**falsified** otherwise: then the sensitivity row was id noise).
+3. recall@5 100%, critical loss 0, other-entity rows 0 (unchanged from P1).
+4. `sep+mult[0.03/0.02]` recall@1 within 1 probe of `sep[0.03/0.02]`.
+
+Outcome rule, stated now: if 1–4 pass, the shipped default becomes the two-cue term at 0.03 / 0.02 / 5 (recorded in D-013 as a post-hoc-then-confirmed constant, like the 0.9 floor); if any fails, the shipped default reverts to `PLEXUS_ACT_CUES=entity` (P1 exactly as it was) and the two-cue term stays opt-in. Either way the §3.3 union stays on (it is a completeness fix for the named entity's own facts and its cost on L5b is recorded above), and `PLEXUS_RECALL_SEPARATION=off` is unchanged.
