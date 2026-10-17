@@ -163,6 +163,31 @@ def rerank(
             sal = 0.0
             sc = math.log(final) if final > 0 else float("-inf")
         else:
+            # ONE formula on the production path (BRANCH_REVIEW finding 2): score.score() is the D-013
+            # additive score; `act` / `sal` below are its reported components (the same helpers it calls),
+            # not a second computation of the score. Forgetting off = the bypass form (ln rel + sep).
+            sc = S.score(
+                rel,
+                A=a,
+                A0=a0,
+                s_noise=settings.s_noise,
+                beta=settings.beta,
+                ent_match=ent_match,
+                fan=fan,
+                S_max=settings.s_max,
+                gamma=settings.gamma,
+                salience=sals[i],
+                in_band=bands[i],
+                s_max_band=s_max_band,
+                delta=settings.delta,
+                bypass=bypass or not fg,
+                pred_match=pred_match,
+                pred_fan=pred_fan,
+                cues=settings.cues,
+                w_entity=settings.w_entity,
+                w_predicate=settings.w_predicate,
+                S=settings.cue_s,
+            )
             act = (
                 S.act_term(a, a0, beta=settings.beta, s_noise=settings.s_noise) if fg and not bypass else 0.0
             )
@@ -171,7 +196,6 @@ def rerank(
                 if fg and not bypass
                 else 0.0
             )
-            sc = math.log(rel) + act + sep + sal if rel > 0 else float("-inf")
             mult = math.exp(act + sal)
             final = math.exp(sc) if sc != float("-inf") else 0.0
         scored.append(

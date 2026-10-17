@@ -21,7 +21,7 @@ from plexus.graph.client import GraphClient
 MAX_IDS = 200  # fact ids per activation query
 MAX_SWEEP_SCAN = 5000  # active facts of a scope that one sweep looks at (oldest first)
 SWEEP_MARGIN = 2.0  # default threshold under the D-012 model = A0 - 2 (Settings.sweep_margin is mode-aware)
-# D-013: a fact with salience >= SALIENCE_PROTECT is never swept (the boolean rules stay as the floor)
+# D-013, add mode only: salience >= SALIENCE_PROTECT protects from sweeps (the boolean rules stay the floor)
 SALIENCE_PROTECT = 0.5
 SALIENCE_PIN = 0.95  # pin_fact raises the cached salience to at least this
 
@@ -60,9 +60,11 @@ def salience_of(r: Mapping[str, Any], now: int) -> tuple[float, dict[str, int]]:
     inputs = {
         "decisions": sum(1 for d in decisions if not d["flagged"]),
         "verified": sum(1 for t in r["verified_at"] if t <= now),
-        # distinct independently verified artifacts of the decision's DONE tasks (audit C1: the query returns one id
-        # per VERIFIED_BY path; an artifact verified by two agents is one artifact)
-        "artifacts_ok": sum(len(set(d.get("verified_artifacts") or ())) for d in decisions if not d["flagged"]),
+        # distinct independently verified artifacts of the decision's DONE tasks (audit C1: the query returns
+        # one id per VERIFIED_BY path; an artifact verified by two agents is one artifact)
+        "artifacts_ok": sum(
+            len(set(d.get("verified_artifacts") or ())) for d in decisions if not d["flagged"]
+        ),
         "tasks_done": sum(int(d.get("tasks_done") or 0) for d in decisions if not d["flagged"]),
         "use_agents": max(
             0, len({e.get("ag") for e in r["reads"] if e["k"] == "use" and e.get("ag") and e["t"] <= now}) - 1
@@ -172,7 +174,9 @@ class Activation:
         reasons += [f"supersedes:{x}" for x in r["supersedes"]][:1]
         reasons += [f"contradicts:{x}" for x in r["contradicts"]][:1]
         reasons += [f"trusted_source:{s['id']}" for s in r["sources"] if s["trust"] == "high"][:1]
-        if sal >= SALIENCE_PROTECT and not reasons:
+        # D-013 P2 rule, gated on the mode: `mult` is D-012 + the bypass fix + separation and nothing else
+        # (BRANCH_REVIEW finding 1; D-013 amendment). Salience is still computed and reported in both modes.
+        if st.additive and sal >= SALIENCE_PROTECT and not reasons:
             reasons.append(f"salience:{sal:.2f}")
         decays: list[float] = []
         if st.additive:

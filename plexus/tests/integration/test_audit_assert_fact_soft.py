@@ -1,7 +1,8 @@
-"""Audit C3: the ``soft`` (DUPLICATES_MAYBE) list of ``engram/assert_fact`` must be cut to ``maybe_cap`` nearest-first.
+"""Audit C3: the ``soft`` (DUPLICATES_MAYBE) list of ``engram/assert_fact`` must be cut to ``maybe_cap``
+nearest-first.
 
-Before the fix ``[sx IN keyed WHERE ...][0..$maybe_cap]`` sliced the candidates in storage order, so with cap 1 the
-FARTHEST of three same-``dup_key`` facts (created far, mid, near) was kept and linked.
+Before the fix ``[sx IN keyed WHERE ...][0..$maybe_cap]`` sliced the candidates in storage order, so with
+cap 1 the FARTHEST of three same-``dup_key`` facts (created far, mid, near) was kept and linked.
 """
 
 from __future__ import annotations
@@ -29,7 +30,8 @@ def same_key(client, graph):
         """
         UNWIND $rows AS r
         MATCH (e:Entity {id:'E'}), (s:Scope {id:'S'}), (a:Agent {id:'a1'})
-        CREATE (f:Fact {id: r.id, subject_id: 'E', predicate: 'p', value: r.id, norm_value: r.id, value_tokens: 'x',
+        CREATE (f:Fact {id: r.id, subject_id: 'E', predicate: 'p', value: r.id, norm_value: r.id,
+                        value_tokens: 'x',
                         dup_key: 'k', tok: ['x'], tok_seq: ['x'],
                         valid_from: 1, valid_to: $open, recorded_at: 1, created_at: 1, status: 'active',
                         confidence: 1.0, embedding: vecf32(r.emb), value_embedding: vecf32(r.emb)})
@@ -103,7 +105,8 @@ def test_cap_two_keeps_the_two_nearest_in_order(client, same_key):
 
 def test_no_candidates_still_writes_the_fact(client, graph):
     client.graph(graph).query(
-        "CREATE (:Scope {id:'S', kind:'project', name:'s', created_at: 1}), (:Entity {id:'E', name:'e', norm_name:'e'})"
+        "CREATE (:Scope {id:'S', kind:'project', name:'s', created_at: 1}), "
+        "(:Entity {id:'E', name:'e', norm_name:'e'})"
     )
     assert _assert(client, graph, 5, "N0") == []
     assert client.graph(graph).ro_query("MATCH (f:Fact {id:'N0'}) RETURN count(f)").result_set == [[1]]

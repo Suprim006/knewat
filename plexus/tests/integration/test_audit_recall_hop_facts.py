@@ -1,8 +1,9 @@
-"""Audit C2: ``engram/recall_hop_facts`` must return a fact once even when the searched scope reaches the fact's
-scope over two INHERITS paths (a diamond: team -> org directly and team -> proj -> org).
+"""Audit C2: ``engram/recall_hop_facts`` must return a fact once even when the searched scope reaches the
+fact's scope over two INHERITS paths (a diamond: team -> org directly and team -> proj -> org).
 
-Before the fix the post-DISTINCT ``MATCH (:Scope {id:$scope_id})-[:INHERITS*0..3]->(gs)`` emitted one row per
-path, so the org fact filled two of the ``per_entity`` slots and the nearer proj/team facts were crowded out.
+Before the fix the post-DISTINCT ``MATCH (:Scope {id:$scope_id})-[:INHERITS*0..3]->(gs)`` emitted one row
+per path, so the org fact filled two of the ``per_entity`` slots and the nearer proj/team facts were crowded
+out.
 """
 
 from __future__ import annotations
@@ -49,7 +50,8 @@ def diamond(client, graph):
         """
         UNWIND $rows AS r
         MATCH (e:Entity {id:'e1'}), (s:Scope {id: r.sc}), (a:Agent {id:'a1'})
-        CREATE (f:Fact {id: r.id, subject_id: 'e1', predicate: 'p', value: r.id, norm_value: r.id, value_tokens: '',
+        CREATE (f:Fact {id: r.id, subject_id: 'e1', predicate: 'p', value: r.id, norm_value: r.id,
+                        value_tokens: '',
                         valid_from: 1, valid_to: $open, recorded_at: 1, created_at: 1, status: 'active',
                         confidence: 1.0, embedding: vecf32(r.emb), value_embedding: vecf32(r.emb)})
         CREATE (f)-[:ABOUT]->(e), (f)-[:IN_SCOPE]->(s), (f)-[:ASSERTED_BY {at: 1}]->(a)

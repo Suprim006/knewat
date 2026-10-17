@@ -400,3 +400,25 @@ pair is undefined by any cue (recency, P3 reliability or `resolve_contradiction`
 the L5b "same-entity gap" should no longer be cited as a product defect; the §3.3 union's ~5-point noise cost on L5b is the
 price of completeness about the named entity and is recorded, not hidden; the SQL arm of §5.4 was not given the predicate
 feature (tie claim unchanged).
+
+**Amendment 2026-10-17 (2) — the shipped default matches the text; one additive formula (`docs/research/BRANCH_REVIEW.md`
+findings 1–2, `CYPHER_AUDIT_SUMMARY.md` C1).** Point 2 says `mult` is "byte-for-byte D-012 (plus the bypass fix and separation)"
+and lists "salience ≥ 0.5 protects from sweeps" among the P2 features, but the code applied the salience rule in both modes: in
+`mult` a fact protected by none of D-012's rules became protected (neutral-activation floor in recall, skipped by sweeps) after,
+e.g., one confirmed `verify_fact`, three distinct using agents, or — through C1 — one artifact re-verified twice. **Decision:** the
+text stands and the code follows it: the salience rule is gated on `add` mode (`activation/service.py`, `st.additive`; the L5b SQL
+arm mirrors it with an `:additive` parameter, so the fidelity check stays a like-for-like comparison). Salience is still computed,
+cached and reported in both modes (`memory_strength`, `pin_fact`); only the *protection* is add-only. Second, `rank.rerank`'s `add`
+branch now calls `score.score()` (the documented formula) instead of re-typing `ln rel + act + sep + sal`; `Ranked.act`/`sal` are
+the reported components from the same helpers, so a future P3 `rel_term` wired into `score()` reaches production. Third, C1:
+`activation/activation` now returns `verified_artifacts` (the ids of the independently verified artifacts FOR the decision's
+*done* tasks, one per VERIFIED_BY path) and `salience_of` counts them DISTINCT as `artifacts_ok`; the old `size(...)` counted every
+path over every task (one artifact verified twice on an open task scored 2). **Effect on the published numbers:** none expected —
+the L5b fixtures carry no VERIFIED_BY / Artifact / multi-agent-use structure and no diamond scopes (pre-registered and re-run,
+`docs/BASELINE.md` "Audit fixes re-run"). Also recorded here, from the same audit (B2): `engram/recall_predicates` (the
+predicate cue's read) is one index seek per predicate; measured with the production index set, the 6.0.2 seek applies `status` and
+`valid_to` together with `predicate`, so the superseded history and the expired facts are *not* read (2,000 + 1,500 of them: 0 index
+records; `tests/integration/test_audit_recall_predicates_plan.py` pins it). What it does read is every *current* fact with that
+predicate in *every* scope plus one `IN_SCOPE` hop each; the scope is an edge, not an indexed Fact property, so no single-property
+index can absorb it and the cost of a common predicate grows with the number of current facts across the tenant's scopes, not with
+its history. Documented in the query header; bounded by `RECALL_PREDICATES` (10 predicates per recall).

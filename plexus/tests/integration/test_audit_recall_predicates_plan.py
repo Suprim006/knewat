@@ -1,10 +1,11 @@
 """Audit B2: what ``engram/recall_predicates`` really reads on FalkorDB 6.0.2 with the production index set.
 
-The audit feared the ``Fact.predicate`` seek returns every fact with that predicate "in all scopes, statuses and
-times". Measured: the index scan applies ``predicate``, ``status`` (indexed) and ``valid_to`` (indexed) together, so
-the superseded history and the expired facts are never read. What remains is the CURRENT facts with that predicate
-in EVERY scope plus one ``IN_SCOPE`` hop each (the scope is an edge, so no single-property index can absorb it).
-This test pins the first part so a dropped index or a rewritten filter cannot bring the history back.
+The audit feared the ``Fact.predicate`` seek returns every fact with that predicate "in all scopes, statuses
+and times". Measured: the index scan applies ``predicate``, ``status`` (indexed) and ``valid_to`` (indexed)
+together, so the superseded history and the expired facts are never read. What remains is the CURRENT facts
+with that predicate in EVERY scope plus one ``IN_SCOPE`` hop each (the scope is an edge, so no
+single-property index can absorb it). This test pins the first part so a dropped index or a rewritten filter
+cannot bring the history back.
 """
 
 from __future__ import annotations
@@ -21,7 +22,9 @@ N_OTHER = 300  # current, predicate p, scope OTHER (read, then dropped by the sc
 @pytest.fixture
 def history(client, graph):
     g = client.graph(graph)
-    g.query("CREATE (:Scope {id:'S', kind:'project', name:'s'}), (:Scope {id:'OTHER', kind:'project', name:'o'})")
+    g.query(
+        "CREATE (:Scope {id:'S', kind:'project', name:'s'}), (:Scope {id:'OTHER', kind:'project', name:'o'})"
+    )  # noqa: E501
 
     def seed(prefix: str, n: int, scope: str, status: str, valid_to: int) -> None:
         for start in range(0, n, 500):
@@ -29,7 +32,14 @@ def history(client, graph):
                 """UNWIND range($a, $b) AS i MATCH (s:Scope {id: $scope})
                    CREATE (f:Fact {id: $p + toString(i), predicate: 'p', status: $status, valid_from: 1,
                                    valid_to: $vt})-[:IN_SCOPE]->(s)""",
-                {"a": start, "b": min(start + 499, n - 1), "scope": scope, "status": status, "vt": valid_to, "p": prefix},
+                {
+                    "a": start,
+                    "b": min(start + 499, n - 1),
+                    "scope": scope,
+                    "status": status,
+                    "vt": valid_to,
+                    "p": prefix,
+                },  # fmt: skip
             )
 
     seed("H", N_HIST, "S", "superseded", 2)

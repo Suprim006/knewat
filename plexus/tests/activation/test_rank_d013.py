@@ -238,6 +238,55 @@ def test_mult_mode_still_lifts_a_protected_fact_to_neutral():
     assert got["p"].multiplier >= 0.75 - 1e-9 > got["u"].multiplier
 
 
+def test_add_mode_score_is_score_dot_score_on_the_production_path(monkeypatch):
+    """BRANCH_REVIEW finding 2: one formula. ``rerank``'s add branch must go through ``score.score``."""
+    calls: list[dict] = []
+    real = S.score
+
+    def spy(rel, **kw):
+        calls.append({"rel": rel, **kw})
+        return real(rel, **kw)
+
+    monkeypatch.setattr(S, "score", spy)
+    rows = [
+        row("named", 0.30, entity="e1", predicate="p"),
+        row("twin", 0.28, entity="e2"),
+        row("kw", 0.33, value="k"),
+    ]
+    acts = {
+        "named": fa("named", age_days=90, used_days=[5, 40], add=True, salience=0.6),
+        "twin": fa("twin", age_days=90, add=True),
+        "kw": fa("kw", age_days=10, add=True),
+    }
+    st = Settings(act_mode="add")
+    got = {
+        r.row["fact_id"]: r
+        for r in rerank(
+            rows, acts, settings=st, k=3, kw_ids={"kw"}, words=["k"], entities={"e1": 3}, predicates={"p": 7}
+        )
+    }
+    assert len(calls) == 3, "score() is called once per row in add mode"
+    for r in got.values():
+        kw = {
+            "A": r.activation, "A0": st.neutral, "s_noise": st.s_noise, "beta": st.beta,
+            "ent_match": r.ent_match, "fan": r.fan, "S_max": st.s_max, "gamma": st.gamma,
+            "salience": r.salience, "in_band": r.in_band,
+            "s_max_band": max(x.salience for x in got.values() if x.in_band),
+            "delta": st.delta, "bypass": r.bypassed, "pred_match": r.pred_match, "pred_fan": r.pred_fan,
+            "cues": st.cues, "w_entity": st.w_entity, "w_predicate": st.w_predicate, "S": st.cue_s,
+        }  # fmt: skip
+        assert r.score == pytest.approx(real(r.relevance, **kw))
+        assert r.score == pytest.approx(math.log(r.relevance) + r.act + r.sep + r.sal)
+        assert r.final == pytest.approx(math.exp(r.score))
+        assert r.multiplier == pytest.approx(math.exp(r.act + r.sal))
+    assert got["kw"].bypassed and got["kw"].act == 0.0 and got["kw"].sal == 0.0
+    assert got["named"].sep > 0 and got["named"].act > 0 and got["named"].sal > 0
+    # mult mode never goes through score()
+    calls.clear()
+    rerank(rows, acts, settings=Settings(), k=3, entities={"e1": 3})
+    assert calls == []
+
+
 def test_add_mode_a_zero_relevance_row_sorts_last_and_k_cuts_after_sorting():
     rows = [row("a", 1.7), row("b", -0.1), row("c", 0.5), row("d", 0.2)]
     acts = {i: fa(i, age_days=1, add=True) for i in "abcd"}

@@ -124,15 +124,53 @@ def test_salience_alone_protects_and_the_add_mode_activation_uses_it(world):
     act_add = Activation(client, graph, Settings(act_mode="add"), clock=lambda: NOW)
     fa = act_mult.compute(["g1"])["g1"]
     assert fa.salience == pytest.approx(1 - math.exp(-2.0))  # 1.5 verified + 0.5 (2 agents - 1)
-    assert fa.protected and fa.protect_reasons == [f"salience:{fa.salience:.2f}"]
+    # D-013 as written: `mult` is D-012 + bypass fix + separation, so the salience rule does not protect there
+    # (BRANCH_REVIEW finding 1; D-013 amendment "salience protection gated on the mode")
+    assert not fa.protected and fa.protect_reasons == []
     assert fa.decays == [], "mult mode: the D-012 model, no per-event decay"
     fb = act_add.compute(["g1"])["g1"]
+    assert fb.protected, "add mode: salience protects"
+    assert fb.protect_reasons == [f"salience:{fb.salience:.2f}"]
     assert fb.decays and len(fb.decays) == len(fb.events)
     assert fb.decays[0] == pytest.approx(0.177 * (1 - 0.4 * fb.salience)), "salience slows the decay"
     assert fb.activation != fa.activation
     # the sweep threshold follows the mode: A0 - 2 under D-012, A0 - 0.72 under Pavlik-Anderson
     assert act_mult.sweep("global", now=NOW)["threshold"] == pytest.approx(act_mult.settings.neutral - 2.0)
     assert act_add.sweep("global", now=NOW)["threshold"] == pytest.approx(act_add.settings.neutral - 0.72)
+
+
+def test_mult_mode_with_salience_inputs_is_exactly_d012(world):
+    """BRANCH_REVIEW finding 1: a fact protected by none of D-012's rules stays unprotected in `mult` whatever
+    its salience; the D-012 boolean rules still protect in both modes."""
+    client, graph = world
+    write(
+        client,
+        graph,
+        """
+        MATCH (sc:Scope {id:'global'}), (e:Entity {id:'e1'}),
+              (a1:Agent {id:'a1'}), (a2:Agent {id:'a2'}), (a3:Agent {id:'a3'})
+        CREATE (g:Fact {id:'g2', status:'active', created_at: 1000, predicate:'q', value:'w2',
+                        valid_from: 1000, valid_to: 9999999999999})-[:ABOUT]->(e)
+        CREATE (g)-[:IN_SCOPE]->(sc)
+        CREATE (g)-[:VERIFIED_BY {at: 6000, outcome:'confirmed'}]->(a2)
+        CREATE (g)-[:VERIFIED_BY {at: 6100, outcome:'confirmed'}]->(a3)
+        CREATE (x1:Step {id:'sy1', agent_id:'a1', at: 7000})-[:READ {via:'use', at: 7000}]->(g)
+        CREATE (x2:Step {id:'sy2', agent_id:'a2', at: 7100})-[:READ {via:'use', at: 7100}]->(g)
+        CREATE (x3:Step {id:'sy3', agent_id:'a3', at: 7200})-[:READ {via:'use', at: 7200}]->(g)
+        """,
+    )
+    by_mode = {  # fmt: skip
+        mode: Activation(client, graph, Settings(act_mode=mode), clock=lambda: NOW).compute(["g2", "f1"])
+        for mode in ("mult", "add")
+    }
+    g_mult, g_add = by_mode["mult"]["g2"], by_mode["add"]["g2"]
+    assert g_mult.salience == g_add.salience == pytest.approx(1 - math.exp(-(1.5 * 2 + 0.5 * 2)))
+    assert g_mult.salience > 0.5
+    assert not g_mult.protected and g_mult.protect_reasons == []
+    assert g_add.protected and g_add.protect_reasons == [f"salience:{g_add.salience:.2f}"]
+    # the boolean rules (here: pinned, an unflagged decision, ...) protect in both modes
+    assert by_mode["mult"]["f1"].protected and by_mode["mult"]["f1"].protect_reasons[0] == "pinned"
+    assert by_mode["add"]["f1"].protected
 
 
 def test_pin_caches_salience_and_unpin_removes_the_cache(world):

@@ -177,9 +177,9 @@ Every term is bounded, so the relevance order is kept except among near-ties. Ac
 burst of massed reads worth about one read while spaced reads keep their value (`tests/activation/test_score.py`);
 a recall after the fact's last use is a *restudy* worth `0.3 · (1 − σ(m_prev − A0))`. **Salience** `s = 1 − e^{−Σ w·n}`
 is read from the graph in the same `activation/activation` round trip (unflagged decisions 1.0, verifications 1.5,
-independently verified artifacts of the decisions' tasks 1.0, done tasks 0.5, distinct using agents − 1 at 0.5,
+distinct independently verified artifacts of the decisions' *done* tasks 1.0, done tasks 0.5, distinct using agents − 1 at 0.5,
 handoffs 0.5, trusted source 1.0, pin 3.0); it slows decay (`d · (1 − kappa · s)`, `kappa = 0.4`), protects from
-sweeps at `s ≥ 0.5`, is cached on `Fact.salience` by `pin_fact` and shown by `memory_strength` (`salience`,
+sweeps at `s ≥ 0.5` (in `add` mode only: `mult` keeps exactly D-012's boolean rules, D-013 amendment 2), is cached on `Fact.salience` by `pin_fact` and shown by `memory_strength` (`salience`,
 `salience_inputs`, per-event `decays`, `act_term`, `fan`, `entity_lift`, `suggested_verify_after`). Salience never
 feeds `confidence`. Under the new scale `A0 = −2.01` and the sweep's default threshold is `A0 − 0.72` (still "about
 55–60 days unused"; `A0 − 2` would never fire). `max(A, A0)` for protected facts is replaced by the band guard.
