@@ -465,6 +465,8 @@ class Lineage:
         them (ties by id, a fact without the time last). A cut list is never silent: every list carries an
         ``ids_truncated`` / ``agents_truncated`` flag, and the fact list pages: ``offset`` skips that many
         facts in ``order``, ``next_offset`` is the offset of the next page (``None`` on the last).
+        For a source, ``facts.corroborated`` = ``{total, ids, ids_truncated}`` lists the affected facts that
+        another Source that is not quarantined still supports: ``quarantine`` would keep them visible (P13).
         ``probe_ids`` (at most 200) asks "is this fact affected?" against the whole set, not the listed page:
         ``facts.probes = {id: bool}``. Raises :class:`UnknownNode`.
         """
@@ -529,9 +531,18 @@ class Lineage:
             "next_offset": end if end < len(records) else None,
             "by_status": dict(sorted(by_status.items())),
         }
+        affected = set(r["fact_ids"])
         if probes:
-            affected = set(r["fact_ids"])
             facts["probes"] = {i: i in affected for i in probes}
+        if (
+            kind == "source"
+        ):  # P13: the listed facts that another live Source still supports (quarantine keeps them)
+            corr = sorted(i for i in r["corroborated_ids"] if i in affected)
+            facts["corroborated"] = {
+                "total": len(corr),
+                "ids": corr[:max_detail],
+                "ids_truncated": len(corr) > max_detail,
+            }
 
         by_time = sorted(
             zip(r["fact_ats"], r["fact_ids"], strict=True),

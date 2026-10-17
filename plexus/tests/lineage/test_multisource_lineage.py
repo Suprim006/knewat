@@ -297,3 +297,23 @@ def test_why_shows_the_sources_that_are_left_after_a_forget(rules):
     rules.lin.forget_source(rules.memo)
     fact = next(f for f in rules.lin.why(rules.c1)["facts"] if f["id"] == rules.c1)
     assert fact["sources"] == [rules.spec]
+
+
+def test_impact_of_a_source_previews_which_facts_would_stay_visible(rules):
+    got = rules.lin.impact("source", rules.memo)
+    assert got["facts"]["total"] == 3  # c1, c2, c3 all reach the memo
+    assert got["facts"]["corroborated"] == {"total": 1, "ids": [rules.c1], "ids_truncated": False}
+    assert rules.lin.impact("source", rules.spec)["facts"]["corroborated"]["ids"] == [rules.c1]
+    rules.lin.quarantine(rules.spec)
+    # the spec is quarantined now: nothing else supports c1, so quarantining the memo would hide it
+    assert rules.lin.impact("source", rules.memo)["facts"]["corroborated"]["total"] == 0
+    assert "corroborated" not in rules.lin.impact("fact", rules.c1)["facts"]
+
+
+def test_impact_corroborated_ids_are_cut_at_max_detail_with_an_exact_total(rules):
+    for i in range(3):
+        rules.eng.assert_fact(
+            f"K{i}", "rule", f"two {i}", rules.scope, "agent", source_ids=[rules.memo, rules.spec], now=400
+        )
+    got = rules.lin.impact("source", rules.memo, max_detail=2)["facts"]["corroborated"]
+    assert got["total"] == 4 and len(got["ids"]) == 2 and got["ids_truncated"] is True
