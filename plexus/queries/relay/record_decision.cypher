@@ -6,9 +6,12 @@
 // All facts are matched first and their count compared with size($fact_ids) in the same statement.
 // step_id (P9-int): the Step opened before this call; the Decision is linked (Step)-[:WROTE]->(Decision) in the same statement (crash-consistency).
 // Callers pass a de-duplicated fact id list. An empty list is allowed (a decision with no evidence).
+// An unknown NON-EMPTY step_id is best-effort: the Decision is still created, without the WROTE edge.
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
 MATCH (a:Agent {id: $agent}), (t:Task {id: $task})
 OPTIONAL MATCH (stp:Step {id: $step_id})
-OPTIONAL MATCH (f:Fact) WHERE f.id IN $fact_ids
+UNWIND CASE WHEN size($fact_ids) = 0 THEN [''] ELSE $fact_ids END AS fid
+OPTIONAL MATCH (f:Fact {id: fid})
 WITH a, t, stp, collect(f) AS facts
 WHERE size(facts) = size($fact_ids)
 CREATE (d:Decision {id: $id, text: $text, at: $now, created_at: $now})
