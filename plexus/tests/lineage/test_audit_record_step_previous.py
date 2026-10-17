@@ -1,4 +1,4 @@
-"""Audit C5: ``lineage/record_step.previous_id`` is the id of the preceding Step when a Step was created, else null.
+"""Audit C5: `lineage/record_step.previous_id` is the preceding Step id when a Step was created, else null.
 
 Before: it was ``last.id`` on every path, so an idempotent repeat of n=2 answered 'x2' (itself) and a refused
 or older n answered the agent's latest step.
