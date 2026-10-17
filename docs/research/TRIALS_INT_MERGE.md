@@ -98,15 +98,57 @@ row (`damp`, 1.0 when `$damp` is false) and `_sibling_boost` scales the boost by
 * `tests/mcp/snapshots/tools.json` regenerated (only the `detail` description differs from p12's snapshot: "the ranking
   terms").
 
-## 3. Things for the owner to look at
+## 3. Found after the merge commit (separate commits on `trials-int`)
+
+* **`f5881c6` compact hits hid the D-013 inputs but not `lures`.** The first bench run returned 18k chars per recall
+  instead of p12's 5.3k: with separation on, each hit carried `lures` (the ids of other candidates with the same predicate
+  about another entity at nearly the same relevance), and the 20 sprint facts of L8 are exactly that - about 20 ids a hit.
+  `lures` is now full-only like the other ranking inputs (`why_recalled` still has it); the compact key set is pinned by a
+  test. Re-run: 5,340 / 5,776 chars (p12: 5,344 / 5,772).
+* **`af8f70d` L5b / hub harness pin the lexical fusion off.** `test_forgetting_sql_arm_toy` (main) failed in the first full
+  suite: Plexus' retrieval-only mode and the SQL arm agreed on the top-1 for 12 of 14 probes, because the SQL arm mirrors
+  the cosine relevance and Plexus now mixes in p12's lexical score. The harness sets `eng.lexical_weight = 0.0` so it
+  measures what `BASELINE.md` registered (D-013 against SQL). The L6-C `P-product` / `P-flat` arms ("`Engram.recall` as
+  shipped") were left as shipped, i.e. with the lexical fusion and the pool of p12.
+
+## 4. No-LLM recall bench (`l8_trialsint/recall_bench-trialsint-core.json`)
+
+`PLEXUS_TOOLSET=core python -m plexus.crucible.l8.recall_bench --port 6372 --label trialsint-core --out
+demo_data/crucible/l8_trialsint` (5 seeds, hash embedder, the real tool layer through an in-process server scoped to
+`core`; replays the recorded Round A queries; no `claude -p`, no network, $0; 0 tool errors).
+
+| | p12 (`l8_p12ts/recall_bench-p12ts-core.json`, `d6d30da`) | trials-int (`f5881c6`) |
+|---|---|---|
+| needed history fact found per task: S07 billing cycle | 5/5 | 5/5 |
+| S13 API-key header | 5/5 | 5/5 |
+| S20 release channel | 1/1 | 1/1 |
+| canonical (S01-S20 x 5 facts x named + paraphrase) | 1000/1000 | 1000/1000 |
+| replay, recalls that found their target | 29/36 | 28/36 |
+| mean response chars (replay / canonical) | 5,344 / 5,772 | 5,340 / 5,776 |
+
+The one replay call that differs is seed 20261020, `"Bolt Billing API billing_cycle"` with `k=15`: the S07 fact was
+inside the 15 returned on p12 and outside on trials-int. The query names no sprint, so the 20 `billing_cycle` facts
+(S01-S20) should look alike to it and which 15 come back is decided by near-ties (p12's own round 1 had 28/36 for the same
+reason). It is not a regression in the needed-fact metrics, which are the ones p12 reported as its acceptance numbers.
+
+## 5. Gate (`trials-int`, FalkorDB 6.0.2 on slot 72)
+
+* `ruff check .` and `ruff format --check .`: clean. `scripts/verify_readme.py`: 313 checks passed, 0 failed (query-file
+  count 114, 45 tools). Contract snapshot regenerated and committed before the suite.
+* Full suite after the last code commit (`af8f70d`): **1698 passed, 1 skipped** (p12 reported 1580 + 1 skipped). The first
+  full run (before `af8f70d`) was 1697 passed, 1 failed (`test_forgetting_sql_arm_toy`, see 3).
+* `plexus-view` was not run: `docs/view-api.schema.json` is unchanged by this merge.
+
+## 6. Things for the owner to look at
 
 1. **Lexical fusion and the entity/predicate cues now both reward query words in the entity name / predicate.** The
    lexical score (p12) counts them as query-word coverage and the D-013 context term (main) adds `w * (S - ln fan)` for the
    same match. Neither test suite covers the combination beyond `test_defaults_lexical_fusion_and_separation_together`. If
    this is double counting, the knob is `PLEXUS_RECALL_LEXICAL_WEIGHT=0` (restores main's relevance exactly).
 2. **Published L5b / L6 numbers were measured on main's candidate pool and relevance.** The merged default path uses p12's
-   pool and fused relevance, so those numbers are not re-verified on `trials-int` (not run: they are not part of this
-   task). Both new knobs have an off switch (`PLEXUS_RECALL_LEXICAL_WEIGHT=0`; the pool is not switchable).
+   pool and fused relevance. The L5b / hub harness now pins the lexical fusion off (see 3), but the candidate pool (60-150
+   instead of `2k`) is not switchable, so the L5b numbers are not re-verified on `trials-int` (not run: not part of this
+   task); the L6-C product arms run as shipped.
 3. `engram/recall` now computes `fan_e` for up to `$lim` rows (<= 150 + keyword hits) instead of `k`; it is entity-first and
    the plan test passes, but it is a per-row read of an entity's `ABOUT` degree - worth a PROFILE on a tenant with a
    thousand-fact hub entity.
