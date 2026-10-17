@@ -1106,3 +1106,25 @@ E: `P-1stmt` **0 / 0 / 0** violations in 10/10 runs (reads 15,127, appends 8,925
 200); the other six arms as published (`P-levelwise`, `B1h-levelwise`, `B0-naive` tear in 10/10; the other three 0). The
 pre-registered "higher quarantine count" expectation for E was wrong in form: the count is the number of `Q` sources (20 per run),
 so it cannot rise; it stayed 200. The quarantiner's statement is the P1 rewrite, and it ran 200 times with 0 errors.
+
+## L7 / P10: graph vs SQL strengths and weaknesses by scale (pre-registered)
+
+Pre-registration, design and (later) results: [`docs/research/P10_GRAPH_VS_SQL.md`](research/P10_GRAPH_VS_SQL.md).
+Four deterministic families (no LLM call): **G** multi-tenancy at 1-2,000 tenants, **H** query expressiveness and
+traversal (motifs, multi-relationship traversal, constrained shortest path), **I** atomic multi-entity writes under
+crashes and conflicting writers, **J** concurrent session populations of 2-1,000 replaying the recorded tool-call mix.
+Arms: FalkorDB (graph per tenant), SQLite file per tenant, SQLite shared file with `tenant_id`.
+
+**L7 results in one paragraph** (details, tables and the verdict in the P10 doc; result files
+`plexus/demo_data/crucible/l7/`). Correctness gates held: 0 cross-tenant leaks on the product path at 1-2,000
+tenants in every arm. **I:** a SQLite transaction left 0 partial close-outs in 200 kills; the Plexus product path
+(four tool calls) left 86; `MULTI`/`EXEC` survives a client kill but has no rollback; one Cypher statement matched the
+SQL transaction everywhere with 1 round trip instead of 13; FalkorDB 6.0.2's AOF replay crashed on restart in 10 of
+11 attempts on preserved data. **H:** Cypher was about half as long on pattern questions, but SQL expressed every
+question in one statement and was faster on 9 of 11 cells (25-900x on traversals; Cypher timed out on unbounded
+closures, SQL did not); the natural Cypher for one motif got a silently wrong answer from the FalkorDB planner.
+**G:** FalkorDB latency is flat from 1 to 2,000 tenants (SQLite degrades 14-40x but stays faster); FalkorDB tenants
+cost 9x more to create and 4-15x more memory than SQLite files take disk, and 2,000 of them fit this machine only
+with persistence forks off. **J:** embedded SQLite had 6-17x the throughput with 0 errors at every population;
+FalkorDB had the fairer tail under one hot tenant and rejected ~90% of calls at 1,000 sessions over 200 tenants.
+
