@@ -1436,3 +1436,8 @@ directories `l6/20261017T222943Z-det`, `…T223508Z-postfix`, `…T224327Z-conc`
 | F provenance crash-consistency (arm P, 200 SIGKILLs) | 0 orphans, 0 lost of 1,776 acknowledged writes, `missing_derived_from` 13 | 0 orphans, 0 lost of 1,975 acknowledged writes, `missing_derived_from` 11 | **yes** (the 11-13 depends on the kill points) |
 
 Expectation: unchanged correctness counts. **Confirmed**; nothing was tuned.
+
+### 8. Gate (branch `recall-check`, final tree)
+
+`ruff check .` and `ruff format --check .` clean; `scripts/verify_readme.py` 313 checks passed, 0 failed; full suite on FalkorDB 6.0.2 (slot 75): **1703 passed, 1 skipped** (trials-int: 1698 passed, 1 skipped; +4 `test_recall_hub_plan.py`, +1 harness switch test). No tool surface changed
+(snapshot untouched), one `.cypher` file changed (`engram/recall`). Open items left by this check: the unattributed part of the L5b noise-share move (+10 to +22 points over main's tip, present on p12's tip before any D-013 code), and the L6-C product-arm latency, still about 2.2x main's tip after the fix (not profiled).
