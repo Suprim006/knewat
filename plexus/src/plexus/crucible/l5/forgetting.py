@@ -12,18 +12,22 @@ from __future__ import annotations
 
 import dataclasses
 import random
+import sqlite3
 import statistics
+import tempfile
 import time
 import uuid
 from collections.abc import Iterator, Sequence
 from contextlib import contextmanager
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import plexus.engram.service as engram_service
 from plexus.activation import Activation, Settings
 from plexus.crucible.backends.plexus import PlexusBackend
 from plexus.crucible.l2.scale_scenario import play_scale
+from plexus.crucible.l5 import sql_arm
 from plexus.embed import Embedder
 from plexus.engram import Engram
 from plexus.graph.client import GraphClient
@@ -170,6 +174,27 @@ def simulate_reads(
     return {"read_edges": len(reads), "critical_reads": len(critical), "hot_facts": len(hot)}
 
 
+class _Recording:
+    """Forwards to a ``GraphClient``; counts ``ro`` statements and sums their server ``run_time_ms`` (reset per probe)."""
+
+    def __init__(self, client: GraphClient):
+        self._client = client
+        self.statements = 0
+        self.server_ms = 0.0
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._client, name)
+
+    def reset(self) -> None:
+        self.statements, self.server_ms = 0, 0.0
+
+    def ro(self, *args: Any, **kwargs: Any) -> Any:
+        rows = self._client.ro(*args, **kwargs)
+        self.statements += 1
+        self.server_ms += float(rows.run_time_ms or 0.0)
+        return rows
+
+
 def _fact_count(client: GraphClient, graph: str) -> int:
     return int(client.graph(graph).ro_query("MATCH (f:Fact) RETURN count(f)").result_set[0][0])
 
@@ -184,7 +209,7 @@ def _quantiles(xs: list[float]) -> dict[str, Any]:
 
 
 def _measure(
-    eng: Engram,
+    eng: Engram | sql_arm.SqlRecall,
     probes: list[Probe],
     noise: set[str],
     forgetting: bool,
@@ -193,10 +218,19 @@ def _measure(
     settings: Settings | None = None,
     separation: bool | None = None,
     now: int | None = None,
+    recorder: _Recording | None = None,
 ) -> dict[str, Any]:
+    """One mode over every probe. ``eng`` is the Plexus ``Engram`` (its client wrapped in ``recorder`` for the
+    statement / server-time columns) or the SQL arm (``sql_arm.SqlRecall``, which counts its own statements)."""
     per_class: dict[str, dict[str, Any]] = {}
     rows_total = noise_rows = chars = 0
     hit5: dict[str, bool] = {}
+    rank_of: dict[str, int | None] = {}
+    top5_of: dict[str, list[str]] = {}
+    probe_ms: list[float] = []
+    server_ms: list[float] = []
+    stmts: list[int] = []
+    is_sql = isinstance(eng, sql_arm.SqlRecall)
     above: dict[
         str, int
     ] = {}  # post-hoc diagnostic: class of the rows ranked above the target (all, on a miss)
@@ -204,6 +238,12 @@ def _measure(
     same_entity = other_entity = cold_n = cold_hot_above = 0
     gaps: list[float] = []
     for p in probes:
+        if is_sql:
+            eng.reset()
+        elif recorder is not None:
+            recorder.reset()
+        t0 = time.perf_counter()
+        kwargs: dict[str, Any] = {"now": now} if is_sql else {}
         rows = eng.recall(
             p.query,
             p.scope_id,
@@ -212,9 +252,19 @@ def _measure(
             forgetting=forgetting,
             separation=separation,
             settings=settings,
+            **kwargs,
         )
+        probe_ms.append((time.perf_counter() - t0) * 1000)
+        if is_sql:
+            stmts.append(eng.statements)
+            server_ms.append(eng.sql_ms)
+        elif recorder is not None:
+            stmts.append(recorder.statements)
+            server_ms.append(recorder.server_ms)
         ranks = [i for i, r in enumerate(rows) if r["fact_id"] == p.fact_id]
         rank = ranks[0] if ranks else None
+        rank_of[p.fact_id] = rank
+        top5_of[p.fact_id] = [r["fact_id"] for r in rows[: max(KS)]]
         c = per_class.setdefault(p.klass, {"n": 0, **{f"hit@{k}": 0 for k in KS}})
         c["n"] += 1
         for k in KS:
@@ -261,12 +311,40 @@ def _measure(
         "hot_above_cold_n": cold_hot_above,
         "gap12": _quantiles(gaps),
         "entity_read_ms": entity_read_ms,
+        "probe_ms": _quantiles(probe_ms),
+        "server_ms": _quantiles(server_ms)
+        if server_ms
+        else None,  # Plexus: FalkorDB run_time_ms; SQL: in-process statement time
+        "statements_per_probe": statistics.mean(stmts) if stmts else None,
     }
     if hits_off is not None:
         crit = [p.fact_id for p in probes if p.klass == "critical"]
         out["critical_probe_loss"] = sum(1 for f in crit if hits_off.get(f) and not hit5.get(f))
     out["_hit5"] = hit5
+    out["_rank"] = rank_of
+    out["_top5"] = top5_of
     return out
+
+
+def _paired(a: dict[str, Any], b: dict[str, Any], probes: list[Probe]) -> dict[str, Any]:
+    """Per-probe agreement of two arms' measurements of the same mode (the pre-registered tie test)."""
+    ra, rb, ta, tb = a["_rank"], b["_rank"], a["_top5"], b["_top5"]
+    only_a1 = [p.fact_id for p in probes if ra.get(p.fact_id) == 0 and rb.get(p.fact_id) != 0]
+    only_b1 = [p.fact_id for p in probes if rb.get(p.fact_id) == 0 and ra.get(p.fact_id) != 0]
+    only_a5 = [p.fact_id for p in probes if a["_hit5"].get(p.fact_id) and not b["_hit5"].get(p.fact_id)]
+    only_b5 = [p.fact_id for p in probes if b["_hit5"].get(p.fact_id) and not a["_hit5"].get(p.fact_id)]
+    same_top5 = sum(1 for p in probes if ta.get(p.fact_id) == tb.get(p.fact_id))
+    same_top1 = sum(1 for p in probes if (ta.get(p.fact_id) or [None])[0] == (tb.get(p.fact_id) or [None])[0])
+    return {
+        "n": len(probes),
+        "only_plexus_at1": len(only_a1),
+        "only_sql_at1": len(only_b1),
+        "only_plexus_at5": len(only_a5),
+        "only_sql_at5": len(only_b5),
+        "same_top1": same_top1,
+        "same_top5_list": same_top5,
+        "differing_at1": sorted(only_a1 + only_b1),
+    }
 
 
 def run_forgetting(
@@ -280,7 +358,11 @@ def run_forgetting(
     keep_graph: bool = False,
     modes: Sequence[str] = ("off", "on", "on+sweep"),
     burst: bool = False,
+    sql: bool = False,
+    sql_path: str | None = None,
 ) -> dict[str, Any]:
+    """``sql=True`` (plan §5.4) also exports the graph to SQLite after the reads are written and measures every
+    mode with the hand-written-SQL arm (``sql_arm.SqlRecall``) in the same process, paired per probe."""
     for name in modes:
         resolve_mode(name)  # raises on an unknown mode before any work is done
     # off first (control for critical loss); the sweep mutates the graph, so on+sweep goes last
@@ -302,7 +384,8 @@ def run_forgetting(
         hot_ids = sorted(rng.sample(others, round(HOT_SHARE * len(others)))) if others else []
         hot = set(hot_ids)
         window = (min(r["created_at"] for r in real), max(r["created_at"] for r in real))
-        eng = Engram(client, graph, embedder)
+        recorder = _Recording(client)
+        eng = Engram(recorder, graph, embedder)  # type: ignore[arg-type]
         noise_ids = add_noise(eng, client, real, noise_mult, rng, window)
         noise = set(noise_ids)
         t_noise = time.time()
@@ -320,6 +403,21 @@ def run_forgetting(
         ]
         facts_before = _fact_count(client, graph)
         modes: dict[str, Any] = {}
+        sql_modes: dict[str, Any] = {}
+        pairs: dict[str, Any] = {}
+        sql_meta: dict[str, Any] = {}
+        sqlr: sql_arm.SqlRecall | None = None
+        if sql:
+            path = sql_path or str(Path(tempfile.mkdtemp(prefix="l5-sql-")) / "l5b.sqlite")
+            t_exp = time.perf_counter()
+            counts = sql_arm.export_graph(client, graph, path)
+            sql_meta = {"path": path, "export_seconds": round(time.perf_counter() - t_exp, 2), "rows": counts,
+                        "sql_lines": sql_arm.sql_lines(), "sqlite_version": sqlite3.sqlite_version}  # fmt: skip
+            sqlr = sql_arm.SqlRecall(path, embedder)
+            graph_acts = Activation(client, graph, Settings(act_mode="mult"), clock=lambda: now).compute(
+                [r[0] for r in client.graph(graph).ro_query("MATCH (f:Fact) RETURN f.id").result_set], now
+            )
+            sql_meta["activation_fidelity"] = sql_arm.activation_fidelity(sqlr, graph_acts, now)
         with virtual_now(now):
             klass_of = {p.fact_id: p.klass for p in probes}
             moved: set[str] = set()
@@ -337,10 +435,26 @@ def run_forgetting(
                             if not step["moved"]:
                                 break
                 settings, fg, sep = resolve_mode(name)
-                m = _measure(eng, probes, noise, fg, hits_off, klass_of, settings, sep, now)
+                m = _measure(eng, probes, noise, fg, hits_off, klass_of, settings, sep, now, recorder)
                 if name == "off":
                     hits_off = m["_hit5"]
                 modes[name] = m
+                if sqlr is not None and name != "on+sweep":  # the sweep mutates the graph, not the export
+                    ms = _measure(
+                        sqlr,
+                        probes,
+                        noise,
+                        fg,
+                        hits_off if name != "off" else None,
+                        klass_of,
+                        settings,
+                        sep,
+                        now,
+                    )
+                    sql_modes[name] = ms
+                    pairs[name] = _paired(m, ms, probes)
+        if sqlr is not None:
+            sqlr.close()
         facts_after = _fact_count(client, graph)
         by_class = {
             "critical": len(moved & crit),
@@ -348,8 +462,9 @@ def run_forgetting(
             "cold_real": len(moved - crit - hot - noise),
             "noise": len(moved & noise),
         }
-        for m in modes.values():
-            m.pop("_hit5", None)
+        for m in (*modes.values(), *sql_modes.values()):
+            for key in ("_hit5", "_rank", "_top5"):
+                m.pop(key, None)
         return {
             "config": {
                 "sprints": k_sprints,
@@ -366,6 +481,9 @@ def run_forgetting(
             "noise_facts": len(noise),
             "reads": reads,
             "modes": modes,
+            "sql_modes": sql_modes,
+            "sql_pairs": pairs,
+            "sql_arm": sql_meta,
             "sweep": {
                 "moved_total": len(moved),
                 "moved_by_class": by_class,

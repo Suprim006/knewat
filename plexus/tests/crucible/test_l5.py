@@ -108,6 +108,34 @@ def test_forgetting_d013_modes_toy(l5_client, emb):
     assert "L5b-D013 kw-fix recall@1 (report only)" in {k["id"] for k in crit}
 
 
+def test_forgetting_sql_arm_toy(l5_client, emb, tmp_path):
+    """Plan §5.4: the SQL arm (export + three statements) runs next to Plexus; activation agrees for every fact,
+    the retrieval-only mode (`off`) finds the same target at rank 1 for every probe, and the arm counts its
+    statements and SQL lines."""
+    from plexus.crucible.l5 import sql_arm
+    from plexus.crucible.l5.forgetting import run_forgetting
+
+    res = run_forgetting(
+        l5_client,
+        emb,
+        k_sprints=2,
+        noise_mult=2,
+        modes=("off", "sep+mult"),
+        sql=True,
+        sql_path=str(tmp_path / "l5b.sqlite"),
+    )
+    assert set(res["sql_modes"]) == {"off", "sep+mult"}
+    fid = res["sql_arm"]["activation_fidelity"]
+    assert fid["facts"] > 0 and fid["disagreements"] == 0, fid
+    assert res["sql_arm"]["sql_lines"] == sql_arm.sql_lines() > 50
+    pr = res["sql_pairs"]["off"]
+    # the hash embedder produces exact distance ties, so only rank-1 agreement is asserted on the toy world
+    assert pr["same_top1"] == pr["n"] and pr["only_plexus_at1"] == pr["only_sql_at1"] == 0
+    assert res["sql_modes"]["sep+mult"]["statements_per_probe"] >= 3.0
+    assert res["modes"]["sep+mult"]["statements_per_probe"] >= 4.0
+    assert res["sql_modes"]["off"]["probe_ms"]["n"] == pr["n"]
+
+
 def test_forgetting_unknown_mode(l5_client, emb):
     from plexus.crucible.l5.forgetting import run_forgetting
 

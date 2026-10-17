@@ -197,6 +197,7 @@ def run_all(
     tag: str = "",
     modes: Sequence[str] = ("off", "on", "on+sweep"),
     burst: bool = False,
+    sql: bool = False,
 ) -> Path:
     embedder = get_embedder(embedder_kind)
     started = time.time()
@@ -211,7 +212,9 @@ def run_all(
         with tempfile.TemporaryDirectory(prefix="plexus-l5-") as tmp:
             res["staleness"] = run_staleness(client, embedder, Path(tmp), modules, funcs, commits)
     if forgetting:
-        res["forgetting"] = run_forgetting(client, embedder, sprints, noise, modes=modes, burst=burst)
+        res["forgetting"] = run_forgetting(
+            client, embedder, sprints, noise, modes=modes, burst=burst, sql=sql
+        )
     res["criteria"] = criteria(res, margin)
     res["seconds"] = round(time.time() - started, 1)
     out = out_root / (run_stamp(started) + (f"-{tag}" if tag else ""))
@@ -328,6 +331,42 @@ def render_report(res: dict[str, Any]) -> str:
                 )
                 + " |"
             )
+        if f.get("sql_modes"):
+            sa = f["sql_arm"]
+            fid = sa.get("activation_fidelity", {})
+            L += [
+                "",
+                "## L5b SQL arm (B1h-L5, plan §5.4): Plexus vs hand-written SQL on the exported graph",
+                "",
+                f"SQLite {sa.get('sqlite_version')} + sqlite-vec; export {sa.get('export_seconds')} s, rows {sa.get('rows')}; "
+                f"SQL written for the arm: {sa.get('sql_lines')} non-blank non-comment lines (3 statements). "
+                f"Activation fidelity (SQL vs graph, every fact): {fid.get('disagreements')} disagreements of {fid.get('facts')} "
+                f"(worst |gap| {fid.get('worst_abs_gap', 0):.2e}).",
+                "",
+                "| Mode | Arm | recall@1 | recall@3 | recall@5 | noise share | probe ms p50 | server/stmt ms p50 | statements / probe |",
+                "|---|---|---|---|---|---|---|---|---|",
+            ]
+            for name in f["sql_modes"]:
+                for arm, m in (("Plexus", f["modes"][name]), ("B1h-L5 (SQL)", f["sql_modes"][name])):
+                    rc = m["recall"]["all"]
+                    sm = (m.get("server_ms") or {}).get("p50")
+                    L.append(
+                        f"| {name} | {arm} | {_pct(rc['recall@1'])} | {_pct(rc['recall@3'])} | {_pct(rc['recall@5'])} | "
+                        f"{_pct(m['noise_share'])} | {_ms((m.get('probe_ms') or {}).get('p50'))} | {_ms(sm)} | "
+                        f"{m.get('statements_per_probe') or 0:.2f} |"
+                    )
+            L += [
+                "",
+                "Paired per probe (same probes, same graph):",
+                "",
+                "| Mode | n | only Plexus @1 | only SQL @1 | only Plexus @5 | only SQL @5 | same top-1 | identical top-5 list |",
+                "|---|---|---|---|---|---|---|---|",
+            ]
+            for name, pr in f["sql_pairs"].items():
+                L.append(
+                    f"| {name} | {pr['n']} | {pr['only_plexus_at1']} | {pr['only_sql_at1']} | {pr['only_plexus_at5']} | "
+                    f"{pr['only_sql_at5']} | {pr['same_top1']} | {pr['same_top5_list']} |"
+                )
         sw = f["sweep"]
         L += [
             "",
@@ -370,6 +409,11 @@ def main(argv: list[str] | None = None) -> int:
         "--burst", action="store_true", help="hot facts read in one burst at day 45 instead of daily"
     )
     p.add_argument("--tag", default="", help="suffix of the result directory (e.g. floor09)")
+    p.add_argument(
+        "--sql",
+        action="store_true",
+        help="also measure the hand-written-SQL arm (plan §5.4) on an export of the graph",
+    )
     p.add_argument("--embedder", choices=("fastembed", "hash"))
     p.add_argument("--host", help="FalkorDB host (default $FALKORDB_HOST or 127.0.0.1)")
     p.add_argument("--port", type=int, help="FalkorDB port (default $FALKORDB_PORT or 6379)")
@@ -388,6 +432,7 @@ def main(argv: list[str] | None = None) -> int:
             tag=a.tag,
             modes=[x.strip() for x in a.modes.split(",") if x.strip()],
             burst=a.burst,
+            sql=a.sql,
         )
     finally:
         client.close()
