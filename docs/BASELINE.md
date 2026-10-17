@@ -1148,3 +1148,51 @@ Branch `integ` = `trials-int` + p10 + p11 + the ported parts of `p9f-b` (`docs/r
 `P-product-tool-p9f` (`why(depth=12)`, 200 elements) **20/24**, `P-product-service` (5,000 elements) **24/24**, both 0 errors. (3) F arm P:
 **0 orphans, 0 lost acknowledged writes, `missing_derived_from` 0** (the audit re-run on `trials-int` had 0 orphans and 13 missing
 DERIVED_FROM, because the benchmark arm linked origins in a second statement). **A result off these is reported as such.**
+
+## L6 on integ: results (run after the pre-registration above; 0 LLM calls)
+
+Files: `plexus/demo_data/crucible/l6-integ/20261017T211111Z-postfix` (A arms + F arm P, 200 kills) and `20261017T212449Z-det` (family B). Same machine
+and DB image as the earlier L6 runs; port 6374.
+
+| Registered expectation | Result |
+|---|---|
+| A `P-product-tool-p9f` 24/24 strict, probes 24/24, 0 timeouts | **24/24 strict**, probes 24/24, 0 timeouts, p50 10.4 / p99 689 ms |
+| A `P-product-service` 24/24 | **24/24**, p50 27.6 / p99 735 ms |
+| A `P-product-tool` unchanged from the audit re-run | **18/24** (the 2,000-id list cap: probes 18/24), 0 timeouts, p50 34.5 / p99 1,108 ms |
+| B `P-product-tool-p9f` 20/24; `P-product-service` 24/24 | **20/24** (depth 12 cut at 200 elements: 0/4), **24/24**; `P-product-tool` (default depth 6) 16/24 as published; 0 timeouts |
+| F arm P: 0 orphans, 0 lost, `missing_derived_from` 0 | **0 orphans of 1,269 records** (715 facts, 292 decisions, 262 handoffs), **0 lost** of 1,205 acknowledged writes, **`missing_derived_from` 0** (audit re-run on `trials-int`: 13); rule-of-three upper bound 0.24% |
+
+All expectations held. The `missing_derived_from` change is the one real product difference against `trials-int`: the benchmark arm now
+passes the origins to `assert_fact` (one statement) instead of linking them in a second one. The Step/WROTE part of defect 6 was already
+folded on `trials-int` (0 orphans there too: this run confirms it with the ported tree). `P-product-service` now answers B with one statement
+(`statements_per_answer_median` 1; it was up to 14 before the one-statement `why`).
+
+### Measurements of the p9f-b branch itself (carried over from `p9f-b`, ee6a4ea)
+
+The section below is p9f-b's own, unchanged, and describes **p9f-b's build** (result files `plexus/demo_data/crucible/l6-p9f/`). On `integ`
+three things differ: defect 6 is the P9-int / P12 design plus `assert_fact(derived_from=...)` (D-014; the test names `test_p9f_atomic_provenance`
+and `StepIntent` below do not exist here: see `tests/integration/test_p9f_derived_from.py`), the MCP `impact` list cap is 2,000 (P9-int; p9f-b used
+200) and the decision it calls D-013 is D-014 here. The integ numbers are in the section above.
+
+## L6 post-fix (P9-f, branch `p9f-b`, 2026-10-16)
+
+The six product defects that L6 found, fixed one commit each with a test that fails on the old code and passes on the new one. Re-run on the same machine and DB image with `python -m plexus.crucible.l6.run det --families A,dag,B`, `conc` and `crash --kills 200` (result files: `plexus/demo_data/crucible/l6-p9f/` `20261016T081226Z-det`, `20261016T081747Z-conc`, `20261016T082545Z-crash`; the original files are untouched). The frozen L6 arms are unchanged. Two **post-hoc** product arms were added after the run and are labelled `-p9f`: A `P-product-tool-p9f` (the fixed tool's `order='valid_from'` and `probe_ids`, 200-id page) and B `P-product-tool-p9f` (`why(depth=12)`, tool-default `max_elements` 200). They were not pre-registered. Absolute latencies vary between runs (B1h's 5,000-fact median went from 192 to 110 ms between the two runs), so compare arms within a run.
+
+| # | Defect (L6 finding) | Before | After | Test |
+|---|---|---|---|---|
+| 1 | `impact` returned no timestamps: "5 earliest affected facts" unanswerable | A P-product-tool / -service: strict **0/24** by construction | every listed fact carries `status`, `valid_from`, `created_at`; `order='valid_from'\|'created_at'`. A `P-product-tool-p9f`: **24/24 strict** | `tests/lineage/test_p9f_impact_detail.py` |
+| 2 | MCP `impact` cut its id lists at 200 with no signal; probes beyond them read as "not affected" | probes right on **12/24** (tool) | every list carries `ids_truncated`; `offset` / `next_offset` paging; `probe_ids` answered against the whole blast (`facts.probes`). A `P-product-tool-p9f`: probes **24/24** | `tests/mcp/test_impact_tool.py::test_impact_never_hides_a_cut_list`, `test_p9f_impact_detail.py` |
+| 3 | `impact` on a 5,000-fact blast exceeded the 10 s `TIMEOUT_MAX` (three joins grouped by the whole fact list) | 6/24 questions timed out; 5,000-fact median **5,012 ms** (socket timeout) | one-pass joins keyed by the source only: 5,000-fact median **446-459 ms**, 0 timeouts, p99 603 ms (B1h 110 ms, P-tuned 325 ms in the same run). The same defect in `quarantine` / `forget_source` was fixed too | `tests/lineage/test_p9f_impact_scale.py` (5,000 facts, < 5 s), `test_p9f_cascade_scale.py` |
+| 4 | MCP `why` hard-coded depth 6 and 200 elements | B P-product-tool **16/24** (depths 8, 12: 0/8) | `depth` (1..12, default 6) and `max_elements` (2..5000, default 200) on the tool, defaults unchanged. B `P-product-tool-p9f` (depth 12, 200 elements): **20/24**; with `max_elements` 5000 (P-product-service): **24/24** | `tests/mcp/test_p9f_why_tool.py` |
+| 5 | `why` and `blocked_by_failure` ran one statement per hop (L6-E P-levelwise: 917 V1 / 1,091 V3 tears in 4,470 reads) | product `why` torn in **79/79** racing reads (writer adds a decision + its 2-level ancestry in one statement); `blocked_by_failure` torn in **288/288** | both are one read statement (`lineage/why_edges` with unrolled DISTINCT levels, `relay/dependents_closure`): **0** torn reads. B P-product-service p50 **869 → 18 ms** (the old why issued up to 14 statements); `blocked_by_failure` on a 5,000-task 50-level DAG 0.19 → 0.12 s | `tests/lineage/test_p9f_snapshot_reads.py`, `tests/relay/test_p9f_blocked_snapshot.py` |
+| 6 | fact / decision / handoff and their Step/WROTE were separate statements | F arm P: **94 / 1,240 = 7.6%** orphans, 9 missing DERIVED_FROM, 1,112 acknowledged writes | Step + BY/NEXT + WROTE/READ (and `assert_fact`'s DERIVED_FROM) in the memory write statement (D-013). F arm P: **0 / 2,723** orphans, 0 missing DERIVED_FROM, 0 lost; rule-of-three upper bound **0.11%**; 2,653 acknowledged writes (2.4x, fewer statements per write) | `tests/crucible/l6/test_p9f_crash_atomic.py` (25 kills: 15 orphans + 2 missing DERIVED_FROM in 271 records before, 0 after), `tests/integration/test_p9f_atomic_provenance.py` |
+
+Other numbers from the re-run, for the record: A-dag `P-product(blocked_by_failure)` 5/5 (10-14 ms; B1h 0.2-0.5 ms). E reproduces the original (the E arms are hand-written Cypher, not product code): P-1stmt 0 violations in 19,667 reads; P-levelwise 1,313 V1 / 18 V2 / 1,546 V3 in 6,429 reads; B1h-1stmt and B1h-txn 0. F: B1h 0 orphans in 64,683 records; B0 6 in 2,213.
+
+**Not fixed, or still worse than SQLite:**
+
+* **SQLite is still faster on every deterministic family.** A at 5,000 facts: B1h 110 ms vs product `impact` ~450 ms. B: B1h p50 0.06 ms vs product `why` 18 ms. A-dag: 0.2-0.5 ms vs 10-14 ms. F write throughput: B1h acknowledged 64,587 writes against Plexus's 2,653 in the same 200 kills. The fixes made the product correct and usable at these sizes, not faster than SQL.
+* **`why` through the tool at depth 12 still needs a larger `max_elements`.** With the default 200 the four depth-12 chains are cut (20/24). `max_elements` keeps the nearest levels first, so the deepest origin is the part that drops. The tool now takes up to 5000 elements and answers 24/24 with them. The default was left at 200 on purpose (a larger default means bigger answers for every caller).
+* **`quarantine` of a 5,000-fact blast in one statement still exceeds 10 s.** The join defect is fixed (1,000 facts: ~2 s, was > 5 s), but bulk `SET` on a label with a UNIQUE constraint grows ~N^2.6 on FalkorDB 6.0.2 (bare graph: 500 nodes 0.11 s, 1,000 0.60 s, 2,000 3.98 s; range and vector indexes do not cause it). Fixing it means batching the SET over several statements, which gives up the one-statement atomicity that E relies on (V2). Not done; needs a decision.
+* **Defect 6 covers the memory writes, not every write tool.** `create_tasks`, `remember_episode`, `assert_relation`, staleness and dedup tools still open their Step and link it in a second statement, so a kill can still orphan those records. L6-F measures facts, decisions and handoffs only.
+* **The E harness does not run product code.** The product-level evidence for defect 5 is the two race tests above, not the E table, and they run one writer against one reader shape each.
