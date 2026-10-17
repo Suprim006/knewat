@@ -105,7 +105,7 @@ time the source is registered.
 | `PLEXUS_RECALL_SEPARATION` | `on` | D-013 P1: entity resolution + fan-damped lift + damped sibling expansion + lures (below). `recall(separation=…)` overrides it |
 | `PLEXUS_KW_BYPASS` | `fact` | the exact-keyword bypass tests `entity predicate: value` (`fact`) or the value alone (`value`, the pre-D-013 rule) |
 | `PLEXUS_ACT_CUES` | `entity+predicate` | the context term: the entity and predicate cues summed (CROSS_CHECK §3.2); `entity` = the single damped entity term P1 first shipped |
-| `PLEXUS_ACT_CUE_S`, `PLEXUS_ACT_W_ENTITY`, `PLEXUS_ACT_W_PREDICATE` | `5`, `0.6`, `0.4` | ACT-R `S` (a cue with fan ≥ e^S ≈ 148 adds nothing) and the cue weights |
+| `PLEXUS_ACT_CUE_S`, `PLEXUS_ACT_W_ENTITY`, `PLEXUS_ACT_W_PREDICATE` | `5`, `0.03`, `0.02` | ACT-R `S` (a cue with fan ≥ e^S ≈ 148 adds nothing) and the cue weights (CROSS_CHECK's 0.6 / 0.4 scaled by 1/20; see below) |
 | `PLEXUS_ACT_GAMMA`, `PLEXUS_ACT_SMAX` | `0.15`, `ln 50` | the single-cue form (`cues=entity`); `S_max` is also the fan at which the sibling expansion is damped to nothing |
 | `PLEXUS_ACT_BETA`, `PLEXUS_ACT_S`, `PLEXUS_ACT_C`, `PLEXUS_ACT_A`, `PLEXUS_ACT_DMAX`, `PLEXUS_ACT_KAPPA`, `PLEXUS_ACT_DELTA`, `PLEXUS_ACT_BAND` | `0.05`, `1.0`, `0.217`, `0.177`, `1.0`, `0.4`, `0.03`, `0.02` | `add` mode constants (below) |
 
@@ -142,15 +142,20 @@ counts its fan = current facts with that predicate in the searched scopes. Each 
 
 ```
 sep = w_entity · max(0, S − ln fan_entity) + w_predicate · max(0, S − ln fan_predicate)
-      # w_entity = 0.6, w_predicate = 0.4, S = 5; a cue the fact does not match contributes 0
+      # w_entity = 0.03, w_predicate = 0.02, S = 5; a cue the fact does not match contributes 0
 ```
 
-in log-relevance (ACT-R's `C = Σ W_j (S − ln fan_j)`): on the L5b probe the named fact gets `0.6·(5 − ln 12) +
-0.4·(5 − ln 20) ≈ 2.1` nats, its same-entity sibling `1.3`, its other-entity twin `0.8` — the entity cue separates
-the entities, the predicate cue separates the facts of one entity, which a single entity cue cannot do (the 20
-same-entity rows of L5b-D013). A cue is floored at 0, so a hub cue (fan ≥ e^5 ≈ 148) adds nothing and never
-subtracts; a fan of 50 still adds a little (the first form zeroed it). `PLEXUS_ACT_CUES=entity` restores the first
-form, `sep = gamma · max(0, 1 − ln(fan) / S_max)` (`gamma = 0.15`, `S_max = ln 50`), the predicate ignored. In
+in log-relevance (ACT-R's `C = Σ W_j (S − ln fan_j)`): on the L5b probe the named fact gets `0.03·(5 − ln 12) +
+0.02·(5 − ln 20) ≈ 0.115` nats, its same-entity sibling `0.075` (= the P1 lift at fan 12), its other-entity twin
+`0.04` — the entity cue separates the entities, the predicate cue separates the facts of one entity, and the
+weights are sized to the measured twin gaps (p50 0.017, p90 0.07 nats) so the cues decide near-ties and nothing
+else. CROSS_CHECK §3.2 recommended `0.6 / 0.4`; that scale was run as registered and raised the noise share by
+4–11 points for no recall gain (every fact about the named entity, noise included, outranked every fact about any
+other entity); the `1/20` scale was chosen post hoc and then confirmed in a pre-registered run (`docs/BASELINE.md`
+"Predicate cue results" and the confirmatory section after it). A cue is floored at 0, so a hub cue (fan ≥ e^5 ≈
+148) adds nothing and never subtracts; a fan of 50 still adds a little (the first form zeroed it).
+`PLEXUS_ACT_CUES=entity` restores the first form, `sep = gamma · max(0, 1 − ln(fan) / S_max)` (`gamma = 0.15`,
+`S_max = ln 50`), the predicate ignored. In
 `mult` mode `final = relevance × multiplier × e^sep`. The sibling expansion of `engram/recall` is damped by the
 entity fan (`rank = d − boost · damp`, `damp = max(0, 1 − ln fan / S_max)`). Each row reports `entity_match`,
 `predicate_match`, `sep` and `lures` (other candidates with the same predicate about another entity within 0.02
@@ -180,8 +185,17 @@ feeds `confidence`. Under the new scale `A0 = −2.01` and the sweep's default t
 55–60 days unused"; `A0 − 2` would never fire). `max(A, A0)` for protected facts is replaced by the band guard.
 
 **What the pre-registered L5b run showed (`docs/BASELINE.md` "L5b-D013", D-013).** P1: recall@1 75.7% → 85.7%,
-recall@5 100%, every cross-entity displacer gone; the 0.90 target was **not reached** because the remaining
-displacers are same-entity facts with another predicate (a predicate cue, not an entity cue, is what they need).
+recall@5 100%, every cross-entity displacer gone; the 0.90 target was **not reached**. The D-013 reading of the
+residual ("same-entity facts with another predicate") was wrong: the predicate-cue run (`docs/BASELINE.md`
+"Predicate cue results") found that all 20 remaining displacers are the scenario's 20 `CONTRADICTS` pairs — two
+active `auth_method` facts per sprint subject, same entity, same predicate, both probes — so **85.7% is the recall@1
+ceiling of L5b for any scorer that does not read the value**, and P1 had already reached it. The predicate cue
+therefore changes no L5b rank; it fixed the last 5 of 200 probes of the plan's §5.3 hub variant (97.5% → 100%,
+where relevance alone already answered 195) and removes the zero-lift-at-fan-50 edge of the first form. The §3.3
+candidate union adds ~5 points of noise share on L5b (the named entity's noise facts always become candidates;
+"complete about the named entity" is what the noise metric penalises). Shipped default measured in the
+confirmatory run (`sep+mult` at 0.03 / 0.02): recall@1 85.7%, recall@5 100%, noise share 20.6–20.9%, critical
+loss 0, cross-entity displacers 0.
 P2 at its declared constants: **falsified** (70.0%); the additive term and the in-band salience lift together
 re-created the twin problem, and at the strength where they stop costing recall they also stop reducing noise. So
 `add` stays opt-in and `mult` + separation is the default (85.0% / 100% / noise 22.1%, vs D-012's 65.0% / 95.7% /

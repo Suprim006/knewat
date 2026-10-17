@@ -29,8 +29,12 @@ NEG_INF = float("-inf")
 RELIABILITY_PRIOR = 2.0 / 3.0  # Beta(2, 1) mean; P3
 CUE_MODES = ("entity+predicate", "entity")
 CUE_S_DEFAULT = 5.0  # ACT-R S: a cue with fan >= e^S (148) adds nothing
-W_ENTITY_DEFAULT = 0.6
-W_PREDICATE_DEFAULT = 0.4
+# CROSS_CHECK §3.2's 0.6 / 0.4 scaled by 1/20: the entity cue at fan 12 (0.075) then equals the P1 lift that
+# cleared every cross-entity twin. The registered 0.6 / 0.4 kept recall and raised the noise share by 4-11
+# points (docs/BASELINE.md "Predicate cue results"); 0.03 / 0.02 was chosen post hoc, then confirmed in a
+# registered run.
+W_ENTITY_DEFAULT = 0.03
+W_PREDICATE_DEFAULT = 0.02
 
 
 def sep_term(ent_match: bool, fan: int, *, gamma: float, s_max: float) -> float:

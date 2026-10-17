@@ -7,6 +7,7 @@ import math
 import pytest
 
 from plexus.activation import FactActivation, Settings
+from plexus.activation import score as S
 from plexus.activation.model import DAY_MS, Event, activation, activation_spaced, neutral_activation
 from plexus.activation.rank import lures_of, rerank
 
@@ -60,6 +61,7 @@ def ids(ranked):
 MULT = Settings()  # mult, separation on, kw bypass over the fact text, cues entity+predicate
 ADD = Settings(act_mode="add")
 MULT1 = Settings(cues="entity")  # the single damped entity cue P1 first shipped
+WE, WP = S.W_ENTITY_DEFAULT, S.W_PREDICATE_DEFAULT
 
 
 # -- pattern separation -------------------------------------------------------------------------------
@@ -74,7 +76,7 @@ def test_a_fact_about_the_named_entity_beats_a_nearer_twin_about_another_entity(
         got = rerank(rows, acts, settings=settings, k=2, entities={"s07": 10}, forgetting=False)
         assert ids(got) == ["target", "twin"]
         t, w = got
-        assert t.ent_match and t.fan == 10 and t.sep == pytest.approx(0.6 * (5 - math.log(10)))
+        assert t.ent_match and t.fan == 10 and t.sep == pytest.approx(WE * (5 - math.log(10)))
         assert not t.pred_match and t.pred_fan == 0
         assert not w.ent_match and w.sep == 0.0
         assert t.lures == ("twin",) and w.lures == ("target",), "same predicate, other entity, within 0.02"
@@ -108,9 +110,9 @@ def test_the_predicate_cue_separates_two_facts_about_the_same_named_entity():
         assert ids(got) == ["deadline", "status", "twin"]
         d, s, w = got
         assert d.ent_match and d.pred_match and d.fan == 12 and d.pred_fan == 20
-        assert d.sep == pytest.approx(0.6 * (5 - math.log(12)) + 0.4 * (5 - math.log(20)))
-        assert s.ent_match and not s.pred_match and s.sep == pytest.approx(0.6 * (5 - math.log(12)))
-        assert not w.ent_match and w.pred_match and w.sep == pytest.approx(0.4 * (5 - math.log(20)))
+        assert d.sep == pytest.approx(WE * (5 - math.log(12)) + WP * (5 - math.log(20)))
+        assert s.ent_match and not s.pred_match and s.sep == pytest.approx(WE * (5 - math.log(12)))
+        assert not w.ent_match and w.pred_match and w.sep == pytest.approx(WP * (5 - math.log(20)))
     # the single-cue form ignores the predicate
     one = rerank(
         rows, {}, settings=MULT1, k=3, entities={"s07": 12}, predicates={"deadline": 20}, forgetting=False
@@ -125,7 +127,7 @@ def test_a_hub_entity_gets_no_lift_and_the_lift_shrinks_with_the_fan():
     got = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 200}, forgetting=False)
     assert ids(got) == ["twin", "target"] and got[1].sep == 0.0 and got[1].ent_match
     fifty = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 50}, forgetting=False)[0]
-    assert fifty.row["fact_id"] == "target" and fifty.sep == pytest.approx(0.6 * (5 - math.log(50)))
+    assert fifty.row["fact_id"] == "target" and fifty.sep == pytest.approx(WE * (5 - math.log(50)))
     small = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 2}, forgetting=False)[0]
     mid = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 20}, forgetting=False)[0]
     assert small.row["fact_id"] == "target" and small.sep > mid.sep > fifty.sep > 0

@@ -670,15 +670,33 @@ results `plexus/demo_data/crucible/l5/20261017T08*-d013-*`; 0 LLM calls):
 | **`sep` (P1: pattern separation, forgetting off)** | **85.7%** | **100%** | 23.3% | 20 / **0** |
 | `sep+add` (P1 + P2 additive banded activation) | **70.0%** | 100% | 21.9% | 41 / 1 |
 | `sep+mult` (the shipped default after D-013; post-hoc run) | 85.0% | 100% | 22.1% | 21 / 0 |
+| `sep` with the predicate cue at CROSS_CHECK's 0.6 / 0.4 (registered, falsified) | 85.7% | 100% | 32.3% (43.6%) | 20 / 0 |
+| **`sep+mult` with the two cues at 0.03 / 0.02 (the shipped default now; confirmatory run)** | **85.7%** | **100%** | **20.6% (20.9%)** | 20 / 0 |
 
 **P1, pattern separation (on by default).** One extra bounded read per recall resolves the entities the query names
 (`engram/recall_entities`, full-text over `Entity.name`, entity-first, with each entity's *fan*), and facts about a
 named entity get the ACT-R lift `gamma · max(0, 1 − ln fan / ln 50)` in log-relevance; the sibling expansion is damped
 by the same factor; rows report `lures` and `why_recalled` stores the lift. It removed **every** cross-entity
 displacer (13 → 0) and made recall@5 perfect, at 2.5 ms per recall. It did **not** reach the pre-registered 0.90
-(85.7% at every N; above the 0.85 falsification floor): the remaining 20 displacers are facts about the *same* entity
-with another predicate, which an entity cue cannot separate. The plan's cross-check had predicted exactly this
-residual and the fix (a predicate cue); it is the next step, as a new pre-registration.
+(85.7% at every N; above the 0.85 falsification floor). This report first read the remaining 20 displacers as "facts
+about the same entity with another predicate" and the cross-check's predicate cue as the fix. **Both were wrong, and
+the pre-registered run that tested the fix is what showed it** (`docs/BASELINE.md` "Predicate cue results"): the 20
+misses are the L2 scenario's 20 designed `CONTRADICTS` pairs — two active `auth_method` facts per sprint subject, same
+entity, *same* predicate, both of them probes — so one of each pair must lose rank 1 and **85.7% is the recall@1
+ceiling of L5b for any scorer that does not read the value**. P1 had already reached the ceiling; the 0.90 target was
+unreachable by construction. The predicate cue (`sep = Σ_cues w · max(0, S − ln fan)`, CROSS_CHECK §3.2; the named
+entity's own facts also always join the candidates, §3.3) therefore changed no L5b rank, and at the cross-check's
+constants (`0.6 / 0.4 / S = 5`) it raised the noise share by 4–11 points because a ×3.5 entity lift puts the named
+entity's noise above every other entity's real facts; the plan's hub variant (§5.3, one entity with 200 predicates)
+passed at 100% but relevance alone already scored 97.5%, so its "flat boost returns an arbitrary hub fact" prediction
+was false. A labelled post-hoc sensitivity showed the cue *structure* sound and the *weights* ~20× too large for a
+term added to ln-cosine (twin gaps 0.02–0.07 nats); the `1/20` scale was pre-registered with an outcome rule and
+confirmed in three fresh runs (recall@1 at the ceiling, noise share below the single-cue form every time), and is the
+shipped default: `sep+mult` 85.7% / 100% / noise 20.6–20.9%. What this phase actually bought is small and is stated
+as such: ~1 point of noise share, the last 5 of 200 hub probes, and the removal of the zero-lift-at-fan-50 edge;
+what it cost is two bounded reads per recall. What it is worth more than the numbers: a benchmark reading corrected
+by its own pre-registered test, and the ordering *inside* a contradicting pair identified as the open question
+(recency, the P3 reliability term, or `resolve_contradiction`; a new pre-registration, not a cue).
 
 **P2, forgetting that cannot cost recall — falsified at its declared constants.** The additive mode
 (`PLEXUS_ACT_MODE=add`: `ln rel + beta·tanh((A − A0)/2s) + sep + sal`, Pavlik–Anderson activation-dependent decay,
@@ -705,7 +723,8 @@ granted only to the full-text engine's top-10 hits and the two engines rank them
 against 104 of Cypher (12% less), 3 statements against 4, SQLite faster end-to-end at N = 5 (17.8 vs 30.6 ms per
 probe, in process against four network round trips), about equal at N = 15 (26.5 vs 29.7); FalkorDB faster per
 statement in every cell (2-7 ms vs 7-20 ms) and flat in the fact count where sqlite-vec's exact scan grows. Not built:
-P3, the hub variant. The honest claim that survives is unchanged from §8: Plexus beats *flat retrieval* on near-twins
+P3. (The hub variant ran afterwards, above; the SQL arm was not given the predicate cue — a feature it lacks by
+omission, not by inability, so the tie reading stands.) The honest claim that survives is unchanged from §8: Plexus beats *flat retrieval* on near-twins
 by using structure the query names, explains every rank, and a SQL arm handed an entity lookup and a `GROUP BY` fan
 **does** tie — measured, not predicted.
 
@@ -804,9 +823,12 @@ every tie published.
 ### 9.3 About the product
 
 - **D-013 (§7.5):** the additive forgetting mode failed its pre-registered test and is not the default; the
-  pattern-separation lift reached 85.7% recall@1, not the 0.90 it was pre-registered for, because the residual
-  twins share the entity and differ in predicate. The lexical named-entity rule gives nothing to a paraphrased
-  entity name. The salience cache is written by `pin_fact` only (reads recompute it).
+  pattern-separation lift reached 85.7% recall@1, not the 0.90 it was pre-registered for — and 85.7% turned out to
+  be the benchmark's ceiling (20 contradicting same-entity same-predicate pairs), found only when the predicate cue
+  pre-registered as the fix changed nothing. The cue's registered constants (CROSS_CHECK's 0.6 / 0.4) were falsified
+  on noise share; the shipped 0.03 / 0.02 were chosen post hoc and then confirmed, like the 0.9 floor before them.
+  How a contradicting pair should be ordered is still undefined. The lexical named-entity and named-predicate rules
+  give nothing to a paraphrase. The salience cache is written by `pin_fact` only (reads recompute it).
 
 - **Write throughput per tenant is bounded** by FalkorDB's per-graph write serialisation. Hot tenants need to be spread
   across graphs; one busy team graph has a ceiling (373 claims/s at 200 workers in our run).

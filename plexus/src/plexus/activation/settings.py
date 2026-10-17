@@ -15,8 +15,8 @@ slows decay) ·
 
 Pattern separation (P1): ``PLEXUS_RECALL_SEPARATION`` [on] · ``PLEXUS_ACT_CUES`` [entity+predicate] (the
 context term: ``entity+predicate`` = the two ACT-R cues summed, CROSS_CHECK §3.2; ``entity`` = the single
-damped entity term P1 first shipped) · ``PLEXUS_ACT_CUE_S`` [5] · ``PLEXUS_ACT_W_ENTITY`` [0.6] ·
-``PLEXUS_ACT_W_PREDICATE`` [0.4] · ``PLEXUS_ACT_GAMMA`` [0.15] · ``PLEXUS_ACT_SMAX`` [ln 50] (the single-cue
+damped entity term P1 first shipped) · ``PLEXUS_ACT_CUE_S`` [5] · ``PLEXUS_ACT_W_ENTITY`` [0.03] ·
+``PLEXUS_ACT_W_PREDICATE`` [0.02] · ``PLEXUS_ACT_GAMMA`` [0.15] · ``PLEXUS_ACT_SMAX`` [ln 50] (the single-cue
 form, and the fan at which the sibling expansion of ``engram/recall`` is damped to nothing) ·
 ``PLEXUS_KW_BYPASS`` [fact] (``fact`` = the exact-keyword bypass tests the whole fact text, ``value`` = the
 pre-D-013 rule).

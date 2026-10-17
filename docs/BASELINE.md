@@ -1016,3 +1016,31 @@ Decision rules (all three runs; a failure in any one is a failure):
 4. `sep+mult[0.03/0.02]` recall@1 within 1 probe of `sep[0.03/0.02]`.
 
 Outcome rule, stated now: if 1–4 pass, the shipped default becomes the two-cue term at 0.03 / 0.02 / 5 (recorded in D-013 as a post-hoc-then-confirmed constant, like the 0.9 floor); if any fails, the shipped default reverts to `PLEXUS_ACT_CUES=entity` (P1 exactly as it was) and the two-cue term stays opt-in. Either way the §3.3 union stays on (it is a completeness fix for the named entity's own facts and its cost on L5b is recorded above), and `PLEXUS_RECALL_SEPARATION=off` is unchanged.
+
+## Predicate cue confirmatory results (run after the confirmatory pre-registration above; 0 LLM calls)
+
+Source: `plexus/demo_data/crucible/l5/20261017T130612Z-pcc-n5/`, `…T130659Z-pcc-n15/`, `…T130804Z-pcc-n5-burst/`; code `2d0ec96` (the confirmatory pre-registration commit; same scoring code as `468601e`, weights passed as mode overrides); FalkorDB 6.0.2 on `plexus-db-13`, fastembed, seed 20261016, fresh plays.
+
+| Run | Mode | recall@1 | recall@5 | noise share | critical loss | above target: same / other entity |
+|---|---|---|---|---|---|---|
+| N = 5 | `off` | 75.7% | 98.6% | 24.3% | n/a | 36 / 13 |
+| N = 5 | `sep-entity` | 85.7% | 100% | 29.7% | 0 | 20 / 0 |
+| N = 5 | **`sep[0.03/0.02]`** | **85.7%** | 100% | **28.0%** | 0 | 20 / 0 |
+| N = 5 | **`sep+mult[0.03/0.02]`** (the shipped default) | **85.7%** | **100%** | **20.6%** | 0 | 20 / 0 |
+| N = 15 | `off` | 77.1% | 97.9% | 33.1% | n/a | 37 / 12 |
+| N = 15 | `sep-entity` | 85.7% | 100% | 31.9% | 0 | 21 / 0 |
+| N = 15 | **`sep[0.03/0.02]`** | **85.7%** | 100% | **30.7%** | 0 | 20 / 0 |
+| N = 15 | **`sep+mult[0.03/0.02]`** | **85.7%** | **100%** | **20.9%** | 0 | 20 / 0 |
+| burst | `off` | 75.7% | 98.6% | 23.4% | n/a | 36 / 13 |
+| burst | `sep-entity` | 85.7% | 100% | 29.0% | 0 | 20 / 0 |
+| burst | **`sep[0.03/0.02]`** | **85.7%** | 100% | **25.6%** | 0 | 20 / 0 |
+| burst | **`sep+mult[0.03/0.02]`** | **85.7%** | **100%** | **20.7%** | 0 | 20 / 0 |
+
+| Rule (pre-registered) | Result |
+|---|---|
+| 1. `sep[0.03/0.02]` recall@1 = `sep-entity`'s (85.7%); falsified if lower by ≥ 1 probe | **PASS** in all three runs (equal). |
+| 2. noise share ≤ `sep-entity` + 0.005 in every run | **PASS**: −1.7 / −1.2 / −3.4 points. |
+| 3. recall@5 100%, critical loss 0, other-entity rows 0 | **PASS** in all three. |
+| 4. `sep+mult[0.03/0.02]` within 1 probe of `sep[0.03/0.02]` | **PASS** (equal). |
+
+**Outcome (by the rule stated before the run).** The shipped default is the two-cue context term at `w_entity = 0.03`, `w_predicate = 0.02`, `S = 5` (`PLEXUS_ACT_CUES=entity+predicate`), set as the code defaults in the commit after this section. The shipped default (`sep+mult`) now measures recall@1 **85.7%** (the L5b ceiling), recall@5 **100%**, noise share **20.6–20.9%**, critical loss 0, cross-entity displacers 0 — against D-013 as first shipped (85.0% / 100% / 22.1%, post-hoc run) and the §5.4 paired run (82.9–85.7% / 100% / 19.1–21.6%). Honest reading of the gain: recall@1 is unchanged in substance (the ceiling was already reached; the +0.7 is id noise between plays), the noise share is ~1 point lower than D-013's shipped default and the hub edge case is fixed; the cost is two bounded reads (5 → 6 statements with forgetting on, ~+10 ms per probe on Docker Desktop). The §5.4 SQL arm was not re-run (see "what is not claimed" in the first pre-registration): the tie claim stands, the SQL arm lacks the predicate feature by omission, not by inability.

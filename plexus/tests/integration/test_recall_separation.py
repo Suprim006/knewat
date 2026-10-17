@@ -17,11 +17,13 @@ import pytest
 from tests.plan_util import BIG, max_records, profile_ops, seed_big_scope
 
 from plexus.activation import Activation, Settings
+from plexus.activation import score as S
 from plexus.embed import HashEmbedder
 from plexus.embed.base import DIM
 from plexus.engram import Engram
 from plexus.lineage import Lineage
 
+WE, WP = S.W_ENTITY_DEFAULT, S.W_PREDICATE_DEFAULT
 _MARK = re.compile(r"~(\d+\.\d+)")
 
 
@@ -89,9 +91,10 @@ def test_the_named_entity_wins_over_a_nearer_twin_and_both_switches_off_keep_the
     assert ids(plain)[:2] == [twin, target], "nearer wins; both get the same sibling boost"
     assert all(r["entity_match"] is None and r["sep"] is None and r["lures"] == [] for r in plain)
     got, meta = eng.recall_with_meta(Q, scope, k=3, forgetting=False, separation=True)
-    assert ids(got) == [target, sib, twin], (
-        "the named entity's fact with the named predicate first (both cues), then its sibling (entity cue, "
-        "w 0.6), then the twin (predicate cue only, w 0.4)"
+    assert ids(got) == [target, twin, sib], (
+        "the named entity's fact with the named predicate first (both cues); the nearer twin (predicate cue "
+        "only) keeps its place above the far sibling (entity cue only): at the shipped weights the cues "
+        "decide near-ties, not the order of facts 0.1 apart"
     )
     assert list(meta["entities"]) and all(
         e["name"] == "Acme Notes API S07" for e in meta["entities"].values()
@@ -102,11 +105,11 @@ def test_the_named_entity_wins_over_a_nearer_twin_and_both_switches_off_keep_the
     assert meta["entity_facts_added"] == 0, "S07's facts were already candidates"
     by = {r["fact_id"]: r for r in got}
     assert by[target]["entity_match"] is True and by[target]["predicate_match"] is True
-    assert by[target]["sep"] == pytest.approx(0.6 * (5 - math.log(2)) + 0.4 * (5 - math.log(2)))
+    assert by[target]["sep"] == pytest.approx((WE + WP) * (5 - math.log(2)))
     assert by[sib]["entity_match"] is True and by[sib]["predicate_match"] is False
-    assert by[sib]["sep"] == pytest.approx(0.6 * (5 - math.log(2)))
+    assert by[sib]["sep"] == pytest.approx(WE * (5 - math.log(2)))
     assert by[twin]["entity_match"] is False and by[twin]["predicate_match"] is True
-    assert by[twin]["sep"] == pytest.approx(0.4 * (5 - math.log(2)))
+    assert by[twin]["sep"] == pytest.approx(WP * (5 - math.log(2)))
     # the single-cue form P1 first shipped: the predicate is not a cue, the twin gets nothing
     one, _ = eng.recall_with_meta(
         Q, scope, k=3, forgetting=False, separation=True, settings=Settings(cues="entity")
@@ -151,9 +154,9 @@ def test_a_hub_entity_gets_no_lift(eng, scope):
     # the predicate cue, so the hub's own api_version fact wins although the twin is nearer
     assert ids(got) == [target, twin]
     assert got[0]["entity_match"] is True and got[0]["sep"] == pytest.approx(
-        0.6 * (5 - math.log(51)) + 0.4 * (5 - math.log(2))
+        WE * (5 - math.log(51)) + WP * (5 - math.log(2))
     )
-    assert got[1]["entity_match"] is False and got[1]["sep"] == pytest.approx(0.4 * (5 - math.log(2)))
+    assert got[1]["entity_match"] is False and got[1]["sep"] == pytest.approx(WP * (5 - math.log(2)))
     # the single-cue form: fan >= 50 lifts nothing, relevance decides
     one = eng.recall(
         "Hub Service api_version QUERY", scope, k=2, forgetting=False, settings=Settings(cues="entity")
@@ -172,7 +175,7 @@ def test_why_recalled_stores_the_entities_the_separation_flag_and_the_lift(eng, 
     why = lin.why_recalled(rid)
     assert why["recall"]["separation"] is True and why["recall"]["entities"] == sorted(meta["entities"])
     seps = {r["fact_id"]: r["sep"] for r in why["results"]}
-    assert seps[target] > seps[sib] > seps[twin] > 0, "both cues > entity cue > predicate cue"
+    assert seps[target] > seps[sib] > seps[twin] > 0, "both cues > entity cue > predicate cue (same fan 2)"
     edge = next(e for e in why["edges"] if e["rel"] == "RETURNED" and e["to"] == target)
     assert edge["props"]["sep"] == pytest.approx(seps[target])
     # a recall recorded without the D-013 arguments reads back with the defaults
@@ -189,7 +192,7 @@ def test_memory_strength_reports_salience_fan_and_entity_lift(eng, scope, twins,
     target, _, _, _ = twins
     s = Activation(client, graph, Settings(act_mode="add")).strength(target)
     assert s is not None
-    assert s["mode"] == "add" and s["fan"] == 2 and s["entity_lift"] == pytest.approx(0.6 * (5 - math.log(2)))
+    assert s["mode"] == "add" and s["fan"] == 2 and s["entity_lift"] == pytest.approx(WE * (5 - math.log(2)))
     assert s["salience"] == 0.0 and s["suggested_verify_after"] is None and -0.05 <= s["act_term"] <= 0.05
     assert s["decays"] and all(0 < d <= 1.0 for d in s["decays"])
 
@@ -225,13 +228,13 @@ def test_the_named_entitys_facts_join_the_candidates_when_the_vector_fetch_misse
     the entity read adds it and the two cues rank it first."""
     for i in range(50):
         eng.assert_fact(
-            f"Other Thing {i}", "api_version", f"v{i} ~0.{10 + i:02d}", scope, "alice", now=1000 + i
+            f"Other Thing {i}", "api_version", f"v{i} ~0.{58 + i % 3}", scope, "alice", now=1000 + i
         )
-    target = eng.assert_fact("Lonely Service", "api_version", "v7 ~0.95", scope, "alice", now=2000)["fact_id"]
+    target = eng.assert_fact("Lonely Service", "api_version", "v7 ~0.62", scope, "alice", now=2000)["fact_id"]
     q = "Lonely Service api_version QUERY"
     plain = eng.recall(q, scope, k=2, forgetting=False, separation=False)
     assert target not in ids(plain), "the vector fetch stops at the 8 nearest in-scope facts"
     got, meta = eng.recall_with_meta(q, scope, k=2, forgetting=False, separation=True)
     assert meta["entity_facts_added"] == 1 and ids(got)[0] == target
     assert got[0]["entity_match"] is True and got[0]["predicate_match"] is True
-    assert got[0]["via"] is None and got[0]["score"] == pytest.approx(0.95, abs=1e-3)
+    assert got[0]["via"] is None and got[0]["score"] == pytest.approx(0.62, abs=1e-3)

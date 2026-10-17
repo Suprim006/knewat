@@ -377,3 +377,26 @@ fills its per-hop cap alphabetically — a product defect recorded for the next 
 what the remaining same-entity displacers need; the next P2 step is a fit of `beta`/`delta` against the recorded
 `gap12` distribution (median rank-1/rank-2 gap 0.0167) rather than the declared defaults — as a new pre-registration,
 not a tuned re-run of this one.
+
+**Amendment 2026-10-17 (predicate cue, CROSS_CHECK §3.2 + §3.3; `docs/BASELINE.md` "Predicate cue pre-registration" and the
+three sections after it).** Built and run as the next P1 step this decision pointed to. What changed: `sep` is now the ACT-R
+context term over two cues, `w_entity · max(0, S − ln fan_entity) + w_predicate · max(0, S − ln fan_predicate)`, where the
+predicate cue uses the named-entity rule on the words of `Fact.predicate` and its fan comes from one more bounded read
+(`engram/recall_predicates`, index seek per named predicate); the named entities' own facts always join the candidates
+(`engram/recall_hop_facts` at hop 0, §3.3); each cue is floored at 0 (never a penalty); `PLEXUS_ACT_CUES=entity` restores
+point 1 above exactly; the identity contract (point 3) is unchanged. **What the registered run found, against this decision's
+own reading:** the 20 residual L5b displacers are *not* "another predicate of the same sprint subject" — they are the
+scenario's 20 `CONTRADICTS` pairs (two active `auth_method` facts per subject, same entity, same predicate, both probes), so
+85.7% is the L5b recall@1 ceiling for any value-blind scorer and P1 had already reached it; the predicate cue changed no L5b
+rank (hard criterion falsified), and at CROSS_CHECK's constants (`0.6 / 0.4 / S = 5`) it raised the noise share by 4–11 points
+(the entity cue at ×3.5 relevance lifts the named entity's noise over every other entity's real facts). The hub variant
+(plan §5.3) passed (100%) but relevance alone scored 97.5%, so the plan's "flat boost returns an arbitrary hub fact" claim is
+false and the variant is weak evidence. A labelled post-hoc sensitivity found the *structure* right and the *magnitude* ~20×
+too large; the `1/20` scale (`0.03 / 0.02 / 5`, the entity cue at fan 12 = P1's 0.075) was then pre-registered with an outcome
+rule and confirmed (recall@1 at the ceiling in all three runs, noise share below the single-cue form in every run). **Amended
+decision:** the shipped default is the two-cue term at `0.03 / 0.02 / 5` (`sep+mult`: 85.7% / 100% / noise 20.6–20.9%); the
+registered number of record for CROSS_CHECK's constants stays the falsified one. Follow-ups: the order *inside* a contradicting
+pair is undefined by any cue (recency, P3 reliability or `resolve_contradiction` are the candidates — a new pre-registration);
+the L5b "same-entity gap" should no longer be cited as a product defect; the §3.3 union's ~5-point noise cost on L5b is the
+price of completeness about the named entity and is recorded, not hidden; the SQL arm of §5.4 was not given the predicate
+feature (tie claim unchanged).

@@ -98,13 +98,17 @@ lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days
 
 **D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey ([`docs/research/`](docs/research/))
 traced the recall@1 loss to the combination rule, not the decay curve. `recall` now resolves the entities the query names (one
-bounded full-text read) and lifts their facts by an ACT-R fan term (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_GAMMA`); the
-exact-keyword bypass tests the whole fact text. Pre-registered L5b re-run (same seed, 0 LLM calls): recall@1 75.7% -> **85.7%**
-with forgetting off, recall@5 100%, every cross-entity displacer gone, the pre-registered 0.90 target **not reached** (the
-residual twins share the entity and differ in predicate). The additive forgetting mode built alongside it
+bounded full-text read) and lifts their facts by an ACT-R context term over two cues, the entity and the predicate the query
+names (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_CUES`, `PLEXUS_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
+always join the candidates; the exact-keyword bypass tests the whole fact text. Pre-registered L5b re-run (same seed, 0 LLM
+calls): recall@1 75.7% -> **85.7%** with forgetting off, recall@5 100%, every cross-entity displacer gone, the pre-registered
+0.90 target **not reached** — and a later run showed why: the 20 residual misses are the scenario's 20 contradicting
+`auth_method` pairs (same entity, same predicate, both active), so 85.7% is the ceiling for any value-blind scorer; the predicate
+cue, pre-registered as the fix, changed no L5b rank (`docs/BASELINE.md` "Predicate cue results"). The additive forgetting mode built alongside it
 (`PLEXUS_ACT_MODE=add`, Pavlik-Anderson decay, graded salience) **failed** its pre-registered test (70.0%) and is opt-in; the
-shipped default (`mult` + separation) measures recall@1 85.0%, recall@5 100%, noise share 22.1% (D-012 alone: 65.0% / 95.7% /
-14.9%). [`docs/DECISIONS.md`](docs/DECISIONS.md) D-013, [`docs/BASELINE.md`](docs/BASELINE.md) "L5b-D013".
+shipped default (`mult` + the two-cue separation, weights confirmed in a registered run) measures recall@1 85.7%, recall@5 100%,
+noise share 20.6-20.9% (D-013 as first shipped: 85.0% / 100% / 22.1%; D-012 alone: 65.0% / 95.7% / 14.9%).
+[`docs/DECISIONS.md`](docs/DECISIONS.md) D-013, [`docs/BASELINE.md`](docs/BASELINE.md) "L5b-D013" and "Predicate cue results".
 
 ## Architecture
 
