@@ -77,6 +77,7 @@ def git_state() -> dict[str, Any]:
         "plexus/demo_data/crucible/l8_postfix/",
         "plexus/demo_data/crucible/l8_p12tok/",
         "plexus/demo_data/crucible/l8_p12ts/",
+        "plexus/demo_data/crucible/l8_trialsint/",
     )  # P12: + the re-runs
     code = [x for x in lines if not any(r in x for r in out_rels)]
     return {
