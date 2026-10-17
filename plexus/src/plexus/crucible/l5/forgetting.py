@@ -391,6 +391,9 @@ def run_forgetting(
         window = (min(r["created_at"] for r in real), max(r["created_at"] for r in real))
         recorder = _Recording(client)
         eng = Engram(recorder, graph, embedder)  # type: ignore[arg-type]
+        # P12's lexical fusion is not part of the pre-registered D-013 / SQL-arm comparison (the SQL arm mirrors the
+        # cosine relevance); trials-int pins it off here so this harness measures what BASELINE registered.
+        eng.lexical_weight = 0.0
         noise_ids = add_noise(eng, client, real, noise_mult, rng, window)
         noise = set(noise_ids)
         t_noise = time.time()

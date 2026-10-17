@@ -140,6 +140,9 @@ def run_hub(
         apply_schema(client, graph)
         recorder = _Recording(client)
         eng = Engram(recorder, graph, embedder)  # type: ignore[arg-type]
+        # P12's lexical fusion is not part of the pre-registered D-013 / SQL-arm comparison (the SQL arm mirrors the
+        # cosine relevance); trials-int pins it off here so this harness measures what BASELINE registered.
+        eng.lexical_weight = 0.0
         scope_id = eng.create_scope("project", "hub", now=now - 20_000)
         world = build_world(eng, scope_id, rng, now)
         probes = [{**p, "scope_id": scope_id} for p in world["probes"]]
