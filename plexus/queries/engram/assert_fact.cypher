@@ -1,11 +1,11 @@
 // name: engram/assert_fact
 // purpose: ONE atomic statement: classify the new assertion against the current facts of the same entity+predicate+scope (duplicate / supersede / contradiction), then write it with provenance.
 // params: entity_id:str, predicate:str, value:str, norm_value:str, value_tokens:str, dup_key:str, tok:list[str], tok_seq:list[str], scope_id:str, agent_id:str,
-//   source_id:str, episode_id:str, step_id:str ('' = none), confidence:float, supersede:bool, now:int, open_to:int,
+//   source_id:str, episode_id:str, derived_ids:list[str], step_id:str ('' = none), confidence:float, supersede:bool, now:int, open_to:int,
 //   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float, jac2:float, cos2:float, maybe_cos:float, maybe_jac:float, maybe_cap:int,
 //   novelty:float, surprise_supersede:float, surprise_contradict:float, search_text:str
 // search_text (P12): entity name + predicate words; the full-text channel of recall indexes it next to Fact.value. Written on the new fact only.
-// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, or a given episode/source does not exist (nothing is written, not even the Agent)
+// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, a given episode/source or a derived_ids origin does not exist (nothing is written, not even the Agent)
 // mode: rw
 
 // Rules, evaluated on facts with status 'active' or 'dormant' and valid_to=open_to in the same scope (P7-02: a fact a sweep moved to
@@ -46,6 +46,11 @@
 // fact = $surprise_supersede (0.6); otherwise $novelty (the caller's single vector read, activation/novelty: min(0.5, max(0, 1 - max cosine)), 0.5 for the
 // first fact of a scope). It is decided here because only this statement knows whether the write supersedes or contradicts.
 // source_id / episode_id are '' when absent. A given id that does not resolve yields no row (the guard sits before the Agent MERGE).
+// derived_ids (P9-f, ported onto the audited statement): Sources / Episodes / Facts the fact is derived from, linked (new)-[:DERIVED_FROM]->(origin) in
+//   THIS statement (MERGEd onto a duplicate, never onto itself or twice to source_id / episode_id). Before, Lineage.derive_from was a second statement and a
+//   hard kill between the two lost the link for good (Crucible L6-F: 9 of 1,240 records). Resolved by id seeks inside a CALL subquery (one row out, so the
+//   statement never loses its row; the subquery must import EVERY variable in scope: on 6.0.2 `WITH e` alone, or no import, fails with 'Variable o1 not found'); the placeholder '' makes an empty list a seek that reads 0 records (P3), not a scan of the whole id index. An origin that
+//   does not exist makes `size(origins) <> size($derived_ids)` and the statement writes nothing.
 // Nearest-first (audit C3): the current facts are collected into `cur` ORDERED BY their value-embedding cosine distance to the new value
 //   (one `WITH ... ORDER BY` before the collect; collect keeps the row order on 6.0.2, as relay/task_status relies on), so every list derived
 //   from `cur` (`keyed`, `soft`) is nearest-first and the `[0..$maybe_cap]` cut keeps the nearest candidates. The cut and the
@@ -62,13 +67,23 @@ WITH e, sc, ep, src, stp, f,
 ORDER BY fcos ASC, f.id ASC
 WITH e, sc, ep, src, stp, collect(f) AS cur
 WHERE ($episode_id = '' OR ep IS NOT NULL) AND ($source_id = '' OR src IS NOT NULL)
+CALL {
+  WITH e, sc, ep, src, stp, cur
+  UNWIND CASE WHEN size($derived_ids) = 0 THEN [''] ELSE $derived_ids END AS ok
+  OPTIONAL MATCH (o1:Fact {id: ok})
+  OPTIONAL MATCH (o2:Source {id: ok})
+  OPTIONAL MATCH (o3:Episode {id: ok})
+  RETURN collect(DISTINCT o1) AS of1, collect(DISTINCT o2) AS of2, collect(DISTINCT o3) AS of3
+}
+WITH e, sc, ep, src, stp, cur, of1 + of2 + of3 AS origins
+WHERE size(origins) = size($derived_ids)
 MERGE (ag:Agent {id: $agent_id})
   ON CREATE SET ag.name = $agent_id, ag.created_at = $now
-WITH ag, e, sc, ep, src, stp, cur,
+WITH ag, e, sc, ep, src, stp, origins, cur,
      [xk IN cur WHERE xk.dup_key = $dup_key
       | {n: xk, cos: vec.cosineDistance(xk.value_embedding, vecf32($value_emb)),
          inter: size([kt IN $tok WHERE kt IN xk.tok]), nt: size(xk.tok)}] AS keyed0
-WITH ag, e, sc, ep, src, stp, cur,
+WITH ag, e, sc, ep, src, stp, origins, cur,
      [xk IN keyed0
       | {n: xk.n, cos: xk.cos,
          jac: CASE WHEN size($tok) + xk.nt = 0 THEN 0.0 ELSE toFloat(xk.inter) / (size($tok) + xk.nt - xk.inter) END,
@@ -76,24 +91,24 @@ WITH ag, e, sc, ep, src, stp, cur,
                   OR (size($tok) - xk.inter = 1 AND xk.nt - xk.inter = 1)
                   OR (size(xk.n.tok_seq) = size($tok_seq)
                       AND size([qi IN range(0, size($tok_seq) - 1) WHERE xk.n.tok_seq[qi] <> $tok_seq[qi]]) = 1)}] AS keyed
-WITH ag, e, sc, ep, src, stp, cur, keyed,
+WITH ag, e, sc, ep, src, stp, origins, cur, keyed,
      head([xe IN cur WHERE xe.norm_value = $norm_value]
           + [xn IN keyed WHERE NOT xn.blocked AND xn.cos <= $dup_threshold | xn.n]
           + [xj IN keyed WHERE NOT xj.blocked AND $dup_threshold >= 0 AND xj.jac >= $jac2 AND xj.cos <= $cos2 | xj.n]) AS dup
-WITH ag, e, sc, ep, src, stp, cur, dup, keyed,
+WITH ag, e, sc, ep, src, stp, origins, cur, dup, keyed,
      [xc IN cur WHERE (dup IS NULL OR xc.id <> dup.id)
                       AND ($supersede OR all(ac IN [(xc)-[:ASSERTED_BY]->(oc:Agent) | oc.id] WHERE ac = $agent_id))] AS closing
-WITH ag, e, sc, ep, src, stp, cur, dup, closing,
+WITH ag, e, sc, ep, src, stp, origins, cur, dup, closing,
      CASE WHEN dup IS NULL AND $maybe_cap > 0 THEN
        [sx IN keyed WHERE sx.cos <= $maybe_cos OR sx.jac >= $maybe_jac][0..$maybe_cap]
      ELSE [] END AS soft
-WITH ag, e, sc, ep, src, stp, cur, dup, closing, soft,
+WITH ag, e, sc, ep, src, stp, origins, cur, dup, closing, soft,
      reduce(m = $now, xt IN closing | CASE WHEN xt.valid_from > m THEN xt.valid_from ELSE m END) AS ts
-WITH ag, e, sc, ep, src, stp, dup, closing, soft, ts,
+WITH ag, e, sc, ep, src, stp, origins, dup, closing, soft, ts,
      CASE WHEN dup IS NULL THEN
        [xk IN cur WHERE NOT ($supersede OR all(ak IN [(xk)-[:ASSERTED_BY]->(ok:Agent) | ok.id] WHERE ak = $agent_id))]
      ELSE [] END AS clashing
-WITH ag, e, sc, ep, src, stp, dup, closing, soft, ts, clashing,
+WITH ag, e, sc, ep, src, stp, origins, dup, closing, soft, ts, clashing,
      CASE WHEN size(clashing) > 0 THEN $surprise_contradict
           WHEN size(closing) > 0 THEN $surprise_supersede
           ELSE $novelty END AS sp
@@ -105,6 +120,7 @@ FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
     REMOVE dw.prior_status, dw.dormant_at)
   FOREACH (de IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | MERGE (d)-[:DERIVED_FROM]->(de))
   FOREACH (ds IN CASE WHEN src IS NULL THEN [] ELSE [src] END | MERGE (d)-[:DERIVED_FROM]->(ds))
+  FOREACH (od IN [o IN origins WHERE o.id <> d.id AND (src IS NULL OR o.id <> src.id) AND (ep IS NULL OR o.id <> ep.id)] | MERGE (d)-[:DERIVED_FROM]->(od))
   FOREACH (c IN closing | SET c.valid_to = ts, c.status = 'superseded' MERGE (d)-[:SUPERSEDES]->(c)))
 FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   CREATE (nf:Fact {id: $fact_id, subject_id: $entity_id, predicate: $predicate, value: $value, norm_value: $norm_value,
@@ -117,6 +133,7 @@ FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
   FOREACH (sw IN CASE WHEN stp IS NULL THEN [] ELSE [stp] END | CREATE (sw)-[:WROTE]->(nf))
   FOREACH (ne IN CASE WHEN ep IS NULL THEN [] ELSE [ep] END | CREATE (nf)-[:DERIVED_FROM]->(ne))
   FOREACH (ns IN CASE WHEN src IS NULL THEN [] ELSE [src] END | CREATE (nf)-[:DERIVED_FROM]->(ns))
+  FOREACH (od IN [o IN origins WHERE (src IS NULL OR o.id <> src.id) AND (ep IS NULL OR o.id <> ep.id)] | CREATE (nf)-[:DERIVED_FROM]->(od))
   FOREACH (c IN closing | SET c.valid_to = ts, c.status = 'superseded' CREATE (nf)-[:SUPERSEDES]->(c))
   FOREACH (c IN clashing | CREATE (nf)-[:CONTRADICTS]->(c))
   FOREACH (sm IN soft | FOREACH (so IN [sm.n] |

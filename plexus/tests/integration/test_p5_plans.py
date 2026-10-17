@@ -65,6 +65,7 @@ def _assert_params(**over):
         "scope_id": "S",
         "agent_id": "a2",
         "source_id": "",
+        "derived_ids": [],  # P9-f: origins are written by the same statement
         "step_id": "",
         "episode_id": "",
         "confidence": 1.0,

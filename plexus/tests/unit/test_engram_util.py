@@ -39,6 +39,7 @@ def test_every_engram_query_loads_and_modes():
         "engram/duplicate_pair",
         "engram/relates_level",  # P9-b
         "engram/recall_hop_facts",
+        "engram/existing_origins",  # P9-f
         "engram/recall_entities",  # D-013
         "engram/recall_predicates",  # CROSS_CHECK 3.2
         "engram/count_missing_search_text",  # P12

@@ -422,3 +422,28 @@ records; `tests/integration/test_audit_recall_predicates_plan.py` pins it). What
 predicate in *every* scope plus one `IN_SCOPE` hop each; the scope is an edge, not an indexed Fact property, so no single-property
 index can absorb it and the cost of a common predicate grows with the number of current facts across the tenant's scopes, not with
 its history. Documented in the query header; bounded by `RECALL_PREDICATES` (10 predicates per recall).
+
+## D-014 — Integration of p9f-b: one statement per answer, and a write's provenance (integ, P9-f)
+
+**Context.** Branch `p9f-b` fixed what Crucible L6 found (impact timeout and truncation, `why` / `blocked_by_failure` read
+as several statements that tore under concurrent writes, 7.6% of records without Step/WROTE after a hard kill). `main` had
+meanwhile merged `p9int` (impact rewrite, depth args, WROTE folded into the write statements) and the Cypher audit
+(quarantine / forget CALL tails, `why_derived_level` bind-first). Both fixed overlapping problems differently; 31 files
+conflicted, so each p9f-b commit was decided on its own (`docs/research/INTEG_MERGE.md`).
+
+**Decision.**
+1. *Reads that must be one snapshot are one statement:* `lineage/why_edges` (ancestry + display props, replaces
+   `why_derived_level` and the `node_info` round trip) and `relay/dependents_closure` (replaces `dependents_of` + the
+   Python loop). The audit's bind-first rule is kept and pinned on `why_edges`.
+2. *`impact` never hides a cut list:* P9-int's output is kept and extended with `records` (status, valid_from,
+   created_at), `order`, `offset` / `next_offset`, `ids_truncated`, `probe_ids`. The 2,000-id cap of P9-int stays (p9f-b
+   used 200); paging and probes make a cut harmless at any cap.
+3. *A write's provenance:* the Step / WROTE design of P9-int / P12 is kept (the runtime opens the Step first and the
+   statement writes WROTE; `FOLDS_WROTE`), not p9f-b's `StepIntent` (the statement creates the Step). Two ways to do the same
+   thing in one tree would make every tool answer "which one?"; the kill loop shows 0 orphans with the kept design. Only the
+   part with no equivalent moved: `assert_fact(derived_from=...)` writes DERIVED_FROM inside its statement (before it was
+   `Lineage.derive_from`, a second statement, and a hard kill between them lost the link for good: 9 of 1,240, 13 after P9-int).
+
+**Not done, on purpose.** READ edges of a write are still linked after it (a lost READ edge is not an orphan: the memory and
+its WROTE exist). `StepIntent` is not ported. `quarantine` / `forget_source` keep the audit's CALL tails (p9f-b's
+one-pass join is the same idea; their scale test passes unchanged).

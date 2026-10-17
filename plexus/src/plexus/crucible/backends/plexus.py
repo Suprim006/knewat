@@ -200,17 +200,13 @@ class PlexusBackend:
 
         def work(ts: TenantState, m: MeteredClient) -> Outcome:
             sid = ts.scope_id(scope, m)
-            if origins:  # derived_from is a second statement: check the ids first so a bad id writes nothing
-                have = {r["id"] for r in m.ro(self.graph, "lineage/existing_ids", {"ids": origins})}
-                missing = [o for o in origins if o not in have]
-                if missing:
-                    raise UnknownReference(f"unknown origin id: {', '.join(missing)}")
+            # P9-f: DERIVED_FROM is written by the assert_fact statement itself (an unknown origin raises
+            # EngramUnknown and writes nothing), so a hard kill cannot lose the link
             r = ts.engram(m).assert_fact(
                 subject, predicate, value, sid, agent_id,
                 source_id=source_id, confidence=confidence, supersede=supersede, now=now, step_id=m.step_id,
+                derived_from=origins,
             )  # fmt: skip
-            if origins:
-                ts.lineage(m).derive_from(r["fact_id"], origins)
             created = [] if r["duplicate_of"] else [_ref(r["fact_id"])]
             updated = [_ref(f) for f in r["superseded"]]
             if r["duplicate_of"]:

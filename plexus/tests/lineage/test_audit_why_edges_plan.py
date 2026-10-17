@@ -1,11 +1,13 @@
-"""Audit P2, carried over to the one-statement ``lineage/why_edges`` (P9-f, integ): the DERIVED_FROM ancestry must
-start at the root's Facts, not at every DERIVED_FROM edge.
+"""Audit P2, carried over to the one-statement ``lineage/why_edges`` (P9-f, integ).
 
-Before the audit: ``UNWIND $frontier AS fid MATCH (f:Fact {id: fid})-[:DERIVED_FROM]->(x)`` in ONE MATCH was planned as
-Unwind -> Conditional Traverse over EVERY DERIVED_FROM edge (then a filter): 5,004 records for a one-element
-frontier, per level, per ``why``; the audit bound the Fact first (``why_derived_level``). P9-f folded the level loop
-into ``why_edges`` (12 unrolled one-hop steps over nodes already bound by the previous step), which keeps that shape:
-the profile below pins it, and the rows are compared with the baseline's ``why_derived_level`` loop (edf9a91).
+The DERIVED_FROM ancestry must start at the root's Facts, not at every DERIVED_FROM edge.
+
+Before the audit: ``UNWIND $frontier AS fid MATCH (f:Fact {id: fid})-[:DERIVED_FROM]->(x)`` in ONE MATCH was
+planned as Unwind -> Conditional Traverse over EVERY DERIVED_FROM edge (then a filter): 5,004 records for a
+one-element frontier, per level, per ``why``; the audit bound the Fact first (``why_derived_level``). P9-f
+folded the level loop into ``why_edges`` (12 unrolled one-hop steps over nodes the previous step already
+bound), which keeps that shape: the profile below pins it, and the ancestry rows are compared with the
+baseline's ``why_derived_level`` loop (edf9a91).
 """
 
 from __future__ import annotations
@@ -50,7 +52,7 @@ def _rows(rows):
 
 
 def _old_ancestry(old, graph, root_id, depth=12):
-    """The ancestry rows the baseline's ``Lineage._derived_edges`` produced: one ``why_derived_level`` per hop."""
+    """The ancestry rows the baseline produced: one ``why_derived_level`` statement per hop."""
     base = {
         r["t"]
         for r in old.ro(graph, "lineage/why_edges", {"id": root_id, "limit": 1000})
