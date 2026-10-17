@@ -96,6 +96,16 @@ noise share of what recall returns 24.0% -> 15.1%, nothing deleted (fact count e
 lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days (14 real ones in the run); read the dry run first,
 `restore_fact` undoes it. One synthetic scenario, one confirmatory run: a hypothesis for your data, not a promise.
 
+**D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey ([`docs/research/`](docs/research/))
+traced the recall@1 loss to the combination rule, not the decay curve. `recall` now resolves the entities the query names (one
+bounded full-text read) and lifts their facts by an ACT-R fan term (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_GAMMA`); the
+exact-keyword bypass tests the whole fact text. Pre-registered L5b re-run (same seed, 0 LLM calls): recall@1 75.7% -> **85.7%**
+with forgetting off, recall@5 100%, every cross-entity displacer gone, the pre-registered 0.90 target **not reached** (the
+residual twins share the entity and differ in predicate). The additive forgetting mode built alongside it
+(`PLEXUS_ACT_MODE=add`, Pavlik-Anderson decay, graded salience) **failed** its pre-registered test (70.0%) and is opt-in; the
+shipped default (`mult` + separation) measures recall@1 85.0%, recall@5 100%, noise share 22.1% (D-012 alone: 65.0% / 95.7% /
+14.9%). [`docs/DECISIONS.md`](docs/DECISIONS.md) D-013, [`docs/BASELINE.md`](docs/BASELINE.md) "L5b-D013".
+
 ## Architecture
 
 ```mermaid
