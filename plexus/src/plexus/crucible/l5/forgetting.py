@@ -10,6 +10,7 @@ No LLM; the clock of the engine is replaced by a virtual ``now`` that is 90 days
 
 from __future__ import annotations
 
+import dataclasses
 import random
 import statistics
 import time
@@ -55,7 +56,30 @@ MODE_TABLE: dict[str, tuple[Settings, bool, bool | None]] = {
     "kw-fix": (Settings(act_mode="mult", kw_bypass="fact"), True, False),
     "sep": (Settings(act_mode="mult"), False, True),
     "sep+add": (Settings(act_mode="add"), True, True),
+    "sep+mult": (
+        Settings(act_mode="mult"),
+        True,
+        True,
+    ),  # the shipped default after D-013 (mult + separation)
 }
+
+
+def resolve_mode(name: str) -> tuple[Settings, bool, bool | None]:
+    """A mode name, optionally with setting overrides for post-hoc sensitivity runs: ``sep+add[beta=0.01;delta=0]`` (semicolon-separated, the CLI splits modes on commas).
+
+    The bracket form is for exploratory runs only (``demo_data/crucible/l5_posthoc``); the pre-registered modes are
+    the bare names of ``MODE_TABLE``.
+    """
+    base, _, over = name.partition("[")
+    if base not in MODE_TABLE:
+        raise ValueError(f"unknown mode {name!r}; known: {sorted(MODE_TABLE)}")
+    settings, fg, sep = MODE_TABLE[base]
+    if over:
+        kv = dict(item.split("=", 1) for item in over.rstrip("]").split(";") if item)
+        settings = dataclasses.replace(
+            settings, **{k: (float(v) if k not in ("act_mode", "kw_bypass") else v) for k, v in kv.items()}
+        )
+    return settings, fg, sep
 
 
 @dataclass
@@ -258,8 +282,7 @@ def run_forgetting(
     burst: bool = False,
 ) -> dict[str, Any]:
     for name in modes:
-        if name not in MODE_TABLE:
-            raise ValueError(f"unknown mode {name!r}; known: {sorted(MODE_TABLE)}")
+        resolve_mode(name)  # raises on an unknown mode before any work is done
     # off first (control for critical loss); the sweep mutates the graph, so on+sweep goes last
     order = ["off"] + [m for m in dict.fromkeys(modes) if m not in ("off", "on+sweep")]
     if "on+sweep" in modes:
@@ -313,7 +336,7 @@ def run_forgetting(
                             moved |= set(step["moved"])
                             if not step["moved"]:
                                 break
-                settings, fg, sep = MODE_TABLE[name]
+                settings, fg, sep = resolve_mode(name)
                 m = _measure(eng, probes, noise, fg, hits_off, klass_of, settings, sep, now)
                 if name == "off":
                     hits_off = m["_hit5"]

@@ -777,3 +777,31 @@ New standard columns (every mode): the class of the rows ranked above the target
 **What I expect, stated plainly before the run.** Confident: hypothesis 3 (P2 is bounded by construction: ±0.05 in log-relevance) and 5 (massed reads self-limit under activation-dependent decay). Unsure: hypothesis 1. The L5b misses in `off` are "critical 42, cold 4, hot 1, noise 2" rows above the target; if most of those rows are about the **same** entity as the target (another predicate of the same sprint subject), the entity lift cannot separate them and `sep` will not reach 0.90 — the same-entity / other-entity split is in the output precisely to show which it was. In that case the honest reading is "P1 fixes cross-entity twins (the mechanism the hub test and L6-C need) and L5b's residual is a predicate-cue problem (CROSS_CHECK §3.2)", not a tuned pass. The harness's recorded pass/fail per criterion is what gets reported, whichever way it goes.
 
 **Implementation choices that deviate from the plan text (documented in `docs/DECISIONS.md` D-013):** the exact-keyword bypass keeps the entity lift (`ln rel + sep`) instead of relevance only, otherwise the bypass would strip P1 from the very rows P1 is for; entities count as named only when every word of their name is in the query (the plan's "top 5 by full-text score" would lift every `Acme Notes API Sxx` twin); the salience cache is written by `pin_fact` only — the activation read recomputes salience from the graph on every call (CROSS_CHECK §3.7 "simpler v1"), so the six-statement cache is deferred.
+
+## L5b-D013 results (run after the pre-registration above; three runs, 0 LLM calls)
+
+Source: `plexus/demo_data/crucible/l5/20261017T082244Z-d013-n5/`, `…T082341Z-d013-n15/`, `…T082449Z-d013-n5-burst/` (`results.json`, `report.md`); code `3017ad7` (the pre-registration commit); FalkorDB 6.0.2 on `plexus-db-13`; K = 20, 140 real active facts (critical 80, hot 9, cold 51), 300 / 900 noise facts, seed 20261016, fastembed. Each run ~40 s.
+
+| Mode | recall@1 N=5 | N=15 | burst | recall@5 (all three) | noise share N=5 / 15 | critical loss | above target N=5: same entity / other entity | hot above cold (burst) |
+|---|---|---|---|---|---|---|---|---|
+| `off` | 75.7% | 77.1% | 75.0% | 98.6% | 23.7% / 28.7% | n/a | 36 / 13 | 0.0% |
+| `on-mult` | 65.0% | 65.7% | 63.6% | 95.7% / 96.4% / 95.0% | 14.9% / 17.4% | 0 | 46 / 44 | 3.9% |
+| `kw-fix` | 77.1% | 77.1% | 76.4% | 98.6% | 14.9% / 17.4% | 0 | 29 / 15 | 0.0% |
+| `sep` | **85.7%** | **85.7%** | **85.7%** | **100%** | 23.3% / 23.7% | 0 | 20 / **0** | 0.0% |
+| `sep+add` | **70.0%** | **70.0%** | **70.0%** | 100% | 21.9% / 20.1% | 0 | 41 / 1 | **0.0%** |
+
+Rank-1/rank-2 relevance gap in `off` (cosine distance, 140 probes): p10 0.0019, p25 0.0044, **p50 0.0167**, p75 0.0488, p90 0.0732 (the same at N = 15). The entity read costs 2.3–2.6 ms client-side per recall.
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. `sep` recall@1 ≥ 0.90; recall@5 ≥ `off` − 0.005; critical loss 0; falsified if < 0.85 | recall@1 **85.7% at every N: target not reached, falsification floor cleared** (neither pass nor falsified). recall@5 100% ≥ 98.1% **PASS**. Critical loss 0 **PASS** |
+| 2. `kw-fix` alone ≥ 0.88 → the fan term is only the hub mechanism | **77.1%**: the bypass fix only removes `mult`'s own loss (65.0 → 77.1); the entity term is the L5b lift (77.1 → 85.7) |
+| 3. `sep+add` recall@1 ≥ `sep` − 0.01; recall@5 ≥ `sep` − 0.005; noise ≤ 15.5%; falsified if > 1 point below `sep` | **FALSIFIED**: 70.0% is 15.7 points below `sep`. recall@5 100% PASS. Noise 21.9% **FAIL** |
+| 4. critical + hot rows above the target under `sep+add` ≤ 5 | **FAIL**: 42 (N=5), 46 (N=15) |
+| 5. burst: hot above cold ≤ 1% under `sep+add`; `on-mult` fails whenever the gap < 0.06 | **PASS**: 0.0% under `sep+add` (also 0.0% under `sep` and `off`, so the activation-dependent decay is not what prevented it here); `on-mult` 3.9% (2 of 51 cold probes) |
+
+**Reading, without softening.**
+- P1 does what it was built for and no more: every cross-entity displacer is gone (13 → 0 at N = 5, 12 → 0 at N = 15), recall@5 is perfect, no critical probe lost. The 20 rows still above a target are all *same-entity* critical facts (another predicate of the same sprint subject, which an entity cue cannot separate); the damped expansion also removed 16 of the 36 same-entity displacers `off` had (the flat sibling boost lifted siblings over the target). The 0.90 target assumed the twins were mostly cross-entity; they were not, and the split column shows it. The remaining defect is a predicate-cue problem (`CROSS_CHECK.md` §3.2).
+- P2 at its declared constants costs recall, as its own falsification clause anticipated. The loss is not `beta` alone: a labelled **post-hoc** sensitivity run (`plexus/demo_data/crucible/l5_posthoc/d013/20261017T0*-sens-n5/`, N = 5, not confirmatory, chosen after seeing the result) gives `sep+add[delta=0]` 70.7%, `sep+add[beta=0.01]` 72.9%, `sep+add[beta=0.01;delta=0]` **85.0%**, `sep+add[beta=0.02;delta=0]` 80.7%: the activation term and the in-band salience lift each move a critical twin by ~0.02 in log-relevance, and the median twin gap is 0.017. At `beta = 0.01, delta = 0` the additive mode no longer costs recall (85.0 vs 85.7) **and no longer reduces noise** (23.9% = `off`): on this benchmark a bounded additive activation term is either harmful or inert. The decision stays as pre-registered: `add` is not the default.
+- The shipped default after D-013 (`mult` + separation, measured in the same post-hoc run as `sep+mult`): recall@1 **85.0%**, recall@5 100%, noise 22.1%, critical loss 0, cross-entity displacers 0. Against D-012 as shipped (65.0% / 95.7% / 14.9%) the recall@1 loss is gone and recall@5 is perfect; the noise share is higher than D-012's because the entity lift also lifts noise *about the named entity* above real facts about other entities — the noise-share metric counts that as worse, the query arguably asked for it. Both readings are in the report.
+- Limits as before, plus: one seed; the entity rule is lexical (a paraphrased entity name gets no lift); `gamma`, `beta`, `delta` are declared, not fitted (the `gap12` column exists to fit them in a later pre-registration); the hub variant (§5.3), P3 (§5.2) and the SQL-arm extension (§5.4) did not run.

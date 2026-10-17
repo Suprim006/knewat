@@ -89,7 +89,7 @@ by `NEXT`, and stores its id on `ToolCall.step_id`.
   `knew_at` / the Time Machine cut correctly. Different agents never wait for each other. For explicit steps, send them
   in non-decreasing order (or share one step across parallel calls); an out-of-order one is remapped as above.
 - **Edges:** writes attach `WROTE` and reads attach `READ`. `assert_fact` uses `link_assert_result`, so a superseded
-  fact is READ by its superseder. `recall` writes a `Recall` node with `RETURNED {rank, score}`.
+  fact is READ by its superseder. `recall` writes a `Recall` node (`entities`, `separation`; D-013) with `RETURNED {rank, score, sep}`.
 - **Failures:** a rejected call leaves no Step.
 - **Degraded bookkeeping:** the tool's own write is the source of truth. If the Step, its `WROTE`/`READ` edges (retried
   once) or the `ToolCall` row could not be written, the call still succeeds and the result carries
@@ -250,7 +250,7 @@ lowers a fact's **rank only**; none of these deletes anything.
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|
 | `pin_fact` / `unpin_fact` | `fact_id` | `{fact_id, pinned}`. A pinned fact is never ranked below neutral and never swept. |
-| `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, …}}`. Read-only: no `READ` edge, so asking is not using. |
+| `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, mode, act_term, salience, salience_inputs, decays, fan, entity_lift, suggested_verify_after, …}}` (D-013 fields: `docs/forgetting.md`). Read-only: no `READ` edge, so asking is not using. |
 | `memory_sweep` | `scope='global'`, `threshold=None` (−50..50), `dry_run=true`, `limit=200` (1..200) | `{sweep: {threshold, dry_run, scanned, candidates:[{fact_id, text, activation}], would_move, moved, skipped, truncated}}`. Moves to `dormant` only with `dry_run=false`; protected and suspect facts are never moved. |
 | `restore_fact` | `fact_id` | `{fact_id, restored, status, was}` (+ `reason: 'already_superseded'`, `superseded_by` when a newer active fact blocks it); a fact that is not dormant is left alone. |
 

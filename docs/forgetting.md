@@ -101,6 +101,11 @@ time the source is registered.
 | `PLEXUS_ACT_A0` | −5.68 (1 day) | neutral activation |
 | `PLEXUS_ACT_FLOOR` | `0.9` | lowest multiplier. At `0.5` popular near-twin facts outranked the relevant one (Crucible L5b); `0.9` is the confirmed default |
 | `PLEXUS_ACT_EVENTS` | `50` | `K`, newest events counted (1..200) |
+| `PLEXUS_ACT_MODE` | `mult` | D-013: `mult` = the formula above; `add` = the additive banded score below (opt-in; its pre-registered L5b test failed, see D-013) |
+| `PLEXUS_RECALL_SEPARATION` | `on` | D-013 P1: entity resolution + fan-damped lift + damped sibling expansion + lures (below). `recall(separation=…)` overrides it |
+| `PLEXUS_KW_BYPASS` | `fact` | the exact-keyword bypass tests `entity predicate: value` (`fact`) or the value alone (`value`, the pre-D-013 rule) |
+| `PLEXUS_ACT_GAMMA`, `PLEXUS_ACT_SMAX` | `0.15`, `ln 50` | entity lift and the fan at which it vanishes |
+| `PLEXUS_ACT_BETA`, `PLEXUS_ACT_S`, `PLEXUS_ACT_C`, `PLEXUS_ACT_A`, `PLEXUS_ACT_DMAX`, `PLEXUS_ACT_KAPPA`, `PLEXUS_ACT_DELTA`, `PLEXUS_ACT_BAND` | `0.05`, `1.0`, `0.217`, `0.177`, `1.0`, `0.4`, `0.03`, `0.02` | `add` mode constants (below) |
 
 Bad values fail loudly (`ValueError`), they are not silently defaulted.
 
@@ -118,6 +123,55 @@ Bad values fail loudly (`ValueError`), they are not silently defaulted.
 `restore_fact` puts `prior_status` back and removes both helper properties: **sweep then restore leaves the graph
 identical** (`tests/activation/test_sweep_restore.py` dumps every node and edge before and after). Dormant facts are
 hidden from `recall` unless `include_dormant=true`.
+
+## D-013: pattern separation (on) and the additive mode (opt-in)
+
+Research: `docs/research/NEUROSCIENCE_MEMORY_SURVEY.md`, `MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md`, `neuro-memory/`.
+
+**Pattern separation at recall (P1, `PLEXUS_RECALL_SEPARATION=on`).** Before the vector read, `engram/recall_entities`
+matches the query's words against `Entity.name` (full-text OR, ≤ 5 entities) and counts each entity's **fan**: its
+current facts in the searched scopes. An entity is *named* only when every word of its name is in the query, so
+"Acme Notes API S07 api_version" names `Acme Notes API S07` and not its `S08` twin. Facts about a named entity get
+
+```
+sep = gamma · max(0, 1 − ln(fan) / S_max)        # gamma = 0.15, S_max = ln 50
+```
+
+in log-relevance (ACT-R's `S − ln fan`: a specific entity lifts its facts ~16%, a hub entity with ≥ 50 facts lifts
+nothing and must win on relevance). In `mult` mode `final = relevance × multiplier × e^sep`. The sibling expansion
+of `engram/recall` is damped by the same factor (`rank = d − boost · damp`). Each row reports `entity_match`, `sep`
+and `lures` (other candidates with the same predicate about another entity within 0.02 relevance: "this row has a
+near-identical competitor, check the entity"); `Recall.entities`/`separation` and `RETURNED.sep` make `why_recalled`
+explain the lift. Nothing is written by a recall. The exact-keyword bypass now tests the whole fact text.
+
+**Additive mode (P2, `PLEXUS_ACT_MODE=add`).** `plexus.activation.score`:
+
+```
+score = ln(rel) + beta · tanh((A − A0) / 2s) + sep + sal      # beta = 0.05, s = 1 nat
+A     = activation_spaced(events): d_i = min(d_max, c · e^{m_{i−1}} + a), c = 0.217, a = 0.177   (Pavlik & Anderson 2005)
+sal   = +delta · salience inside the relevance band (rel ≥ rel_top − eps), −delta · s_max_band outside it when the
+        band holds something critical (s_max_band ≥ 0.8), else 0                                 # delta = 0.03, eps = 0.02
+```
+
+Every term is bounded, so the relevance order is kept except among near-ties. Activation-dependent decay makes a
+burst of massed reads worth about one read while spaced reads keep their value (`tests/activation/test_score.py`);
+a recall after the fact's last use is a *restudy* worth `0.3 · (1 − σ(m_prev − A0))`. **Salience** `s = 1 − e^{−Σ w·n}`
+is read from the graph in the same `activation/activation` round trip (unflagged decisions 1.0, verifications 1.5,
+independently verified artifacts of the decisions' tasks 1.0, done tasks 0.5, distinct using agents − 1 at 0.5,
+handoffs 0.5, trusted source 1.0, pin 3.0); it slows decay (`d · (1 − kappa · s)`, `kappa = 0.4`), protects from
+sweeps at `s ≥ 0.5`, is cached on `Fact.salience` by `pin_fact` and shown by `memory_strength` (`salience`,
+`salience_inputs`, per-event `decays`, `act_term`, `fan`, `entity_lift`, `suggested_verify_after`). Salience never
+feeds `confidence`. Under the new scale `A0 = −2.01` and the sweep's default threshold is `A0 − 0.72` (still "about
+55–60 days unused"; `A0 − 2` would never fire). `max(A, A0)` for protected facts is replaced by the band guard.
+
+**What the pre-registered L5b run showed (`docs/BASELINE.md` "L5b-D013", D-013).** P1: recall@1 75.7% → 85.7%,
+recall@5 100%, every cross-entity displacer gone; the 0.90 target was **not reached** because the remaining
+displacers are same-entity facts with another predicate (a predicate cue, not an entity cue, is what they need).
+P2 at its declared constants: **falsified** (70.0%); the additive term and the in-band salience lift together
+re-created the twin problem, and at the strength where they stop costing recall they also stop reducing noise. So
+`add` stays opt-in and `mult` + separation is the default (85.0% / 100% / noise 22.1%, vs D-012's 65.0% / 95.7% /
+14.9%). The noise share is higher than under D-012 alone because the entity lift also lifts noise *about the named
+entity* over real facts about other entities.
 
 ## Honest limits (what this does *not* claim)
 

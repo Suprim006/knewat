@@ -653,6 +653,51 @@ byte-identical before and after.
 | `graphController.ts` 834, `Results.tsx` 729, `Explorer.tsx` 500 lines | 421 / 104 / 292 lines; style/layout/data/selection modules; per-layer components |
 | 8 copies of `OPEN`/`now_ms`/`new_id`/`normalize` | one `plexus/common.py` |
 
+### 7.5 Pattern separation and additive forgetting (D-013): one win, one honest failure
+
+After P9 a neuroscience survey (`docs/research/NEUROSCIENCE_MEMORY_SURVEY.md`, six cited notes, an independent
+cross-check) asked why forgetting cost 12 points of recall@1 in L5b. The answer was not the decay curve but the
+combination rule: multiplying relevance by a squashed activation can only reorder near-ties, and L5b's near-ties are
+twins where popularity is the wrong tie-breaker. Two of the plan's three picks were built on branch
+`feature/neuro-memory-research` and run against the pre-registered L5b design (`docs/BASELINE.md` "L5b-D013";
+results `plexus/demo_data/crucible/l5/20261017T08*-d013-*`; 0 LLM calls):
+
+| Mode (L5b, N = 5; N = 15 in brackets where different) | recall@1 | recall@5 | noise share | rows above the target: same entity / other entity |
+|---|---|---|---|---|
+| `off` (flat) | 75.7% (77.1%) | 98.6% | 23.7% (28.7%) | 36 / 13 |
+| `on-mult` (D-012 as shipped) | 65.0% (65.7%) | 95.7% | 14.9% (17.4%) | 46 / 44 |
+| `kw-fix` (bypass over the whole fact text) | 77.1% | 98.6% | 14.9% | 29 / 15 |
+| **`sep` (P1: pattern separation, forgetting off)** | **85.7%** | **100%** | 23.3% | 20 / **0** |
+| `sep+add` (P1 + P2 additive banded activation) | **70.0%** | 100% | 21.9% | 41 / 1 |
+| `sep+mult` (the shipped default after D-013; post-hoc run) | 85.0% | 100% | 22.1% | 21 / 0 |
+
+**P1, pattern separation (on by default).** One extra bounded read per recall resolves the entities the query names
+(`engram/recall_entities`, full-text over `Entity.name`, entity-first, with each entity's *fan*), and facts about a
+named entity get the ACT-R lift `gamma · max(0, 1 − ln fan / ln 50)` in log-relevance; the sibling expansion is damped
+by the same factor; rows report `lures` and `why_recalled` stores the lift. It removed **every** cross-entity
+displacer (13 → 0) and made recall@5 perfect, at 2.5 ms per recall. It did **not** reach the pre-registered 0.90
+(85.7% at every N; above the 0.85 falsification floor): the remaining 20 displacers are facts about the *same* entity
+with another predicate, which an entity cue cannot separate. The plan's cross-check had predicted exactly this
+residual and the fix (a predicate cue); it is the next step, as a new pre-registration.
+
+**P2, forgetting that cannot cost recall — falsified at its declared constants.** The additive mode
+(`PLEXUS_ACT_MODE=add`: `ln rel + beta·tanh((A − A0)/2s) + sep + sal`, Pavlik–Anderson activation-dependent decay,
+graded salience from the graph, a band guard instead of `max(A, A0)`) scored 70.0%, 15.7 points below `sep`; the
+pre-registered rule reads this as "P2 still costs recall". A labelled post-hoc sensitivity shows the loss comes from
+the activation term and the in-band salience lift *jointly* (each ≈ 0.02 in log-relevance against a median twin gap
+of 0.017), and that at the strength where the term stops costing recall (`beta = 0.01, delta = 0`: 85.0%) it also
+stops reducing noise (23.9% = `off`). On this benchmark a bounded additive activation is either harmful or inert. The
+burst hypothesis passed (a fact read 90 times in one hour never outranks a cold target under `sep+add`; 3.9% under
+D-012), but `sep` and `off` pass it too, so it is not evidence for the decay model. Consequence: `add` stays opt-in,
+`mult` + separation ships. What was gained against D-012 as shipped: recall@1 65.0% → 85.0%, recall@5 95.7% → 100%,
+0 critical probes lost; what was given back: the noise share is 22.1% instead of 14.9%, because the entity lift also
+lifts noise *about the named entity* over real facts about other sprints — the metric counts that as worse, the query
+arguably asked for it.
+
+Not built: P3 (prediction-error-gated reliability), the hub variant, the SQL-arm extension (§5.4 of the plan). The
+honest claim that survives is unchanged from §8: Plexus beats *flat retrieval* on near-twins by using structure the
+query names, explains every rank, and a SQL arm handed an entity lookup and a `GROUP BY` fan would tie.
+
 ## 8. Can a graph beat SQL? (P9)
 
 The owner read the shortcomings and asked whether "not more correct than SQL or files" could be tackled. Two
@@ -736,6 +781,11 @@ deterministically at zero tokens, with the graph primitives SQL makes you hand-b
   later runs. The file records which.
 
 ### 9.3 About the product
+
+- **D-013 (§7.5):** the additive forgetting mode failed its pre-registered test and is not the default; the
+  pattern-separation lift reached 85.7% recall@1, not the 0.90 it was pre-registered for, because the residual
+  twins share the entity and differ in predicate. The lexical named-entity rule gives nothing to a paraphrased
+  entity name. The salience cache is written by `pin_fact` only (reads recompute it).
 
 - **Write throughput per tenant is bounded** by FalkorDB's per-graph write serialisation. Hot tenants need to be spread
   across graphs; one busy team graph has a ceiling (373 claims/s at 200 workers in our run).
