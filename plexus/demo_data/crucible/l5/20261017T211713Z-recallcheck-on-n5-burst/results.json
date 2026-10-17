@@ -1,0 +1,427 @@
+{
+  "criteria": [
+    {
+      "hard": false,
+      "id": "PC sep recall@1 >= 0.95",
+      "ok": false,
+      "value": [
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": true,
+      "id": "PC sep recall@1 > sep-entity + 0.02 (falsified otherwise: no gain beyond id noise)",
+      "ok": false,
+      "value": [
+        0.8571428571428571,
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": false,
+      "id": "PC sep same-entity rows above target <= 5",
+      "ok": false,
+      "value": [
+        20
+      ]
+    },
+    {
+      "hard": false,
+      "id": "PC sep recall@5 >= sep-entity recall@5",
+      "ok": true,
+      "value": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "PC sep noise share <= sep-entity + 0.01",
+      "ok": true,
+      "value": [
+        0.42428571428571427,
+        0.42428571428571427
+      ]
+    },
+    {
+      "hard": false,
+      "id": "PC sep+mult recall@1 within 1 probe (0.0072) of sep",
+      "ok": true,
+      "value": [
+        0.8571428571428571,
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b-D013 sep recall@1 >= 0.90",
+      "ok": false,
+      "value": [
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": true,
+      "id": "L5b-D013 sep recall@1 >= 0.85 (falsification floor)",
+      "ok": true,
+      "value": [
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b-D013 sep recall@5 >= off - 0.005",
+      "ok": true,
+      "value": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "L5b-D013 sep critical loss = 0",
+      "ok": true,
+      "value": 0
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "forgetting": {
+    "classes": {
+      "cold": 51,
+      "critical": 80,
+      "hot": 9
+    },
+    "config": {
+      "burst": true,
+      "days": 90,
+      "embedder": "FastEmbedder",
+      "ks": [
+        1,
+        3,
+        5
+      ],
+      "lexical_weight": 0.5,
+      "modes": [
+        "off",
+        "sep-entity",
+        "sep",
+        "sep+mult"
+      ],
+      "noise_per_subject": 5,
+      "seed": 20261016,
+      "sprints": 20
+    },
+    "history": {
+      "agents": [
+        "planner",
+        "researcher",
+        "builder"
+      ],
+      "conflicting_pairs": 40,
+      "decisions": 120,
+      "episodes": 80,
+      "facts": 180,
+      "forgotten_facts": 20,
+      "handoffs": 80,
+      "real_active_facts": 140,
+      "reclaims": 20,
+      "sources": 160,
+      "sprints": 20,
+      "supersedes": 20,
+      "tasks": 240
+    },
+    "modes": {
+      "off": {
+        "above_other_entity": 0,
+        "above_same_entity": 21,
+        "chars_per_recall": 387.97857142857146,
+        "entity_read_ms": null,
+        "gap12": {
+          "n": 140,
+          "p10": 0.0060386360742538114,
+          "p25": 0.013065548170010197,
+          "p50": 0.036027538974340204,
+          "p75": 0.06668304365273031,
+          "p90": 0.08762305746900431
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.4085714285714286,
+        "probe_ms": {
+          "n": 140,
+          "p10": 114.96450001141056,
+          "p25": 123.84069996187463,
+          "p50": 136.3473999663256,
+          "p75": 151.16580005269498,
+          "p90": 172.10259998682886
+        },
+        "ranked_above_target": {
+          "critical": 20,
+          "noise": 1
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.85,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.7375,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 48.995691,
+          "p25": 55.335727,
+          "p50": 64.726181,
+          "p75": 74.30538899999999,
+          "p90": 84.475458
+        },
+        "statements_per_probe": 2
+      },
+      "sep": {
+        "above_other_entity": 0,
+        "above_same_entity": 20,
+        "chars_per_recall": 392.02142857142854,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 3.83289999444969,
+        "gap12": {
+          "n": 140,
+          "p10": 0.006858719414883002,
+          "p25": 0.013948282975133008,
+          "p50": 0.03606524899909411,
+          "p75": 0.06744841039359999,
+          "p90": 0.08762305746900431
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.42428571428571427,
+        "probe_ms": {
+          "n": 140,
+          "p10": 162.43419999955222,
+          "p25": 174.76099997293204,
+          "p50": 187.80640000477433,
+          "p75": 206.94930001627654,
+          "p90": 239.0980999916792
+        },
+        "ranked_above_target": {
+          "critical": 20
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 49.821383,
+          "p25": 53.686647,
+          "p50": 63.425797,
+          "p75": 73.869264,
+          "p90": 83.028396
+        },
+        "statements_per_probe": 5
+      },
+      "sep+mult": {
+        "above_other_entity": 0,
+        "above_same_entity": 30,
+        "chars_per_recall": 388.34285714285716,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 3.8634000229649246,
+        "gap12": {
+          "n": 140,
+          "p10": 0.007181621301161206,
+          "p25": 0.019809581374512997,
+          "p50": 0.0384795520918572,
+          "p75": 0.07078123774399599,
+          "p90": 0.0902629565250309
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.4157142857142857,
+        "probe_ms": {
+          "n": 140,
+          "p10": 214.01609998429194,
+          "p25": 262.4902999959886,
+          "p50": 299.788800009992,
+          "p75": 346.27149999141693,
+          "p90": 398.68820004630834
+        },
+        "ranked_above_target": {
+          "critical": 20,
+          "noise": 10
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 0.9785714285714285,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 0.9625,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 77.058914,
+          "p25": 89.96868,
+          "p50": 109.63957500000001,
+          "p75": 123.525937,
+          "p90": 144.53461199999998
+        },
+        "statements_per_probe": 6
+      },
+      "sep-entity": {
+        "above_other_entity": 0,
+        "above_same_entity": 20,
+        "chars_per_recall": 392.02142857142854,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 5.22409999393858,
+        "gap12": {
+          "n": 140,
+          "p10": 0.006858719414883002,
+          "p25": 0.013948282975133008,
+          "p50": 0.03606524899909411,
+          "p75": 0.06744841039359999,
+          "p90": 0.08762305746900431
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.42428571428571427,
+        "probe_ms": {
+          "n": 140,
+          "p10": 144.92420002352446,
+          "p25": 162.60559996590018,
+          "p50": 181.86370003968477,
+          "p75": 209.6972999861464,
+          "p90": 235.36069999681786
+        },
+        "ranked_above_target": {
+          "critical": 20
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 49.137195,
+          "p25": 55.13856,
+          "p50": 66.31684200000001,
+          "p75": 80.438032,
+          "p90": 89.950166
+        },
+        "statements_per_probe": 5
+      }
+    },
+    "noise_facts": 300,
+    "reads": {
+      "critical_reads": 80,
+      "hot_facts": 9,
+      "read_edges": 1051
+    },
+    "seconds": {
+      "noise": 25.3,
+      "play": 94.4
+    },
+    "sql_arm": {},
+    "sql_modes": {},
+    "sql_pairs": {},
+    "sweep": {
+      "dry_run_critical_candidates": 0,
+      "fact_nodes_after": 480,
+      "fact_nodes_before": 480,
+      "moved_by_class": {
+        "cold_real": 0,
+        "critical": 0,
+        "hot": 0,
+        "noise": 0
+      },
+      "moved_total": 0
+    }
+  },
+  "git_commit": "ae17aee",
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 236.0,
+  "started_at": "2026-10-17T21:17:13Z"
+}

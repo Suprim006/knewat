@@ -1,0 +1,15 @@
+"""Post-hoc wrapper for the recall-check attribution runs: set integer module constants of plexus.engram.service
+(``KEY=VAL,KEY=VAL`` or ``-``), then run the L5 CLI with the remaining arguments. Product code is not edited."""
+
+import sys
+
+import plexus.engram.service as svc
+
+if sys.argv[1] != "-":
+    for kv in sys.argv[1].split(","):
+        k, v = kv.split("=")
+        assert hasattr(svc, k), k
+        setattr(svc, k, int(v))
+from plexus.crucible.l5.report import main
+
+raise SystemExit(main(sys.argv[2:]))
