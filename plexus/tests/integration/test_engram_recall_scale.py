@@ -92,7 +92,8 @@ def test_k_and_budget_are_clamped(eng, proj, monkeypatch):
 
     monkeypatch.setattr(eng.client, "ro", spy)
     eng.assert_fact("Acme", "owner", "alice", proj, "a1", now=10)
-    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=False)  # retrieval only
+    # retrieval only: with separation on, "Acme" names an entity and the 2k over-fetch of re-ranking applies
+    eng.recall("Acme", proj, k=10_000, budget_chars=10_000_000, forgetting=False, separation=False)
     assert all(p["k"] == svc.MAX_K == 50 for p in seen)
     assert svc.MAX_BUDGET_CHARS == 20_000
     assert all(p["over"] <= svc.MAX_OVER for p in seen)
@@ -123,6 +124,8 @@ def test_sibling_expansion_is_capped_per_seed(eng, client, graph, proj):
         "boost": 0.05,
         "sibs": 5,
         "kw_ids": [],
+        "damp": False,
+        "smax": 3.912,
     }
     rows = client.ro(graph, "engram/recall", params)
     assert len(rows) == 6  # 1 seed + 5 siblings, not 30
