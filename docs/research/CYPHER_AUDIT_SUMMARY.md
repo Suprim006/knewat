@@ -162,3 +162,40 @@ The skills' warnings are real, but this codebase already works around them in ne
 - **C1 has two possible fixes.** Restricting to done tasks and counting distinct artifacts is my reading of the header. The code's broader count may be what was meant, and then only the header and docs are wrong. Either way the multi-path counting (one artifact counted twice) looks unintended.
 - **I don't know how C1 interacts with the L5b numbers.** I did not check whether the L5b fixtures contain verified artifacts or VERIFIED_BY edges at all. They probably don't, so C1 and `BRANCH_REVIEW.md` finding 1 likely leave the published numbers unchanged, but that is not verified.
 - **The subagents' "clean" verdicts rest on small fixtures.** The engram subagent, for example, used 4 entities and 4 scopes. A clean verdict means no trap reproduced and nothing suspicious was found by reading. It does not mean the file was proven correct at scale.
+
+---
+
+## 7. Fixes applied (branch `feature/neuro-memory-research`, after HEAD `edf9a91`)
+
+Every CONFIRMED finding above and the two BRANCH_REVIEW findings were fixed, each behind a regression test written first
+(RED on the old query, then GREEN). The §3 simplifications (cascade / view generation, `why_edges`, `mark_changed`,
+complete/fail merge) were left alone; S1 got a header note only. Full suite after the fixes: 1,627 passed, 1 skipped;
+`scripts/verify_readme.py` 313 checks passed; the MCP tool surface did not change (no snapshot update). Benchmarks re-run
+with a pre-registration (`docs/BASELINE.md` "Audit fixes re-run"): **no published quality number moved**; details there.
+
+| # | Fixed | How | Test (RED → GREEN) | Before → after |
+|---|---|---|---|---|
+| C1 | yes | `activation/activation` returns `verified_artifacts` (ids of the independently verified artifacts FOR the decision's *done* tasks, one per VERIFIED_BY path); `salience_of` counts them DISTINCT as `artifacts_ok`; the L5b SQL-arm export mirrors it | `tests/activation/test_salience.py::test_artifacts_ok_counts_distinct_verified_artifacts_of_done_tasks_only` | audit fixture (x1 on a done task verified twice + x2 on an open task): 3 → 1 |
+| C2 | yes | `engram/recall_hop_facts`: the scope test is the pattern predicate `WHERE (:Scope {id:$scope_id})-[:INHERITS*0..3]->(gs)` (the reviewer's fix B) | `tests/integration/test_audit_recall_hop_facts.py` (3 tests) | diamond team→org, team→proj→org, `per_entity` 2: `[g1, g1]` → `[g1, p1]`; 10: `[g1, g1, p1, t1]` → `[g1, p1, t1]` |
+| C3 | yes, **not in Python** | the cap and the `DUPLICATES_MAYBE` writes are inside the one statement, so the caller cannot sort first and passing a larger cap would break `MAYBE_CAP`; smallest in-query change instead: one `WITH … ORDER BY cosine` on the candidate rows before `collect(f)`, so `cur` → `keyed` → `soft` are nearest-first and `[0..$maybe_cap]` keeps the nearest (row count unchanged, no zero-row guard needed) | `tests/integration/test_audit_assert_fact_soft.py` (3 tests) | far/mid/near, cap 1: `[far]` → `[near]`; cap 2: `[far, mid]` → `[near, mid]`; edges match |
+| C4 | yes | `scripts/gen_impact_queries.py` `[src] + reach`; `impact_fact.cypher` regenerated | `tests/lineage/test_audit_impact_fact_root.py` (2) | `impact_fact(F1, limit=1)`: `['F2']`/`['F3']` (root dropped) → `['F1']`, truncated |
+| C5 | yes | `record_step`: `CASE WHEN can THEN last.id ELSE null END AS previous_id` | `tests/lineage/test_audit_record_step_previous.py` | repeat n=2: `'x2'` → null; refused n=0: `'x2'` → null; fresh n=3: `'x2'` |
+| BR-1 | yes | `activation/service.py`: salience protection gated on `st.additive`; SQL arm `:additive` param; D-013 amendment 2; `forgetting.md` | `test_salience.py::test_mult_mode_with_salience_inputs_is_exactly_d012` + the pinned test flipped | mult: salience 0.86 fact `protected` → not protected (add: still protected) |
+| BR-2 | yes | `rank.rerank` add branch calls `score.score()`; `Ranked` fields unchanged | `test_rank_d013.py::test_add_mode_score_is_score_dot_score_on_the_production_path` (spy: 1 call per row, score equal) | identity (the two formulas agreed) |
+| P1 | yes | `quarantine` tail = three `CALL {}` subqueries (as prototyped; results byte-equal to the old query on the fixtures) | `tests/lineage/test_audit_quarantine_tail.py` (5) | reader+decision+handoff per fact, depth 8, medians of 3: old 600 facts 415 ms, 1,200 facts 2,573 ms, **2,500 facts: timeout (>10 s)**; new 1,500 facts 80 ms, **2,500: 154 ms, 5,000: 461 ms** |
+| B1 | yes | `forget_source` tail = two `CALL {}` subqueries | `tests/lineage/test_audit_forget_tail.py` (5) | 1,200: 131 → 68 ms; 2,500: 482 → 170 ms; **5,000: 2,025 → 476 ms** |
+| P2 | yes | `why_derived_level`: Fact bound first in all four branches; header fixed | `tests/lineage/test_audit_why_level_plan.py` (3) | 1-element frontier over 5,000 unrelated DERIVED_FROM edges + 2,000 Episode chains: **max records 7,002 → 5** (branches 3–4 scanned too: 2,001 each); 11.1 → 3.2 ms |
+| P3 | yes, 9 files | `UNWIND CASE WHEN size($l)=0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})`, grouping keys kept: `link_step`, `complete_task`, `fail_task`, `create_tasks` (`$ext_dep_ids` only; `$ids` is never empty), `handoff`, `record_decision`; the three suspected sites **all reproduced** under PROFILE and were fixed: `record_recall` (3,000), `link_derived` (3 × 3,000), `create_scope` (3,000; the root-scope case) | `tests/integration/test_p3_empty_list_plans.py` (32: 9 empty-list PROFILE, 9 non-empty seek, 14 behaviour) | index-scan records **~3,000 → 0** per label (3,000-node fixtures); `link_step` with empty `wrote_ids` on 20,000 Fact / 2,000 Task: median 7.2 → 0.38 ms |
+| B2 | documented, not rewritten | measured with the production index set: the 6.0.2 seek applies `status` and `valid_to` together with `predicate`, so the history is **not** read (2,000 superseded + 1,500 expired: 0 index records; 700 = the current facts with that predicate across scopes; 1.4 ms). The residual is cross-scope current facts + one `IN_SCOPE` hop each; the scope is an edge, so no single-property index can absorb it. Header rewritten (also: no "input order", a missing scope gives fan-0 rows, the WHERE-drop claim softened); D-013 amendment 2 | `tests/integration/test_audit_recall_predicates_plan.py` (2) pins "history not read" | — |
+| S1 | note only | `relates_level` header | — | — |
+
+Headers fixed while there (§4): `link_derived` (`*1..5` → level-wise up to `$depth`), `why_derived_level` (index-seek claim),
+`create_tasks` (`$ext_dep_ids` de-duplicated), `handoff` / `record_decision` (unknown non-empty `step_id` is best-effort),
+`quarantine` (blast radius = facts changed by this call; `reads_total` counts pairs), `forget_source` (same), `assert_fact`
+(stale "Lineage tail" note replaced by the nearest-first note), `recall_predicates` (above), `activation` (returns),
+`recall_hop_facts` (pattern predicate), `PLEXUS_REPORT.md` §8 row ("five fixed one-hop levels" → twelve depth-gated).
+`docs/queries.md` rows updated for every changed description.
+
+Timings are medians of ≥ 3 runs on Docker Desktop (noisy, 2× swings); record counts are PROFILE `records_produced` and are
+deterministic. P1/B1 record counts were not captured (the tests assert completion time and result equality, and a plan-text
+guard that the fact list is no longer a grouping key).

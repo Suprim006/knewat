@@ -1076,3 +1076,33 @@ fastembed, `--tag afx-*`); L6 `postfix` (A `impact` arms + F, 200 kills) and L6 
 **Decision rule:** a changed recall@1 / recall@5 / noise share / critical loss in any L5b run, or a changed L6 A/E/F correctness
 count, is reported as a change and explained from the fixes above (or reported as unexplained); `PLEXUS_REPORT.md` is updated only if
 a published number moves. The pre-fix result directories are kept.
+
+## Audit fixes re-run results (run after the pre-registration above; 0 LLM calls)
+
+Source: `plexus/demo_data/crucible/l5/20261017T160947Z-afx-n5/`, `…T161106Z-afx-n15/`, `…T161259Z-afx-n5-burst/`,
+`plexus/demo_data/crucible/l6/20261017T163122Z-postfix/`, `…T164411Z-conc/`; code = the commit after this section (all audit
+fixes applied); FalkorDB 6.0.2 on `plexus-db-13`, fastembed, seed 20261016, fresh plays. The pre-fix directories are unchanged.
+
+| Run | Mode | recall@1 | recall@5 | noise share | critical loss | above target: same / other | published (`pcc-*`) |
+|---|---|---|---|---|---|---|---|
+| N = 5 | `sep+mult[0.03/0.02]` | **85.7%** | **100%** | 22.1% | 0 | 20 / 0 | 85.7% / 100% / 20.6% / 0 / 20 / 0 |
+| N = 15 | `sep+mult[0.03/0.02]` | **85.7%** | **100%** | 19.9% | 0 | 20 / 0 | 85.7% / 100% / 20.9% / 0 / 20 / 0 |
+| burst | `sep+mult[0.03/0.02]` | **85.7%** | **100%** | 21.0% | 0 | 20 / 0 | 85.7% / 100% / 20.7% / 0 / 20 / 0 |
+| N = 5 | `off` (control: no fixed code on its path) | 75.0% | 98.6% | 24.6% | n/a | 38 / 13 | 75.7% / 98.6% / 24.3% / 36 / 13 |
+| N = 15 | `off` | 77.1% | 98.6% | 29.1% | n/a | 35 / 12 | 77.1% / 97.9% / 33.1% / 37 / 12 |
+| burst | `off` | 75.7% | 98.6% | 23.3% | n/a | 39 / 13 | 75.7% / 98.6% / 23.4% / 36 / 13 |
+
+**Reading, by the decision rule.** Every quality number of the shipped default is unchanged: recall@1 85.7% (the ceiling),
+recall@5 100%, critical loss 0, cross-entity displacers 0, same-entity rows 20, in all three runs — as pre-registered for C1, C2,
+finding 1, finding 2, C3 and P3. The noise share moved by +1.5 / −1.0 / +0.3 points. That is play-to-play id noise, not the fixes:
+the `off` control arm, whose path contains none of the changed code, moved by as much or more in the same plays (−4.0 points at
+N = 15; recall@1 −0.7 at N = 5; recall@5 +0.7 at N = 15), and the published text already records the same band between plays
+(`sep+mult` 19.1–22.1% across the D-013, §5.4 and pcc plays). No published number is updated.
+
+**L6.** A `impact`: B1h 24/24, P-tuned 24/24, P-product-service **24/24 strict, 0 timeouts** (p50 9.4 ms, p99 638 ms; published
+13.2 / 626), P-product-tool 18/24 (the 2,000-id list cap, as published; p50 11.2, p99 643). F: **0 orphans** of 1,458 records (814
+facts, 336 decisions, 308 handoffs), 0 lost of 1,383 acknowledged writes, `missing_derived_from` 13 (published: 0 of 1,842, 13).
+E: `P-1stmt` **0 / 0 / 0** violations in 10/10 runs (reads 15,127, appends 8,925, quarantines 200; published 14,377 / 8,323 /
+200); the other six arms as published (`P-levelwise`, `B1h-levelwise`, `B0-naive` tear in 10/10; the other three 0). The
+pre-registered "higher quarantine count" expectation for E was wrong in form: the count is the number of `Q` sources (20 per run),
+so it cannot rise; it stayed 200. The quarantiner's statement is the P1 rewrite, and it ran 200 times with 0 errors.
