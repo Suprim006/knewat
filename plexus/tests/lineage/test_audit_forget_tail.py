@@ -34,6 +34,8 @@ def _norm_f(rows):
     r = dict(rows[0])
     for k in ("fact_ids", "decision_ids", "handoff_ids"):
         r[k] = sorted(r[k])
+    # P13: the baseline has no multi-source columns; on these single-source fixtures they must be empty
+    assert r.pop("unlinked", []) == [] and r.pop("unlinked_total", 0) == 0
     return [r]
 
 

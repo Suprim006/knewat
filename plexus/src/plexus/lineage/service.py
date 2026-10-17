@@ -44,6 +44,14 @@ def normalize_trust(trust: str | float | None) -> str:
     return value
 
 
+def _others(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+    """``[{fact_id, other_sources}]`` of a quarantine / forget statement, ordered by fact id (P13)."""
+    return sorted(
+        ({"fact_id": x["fact_id"], "other_sources": sorted(x["other_sources"])} for x in rows),
+        key=lambda x: x["fact_id"],
+    )
+
+
 class LineageError(Exception):
     """Base class for lineage errors."""
 
@@ -272,15 +280,19 @@ class Lineage:
     ) -> dict[str, Any]:
         """Forget everything derived from a source, in one bounded statement.
 
-        Every fact that reaches the source through up to ``depth`` (1..12, default 8) ``DERIVED_FROM`` hops
-        becomes ``status='forgotten'`` with
-        ``valid_to = min(valid_to, now)``, so ``Engram.recall`` and :meth:`as_of` stop returning it. Decisions
-        ``BASED_ON`` those facts are flagged (``flagged = true``), never deleted. Handoffs that ``CARRIES``
-        them are reported. Idempotent; at most ``limit`` (<= 5000) facts per call, ``truncated`` says to call
-        again. Returns ``{source_id, mode, fact_ids, decision_ids, decisions_total, handoff_ids,
-        handoffs_total, detail_truncated, truncated}``: ``decision_ids`` / ``handoff_ids`` list at most
-        ``max_detail`` (1..5000, default 500) ids, the ``*_total`` counts are exact (every decision is flagged
-        regardless). ``mode='quarantine'`` delegates to :meth:`quarantine`. The cascade expands level by level
+        Every fact that reaches the source through up to ``depth`` (1..12, default 8) ``DERIVED_FROM``
+        hops becomes ``status='forgotten'`` unless another Source still supports it (P13, D-015: it has
+        a direct ``DERIVED_FROM`` edge to a different Source): that fact only loses its edge to this
+        source and is listed in ``unlinked`` (``[{fact_id, other_sources}]``, ``unlinked_total``); if
+        all its remaining sources are quarantined it becomes ``quarantined``. A forgotten fact gets
+        ``valid_to = min(valid_to, now)``, so ``Engram.recall`` and :meth:`as_of` stop returning it.
+        Decisions ``BASED_ON`` the forgotten facts are flagged (``flagged = true``), never deleted.
+        Handoffs that ``CARRIES`` them are reported. Idempotent; at most ``limit`` (<= 5000) facts per
+        call, ``truncated`` says to call again. Returns ``{source_id, mode, fact_ids, decision_ids,
+        decisions_total, handoff_ids, handoffs_total, unlinked, unlinked_total, detail_truncated,
+        truncated}``: ``decision_ids`` / ``handoff_ids`` list at most ``max_detail`` (1..5000, default
+        500) ids, the ``*_total`` counts are exact (every decision is flagged regardless).
+        ``mode='quarantine'`` delegates to :meth:`quarantine`. The cascade expands level by level
         over distinct facts, so a diamond-shaped lineage costs its edges, not its paths. Raises
         :class:`UnknownNode`
         (unknown source).
@@ -315,7 +327,10 @@ class Lineage:
             "decisions_total": r["decisions_total"],
             "handoff_ids": sorted(r["handoff_ids"]),
             "handoffs_total": r["handoffs_total"],
-            "detail_truncated": r["decisions_total"] > max_detail or r["handoffs_total"] > max_detail,
+            "unlinked": _others(r["unlinked"]),
+            "unlinked_total": r["unlinked_total"],
+            "detail_truncated": max(r["decisions_total"], r["handoffs_total"], r["unlinked_total"])
+            > max_detail,
             "truncated": bool(r["truncated"]),
         }
 
@@ -330,12 +345,15 @@ class Lineage:
     ) -> dict[str, Any]:
         """Quarantine a poisoned source and report its blast radius (stretch feature; reversible).
 
-        Same traversal as :meth:`forget_source` (up to ``depth`` ``DERIVED_FROM`` hops, 1..12, default 8) but
-        the facts become
-        ``status='quarantined'`` (hidden from recall and :meth:`as_of`, ``valid_to`` untouched, old status
-        kept so :meth:`release_quarantine` can restore it). Nothing else is modified. Returns
-        ``{source_id, mode, fact_ids, readers: [{agent_id, step_id, step_n, at, fact_id}], readers_total,
-        agents, decision_ids, decisions_total, handoff_ids, handoffs_total, detail_truncated, truncated}``:
+        Same traversal as :meth:`forget_source` (up to ``depth`` ``DERIVED_FROM`` hops, 1..12, default
+        8) but the facts become ``status='quarantined'`` (hidden from recall and :meth:`as_of`,
+        ``valid_to`` untouched, old status kept so :meth:`release_quarantine` can restore it). Nothing
+        else is modified, except that the Source is marked (``Source.quarantined_at``). P13 (D-015): a
+        fact is hidden only when no OTHER live Source supports it; the others stay visible and are
+        listed in ``corroborated`` (``[{fact_id, other_sources}]``, ``corroborated_total``), and
+        ``fact_ids`` lists the hidden ones. Returns ``{source_id, mode, fact_ids, readers: [{agent_id,
+        step_id, step_n, at, fact_id}], readers_total, agents, decision_ids, decisions_total,
+        handoff_ids, handoffs_total, corroborated, corroborated_total, detail_truncated, truncated}``:
         ``readers`` / ``agents`` are the Steps / agents that READ a quarantined fact, the decisions are
         ``BASED_ON`` them and the handoffs ``CARRIES`` them. The response is bounded: ``readers``,
         ``decision_ids`` and ``handoff_ids`` list at most ``max_detail`` (1..5000, default 500) entries
@@ -383,7 +401,12 @@ class Lineage:
             "decisions_total": r["decisions_total"],
             "handoff_ids": sorted(r["handoff_ids"]),
             "handoffs_total": r["handoffs_total"],
-            "detail_truncated": max(r["reads_total"], r["decisions_total"], r["handoffs_total"]) > max_detail,
+            "corroborated": _others(r["corroborated"]),
+            "corroborated_total": r["corroborated_total"],
+            "detail_truncated": max(
+                r["reads_total"], r["decisions_total"], r["handoffs_total"], r["corroborated_total"]
+            )
+            > max_detail,
             "truncated": bool(r["truncated"]),
         }
 
@@ -392,7 +415,9 @@ class Lineage:
     ) -> dict[str, Any]:
         """Undo :meth:`quarantine`: quarantined facts under the source get their previous status back.
 
-        ``depth`` (1..12, default 8) should be at least the depth the quarantine used.
+        ``depth`` (1..12, default 8) should be at least the depth the quarantine used. The Source is live
+        again, so a fact that was hidden because all its sources were quarantined is back as soon as one of
+        them is released (P13, D-015).
         """
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("depth", depth, MAX_DEPTH)

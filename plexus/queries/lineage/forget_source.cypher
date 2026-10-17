@@ -1,13 +1,15 @@
 // name: lineage/forget_source
-// purpose: ONE atomic statement: forget everything derived from a Source: every Fact reaching it through (f)-[:DERIVED_FROM*1..depth]->(src) (depth = $depth, 1..12, callers default to 8) gets status 'forgotten' and valid_to = min(valid_to, now); Decisions BASED_ON those facts are flagged (not deleted).
+// purpose: ONE atomic statement: forget everything derived from a Source: every Fact reaching it through (f)-[:DERIVED_FROM*1..depth]->(src) (depth = $depth, 1..12, callers default to 8) gets status 'forgotten' and valid_to = min(valid_to, now) - unless another Source still supports it (P13, D-015): then only its edge to this Source is deleted. Decisions BASED_ON the forgotten facts are flagged (not deleted).
 // params: source_id:str, now:int, limit:int, depth:int, reason:str, max_detail:int
-// returns: fact_ids (facts changed by this call), decision_ids (decisions flagged; at most max_detail listed), decisions_total, handoff_ids (handoffs that CARRY a forgotten fact, reported only; at most max_detail listed), handoffs_total, truncated (true when `limit` facts were hit: call again to continue). Zero rows = no such Source.
+// returns: fact_ids (facts FORGOTTEN by this call), unlinked [{fact_id, other_sources}] (reached facts that keep another Source: their edge to this Source is deleted, the fact is not forgotten; at most max_detail listed), unlinked_total (exact), decision_ids (decisions flagged; at most max_detail listed), decisions_total, handoff_ids (handoffs that CARRY a forgotten fact, reported only; at most max_detail listed), handoffs_total, truncated (true when `limit` facts were hit: call again to continue). Zero rows = no such Source.
 // mode: rw
 // A 'dormant' fact (moved by memory_sweep) is forgotten too, so restore_fact cannot bring it back (P7-int).
 // Idempotent: facts that are already 'forgotten' are skipped, so a second call changes nothing. The write is bounded by $limit (callers use <= 5000) because LIMIT does not stop eager writes: it is applied BEFORE the SET.
-// A fact derived from several sources is forgotten as soon as ANY of them is forgotten (forget is strict; quarantine is the reversible variant).
+// Multi-source (P13, D-015; was: 'a fact derived from several sources is forgotten as soon as ANY of them is forgotten'): a reached fact with a direct edge to some OTHER Source is UNLINKED - the
+// (fact)-[:DERIVED_FROM]->(this Source) edge is deleted (inside a CALL, the only write there), the fact keeps its status; if every remaining Source is quarantined the fact becomes 'quarantined' (prior_status kept) because nothing live supports it any more.
+// A fact whose only Source is this one (or a derived fact without a direct Source) is forgotten as before. Forgetting the second Source later forgets the fact: its remaining edge is the last one. Same direct-edge limitation as lineage/quarantine.
 // The decision / handoff lists in the response are cut at max_detail (the totals are exact); every affected decision is still flagged.
-// decisions / handoffs describe only the facts this call changed (already-forgotten facts are skipped).
+// decisions / handoffs describe only the facts this call forgot (already-forgotten facts are skipped, unlinked facts are not forgotten).
 // Tail (audit B1): decisions and handoffs are CALL { WITH fs ... } subqueries returning key-less aggregates, so the fact list is never a grouping key (it was hashed once per row: quadratic).
 // Plan shape (P5 review Q3, P9-b): the cascade is expanded level by level FROM the Source (up to 12 fixed one-hop OPTIONAL MATCHes, each driven by the
 // DISTINCT facts found at the previous level and skipped once $depth is reached), so the work follows DERIVED_FROM edges and a diamond lineage
@@ -68,20 +70,39 @@ UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
 CALL {
-  WITH fs
-  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
+  WITH src, fs
+  UNWIND fs AS cx
+  WITH src, cx, [(cx)-[:DERIVED_FROM]->(co:Source) | {id: co.id, q: co.quarantined_at}] AS oth
+  RETURN collect({f: cx, oth: [o IN oth WHERE o.id <> src.id | {id: o.id, live: o.q IS NULL}]}) AS rows
+}
+WITH src, size(fs) >= $limit AS trunc, [w IN rows WHERE size(w.oth) = 0 | w.f] AS gone, [w IN rows WHERE size(w.oth) > 0 | w] AS kept
+CALL {
+  WITH src, trunc, gone, kept
+  UNWIND CASE WHEN size(kept) = 0 THEN [null] ELSE kept END AS kw
+  WITH src, kw, kw.f AS kf
+  OPTIONAL MATCH (kf)-[r:DERIVED_FROM]->(src)
+  DELETE r
+  RETURN count(kw) AS nk
+}
+CALL {
+  WITH src, trunc, gone, kept, nk
+  UNWIND CASE WHEN size(gone) = 0 THEN [null] ELSE gone END AS x
   OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(x)
   RETURN collect(DISTINCT d) AS ds
 }
 CALL {
-  WITH fs
-  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
+  WITH src, trunc, gone, kept, nk, ds
+  UNWIND CASE WHEN size(gone) = 0 THEN [null] ELSE gone END AS y
   OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(y)
   RETURN collect(DISTINCT h) AS hs
 }
-FOREACH (z IN fs |
+FOREACH (z IN gone |
   SET z.status = 'forgotten', z.forgotten_at = $now,
       z.valid_to = CASE WHEN z.valid_to < $now THEN z.valid_to ELSE $now END)
+FOREACH (u IN [w IN kept WHERE NOT any(o IN w.oth WHERE o.live) AND w.f.status IN ['active', 'superseded', 'dormant'] | w.f] |
+  SET u.prior_status = u.status, u.status = 'quarantined', u.quarantined_at = $now)
 FOREACH (e IN ds | SET e.flagged = true, e.flag_reason = $reason)
-RETURN [a IN fs | a.id] AS fact_ids, [b IN ds[0..$max_detail] | b.id] AS decision_ids, size(ds) AS decisions_total,
-       [c IN hs[0..$max_detail] | c.id] AS handoff_ids, size(hs) AS handoffs_total, size(fs) >= $limit AS truncated
+RETURN [a IN gone | a.id] AS fact_ids, [b IN ds[0..$max_detail] | b.id] AS decision_ids, size(ds) AS decisions_total,
+       [c IN hs[0..$max_detail] | c.id] AS handoff_ids, size(hs) AS handoffs_total,
+       [k IN kept[0..$max_detail] | {fact_id: k.f.id, other_sources: [o IN k.oth | o.id]}] AS unlinked, size(kept) AS unlinked_total,
+       trunc AS truncated
