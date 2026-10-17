@@ -886,7 +886,7 @@
     }
   },
   "impact": {
-    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status), the agents and steps that READ them,\nthe decisions BASED_ON them, the tasks those decisions are FOR and the handoffs that CARRY them, with\nexact totals, earliest_at / latest_at (epoch ms) per category and the 5 earliest affected facts.\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
+    "description": "Read-only blast radius: what is affected if a source or fact is wrong, or a task fails. Writes nothing.\nkind='source' or 'fact' returns the derived facts (count by status; each listed fact with its status,\nvalid_from and created_at), the agents and steps that READ them, the decisions BASED_ON them, the tasks\nthose decisions are FOR and the handoffs that CARRY them, with exact totals, earliest_at / latest_at\n(epoch ms) per category and the 5 earliest affected facts. A cut list says so (ids_truncated).\nkind='task' returns the unfinished tasks that transitively depend on it. Use it before quarantine_source,\nforget_source or fail_task to see the damage first.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -915,10 +915,34 @@
         },
         "max_items": {
           "default": 50,
-          "description": "Ids listed per category (totals are always exact).",
+          "description": "Ids listed per category (totals are always exact; a cut list says so with ids_truncated=true: page the facts with offset / next_offset, or ask probe_ids).",
           "maximum": 2000,
           "minimum": 1,
           "type": "integer"
+        },
+        "offset": {
+          "default": 0,
+          "description": "Skip this many facts (or tasks for kind='task') in the listed order: pass the previous answer's next_offset to get the next page.",
+          "maximum": 5000,
+          "type": "integer"
+        },
+        "order": {
+          "default": "id",
+          "description": "How the listed facts are sorted (source/fact only). 'valid_from' or 'created_at' lists the earliest first: order='valid_from', max_items=5 gives the 5 earliest affected facts.",
+          "enum": [
+            "id",
+            "valid_from",
+            "created_at"
+          ],
+          "type": "string"
+        },
+        "probe_ids": {
+          "default": [],
+          "description": "Fact ids (or task ids for kind='task') to test for membership in the WHOLE affected set, not just the listed page: returns probes {id: true|false}.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "step": {
           "description": "Optional step counter (1, 2, 3...; never backwards): calls with the same step share one step. Omit to make each call the next step.",

@@ -48,7 +48,8 @@ async def test_impact_source_fact_and_task(server, client, tenant):
         assert (r["decisions"]["total"], r["decisions"]["ids"]) == (1, [dec])
         assert r["decisions"]["earliest_at"] == r["decisions"]["latest_at"] > 0
         assert r["facts"]["earliest_at"] <= r["facts"]["latest_at"] and len(r["facts"]["earliest"]) == 2
-        assert r["tasks"] == {"total": 1, "ids": ["t2"]}
+        assert r["decisions"]["ids_truncated"] is False  # P9-f: a cut list is never silent
+        assert (r["tasks"]["total"], r["tasks"]["ids"], r["tasks"]["ids_truncated"]) == (1, ["t2"], False)
         assert "b" in r["readers"]["agents"] and r["readers"]["steps_total"] >= 1
         assert r["truncated"] is False and r["depth"] == 8
 
@@ -56,11 +57,45 @@ async def test_impact_source_fact_and_task(server, client, tenant):
         assert r["facts"]["ids"] == [f2] and r["decisions"]["total"] == 0
 
         r = (await ok(c, "impact", agent_id="a", kind="task", id="t1"))["impact"]
-        assert r["tasks"] == {"total": 2, "ids": ["t2", "t3"]}
+        assert r["tasks"] == {
+            "total": 2,
+            "ids": ["t2", "t3"],
+            "offset": 0,
+            "next_offset": None,
+            "ids_truncated": False,
+        }
         r = (await ok(c, "impact", agent_id="a", kind="task", id="t1", depth=1))["impact"]
         assert r["tasks"]["ids"] == ["t2"]
         capped = (await ok(c, "impact", agent_id="a", kind="source", id=src, max_items=1))["impact"]
         assert capped["facts"]["total"] == 2 and len(capped["facts"]["ids"]) == 1
+
+
+async def test_impact_lists_facts_with_their_times_earliest_first(server, client, tenant):
+    async with Client(server) as c:
+        src, f1, f2, dec = await _world(c)
+        r = (await ok(c, "impact", agent_id="a", kind="source", id=src, order="created_at", max_items=1))[
+            "impact"
+        ]
+        rec = r["facts"]["records"]
+        assert r["facts"]["order"] == "created_at" and len(rec) == 1 and rec[0]["id"] == f1  # f1 came first
+        assert rec[0]["status"] == "active" and rec[0]["created_at"] > 0 and rec[0]["valid_from"] > 0
+
+
+async def test_impact_never_hides_a_cut_list(server, client, tenant):
+    async with Client(server) as c:
+        src, f1, f2, dec = await _world(c)
+        r = await ok(c, "impact", agent_id="a", kind="source", id=src, max_items=1, probe_ids=[f1, f2, "zz"])
+        facts = r["impact"]["facts"]
+        assert facts["total"] == 2 and len(facts["ids"]) == 1 and facts["ids_truncated"] is True
+        assert facts["next_offset"] == 1 and facts["probes"] == {f1: True, f2: True, "zz": False}
+        nxt = (await ok(c, "impact", agent_id="a", kind="source", id=src, max_items=1, offset=1))["impact"]
+        assert nxt["facts"]["next_offset"] is None and sorted(facts["ids"] + nxt["facts"]["ids"]) == sorted(
+            [f1, f2]
+        )
+        t = await ok(c, "impact", agent_id="a", kind="task", id="t1", max_items=1, probe_ids=["t3", "t1"])
+        tasks = t["impact"]["tasks"]
+        assert tasks["ids"] == ["t2"] and tasks["ids_truncated"] is True and tasks["next_offset"] == 1
+        assert tasks["probes"] == {"t3": True, "t1": False}
 
 
 async def test_impact_writes_no_memory_and_no_read_edges(server, client, tenant):
