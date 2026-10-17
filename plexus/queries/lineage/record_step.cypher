@@ -1,7 +1,7 @@
 // name: lineage/record_step
 // purpose: ONE atomic statement: create the agent's next Step (BY the agent, NEXT from its previous Step). Idempotent per (agent, n).
 // params: agent_id:str, step_id:str, n:int, at:int
-// returns: step_id (null if refused), n (the step number used), created (bool), previous_id (id of the preceding Step or null).
+// returns: step_id (null if refused), n (the step number used), created (bool), previous_id (id of the preceding Step when a Step was created, else null: an idempotent repeat or a refused call has no predecessor to report).
 //   created=false with step_id set = a Step with that n already existed (returned unchanged); step_id null = out of order (a later n exists).
 // mode: rw
 // n < 0 means "auto": previous n + 1 (1 for the first step). Steps must be recorded in increasing n: the NEXT chain is append-only.
@@ -18,4 +18,5 @@ FOREACH (_ IN CASE WHEN can THEN [1] ELSE [] END |
   CREATE (s)-[:BY]->(a)
   FOREACH (pp IN CASE WHEN last IS NULL THEN [] ELSE [last] END | CREATE (pp)-[:NEXT]->(s)))
 RETURN CASE WHEN ex IS NOT NULL THEN ex.id WHEN can THEN $step_id ELSE null END AS step_id,
-       want AS n, can AS created, last.id AS previous_id
+       want AS n, can AS created,
+       CASE WHEN can THEN last.id ELSE null END AS previous_id
