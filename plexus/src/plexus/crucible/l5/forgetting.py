@@ -58,7 +58,12 @@ MODE_TABLE: dict[str, tuple[Settings, bool, bool | None]] = {
     "on+sweep": (Settings(), True, None),
     "on-mult": (Settings(act_mode="mult", kw_bypass="value"), True, False),
     "kw-fix": (Settings(act_mode="mult", kw_bypass="fact"), True, False),
-    "sep": (Settings(act_mode="mult"), False, True),
+    "sep": (Settings(act_mode="mult"), False, True),  # the context term as shipped (entity + predicate cues)
+    "sep-entity": (
+        Settings(act_mode="mult", cues="entity"),
+        False,
+        True,
+    ),  # P1 as first shipped: entity cue only
     "sep+add": (Settings(act_mode="add"), True, True),
     "sep+mult": (
         Settings(act_mode="mult"),

@@ -10,7 +10,8 @@ from plexus.audit.recorder import Ref
 from plexus.graph.client import GraphClient, Rows
 
 AUXILIARY_PREFIX = (
-    "activation/"  # reads under this prefix never name a ToolCall when the tool ran another read
+    "activation/",  # reads under these prefixes never name a ToolCall when the tool ran another read
+    "engram/recall_predicates",  # the predicate-cue fan read of recall (after engram/recall; CROSS_CHECK §3.2)
 )
 
 
@@ -68,9 +69,10 @@ class MeteredClient:
     def query_name(self) -> str:
         """The write query if there was one (the last), else the last *main* read query.
 
-        ``activation/*`` reads are auxiliary (they re-rank or annotate what the tool's own query found), so a
-        forgetting-on ``recall`` is recorded as ``engram/recall``. A tool that only runs activation reads
-        (``memory_strength``) still reports the last of them.
+        ``activation/*`` reads and the predicate-cue fan read are auxiliary (they re-rank or annotate what the
+        tool's own query found), so a forgetting-on or separation-on ``recall`` is recorded as
+        ``engram/recall``. A tool that only runs activation reads (``memory_strength``) still reports the last
+        of them.
         """
         if self.writes:
             return self.writes[-1]

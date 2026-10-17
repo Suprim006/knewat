@@ -104,7 +104,9 @@ time the source is registered.
 | `PLEXUS_ACT_MODE` | `mult` | D-013: `mult` = the formula above; `add` = the additive banded score below (opt-in; its pre-registered L5b test failed, see D-013) |
 | `PLEXUS_RECALL_SEPARATION` | `on` | D-013 P1: entity resolution + fan-damped lift + damped sibling expansion + lures (below). `recall(separation=…)` overrides it |
 | `PLEXUS_KW_BYPASS` | `fact` | the exact-keyword bypass tests `entity predicate: value` (`fact`) or the value alone (`value`, the pre-D-013 rule) |
-| `PLEXUS_ACT_GAMMA`, `PLEXUS_ACT_SMAX` | `0.15`, `ln 50` | entity lift and the fan at which it vanishes |
+| `PLEXUS_ACT_CUES` | `entity+predicate` | the context term: the entity and predicate cues summed (CROSS_CHECK §3.2); `entity` = the single damped entity term P1 first shipped |
+| `PLEXUS_ACT_CUE_S`, `PLEXUS_ACT_W_ENTITY`, `PLEXUS_ACT_W_PREDICATE` | `5`, `0.6`, `0.4` | ACT-R `S` (a cue with fan ≥ e^S ≈ 148 adds nothing) and the cue weights |
+| `PLEXUS_ACT_GAMMA`, `PLEXUS_ACT_SMAX` | `0.15`, `ln 50` | the single-cue form (`cues=entity`); `S_max` is also the fan at which the sibling expansion is damped to nothing |
 | `PLEXUS_ACT_BETA`, `PLEXUS_ACT_S`, `PLEXUS_ACT_C`, `PLEXUS_ACT_A`, `PLEXUS_ACT_DMAX`, `PLEXUS_ACT_KAPPA`, `PLEXUS_ACT_DELTA`, `PLEXUS_ACT_BAND` | `0.05`, `1.0`, `0.217`, `0.177`, `1.0`, `0.4`, `0.03`, `0.02` | `add` mode constants (below) |
 
 Bad values fail loudly (`ValueError`), they are not silently defaulted.
@@ -131,18 +133,31 @@ Research: `docs/research/NEUROSCIENCE_MEMORY_SURVEY.md`, `MEMORY_FORGETTING_IMPL
 **Pattern separation at recall (P1, `PLEXUS_RECALL_SEPARATION=on`).** Before the vector read, `engram/recall_entities`
 matches the query's words against `Entity.name` (full-text OR, ≤ 5 entities) and counts each entity's **fan**: its
 current facts in the searched scopes. An entity is *named* only when every word of its name is in the query, so
-"Acme Notes API S07 api_version" names `Acme Notes API S07` and not its `S08` twin. Facts about a named entity get
+"Acme Notes API S07 api_version" names `Acme Notes API S07` and not its `S08` twin. The named entities' own
+current facts join the candidates (one bounded read in the `engram/recall_hop_facts` shape, the `2k` nearest per
+entity; CROSS_CHECK §3.3), so a named entity's fact is never missed because the vector over-fetch did not reach it.
+The **predicate** is the second cue (CROSS_CHECK §3.2): a candidate's predicate counts as named by the same rule
+(every word of it in the query; `api_version` is the words `api` and `version`), and `engram/recall_predicates`
+counts its fan = current facts with that predicate in the searched scopes. Each candidate gets the context term
 
 ```
-sep = gamma · max(0, 1 − ln(fan) / S_max)        # gamma = 0.15, S_max = ln 50
+sep = w_entity · max(0, S − ln fan_entity) + w_predicate · max(0, S − ln fan_predicate)
+      # w_entity = 0.6, w_predicate = 0.4, S = 5; a cue the fact does not match contributes 0
 ```
 
-in log-relevance (ACT-R's `S − ln fan`: a specific entity lifts its facts ~16%, a hub entity with ≥ 50 facts lifts
-nothing and must win on relevance). In `mult` mode `final = relevance × multiplier × e^sep`. The sibling expansion
-of `engram/recall` is damped by the same factor (`rank = d − boost · damp`). Each row reports `entity_match`, `sep`
-and `lures` (other candidates with the same predicate about another entity within 0.02 relevance: "this row has a
-near-identical competitor, check the entity"); `Recall.entities`/`separation` and `RETURNED.sep` make `why_recalled`
-explain the lift. Nothing is written by a recall. The exact-keyword bypass now tests the whole fact text.
+in log-relevance (ACT-R's `C = Σ W_j (S − ln fan_j)`): on the L5b probe the named fact gets `0.6·(5 − ln 12) +
+0.4·(5 − ln 20) ≈ 2.1` nats, its same-entity sibling `1.3`, its other-entity twin `0.8` — the entity cue separates
+the entities, the predicate cue separates the facts of one entity, which a single entity cue cannot do (the 20
+same-entity rows of L5b-D013). A cue is floored at 0, so a hub cue (fan ≥ e^5 ≈ 148) adds nothing and never
+subtracts; a fan of 50 still adds a little (the first form zeroed it). `PLEXUS_ACT_CUES=entity` restores the first
+form, `sep = gamma · max(0, 1 − ln(fan) / S_max)` (`gamma = 0.15`, `S_max = ln 50`), the predicate ignored. In
+`mult` mode `final = relevance × multiplier × e^sep`. The sibling expansion of `engram/recall` is damped by the
+entity fan (`rank = d − boost · damp`, `damp = max(0, 1 − ln fan / S_max)`). Each row reports `entity_match`,
+`predicate_match`, `sep` and `lures` (other candidates with the same predicate about another entity within 0.02
+relevance: "this row has a near-identical competitor, check the entity"); `Recall.entities`/`separation` and
+`RETURNED.sep` make `why_recalled` explain the lift. Nothing is written by a recall. The exact-keyword bypass
+tests the whole fact text. Cost: two more bounded reads per recall when the query names an entity (the entity's
+facts, the predicate fans): 6 round trips with forgetting on.
 
 **Additive mode (P2, `PLEXUS_ACT_MODE=add`).** `plexus.activation.score`:
 

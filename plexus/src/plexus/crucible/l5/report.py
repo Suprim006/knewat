@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Any
 
 from plexus.crucible.l5.forgetting import run_forgetting
+from plexus.crucible.l5.hub import hub_criteria, render_hub, run_hub
 from plexus.crucible.l5.staleness import run_staleness
 from plexus.crucible.util import iso_utc, run_stamp
 from plexus.embed import get_embedder
@@ -90,6 +91,55 @@ def criteria(res: dict[str, Any], margin: float = 0.02) -> list[dict[str, Any]]:
         def r(mode: str, k: int = 1) -> float:
             return m[mode]["recall"]["all"][f"recall@{k}"]
 
+        if "sep" in m and "sep-entity" in m:  # the predicate-cue run (CROSS_CHECK §3.2)
+            s1, e1 = r("sep"), r("sep-entity")
+            out.append(
+                {"id": "PC sep recall@1 >= 0.95", "hard": False, "ok": s1 >= 0.95 - tol, "value": [s1]}
+            )
+            out.append(
+                {
+                    "id": "PC sep recall@1 > sep-entity + 0.02 (falsified otherwise: no gain beyond id noise)",
+                    "hard": True,
+                    "ok": s1 > e1 + 0.02 + tol,
+                    "value": [e1, s1],
+                }
+            )
+            same = m["sep"]["above_same_entity"]
+            out.append(
+                {
+                    "id": "PC sep same-entity rows above target <= 5",
+                    "hard": False,
+                    "ok": same <= 5,
+                    "value": [same],
+                }
+            )
+            out.append(
+                {
+                    "id": "PC sep recall@5 >= sep-entity recall@5",
+                    "hard": False,
+                    "ok": r("sep", 5) >= r("sep-entity", 5) - tol,
+                    "value": [r("sep-entity", 5), r("sep", 5)],
+                }
+            )
+            ns, ne = m["sep"]["noise_share"], m["sep-entity"]["noise_share"]
+            out.append(
+                {
+                    "id": "PC sep noise share <= sep-entity + 0.01",
+                    "hard": False,
+                    "ok": ns <= ne + 0.01 + tol,
+                    "value": [ne, ns],
+                }
+            )
+            if "sep+mult" in m:
+                d = abs(r("sep+mult") - s1)
+                out.append(
+                    {
+                        "id": "PC sep+mult recall@1 within 1 probe (0.0072) of sep",
+                        "hard": False,
+                        "ok": d <= 1 / 140 + tol,
+                        "value": [s1, r("sep+mult")],
+                    }
+                )
         if "sep" in m:
             s1 = r("sep")
             out.append(
@@ -198,6 +248,7 @@ def run_all(
     modes: Sequence[str] = ("off", "on", "on+sweep"),
     burst: bool = False,
     sql: bool = False,
+    hub: bool = False,
 ) -> Path:
     embedder = get_embedder(embedder_kind)
     started = time.time()
@@ -215,7 +266,10 @@ def run_all(
         res["forgetting"] = run_forgetting(
             client, embedder, sprints, noise, modes=modes, burst=burst, sql=sql
         )
-    res["criteria"] = criteria(res, margin)
+    if hub:
+        res["hub"] = run_hub(client, embedder)
+        res["hub"]["criteria"] = hub_criteria(res["hub"])
+    res["criteria"] = criteria(res, margin) + (res["hub"]["criteria"] if hub else [])
     res["seconds"] = round(time.time() - started, 1)
     out = out_root / (run_stamp(started) + (f"-{tag}" if tag else ""))
     out.mkdir(parents=True, exist_ok=True)
@@ -375,6 +429,8 @@ def render_report(res: dict[str, Any]) -> str:
             f"Fact nodes before/after: {sw['fact_nodes_before']}/{sw['fact_nodes_after']}.",
             "",
         ]
+    if "hub" in res:
+        L += [render_hub(res["hub"]), ""]
     L += [
         "## Pass criteria (fixed in the pre-registration)",
         "",
@@ -394,7 +450,7 @@ def main(argv: list[str] | None = None) -> int:
         prog="plexus.crucible.l5", description="Crucible L5: staleness and forgetting (no LLM)"
     )
     p.add_argument("--out", type=Path, default=DEFAULT_OUT)
-    p.add_argument("--only", choices=("staleness", "forgetting"))
+    p.add_argument("--only", choices=("staleness", "forgetting", "hub"))
     p.add_argument("--sprints", type=int, default=20)
     p.add_argument("--noise", type=int, default=5, help="noise facts per subject (5 primary, 15 stress)")
     p.add_argument(
@@ -426,6 +482,7 @@ def main(argv: list[str] | None = None) -> int:
             a.out,
             staleness=a.only in (None, "staleness"),
             forgetting=a.only in (None, "forgetting"),
+            hub=a.only == "hub",
             sprints=a.sprints,
             noise=a.noise,
             margin=a.margin,

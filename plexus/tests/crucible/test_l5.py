@@ -92,7 +92,7 @@ def test_forgetting_toy_run(l5_client, emb):
 def test_forgetting_d013_modes_toy(l5_client, emb):
     from plexus.crucible.l5.forgetting import run_forgetting
 
-    names = ("off", "on-mult", "kw-fix", "sep", "sep+add")
+    names = ("off", "on-mult", "kw-fix", "sep", "sep+add", "sep-entity")
     res = run_forgetting(l5_client, emb, k_sprints=2, noise_mult=2, modes=names, burst=True)
     assert set(res["modes"]) == set(names)
     assert res["config"]["burst"] is True and list(res["config"]["modes"]) == list(names)
@@ -100,12 +100,35 @@ def test_forgetting_d013_modes_toy(l5_client, emb):
         for k in (1, 3, 5):
             assert 0 <= m["recall"]["all"][f"recall@{k}"] <= 1
         assert m["above_same_entity"] + m["above_other_entity"] == sum(m["ranked_above_target"].values())
-        assert isinstance(m["entity_read_ms"], float) == (name in ("sep", "sep+add"))
+        assert isinstance(m["entity_read_ms"], float) == (name in ("sep", "sep+add", "sep-entity"))
         assert {"p10", "p25", "p50", "p75", "p90", "n"} <= set(m["gap12"])
     assert res["modes"]["off"]["gap12"]["n"] >= 1
     crit = R.criteria({"forgetting": res})
     assert any(k["id"].startswith("L5b-D013 sep recall@1") for k in crit)
     assert "L5b-D013 kw-fix recall@1 (report only)" in {k["id"] for k in crit}
+    assert "PC sep recall@1 >= 0.95" in {k["id"] for k in crit}, (
+        "the predicate-cue criteria need sep + sep-entity"
+    )
+
+
+def test_hub_variant_toy(l5_client, emb, tmp_path):
+    """The plan's §5.3 hub world runs end to end on the hash embedder (toy: every arm, criteria present)."""
+    from plexus.crucible.l5 import hub as H
+
+    res = H.run_hub(l5_client, emb)
+    assert res["world"]["facts"] == H.HUB_FACTS + H.N_OTHERS * H.FACTS_PER_OTHER
+    assert res["world"]["hub_fan_resolved"] == H.HUB_FACTS, "the hub is resolved by name with its full fan"
+    assert 1.5 <= res["world"]["predicate_fan_mean"] <= 3.0
+    assert set(res["arms"]) == set(H.ARMS)
+    for m in res["arms"].values():
+        assert 0 <= m["recall@1"] <= m["recall@5"] <= 1 and m["statements_per_probe"] >= 2
+    assert (
+        res["arms"]["off"]["entity_facts_added_mean"] == 0 and res["arms"]["sep"]["statements_per_probe"] >= 4
+    )
+    res["criteria"] = H.hub_criteria(res)
+    assert {k["id"] for k in res["criteria"]} >= {"hub: sep recall@1 >= 0.90 (plan §5.3)"}
+    text = H.render_hub(res)
+    assert "| sep |" in text and "| sep-flat |" in text
 
 
 def test_forgetting_sql_arm_toy(l5_client, emb, tmp_path):

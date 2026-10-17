@@ -31,6 +31,24 @@ def test_sep_term_is_gamma_for_a_lonely_entity_and_zero_for_a_hub():
     assert S.sep_term(True, 0, gamma=g, s_max=smax) == pytest.approx(0.15), "fan 0 counts as 1"
 
 
+def test_cue_term_is_w_times_s_minus_ln_fan_floored_at_zero_and_the_context_term_sums_the_cues():
+    assert S.cue_term(True, 1, w=0.6, s=5.0) == pytest.approx(3.0)
+    assert S.cue_term(True, 12, w=0.6, s=5.0) == pytest.approx(0.6 * (5 - math.log(12)))
+    assert S.cue_term(True, 148, w=0.6, s=5.0) == pytest.approx(0.6 * (5 - math.log(148)))  # still > 0
+    assert S.cue_term(True, 149, w=0.6, s=5.0) == 0.0, "fan > e^S: nothing, never negative"
+    assert S.cue_term(True, 0, w=0.6, s=5.0) == pytest.approx(3.0), "fan 0 counts as 1"
+    assert S.cue_term(False, 1, w=0.6, s=5.0) == 0.0
+    both = S.context_term(True, 12, True, 20)
+    assert both == pytest.approx(0.6 * (5 - math.log(12)) + 0.4 * (5 - math.log(20)))
+    assert S.context_term(True, 12) == pytest.approx(0.6 * (5 - math.log(12)))
+    assert S.context_term(False, 0, True, 20) == pytest.approx(0.4 * (5 - math.log(20)))
+    assert S.context_term(False, 0) == 0.0
+    # the single-cue form ignores the predicate cue
+    one = S.context_term(True, 12, True, 20, cues="entity", gamma=0.15, s_max=math.log(50))
+    assert one == pytest.approx(S.sep_term(True, 12, gamma=0.15, s_max=math.log(50)))
+    assert S.context_term(False, 0, True, 20, cues="entity") == 0.0
+
+
 def test_act_term_is_bounded_by_beta_and_minus_beta_for_an_unknown_activation():
     for a in (-50.0, -5.0, -2.0, 0.0, 3.0, 40.0):
         t = S.act_term(a, -2.0, beta=0.05, s_noise=1.0)
@@ -52,9 +70,23 @@ def test_score_is_ln_relevance_plus_bounded_terms_and_a_bypass_keeps_only_the_en
     plain = S.score(0.7, ent_match=False, fan=0, salience=0.0, in_band=True, s_max_band=0.0, **kw)
     assert plain == pytest.approx(math.log(0.7) + 0.05 * math.tanh(0.5))
     lifted = S.score(0.7, ent_match=True, fan=5, salience=0.0, in_band=True, s_max_band=0.0, **kw)
-    assert lifted - plain == pytest.approx(S.sep_term(True, 5, gamma=0.15, s_max=math.log(50)))
+    assert lifted - plain == pytest.approx(S.context_term(True, 5))
+    both = S.score(
+        0.7,
+        ent_match=True,
+        fan=5,
+        pred_match=True,
+        pred_fan=20,
+        salience=0.0,
+        in_band=True,
+        s_max_band=0.0,
+        **kw,
+    )
+    assert both - plain == pytest.approx(S.context_term(True, 5, True, 20))
     byp = S.score(0.7, ent_match=True, fan=5, salience=0.9, in_band=True, s_max_band=0.9, bypass=True, **kw)
-    assert byp == pytest.approx(math.log(0.7) + S.sep_term(True, 5, gamma=0.15, s_max=math.log(50)))
+    assert byp == pytest.approx(math.log(0.7) + S.context_term(True, 5))
+    one = S.score(0.7, ent_match=True, fan=5, salience=0.0, in_band=True, s_max_band=0.0, cues="entity", **kw)
+    assert one - plain == pytest.approx(S.sep_term(True, 5, gamma=0.15, s_max=math.log(50)))
     assert S.score(0.0, ent_match=True, fan=1, salience=0.0, in_band=True, s_max_band=0.0, **kw) == float(
         "-inf"
     )
@@ -154,6 +186,18 @@ def test_d013_settings_defaults_and_mode_aware_neutral_and_sweep_margin():
         1.0,
     )
     assert s.s_max == pytest.approx(math.log(50))
+    assert (s.cues, s.cue_s, s.w_entity, s.w_predicate) == ("entity+predicate", 5.0, 0.6, 0.4)
+    one = Settings.from_env(
+        {
+            "PLEXUS_ACT_CUES": "entity",
+            "PLEXUS_ACT_CUE_S": "4",
+            "PLEXUS_ACT_W_ENTITY": "1",
+            "PLEXUS_ACT_W_PREDICATE": "0",
+        }
+    )
+    assert (one.cues, one.cue_s, one.w_entity, one.w_predicate) == ("entity", 4.0, 1.0, 0.0)
+    with pytest.raises(ValueError, match="PLEXUS_ACT_CUES"):
+        Settings.from_env({"PLEXUS_ACT_CUES": "predicate"})
     assert s.sweep_margin == 2.0 and s.neutral == pytest.approx(neutral_activation(0.5))
     add = Settings.from_env({"PLEXUS_ACT_MODE": "add"})
     assert add.additive and add.sweep_margin == 0.72

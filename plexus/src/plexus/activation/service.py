@@ -277,7 +277,20 @@ class Activation:
             "salience_inputs": fa.salience_inputs,
             "decays": [round(d, 3) for d in fa.decays],
             "fan": fan,
-            "entity_lift": score_mod.sep_term(True, fan, gamma=st.gamma, s_max=st.s_max) if fan else 0.0,
+            "entity_lift": (
+                score_mod.context_term(
+                    True,
+                    fan,
+                    cues=st.cues,
+                    gamma=st.gamma,
+                    s_max=st.s_max,
+                    w_entity=st.w_entity,
+                    w_predicate=st.w_predicate,
+                    s=st.cue_s,
+                )
+                if fan
+                else 0.0
+            ),
             "suggested_verify_after": (
                 self._suggest_verify_after(fa, t) if fa.salience >= SALIENCE_PROTECT else None
             ),

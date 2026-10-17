@@ -40,6 +40,7 @@ MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 10  # distinct query words sent to the Fact.value full-text index
 RECALL_ENTITIES = 5  # entities the pattern-separation read resolves per recall (D-013 P1)
+RECALL_PREDICATES = 10  # predicates the predicate-cue read counts per recall (CROSS_CHECK §3.2)
 MAX_ENTITY_QUERY_TOKENS = 24  # name tokens OR-ed into the Entity.name full-text query
 ENTITY_NEIGHBOURS = 5  # nearest entities the vector lookup of resolve_entity considers
 NO_TOKEN = "plexusnomatchtoken"  # full-text query for a name without any word character: matches nothing
@@ -505,17 +506,24 @@ class Engram:
         """Top-``k`` facts for ``query`` in ``scope_id`` (and the scopes it inherits), best first, plus how.
 
         The second value is the recall's metadata for ``why_recalled``: ``entities`` (the entities the query
-        named, ``{id: {name, fan}}``), ``separation`` and ``forgetting`` (what was on), ``mode``.
+        named, ``{id: {name, fan}}``), ``predicates`` (the predicates it named, ``{predicate: {fan}}``),
+        ``entity_facts_added`` (candidates the named entities contributed, CROSS_CHECK §3.3), ``separation``
+        and ``forgetting`` (what was on), ``mode``.
 
-        **Pattern separation (D-013 P1).** With ``separation`` on (``True``, or ``None`` and
-        ``PLEXUS_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
+        **Pattern separation (D-013 P1, CROSS_CHECK §3.2-3.3).** With ``separation`` on (``True``, or ``None``
+        and ``PLEXUS_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
         ``Entity.name`` (one bounded full-text read, ``engram/recall_entities``); an entity counts as *named*
-        when every word of its name is in the query. Facts about a named entity get the lift
-        ``gamma * max(0, 1 - ln(fan) / S_max)`` in log-relevance (``fan`` = the entity's current facts in the
-        searched scopes; a hub entity with >= 50 facts gets nothing), the sibling expansion of
-        ``engram/recall`` is damped by the same factor, and each row reports ``lures``: other candidates with
-        the same predicate about another entity at nearly the same relevance. Rows gain ``entity_match``,
-        ``sep`` and ``lures``.
+        when every word of its name is in the query. The named entities' own current facts join the
+        candidates (one bounded read in the ``engram/recall_hop_facts`` shape, ``2k`` nearest per entity), so
+        a named entity's fact is never missed because the vector over-fetch did not reach it. A candidate's
+        predicate counts as *named* by the same rule (every word of the predicate in the query); one bounded
+        read (``engram/recall_predicates``) counts each one's fan. Each candidate then gets the context term
+        ``sep = w_entity * max(0, S - ln fan_entity) + w_predicate * max(0, S - ln fan_predicate)`` over the
+        cues it matches (``fan`` = the entity's / predicate's current facts in the searched scopes; ACT-R's
+        ``S - ln fan``; ``PLEXUS_ACT_CUES=entity`` restores the single damped entity term P1 first shipped),
+        the sibling expansion of ``engram/recall`` is damped by the entity fan, and each row reports
+        ``lures``: other candidates with the same predicate about another entity at nearly the same
+        relevance. Rows gain ``entity_match``, ``predicate_match``, ``sep`` and ``lures``.
 
         **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
         not ``off``) and no ``as_of``, ``2*k`` candidates are fetched and re-ranked by ``relevance x (floor +
@@ -550,7 +558,14 @@ class Engram:
         settings = settings or Settings.from_env()
         fg = as_of is None and (settings.forgetting if forgetting is None else forgetting)
         sp = as_of is None and (settings.separation if separation is None else separation)
-        meta: dict[str, Any] = {"entities": {}, "separation": sp, "forgetting": fg, "mode": settings.act_mode}
+        meta: dict[str, Any] = {
+            "entities": {},
+            "predicates": {},
+            "entity_facts_added": 0,
+            "separation": sp,
+            "forgetting": fg,
+            "mode": settings.act_mode,
+        }
         if k <= 0:
             return [], meta
         k = min(k, MAX_K)
@@ -562,15 +577,26 @@ class Engram:
             statuses = ["active", "dormant"] if include_dormant else ["active"]
         if sp:
             meta["entities"] = self._resolve_entities(query, scope_id, t, statuses)
-        # Re-rank when use history counts or the query named an entity (a lift to apply). Separation alone
-        # with nothing named leaves the plain order: only the fan-damped expansion inside engram/recall
-        # differs.
-        rerank_on = fg or bool(meta["entities"])
+        # Re-rank when use history counts or separation is on (a cue to apply, or candidates to merge).
+        rerank_on = fg or sp
         # With re-ranking, fetch 2*k candidates; the cut back to `k` happens after the re-ranking.
         fetch_k = min(2 * k, 2 * MAX_K) if rerank_on else k
         q = self._embed([query])[0]
         kw_ids = self._keyword_ids(query, scope_id, fetch_k, t, statuses)
+        # CROSS_CHECK §3.3: the named entities' own facts, read before the main query so the ToolCall is
+        # still named after engram/recall (plexus.mcp.metering); merged after it.
+        named_rows = (
+            self._entity_facts(list(meta["entities"]), q, scope_id, fetch_k, t, statuses)
+            if sp and meta["entities"]
+            else []
+        )
         rows = self._fetch_candidates(q, scope_id, fetch_k, t, statuses, kw_ids, damp=sp, smax=settings.s_max)
+        if named_rows:
+            have = {r["fact_id"] for r in rows}
+            added = [r for r in named_rows if r["fact_id"] not in have]
+            rows, meta["entity_facts_added"] = rows + added, len(added)
+        if sp:
+            meta["predicates"] = self._resolve_predicates(query, rows, scope_id, t, statuses)
         acts: dict[str, Any] = {}
         ranked: dict[str, Ranked] = {}
         if rerank_on:
@@ -584,6 +610,7 @@ class Engram:
                 kw_ids=set(kw_ids),
                 words=_query_words(query),
                 entities={eid: e["fan"] for eid, e in meta["entities"].items()},
+                predicates={p: e["fan"] for p, e in meta["predicates"].items()},
                 forgetting=fg,
                 separation=sp,
             )
@@ -648,6 +675,73 @@ class Engram:
                 fan = next((int(f["fan"]) for f in fans if f["entity_id"] == exact[0]["id"]), 0)
                 out[exact[0]["id"]] = {"name": exact[0]["name"], "fan": fan, "score": float("inf")}
         return out
+
+    def _entity_facts(
+        self,
+        entity_ids: list[str],
+        q: list[float],
+        scope_id: str,
+        per_entity: int,
+        t: int,
+        statuses: list[str],
+    ) -> list[dict[str, Any]]:
+        """The named entities' own current facts as candidate rows (CROSS_CHECK §3.3).
+
+        One bounded read in the ``engram/recall_hop_facts`` shape (entity-first; the ``per_entity`` facts
+        nearest to the query per entity, same scope / status / validity filters). The caller adds the ones
+        the vector / keyword fetch missed: those rank by their own distance, as a seed would; a fact already
+        among the candidates keeps its row (and its boosted ``rank``).
+        """
+        rows = self.client.ro(
+            self.graph,
+            "engram/recall_hop_facts",
+            {
+                "entity_ids": entity_ids,
+                "scope_id": scope_id,
+                "t": t,
+                "statuses": statuses,
+                "per_entity": per_entity,
+                "q": q,
+            },
+        )
+        return [dict(r) for r in rows]
+
+    def _resolve_predicates(
+        self,
+        query: str,
+        rows: list[dict[str, Any]],
+        scope_id: str,
+        t: int,
+        statuses: list[str],
+    ) -> dict[str, dict[str, Any]]:
+        """The predicates the query names, ``{predicate: {fan}}`` (CROSS_CHECK §3.2, at most 10).
+
+        The mirror of :meth:`_resolve_entities` for the second cue: a candidate's predicate counts as named
+        when every word of it is in the query (``Fact.predicate`` is stored normalised, so ``api_version``
+        is the words ``api`` and ``version``), so "Acme Notes API S07 api_version" names ``api_version`` but
+        not ``api_owner``. Only candidate predicates can matter (the cue lifts candidates), so no index is
+        searched for them; one bounded read (``engram/recall_predicates``) counts each one's fan: current
+        facts with that predicate in the searched scopes. Empty when nothing is named.
+        """
+        have = set(_tokens(query))
+        if not have:
+            return {}
+        named: list[str] = []
+        for r in rows:
+            pred = str(r.get("predicate") or "")
+            if pred in named:
+                continue
+            words = _tokens(pred)
+            if words and all(w in have for w in words):
+                named.append(pred)
+        if not named:
+            return {}
+        fans = self.client.ro(
+            self.graph,
+            "engram/recall_predicates",
+            {"predicates": named[:RECALL_PREDICATES], "scope_id": scope_id, "statuses": statuses, "t": t},
+        )
+        return {r["predicate"]: {"fan": int(r["fan"])} for r in fans}
 
     def _fetch_candidates(
         self,
@@ -752,6 +846,7 @@ class Engram:
             "protected": None if fa is None else fa.protected,
             "maybe_duplicate_of": list(r.get("maybe_dup") or []),
             "entity_match": None if rk is None else rk.ent_match,
+            "predicate_match": None if rk is None else rk.pred_match,
             "sep": None if rk is None else rk.sep,
             "lures": [] if rk is None else list(rk.lures),
             "salience": None if fa is None else fa.salience,

@@ -57,8 +57,9 @@ def ids(ranked):
     return [r.row["fact_id"] for r in ranked]
 
 
-MULT = Settings()  # mult, separation on, kw bypass over the fact text
+MULT = Settings()  # mult, separation on, kw bypass over the fact text, cues entity+predicate
 ADD = Settings(act_mode="add")
+MULT1 = Settings(cues="entity")  # the single damped entity cue P1 first shipped
 
 
 # -- pattern separation -------------------------------------------------------------------------------
@@ -73,20 +74,66 @@ def test_a_fact_about_the_named_entity_beats_a_nearer_twin_about_another_entity(
         got = rerank(rows, acts, settings=settings, k=2, entities={"s07": 10}, forgetting=False)
         assert ids(got) == ["target", "twin"]
         t, w = got
-        assert (
-            t.ent_match and t.fan == 10 and t.sep == pytest.approx(0.15 * (1 - math.log(10) / math.log(50)))
-        )
+        assert t.ent_match and t.fan == 10 and t.sep == pytest.approx(0.6 * (5 - math.log(10)))
+        assert not t.pred_match and t.pred_fan == 0
         assert not w.ent_match and w.sep == 0.0
         assert t.lures == ("twin",) and w.lures == ("target",), "same predicate, other entity, within 0.02"
+    one = rerank(rows, acts, settings=MULT1, k=2, entities={"s07": 10}, forgetting=False)
+    assert ids(one) == ["target", "twin"]
+    assert one[0].sep == pytest.approx(0.15 * (1 - math.log(10) / math.log(50))), "cues=entity: the P1 form"
+
+
+def test_the_predicate_cue_separates_two_facts_about_the_same_named_entity():
+    """CROSS_CHECK §3.2: the entity cue lifts every fact of the named entity equally; the predicate cue
+    picks the one the query asks for, and the two cues add."""
+    rows = [
+        row("status", 0.285, entity="s07", predicate="status"),
+        row("deadline", 0.30, entity="s07", predicate="deadline"),
+        row("twin", 0.29, entity="s08", predicate="deadline"),
+    ]
+    for settings in (MULT, ADD):
+        ent_only = rerank(rows, {}, settings=settings, k=3, entities={"s07": 12}, forgetting=False)
+        assert ids(ent_only) == ["status", "deadline", "twin"], (
+            "the entity cue cannot break a same-entity tie"
+        )
+        got = rerank(
+            rows,
+            {},
+            settings=settings,
+            k=3,
+            entities={"s07": 12},
+            predicates={"deadline": 20},
+            forgetting=False,
+        )
+        assert ids(got) == ["deadline", "status", "twin"]
+        d, s, w = got
+        assert d.ent_match and d.pred_match and d.fan == 12 and d.pred_fan == 20
+        assert d.sep == pytest.approx(0.6 * (5 - math.log(12)) + 0.4 * (5 - math.log(20)))
+        assert s.ent_match and not s.pred_match and s.sep == pytest.approx(0.6 * (5 - math.log(12)))
+        assert not w.ent_match and w.pred_match and w.sep == pytest.approx(0.4 * (5 - math.log(20)))
+    # the single-cue form ignores the predicate
+    one = rerank(
+        rows, {}, settings=MULT1, k=3, entities={"s07": 12}, predicates={"deadline": 20}, forgetting=False
+    )
+    assert ids(one) == ["status", "deadline", "twin"] and not one[0].pred_match
 
 
 def test_a_hub_entity_gets_no_lift_and_the_lift_shrinks_with_the_fan():
     rows = [row("twin", 0.28, entity="s08"), row("target", 0.30, entity="hub")]
     acts = {}
-    got = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 50}, forgetting=False)
+    # two cues: a fan of 50 still lifts a little (S = 5 > ln 50), a fan of 200 (> e^5) lifts nothing
+    got = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 200}, forgetting=False)
     assert ids(got) == ["twin", "target"] and got[1].sep == 0.0 and got[1].ent_match
+    fifty = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 50}, forgetting=False)[0]
+    assert fifty.row["fact_id"] == "target" and fifty.sep == pytest.approx(0.6 * (5 - math.log(50)))
     small = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 2}, forgetting=False)[0]
     mid = rerank(rows, acts, settings=MULT, k=2, entities={"hub": 20}, forgetting=False)[0]
+    assert small.row["fact_id"] == "target" and small.sep > mid.sep > fifty.sep > 0
+    # the single-cue form: zero at fan 50
+    got = rerank(rows, acts, settings=MULT1, k=2, entities={"hub": 50}, forgetting=False)
+    assert ids(got) == ["twin", "target"] and got[1].sep == 0.0 and got[1].ent_match
+    small = rerank(rows, acts, settings=MULT1, k=2, entities={"hub": 2}, forgetting=False)[0]
+    mid = rerank(rows, acts, settings=MULT1, k=2, entities={"hub": 20}, forgetting=False)[0]
     assert small.row["fact_id"] == "target" and small.sep > mid.sep > 0
 
 

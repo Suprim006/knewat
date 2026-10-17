@@ -227,7 +227,10 @@ class RecallInfo(BaseModel):
 class RecallHit(BaseModel):
     rank: int
     score: float
-    sep: float = Field(default=0.0, description="D-013 entity lift of this row in log-relevance (0 = none).")
+    sep: float = Field(
+        default=0.0,
+        description="D-013 context term of this row in log-relevance: entity cue + predicate cue (0 = none).",
+    )
     fact_id: str
     props: dict[str, Any]
     entity: dict[str, Any] | None = None

@@ -13,8 +13,11 @@ Anderson 2005 activation-dependent decay) · ``PLEXUS_ACT_DMAX`` [1.0] · ``PLEX
 slows decay) ·
 ``PLEXUS_ACT_DELTA`` [0.03] / ``PLEXUS_ACT_BAND`` [0.02] (salience sharpening inside the relevance band).
 
-Pattern separation (P1): ``PLEXUS_RECALL_SEPARATION`` [on] · ``PLEXUS_ACT_GAMMA`` [0.15] · ``PLEXUS_ACT_SMAX``
-[ln 50] ·
+Pattern separation (P1): ``PLEXUS_RECALL_SEPARATION`` [on] · ``PLEXUS_ACT_CUES`` [entity+predicate] (the
+context term: ``entity+predicate`` = the two ACT-R cues summed, CROSS_CHECK §3.2; ``entity`` = the single
+damped entity term P1 first shipped) · ``PLEXUS_ACT_CUE_S`` [5] · ``PLEXUS_ACT_W_ENTITY`` [0.6] ·
+``PLEXUS_ACT_W_PREDICATE`` [0.4] · ``PLEXUS_ACT_GAMMA`` [0.15] · ``PLEXUS_ACT_SMAX`` [ln 50] (the single-cue
+form, and the fan at which the sibling expansion of ``engram/recall`` is damped to nothing) ·
 ``PLEXUS_KW_BYPASS`` [fact] (``fact`` = the exact-keyword bypass tests the whole fact text, ``value`` = the
 pre-D-013 rule).
 """
@@ -27,6 +30,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 
 from plexus.activation.model import neutral_activation
+from plexus.activation.score import CUE_MODES, CUE_S_DEFAULT, W_ENTITY_DEFAULT, W_PREDICATE_DEFAULT
 
 MAX_EVENTS = 200
 _ON = {"on", "1", "true", "yes"}
@@ -62,6 +66,11 @@ class Settings:
     gamma: float = 0.15
     s_max: float = S_MAX_DEFAULT
     kw_bypass: str = "fact"
+    # CROSS_CHECK §3.2: the context term as a sum of weighted cues
+    cues: str = "entity+predicate"
+    cue_s: float = CUE_S_DEFAULT
+    w_entity: float = W_ENTITY_DEFAULT
+    w_predicate: float = W_PREDICATE_DEFAULT
 
     def __post_init__(self) -> None:
         if not 0.0 < self.decay <= 2.0:
@@ -74,9 +83,13 @@ class Settings:
             raise ValueError("PLEXUS_ACT_MODE must be 'mult' or 'add'")
         if self.kw_bypass not in BYPASS_KINDS:
             raise ValueError("PLEXUS_KW_BYPASS must be 'fact' or 'value'")
+        if self.cues not in CUE_MODES:
+            raise ValueError("PLEXUS_ACT_CUES must be 'entity+predicate' or 'entity'")
         for name, v, lo, hi in (
             ("PLEXUS_ACT_BETA", self.beta, 0.0, 1.0),
             ("PLEXUS_ACT_GAMMA", self.gamma, 0.0, 1.0),
+            ("PLEXUS_ACT_W_ENTITY", self.w_entity, 0.0, 10.0),
+            ("PLEXUS_ACT_W_PREDICATE", self.w_predicate, 0.0, 10.0),
             ("PLEXUS_ACT_DELTA", self.delta, 0.0, 1.0),
             ("PLEXUS_ACT_BAND", self.band, 0.0, 1.0),
             ("PLEXUS_ACT_KAPPA", self.kappa, 0.0, 0.99),
@@ -89,6 +102,7 @@ class Settings:
             ("PLEXUS_ACT_A", self.a, 0.0, 2.0),
             ("PLEXUS_ACT_DMAX", self.d_max, 0.0, 2.0),
             ("PLEXUS_ACT_SMAX", self.s_max, 0.0, 20.0),
+            ("PLEXUS_ACT_CUE_S", self.cue_s, 0.0, 20.0),
         ):
             if not lo < v <= hi:
                 raise ValueError(f"{name} must be in ({lo:g}, {hi:g}]")
@@ -151,6 +165,10 @@ class Settings:
                 gamma=num("PLEXUS_ACT_GAMMA", 0.15),
                 s_max=num("PLEXUS_ACT_SMAX", S_MAX_DEFAULT),
                 kw_bypass=(get("PLEXUS_KW_BYPASS") or "fact").lower(),
+                cues=(get("PLEXUS_ACT_CUES") or "entity+predicate").lower(),
+                cue_s=num("PLEXUS_ACT_CUE_S", CUE_S_DEFAULT),
+                w_entity=num("PLEXUS_ACT_W_ENTITY", W_ENTITY_DEFAULT),
+                w_predicate=num("PLEXUS_ACT_W_PREDICATE", W_PREDICATE_DEFAULT),
             )
         except ValueError as exc:
             if "PLEXUS_" in str(exc):

@@ -109,7 +109,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Lineage | `(Step)-[:NEXT]->(Step)` | |
 | audit | `(ToolCall)-[:IN_STEP]->(Step)` | |
 | audit | `(ToolCall)-[:CREATED\|UPDATED]->(any)` | |
-| lineage | `(Recall)-[:RETURNED {rank, score, sep}]->(Fact)` (`sep` = the D-013 entity lift of that row, 0 when none), `(Recall)-[:BY]->(Agent)`, `(Recall)-[:IN_STEP]->(Step)` | |
+| lineage | `(Recall)-[:RETURNED {rank, score, sep}]->(Fact)` (`sep` = the D-013 context term of that row: entity cue + predicate cue, 0 when none), `(Recall)-[:BY]->(Agent)`, `(Recall)-[:IN_STEP]->(Step)` | |
 | Staleness (P7) | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` | `at` |
 | Staleness (P7) | `(Source)-[:DESCRIBES]->(CodeAnchor)` | `at` |
 | Staleness (P7) | `(Change)-[:TOUCHED]->(CodeAnchor\|Source)` | |

@@ -89,19 +89,32 @@ def test_the_named_entity_wins_over_a_nearer_twin_and_both_switches_off_keep_the
     assert ids(plain)[:2] == [twin, target], "nearer wins; both get the same sibling boost"
     assert all(r["entity_match"] is None and r["sep"] is None and r["lures"] == [] for r in plain)
     got, meta = eng.recall_with_meta(Q, scope, k=3, forgetting=False, separation=True)
-    assert ids(got) == [target, twin, sib], (
-        "the named entity's fact first; its sibling lifted above the twin's"
+    assert ids(got) == [target, sib, twin], (
+        "the named entity's fact with the named predicate first (both cues), then its sibling (entity cue, "
+        "w 0.6), then the twin (predicate cue only, w 0.4)"
     )
     assert list(meta["entities"]) and all(
         e["name"] == "Acme Notes API S07" for e in meta["entities"].values()
     )
     e = next(iter(meta["entities"].values()))
     assert e["fan"] == 2, "two current facts about S07 in the scope"
+    assert meta["predicates"] == {"api_version": {"fan": 2}}, "the query names api_version: S07's and S08's"
+    assert meta["entity_facts_added"] == 0, "S07's facts were already candidates"
     by = {r["fact_id"]: r for r in got}
-    assert by[target]["entity_match"] is True and by[target]["sep"] == pytest.approx(
-        0.15 * (1 - math.log(2) / math.log(50))
+    assert by[target]["entity_match"] is True and by[target]["predicate_match"] is True
+    assert by[target]["sep"] == pytest.approx(0.6 * (5 - math.log(2)) + 0.4 * (5 - math.log(2)))
+    assert by[sib]["entity_match"] is True and by[sib]["predicate_match"] is False
+    assert by[sib]["sep"] == pytest.approx(0.6 * (5 - math.log(2)))
+    assert by[twin]["entity_match"] is False and by[twin]["predicate_match"] is True
+    assert by[twin]["sep"] == pytest.approx(0.4 * (5 - math.log(2)))
+    # the single-cue form P1 first shipped: the predicate is not a cue, the twin gets nothing
+    one, _ = eng.recall_with_meta(
+        Q, scope, k=3, forgetting=False, separation=True, settings=Settings(cues="entity")
     )
-    assert by[twin]["entity_match"] is False and by[twin]["sep"] == 0.0
+    assert ids(one) == [target, twin, sib]
+    by1 = {r["fact_id"]: r for r in one}
+    assert by1[target]["sep"] == pytest.approx(0.15 * (1 - math.log(2) / math.log(50)))
+    assert by1[twin]["sep"] == 0.0, "the match is reported, the single-cue form gives it no weight"
     assert by[target]["lures"] == [twin] and by[twin]["lures"] == [target], (
         "same predicate, other entity, 0.01 apart"
     )
@@ -134,8 +147,19 @@ def test_a_hub_entity_gets_no_lift(eng, scope):
     twin = eng.assert_fact("Other Service", "api_version", "v2 ~0.29", scope, "alice", now=2001)["fact_id"]
     got, meta = eng.recall_with_meta("Hub Service api_version QUERY", scope, k=2, forgetting=False)
     assert next(iter(meta["entities"].values()))["fan"] == 51
-    assert ids(got) == [twin, target], "fan >= 50: relevance decides"
-    assert got[1]["entity_match"] is True and got[1]["sep"] == 0.0
+    # two cues (CROSS_CHECK §3.2): a fan of 51 still lifts a little (S = 5 > ln 51), and both candidates get
+    # the predicate cue, so the hub's own api_version fact wins although the twin is nearer
+    assert ids(got) == [target, twin]
+    assert got[0]["entity_match"] is True and got[0]["sep"] == pytest.approx(
+        0.6 * (5 - math.log(51)) + 0.4 * (5 - math.log(2))
+    )
+    assert got[1]["entity_match"] is False and got[1]["sep"] == pytest.approx(0.4 * (5 - math.log(2)))
+    # the single-cue form: fan >= 50 lifts nothing, relevance decides
+    one = eng.recall(
+        "Hub Service api_version QUERY", scope, k=2, forgetting=False, settings=Settings(cues="entity")
+    )
+    assert ids(one) == [twin, target], "fan >= 50: relevance decides"
+    assert one[1]["entity_match"] is True and one[1]["sep"] == 0.0
 
 
 def test_why_recalled_stores_the_entities_the_separation_flag_and_the_lift(eng, scope, twins, client, graph):
@@ -148,7 +172,7 @@ def test_why_recalled_stores_the_entities_the_separation_flag_and_the_lift(eng, 
     why = lin.why_recalled(rid)
     assert why["recall"]["separation"] is True and why["recall"]["entities"] == sorted(meta["entities"])
     seps = {r["fact_id"]: r["sep"] for r in why["results"]}
-    assert seps[target] > 0 and seps[twin] == 0.0
+    assert seps[target] > seps[sib] > seps[twin] > 0, "both cues > entity cue > predicate cue"
     edge = next(e for e in why["edges"] if e["rel"] == "RETURNED" and e["to"] == target)
     assert edge["props"]["sep"] == pytest.approx(seps[target])
     # a recall recorded without the D-013 arguments reads back with the defaults
@@ -165,11 +189,7 @@ def test_memory_strength_reports_salience_fan_and_entity_lift(eng, scope, twins,
     target, _, _, _ = twins
     s = Activation(client, graph, Settings(act_mode="add")).strength(target)
     assert s is not None
-    assert (
-        s["mode"] == "add"
-        and s["fan"] == 2
-        and s["entity_lift"] == pytest.approx(0.15 * (1 - math.log(2) / math.log(50)))
-    )
+    assert s["mode"] == "add" and s["fan"] == 2 and s["entity_lift"] == pytest.approx(0.6 * (5 - math.log(2)))
     assert s["salience"] == 0.0 and s["suggested_verify_after"] is None and -0.05 <= s["act_term"] <= 0.05
     assert s["decays"] and all(0 < d <= 1.0 for d in s["decays"])
 
@@ -183,3 +203,35 @@ def test_recall_entities_is_an_index_seek_not_a_scope_scan(client, graph):
     ops = profile_ops(client, graph, "engram/recall_entities", params)
     worst = max_records(ops)
     assert worst.records < BIG, f"scope-wide enumeration: {worst}\n" + "\n".join(map(str, ops))
+
+
+def test_recall_predicates_is_an_index_seek_not_a_scope_scan(client, graph):
+    seed_big_scope(client, graph)
+    params = {"predicates": ["p", "nothing"], "scope_id": "S", "statuses": ["active"], "t": 5}
+    rows = {r["predicate"]: r["fan"] for r in client.ro(graph, "engram/recall_predicates", params)}
+    assert rows == {"p": BIG, "nothing": 0}, "one row per input predicate, fan 0 when none"
+    assert client.ro(graph, "engram/recall_predicates", {**params, "predicates": []}) == []
+    ops = profile_ops(client, graph, "engram/recall_predicates", {**params, "predicates": ["nothing"]})
+    worst = max_records(ops)
+    assert worst.records < BIG, f"scope-wide enumeration: {worst}\n" + "\n".join(map(str, ops))
+
+
+# -- CROSS_CHECK §3.3: the named entity's own facts join the candidates -----------------------------
+
+
+def test_the_named_entitys_facts_join_the_candidates_when_the_vector_fetch_misses_them(eng, scope):
+    """Fifty near facts about other entities crowd the named entity's far fact out of the over-fetch
+    (k = 2: 8 vector seeds, retried up to 512 only while fewer than k rows survive); with separation on
+    the entity read adds it and the two cues rank it first."""
+    for i in range(50):
+        eng.assert_fact(
+            f"Other Thing {i}", "api_version", f"v{i} ~0.{10 + i:02d}", scope, "alice", now=1000 + i
+        )
+    target = eng.assert_fact("Lonely Service", "api_version", "v7 ~0.95", scope, "alice", now=2000)["fact_id"]
+    q = "Lonely Service api_version QUERY"
+    plain = eng.recall(q, scope, k=2, forgetting=False, separation=False)
+    assert target not in ids(plain), "the vector fetch stops at the 8 nearest in-scope facts"
+    got, meta = eng.recall_with_meta(q, scope, k=2, forgetting=False, separation=True)
+    assert meta["entity_facts_added"] == 1 and ids(got)[0] == target
+    assert got[0]["entity_match"] is True and got[0]["predicate_match"] is True
+    assert got[0]["via"] is None and got[0]["score"] == pytest.approx(0.95, abs=1e-3)

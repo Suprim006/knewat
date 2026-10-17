@@ -708,7 +708,7 @@
         },
         "sep": {
           "default": 0.0,
-          "description": "D-013 entity lift of this row in log-relevance (0 = none).",
+          "description": "D-013 context term of this row in log-relevance: entity cue + predicate cue (0 = none).",
           "title": "Sep",
           "type": "number"
         }
