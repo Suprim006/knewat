@@ -1840,6 +1840,13 @@
           "minimum": 1,
           "type": "integer"
         },
+        "max_elements": {
+          "default": 200,
+          "description": "Nodes + edges returned (default 200, closest to the root first; 'truncated' says whether anything was cut).",
+          "maximum": 5000,
+          "minimum": 2,
+          "type": "integer"
+        },
         "node_id": {
           "description": "A decision id or a fact id.",
           "type": "string"

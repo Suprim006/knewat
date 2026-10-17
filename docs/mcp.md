@@ -79,7 +79,7 @@ tokens per API call instead of 28,873. `PLEXUS_MCP_SCHEMA=full` publishes the ve
   1..50, default 50).
 - **Lineage** (registered when `plexus.lineage` is installed; see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
   `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`. `why` takes an
-  optional `depth` (1..12, default 6); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
+  optional `depth` (1..12, default 6) and `max_elements` (2..5000, default 200; nodes + edges, closest to the root first, `truncated` says whether anything was cut; P9-f); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
   (1..12, default 8; release with at least the depth the quarantine used). A derivation chain longer than `depth` is cut there:
   Crucible L6-B scored 16/24 through the tool because it could not be asked for depth 12.
 
@@ -320,7 +320,7 @@ Nothing is written (no `READ` edges either: looking at the damage must not make 
 `Lineage.forget_source`, `quarantine` and `release_quarantine` gained an optional `depth` (1..12, default 8; was a fixed 5 hops),
 `Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
 (1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source`, `release_quarantine` and `blocked_by_failure` expose the same
-`depth` since P9-int (same bounds and defaults).
+`depth` since P9-int (same bounds and defaults). P9-f: `why` also takes `max_elements` (the value it used to hard-code), and `why` / `blocked_by_failure` each read ONE statement (`lineage/why_edges`, `relay/dependents_closure`), so the answer is one snapshot under concurrent writes.
 ## Soft-duplicate tools (P9-c, `plexus/mcp/tools_dedup.py`; `plexus/engram/dedup.py`)
 
 `assert_fact` decides whether a new value is the same statement as a current one (same entity, predicate and scope):

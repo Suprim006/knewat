@@ -542,7 +542,8 @@ class Lineage:
 
         Walks ``BASED_ON``, ``ASSERTED_BY``, ``DERIVED_FROM`` to ``depth`` hops (1..12, default 6; Episode /
         Source / Fact, plus the Session and agent behind an Episode; expanded level by level over distinct
-        facts), ``SUPERSEDES`` / ``CONTRADICTS`` / ``DUPLICATES`` neighbours and the
+        facts inside one read statement, so the answer is one snapshot even under concurrent writes),
+        ``SUPERSEDES`` / ``CONTRADICTS`` / ``DUPLICATES`` neighbours and the
         ``Step`` (with its agent) that wrote the decision and each fact. Returns::
 
             {root, kind, facts: [{id, props, asserted_by, sources, episodes, derived_from_facts, supersedes,
@@ -557,15 +558,27 @@ class Lineage:
         if max_elements < 2:
             raise ValueError("max_elements must be at least 2")
         check_between("depth", depth, MAX_DEPTH)
-        rows = list(self.client.ro(self.graph, "lineage/why_edges", {"id": node_id, "limit": max_elements}))
-        rows += self._derived_edges(node_id, rows, max_elements, depth)
-        edges, labels, truncated = explain.bound_edges(rows, node_id, max_elements)
-        info = self._node_info([node_id, *labels])
+        # ONE statement (P9-f): edges, DERIVED_FROM ancestry and every node's display props, one snapshot.
+        # The level-wise loop it replaces (a statement per hop, then node_info) tore under concurrent writes.
+        rows = self.client.ro(
+            self.graph,
+            "lineage/why_edges",
+            {"id": node_id, "limit": max_elements, "depth": depth, "derived_limit": max_elements * depth},
+        )
+        info: dict[str, dict[str, Any]] = {}
+        edge_rows: list[dict[str, Any]] = []
+        for r in rows:
+            info.setdefault(r["s"], {"label": r["sl"], "props": r["sp"]})
+            info.setdefault(r["t"], {"label": r["tl"], "props": r["tp"]})
+            if r["rel"] != "SELF":
+                edge_rows.append(r)
         root = info.get(node_id)
-        if root is None:
-            raise UnknownNode(f"no node with id '{node_id}'")
-        if root["label"] not in ("Decision", "Fact"):
-            raise UnknownNode(f"why() explains a Decision or a Fact, '{node_id}' is a {root['label']}")
+        if root is None:  # not a Decision or a Fact: name what it is (a read only on this error path)
+            other = self._node_info([node_id]).get(node_id)
+            if other is None:
+                raise UnknownNode(f"no node with id '{node_id}'")
+            raise UnknownNode(f"why() explains a Decision or a Fact, '{node_id}' is a {other['label']}")
+        edges, labels, truncated = explain.bound_edges(edge_rows, node_id, max_elements)
         labels = {node_id: root["label"], **labels}
         nodes = [
             {"id": i, "label": lab, "props": explain.clean(info[i]["props"]) if i in info else {}}
@@ -573,26 +586,6 @@ class Lineage:
         ]
         out = explain.summarise(node_id, root["label"], nodes, edges)
         out["truncated"] = truncated
-        return out
-
-    def _derived_edges(
-        self, node_id: str, rows: Sequence[dict[str, Any]], limit: int, depth: int
-    ) -> list[dict[str, Any]]:
-        """The DERIVED_FROM ancestry of the base facts: one query per level over DISTINCT facts."""
-        frontier = sorted({r["t"] for r in rows if r["rel"] == "BASED_ON"} | {node_id})
-        seen = set(frontier)
-        out: list[dict[str, Any]] = []
-        for _ in range(depth):
-            level = self.client.ro(
-                self.graph, "lineage/why_derived_level", {"frontier": frontier, "limit": limit}
-            )
-            out += [dict(r) for r in level]
-            frontier = sorted(
-                {r["t"] for r in level if r["rel"] == "DERIVED_FROM" and r["tl"] == "Fact"} - seen
-            )
-            if not frontier:
-                break
-            seen.update(frontier)
         return out
 
     def _node_info(self, ids: Iterable[str]) -> dict[str, dict[str, Any]]:

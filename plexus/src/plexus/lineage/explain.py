@@ -25,11 +25,12 @@ def clean(props: Mapping[str, Any]) -> dict[str, Any]:
 def bound_edges(
     rows: Iterable[Mapping[str, Any]], root: str, max_elements: int
 ) -> tuple[list[dict[str, str]], dict[str, str], bool]:
-    """Keep edges in ``prio`` order while ``len(nodes) + len(edges) <= max_elements``.
+    """Keep edges in ``prio`` order (then DERIVED_FROM level ``lv``, nearest first) while
+    ``len(nodes) + len(edges) <= max_elements``.
 
     Returns ``(edges, {node id: label} without the root, truncated)``.
     """
-    ordered = sorted(rows, key=lambda r: (r["prio"], r["sl"], r["rel"], r["s"], r["t"]))
+    ordered = sorted(rows, key=lambda r: (r["prio"], r.get("lv", 0), r["sl"], r["rel"], r["s"], r["t"]))
     labels: dict[str, str] = {}
     edges: list[dict[str, str]] = []
     truncated = False

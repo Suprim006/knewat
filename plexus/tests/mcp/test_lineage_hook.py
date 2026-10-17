@@ -19,7 +19,7 @@ class FakeLineage:
     def __init__(self, client, graph):
         self.graph = graph
 
-    def why(self, node_id, depth=6):
+    def why(self, node_id, **_kw):  # the tool passes depth / max_elements (P9-f)
         return {"node": node_id, "paths": [["a", "b"]]}
 
     def as_of(self, subject, predicate, t, scope_id):

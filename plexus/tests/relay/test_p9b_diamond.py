@@ -18,13 +18,13 @@ def test_blocked_by_failure_145_tasks_8_levels_fan_in_3_under_100ms_server_time(
     assert tc.server_ms < 100, (tc.server_ms, tc.calls)
 
 
-def test_dependents_of_is_one_hop_distinct(client, graph, clock):
+def test_dependents_closure_lists_each_dependent_once_at_its_nearest_level(client, graph, clock):
     relay = Relay(client, graph, clock=clock)
     layers = build_tasks(relay, levels=3, width=6, fan_in=3)
-    rows = client.ro(graph, "relay/dependents_of", {"frontier": layers[1]})
+    rows = client.ro(graph, "relay/dependents_closure", {"id": "root", "depth": 50, "limit": 5000})
     ids = [r["id"] for r in rows]
-    assert len(ids) == len(set(ids))  # a task depending on several frontier members appears once
-    assert set(ids) <= set(layers[2])
+    assert len(ids) == len(set(ids)) == 18  # a task depending on several tasks of a level appears once
+    assert {r["id"]: r["lv"] for r in rows} == {t: lv for lv in (1, 2, 3) for t in layers[lv]}
 
 
 def test_blocked_by_failure_walks_a_24_level_dag_past_the_old_10_level_cap(client, graph, clock):
@@ -41,7 +41,7 @@ def test_blocked_by_failure_walks_a_24_level_dag_past_the_old_10_level_cap(clien
     )  # optional depth bound: layers 1..3 (the root's 2 children + their layers)
 
 
-def test_dependents_of_follows_the_frontier_not_the_graph(client, graph):
+def test_dependents_closure_follows_the_frontier_not_the_graph(client, graph):
     from tests.plan_util import max_records, profile_ops
 
     g = client.graph(graph)
@@ -51,9 +51,7 @@ def test_dependents_of_follows_the_frontier_not_the_graph(client, graph):
         "(b:Task {id: 'T' + toString(i - 1)}) "
         "CREATE (a)-[:DEPENDS_ON]->(b)"
     )
-    ops = profile_ops(client, graph, "relay/dependents_of", {"frontier": ["T5"]})
-    assert max_records(ops).records < 20, "\n".join(map(str, ops))  # was 399: every edge, then a filter
-    assert [r["id"] for r in client.ro(graph, "relay/dependents_of", {"frontier": ["T5", "T9"]})] == [
-        "T6",
-        "T10",
-    ]
+    params = {"id": "T5", "depth": 3, "limit": 5000}
+    ops = profile_ops(client, graph, "relay/dependents_closure", params)
+    assert max_records(ops).records < 20, [str(o) for o in ops]  # never every edge, then a filter
+    assert [r["id"] for r in client.ro(graph, "relay/dependents_closure", params)] == ["T6", "T7", "T8"]
