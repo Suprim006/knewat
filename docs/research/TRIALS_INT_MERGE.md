@@ -153,3 +153,9 @@ reason). It is not a regression in the needed-fact metrics, which are the ones p
    the plan test passes, but it is a per-row read of an entity's `ABOUT` degree - worth a PROFILE on a tenant with a
    thousand-fact hub entity.
 4. `recall` with scope `all` and `as_of` is unchanged from p12 (separation is off for `as_of`).
+
+### Status after the recall-check (branch `recall-check`, from `trials-int` `76da7d7`; `docs/BASELINE.md` "Recall-check")
+
+1. **Double counting:** measured; the default is now `PLEXUS_RECALL_LEXICAL_WEIGHT=0` (D-013 amendment 3). With the fusion on, L5b lost a critical probe (N = 15) and the noise share rose 8-19 points over fusion off.
+2. **Published numbers on the merged build:** recall@1 / recall@5 / critical loss / hub reproduce; the L5b noise share moved (32.3 / 41.6 / 33.3% against 20-22% on main, same harness, same day), partly the fusion, the rest not attributed to a single switch; L6-C product-arm `hit_any` is 23/9/0 with the fusion off (= main's tip today; the published 11/6/1 predates main's predicate cue), 13/3/1 with it on. Neither was hidden or tuned.
+3. **`fan_e` on a hub:** confirmed unbounded per row (61,295 records at 1,000 facts, 305,295 at 5,000), fixed (1,060 / 5,060), test added.

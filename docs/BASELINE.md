@@ -1236,3 +1236,203 @@ explains it. The remaining way to attribute the move is by commit: the same harn
 `1ddeb13` (control, already run: `off` 24.4% / 28.9% / 27.0% burst), the merged build (`ae17aee`, run: 28.3% / 41.6% / 30.9%) and **p12's tip `3521a0c`** (new, `.venv-ctl2`, no D-013 on it). **Prediction:** p12's `off` noise
 share is at the merged build's level (>= 27% at N = 5 and >= 38% at N = 15), i.e. the move comes from p12's retrieval changes (keyword channel over `search_text`, bigger pool, fused sort) and not from the interplay with D-013; if it
 is at main's level (<= 30% at N = 15), the interplay with D-013 (named-entity union, separation, bypass) is the cause. Post-hoc; no shipped default depends on it.
+
+## Recall-check results (run after the pre-registration and addenda above; 0 LLM calls)
+
+**Summary.** (1) *Default:* neither lexical setting reproduces every published number; by the pre-stated rule (fewer failed criteria) the shipped default is now lexical fusion **off** (`PLEXUS_RECALL_LEXICAL_WEIGHT=0`; OFF fails 2 of 9 criteria, ON 3). (2) *Moved published numbers, not hidden:* the L5b `sep+mult` noise share on the merged build is 32.3 / 41.6 / 33.3% (published 20-22%, main's tip re-measured today 22.1 / 20.0 / 21.6%) in either setting, with the fusion on 42.7 / 60.1 / 41.6% and one critical probe lost at N = 15;
+the fusion explains +8 to +19 points of it, the rest is **not attributed** (five single-switch tests failed to reproduce it). L6-C product-arm `hit_any` moved from 11 / 6 / 1 to 23 / 9 / 0 on main's own tip (before the merge). Recall@1 / recall@5 / critical loss / hub / L8 needed facts and canonical / L6 A, B, D, E, F reproduce. (3) *`fan_e` on a hub:* unbounded per row
+(61,295 records at a 1,000-fact hub, 305,295 at 5,000; 289 / 1,478 ms), fixed in one statement (1,060 / 5,060 records; 19.6 / 34.2 ms), rows unchanged, plan-shape test added. Expectations falsified are listed per section.
+
+Code: pre-registered runs on `ae17aee` (trials-int `76da7d7` + the harness switch); the fix commits (`fan_e` once per entity, lexical default 0) came after all registered runs and were
+checked by the L8 bench and the tests below. FalkorDB 6.0.2 on `plexus-db-75`, fastembed for L5b / hub, hash embedder for L8 and L6-C, seed 20261016 (L5b), one play per cell (new ids each play).
+Result directories (originals untouched; the L6 `latest-*.json` envelopes were restored after the runs): `plexus/demo_data/crucible/l5/*recallcheck-{off,on}-{n5,n15,n5-burst,hub}`, `…recallcheck-ctl-main-*`
+(main's tip `1ddeb13`, same harness, today), `…recallcheck-ctl-p12-*` (p12's tip `3521a0c`), `l5_posthoc/recallcheck/` (X1-X5, scripts, PROFILE output), `l8_recallcheck/`, `l6/*-c-recallcheck-{off,on}`.
+
+### 1. L5b and the hub world: both settings, next to the control and the published numbers
+
+`sep+mult` is the shipped default mode; published = the `afx-*` re-run (85.7% / 100% / noise 22.1, 19.9, 21.0% / critical loss 0 / 20 / 0). The control is the published code run again today through the same harness: it reproduces the published numbers
+(`sep+mult` 22.1 / 20.0 / 21.6% noise), so differences below are the merge, not the machine.
+
+| Run | Build / setting | Mode | recall@1 | recall@5 | critical loss | noise share | above target: same / other |
+|---|---|---|---|---|---|---|---|
+| N = 5 | main tip `1ddeb13` (control, today) | `off` | 75.7% | 98.6% | n/a | 24.4% | 36 / 13 |
+| N = 5 | main tip `1ddeb13` (control, today) | `sep-entity` | 85.7% | 100.0% | 0 | 28.9% | 20 / 0 |
+| N = 5 | main tip `1ddeb13` (control, today) | `sep` | 85.7% | 100.0% | 0 | 27.4% | 20 / 0 |
+| N = 5 | main tip `1ddeb13` (control, today) | `sep+mult` | 85.7% | 100.0% | 0 | 22.1% | 20 / 0 |
+| N = 5 | trials-int + recall-check, lexical OFF (0) | `off` | 79.3% | 99.3% | n/a | 28.3% | 31 / 8 |
+| N = 5 | trials-int + recall-check, lexical OFF (0) | `sep-entity` | 84.3% | 100.0% | 0 | 33.4% | 22 / 0 |
+| N = 5 | trials-int + recall-check, lexical OFF (0) | `sep` | 85.7% | 100.0% | 0 | 31.7% | 20 / 0 |
+| N = 5 | trials-int + recall-check, lexical OFF (0) | `sep+mult` | 85.7% | 100.0% | 0 | 32.3% | 21 / 0 |
+| N = 5 | trials-int + recall-check, lexical ON (0.5) | `off` | 85.0% | 100.0% | n/a | 41.7% | 21 / 0 |
+| N = 5 | trials-int + recall-check, lexical ON (0.5) | `sep-entity` | 85.7% | 100.0% | 0 | 43.9% | 20 / 0 |
+| N = 5 | trials-int + recall-check, lexical ON (0.5) | `sep` | 85.7% | 100.0% | 0 | 43.9% | 20 / 0 |
+| N = 5 | trials-int + recall-check, lexical ON (0.5) | `sep+mult` | 85.7% | 100.0% | 0 | 42.7% | 34 / 0 |
+| N = 15 | main tip `1ddeb13` (control, today) | `off` | 77.1% | 98.6% | n/a | 28.9% | 35 / 12 |
+| N = 15 | main tip `1ddeb13` (control, today) | `sep-entity` | 85.7% | 100.0% | 0 | 29.1% | 20 / 0 |
+| N = 15 | main tip `1ddeb13` (control, today) | `sep` | 85.7% | 100.0% | 0 | 28.6% | 20 / 0 |
+| N = 15 | main tip `1ddeb13` (control, today) | `sep+mult` | 85.7% | 100.0% | 0 | 20.0% | 20 / 0 |
+| N = 15 | trials-int + recall-check, lexical OFF (0) | `off` | 78.6% | 99.3% | n/a | 41.6% | 33 / 7 |
+| N = 15 | trials-int + recall-check, lexical OFF (0) | `sep-entity` | 84.3% | 100.0% | 0 | 39.6% | 22 / 0 |
+| N = 15 | trials-int + recall-check, lexical OFF (0) | `sep` | 85.7% | 100.0% | 0 | 36.9% | 20 / 0 |
+| N = 15 | trials-int + recall-check, lexical OFF (0) | `sep+mult` | 85.0% | 100.0% | 0 | 41.6% | 23 / 0 |
+| N = 15 | trials-int + recall-check, lexical ON (0.5) | `off` | 85.0% | 100.0% | n/a | 56.6% | 25 / 0 |
+| N = 15 | trials-int + recall-check, lexical ON (0.5) | `sep-entity` | 85.0% | 100.0% | 0 | 61.3% | 25 / 0 |
+| N = 15 | trials-int + recall-check, lexical ON (0.5) | `sep` | 85.7% | 100.0% | 0 | 61.3% | 20 / 0 |
+| N = 15 | trials-int + recall-check, lexical ON (0.5) | `sep+mult` | 85.7% | 99.3% | 1 | 60.1% | 44 / 0 |
+| burst | main tip `1ddeb13` (control, today) | `off` | 75.0% | 98.6% | n/a | 27.0% | 39 / 12 |
+| burst | main tip `1ddeb13` (control, today) | `sep-entity` | 85.7% | 100.0% | 0 | 28.4% | 20 / 0 |
+| burst | main tip `1ddeb13` (control, today) | `sep` | 85.7% | 100.0% | 0 | 25.6% | 20 / 0 |
+| burst | main tip `1ddeb13` (control, today) | `sep+mult` | 85.7% | 100.0% | 0 | 21.6% | 20 / 0 |
+| burst | trials-int + recall-check, lexical OFF (0) | `off` | 79.3% | 99.3% | n/a | 30.9% | 33 / 6 |
+| burst | trials-int + recall-check, lexical OFF (0) | `sep-entity` | 84.3% | 100.0% | 0 | 34.0% | 22 / 0 |
+| burst | trials-int + recall-check, lexical OFF (0) | `sep` | 85.7% | 100.0% | 0 | 32.7% | 20 / 0 |
+| burst | trials-int + recall-check, lexical OFF (0) | `sep+mult` | 85.7% | 100.0% | 0 | 33.3% | 23 / 0 |
+| burst | trials-int + recall-check, lexical ON (0.5) | `off` | 85.0% | 100.0% | n/a | 40.9% | 21 / 0 |
+| burst | trials-int + recall-check, lexical ON (0.5) | `sep-entity` | 85.7% | 100.0% | 0 | 42.4% | 20 / 0 |
+| burst | trials-int + recall-check, lexical ON (0.5) | `sep` | 85.7% | 100.0% | 0 | 42.4% | 20 / 0 |
+| burst | trials-int + recall-check, lexical ON (0.5) | `sep+mult` | 85.7% | 100.0% | 0 | 41.6% | 30 / 0 |
+
+| Pre-registered criterion (L5b, `sep+mult`, three runs) | OFF | ON |
+|---|---|---|
+| recall@1 >= 84.3% | **PASS** 85.7 / 85.0 / 85.7 | **PASS** 85.7 / 85.7 / 85.7 |
+| recall@5 >= 99.3% (139/140) | **PASS** 100 / 100 / 100 | **PASS** 100 / 99.3 / 100 |
+| critical loss 0 | **PASS** 0 / 0 / 0 | **FAIL** 0 / **1** / 0 (N = 15: 1 of 80 critical probes lost; also 44 same-entity rows above the target against 23) |
+| other-entity rows above the target 0 | **PASS** | **PASS** |
+| noise share <= 24.0% | **FAIL** 32.3 / 41.6 / 33.3% | **FAIL** 42.7 / 60.1 / 41.6% |
+| hub `sep` recall@1 >= 99% | **PASS** 100% | **PASS** 100% |
+
+Hub world (200 probes, fastembed; the table of arms is in the section above):
+
+| Arm | main tip (control) | lexical OFF | lexical ON |
+|---|---|---|---|
+| `off` | 97.5% / 100% (hub fact above target 2.5%) | 96.5% / 100% (hub fact above target 3.5%) | 100.0% / 100% (hub fact above target 0.0%) |
+| `sep-entity` | 97.5% / 100% (hub fact above target 2.5%) | 96.5% / 100% (hub fact above target 3.5%) | 100.0% / 100% (hub fact above target 0.0%) |
+| `sep-flat` | 97.5% / 100% (hub fact above target 2.5%) | 96.5% / 100% (hub fact above target 3.5%) | 100.0% / 100% (hub fact above target 0.0%) |
+| `sep` | 100.0% / 100% (hub fact above target 0.0%) | 100.0% / 100% (hub fact above target 0.0%) | 100.0% / 100% (hub fact above target 0.0%) |
+
+Expectations 1 and 2 against the result. **1 (OFF reproduces every published L5b number): half falsified.** Recall@1 (85.7 / 85.0 / 85.7%), recall@5, critical loss 0, cross-entity displacers 0 and the hub result reproduce;
+the noise share does not (+10.2 / +21.6 / +11.7 points over today's control). **2 (ON reproduces recall and critical loss, not the noise share): half falsified.** The noise share is what I expected to differ
+(ON - OFF = +10.4 / +18.5 / +8.3 points), recall@1 does not exceed the ceiling, but ON also lost a critical probe at N = 15 and its `sep+mult` puts 44 same-entity rows above the target (OFF 23): I did not diagnose why the fused score does that.
+ON in the `off` (no-scoring) mode gains recall@1 (85.0 against 79.3 / 78.6 / 79.3%), which is the fusion's one benefit measured here.
+
+### 2. The no-LLM recall bench (L8, 5 seeds, hash embedder, `PLEXUS_TOOLSET=core`)
+
+| Run | Code | replay calls that found their target | needed fact found per task S07 / S13 / S20 | canonical (1,000 recalls) | mean response chars replay / canonical |
+|---|---|---|---|---|---|
+| p12 tip, fusion on (published) | `d6d30da` | 29/36 | 5/5 · 5/5 · 1/1 | 1000/1000 | 5,344 / 5,772 |
+| trials-int, fusion on (published) | `f5881c6` | 28/36 | 5/5 · 5/5 · 1/1 | 1000/1000 | 5,340 / 5,776 |
+| recall-check ON (0.5), clean re-run | `93c1b45` | 27/36 | 5/5 · 5/5 · 1/1 | 1000/1000 | 5,342 / 5,776 |
+| recall-check OFF (0) | `ae17aee` | 27/36 | 5/5 · 5/5 · 1/1 | 1000/1000 | 5,331 / 5,766 |
+| post-hoc X1 (OFF + `PLEXUS_KW_BYPASS=value`) | `00ccc82` | 27/36 | 5/5 · 5/5 · 1/1 | 1000/1000 | 5,331 / 5,766 |
+| **final build, shipped default (0), no env** | `f966146` | **28/36** | 5/5 · 5/5 · 1/1 | 1000/1000 | 5,333 / 5,766 |
+
+A first ON run (28/36) overlapped a temporary edit of `engram/recall.cypher` in this worktree (a draft of the `fan_e` fix, reverted after about a minute), so it is not used; its file was deleted and the re-run above replaces it.
+The replay count is **not a stable measure**: OFF (27) and the final build with the same setting (28) differ by one call, and the single call that changes between runs is always `"Bolt Billing API billing cycle"` of seed 20261019,
+which names no sprint, so the twenty `billing_cycle` facts tie and new ids decide which fifteen come back. Needed facts and canonical completeness (the numbers p12 reported as acceptance numbers) are identical in every run.
+**Expectation 3 falsified in both halves:** ON does not reproduce 28/36 on a clean re-run (27), and OFF does not lose >= 3 replay calls (it loses none against ON). The replay >= 28 criterion therefore fails for both settings in the registered runs.
+
+### 3. The decision, by the rule stated before the runs
+
+Neither setting is admissible. Failed criteria of nine: **OFF 2** (L5b noise share; L8 replay 27 < 28), **ON 3** (critical loss; noise share; L8 replay 27 < 28). Without the replay criterion (it does not separate the settings, see 2) the counts are 1 and 2.
+**The default becomes OFF: `PLEXUS_RECALL_LEXICAL_WEIGHT = 0`** (`f966146`); `FUSION_WEIGHT = 0.5` stays as the opt-in. Why this is the rule's outcome and not a taste: the rule picks the setting that fails fewer criteria and the
+count is lower for OFF however the replay criterion is counted. The pre-registration was ambiguous in one place that I resolved before looking at the result, not after: expectation 4 made L6-C a decision input
+"if the two settings differ by >= 3 questions at one depth", without a direction; they do differ (below), OFF is ahead on the metric (`hit_any`), and using it would not change the outcome. The "tie keeps ON" clause never applied (no tie).
+Recorded in `docs/DECISIONS.md` D-013, amendment 3.
+
+### 4. L6-C, the only L6 family that calls `recall` (hash embedder, seed 20261016, 75 questions, 3 repetitions)
+
+An **unregistered control** was added after the first two runs: the same runner on main's tip `1ddeb13` (`T223224Z-c-recallcheck-ctl-main`), because the published row (`T103929Z-c`, 10:39 on 17 Oct) was taken before main's own predicate cue
+(12:55) and the section 3.3 union (named entity's facts join the candidates) landed, so it may not describe main's tip either.
+
+| Run | Arm | strict d1 / d2 / d3 | hit@5 | `hit_any` (answer anywhere in the result) | p50 ms d1 / d2 / d3 | statements per answer |
+|---|---|---|---|---|---|---|
+| published (`T103929Z-c`, main as of 10:39) | P-product | 0 / 0 / 0 | 0 / 0 / 1 | 11 / 6 / 1 | 32.1 / 41.3 / 51.1 | 6.67 |
+| | P-flat | 0 / 0 / 0 | 0 / 0 / 1 | 0 / 0 / 1 | 20.7 / 20.3 / 21.0 | 4.0 |
+| **control: main's tip `1ddeb13`, today** | P-product | 0 / 0 / 0 | 0 / 0 / 0 | **23 / 9 / 0** | 46.1 / 55.9 / 54.2 | 8.6 |
+| | P-flat | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 35.4 / 33.9 / 35.3 | 5.93 |
+| recall-check OFF (`T212418Z-c-recallcheck-off`) | P-product | 0 / 0 / 0 | 0 / 0 / 0 | **23 / 9 / 0** | 129.0 / 140.8 / 139.4 | 8.67 |
+| | P-flat | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 103.9 / 104.7 / 100.0 | 6.0 |
+| recall-check ON (`T213223Z-c-recallcheck-on`) | P-product | 0 / 0 / 0 | 0 / 0 / 1 | 13 / 3 / 1 | 132.4 / 164.5 / 155.4 | 8.67 |
+| | P-flat | 0 / 0 / 0 | 0 / 0 / 1 | 0 / 0 / 1 | 124.7 / 122.8 / 121.4 | 6.0 |
+| **final build `f966146`: shipped default (0) + `fan_e` fix** (`T225138Z-c-recallcheck-final-default`) | P-product | 0 / 0 / 0 | 0 / 0 / 0 | **23 / 9 / 0** | 102.2 / 112.9 / 109.3 | 8.67 |
+| | P-flat | 0 / 0 / 0 | 0 / 0 / 0 | 0 / 0 / 0 | 89.0 / 88.5 / 89.2 | 6.0 |
+
+The control arms are as published: B1h 75/75 and P-tuned 75/75 in every run. B1h-untuned (no indexes) timed out more often than published (7-9 of 25 at d = 3 against 4; strict at d = 3 16-18 against 21) in all three runs, control included, because the DB was shared with other
+recall-check jobs: it is a timing-dependent control, not a hypothesis. **Reading.** (1) **The published `hit_any` (11 / 6 / 1) is stale on main itself**: main's tip today gives 23 / 9 / 0, so that move is main's own post-publication changes, not the merge (strict 0/75 holds in every run,
+as registered; this is the only L6-C expectation that held). (2) **The merged build with the fusion off reproduces main's tip exactly** (23 / 9 / 0, P-flat 0): p12's pool and keyword channel change no L6-C answer. (3) The fusion (ON) lowers `hit_any` (13 / 3 / 1): fewer multi-hop answers are in the result at
+depth 1-2, one more at depth 3. (4) The product arms' latency is 2.5-3x main's on the merged build (129 against 46 ms at d = 1) with the same number of statements; the DB was shared during those three runs, so I report it and do not claim it. The final build (shipped default plus the `fan_e` fix, DB otherwise idle) gives 102 / 113 / 109 ms, 20% below the pre-fix OFF run and still about 2.2x main's tip: the remaining gap is **not investigated** (the 44k-fact world has 40 hubs of 120 facts; the pool is now 120 rows through the Python fuse / boost / re-rank).
+**Expectation 4 falsified except strict 0/75:** `hit_any` neither stayed within 5 of the published numbers nor matched between the settings (they differ by 10 / 6 / 1 questions). Nothing here makes the product arms answer a multi-hop question at rank 1 (the pre-registered defects of §5.4 are unchanged).
+
+### 5. Post-hoc attribution of the noise-share move (addenda 1-3; not decision inputs)
+
+Prediction scoreboard: X1 (bypass over the value only) predicted >= 4 points lower than the registered OFF run: **falsified** (31.6 / 41.1 against 32.3 / 41.6%). X2 (no keyword channel) predicted `sep+mult` noise <= `sep` - 5 points and <= 26% at N = 5: **half
+confirmed** (16.7% against `sep` 20.3%, a 3.6-point reduction; <= 26% yes) with an unpredicted cost: recall@1 72.9 / 68.6% and 29 / 27 other-entity rows above the target, because with no keyword hit nothing is bypassed and the multiplier demotes the cold targets, the D-012 loss the bypass was added to prevent.
+X3 (pool = 2k) predicted <= 3 points: **confirmed** (30.3 / 40.7%: the pool is not the cause). X1 with the fusion on predicted >= 5 above OFF: **confirmed** (+10.5 at N = 5) and it made N = 15 worse (critical loss 2, recall@1 78.6%, 67 same-entity rows).
+X4 (keyword ids restricted to those whose value contains a query word) predicted <= 26% / <= 24% with recall >= 84.3%: **falsified** (30.9 / 44.3%). X5 (X4 + pool 2k) predicted within 2 points of X4: 1.5 at N = 5 (confirmed), 4.0 at N = 15 (not).
+The bisect by commit (addendum 3) predicted p12's own tip at or above the merged level: **confirmed** (`off` mode 40.3% at N = 5 and 57.4% at N = 15 with its fusion on, against 24.4 / 28.9% on main's tip), so the move comes from p12's retrieval, not from its interplay with D-013; with the
+fusion off, the merged build's `off` mode is still +3.9 / +12.7 points above main's. **What is attributed:** the lexical fusion (ON - OFF, +10.4 / +18.5 / +8.3 points). **What is not:** the remaining +10.2 / +21.6 / +11.7 points (OFF against main's tip, `sep+mult`), which none of X1-X5 reproduces on its own. Untested: the
+Python sibling boost (seeds, order), the fused sort and tie order, the `search_text` term in the full-text ranking.
+
+Post-hoc runs (lexical weight and switches as in the first column; `sep` and `sep+mult` only; the registered OFF / ON rows are in the first table):
+
+| Variant | N | Mode | recall@1 | recall@5 | critical loss | noise share | same / other |
+|---|---|---|---|---|---|---|---|
+| X1 value-only bypass, OFF | 5 | `sep` | 85.7% | 100.0% | 0 | 31.6% | 20 / 0 |
+| X1 value-only bypass, OFF | 5 | `sep+mult` | 85.7% | 100.0% | 0 | 31.6% | 23 / 0 |
+| X1 value-only bypass, OFF | 15 | `sep` | 85.7% | 100.0% | 0 | 37.4% | 20 / 0 |
+| X1 value-only bypass, OFF | 15 | `sep+mult` | 85.7% | 100.0% | 0 | 41.1% | 24 / 0 |
+| X1 value-only bypass, ON | 5 | `sep` | 85.7% | 100.0% | 0 | 42.7% | 20 / 0 |
+| X1 value-only bypass, ON | 5 | `sep+mult` | 85.7% | 100.0% | 0 | 42.1% | 33 / 0 |
+| X1 value-only bypass, ON | 15 | `sep` | 85.7% | 100.0% | 0 | 61.3% | 20 / 0 |
+| X1 value-only bypass, ON | 15 | `sep+mult` | 78.6% | 98.6% | 2 | 61.4% | 67 / 0 |
+| X2 no keyword channel, OFF | 5 | `sep` | 84.3% | 100.0% | 0 | 20.3% | 20 / 2 |
+| X2 no keyword channel, OFF | 5 | `sep+mult` | 72.9% | 100.0% | 0 | 16.7% | 26 / 29 |
+| X2 no keyword channel, OFF | 15 | `sep` | 82.9% | 100.0% | 0 | 24.3% | 20 / 4 |
+| X2 no keyword channel, OFF | 15 | `sep+mult` | 68.6% | 100.0% | 0 | 17.7% | 27 / 27 |
+| X3 pool = 2k, OFF | 5 | `sep` | 85.7% | 100.0% | 0 | 31.0% | 20 / 0 |
+| X3 pool = 2k, OFF | 5 | `sep+mult` | 85.0% | 100.0% | 0 | 30.3% | 24 / 0 |
+| X3 pool = 2k, OFF | 15 | `sep` | 85.7% | 100.0% | 0 | 39.7% | 20 / 0 |
+| X3 pool = 2k, OFF | 15 | `sep+mult` | 85.0% | 100.0% | 0 | 40.7% | 26 / 0 |
+| X4 value-only keyword ids, OFF | 5 | `sep` | 85.7% | 100.0% | 0 | 32.0% | 20 / 0 |
+| X4 value-only keyword ids, OFF | 5 | `sep+mult` | 85.7% | 100.0% | 0 | 30.9% | 23 / 0 |
+| X4 value-only keyword ids, OFF | 15 | `sep` | 85.7% | 100.0% | 0 | 38.6% | 20 / 0 |
+| X4 value-only keyword ids, OFF | 15 | `sep+mult` | 84.3% | 100.0% | 0 | 44.3% | 27 / 0 |
+| X5 = X4 + pool 2k, OFF | 5 | `sep` | 85.7% | 100.0% | 0 | 31.7% | 20 / 0 |
+| X5 = X4 + pool 2k, OFF | 5 | `sep+mult` | 85.7% | 100.0% | 0 | 32.4% | 21 / 0 |
+| X5 = X4 + pool 2k, OFF | 15 | `sep` | 85.7% | 100.0% | 0 | 37.1% | 20 / 0 |
+| X5 = X4 + pool 2k, OFF | 15 | `sep+mult` | 85.7% | 100.0% | 0 | 40.3% | 23 / 0 |
+
+p12's tip through the same harness (`--modes` default, fusion on, D-012 era; `ctl-p12-*`): `off` recall@1 84.3 / 84.3%, noise 40.3 / 57.4%; `on` (D-012 multiplier) 77.1 / 73.6% with critical loss 0 / 3; `on+sweep` 85.7 / 85.0%, noise 20.3 / 34.4%.
+
+### 6. `fan_e` on a hub entity (GRAPH.PROFILE, throw-away graph; item 3)
+
+Setup: entity `Mega Hub` with 1,000 (5,000) active facts plus 30 superseded and 30 facts in a scope the query does not inherit, 40 small entities of 5 facts, `recall(k = 20)`: the Python layer's own parameters (`lim` = 120 = pool 60 + 60 keyword ids, `over` = 240, `sibs` = 5, `damp` on);
+the result holds 120 rows, at least 60 from the hub. Median `run_time_ms` of 5 on a quiet DB (the `before-*` / `after-*` files in `l5_posthoc/recallcheck/profile/` were taken while other jobs ran; `qbefore-*` / `qafter-*` are the quiet ones).
+
+| Hub facts | Query | `fan_e` comprehension records | sibling scan (`ABOUT` + `IN_SCOPE` traverse, Sort) records | max records, any operator | `run_time_ms` |
+|---|---|---|---|---|---|
+| 1,000 | before (`76da7d7`) | 61,295 | 61,295 / 61,175 | 61,295 | 289 |
+| 1,000 | after (`bc34bd2`) | 1,060 | 1,060 | 1,060 | 19.6 |
+| 5,000 | before | 305,295 | 305,295 / 305,175 | 305,295 | 1,478 |
+| 5,000 | after | 5,060 | 5,060 | 5,060 | 34.2 |
+
+**Expectation 5 confirmed** (">= 60,000 and >= 300,000 records, scaling as rows from the hub x fan"): the plan scanned the hub once per surviving row. The fix is the single read described in D-013 amendment 3 / the query header; acceptance as registered: `ABOUT`-side records <= 3 x fan
+(1,060 and 5,060 are exactly the hub's `ABOUT` degree: 1,000 / 5,000 current facts + 30 superseded + 30 in the other scope, i.e. one scan per entity), rows identical (576 parameter sets old vs new, 0 differences; `$all`, damp on/off, diamond scopes, superseded history, `lim` 5-120, `sibs` 1-5), one statement.
+Test `tests/integration/test_recall_hub_plan.py`: RED on the old query (303,600 records at 5,000), GREEN now; asserts records < 2 x hub size at both sizes with >= 60 hub rows in the result, and pins damp / siblings / ranks against a Python reference for `$all` on and off.
+
+### 7. L6 A, B, D, E, F: not recall-dependent, run once on the final build (`f966146`)
+
+These families never call `Engram.recall`, so the lexical weight is not a variable; they were run once because the merge changed the write path they use (p12's `WROTE` folded into the task statements, main's empty-list forms). Result
+directories `l6/20261017T222943Z-det`, `…T223508Z-postfix`, `…T224327Z-conc`; compared with the committed runs (`latest-det.json` = the first det run, `latest-postfix.json`, `latest-conc.json`).
+
+| Family | Published | Recall-check run | Same? |
+|---|---|---|---|
+| A `impact` (24 questions, 51,424 facts), postfix arms | B1h 24/24, P-tuned 24/24, P-product-service 24/24, P-product-tool 18/24 (list cap) | 24/24, 24/24, 24/24, 18/24, 0 timeouts | **yes** |
+| A (det arms, first det run) | B1h, B1h-untuned, P-tuned, P-anchored 24/24 each; P-naive 10/24 (14 timeouts); P-product-* 0/24 (6 errors each, before the P9 fixes) | 24/24 each; P-naive 24/24 (0 timeouts); P-product-tool 18/24, P-product-service 24/24 | arms with fixes = the published post-fix rows; P-naive is the deliberately path-enumerating query, timing-dependent |
+| A_dag (5 questions) | B1h 5, UNION-ALL 3 (2 timeouts), P-naive 4 (1), P-tuned 5, `blocked_by_failure` 5 | identical | **yes** |
+| B why-chain depth (24 questions) | B1h 24, P-tuned 24, P-naive 24, P-product-tool 16 (8 errors), P-product-service 24 | identical | **yes** |
+| D cross-sprint aggregation (24 questions) | B1h 24, P 24 | 24, 24 | **yes** |
+| E consistent reads under concurrent writes (10 runs x 6 s) | `P-1stmt` 0 violations in 10/10 runs; `P-levelwise`, `B1h-levelwise`, `B0-naive` tear in 10/10; `B1h-1stmt`, `B1h-txn`, `B0-locked` 0 | `P-1stmt` 0 / 0 / 0 (reads 18,165, appends 10,755, quarantines 200); `P-levelwise` 1,241 / 30 / 1,478 violations in 10/10; `B1h-levelwise` 329 / 0 / 335 in 10/10; `B0-naive` 113 / 0 / 0 in 10/10 (113 errors); the other three 0 | **yes** (counts are timing-dependent) |
+| F provenance crash-consistency (arm P, 200 SIGKILLs) | 0 orphans, 0 lost of 1,776 acknowledged writes, `missing_derived_from` 13 | 0 orphans, 0 lost of 1,975 acknowledged writes, `missing_derived_from` 11 | **yes** (the 11-13 depends on the kill points) |
+
+Expectation: unchanged correctness counts. **Confirmed**; nothing was tuned.
