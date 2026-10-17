@@ -5,7 +5,9 @@
 // mode: ro
 // Same filters as engram/recall: facts in the scope or a scope it INHERITS (<= 3 hops), status in `statuses`, valid at t (valid_from <= t < valid_to). At most `per_entity` facts per entity.
 // Plan shape: ENTITY-first, like the sibling expansion of engram/recall (P5 review Q1): (e)<-[:ABOUT]-(g0) with the cheap property filters, then the scope test with the fact's own scope bound
-// (an anchored INHERITS path; the `WITH collect(sids) UNWIND $ids MATCH` form returned no rows on 6.0.2).
+// as a pattern PREDICATE (`WHERE (:Scope {id: $scope_id})-[:INHERITS*0..3]->(gs)`: one boolean per fact). Audit C2: a post-DISTINCT `MATCH (:Scope)-[:INHERITS*0..3]->(gs)`
+// emitted one row per PATH, so on a diamond scope graph (team -> org directly and through proj) the org fact came back twice and filled two per_entity slots.
+// (The `WITH collect(sids) UNWIND $ids MATCH` form returned no rows on 6.0.2.)
 UNWIND $entity_ids AS eid
 MATCH (e:Entity {id: eid})
 WITH e
@@ -13,8 +15,8 @@ MATCH (e)<-[:ABOUT]-(g0:Fact)
 WHERE g0.status IN $statuses AND g0.valid_from <= $t AND $t < g0.valid_to
 WITH e, g0
 MATCH (g0)-[:IN_SCOPE]->(gs:Scope)
-WITH DISTINCT e, g0 AS g, gs
-MATCH (:Scope {id: $scope_id})-[:INHERITS*0..3]->(gs)
+WITH e, g0 AS g, gs
+WHERE (:Scope {id: $scope_id})-[:INHERITS*0..3]->(gs)
 WITH e, g, vec.cosineDistance(g.embedding, vecf32($q)) AS gd
 ORDER BY gd ASC
 WITH e, collect({g: g, d: gd})[0..$per_entity] AS top
