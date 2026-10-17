@@ -29,6 +29,12 @@ async def test_recall_defaults_search_every_scope(server, client, tenant):
         assert got["facts"][0]["entity"] == "Bolt Billing API S07"
         assert got["facts"][0]["value"] == "weekly, invoiced on day 7"
         assert got["count"] == 20 and got["truncated"] is True and got["more_available"] is True
+        # trials-int: the D-013 ranking inputs (entity_match, sep, lures, ...) stay out of the compact hit.
+        # On near-identical sprint facts `lures` alone is ~20 fact ids a hit and tripled the L8 response size.
+        compact = {"fact_id", "entity", "predicate", "value", "valid_from", "score", "by"}
+        assert all(set(f) <= compact for f in got["facts"]), got["facts"][0]
+        full = await ok(c, "recall", agent_id="r", query=q, detail="full")
+        assert {"entity_match", "sep", "lures", "salience"} <= set(full["facts"][0])
         # an explicit 'global' keeps the old meaning: global and what it inherits, not the project scopes
         glob = await ok(c, "recall", agent_id="r", query=q, scope="global")
         assert all(not f["entity"].startswith("Bolt") for f in glob["facts"])

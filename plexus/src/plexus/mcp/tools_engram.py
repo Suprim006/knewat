@@ -274,20 +274,21 @@ _COMPACT_DEFAULTS: dict[str, Any] = {
     "verify_state": "verified",
     "suspect_since": 0,
     "suspect_reason": None,
-    "lures": [],  # D-013: only a hit with a same-predicate / other-entity look-alike carries it
 }
 _COMPACT_ALWAYS = ("fact_id", "entity", "predicate", "value", "valid_from", "score")
-# D-013 ranking inputs (entity_match, predicate_match, sep, salience) are in 'full' and in why_recalled only.
+# D-013 ranking inputs (entity_match, predicate_match, sep, salience, lures) are in 'full' and in why_recalled only:
+# `lures` lists fact ids, and on a store of near-identical sprint facts it carries up to ~20 ids per hit (measured
+# in the trials-int recall bench: it tripled the response size, 5.3k -> 18k chars).
 _COMPACT_FULL_ONLY = frozenset(
-    {"text", "path", "surprise", "activation", "entity_match", "predicate_match", "sep", "salience"}
+    {"text", "path", "surprise", "activation", "entity_match", "predicate_match", "sep", "salience", "lures"}
 )
 
 
 def compact_hit(h: dict[str, Any]) -> dict[str, Any]:
     """One recall hit without the fields an agent rarely needs: ``text`` (= entity + predicate + value),
     ``path`` (entity/scope/source ids; ``by`` keeps who asserted it), ``surprise``, ``activation`` and the D-013
-    terms ``entity_match`` / ``predicate_match`` / ``sep`` / ``salience`` (ranking inputs, see ``why_recalled``;
-    ``lures`` stays when non-empty), and every flag that has its default value. Unknown keys (``hop``,
+    terms ``entity_match`` / ``predicate_match`` / ``sep`` / ``salience`` / ``lures`` (ranking inputs, see
+    ``why_recalled``), and every flag that has its default value. Unknown keys (``hop``,
     ``relation_path``) are kept."""
     out = {k: h[k] for k in _COMPACT_ALWAYS if k in h}
     by = [p["id"] for p in h.get("path") or [] if p.get("rel") == "ASSERTED_BY"]
