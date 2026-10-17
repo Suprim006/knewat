@@ -1228,3 +1228,11 @@ merged; X5 = X4 with pool = 2k (`MIN_POOL=0, POOL_FACTOR=2`), i.e. the closest t
 **Predictions, stated now:** X4 brings `sep+mult` noise to <= 26% at N = 5 and <= 24% at N = 15 with recall@1 >= 84.3% and 0 other-entity rows (falsified otherwise); X5 is within 2 points of X4.
 If X4 fails, the cause of the move stays unattributed in this report (stated as such), and the remaining differences between the two builds (the Python sibling boost, the fused sort, the named-entity merge
 order) are listed as not tested. Nothing here changes a shipped default.
+
+### Recall-check addendum 3 (post-hoc, written before the run): bisect by commit, `off` mode on p12's tip
+
+X3 (pool = 2k) and X4 (value-only keyword ids) did not move the noise share either at N = 5 (30.3% and 30.9% against 32.3%), so none of the single switches I can set on the merged build
+explains it. The remaining way to attribute the move is by commit: the same harness, `--modes off` (retrieval only: no cue, no multiplier, so no D-012 / D-013 code is on the path) at N = 5 and N = 15, on three trees: main's tip
+`1ddeb13` (control, already run: `off` 24.4% / 28.9% / 27.0% burst), the merged build (`ae17aee`, run: 28.3% / 41.6% / 30.9%) and **p12's tip `3521a0c`** (new, `.venv-ctl2`, no D-013 on it). **Prediction:** p12's `off` noise
+share is at the merged build's level (>= 27% at N = 5 and >= 38% at N = 15), i.e. the move comes from p12's retrieval changes (keyword channel over `search_text`, bigger pool, fused sort) and not from the interplay with D-013; if it
+is at main's level (<= 30% at N = 15), the interplay with D-013 (named-entity union, separation, bypass) is the cause. Post-hoc; no shipped default depends on it.
