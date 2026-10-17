@@ -484,3 +484,69 @@ conflicted, so each p9f-b commit was decided on its own (`docs/research/INTEG_ME
 **Not done, on purpose.** READ edges of a write are still linked after it (a lost READ edge is not an orphan: the memory and
 its WROTE exist). `StepIntent` is not ported. `quarantine` / `forget_source` keep the audit's CALL tails (p9f-b's
 one-pass join is the same idea; their scale test passes unchanged).
+
+## D-015 — Multi-source facts: quarantine and forget respect a fact's other live sources (P13, trial 8)
+
+**Context.** Trial 8 (`trials/FINDINGS.md` section 5): rule C1 was required by two documents (compliance memo and product
+spec). `assert_fact` took one `source_id`; all four Plexus runs linked C1 to the memo and wrote "also product P2" into the value
+text. In session 3 ("the memo is void") C1 was kept only because the agent read that text; `quarantine_source(memo)` would have
+hidden C1 and `forget_source(memo)` would have forgotten it. No run used `quarantine_source` or `why`.
+
+**What was already true.** The model never limited a fact to one source: a `Fact` has one `DERIVED_FROM` edge per Source, `why`,
+`recall(detail=full)`, the View API and `activation` already read them as lists, and the duplicate path of `assert_fact` already
+MERGEd `source_id` / `derived_ids` onto the existing fact. What was single-source was the **write surface** (one `source_id`) and the
+**retraction semantics** (`quarantine` / `forget_source`: "reaches the Source, so it goes"; the `forget_source` header: "forgotten as soon as
+ANY of them is forgotten"). So the fix is in four places, not in the model: no new label, edge type or tool.
+
+**Decision.**
+1. *Write.* `assert_fact(source_ids=[...])` (max 20, unioned with `source_id`; the MCP argument is a list). Every listed Source gets its
+   own `(fact)-[:DERIVED_FROM]->(Source)` edge in the one assert statement. An id that is not a Source rejects the whole call (nothing
+   written, not even the Entity): a silently dropped source would be the trial-8 failure again, and a half-linked fact cannot be
+   told from a complete one. `source_ids` travel in the existing `derived_ids` parameter (one MERGE per origin; the Python layer
+   checks they are Sources first with `engram/existing_origins`), so the statement's shape and plan are unchanged.
+2. *Corroboration.* Asserting an existing value again with sources the fact does not have links them to the existing fact (the
+   `duplicate_of` path, tier 0 / 1 / 2 alike) and the result says so: `duplicate_of` plus `sources_added: [...]` (`[]` when the call
+   added none; absent for a new fact, to keep the response small). `sources_added` is computed in the statement before its writes (one
+   pattern comprehension from the bound duplicate). No `link_source` tool: the duplicate path expresses it, and every extra tool is
+   resent on every model call.
+3. *Quarantine.* `quarantine_source(S)` marks the Source (`Source.quarantined_at`) and hides a reached fact only when it has **no direct
+   `DERIVED_FROM` edge to another Source that is not quarantined**. The others stay as they are and come back as
+   `corroborated: [{fact_id, other_sources}]` (+ `corroborated_total`), next to `fact_ids` (= the hidden ones). Reads, decisions and
+   handoffs describe the hidden facts only. Quarantining the last live Source of a corroborated fact later hides it; the order of
+   the two calls does not matter. `release_quarantine(S)` clears the mark and restores every quarantined fact in S's cascade (it has
+   S, now live), so a fact hidden by two quarantines is back as soon as one is released. Facts with no source are never reached.
+4. *Forget.* `forget_source(S)` forgets a reached fact only if S was its only remaining Source. A fact with another Source keeps its
+   status; only its edge to S is deleted (inside a `CALL`, the one write there) and it is listed as `unlinked: [{fact_id,
+   other_sources}]` (+ `unlinked_total`). If all its remaining Sources are quarantined it becomes `quarantined` (nothing live supports
+   it any more). Forgetting the second Source later forgets it. Idempotent: a second call finds nothing linked. This replaces "any source
+   forgets the fact": the old rule was only right while a fact could name one source.
+5. *Why / recall.* `why` already lists every source (`facts[].sources`, one `DERIVED_FROM` edge each), and `impact(kind=source)` gains
+   `facts.corroborated {total, ids, ids_truncated}` so the preview shows which facts `quarantine` would keep. Compact `recall` hits carry no
+   source information (P12 token cut) and still don't; `detail=full` lists every `DERIVED_FROM`.
+6. *Tool descriptions.* `assert_fact`: "A fact several documents support: pass all of them in source_ids", with the duplicate case.
+   `quarantine_source` / `forget_source`: when to use them (wrong, withdrawn or void source) and that facts another source supports
+   stay. The `source_id` argument text was shortened to pay for part of it: the list grows by 418 characters (core 30,182 -> 30,600,
+   full 47,843 -> 48,261 by `crucible/l8/manifest_size.py`, a $0 count; `manifest_probe` needs paid `claude -p` calls), guarded by a
+   450-character test budget. Empty `corroborated` / `unlinked` are not sent.
+
+**Cost (GRAPH.PROFILE, `demo_data/crucible/t8replay/profile.txt`).** One extra `CALL { WITH src, fs ... }` per query: `UNWIND fs`, one
+pattern comprehension of the fact's Source edges (raw values; the filter is a plain list comprehension), one aggregate row out. Records
++30% on 5,000 facts with two sources each (quarantine 100,064 -> 130,071 records, 358 -> 456 ms; forget 80,061 -> 105,075, 359 -> 452 ms;
+impact_source 95,065 -> 125,069, 354 -> 430 ms; release unchanged). The brief's ">10 s for 5,000 facts" does not reproduce on integ
+(0.36 s: the audit / P9-int `CALL` tails already fixed it). Plan shape pinned: no operation produces more than 3 records per cascade fact
+next to 1,500 unrelated facts (`tests/lineage/test_multisource_plans.py`). `lineage/impact_source` is generated: the generator changed.
+
+**Known limits (reported, not hidden).**
+- Support is judged on a fact's **direct Source edges**. A derived fact (fact -> fact) is rescued only by a Source of its own, never
+  by a corroborated parent: if C1 stays because of the spec, a fact derived only from C1 is still cascaded with the memo (same as before;
+  quarantine is reversible, forget is not). Following parents would need a fixpoint over the 12-hop levels inside one statement.
+- `activation` still counts a quarantined high-trust Source as protecting a fact (any `trust: high` source in the cascade).
+- Unknown tool arguments are silently dropped by the MCP layer (before P13 a client sending `source_ids` got no error and no link);
+  this is the framework's behaviour, not changed here.
+- The agent still has to name both documents. The tool nudge is the whole defence; whether it changes agent behaviour is measured by a
+  paid t8 re-run, which this change does not include (`python -m plexus.crucible.t8_replay` is the $0 check of the engine side).
+- The duplicate path already linked `source_id` onto the existing fact before P13 (it just did not say so); the brief's "re-asserting from a
+  second source drops it" does not hold on integ 1f9a8fa. The trial-8 runs lost the spec because they wrote C1 once, with the memo only.
+
+**Proof.** `tests/integration/test_multisource_assert.py`, `tests/lineage/test_multisource_lineage.py` (+ `_plans`), `tests/mcp/test_multisource_tools.py`,
+`tests/crucible/test_t8_replay.py`; the replay output is `plexus/demo_data/crucible/t8replay/` (`before_integ_1f9a8fa.*` is the same script on the old tree).

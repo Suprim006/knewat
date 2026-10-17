@@ -61,7 +61,7 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
 45 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools, 2
 soft-duplicate tools, `impact` and `assert_relation` (the sections after this list).
-- **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
+- **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id` / `source_ids` (list, max 20: a fact several documents support; P13) / `episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
   `recall` hits are **compact** by default (P12): `fact_id`, `entity`, `predicate`, `value`, `valid_from`, `score`, `by`
   (asserting agent) plus only the flags that differ from their default (`verify_state: suspect` with `suspect_since` /
@@ -82,6 +82,12 @@ tokens per API call instead of 28,873. `PLEXUS_MCP_SCHEMA=full` publishes the ve
   optional `depth` (1..12, default 6) and `max_elements` (2..5000, default 200; nodes + edges, closest to the root first, `truncated` says whether anything was cut; P9-f); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
   (1..12, default 8; release with at least the depth the quarantine used). A derivation chain longer than `depth` is cut there:
   Crucible L6-B scored 16/24 through the tool because it could not be asked for depth 12.
+  **Multi-source facts (P13, D-015).** `assert_fact(source_ids=[a, b])` links every listed Source (an unknown id rejects the call); a
+  duplicate assert from a new document adds its link and returns `sources_added`. `quarantine_source` hides a fact only when no other
+  live Source supports it: those come back as `corroborated: [{fact_id, other_sources}]` (+ `corroborated_total`), `fact_ids` are the
+  hidden ones. `forget_source` forgets a fact only when the Source was its last: the others are `unlinked: [{fact_id, other_sources}]`
+  (+ `unlinked_total`). Both lists are omitted when empty. `impact(kind=source)` adds `facts.corroborated {total, ids, ids_truncated}`.
+  The manifest grew by 418 characters (core list 30,182 -> 30,600; `python -m plexus.crucible.l8.manifest_size`, $0).
 
 `assert_fact`, `record_decision` and `handoff` write their `(Step)-[:WROTE]->(node)` edge in the same statement as the node
 (P9-int): the runtime opens the agent's `Step` before these three tools and removes it again if the call is rejected, so a

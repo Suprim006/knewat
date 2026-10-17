@@ -82,7 +82,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Engram | `(Episode)-[:NEXT]->(Episode)` | |
 | Engram | `(Agent)-[:HAD]->(Session)` | |
 | Engram | `(Fact)-[:ABOUT]->(Entity)` | |
-| Engram | `(Fact)-[:DERIVED_FROM]->(Episode\|Source\|Fact)` | |
+| Engram | `(Fact)-[:DERIVED_FROM]->(Episode\|Source\|Fact)` | One edge per origin: a fact several documents support has one edge per `Source` (P13, D-015: `assert_fact(source_ids=[...])`, and a duplicate assert from a new document adds its edge). `quarantine_source` hides a fact only when none of its Sources is live, `forget_source` forgets it only when the forgotten Source was its last |
 | Engram | `(Fact)-[:IN_SCOPE]->(Scope)` | |
 | Engram | `(Scope)-[:INHERITS]->(Scope)` | |
 | Engram | `(Fact)-[:SUPERSEDES]->(Fact)` | |
@@ -178,6 +178,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 |---|---|---|
 | `Fact` | `value_tokens` | numeric/version tokens. A paraphrase counts as a duplicate only when they are identical (v1 ≠ v2, 8080 ≠ 8081) |
 | `Fact` | `forgotten_at`, `quarantined_at`, `prior_status` | Lineage forgetting and reversible quarantine |
+| `Source` | `quarantined_at` | P13 (D-015): set by `lineage/quarantine` (first quarantine wins), removed by `lineage/release_quarantine`. A Source without it is *live*: a fact it supports stays visible when another Source is quarantined |
 | `Source` | `title`, `text` | optional human-readable name and excerpt, written by `lineage/create_source` (empty string when absent) |
 | `Decision` | `flagged`, `flag_reason` | flagged (not deleted) when a fact it is `BASED_ON` is forgotten |
 | `Task` | `seq` | FIFO tie-break for claims, by `create_tasks` input order |
