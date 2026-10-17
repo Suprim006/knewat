@@ -52,7 +52,7 @@ UNWIND CASE WHEN size(fr) = 0 OR $depth < 12 THEN [null] ELSE fr END AS x12
 OPTIONAL MATCH (n12:Fact)-[:DERIVED_FROM]->(x12)
 WITH src, reach, collect(DISTINCT n12) AS l12
 WITH src, reach + l12 AS reach, l12 AS fr
-WITH src, reach + [src] AS reach
+WITH src, [src] + reach AS reach
 UNWIND CASE WHEN size(reach) = 0 THEN [null] ELSE reach END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
