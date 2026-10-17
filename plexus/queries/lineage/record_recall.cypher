@@ -10,10 +10,12 @@
 // D-013: Recall.entities = the entity ids the query named (pattern separation), Recall.separation = whether it was on; RETURNED.sep = the entity lift of that row (0 when none).
 // The facts are matched first and their count compared with size($fact_ids) so a bad id writes nothing (same pattern as relay/handoff);
 // the Agent MERGE comes after that guard, so a rejected call does not leave a new Agent behind (P5 review Q8).
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
 OPTIONAL MATCH (st:Step {id: $step_id})
 WITH st
 WHERE $step_id = '' OR st IS NOT NULL
-OPTIONAL MATCH (f:Fact) WHERE f.id IN $fact_ids
+UNWIND CASE WHEN size($fact_ids) = 0 THEN [''] ELSE $fact_ids END AS fid
+OPTIONAL MATCH (f:Fact {id: fid})
 WITH st, collect(f) AS fs
 WHERE size(fs) = size($fact_ids)
 MERGE (a:Agent {id: $agent_id})

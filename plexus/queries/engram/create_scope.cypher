@@ -3,7 +3,10 @@
 // params: kind:str, name:str, scope_id:str, inherits:list[str], now:int
 // returns: id, kind, name
 // mode: rw
-MATCH (p:Scope) WHERE p.id IN $inherits
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
+// (An empty $inherits, a root scope, is the common case.) The key-less collect keeps one row even when no parent matches.
+UNWIND CASE WHEN size($inherits) = 0 THEN [''] ELSE $inherits END AS pid
+MATCH (p:Scope {id: pid})
 WITH collect(p) AS parents
 WHERE size(parents) = size($inherits)
 MERGE (s:Scope {kind: $kind, name: $name})
