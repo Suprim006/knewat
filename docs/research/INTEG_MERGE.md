@@ -90,4 +90,16 @@ for this tree.
 
 ## Gate
 
-GATE_PLACEHOLDER
+Run on the final tree (6d48074), slot 74 (:6374), venv `.venv-integ`:
+
+- `ruff check .` and `ruff format --check .`: clean (1040 files).
+- Full suite: **1766 passed, 2 skipped** in 28:38 (trials-int was 1698 passed, 1 skipped; the difference is the L7 tests, the p9f tests and
+  `test_audit_why_edges_plan`, `test_p9f_derived_from`). A first full run (24:37) found **3 failures, all in
+  `tests/integration/test_audit_assert_fact_soft.py`**: it calls the `engram/assert_fact` query directly and lacked the new `derived_ids`
+  parameter (`MissingParam`). Fixed in the test (6d48074), then the suite was run again in full: no failure.
+- Contract snapshot: `tests/mcp/snapshots/tools.json` regenerated (`UPDATE_SNAPSHOT=1`), `tests/mcp/test_contract.py` 10 passed. 45 tools.
+- `scripts/verify_readme.py`: 313 checks passed, 0 failed (114 query files; the README/docs counts did not move: -2 +2).
+- Viewer gate (`npm run lint/typecheck/vitest/build`): **not run**. Nothing under `plexus-view/` and neither `docs/view-api.schema.json`
+  nor any View API code changed (`git diff --name-only trials-int integ`), so there is nothing for it to catch.
+- $0 L6 re-run on the merged tree: `docs/BASELINE.md` "L6 on integ" (all pre-registered expectations held).
+- No `claude -p` / paid LLM call. Slots used: 74 only (removed at the end). Branch `main` and the main worktree were not touched.
