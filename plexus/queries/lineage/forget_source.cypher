@@ -7,6 +7,8 @@
 // Idempotent: facts that are already 'forgotten' are skipped, so a second call changes nothing. The write is bounded by $limit (callers use <= 5000) because LIMIT does not stop eager writes: it is applied BEFORE the SET.
 // A fact derived from several sources is forgotten as soon as ANY of them is forgotten (forget is strict; quarantine is the reversible variant).
 // The decision / handoff lists in the response are cut at max_detail (the totals are exact); every affected decision is still flagged.
+// decisions / handoffs describe only the facts this call changed (already-forgotten facts are skipped).
+// Tail (audit B1): decisions and handoffs are CALL { WITH fs ... } subqueries returning key-less aggregates, so the fact list is never a grouping key (it was hashed once per row: quadratic).
 // Plan shape (P5 review Q3, P9-b): the cascade is expanded level by level FROM the Source (up to 12 fixed one-hop OPTIONAL MATCHes, each driven by the
 // DISTINCT facts found at the previous level and skipped once $depth is reached), so the work follows DERIVED_FROM edges and a diamond lineage
 // (fan-in 3, depth 12 = ~500k paths, 60 facts) costs its edges, not its paths. `(f:Fact)-[:DERIVED_FROM*1..N]->(src)` would be planned from the
@@ -65,12 +67,18 @@ WITH src, [r IN reach WHERE r.status IN ['active', 'superseded', 'quarantined', 
 UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
-OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(x)
-WITH src, fs, collect(DISTINCT d) AS ds
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
-OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(y)
-WITH src, fs, ds, collect(DISTINCT h) AS hs
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
+  OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(x)
+  RETURN collect(DISTINCT d) AS ds
+}
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
+  OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(y)
+  RETURN collect(DISTINCT h) AS hs
+}
 FOREACH (z IN fs |
   SET z.status = 'forgotten', z.forgotten_at = $now,
       z.valid_to = CASE WHEN z.valid_to < $now THEN z.valid_to ELSE $now END)
