@@ -1185,3 +1185,28 @@ and replay >= 28/36. L6-C and L6 A/B/D/E/F are reported but are not admissibilit
   the merged status quo). A third weight (e.g. 0.1 or 0.25) is only tried then, and is labelled **post-hoc**.
 Whatever is chosen, the L5b / hub harness keeps its default pin `PLEXUS_L5_LEXICAL_WEIGHT=0` (the SQL arm mirrors the cosine relevance), and every
 number reported for it names the weight used.
+
+### Recall-check addendum 1 (written after the registered L5b / hub / L8 runs, before any post-hoc run): POST-HOC attribution of the moved noise share
+
+What the registered L5b runs showed (numbers in the results section): on the merged build **both** settings leave the published L5b noise share
+(`sep+mult` 19.9-22.1%) far behind (OFF 32.3 / 41.6 / 33.3%, ON 42.7 / 60.1 / 41.6%), while recall@1, recall@5 and other-entity rows reproduce; the same code
+path at main's tip (`1ddeb13`, control run today through the same harness, FalkorDB 6.0.2 on slot 75) reproduces the published numbers (22.1 / 20.0 / 21.6%),
+so the move is the merge, not the machine or the day. A second observation: on main `sep+mult` removes 6-9 points of noise share from `sep` (27.4 -> 22.1,
+28.6 -> 20.0); on the merged build it removes none (OFF 31.7 -> 32.3, 36.9 -> 41.6). The activation multiplier is what pushes decayed noise below real facts, so it is not
+reaching the noise rows any more.
+
+**Hypothesis (post-hoc: formed after seeing the numbers).** p12's keyword channel searches `Fact.value` **and** `Fact.search_text` (entity name + predicate words) and
+returns up to `pool` (60) hits instead of main's `k` value hits; a keyword hit whose text contains every query word is exempt from the use-history term (the exact-keyword
+bypass, `PLEXUS_KW_BYPASS=fact` tests entity + predicate + value). In L5b every noise fact sits on the probed subject, so with the entity name and predicate in the tested text a noise
+fact now qualifies for the bypass and is shielded from the multiplier. The pool size (60 against 2k) is the competing explanation.
+
+**Post-hoc runs (merged build, labelled post-hoc, NOT decision inputs and not part of the admissibility rule):** L5b `--only forgetting --modes off,sep,sep+mult`, N = 5 and N = 15, fastembed, seed 20261016, a wrapper that sets the
+module constant or env var, results in `plexus/demo_data/crucible/l5_posthoc/recallcheck/`:
+* X1 `PLEXUS_KW_BYPASS=value` (bypass tests the value only, main's earlier rule; keyword channel unchanged), lexical OFF and ON;
+* X2 `MAX_KEYWORDS=0` (no keyword channel at all: no row can be bypassed), lexical OFF;
+* X3 `MIN_POOL=0, POOL_FACTOR=2` (pool = 2k as on main), lexical OFF.
+Predictions, stated now: **X2** restores the multiplier's effect (`sep+mult` noise <= `sep` - 5 points) and brings `sep+mult` noise to <= 26% at N = 5; **X1** moves the same way but less
+(>= 4 points lower than the registered OFF run, possibly still above 24%); **X3** changes the noise share by <= 3 points (the pool is not the cause); with X1 the ON setting stays
+>= 5 points above OFF (the lexical term has its own noise cost, because noise values contain the query words). If X1 and X2 both fail their prediction, the hypothesis is falsified and the cause stays unknown
+(reported as such). L8: X1 with lexical OFF is also run through `recall_bench` (`PLEXUS_KW_BYPASS=value`) to see whether narrowing the bypass costs the long-horizon facts; expected
+1000/1000, needed facts 5/5 5/5 1/1, replay 27-28/36. Whatever X1 shows, the shipped bypass default is not changed by this check: that would be a ranking change that needs its own pre-registered confirmatory run.
