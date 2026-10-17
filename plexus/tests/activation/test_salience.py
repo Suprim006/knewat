@@ -76,6 +76,34 @@ def test_every_salience_input_is_read_and_weighted(world):
     assert s_early == pytest.approx(1 - math.exp(-4.0))
 
 
+def test_artifacts_ok_counts_distinct_verified_artifacts_of_done_tasks_only(world):
+    """Audit C1: one artifact verified twice on a done task + one artifact on an open task = 1, not 3."""
+    client, graph = world
+    write(
+        client,
+        graph,
+        """
+        MATCH (f:Fact {id:'f2'}), (a1:Agent {id:'a1'}), (a2:Agent {id:'a2'}), (a3:Agent {id:'a3'})
+        CREATE (td:Task {id:'td', status:'done'}), (to:Task {id:'to', status:'open'})
+        CREATE (d:Decision {id:'d3', created_at: 3000})-[:BASED_ON]->(f)
+        CREATE (d)-[:FOR]->(td), (d)-[:FOR]->(to)
+        CREATE (x1:Artifact {id:'x1'})-[:FOR]->(td)
+        CREATE (x1)-[:VERIFIED_BY {at: 4000, independent: true}]->(a2)
+        CREATE (x1)-[:VERIFIED_BY {at: 4100, independent: true}]->(a3)
+        CREATE (x2:Artifact {id:'x2'})-[:FOR]->(to)
+        CREATE (x2)-[:VERIFIED_BY {at: 4000, independent: true}]->(a1)
+        """,
+    )
+    (row,) = client.ro(graph, "activation/activation", {"fact_ids": ["f2"], "now": NOW, "events": 50})
+    (d,) = row["decisions"]
+    assert d["tasks_done"] == 1
+    assert sorted(d["verified_artifacts"]) == ["x1", "x1"], "one id per VERIFIED_BY path, open task excluded"
+    s, inputs = salience_of(row, NOW)
+    assert inputs["artifacts_ok"] == 1, "distinct artifacts: x1 once (x2 is on an open task)"
+    assert inputs["decisions"] == 1 and inputs["tasks_done"] == 1
+    assert s == pytest.approx(1 - math.exp(-(1.0 + 1.0 + 0.5)))
+
+
 def test_salience_alone_protects_and_the_add_mode_activation_uses_it(world):
     client, graph = world
     # a fact used by two agents and verified once, with no boolean protection rule

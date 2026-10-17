@@ -60,7 +60,9 @@ def salience_of(r: Mapping[str, Any], now: int) -> tuple[float, dict[str, int]]:
     inputs = {
         "decisions": sum(1 for d in decisions if not d["flagged"]),
         "verified": sum(1 for t in r["verified_at"] if t <= now),
-        "artifacts_ok": sum(int(d.get("artifacts_ok") or 0) for d in decisions if not d["flagged"]),
+        # distinct independently verified artifacts of the decision's DONE tasks (audit C1: the query returns one id
+        # per VERIFIED_BY path; an artifact verified by two agents is one artifact)
+        "artifacts_ok": sum(len(set(d.get("verified_artifacts") or ())) for d in decisions if not d["flagged"]),
         "tasks_done": sum(int(d.get("tasks_done") or 0) for d in decisions if not d["flagged"]),
         "use_agents": max(
             0, len({e.get("ag") for e in r["reads"] if e["k"] == "use" and e.get("ag") and e["t"] <= now}) - 1

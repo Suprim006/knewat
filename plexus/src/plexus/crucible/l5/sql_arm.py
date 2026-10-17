@@ -273,8 +273,8 @@ def export_graph(client: GraphClient, graph: str, path: str | Path) -> dict[str,
     done = dict(q("MATCH (d:Decision)-[:FOR]->(t:Task {status: 'done'}) RETURN d.id, count(t)"))
     arts = dict(
         q(
-            "MATCH (d:Decision)-[:FOR]->(:Task)<-[:FOR]-(:Artifact)-[:VERIFIED_BY {independent: true}]->(:Agent) "
-            "RETURN d.id, count(*)"
+            "MATCH (d:Decision)-[:FOR]->(:Task {status: 'done'})<-[:FOR]-(x:Artifact)-[:VERIFIED_BY {independent: true}]->(:Agent) "
+            "RETURN d.id, count(DISTINCT x)"  # mirrors activation/activation after audit C1
         )
     )
     c.executemany(
