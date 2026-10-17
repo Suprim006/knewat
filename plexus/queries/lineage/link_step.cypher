@@ -6,16 +6,22 @@
 // via ('use' | 'recall', D-012): 'use' = the agent acted on or cited the fact (decision, handoff, assert_fact duplicate/supersede/contradiction); the READ edge
 // gets via and at = the Step's time. 'use' always wins on a re-MERGE (recall never downgrades a use); `at` only moves forward.
 // Callers pass de-duplicated id lists of at most 200 ids each. MERGE keeps it idempotent (re-linking adds no edges).
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
 MATCH (s:Step {id: $step_id})
-OPTIONAL MATCH (rf:Fact) WHERE rf.id IN $read_ids
+UNWIND CASE WHEN size($read_ids) = 0 THEN [''] ELSE $read_ids END AS rid
+OPTIONAL MATCH (rf:Fact {id: rid})
 WITH s, collect(rf) AS reads
-OPTIONAL MATCH (wf:Fact) WHERE wf.id IN $wrote_ids
+UNWIND CASE WHEN size($wrote_ids) = 0 THEN [''] ELSE $wrote_ids END AS wid
+OPTIONAL MATCH (wf:Fact {id: wid})
 WITH s, reads, collect(wf) AS wfs
-OPTIONAL MATCH (wd:Decision) WHERE wd.id IN $wrote_ids
+UNWIND CASE WHEN size($wrote_ids) = 0 THEN [''] ELSE $wrote_ids END AS wid
+OPTIONAL MATCH (wd:Decision {id: wid})
 WITH s, reads, wfs, collect(wd) AS wds
-OPTIONAL MATCH (wh:Handoff) WHERE wh.id IN $wrote_ids
+UNWIND CASE WHEN size($wrote_ids) = 0 THEN [''] ELSE $wrote_ids END AS wid
+OPTIONAL MATCH (wh:Handoff {id: wid})
 WITH s, reads, wfs, wds, collect(wh) AS whs
-OPTIONAL MATCH (wt:Task) WHERE wt.id IN $wrote_ids
+UNWIND CASE WHEN size($wrote_ids) = 0 THEN [''] ELSE $wrote_ids END AS wid
+OPTIONAL MATCH (wt:Task {id: wid})
 WITH s, reads, wfs, wds, whs, collect(wt) AS wts
 WITH s, reads, wfs + wds + whs + wts AS wrote
 WHERE size(reads) = size($read_ids) AND size(wrote) = size($wrote_ids)
