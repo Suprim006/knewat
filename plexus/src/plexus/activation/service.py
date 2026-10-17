@@ -62,7 +62,9 @@ def salience_of(r: Mapping[str, Any], now: int) -> tuple[float, dict[str, int]]:
         "verified": sum(1 for t in r["verified_at"] if t <= now),
         "artifacts_ok": sum(int(d.get("artifacts_ok") or 0) for d in decisions if not d["flagged"]),
         "tasks_done": sum(int(d.get("tasks_done") or 0) for d in decisions if not d["flagged"]),
-        "use_agents": max(0, len({e.get("ag") for e in r["reads"] if e["k"] == "use" and e.get("ag")}) - 1),
+        "use_agents": max(
+            0, len({e.get("ag") for e in r["reads"] if e["k"] == "use" and e.get("ag") and e["t"] <= now}) - 1
+        ),
         "handoffs": sum(1 for h in r["handoffs"] if h["t"] <= now),
         "trusted_source": int(any(s["trust"] == "high" for s in r["sources"])),
         "pinned": int(bool(r["pinned"])),
@@ -217,7 +219,11 @@ class Activation:
     # -- pin ---------------------------------------------------------------------------------------------
     def pin(self, fact_id: str, pinned: bool = True) -> bool:
         """Pin (or unpin) a fact. Returns False when there is no such fact (nothing written)."""
-        rows = self.client.rw(self.graph, "activation/pin", {"fact_id": fact_id, "pinned": bool(pinned)})
+        rows = self.client.rw(
+            self.graph,
+            "activation/pin",
+            {"fact_id": fact_id, "pinned": bool(pinned), "now": self._clock()},
+        )
         return bool(rows)
 
     # -- strength ----------------------------------------------------------------------------------------
