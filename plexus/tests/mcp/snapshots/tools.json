@@ -145,7 +145,7 @@
     }
   },
   "assert_fact": {
-    "description": "Store a durable fact (subject, predicate, value) in shared memory. A new value for the same\nsubject+predicate closes the old one (your own earlier value is superseded; a different agent's value is\nreported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns\n'duplicate_of'. A paraphrase of an existing value is merged only when numbers, units, negation and word order\nagree ('enabled' and 'not enabled' are never merged). When the new value merely looks like an existing one, it is\nstored anyway and listed in 'possible_duplicates': decide with confirm_duplicate or reject_duplicate.\nReturns fact_id, superseded[], duplicate_of, contradicts[], possible_duplicates[].",
+    "description": "Store a durable fact (subject, predicate, value) in shared memory. A new value for the same\nsubject+predicate closes the old one (your own earlier value is superseded; a different agent's value is\nreported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns\n'duplicate_of' (new source_ids are still linked: 'sources_added'). A fact several documents support: pass all\nof them in source_ids. A paraphrase of an existing value is merged only when numbers, units, negation and word order\nagree ('enabled' and 'not enabled' are never merged). When the new value merely looks like an existing one, it is\nstored anyway and listed in 'possible_duplicates': decide with confirm_duplicate or reject_duplicate.\nReturns fact_id, superseded[], duplicate_of, contradicts[], possible_duplicates[].",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -172,8 +172,16 @@
           "type": "string"
         },
         "source_id": {
-          "description": "Optional Source id (from add_source) this fact comes from. The fact is linked to it, so it can be explained with why() and removed with forget_source / quarantine_source.",
+          "description": "Source id (from add_source) the fact comes from: why() shows it, forget_source / quarantine_source act on it.",
           "type": "string"
+        },
+        "source_ids": {
+          "default": [],
+          "description": "Several documents support this fact: pass all of them here (max 20).",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
         },
         "step": {
           "description": "Optional step counter (1, 2, 3...; never backwards): calls with the same step share one step. Omit to make each call the next step.",
@@ -772,7 +780,7 @@
     }
   },
   "forget_source": {
-    "description": "Permanently forget a source and every fact derived from it (cascade): they stop appearing in\nrecall and as_of. Decisions that rested on them are flagged, not deleted. Returns the affected\nfact_ids, decision_ids and handoff_ids. Use quarantine_source instead if you are unsure (it can be\nundone).",
+    "description": "Permanently forget a source and the facts derived from it (cascade): they stop appearing in recall and\nas_of. Use it when a source is wrong, withdrawn or void. A fact another source still supports stays, only\nunlinked from this one (listed in 'unlinked'). Decisions that rested on forgotten facts are flagged, not\ndeleted. Returns fact_ids, decision_ids, handoff_ids. Unsure? quarantine_source can be undone.",
     "inputSchema": {
       "properties": {
         "agent_id": {
@@ -1226,7 +1234,7 @@
     }
   },
   "quarantine_source": {
-    "description": "Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,\nbut nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which\nagents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on\nthem, so you know what to re-check.",
+    "description": "Isolate a suspect source (wrong, withdrawn or void): the facts derived from it are hidden from recall and\nas_of right away, nothing is deleted (undo with release_quarantine). A fact another source still supports\nstays visible (listed in 'corroborated'). Returns the blast radius: fact_ids, which agents/steps had READ\nthem (readers, agents), and the decision_ids and handoff_ids built on them, so you know what to re-check.",
     "inputSchema": {
       "properties": {
         "agent_id": {

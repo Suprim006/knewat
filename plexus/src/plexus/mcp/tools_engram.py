@@ -14,7 +14,7 @@ from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
 from plexus.common import OPEN
-from plexus.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K
+from plexus.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K, MAX_SOURCES
 from plexus.mcp.limits import (
     ALL_SCOPES,
     MAX_INT,
@@ -102,10 +102,17 @@ def assert_fact(
     source_id: Annotated[
         IdStr | None,
         Field(
-            description="Optional Source id (from add_source) this fact comes from. The fact is linked to "
-            "it, so it can be explained with why() and removed with forget_source / quarantine_source."
+            description="Source id (from add_source) the fact comes from: why() shows it, "
+            "forget_source / quarantine_source act on it."
         ),
     ] = None,
+    source_ids: Annotated[
+        list[IdStr],
+        Field(
+            description="Several documents support this fact: pass all of them here (max 20).",
+            max_length=MAX_SOURCES,
+        ),
+    ] = [],  # noqa: B006 (pydantic copies the default)
     episode_id: Annotated[
         IdStr | None, Field(description="Optional episode_id that evidences this fact.")
     ] = None,
@@ -121,7 +128,8 @@ def assert_fact(
     """Store a durable fact (subject, predicate, value) in shared memory. A new value for the same
     subject+predicate closes the old one (your own earlier value is superseded; a different agent's value is
     reported in 'contradicts' unless supersede=true). Asserting the same value again is a no-op that returns
-    'duplicate_of'. A paraphrase of an existing value is merged only when numbers, units, negation and word order
+    'duplicate_of' (new source_ids are still linked: 'sources_added'). A fact several documents support: pass all
+    of them in source_ids. A paraphrase of an existing value is merged only when numbers, units, negation and word order
     agree ('enabled' and 'not enabled' are never merged). When the new value merely looks like an existing one, it is
     stored anyway and listed in 'possible_duplicates': decide with confirm_duplicate or reject_duplicate.
     Returns fact_id, superseded[], duplicate_of, contradicts[], possible_duplicates[]."""
@@ -133,6 +141,7 @@ def assert_fact(
         sid,
         agent_id,
         source_id=source_id,
+        source_ids=source_ids,
         episode_id=episode_id,
         confidence=confidence,
         supersede=supersede,

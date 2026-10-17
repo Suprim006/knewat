@@ -213,6 +213,14 @@ def add_source(
     return Outcome({"source_id": sid, "uri": where, "title": title}, created=[("Source", sid)])
 
 
+def _lean(r: dict[str, Any], key: str) -> dict[str, Any]:
+    """Drop the multi-source list ``key`` and its ``<key>_total`` from a retraction result when it is empty (tokens)."""
+    if not r.get(key):
+        r.pop(key, None)
+        r.pop(f"{key}_total", None)
+    return r
+
+
 @tool.when("forget_source")
 def forget_source(
     ts: TenantState,
@@ -230,11 +238,11 @@ def forget_source(
     ] = DEFAULT_CASCADE_DEPTH,
     step: Step = None,
 ) -> Outcome:
-    """Permanently forget a source and every fact derived from it (cascade): they stop appearing in
-    recall and as_of. Decisions that rested on them are flagged, not deleted. Returns the affected
-    fact_ids, decision_ids and handoff_ids. Use quarantine_source instead if you are unsure (it can be
-    undone)."""
-    r = _jsonable(_lineage(ts, m).forget_source(source_id, depth=depth))
+    """Permanently forget a source and the facts derived from it (cascade): they stop appearing in recall and
+    as_of. Use it when a source is wrong, withdrawn or void. A fact another source still supports stays, only
+    unlinked from this one (listed in 'unlinked'). Decisions that rested on forgotten facts are flagged, not
+    deleted. Returns fact_ids, decision_ids, handoff_ids. Unsure? quarantine_source can be undone."""
+    r = _lean(_jsonable(_lineage(ts, m).forget_source(source_id, depth=depth)), "unlinked")
     return Outcome({"forgotten": r}, updated=[("Fact", f) for f in r["fact_ids"]])
 
 
@@ -255,11 +263,11 @@ def quarantine_source(
     ] = DEFAULT_CASCADE_DEPTH,
     step: Step = None,
 ) -> Outcome:
-    """Isolate a suspect source: every fact derived from it is hidden from recall and as_of right away,
-    but nothing is deleted (undo with release_quarantine). Returns the blast radius: fact_ids, which
-    agents/steps had READ those facts (readers, agents), and the decision_ids and handoff_ids built on
-    them, so you know what to re-check."""
-    r = _jsonable(_lineage(ts, m).quarantine(source_id, depth=depth))
+    """Isolate a suspect source (wrong, withdrawn or void): the facts derived from it are hidden from recall and
+    as_of right away, nothing is deleted (undo with release_quarantine). A fact another source still supports
+    stays visible (listed in 'corroborated'). Returns the blast radius: fact_ids, which agents/steps had READ
+    them (readers, agents), and the decision_ids and handoff_ids built on them, so you know what to re-check."""
+    r = _lean(_jsonable(_lineage(ts, m).quarantine(source_id, depth=depth)), "corroborated")
     return Outcome({"quarantined": r}, updated=[("Fact", f) for f in r["fact_ids"]])
 
 
