@@ -1106,3 +1106,82 @@ E: `P-1stmt` **0 / 0 / 0** violations in 10/10 runs (reads 15,127, appends 8,925
 200); the other six arms as published (`P-levelwise`, `B1h-levelwise`, `B0-naive` tear in 10/10; the other three 0). The
 pre-registered "higher quarantine count" expectation for E was wrong in form: the count is the number of `Q` sources (20 per run),
 so it cannot rise; it stayed 200. The quarantiner's statement is the P1 rewrite, and it ran 200 times with 0 errors.
+
+## Recall-check pre-registration (trials-int review items 1-3: lexical fusion vs the D-013 cues, published numbers on the merged build, `fan_e` on a hub); written before any run
+
+Branch `recall-check` from `trials-int` (`76da7d7`: p12 merged into main's D-013 + audit fixes). Spec: `docs/research/TRIALS_INT_MERGE.md` §6. LLM calls: 0.
+FalkorDB 6.0.2 on `plexus-db-75`. **Build under test:** the commit that adds this section plus one harness-only change made
+before the first run (L5b / hub harness: the lexical weight the harness pins is read from `PLEXUS_L5_LEXICAL_WEIGHT`, default `0`
+= the pin of `af8f70d`; the product code is untouched). The two settings under test are the product's own switch,
+`PLEXUS_RECALL_LEXICAL_WEIGHT`: **ON** = the shipped default `0.5` (p12's `fuse_scores`), **OFF** = `0` (main's relevance `1 - rank`
+exactly). The candidate pool (60-150 instead of 2k), p12's keyword channel and scope `all` have no switch and are in both settings:
+OFF on this build is "main's relevance on p12's pool", so a published number that OFF fails to reproduce is moved by the pool,
+not by the fusion, and that is how it will be attributed.
+
+### What each layer reads, and what is not run twice
+* **L5b** (`python -m plexus.crucible.l5 --only forgetting --modes off,sep-entity,sep,sep+mult`, N = 5, N = 15, N = 5 `--burst`, seed 20261016,
+  fastembed, K = 20, 140 probes) and the **hub world** (`--only hub`, 200 probes): ON and OFF, one fresh play each (new ids; the
+  noise-share band between plays is 19.1-22.1% for `sep+mult`, 2-4 points for the other modes). Published reference: the `afx-*`
+  re-run (the last one): `sep+mult` 85.7% / 100% / noise 22.1, 19.9, 21.0% / critical loss 0 / same-entity 20, other-entity 0; `off` 75.0-77.1% /
+  98.6% (97.9-98.6%) / 23-33%; hub `sep` 100%, `off` 97.5%.
+* **No-LLM recall bench** (`recall_bench --label recallcheck-on|off`, `PLEXUS_TOOLSET=core`, hash embedder, the 5 seeds, as
+  `l8_trialsint/recall_bench-trialsint-core.json`): published (trials-int, ON): S07 5/5, S13 5/5, S20 1/1, canonical 1000/1000,
+  replay 28/36 (p12: 29/36), mean response 5,340 / 5,776 chars.
+* **L6-C** (`run_c --scale 1.0`, hash embedder, seed 20261016, all five arms, ON and OFF): the only L6 family that calls
+  `Engram.recall` (grep: `arms_c.py` is the only user in `crucible/l6`). P-product / P-flat are "as shipped" on `trials-int`, so
+  they run with the fusion on until this run says otherwise. B1h, B1h-untuned and P-tuned do not touch recall: they are the control and are
+  expected to reproduce the published rows exactly (75/75 each) in both settings.
+* **L6 A, B, D, E, F** (`l6 det`, `l6 postfix`, `l6 conc`) never call `recall` and do not read the lexical weight, so ON/OFF is not
+  a variable there; they are run **once** because the merge changed the write path they use (p12's `WROTE` folded into the task
+  statements, main's P3 empty-list forms). Expected: unchanged published correctness counts (A `impact` 24/24 strict service,
+  18/24 tool; F 0 orphans; E `P-1stmt` 0 violations and the three tearing arms tearing; B, D as in `latest-det.json`). Latencies are
+  reported, not a hypothesis.
+
+### Expectations (stated before the run)
+1. **OFF reproduces every published L5b number** (it is main's relevance on p12's pool, and the pool only widens a candidate list that
+   the entity/predicate unions already filled): `sep+mult` recall@1 within 2 probes of 85.7% (>= 84.3%), recall@5 >= 99.3% (139/140),
+   critical loss 0, other-entity rows above the target 0, noise share <= 24.0% (published band + 2 points), in all three runs;
+   hub `sep` >= 99%. Confidence: high for critical loss and other-entity, medium for noise share (the keyword channel now also
+   pulls entity-name matches into the pool).
+2. **ON also reproduces recall@1, recall@5 and critical loss, but not the noise share.** The scenario's noise facts sit on the
+   probed subject and their values mention the predicate word, so their lexical coverage of the query is as high as the target's: I expect the
+   `sep+mult` noise share to be >= OFF + 2 points. Recall@1 cannot exceed 85.7% for a scorer that does not read the value, but
+   the lexical score does read the value, so a move of up to +-2 probes either way is not excluded. I do not expect a gain.
+   ON in mode `off` (no scoring: fused order only) may differ from OFF in `off` by several points; that row is descriptive.
+3. **L8 bench: ON = the published 28/36 replay, 1000/1000 canonical, needed facts 5/5 5/5 1/1.** OFF: I expect it to keep the
+   canonical and needed-fact counts (the p12 completeness came from the pool, keyword channel and scope `all`) and to lose
+   some replay calls (>= 3 of the 36 fewer than ON, since the fusion was added by p12 for the 'billing cycle decided in sprint S07'
+   query among twenty near-identical facts). Medium confidence; this is the layer where a difference between the settings is most likely.
+4. **L6-C:** strict stays 0/75 in P-product and P-flat in both settings (hop facts are ranked behind every direct hit and direct hits are
+   never the multi-hop answer; this is structural, not lexical). `hit_any` (published, hash: P-product 11 / 6 / 1 at d = 1 / 2 / 3, P-flat 0 / 0 / 1)
+   will move because of the new pool and the keyword channel; I predict it moves up or stays (a wider pool returns more rows), by
+   <= 5 questions per depth, and the same in both settings within 3 questions. Low confidence; reported and explained, not a decision input
+   unless the two settings differ by >= 3 questions at one depth.
+5. **`fan_e` on a hub (review item 3).** In `engram/recall` the `fan_e` comprehension `size([(e)<-[:ABOUT]-(:Fact {status:'active'}) | 1])` and the
+   sibling `OPTIONAL MATCH (e)<-[:ABOUT]-(g0:Fact)` that follows it both run once per surviving row (up to `$lim` <= 150 + keyword hits), and every
+   row of one hub entity repeats the same scan of the hub's `ABOUT` edges. I expect the records produced by those two operators to scale as
+   `rows_from_the_hub x fan`: on a hub with 1,000 current facts and a recall returning >= 60 hub rows, >= 60,000 records in the `ABOUT` traversal
+   (fan_e) and the same order in the sibling expansion; at 5,000 current facts >= 300,000 (>= 150 rows would make it 750,000). That is "scans
+   beyond the bounded rows". Fix (if the numbers confirm): the per-entity work (fan, sibling list) is done **once per distinct entity** in the same
+   single read (group the rows by entity before the comprehension), so the records scale with `fan x distinct entities`, independent of how many rows
+   one entity contributes; acceptance: the `ABOUT`-side records <= 3 x fan per distinct entity at both hub sizes, the rows and ranks identical to the old query on a
+   fixture where every rule fires (hub plus siblings in several scopes, a diamond scope graph, an `$all` read), and one statement. If the numbers do
+   not confirm (the planner already shares the scan), the finding is "not a defect" and a plan-shape test pins the record count.
+   Timings (median `run_time_ms`) are reported next to the records and are not a criterion (Docker Desktop, 2x swings).
+
+### Decision rule for the double-counting question (stated now)
+A setting is **admissible** when, on the merged build, it satisfies all of: (L5b) `sep+mult` recall@1 >= 84.3%, recall@5 >= 99.3%, critical loss 0,
+other-entity rows 0 and noise share <= 24.0% in all three runs, and hub `sep` recall@1 >= 99%; (L8) needed facts 5/5, 5/5, 1/1, canonical 1000/1000
+and replay >= 28/36. L6-C and L6 A/B/D/E/F are reported but are not admissibility criteria (see 4: not lexical, and both settings share the pool).
+* both settings admissible: the shipped default becomes **OFF (`0`)**: the fusion is then an extra mechanism that no registered benchmark
+  needs, it overlaps the D-013 cues (a query word in the entity name or predicate is rewarded by both), and `0` is main's relevance, which carries the
+  published L5b numbers. The fusion stays available (`PLEXUS_RECALL_LEXICAL_WEIGHT`). Exception: if ON's replay count exceeds OFF's by >= 3
+  calls (the one measure on which the fusion was designed to help), the tie is not a tie and the default stays ON;
+* only ON admissible: the default stays **ON (`0.5`)**; D-013 records that the two mechanisms overlap, that the L5b / hub harness pins the
+  fusion off for the SQL-arm comparison, and which published numbers were measured with it off;
+* only OFF admissible: the default becomes OFF;
+* neither admissible: no default is argued from a tie; the criteria each setting fails are reported as moved published numbers with the cause
+  (the pool, the fusion, or both, by the OFF/ON difference), and the default is the setting that fails fewer criteria (a tie keeps ON,
+  the merged status quo). A third weight (e.g. 0.1 or 0.25) is only tried then, and is labelled **post-hoc**.
+Whatever is chosen, the L5b / hub harness keeps its default pin `PLEXUS_L5_LEXICAL_WEIGHT=0` (the SQL arm mirrors the cosine relevance), and every
+number reported for it names the weight used.
