@@ -8,10 +8,12 @@
 // list does not remove the row. $artifacts items: {id, kind, uri, hash, summary} (no nulls; '' when absent).
 // $artifact_ids is the list of those ids (used only for the duplicate guard).
 // Each artifact gets (Artifact)-[:PRODUCED_BY]->(Agent) and (Artifact)-[:FOR]->(Task); the task_id property is kept too.
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
 MATCH (t:Task {id: $task})
 WHERE t.status = 'claimed' AND t.claimed_by = $agent AND t.version = $expected_version
 MATCH (a:Agent {id: $agent})
-OPTIONAL MATCH (e:Artifact) WHERE e.id IN $artifact_ids
+UNWIND CASE WHEN size($artifact_ids) = 0 THEN [''] ELSE $artifact_ids END AS aid
+OPTIONAL MATCH (e:Artifact {id: aid})
 WITH a, t, count(e) AS duplicates
 WHERE duplicates = 0
 SET t.status = 'failed', t.fail_reason = $reason,

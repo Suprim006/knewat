@@ -45,14 +45,20 @@
 // fact = $surprise_supersede (0.6); otherwise $novelty (the caller's single vector read, activation/novelty: min(0.5, max(0, 1 - max cosine)), 0.5 for the
 // first fact of a scope). It is decided here because only this statement knows whether the write supersedes or contradicts.
 // source_id / episode_id are '' when absent. A given id that does not resolve yields no row (the guard sits before the Agent MERGE).
-// Lineage tail: everything that follows the FOREACH is a plain RETURN; to log a Step, put `MATCH (st:Step {id: $step_id})` before the
-//   FOREACHes and add `CREATE (st)-[:WROTE]->(nf)` inside the new-fact FOREACH (and `(st)-[:READ]->(x)` for dup/closing), then keep the RETURN.
+// Nearest-first (audit C3): the current facts are collected into `cur` ORDERED BY their value-embedding cosine distance to the new value
+//   (one `WITH ... ORDER BY` before the collect; collect keeps the row order on 6.0.2, as relay/task_status relies on), so every list derived
+//   from `cur` (`keyed`, `soft`) is nearest-first and the `[0..$maybe_cap]` cut keeps the nearest candidates. The cut and the
+//   DUPLICATES_MAYBE writes happen in this one statement, so the caller cannot sort first; sorting in the row domain after `keyed` would
+//   need the zero-row guard, while ordering the OPTIONAL MATCH rows changes no row count.
 MATCH (e:Entity {id: $entity_id}), (sc:Scope {id: $scope_id})
 OPTIONAL MATCH (ep:Episode {id: $episode_id})
 OPTIONAL MATCH (src:Source {id: $source_id})
 OPTIONAL MATCH (stp:Step {id: $step_id})
 OPTIONAL MATCH (e)<-[:ABOUT]-(f:Fact {predicate: $predicate, valid_to: $open_to})-[:IN_SCOPE]->(sc)
 WHERE f.status IN ['active', 'dormant']
+WITH e, sc, ep, src, stp, f,
+     CASE WHEN f IS NULL THEN 2.0 ELSE vec.cosineDistance(f.value_embedding, vecf32($value_emb)) END AS fcos
+ORDER BY fcos ASC, f.id ASC
 WITH e, sc, ep, src, stp, collect(f) AS cur
 WHERE ($episode_id = '' OR ep IS NOT NULL) AND ($source_id = '' OR src IS NOT NULL)
 MERGE (ag:Agent {id: $agent_id})

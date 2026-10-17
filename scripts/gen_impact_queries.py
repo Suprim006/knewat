@@ -38,7 +38,7 @@ def build(kind: str) -> str:
         out.append(f"OPTIONAL MATCH (n{k}:Fact)-[:DERIVED_FROM]->(x{k})")
         out.append(f"WITH src, reach, collect(DISTINCT n{k}) AS l{k}")
         out.append(f"WITH src, reach + l{k} AS reach, l{k} AS fr")
-    out.append("WITH src, reach" if kind == "source" else "WITH src, reach + [src] AS reach")
+    out.append("WITH src, reach" if kind == "source" else "WITH src, [src] + reach AS reach")
     out.append("UNWIND CASE WHEN size(reach) = 0 THEN [null] ELSE reach END AS f")
     out.append("WITH DISTINCT src, f LIMIT $limit")
     out.append("WITH src, collect(f) AS fs")

@@ -297,3 +297,128 @@ keeps every critical probe and 96.4% recall@5 while still cutting noise (23% →
 `PLEXUS_ACT_FLOOR=0.9`, confirmed by a second, pre-registered run (`docs/BASELINE.md`, L5b confirmatory). The
 `memory_sweep` is lossy for cold-but-true facts in this benchmark (cold@5 ~35–70%) and stays optional, dry-run by
 default and reversible. Protection prevents sweeping, not outranking: the docs say so.
+
+## D-013 — Pattern separation at recall; additive forgetting kept opt-in (neuroscience memory upgrade, P1 + P2)
+2026-10-17 · **accepted** (P1 on by default; P2 implemented, benchmarked, **not** made the default — its pre-registered test failed)
+
+**Context.** `docs/research/NEUROSCIENCE_MEMORY_SURVEY.md` and `MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md` diagnosed
+L5b's 12-point recall@1 loss under D-012: the decay curve is not the defect, the *combination rule* is. Relevance ×
+squashed activation can only reorder near-ties, and L5b's near-ties are twins where popularity is the wrong tie-breaker.
+The plan's top pick was pattern separation (use the entity the query names), second an additive, bounded activation
+term with activation-dependent decay (Pavlik & Anderson 2005) and graded salience, third prediction-error-gated
+reliability (P3, not built yet). An independent cross-check (`neuro-memory/CROSS_CHECK.md`) agreed on the diagnosis
+and ranking and found one required fix (the sweep threshold under the new decay scale).
+
+**Decision.**
+1. **P1 pattern separation, on by default** (`PLEXUS_RECALL_SEPARATION=on`). One extra bounded read per recall
+   (`engram/recall_entities`: full-text OR of the query words over `Entity.name`, ≤ 5 entities, each with its fan =
+   current facts about it in the searched scopes, entity-first plan). An entity counts as *named* only when every
+   word of its name is in the query. Facts about a named entity get `sep = gamma · max(0, 1 − ln fan / S_max)` in
+   log-relevance (`gamma = 0.15`, `S_max = ln 50`: a hub entity with ≥ 50 facts gets nothing, the ACT-R fan effect);
+   the sibling expansion in `engram/recall` is damped by the same factor; each row reports `lures` (other candidates
+   with the same predicate about another entity within 0.02 relevance), `entity_match` and `sep`; `Recall` stores
+   `entities` and `separation`, `RETURNED` stores `sep`, so `why_recalled` explains the lift. Nothing is written by a
+   recall. The exact-keyword bypass now tests the whole fact text (`PLEXUS_KW_BYPASS=fact`; `value` = the old rule).
+2. **P2 additive mode, implemented behind `PLEXUS_ACT_MODE=add`, default stays `mult`.** `plexus.activation.score`:
+   `ln rel + beta·tanh((A − A0)/2s) + sep + sal`, Pavlik–Anderson activation-dependent decay
+   (`activation_spaced`, `c = 0.217, a = 0.177`, testing-effect weight for a recall after the last use), graded
+   salience from the graph (`salience_of`: decisions, verifications, independent artifacts, done tasks, distinct
+   using agents, handoffs, trusted source, pin; `Fact.salience` cached by `pin_fact`, recomputed on every read
+   otherwise), salience slows decay (`kappa = 0.4`), the band guard replaces `max(A, A0)` for protected facts,
+   `memory_sweep`'s default margin is `A0 − 0.72` under the new scale (CROSS_CHECK §3.1), and salience ≥ 0.5 protects
+   from sweeps. `mult` mode is byte-for-byte D-012 (plus the bypass fix and separation).
+3. **Identity contract:** `PLEXUS_FORGETTING=off` **and** `PLEXUS_RECALL_SEPARATION=off` reproduce the pre-D-012 order
+   exactly (`tests/activation/test_recall_off.py`, golden captured on main 4584219). Separation alone changes the
+   order only through the damped expansion and when the query names an entity.
+
+**Evidence (pre-registered, `docs/BASELINE.md` "L5b-D013"; results `plexus/demo_data/crucible/l5/20261017T08*-d013-*`).**
+L5b, K = 20, seed 20261016, fastembed, 0 LLM calls, N = 5 / N = 15 / N = 5 burst:
+
+| mode | recall@1 (N=5 / 15 / burst) | recall@5 | noise share | rows above target: same entity / other entity (N=5) |
+|---|---|---|---|---|
+| `off` | 75.7 / 77.1 / 75.0% | 98.6% | 23.7% | 36 / 13 |
+| `on-mult` (D-012 as shipped) | 65.0 / 65.7 / 63.6% | 95.7% | 14.9% | 46 / 44 |
+| `kw-fix` | 77.1 / 77.1 / 76.4% | 98.6% | 14.9% | 29 / 15 |
+| `sep` (P1, forgetting off) | **85.7 / 85.7 / 85.7%** | **100%** | 23.3% | 20 / **0** |
+| `sep+add` (P1 + P2, pre-registered constants) | **70.0 / 70.0 / 70.0%** | 100% | 21.9% | 41 / 1 |
+
+Hypotheses (plan §5.1): **1** `sep` ≥ 0.90 — **not reached** (85.7%; above the 0.85 falsification floor, so not
+falsified either); recall@5 and critical loss pass. **2** `kw-fix` 77.1% < 0.88: the bypass alone is not the fix, it
+only removes `mult`'s own loss. **3** `sep+add` — **FALSIFIED** (15.7 points below `sep`; the rule says "P2 still
+costs recall and beta is too large"). **4** critical+hot above target ≤ 5 — **failed** (42). **5** burst — **passed**
+(0.0% hot-above-cold under `sep+add`; 3.9% under `on-mult`).
+
+**Reading.** P1 did exactly what it was designed for: every cross-entity displacer is gone (13 → 0) and recall@5 is
+100% at both N. The residual 20 displacers are *same-entity* critical facts (another predicate of the same sprint
+subject), which an entity cue cannot separate; that is the predicate-cue problem CROSS_CHECK §3.2 predicted, and it
+is why 0.90 was not reached. A labelled post-hoc sensitivity (`l5_posthoc/d013/*-sens-n5`, not confirmatory) shows
+the `sep+add` loss comes from both P2 terms *jointly* (beta 0.05 → 0.01 alone: 72.9%; delta → 0 alone: 70.7%;
+both: 85.0%) and that at the strength where the additive term stops costing recall it also stops reducing noise
+(23.9% = `off`). The shipped default (`mult` + separation, `sep+mult`) measures 85.0% / 100% / 22.1%: the 12-point
+D-012 loss is gone and recall@5 is perfect, at a smaller noise reduction than D-012 alone (14.9%) because the entity
+lift also lifts noise *about the named entity* over real facts about other entities — which is what the query asked for.
+
+**Deviations from the plan text, with reasons.** (a) The bypass keeps `ln rel + sep` rather than relevance only:
+"relevance only" would strip the P1 lift from the very rows P1 exists for (every bypassed row names the entity).
+(b) Named-entity rule instead of "top 5 by full-text score": the OR query returns every `Acme Notes API Sxx` twin, and
+lifting all five would cancel the separation. (c) Salience cache written by `pin_fact` only; the six-statement cache
+is deferred because the activation read already has every input (CROSS_CHECK §3.7 "simpler v1") and a partial cache
+that drifts from the formula is worse than none. (d) `add` is not the default: the plan made that conditional on
+§5.1 passing, and it did not.
+
+**Consequences / follow-ups.** P3 (prediction-error-gated reliability, `why_confidence`) and the hub variant (§5.3)
+are not built. *Amendment (§5.4 run, `docs/BASELINE.md` "§5.4 results"):* the SQL-arm extension was built and run;
+a hand-written SQL arm given the same columns ties `sep+mult` exactly on recall@1/5 in all three L5b runs with 92
+lines of SQL (vs 104 of Cypher) and 3 statements (vs 4), and reproduces the activation of every fact; L6-C ties on
+correctness (75/75 both) with SQL 3.3x faster at depth 3. The confidence stated in the table of the plan ("tie by
+construction vs a SQL arm") is confirmed; the claim this decision supports is "beats flat retrieval, explains every
+rank", not "beats SQL". L6-C also found that the shipped `recall(hops)` never ranks a hop fact into the top 5 and
+fills its per-hop cap alphabetically — a product defect recorded for the next decision, not fixed here. The next P1 step is the predicate cue (CROSS_CHECK §3.2 / A.3), which is
+what the remaining same-entity displacers need; the next P2 step is a fit of `beta`/`delta` against the recorded
+`gap12` distribution (median rank-1/rank-2 gap 0.0167) rather than the declared defaults — as a new pre-registration,
+not a tuned re-run of this one.
+
+**Amendment 2026-10-17 (predicate cue, CROSS_CHECK §3.2 + §3.3; `docs/BASELINE.md` "Predicate cue pre-registration" and the
+three sections after it).** Built and run as the next P1 step this decision pointed to. What changed: `sep` is now the ACT-R
+context term over two cues, `w_entity · max(0, S − ln fan_entity) + w_predicate · max(0, S − ln fan_predicate)`, where the
+predicate cue uses the named-entity rule on the words of `Fact.predicate` and its fan comes from one more bounded read
+(`engram/recall_predicates`, index seek per named predicate); the named entities' own facts always join the candidates
+(`engram/recall_hop_facts` at hop 0, §3.3); each cue is floored at 0 (never a penalty); `PLEXUS_ACT_CUES=entity` restores
+point 1 above exactly; the identity contract (point 3) is unchanged. **What the registered run found, against this decision's
+own reading:** the 20 residual L5b displacers are *not* "another predicate of the same sprint subject" — they are the
+scenario's 20 `CONTRADICTS` pairs (two active `auth_method` facts per subject, same entity, same predicate, both probes), so
+85.7% is the L5b recall@1 ceiling for any value-blind scorer and P1 had already reached it; the predicate cue changed no L5b
+rank (hard criterion falsified), and at CROSS_CHECK's constants (`0.6 / 0.4 / S = 5`) it raised the noise share by 4–11 points
+(the entity cue at ×3.5 relevance lifts the named entity's noise over every other entity's real facts). The hub variant
+(plan §5.3) passed (100%) but relevance alone scored 97.5%, so the plan's "flat boost returns an arbitrary hub fact" claim is
+false and the variant is weak evidence. A labelled post-hoc sensitivity found the *structure* right and the *magnitude* ~20×
+too large; the `1/20` scale (`0.03 / 0.02 / 5`, the entity cue at fan 12 = P1's 0.075) was then pre-registered with an outcome
+rule and confirmed (recall@1 at the ceiling in all three runs, noise share below the single-cue form in every run). **Amended
+decision:** the shipped default is the two-cue term at `0.03 / 0.02 / 5` (`sep+mult`: 85.7% / 100% / noise 20.6–20.9%); the
+registered number of record for CROSS_CHECK's constants stays the falsified one. Follow-ups: the order *inside* a contradicting
+pair is undefined by any cue (recency, P3 reliability or `resolve_contradiction` are the candidates — a new pre-registration);
+the L5b "same-entity gap" should no longer be cited as a product defect; the §3.3 union's ~5-point noise cost on L5b is the
+price of completeness about the named entity and is recorded, not hidden; the SQL arm of §5.4 was not given the predicate
+feature (tie claim unchanged).
+
+**Amendment 2026-10-17 (2) — the shipped default matches the text; one additive formula (`docs/research/BRANCH_REVIEW.md`
+findings 1–2, `CYPHER_AUDIT_SUMMARY.md` C1).** Point 2 says `mult` is "byte-for-byte D-012 (plus the bypass fix and separation)"
+and lists "salience ≥ 0.5 protects from sweeps" among the P2 features, but the code applied the salience rule in both modes: in
+`mult` a fact protected by none of D-012's rules became protected (neutral-activation floor in recall, skipped by sweeps) after,
+e.g., one confirmed `verify_fact`, three distinct using agents, or — through C1 — one artifact re-verified twice. **Decision:** the
+text stands and the code follows it: the salience rule is gated on `add` mode (`activation/service.py`, `st.additive`; the L5b SQL
+arm mirrors it with an `:additive` parameter, so the fidelity check stays a like-for-like comparison). Salience is still computed,
+cached and reported in both modes (`memory_strength`, `pin_fact`); only the *protection* is add-only. Second, `rank.rerank`'s `add`
+branch now calls `score.score()` (the documented formula) instead of re-typing `ln rel + act + sep + sal`; `Ranked.act`/`sal` are
+the reported components from the same helpers, so a future P3 `rel_term` wired into `score()` reaches production. Third, C1:
+`activation/activation` now returns `verified_artifacts` (the ids of the independently verified artifacts FOR the decision's
+*done* tasks, one per VERIFIED_BY path) and `salience_of` counts them DISTINCT as `artifacts_ok`; the old `size(...)` counted every
+path over every task (one artifact verified twice on an open task scored 2). **Effect on the published numbers:** none expected —
+the L5b fixtures carry no VERIFIED_BY / Artifact / multi-agent-use structure and no diamond scopes (pre-registered and re-run,
+`docs/BASELINE.md` "Audit fixes re-run"). Also recorded here, from the same audit (B2): `engram/recall_predicates` (the
+predicate cue's read) is one index seek per predicate; measured with the production index set, the 6.0.2 seek applies `status` and
+`valid_to` together with `predicate`, so the superseded history and the expired facts are *not* read (2,000 + 1,500 of them: 0 index
+records; `tests/integration/test_audit_recall_predicates_plan.py` pins it). What it does read is every *current* fact with that
+predicate in *every* scope plus one `IN_SCOPE` hop each; the scope is an edge, not an indexed Fact property, so no single-property
+index can absorb it and the cost of a common predicate grows with the number of current facts across the tenant's scopes, not with
+its history. Documented in the query header; bounded by `RECALL_PREDICATES` (10 predicates per recall).

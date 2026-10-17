@@ -70,7 +70,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Decision` | `id, text, at` | Relay |
 | `Step` | `id, n, at, agent_id` | Lineage |
 | `ToolCall` | `id, tool, at, agent_id, query_name, run_time_ms, wrote` | audit (feeds the View) |
-| `Recall` | `id, at, query, scope_id, agent_id, k` | lineage (record behind `why_recalled`) |
+| `Recall` | `id, at, query, scope_id, agent_id, k`; D-013: `entities` (ids the query named), `separation` (bool) | lineage (record behind `why_recalled`) |
 | `CodeAnchor` | `id` (`anc:` + sha1(path#symbol)[:16]), `repo, path` (canonical), `symbol` (`''` = whole file), `hash, kind: file\|function\|class, updated_at` | Staleness (P7) |
 | `Change` | `id` (`chg:` + sha1(commit, at, hashes)[:16]), `commit, at, paths` (JSON list), `agent_id` | Staleness (P7) |
 
@@ -109,7 +109,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Lineage | `(Step)-[:NEXT]->(Step)` | |
 | audit | `(ToolCall)-[:IN_STEP]->(Step)` | |
 | audit | `(ToolCall)-[:CREATED\|UPDATED]->(any)` | |
-| lineage | `(Recall)-[:RETURNED {rank, score}]->(Fact)`, `(Recall)-[:BY]->(Agent)`, `(Recall)-[:IN_STEP]->(Step)` | |
+| lineage | `(Recall)-[:RETURNED {rank, score, sep}]->(Fact)` (`sep` = the D-013 context term of that row: entity cue + predicate cue, 0 when none), `(Recall)-[:BY]->(Agent)`, `(Recall)-[:IN_STEP]->(Step)` | |
 | Staleness (P7) | `(Fact)-[:ANCHORED_TO]->(CodeAnchor)` | `at` |
 | Staleness (P7) | `(Source)-[:DESCRIBES]->(CodeAnchor)` | `at` |
 | Staleness (P7) | `(Change)-[:TOUCHED]->(CodeAnchor\|Source)` | |
@@ -202,6 +202,7 @@ D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/s
 | `Fact` | `verify_after` (epoch ms) | `OPEN` | a review date for facts that are not about code; once passed the fact is suspect too |
 | `Fact` | `surprise` (float 0..1) | `0.0` | set once at write from the novelty of the fact; raises its starting activation |
 | `Fact` | `pinned` (bool) | `false` | the owner says it must stay prominent; protects it from fading and from sweeps |
+| `Fact` | `salience` (float 0..1), `salience_at` (epoch ms) | absent (recomputed on read) | D-013 graded salience from the graph (decisions, verifications, independent artifacts, done tasks, using agents, handoffs, trusted source, pin). Written by `pin_fact` (≥ 0.95), removed by `unpin_fact`; the activation read recomputes it from the edges, so the cache is informational |
 | `Fact` | `status = 'dormant'`, `prior_status`, `dormant_at` | n/a | an optional, reversible sweep hides faint, unprotected facts from recall; `restore_fact` puts `prior_status` back. Nothing is deleted |
 | `Source` | `kind` also `code`, `doc`, `external` | | what the Source is |
 | `Source` | `content_hash`, `commit`, `repo` | `''` | hash of the file the `uri` names and the commit that last reported it (`mark_changed`) |

@@ -1,4 +1,8 @@
-"""Forgetting off (or as_of) is byte-identical to the retrieval order before P7-K.
+"""Forgetting off + pattern separation off (or as_of) is byte-identical to the retrieval order before P7-K.
+
+D-013 added ``PLEXUS_RECALL_SEPARATION`` (on by default): with it on, the sibling expansion is fan-damped and
+a query that names an entity is re-ranked, so the identity holds with BOTH switches off (the documented
+contract).
 
 ``GOLDEN`` was captured by running ``golden_fixture.orders`` against main 4584219 (a ``git archive``
 of the commit before any P7-K change), not against this branch.
@@ -78,12 +82,13 @@ def world(eng, scope):
 
 def test_forgetting_off_reproduces_the_pre_change_order(world):
     eng, scope = world
-    assert golden_fixture.orders(eng, scope, forgetting=False) == GOLDEN
+    assert golden_fixture.orders(eng, scope, forgetting=False, separation=False) == GOLDEN
 
 
 def test_the_environment_switch_does_the_same(world, monkeypatch):
     eng, scope = world
     monkeypatch.setenv("PLEXUS_FORGETTING", "off")
+    monkeypatch.setenv("PLEXUS_RECALL_SEPARATION", "off")
     assert golden_fixture.orders(eng, scope) == GOLDEN
 
 
@@ -102,11 +107,11 @@ def test_as_of_mode_is_unaffected_by_forgetting(world, client, graph):
     # age and boost some facts so that re-ranking WOULD change the order if it applied
     write(client, graph, "MATCH (f:Fact) WHERE f.value STARTS WITH 'PostgreSQL 1' SET f.surprise = 0.9")
     base = {
-        q: golden_fixture.groups(eng.recall(q, scope, k=k, as_of=1_500, forgetting=False))
+        q: golden_fixture.groups(eng.recall(q, scope, k=k, as_of=1_500, forgetting=False, separation=False))
         for q, k in golden_fixture.QUERIES
     }
     on = {
-        q: golden_fixture.groups(eng.recall(q, scope, k=k, as_of=1_500, forgetting=True))
+        q: golden_fixture.groups(eng.recall(q, scope, k=k, as_of=1_500, forgetting=True, separation=True))
         for q, k in golden_fixture.QUERIES
     }
     assert on == base

@@ -221,7 +221,7 @@ Full tables are in `docs/graph-model.md`; the edge types by module:
 | **knew_at(agent, step N)** | Follow the agent's `Step` chain up to N, its `READ` edges, and keep facts whose validity window covered that step's time. | `queries/lineage/knew_at.cypher` |
 | **who_knew(fact)** | The reverse: `(Step)-[:READ]->(fact)` back to agents and step numbers. | `queries/lineage/who_knew.cypher` |
 | **as_of(subject, predicate, T)** | The fact whose `[valid_from, valid_to)` contains T. | `queries/lineage/as_of.cypher` |
-| **forget_source / quarantine** | Expand five fixed one-hop levels of `DERIVED_FROM` from the `Source`, mark every derived fact forgotten or quarantined, and flag (not delete) every `Decision` `BASED_ON` them. Quarantine also reports the blast radius: agents that READ them, and handoffs that CARRIES them. Quarantine is reversible. | `queries/lineage/forget_source.cypher`, `quarantine.cypher` |
+| **forget_source / quarantine** | Expand up to twelve depth-gated one-hop levels of `DERIVED_FROM` from the `Source` (`depth` 1..12, default 8; P9-b), mark every derived fact forgotten or quarantined, and flag (not delete) every `Decision` `BASED_ON` them. Quarantine also reports the blast radius: agents that READ them, and handoffs that CARRIES them, through `CALL` subqueries over the collected fact list (audit P1/B1: the earlier form carried the list as a grouping key and timed out at 2,500 facts). Quarantine is reversible. | `queries/lineage/forget_source.cypher`, `quarantine.cypher` |
 | **blocked_by_failure(task)** | Breadth-first search over `DEPENDS_ON` (10 levels, 5,000 tasks). | `queries/relay/dependents_of.cypher` |
 | **mark_changed** | One bounded statement: compare the hashes of ≤ 200 anchors, create a `Change`, mark the active and dormant facts anchored to the changed code (directly, or through `DERIVED_FROM*1..5` from a `Source` whose uri is the changed file) `suspect`, and return the decisions `BASED_ON` them and the docs that `DESCRIBES` that code. Idempotent on unchanged hashes. | `queries/staleness/mark_changed.cypher` |
 | **verify_fact (changed)** | The supersede path, then a backdate: the old fact's `valid_to` becomes the `Change.at` (event time), `recorded_at` stays (record time), dependent decisions are flagged. | `queries/staleness/backdate.cypher` |
@@ -653,6 +653,81 @@ byte-identical before and after.
 | `graphController.ts` 834, `Results.tsx` 729, `Explorer.tsx` 500 lines | 421 / 104 / 292 lines; style/layout/data/selection modules; per-layer components |
 | 8 copies of `OPEN`/`now_ms`/`new_id`/`normalize` | one `plexus/common.py` |
 
+### 7.5 Pattern separation and additive forgetting (D-013): one win, one honest failure
+
+After P9 a neuroscience survey (`docs/research/NEUROSCIENCE_MEMORY_SURVEY.md`, six cited notes, an independent
+cross-check) asked why forgetting cost 12 points of recall@1 in L5b. The answer was not the decay curve but the
+combination rule: multiplying relevance by a squashed activation can only reorder near-ties, and L5b's near-ties are
+twins where popularity is the wrong tie-breaker. Two of the plan's three picks were built on branch
+`feature/neuro-memory-research` and run against the pre-registered L5b design (`docs/BASELINE.md` "L5b-D013";
+results `plexus/demo_data/crucible/l5/20261017T08*-d013-*`; 0 LLM calls):
+
+| Mode (L5b, N = 5; N = 15 in brackets where different) | recall@1 | recall@5 | noise share | rows above the target: same entity / other entity |
+|---|---|---|---|---|
+| `off` (flat) | 75.7% (77.1%) | 98.6% | 23.7% (28.7%) | 36 / 13 |
+| `on-mult` (D-012 as shipped) | 65.0% (65.7%) | 95.7% | 14.9% (17.4%) | 46 / 44 |
+| `kw-fix` (bypass over the whole fact text) | 77.1% | 98.6% | 14.9% | 29 / 15 |
+| **`sep` (P1: pattern separation, forgetting off)** | **85.7%** | **100%** | 23.3% | 20 / **0** |
+| `sep+add` (P1 + P2 additive banded activation) | **70.0%** | 100% | 21.9% | 41 / 1 |
+| `sep+mult` (the shipped default after D-013; post-hoc run) | 85.0% | 100% | 22.1% | 21 / 0 |
+| `sep` with the predicate cue at CROSS_CHECK's 0.6 / 0.4 (registered, falsified) | 85.7% | 100% | 32.3% (43.6%) | 20 / 0 |
+| **`sep+mult` with the two cues at 0.03 / 0.02 (the shipped default now; confirmatory run)** | **85.7%** | **100%** | **20.6% (20.9%)** | 20 / 0 |
+
+**P1, pattern separation (on by default).** One extra bounded read per recall resolves the entities the query names
+(`engram/recall_entities`, full-text over `Entity.name`, entity-first, with each entity's *fan*), and facts about a
+named entity get the ACT-R lift `gamma · max(0, 1 − ln fan / ln 50)` in log-relevance; the sibling expansion is damped
+by the same factor; rows report `lures` and `why_recalled` stores the lift. It removed **every** cross-entity
+displacer (13 → 0) and made recall@5 perfect, at 2.5 ms per recall. It did **not** reach the pre-registered 0.90
+(85.7% at every N; above the 0.85 falsification floor). This report first read the remaining 20 displacers as "facts
+about the same entity with another predicate" and the cross-check's predicate cue as the fix. **Both were wrong, and
+the pre-registered run that tested the fix is what showed it** (`docs/BASELINE.md` "Predicate cue results"): the 20
+misses are the L2 scenario's 20 designed `CONTRADICTS` pairs — two active `auth_method` facts per sprint subject, same
+entity, *same* predicate, both of them probes — so one of each pair must lose rank 1 and **85.7% is the recall@1
+ceiling of L5b for any scorer that does not read the value**. P1 had already reached the ceiling; the 0.90 target was
+unreachable by construction. The predicate cue (`sep = Σ_cues w · max(0, S − ln fan)`, CROSS_CHECK §3.2; the named
+entity's own facts also always join the candidates, §3.3) therefore changed no L5b rank, and at the cross-check's
+constants (`0.6 / 0.4 / S = 5`) it raised the noise share by 4–11 points because a ×3.5 entity lift puts the named
+entity's noise above every other entity's real facts; the plan's hub variant (§5.3, one entity with 200 predicates)
+passed at 100% but relevance alone already scored 97.5%, so its "flat boost returns an arbitrary hub fact" prediction
+was false. A labelled post-hoc sensitivity showed the cue *structure* sound and the *weights* ~20× too large for a
+term added to ln-cosine (twin gaps 0.02–0.07 nats); the `1/20` scale was pre-registered with an outcome rule and
+confirmed in three fresh runs (recall@1 at the ceiling, noise share below the single-cue form every time), and is the
+shipped default: `sep+mult` 85.7% / 100% / noise 20.6–20.9%. What this phase actually bought is small and is stated
+as such: ~1 point of noise share, the last 5 of 200 hub probes, and the removal of the zero-lift-at-fan-50 edge;
+what it cost is two bounded reads per recall. What it is worth more than the numbers: a benchmark reading corrected
+by its own pre-registered test, and the ordering *inside* a contradicting pair identified as the open question
+(recency, the P3 reliability term, or `resolve_contradiction`; a new pre-registration, not a cue).
+
+**P2, forgetting that cannot cost recall — falsified at its declared constants.** The additive mode
+(`PLEXUS_ACT_MODE=add`: `ln rel + beta·tanh((A − A0)/2s) + sep + sal`, Pavlik–Anderson activation-dependent decay,
+graded salience from the graph, a band guard instead of `max(A, A0)`) scored 70.0%, 15.7 points below `sep`; the
+pre-registered rule reads this as "P2 still costs recall". A labelled post-hoc sensitivity shows the loss comes from
+the activation term and the in-band salience lift *jointly* (each ≈ 0.02 in log-relevance against a median twin gap
+of 0.017), and that at the strength where the term stops costing recall (`beta = 0.01, delta = 0`: 85.0%) it also
+stops reducing noise (23.9% = `off`). On this benchmark a bounded additive activation is either harmful or inert. The
+burst hypothesis passed (a fact read 90 times in one hour never outranks a cold target under `sep+add`; 3.9% under
+D-012), but `sep` and `off` pass it too, so it is not evidence for the decay model. Consequence: `add` stays opt-in,
+`mult` + separation ships. What was gained against D-012 as shipped: recall@1 65.0% → 85.0%, recall@5 95.7% → 100%,
+0 critical probes lost; what was given back: the noise share is 22.1% instead of 14.9%, because the entity lift also
+lifts noise *about the named entity* over real facts about other sprints — the metric counts that as worse, the query
+arguably asked for it.
+
+**The SQL arm (plan §5.4), run.** The L5b graph was exported to SQLite (same ids, vectors and events; FTS5 configured
+like RediSearch, sqlite-vec for the seeds) and the shipped default was answered with **three** hand-written SQL
+statements — entities with a `GROUP BY` fan, candidates with the fan-damped expansion, and `A(f)` / salience /
+protection computed in SQL with a window function — feeding the same `rerank`. Result (`docs/BASELINE.md` "§5.4
+results", three runs: N = 5, N = 15, burst): **a tie on quality, as pre-registered.** `sep+mult` recall@1 82.9% /
+85.7% / 84.3% and recall@5 100% on *both* arms in every run; the SQL activation equals the graph's for every one of
+480 / 1,080 facts; 6 probes per run swap rank-1 between the arms (3 each way) because the exact-keyword bypass is
+granted only to the full-text engine's top-10 hits and the two engines rank them differently. Cost: 92 lines of SQL
+against 104 of Cypher (12% less), 3 statements against 4, SQLite faster end-to-end at N = 5 (17.8 vs 30.6 ms per
+probe, in process against four network round trips), about equal at N = 15 (26.5 vs 29.7); FalkorDB faster per
+statement in every cell (2-7 ms vs 7-20 ms) and flat in the fact count where sqlite-vec's exact scan grows. Not built:
+P3. (The hub variant ran afterwards, above; the SQL arm was not given the predicate cue — a feature it lacks by
+omission, not by inability, so the tie reading stands.) The honest claim that survives is unchanged from §8: Plexus beats *flat retrieval* on near-twins
+by using structure the query names, explains every rank, and a SQL arm handed an entity lookup and a `GROUP BY` fan
+**does** tie — measured, not predicted.
+
 ## 8. Can a graph beat SQL? (P9)
 
 The owner read the shortcomings and asked whether "not more correct than SQL or files" could be tackled. Two
@@ -674,16 +749,24 @@ The earlier "36 vs 32" gap was a gap against a reader, not against SQL.
 | D cross-sprint aggregation | **tie** 24/24; SQL 4.6× faster | B1a 8/8, B0g 8/8 | 1/8 |
 | E consistent reads under concurrent writes | **tie**: 0 violations when the read is one statement (FalkorDB snapshot = SQLite WAL); level-wise reads and unlocked files tear | — | — |
 | F provenance crash-consistency (200 SIGKILLs) | **Plexus lost**, as pre-registered: 94 of 1,240 facts without their Step/WROTE link vs 0 for SQLite. **After folding WROTE into the write: 0 of 1,842** | — | — |
-| C multi-hop recall | not run (typed relations landed after the run) | | |
+| C multi-hop recall through `RELATES`, −ln(fan) per hop, depth 1-3 (44k facts, 18k relations) | **tie** 75/75 both, identical top-5 lists; **SQL faster at depth** (12.6 vs 41.3 ms at d = 3, 3.3x; Cypher faster at d = 1: 4.7 vs 7.5 ms), one recursive CTE (21 lines, `loc` 32) against a level-wise walk (18 lines of Cypher + Python, `loc` 43); untuned SQL 10-250x slower, 4 timeouts at d = 3. **The shipped `recall(hops)` never puts the answer in its top 5 (0/75)** and finds it anywhere in its rows for 11/25 at d = 1 (3/25 with fastembed) | — | flat retrieval (`recall(hops=0)`) 0/75 |
 
 LLM pilot: 88 `claude -p` calls, $7.09 of a $20 cap, 8 questions per family: too small to show differences under
 3 questions, and said so.
 
-**Verdict.** A well-built relational schema with recursive CTEs **matches Plexus on correctness everywhere we
-looked**, is faster on simple claims and aggregation, and wins crash-consistency until we fixed it. What Plexus
-beats is the status quo of agent memory: tool-less readers (0–2 of 8 on every structural question) and flat
-retrieval. Its honest pitch is structured provenance, dependencies and time as first-class edges answered
-deterministically at zero tokens, with the graph primitives SQL makes you hand-build, plus the tie published.
+**Verdict (updated after L6-C and the L5b SQL arm, `docs/BASELINE.md` "§5.4 results").** A well-built relational
+schema with recursive CTEs **matches Plexus on correctness everywhere we looked, including the two families where a
+graph was supposed to have the edge**: ranking with pattern separation and activation (L5b: identical recall@1/5,
+identical activation for every fact, 92 lines of SQL against 104 of Cypher) and multi-hop recall with a fan-weighted
+spreading rule (L6-C: 75/75 both, identical lists). SQL is faster on simple claims, aggregation, and multi-hop
+traversal at depth 2-3 (3.3x at depth 3), and it won crash-consistency until we fixed it; FalkorDB is faster per
+statement and at depth 1. The phrase "beats SQL on retrieval quality" is **not earned** by any family, and this report
+does not use it. The multi-hop family also found that the product's own `recall(hops)` is behind both hand-written
+arms: it never ranks a hop fact into the top 5 and fills its per-hop entity cap alphabetically (§9.3). What Plexus
+beats is the status quo of agent memory: tool-less readers (0–2 of 8 on every structural question) and flat retrieval
+(0/75 on L6-C, 75.7% → 85.7% recall@1 on L5b). Its honest pitch is structured provenance, dependencies and time as
+first-class edges answered deterministically at zero tokens, with the graph primitives SQL makes you hand-build — and
+every tie published.
 
 ### 8.3 What L6 found in our own tools, and fixed
 - `impact` carried a 5,000-id list through three `UNWIND`s and never finished: rewritten as per-facet `CALL`
@@ -709,8 +792,10 @@ deterministically at zero tokens, with the graph primitives SQL makes you hand-b
 ### 9.1 About the claims
 
 - **Plexus is not more correct than a well-built SQL backend** at claims, leases, dependencies, as-of queries,
-  tenant isolation, forgetting (L1 tie), blast radius, why-chains, aggregation or consistent reads (L6 tie with the
-  hand-written SQL arm). Its wins are against tool-less readers and flat retrieval.
+  tenant isolation, forgetting (L1 tie), blast radius, why-chains, aggregation, consistent reads (L6 tie with the
+  hand-written SQL arm), **retrieval ranking with pattern separation and activation (L5b SQL arm: identical
+  recall@1/5), or multi-hop fan-weighted recall (L6-C: 75/75 both, SQL 3.3x faster at depth 3)**. Its wins are
+  against tool-less readers and flat retrieval.
 - **Plexus is slower than SQLite** on the median claim at every load level (L4).
 - **On a small history, Plexus ties** a plain-files backend read by Claude on provenance accuracy (L2). Its advantage
   there is cost, latency and determinism, not accuracy.
@@ -737,6 +822,14 @@ deterministically at zero tokens, with the graph primitives SQL makes you hand-b
 
 ### 9.3 About the product
 
+- **D-013 (§7.5):** the additive forgetting mode failed its pre-registered test and is not the default; the
+  pattern-separation lift reached 85.7% recall@1, not the 0.90 it was pre-registered for — and 85.7% turned out to
+  be the benchmark's ceiling (20 contradicting same-entity same-predicate pairs), found only when the predicate cue
+  pre-registered as the fix changed nothing. The cue's registered constants (CROSS_CHECK's 0.6 / 0.4) were falsified
+  on noise share; the shipped 0.03 / 0.02 were chosen post hoc and then confirmed, like the 0.9 floor before them.
+  How a contradicting pair should be ordered is still undefined. The lexical named-entity and named-predicate rules
+  give nothing to a paraphrase. The salience cache is written by `pin_fact` only (reads recompute it).
+
 - **Write throughput per tenant is bounded** by FalkorDB's per-graph write serialisation. Hot tenants need to be spread
   across graphs; one busy team graph has a ceiling (373 claims/s at 200 workers in our run).
 - **Provenance is atomic only for `assert_fact`, `record_decision` and `handoff`** (WROTE folded into the write after
@@ -750,6 +843,12 @@ deterministically at zero tokens, with the graph primitives SQL makes you hand-b
   rewordings also miss their 100% auto target. Thresholds were tuned on synthetic pairs.
 - **Entity resolution is atomic but not transitive** (A~B and B~C don't make A~C), and legacy tenants need
   `plexus migrate entities` before fuzzy matching works for old entities.
+- **`recall(hops)` does not surface multi-hop answers (L6-C).** Measured against its own hand-written Cypher and a
+  SQL arm that both answer 75/75: the shipped tool ranks every hop fact behind every direct hit (so `k=5` never
+  shows one), starts the walk from the entities of the direct hits instead of the entity the query names (which
+  `recall_entities` has already resolved), and fills its 20-entities-per-hop cap alphabetically by name. The answer
+  appears anywhere in its rows for 11/25 at depth 1 and 6/25 at depth 2 (3/25 and 1/25 with fastembed). The
+  typed-relation feature is real; the ranking around it is not usable yet (§10, item 1).
 - **Recall speed is limited by the CPU embedder** (about 47 embeddings/s shared). Retrieval can still miss a valid
   fact whose embedding is far from the query and which shares no keyword with it, because vector filters run after
   top-k.
@@ -797,8 +896,9 @@ deterministically at zero tokens, with the graph primitives SQL makes you hand-b
 
 ## 10. What we would do next
 
-1. **Run L6-C** (multi-hop recall with typed relations, now built) and a Postgres + pgvector arm; isolate the
-   insert-latency growth to its index.
+1. **Fix `recall(hops)` as L6-C found it** (start the walk from the entities the query names, fill the per-hop cap by
+   fan-weighted cost rather than alphabetically, let a relevant hop fact outrank a weak direct hit) and re-run L6-C
+   as a new pre-registration; add a Postgres + pgvector arm; isolate the insert-latency growth to its index.
 2. **Repeat L3 properly:** ≥ 5 runs per arm with fixed seeds, a larger scenario whose history exceeds an agent's
    context, and the MAST metrics.
 3. **Slim the tool output:** cap recall paths and `why` detail by default, to close the token gap seen in L3.

@@ -1,0 +1,188 @@
+{
+  "arms": {
+    "off": {
+      "entity_facts_added_mean": 0,
+      "hub_fact_above_target": 0.025,
+      "missed_rank": [
+        1,
+        1,
+        1,
+        2,
+        3
+      ],
+      "n": 200,
+      "other_hub_fact_in_top5": 1.0,
+      "probe_ms_p50": 15.791999991051853,
+      "recall@1": 0.975,
+      "recall@5": 1.0,
+      "statements_per_probe": 2
+    },
+    "sep": {
+      "entity_facts_added_mean": 0,
+      "hub_fact_above_target": 0.0,
+      "missed_rank": [],
+      "n": 200,
+      "other_hub_fact_in_top5": 1.0,
+      "probe_ms_p50": 30.154349995427765,
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "statements_per_probe": 5
+    },
+    "sep-entity": {
+      "entity_facts_added_mean": 0,
+      "hub_fact_above_target": 0.025,
+      "missed_rank": [
+        1,
+        1,
+        1,
+        2,
+        3
+      ],
+      "n": 200,
+      "other_hub_fact_in_top5": 1.0,
+      "probe_ms_p50": 29.36260000569746,
+      "recall@1": 0.975,
+      "recall@5": 1.0,
+      "statements_per_probe": 5
+    },
+    "sep[w_entity=0.03;w_predicate=0.02]": {
+      "entity_facts_added_mean": 0,
+      "hub_fact_above_target": 0.0,
+      "missed_rank": [],
+      "n": 200,
+      "other_hub_fact_in_top5": 1.0,
+      "probe_ms_p50": 29.807750004692934,
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "statements_per_probe": 5
+    },
+    "sep[w_entity=0.06;w_predicate=0.04]": {
+      "entity_facts_added_mean": 0,
+      "hub_fact_above_target": 0.0,
+      "missed_rank": [],
+      "n": 200,
+      "other_hub_fact_in_top5": 1.0,
+      "probe_ms_p50": 29.483350008376874,
+      "recall@1": 1.0,
+      "recall@5": 1.0,
+      "statements_per_probe": 5
+    }
+  },
+  "config": {
+    "arms": [
+      "off",
+      "sep-entity",
+      "sep",
+      "sep[w_entity=0.06;w_predicate=0.04]",
+      "sep[w_entity=0.03;w_predicate=0.02]"
+    ],
+    "embedder": "FastEmbedder",
+    "facts_per_other": 5,
+    "hub": "Atlas Core Platform",
+    "hub_facts": 200,
+    "others": 40,
+    "seed": 20261016,
+    "settings": {
+      "off": {
+        "cue_s": 5.0,
+        "cues": "entity+predicate",
+        "gamma": 0.15,
+        "s_max": 3.912023005428146,
+        "separation": false,
+        "w_entity": 0.6,
+        "w_predicate": 0.4
+      },
+      "sep": {
+        "cue_s": 5.0,
+        "cues": "entity+predicate",
+        "gamma": 0.15,
+        "s_max": 3.912023005428146,
+        "separation": true,
+        "w_entity": 0.6,
+        "w_predicate": 0.4
+      },
+      "sep-entity": {
+        "cue_s": 5.0,
+        "cues": "entity",
+        "gamma": 0.15,
+        "s_max": 3.912023005428146,
+        "separation": true,
+        "w_entity": 0.6,
+        "w_predicate": 0.4
+      },
+      "sep[w_entity=0.03;w_predicate=0.02]": {
+        "cue_s": 5.0,
+        "cues": "entity+predicate",
+        "gamma": 0.15,
+        "s_max": 3.912023005428146,
+        "separation": true,
+        "w_entity": 0.03,
+        "w_predicate": 0.02
+      },
+      "sep[w_entity=0.06;w_predicate=0.04]": {
+        "cue_s": 5.0,
+        "cues": "entity+predicate",
+        "gamma": 0.15,
+        "s_max": 3.912023005428146,
+        "separation": true,
+        "w_entity": 0.06,
+        "w_predicate": 0.04
+      }
+    }
+  },
+  "criteria": [
+    {
+      "hard": false,
+      "id": "hub: sep recall@1 >= 0.90 (plan \u00a75.3)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "hub: sep recall@1 >= 0.80 (falsification floor)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep other hub fact above the target <= 10%",
+      "ok": true,
+      "value": [
+        0.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep recall@1 - sep-entity recall@1 >= 0.10 (the predicate cue is what helps)",
+      "ok": false,
+      "value": [
+        0.975,
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep-entity recall@1 within 2 probes (0.01) of off (zero lift at fan 200)",
+      "ok": true,
+      "value": [
+        0.975,
+        0.975
+      ]
+    }
+  ],
+  "label": "POST-HOC sensitivity (weights chosen after the registered run); not confirmatory",
+  "seconds": {
+    "build": 10.4,
+    "total": 37.8
+  },
+  "world": {
+    "facts": 400,
+    "hub_fan_resolved": 200,
+    "predicate_fan_max": 6,
+    "predicate_fan_mean": 2
+  }
+}

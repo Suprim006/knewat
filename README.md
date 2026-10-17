@@ -96,6 +96,20 @@ noise share of what recall returns 24.0% -> 15.1%, nothing deleted (fact count e
 lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days (14 real ones in the run); read the dry run first,
 `restore_fact` undoes it. One synthetic scenario, one confirmatory run: a hypothesis for your data, not a promise.
 
+**D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey ([`docs/research/`](docs/research/))
+traced the recall@1 loss to the combination rule, not the decay curve. `recall` now resolves the entities the query names (one
+bounded full-text read) and lifts their facts by an ACT-R context term over two cues, the entity and the predicate the query
+names (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_CUES`, `PLEXUS_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
+always join the candidates; the exact-keyword bypass tests the whole fact text. Pre-registered L5b re-run (same seed, 0 LLM
+calls): recall@1 75.7% -> **85.7%** with forgetting off, recall@5 100%, every cross-entity displacer gone, the pre-registered
+0.90 target **not reached** — and a later run showed why: the 20 residual misses are the scenario's 20 contradicting
+`auth_method` pairs (same entity, same predicate, both active), so 85.7% is the ceiling for any value-blind scorer; the predicate
+cue, pre-registered as the fix, changed no L5b rank (`docs/BASELINE.md` "Predicate cue results"). The additive forgetting mode built alongside it
+(`PLEXUS_ACT_MODE=add`, Pavlik-Anderson decay, graded salience) **failed** its pre-registered test (70.0%) and is opt-in; the
+shipped default (`mult` + the two-cue separation, weights confirmed in a registered run) measures recall@1 85.7%, recall@5 100%,
+noise share 20.6-20.9% (D-013 as first shipped: 85.0% / 100% / 22.1%; D-012 alone: 65.0% / 95.7% / 14.9%).
+[`docs/DECISIONS.md`](docs/DECISIONS.md) D-013, [`docs/BASELINE.md`](docs/BASELINE.md) "L5b-D013" and "Predicate cue results".
+
 ## Architecture
 
 ```mermaid
@@ -205,7 +219,7 @@ The recorded real run holds 247 nodes and 708 edges (14 labels, 26 relationship 
 ## The Cypher queries the product depends on
 
 Every statement lives in a named, parameterised file under [`plexus/queries/<area>/<name>.cypher`](plexus/queries/) with a
-header (purpose, params, returns, mode) and is loaded by name; 108 files in all. The complete index with a "why it is a graph
+header (purpose, params, returns, mode) and is loaded by name; 111 files in all. The complete index with a "why it is a graph
 query" for each is [`docs/queries.md`](docs/queries.md). The ones the product cannot work without:
 
 | Query | What it does | Why it is a graph query |
@@ -293,7 +307,7 @@ model, scenario, budgets, seeds). Exact-match scoring, no LLM judge. Full method
 | **L2 at scale** (pre-registered; 20 sprints of history, 10.4-16.6× the context cap, 36 questions) | **P 36/36 (100%), B1 32/36 (88.9%), B0 30/36 (83.3%), B2 23/36 (63.9%).** Wilson 95%: P 90.4-100, B1 74.7-95.6, B0 68.1-92.1, B2 47.6-77.5. Paired sign test: P vs B0 6-0, p = 0.031; **P vs B1 4-0, p = 0.125, not distinguishable from noise**; P vs B2 13-0, p < 0.001. B0/B1 failures were join-heavy provenance questions and one transitive dependency, not class-wide questions; accuracy did not decay with how early the sprint was. B0/B1 spent about 20-22k tokens and $0.08-0.09 per question (about 5 s) against 0 tokens and a few milliseconds | A gap, but a small one: the intervals of P and B0/B1 overlap, and the B1 gap is within sampling noise. Not a claim that Plexus is "better at memory" in general |
 | **B1h** hand-written SQL control on the same L2 and L2-scale questions | **SQL ties:** B1h 43/43 on L2 and 36/36 on L2-scale, the same as Plexus, at 0 LLM calls | On questions a SQL author can write, a relational schema answers as many as the graph. The advantage over B0/B1/B2 is a structured record, not graph storage as such |
 | **C7 extended** (226 labelled pairs; negations, units, number words, near-twins) | **0 false merges in 150 pairs that must stay apart** (every category, both splits; < 2.0% at 95% by the rule of three); the old rule (B2) falsely merged 68 of 150. **Targets missed:** heavy paraphrases are auto-merged 10 of 24 and surfaced for review 19 of 24, against a pre-registered 75% auto or 95% surfaced; light paraphrases 10 of 20 and unit rewordings 11 of 12 against 100% auto | Precision is the claim, recall of heavy rewordings is not. A close-but-different pair becomes a soft `DUPLICATES_MAYBE` link instead of a silent merge |
-| **L6** five pre-registered families where a graph could beat SQL (blast radius, why-depth, cross-sprint aggregation, consistent reads, crash-consistency) | **A tie or a SQL win in every family.** A: SQL ties the hand-tuned graph query and the product's `impact` tool did not finish at 5,000 facts (fixed: see below); B: tie when the call passes depth 12 (the MCP tool exposes it now; the tool path itself was not re-run); D: both 24/24, SQL 4.6x faster; E: 0 violations for every single-statement arm, the product's own level-wise traversal tears; F: Plexus lost (94 of 1,240 records without their `WROTE` edge; fixed for `assert_fact`, `record_decision` and `handoff`, see below). LLM pilot (8 questions per family): B1a 24/24, B0g 24/24, B0r 2/24, Plexus MCP tools 10/16, 88 calls, $7.09 | The graph is not found to beat a competent SQL schema in any family; the product defects the run exposed were fixed and re-run |
+| **L6** five pre-registered families where a graph could beat SQL (blast radius, why-depth, cross-sprint aggregation, consistent reads, crash-consistency) | **A tie or a SQL win in every family.** A: SQL ties the hand-tuned graph query and the product's `impact` tool did not finish at 5,000 facts (fixed: see below); B: tie when the call passes depth 12 (the MCP tool exposes it now; the tool path itself was not re-run); D: both 24/24, SQL 4.6x faster; E: 0 violations for every single-statement arm, the product's own level-wise traversal tears; F: Plexus lost (94 of 1,240 records without their `WROTE` edge; fixed for `assert_fact`, `record_decision` and `handoff`, see below). LLM pilot (8 questions per family): B1a 24/24, B0g 24/24, B0r 2/24, Plexus MCP tools 10/16, 88 calls, $7.09. **C (run later, D-013 §5.4): multi-hop recall with a fan-weighted rule, hand-written SQL and Cypher both 75/75 with identical lists; SQL 3.3x faster at depth 3; the shipped `recall(hops)` 0/75 in the top 5.** The same phase's L5b SQL arm ties the shipped ranking exactly (recall@1/5 identical in three runs, 92 lines of SQL vs 104 of Cypher) | The graph is not found to beat a competent SQL schema in any family, including ranking and multi-hop recall; the product defects the run exposed were fixed and re-run, except the `recall(hops)` ranking found by C, which is recorded as the next fix |
 | **Ablation** | 7 of 7 edge-dependent capabilities break, 5 of 5 controls unaffected | The graph does real work (above) |
 
 **What the results support.** Plexus makes provenance, dependencies and time first-class edges in FalkorDB, so *why*, *who knew* and *what is
@@ -437,7 +451,7 @@ bash ../scripts/agent_db.sh rm 10
 
 ```text
 plexus/                  the product (Python 3.12, uv)
-  queries/<area>/*.cypher  every Cypher statement, named and parameterised (108 files)
+  queries/<area>/*.cypher  every Cypher statement, named and parameterised (111 files)
   src/plexus/            graph (client, schema, tenancy), engram, relay, lineage, audit, mcp, api, embed, demo, crucible
   demo_data/             the Acme scenario, recordings (acme-claude-sonnet, acme-scripted, pilot-haiku), Crucible questions and caches
   tests/                 pytest against throw-away graphs

@@ -220,11 +220,17 @@ class RecallInfo(BaseModel):
     scope_id: str
     agent_id: str
     step: dict[str, Any] | None = Field(default=None, description="{id, n, at} of the Step it ran in.")
+    entities: list[str] = Field(default_factory=list, description="Entity ids the query named (D-013).")
+    separation: bool = Field(default=False, description="Whether pattern separation was on (D-013).")
 
 
 class RecallHit(BaseModel):
     rank: int
     score: float
+    sep: float = Field(
+        default=0.0,
+        description="D-013 context term of this row in log-relevance: entity cue + predicate cue (0 = none).",
+    )
     fact_id: str
     props: dict[str, Any]
     entity: dict[str, Any] | None = None

@@ -194,7 +194,7 @@ def recall(
     sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
     if sid is None:
         return Outcome({"facts": [], "count": 0, "scope_id": None})
-    hits = ts.engram(m).recall(
+    hits, meta = ts.engram(m).recall_with_meta(
         query,
         sid,
         k=k,
@@ -208,9 +208,22 @@ def recall(
         h["score"] = round(h["score"], 4)
         if h["activation"] is not None:
             h["activation"] = round(h["activation"], 3)
+        if h.get("sep"):
+            h["sep"] = round(h["sep"], 4)
 
     def record(lin, step_id: str | None) -> dict[str, Any]:
-        return {"recall_id": lin.record_recall(agent_id, step_id, query, sid, k, hits)}
+        return {
+            "recall_id": lin.record_recall(
+                agent_id,
+                step_id,
+                query,
+                sid,
+                k,
+                hits,
+                entities=sorted(meta["entities"]),
+                separation=meta["separation"],
+            )
+        }
 
     return Outcome({"facts": hits, "count": len(hits), "scope_id": sid}, after=record)
 

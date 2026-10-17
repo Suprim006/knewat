@@ -1,19 +1,22 @@
 // name: relay/create_tasks
 // purpose: Create a task DAG in ONE statement: all tasks, then all DEPENDS_ON edges, or nothing.
-// params: tasks:list[map], edges:list[map], ids:list[str], ext_dep_ids:list[str], now:int
+// params: tasks:list[map], edges:list[map], ids:list[str], ext_dep_ids:list[str] (de-duplicated), now:int
 // returns: edges (number of DEPENDS_ON edges created). Zero rows are never returned; when the guard fails
 //   nothing is written, and the caller detects it from stats (nodes_created != len(tasks)).
 // mode: rw
 // Guard: no task id may exist yet, and every dependency outside the batch ($ext_dep_ids) must exist.
 // The guard yields an empty $tasks to UNWIND (so nothing is created) rather than filtering rows, because an
 // aggregation with no grouping key always returns one row.
+// $ids is never empty (a batch has >= 1 task), so its `IN` is a seek and is kept as is; $ext_dep_ids is often empty, hence the UNWIND form below.
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
 // $tasks items: {id, title, priority, seq}; seq is the input position (FIFO tie-break within a batch). $edges items: {i, j, dep}: task index i depends on task index j in the
 // same batch (j >= 0), or on the already-existing task id `dep` (j = -1, dep != ''). Caller bounds both
 // (<= 500 tasks). Edges use list indexes because nodes created earlier in the same statement are NOT yet
 // matchable by MATCH (verified on 6.0.2) but are usable through the collected list.
 OPTIONAL MATCH (e:Task) WHERE e.id IN $ids
 WITH collect(e.id) AS existing
-OPTIONAL MATCH (x:Task) WHERE x.id IN $ext_dep_ids
+UNWIND CASE WHEN size($ext_dep_ids) = 0 THEN [''] ELSE $ext_dep_ids END AS did
+OPTIONAL MATCH (x:Task {id: did})
 WITH existing, collect(x.id) AS found_ext
 WITH CASE WHEN size(existing) = 0 AND size(found_ext) = size($ext_dep_ids) THEN $tasks ELSE [] END AS to_create
 UNWIND to_create AS row

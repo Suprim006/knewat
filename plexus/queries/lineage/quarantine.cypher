@@ -6,6 +6,9 @@
 // Only facts with status 'active', 'superseded' or 'dormant' are touched (a dormant fact is quarantined too, and released back to dormant, P7-int); the old status is kept in prior_status so lineage/release_quarantine can restore it. Decisions and handoffs are reported, not modified.
 // The write is bounded by $limit (callers use <= 5000), applied BEFORE the SET because LIMIT does not stop eager writes.
 // The response is bounded (P5 review Q11): reads / decision_ids / handoff_ids are cut at max_detail (callers use <= 5000), the *_total counts and agent_ids are exact.
+// reads / decisions / handoffs describe only the facts this call changed (a fact already quarantined through another source is skipped, so it contributes nothing).
+// reads_total counts (step, fact) pairs; impact_*.steps_total counts distinct steps.
+// Tail (audit P1): reads, decisions and handoffs are three CALL { WITH fs ... } subqueries, each returning a key-less aggregate (an empty fact set still yields one row), so the fact list is never a grouping key (carried through UNWIND/collect it was hashed once per row: 2,500 facts timed out).
 // Plan shape (P5 review Q3, P9-b): the cascade is expanded level by level FROM the Source (up to 12 fixed one-hop OPTIONAL MATCHes, each driven by the
 // DISTINCT facts found at the previous level and skipped once $depth is reached), so the work follows DERIVED_FROM edges and a diamond lineage
 // (fan-in 3, depth 12 = ~500k paths, 60 facts) costs its edges, not its paths. `(f:Fact)-[:DERIVED_FROM*1..N]->(src)` would be planned from the
@@ -64,17 +67,26 @@ WITH src, [r IN reach WHERE r.status IN ['active', 'superseded', 'dormant']] AS 
 UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
-OPTIONAL MATCH (s:Step)-[:READ]->(x)
-WITH src, fs, x, s ORDER BY s.at ASC, s.agent_id ASC, x.id ASC
-WITH src, fs, collect(CASE WHEN s IS NULL THEN null ELSE {agent_id: s.agent_id, step_id: s.id, n: s.n, at: s.at, fact_id: x.id} END) AS reads,
-     collect(DISTINCT s.agent_id) AS agent_ids
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
-OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(y)
-WITH src, fs, reads, agent_ids, collect(DISTINCT d) AS ds
-UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS w
-OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(w)
-WITH src, fs, reads, agent_ids, ds, collect(DISTINCT h) AS hs
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
+  OPTIONAL MATCH (s:Step)-[:READ]->(x)
+  WITH x, s ORDER BY s.at ASC, s.agent_id ASC, x.id ASC
+  RETURN collect(CASE WHEN s IS NULL THEN null ELSE {agent_id: s.agent_id, step_id: s.id, n: s.n, at: s.at, fact_id: x.id} END) AS reads,
+         collect(DISTINCT s.agent_id) AS agent_ids
+}
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
+  OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(y)
+  RETURN collect(DISTINCT d) AS ds
+}
+CALL {
+  WITH fs
+  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS w
+  OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(w)
+  RETURN collect(DISTINCT h) AS hs
+}
 FOREACH (z IN fs | SET z.prior_status = z.status, z.status = 'quarantined', z.quarantined_at = $now)
 RETURN [a IN fs | a.id] AS fact_ids, reads[0..$max_detail] AS reads, size(reads) AS reads_total, agent_ids,
        [b IN ds[0..$max_detail] | b.id] AS decision_ids, size(ds) AS decisions_total,

@@ -705,6 +705,12 @@
         "score": {
           "title": "Score",
           "type": "number"
+        },
+        "sep": {
+          "default": 0.0,
+          "description": "D-013 context term of this row in log-relevance: entity cue + predicate cue (0 = none).",
+          "title": "Sep",
+          "type": "number"
         }
       },
       "required": [
@@ -728,6 +734,14 @@
           "title": "At",
           "type": "integer"
         },
+        "entities": {
+          "description": "Entity ids the query named (D-013).",
+          "items": {
+            "type": "string"
+          },
+          "title": "Entities",
+          "type": "array"
+        },
         "id": {
           "title": "Id",
           "type": "string"
@@ -743,6 +757,12 @@
         "scope_id": {
           "title": "Scope Id",
           "type": "string"
+        },
+        "separation": {
+          "default": false,
+          "description": "Whether pattern separation was on (D-013).",
+          "title": "Separation",
+          "type": "boolean"
         },
         "step": {
           "anyOf": [

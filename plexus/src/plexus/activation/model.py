@@ -85,6 +85,59 @@ def activation(
     return math.log(total) if total > 0 else float("-inf")
 
 
+def _age_s(t1: int, t0: int) -> float:
+    return max(t1 - t0, MS_MIN_AGE) / 1000.0
+
+
+def activation_spaced(
+    events: Iterable[Event],
+    *,
+    now: int,
+    created_at: int,
+    surprise: float = 0.0,
+    c: float = 0.217,
+    a: float = 0.177,
+    d_max: float = 1.0,
+    kappa_s: float = 0.0,
+    a0: float | None = None,
+    max_events: int = 50,
+    w_restudy: float = W_RECALL,
+) -> tuple[float, list[float]]:
+    """Base-level activation with activation-dependent decay (Pavlik & Anderson 2005; D-013, ``add`` mode).
+
+    Each event ``i`` decays with its own exponent ``d_i = min(d_max, c * exp(m_{i-1}) + a)`` where ``m_{i-1}``
+    is the activation just before it (``a`` for the first event): reads of an already-active fact decay fast,
+    so a burst of massed reads is worth little more than one read while spaced reads keep their value.
+    ``kappa_s`` (``kappa * salience``) slows every exponent: ``d_i * (1 - kappa_s)``. Testing-effect rule
+    (note 03 §3.1): a
+    ``recall`` event later than the fact's last ``use`` is a restudy and weighs ``w_restudy * (1 -
+    sigmoid(m_prev
+    - A0))`` (an easy re-exposure is worth ~0, a re-exposure of a faded fact up to ``w_restudy``); it needs
+    ``a0``, so pass the neutral activation (``None`` = the plain weight). Only the newest ``max_events``
+    count.
+
+    Returns ``(A, [d_i per counted event, oldest first])``; ``A`` is ``-inf`` with no events and no surprise.
+    """
+    ev = sorted((e for e in events if e.t <= now), key=lambda e: e.t)[-max_events:]
+    last_use = max((e.t for e in ev if e.kind == "use"), default=None)
+    ds: list[float] = []
+    ws: list[float] = []
+    for i, e in enumerate(ev):
+        if i == 0:
+            m_prev = float("-inf")
+        else:
+            m_prev = math.log(sum(ws[j] * _age_s(e.t, ev[j].t) ** -ds[j] for j in range(i)))
+        d_i = a if m_prev == float("-inf") else min(d_max, c * math.exp(m_prev) + a)
+        ds.append(d_i * (1.0 - kappa_s))
+        w = e.w
+        if e.kind == "recall" and a0 is not None and (last_use is None or e.t > last_use):
+            w = w_restudy * (1.0 - sigmoid(m_prev - a0)) if m_prev != float("-inf") else w_restudy
+        ws.append(w)
+    total = sum(ws[i] * _age_s(now, e.t) ** -ds[i] for i, e in enumerate(ev))
+    total += surprise_events(surprise) * _age_s(now, created_at) ** -(a * (1.0 - kappa_s))
+    return (math.log(total) if total > 0 else float("-inf")), ds
+
+
 def neutral_activation(decay: float = 0.5, a0: float | None = None) -> float:
     """``A0``: the activation of a fact created once, one day ago (unless overridden)."""
     if a0 is not None:

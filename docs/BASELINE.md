@@ -750,3 +750,359 @@ The pre-registered L6 run above exposed product defects. They were fixed on bran
 * **F.** `assert_fact`, `record_decision` and `handoff` create `(Step)-[:WROTE]->(node)` in their own write statement; the runtime opens the Step first and removes it again if the call is rejected. A crash can now leave an empty `Step` (not counted above) but no record without its edge. Kill test in the suite: 50 kills, 0 orphans. The pre-registered "P expected to lose" is therefore only true of the pre-fix code; the other tools (`complete_task`, `fail_task`, `create_tasks`, ...) are still linked by a second statement.
 * **Not re-run:** B (the MCP `why` tool now accepts `depth`, up to 12; the 16/24 tool-path figure above is the old one and the service path with `depth=12` was already 24/24), D, E, the LLM pilot (88 calls, $7.0855, unchanged). Nothing above changes the reading of L6: no family shows the graph beating hand-written SQL.
 
+
+## L5b-D013 pre-registration: pattern separation (P1) and forgetting that cannot cost recall (P2); written before any run
+
+Spec: `docs/research/MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md` §5.1 (and `neuro-memory/CROSS_CHECK.md`). Branch `feature/neuro-memory-research`, worktree `wt-neuro-memory`, FalkorDB `plexus-db-13` (6.0.2). Code under test: commits up to the one that adds this section (P1 + P2 implemented; P3 not built). LLM calls: 0 (fastembed, deterministic scripts).
+
+**Design.** The L5b design above unchanged (K = 20 sprints, 90 simulated days, seed 20261016, fastembed, fact-lookup probes `"<subject> <predicate>"`, same metrics), run at N = 5 and N = 15 noise facts per subject, once each, with the harness `plexus.crucible.l5 --only forgetting --modes off,on-mult,kw-fix,sep,sep+add`. One more run, N = 5 with `--burst` (every hot fact is read 90 times inside one hour at day 45 instead of daily). Modes, each isolating one change:
+
+| mode | what is on |
+|---|---|
+| `off` | flat order: forgetting off, separation off (control; must equal the committed `20261015T205321Z-floor09` `off` numbers within id noise) |
+| `on-mult` | D-012 default as shipped: `PLEXUS_ACT_MODE=mult`, floor 0.9, keyword bypass over `Fact.value` only, separation off (control) |
+| `kw-fix` | `on-mult` with the keyword bypass tested over the whole fact text `entity predicate: value` |
+| `sep` | P1: entity resolution (`engram/recall_entities`, named-entity rule: every word of the entity name in the query), fan-damped lift `gamma · max(0, 1 − ln fan / ln 50)` with `gamma = 0.15`, fan-damped sibling expansion, lures; forgetting **off** |
+| `sep+add` | P1 + P2: `PLEXUS_ACT_MODE=add` (`beta = 0.05`, `s = 1`, Pavlik–Anderson `c = 0.217, a = 0.177`, salience `kappa = 0.4`, band `eps = 0.02`, `delta = 0.03`), forgetting on, separation on, bypass over the fact text |
+
+New standard columns (every mode): the class of the rows ranked above the target split into same-entity / other-entity; `hot_above_cold` (share of cold probes with a hot row above the target); `gap12` (distribution of the relevance gap between rank 1 and rank 2; sets `beta` for a later fit); client-side ms of the entity read.
+
+**Hypotheses and decision rules (plan §5.1, copied; thresholds are for N = 5, the N = 15 run is reported with the same rules as a stress case):**
+1. `sep` recall@1 ≥ 0.90 and recall@5 ≥ `off` − 0.005; critical loss 0. **Falsified** if recall@1 < 0.85.
+2. `kw-fix` alone: report its recall@1; if it already reaches ≥ 0.88, say so and treat the fan/entity term as the hub-entity mechanism only (§5.3), not as the L5b fix.
+3. `sep+add` recall@1 ≥ `sep` − 0.01; recall@5 ≥ `sep` − 0.005; noise share ≤ 15.5%. **Falsified** if recall@1 drops more than 1 point below `sep`: then P2 still costs recall and `beta` is too large.
+4. Rows above the target of class `critical` or `hot` under `sep+add`: ≤ 5 (today 82 + 7).
+5. Burst variant: under `sep+add` a burst twin outranks a cold target in ≤ 1% of cold probes; under `on-mult` it does whenever the relevance gap < 0.06 (reported as `hot_above_cold` for both).
+
+**What I expect, stated plainly before the run.** Confident: hypothesis 3 (P2 is bounded by construction: ±0.05 in log-relevance) and 5 (massed reads self-limit under activation-dependent decay). Unsure: hypothesis 1. The L5b misses in `off` are "critical 42, cold 4, hot 1, noise 2" rows above the target; if most of those rows are about the **same** entity as the target (another predicate of the same sprint subject), the entity lift cannot separate them and `sep` will not reach 0.90 — the same-entity / other-entity split is in the output precisely to show which it was. In that case the honest reading is "P1 fixes cross-entity twins (the mechanism the hub test and L6-C need) and L5b's residual is a predicate-cue problem (CROSS_CHECK §3.2)", not a tuned pass. The harness's recorded pass/fail per criterion is what gets reported, whichever way it goes.
+
+**Implementation choices that deviate from the plan text (documented in `docs/DECISIONS.md` D-013):** the exact-keyword bypass keeps the entity lift (`ln rel + sep`) instead of relevance only, otherwise the bypass would strip P1 from the very rows P1 is for; entities count as named only when every word of their name is in the query (the plan's "top 5 by full-text score" would lift every `Acme Notes API Sxx` twin); the salience cache is written by `pin_fact` only — the activation read recomputes salience from the graph on every call (CROSS_CHECK §3.7 "simpler v1"), so the six-statement cache is deferred.
+
+## L5b-D013 results (run after the pre-registration above; three runs, 0 LLM calls)
+
+Source: `plexus/demo_data/crucible/l5/20261017T082244Z-d013-n5/`, `…T082341Z-d013-n15/`, `…T082449Z-d013-n5-burst/` (`results.json`, `report.md`); code `3017ad7` (the pre-registration commit); FalkorDB 6.0.2 on `plexus-db-13`; K = 20, 140 real active facts (critical 80, hot 9, cold 51), 300 / 900 noise facts, seed 20261016, fastembed. Each run ~40 s.
+
+| Mode | recall@1 N=5 | N=15 | burst | recall@5 (all three) | noise share N=5 / 15 | critical loss | above target N=5: same entity / other entity | hot above cold (burst) |
+|---|---|---|---|---|---|---|---|---|
+| `off` | 75.7% | 77.1% | 75.0% | 98.6% | 23.7% / 28.7% | n/a | 36 / 13 | 0.0% |
+| `on-mult` | 65.0% | 65.7% | 63.6% | 95.7% / 96.4% / 95.0% | 14.9% / 17.4% | 0 | 46 / 44 | 3.9% |
+| `kw-fix` | 77.1% | 77.1% | 76.4% | 98.6% | 14.9% / 17.4% | 0 | 29 / 15 | 0.0% |
+| `sep` | **85.7%** | **85.7%** | **85.7%** | **100%** | 23.3% / 23.7% | 0 | 20 / **0** | 0.0% |
+| `sep+add` | **70.0%** | **70.0%** | **70.0%** | 100% | 21.9% / 20.1% | 0 | 41 / 1 | **0.0%** |
+
+Rank-1/rank-2 relevance gap in `off` (cosine distance, 140 probes): p10 0.0019, p25 0.0044, **p50 0.0167**, p75 0.0488, p90 0.0732 (the same at N = 15). The entity read costs 2.3–2.6 ms client-side per recall.
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. `sep` recall@1 ≥ 0.90; recall@5 ≥ `off` − 0.005; critical loss 0; falsified if < 0.85 | recall@1 **85.7% at every N: target not reached, falsification floor cleared** (neither pass nor falsified). recall@5 100% ≥ 98.1% **PASS**. Critical loss 0 **PASS** |
+| 2. `kw-fix` alone ≥ 0.88 → the fan term is only the hub mechanism | **77.1%**: the bypass fix only removes `mult`'s own loss (65.0 → 77.1); the entity term is the L5b lift (77.1 → 85.7) |
+| 3. `sep+add` recall@1 ≥ `sep` − 0.01; recall@5 ≥ `sep` − 0.005; noise ≤ 15.5%; falsified if > 1 point below `sep` | **FALSIFIED**: 70.0% is 15.7 points below `sep`. recall@5 100% PASS. Noise 21.9% **FAIL** |
+| 4. critical + hot rows above the target under `sep+add` ≤ 5 | **FAIL**: 42 (N=5), 46 (N=15) |
+| 5. burst: hot above cold ≤ 1% under `sep+add`; `on-mult` fails whenever the gap < 0.06 | **PASS**: 0.0% under `sep+add` (also 0.0% under `sep` and `off`, so the activation-dependent decay is not what prevented it here); `on-mult` 3.9% (2 of 51 cold probes) |
+
+**Reading, without softening.**
+- P1 does what it was built for and no more: every cross-entity displacer is gone (13 → 0 at N = 5, 12 → 0 at N = 15), recall@5 is perfect, no critical probe lost. The 20 rows still above a target are all *same-entity* critical facts (another predicate of the same sprint subject, which an entity cue cannot separate); the damped expansion also removed 16 of the 36 same-entity displacers `off` had (the flat sibling boost lifted siblings over the target). The 0.90 target assumed the twins were mostly cross-entity; they were not, and the split column shows it. The remaining defect is a predicate-cue problem (`CROSS_CHECK.md` §3.2).
+- P2 at its declared constants costs recall, as its own falsification clause anticipated. The loss is not `beta` alone: a labelled **post-hoc** sensitivity run (`plexus/demo_data/crucible/l5_posthoc/d013/20261017T0*-sens-n5/`, N = 5, not confirmatory, chosen after seeing the result) gives `sep+add[delta=0]` 70.7%, `sep+add[beta=0.01]` 72.9%, `sep+add[beta=0.01;delta=0]` **85.0%**, `sep+add[beta=0.02;delta=0]` 80.7%: the activation term and the in-band salience lift each move a critical twin by ~0.02 in log-relevance, and the median twin gap is 0.017. At `beta = 0.01, delta = 0` the additive mode no longer costs recall (85.0 vs 85.7) **and no longer reduces noise** (23.9% = `off`): on this benchmark a bounded additive activation term is either harmful or inert. The decision stays as pre-registered: `add` is not the default.
+- The shipped default after D-013 (`mult` + separation, measured in the same post-hoc run as `sep+mult`): recall@1 **85.0%**, recall@5 100%, noise 22.1%, critical loss 0, cross-entity displacers 0. Against D-012 as shipped (65.0% / 95.7% / 14.9%) the recall@1 loss is gone and recall@5 is perfect; the noise share is higher than D-012's because the entity lift also lifts noise *about the named entity* above real facts about other entities — the noise-share metric counts that as worse, the query arguably asked for it. Both readings are in the report.
+- Limits as before, plus: one seed; the entity rule is lexical (a paraphrased entity name gets no lift); `gamma`, `beta`, `delta` are declared, not fitted (the `gap12` column exists to fit them in a later pre-registration); the hub variant (§5.3), P3 (§5.2) and the SQL-arm extension (§5.4) did not run.
+
+## §5.4 pre-registration: the SQL arm for L5b (B1h-L5) and L6-C multi-hop recall; written before any run
+
+Spec: `docs/research/MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md` §5.4 (and §0, §7 for what may be claimed). Branch `feature/neuro-memory-research`, worktree `wt-neuro-memory`, FalkorDB 6.0.2 on `plexus-db-13`, SQLite 3.53.1 (Python 3.12 stdlib) with the `sqlite-vec` 0.1.9 extension for the KNN seeds and FTS5 for the text lookups. Code under test: the commit that adds this section plus the arm code committed after it (P1 shipped as `sep+mult`; P2 opt-in; P3 not built). LLM calls: 0. Everything below is a prediction; a tie or a Plexus loss is a valid outcome and is published as such.
+
+### Part 1: L5b with a hand-written-SQL arm, shipped default (`sep+mult`)
+
+**What the SQL arm is.** The L5b harness plays the history into FalkorDB as before (K = 20, seed 20261016, fastembed, N = 5 / 15, burst variant). After the noise and the 90-day read schedule are written, the whole tenant graph is exported once into a SQLite file with a conventional relational schema that holds the same columns the Cypher reads use: `scopes`, `scope_inherits`, `entities` (+ FTS5 on `name`), `facts` (id, entity_id, scope_id, predicate, value, status, valid_from, valid_to, created_at, surprise, pinned, verify_state, suspect_since, verify_after; + FTS5 on `value`; + a `vec0` table of the same 384-d fastembed vectors), `fact_events` (fact_id, kind in use/recall/reassert/verified/handoff, t, agent_id, suspect), `fact_decisions` (decision_id, fact_id, t, flagged, tasks_done, artifacts_ok), `fact_links` (src, dst, kind in derived_from/supersedes/contradicts), `sources` (id, trust). Same fact ids, same vectors, same events: the arm is handed the columns, as plan §0 requires. The arm answers a probe with **three parameterised statements**: (1) entities named by the query words (FTS5 OR) with each one's fan by `GROUP BY entity_id` over active, valid, in-scope facts (the same rows `engram/recall_entities` returns); (2) the candidates: KNN seeds (`vec0`, top `over`, retried x4 up to 512 like the Cypher wrapper) unioned with the FTS5 keyword hits, scope/status/validity filters, the fan-damped sibling expansion (5 per seed, boost 0.05 x damp), best `k` by rank (the rows `engram/recall` returns, incl. a `kw` flag); (3) activation inputs: `A(f)` and `protected` per candidate, computed **in SQL** (window function for the newest 50 events, `power()`/`ln()`, the D-012 weights, the contract's suspect-recall rule, protection = pinned / unflagged decision / handoff / supersedes / contradicts / trusted source within 3 `derived_from` hops / salience >= 0.5 with the D-013 salience weights). The two lexical rules both arms apply in Python stay in Python for both (every word of an entity's name in the query; the exact-keyword bypass over the fact text), and the final `mult` formula is the shared pure function `plexus.activation.rank.rerank` (`rel x (0.9 + 0.1 sigmoid(A - A0)) x exp(sep)`) over the columns each arm returned: the test is whether SQL *reads* can feed the same scoring, not whether a formula can be typed twice. Plexus's side is the product as shipped: `engram/recall_entities` (14 non-comment lines), `engram/recall_keywords` (10), `engram/recall` (46), `activation/activation` (31), `engram/find_entity_exact` (3) = **104 lines of Cypher** and 4 reads per probe (5 when nothing is named and the exact-name fallback runs).
+
+**Runs.** N = 5, N = 15, N = 5 burst, modes `off` (retrieval parity control: no scoring at all) and `sep+mult` (the shipped default), both arms measured in the same process on the same graph/export in one session (`--sql`); the Plexus numbers of `docs/BASELINE.md` L5b-D013 are NOT reused because a fresh play gives new ids and the comparison must be paired per probe. Per arm and mode: recall@1/3/5 overall and per class, noise share, paired per-probe agreement (probes where exactly one arm has the target at rank 1 / in the top 5), the share of probes whose top-5 lists are identical, client-side ms per probe (median; Plexus across the Docker network hop, SQLite in process), Plexus server `run_time_ms` summed over the probe's statements vs SQLite's in-process statement time, statements per probe, and the activation fidelity check (`A(f)` and `protected` from SQL vs from `Activation.compute` for every fact of the graph).
+
+**Hypotheses and decision rules.**
+1. **Tie on quality (plan §5.4's pre-registered expectation).** `sep+mult`: |recall@1(P) − recall@1(B1h)| <= 1 probe of 140 (0.7 points) and recall@5 equal, at N = 5, N = 15 and burst; the same in `off`. Read as **not a tie** if the gap is >= 3 probes (2.1 points) in any run; 2 probes is reported as "within id noise, direction stated". Where the arms differ the differing probes are listed with the cause (HNSW approximate seeds vs exact KNN; RediSearch vs FTS5 tokenisation on the keyword / entity hits are the expected causes).
+2. **Activation fidelity.** SQL `A(f)` equals the Python model's `A(f)` within 1e-6 and `protected` agrees for every fact (480 / 1,040 facts). A disagreement is a bug in the SQL arm to fix before the run counts, and is reported.
+3. **Latency.** B1h-L5 median client-side ms per probe < Plexus's (sign predicted: SQL faster, in process vs a network hop per statement). Plexus server-side ms (sum of `run_time_ms`) vs SQLite statement time: sign **not** predicted; both reported.
+4. **Code.** Lines of SQL written for the arm (non-blank, non-comment lines of the SQL string literals, counted by the harness) and `loc()` of the arm class (the L6 convention, `plexus.crucible.l6.run.loc`) are reported precisely next to the 104 Cypher lines + `loc()` of the Python the Cypher side runs for the same work. Prediction: the SQL is **not shorter** than the Cypher (the vector-and-expand read and the activation gather are each about as long either way); if it is shorter by >= 20%, that is reported as a finding against the "graph is less code" framing.
+
+**What may be claimed afterwards (plan §0, §5.4).** If 1 holds: "SQL given the same features ties; Plexus beats flat retrieval (`off`) by the D-013 margins; Plexus explains every rank" and nothing more. The phrase "beats SQL on retrieval quality" is reserved for L6-C and only with the SQL arm's code budget stated.
+
+### Part 2: L6-C, multi-hop recall through `RELATES` with the separation lift propagated per hop
+
+**World (generator `plexus.crucible.l6.world_c`, seed 20261016, `hash` embedder, no LLM).** One scope. 4,000 entities with two-word names from two word lists (unique, lexically resolvable: every word of the name in the query), of which 40 are **hubs**. Every ordinary entity carries 10 active facts with distinct predicates drawn from a pool of 60 (`value = "<predicate> of <name> is <token>"`); a hub carries 120. Typed `RELATES {kind, scope_id}` edges: every ordinary entity has 2-5 (kinds from a pool of 8, random partners), every hub is connected to about 100 entities; both directions are walked, as the product does. About 40,000 + 4,800 facts, about 16,000 relations.
+**Scoring rule (the plan's "−ln(fan) per hop").** From the anchor entity E1 (named in the question), an entity e reachable within d hops has `cost(e) = min over paths of Σ ln(fan(v))` over the entities v entered along the path (anchor excluded, e included), fan = active facts about v. A candidate answer is a fact with the asked predicate on an entity with cost defined; candidates are ordered by (cost asc, hops asc, entity id, fact id). A path through a hub costs ln(120) ≈ 4.8 per hop; through a fan-10 entity ln(10) ≈ 2.3.
+**Questions (75):** 25 at depth d = 1, 25 at d = 2, 25 at d = 3 (stress row; the product's `recall(hops)` is capped at 2, so d = 3 is for the hand-written arms only). For each: anchor E1 and predicate P such that no entity within distance < d from E1 has a fact with P, and >= 2 entities at distance exactly d have one; the expected answer is the unique best candidate under the rule (redrawn when two candidates tie on cost); the generator records, per question, whether the best-by-cost answer differs from the best-by-hops-then-id candidate (`cost_matters`; the family is only informative if this is true for >= 30% of the questions, which is reported). Question text for the product arm: `"<E1 name> <P>"`.
+**Arms.** `B1h`: SQLite, one `WITH RECURSIVE` statement per question (walk `relates` both ways to depth d accumulating `cost`, `GROUP BY` entity for the min cost, join `facts` on predicate, order by the rule, top 5), indexes on `relates(src)`, `relates(dst)`, `facts(entity_id, predicate)` and `ANALYZE`; `B1h-untuned`: the same without the three indexes (sensitivity row, as in L6-A). `P-tuned`: hand-written Cypher, level-wise over distinct entities (one bounded statement per hop anchored at the frontier ids, as `engram/relates_level` is, carrying the min cost per entity in Python) plus one statement for the facts; `P-product`: `Engram.recall("<E1> <P>", scope, k=5, hops=d)` exactly as shipped (hash embedder, its own 0.25-per-hop distance penalty and caps of 20 entities / 20 facts per hop, 3 facts per entity); `P-flat`: `Engram.recall(..., hops=0)`, the flat-retrieval baseline. Budget 5,000 ms per statement; a timeout counts as wrong at 5,000 ms (the L6 rule).
+**Metrics (the L6 convention).** Per arm and depth: strict (rank-1 fact = expected), recall@5, p50/p99 latency, server ms (Cypher), statements per answer, timeouts; `loc()` per arm class and the non-comment lines of the SQL / Cypher literals; P-tuned vs B1h: share of questions with identical top-5 lists.
+**Predictions.** (a) **Correctness tie**: B1h = P-tuned = 25/25 strict at every depth (both implement the rule; a disagreement is a bug in one arm, and which one is reported). (b) P-product strict <= 15/25 at d = 2 and 0/25 at d = 3 (not answerable); P-flat <= 3/25 at d >= 1 (the answer shares only the predicate token with the question, as do ~700 distractor facts). (c) **Latency**: B1h faster than P-tuned at d = 1 and d = 2 (in process; a few hundred rows); at d = 3 the recursive CTE enumerates paths through hubs (two hubs on a path = ~10,000 paths) while the Cypher walks distinct entities per level: I predict the gap narrows or flips at d = 3, sign not predicted; the L6-A reference (SQL 192 vs 595 ms at a 5,000-fact blast) is a reason to doubt a Cypher win. (d) **Code**: the SQL statement is **shorter** than the Cypher arm (one recursive CTE against a level-wise walk + a fact statement); both counts are reported. **Reading rule (plan §5.4):** "beats SQL on retrieval quality" may be written only if P-tuned's strict count exceeds B1h's at any depth with B1h's line count stated; a correctness tie with a latency or code gap in either direction is reported as that, and the `P-product`/`P-flat` rows measure the product against flat retrieval, not against SQL.
+
+**Amendment 1 to Part 2 (written after the toy build, before the registered run; nothing measured at scale 1.0 yet).** Building the generator against the registered rules showed four things that the text above did not foresee; the code is committed with these changes and the run uses them.
+1. *Fan variance.* Ordinary entities carry `randint(6, 14)` facts (mean 10) instead of exactly 10: with a constant fan every target reached over an all-ordinary path at depth d costs exactly `d ln 10`, so the "redrawn when two candidates tie on cost" rule can never be met at d >= 2 (`generate(fan_range=(10, 10))` keeps the registered world for reference). Resulting world at scale 1.0: 4,000 entities (40 hubs), 44,294 facts, 17,956 relations (registered: about 44,800 facts and 16,000 relations; the hub degree is jittered 90-110%).
+2. *Question stages.* Hubs carry every predicate and sit within two hops of nearly every anchor, so the registered rule ("no entity within distance < d has P", stage `S0`) cannot produce 25 questions at d = 3. Stage `S1` exempts hubs from the closer-entity test and requires the best-by-rule candidate to be at hop distance exactly d. Each question records its stage and the result file holds the per-depth counts; at scale 1.0 and seed 20261016 the generator gives d = 1: 25 `S0`; d = 2: 25 `S0`; d = 3: 2 `S0` + 23 `S1`. `cost_matters` (best-by-rule differs from best-by-hops-then-id) is 0.44 / 0.92 / 1.00 at d = 1 / 2 / 3, above the 30% floor.
+3. *P-product's `top5`.* The product ranks every hop fact behind every direct hit, and a question's anchor entity always has >= 5 direct facts, so `rows[:5]` of `recall(k=5, hops=d)` can never contain a hop fact: prediction (b) "P-product strict <= 15/25 at d = 2" is true by construction and uninformative. It stays as registered and is reported with an added labelled column, `hit_any` (the answer appears anywhere in the returned rows, which hold the k direct hits plus up to 20 hop facts per hop). The product arm is measured as the product behaves; this is a finding about the shipped `recall(hops)` ranking, not a tuning.
+4. *B1h fan.* The SQL statement counts an entered entity's fan with a correlated `count(*)` over `facts(entity_id)` (the index the tuned file has) rather than a materialised `GROUP BY` over every fact per question; chosen on engineering grounds before any scale-1.0 measurement. `B1h-untuned` drops the three indexes and `ANALYZE` as registered. Latency is the median of 3 repetitions per question (the `REPS` convention of the other L6 families); the first answer is the one scored.
+
+## §5.4 results (run after the pre-registration and amendment 1 above; 0 LLM calls)
+
+Code: `0111b3a` (SQL arm), `65fbc40` (L6-C + amendment 1), results committed in `d76c507`. FalkorDB 6.0.2 on `plexus-db-13`, SQLite 3.53.1 + sqlite-vec 0.1.9, one machine (Windows 11, FalkorDB in Docker/WSL2, SQLite in process).
+
+### Part 1: L5b with the SQL arm (B1h-L5) — a tie on quality, and what the two sides cost
+
+Source: `plexus/demo_data/crucible/l5/20261017T102955Z-sql-n5/`, `…T103041Z-sql-n15/`, `…T103148Z-sql-n5-burst/` (`results.json`, `report.md`; harness `plexus.crucible.l5 --only forgetting --modes off,sep+mult --sql`, fastembed, seed 20261016, K = 20, 140 probes). Both arms measured in the same process on the same graph / export, paired per probe. The Plexus `sep+mult` numbers differ from the D-013 post-hoc run (85.0%) by id noise between plays, as the D-013 section warned.
+
+| Run | Mode | Arm | recall@1 | recall@3 | recall@5 | noise share | probe ms p50 (client, incl. embedding) | server / statement ms p50 | statements per probe | paired: only Plexus @1 / only SQL @1 / same top-1 / identical top-5 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| N = 5 | `off` | Plexus | 75.0% | 96.4% | 98.6% | 27.4% | 13.9 | 2.0 | 2 | 0 / 1 / 139 / 136 |
+| N = 5 | `off` | B1h-L5 | 75.7% | 96.4% | 98.6% | 27.0% | 13.3 | 6.8 | 1 | |
+| N = 5 | `sep+mult` | Plexus | **82.9%** | 100% | **100%** | 20.9% | 30.6 | 6.6 | 4 | 3 / 3 / 134 / 127 |
+| N = 5 | `sep+mult` | B1h-L5 | **82.9%** | 100% | **100%** | 20.4% | 17.8 | 10.8 | 3 | |
+| N = 15 | `off` | Plexus | 75.7% | 97.1% | 97.9% | 31.7% | 15.1 | 2.7 | 2 | 0 / 0 / 140 / 139 |
+| N = 15 | `off` | B1h-L5 | 75.7% | 97.1% | 97.9% | 31.6% | 20.5 | 14.0 | 1 | |
+| N = 15 | `sep+mult` | Plexus | **85.7%** | 100% | **100%** | 19.1% | 29.7 | 7.1 | 4 | 3 / 3 / 134 / 124 |
+| N = 15 | `sep+mult` | B1h-L5 | **85.7%** | 100% | **100%** | 19.1% | 26.5 | 19.5 | 3 | |
+| burst | `off` | Plexus | 75.7% | 96.4% | 98.6% | 22.9% | 14.1 | 2.0 | 2 | 0 / 0 / 140 / 139 |
+| burst | `off` | B1h-L5 | 75.7% | 96.4% | 98.6% | 22.7% | 13.3 | 6.9 | 1 | |
+| burst | `sep+mult` | Plexus | **84.3%** | 100% | **100%** | 21.6% | 30.6 | 6.6 | 4 | 3 / 3 / 134 / 131 |
+| burst | `sep+mult` | B1h-L5 | **84.3%** | 100% | **100%** | 21.4% | 17.7 | 10.8 | 3 | |
+
+Per-class recall@1 is identical between the arms in every `sep+mult` run (critical 0.70 / 0.75 / 0.725, hot 1.0, cold 1.0). "server / statement ms" is FalkorDB's `run_time_ms` summed over the probe's statements for Plexus and the in-process execution time of the statements for SQLite; "probe ms" includes the fastembed query embedding (~8 ms) for both arms.
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. Tie: gap <= 1 probe on recall@1, recall@5 equal, every run; also in `off` | **PASS, a tie.** `sep+mult`: recall@1 and recall@5 identical in all three runs (gap 0 probes); `off`: identical at N = 15 and burst, 1 probe at N = 5 (SQL right, Plexus not). Beneath the identical aggregates **6 probes per run (3 each way) have a different rank-1 fact**. Cause, verified on a K = 3 debug graph where the candidate rows were identical: the exact-keyword bypass is granted only to facts inside the full-text top-`2k` (10) keyword hits, and RediSearch's and FTS5's relevance scores pick different 10 facts out of the 15-25 that match the query words; the bypass then lifts a different same-entity twin to rank 1. The 1-probe `off` difference is the approximate (HNSW) seed set vs sqlite-vec's exact scan. |
+| 2. Activation fidelity: SQL `A(f)`, salience and `protected` equal the graph side for every fact | **PASS: 0 disagreements of 480 / 1,080 / 480 facts, worst gap 0.0** (the SQL statement reproduces the D-012 model, the newest-50 window, the suspect-recall rule and the D-013 salience / protection rules exactly). |
+| 3. Latency: SQL faster client-side (predicted); server-side sign not predicted | **Mixed.** Client-side p50: SQL faster in `sep+mult` at N = 5 (17.8 vs 30.6 ms) and burst (17.7 vs 30.6), about equal at N = 15 (26.5 vs 29.7); in `off` about equal at N = 5 / burst (13.3 vs 13.9 / 14.1) and **Plexus faster at N = 15 (15.1 vs 20.5)**. Server / statement time: **Plexus faster in every cell** (2.0-7.1 ms vs 6.8-19.5 ms), and SQLite's time grows with the fact count (6.8 ms at 480 facts, 14.0 at 1,080: sqlite-vec's `vec0` is an exact scan, FalkorDB's index is HNSW). Plexus's client-side cost is the network hop per statement (4 statements, ~6 ms each round trip on Docker Desktop), SQLite's is the statement itself. |
+| 4. Code: SQL not shorter than the Cypher (predicted); a >= 20% shorter SQL is reported against the "graph is less code" framing | **The SQL is 12% shorter: 92 lines of SQL (3 statements: entities 12, candidates 38, activation 42) against 104 lines of Cypher (5 files).** Below the 20% threshold, so the prediction's direction was wrong but the finding is "about the same". Python around the statements: SQL arm `loc(SqlRecall)` 143 + export 85 + helpers 12 = 240; the Plexus side's recall / entity / candidate / keyword / activation / salience Python = 369 (it also shapes the `why_recalled` output, which the SQL arm does not). Schema: 22 lines of DDL for the SQL arm (incl. one line to configure FTS5 like RediSearch: a stemmer and `_` as a token character; with FTS5's defaults the keyword hits differ, as `billing_cycle` is then two words). |
+
+**Reading.** On L5b the shipped default (`sep+mult`) **ties** a hand-written-SQL arm given the same columns, exactly as the plan pre-registered ("tie by construction"): same recall@1 and recall@5 in every run, the same activation for every fact, 3 statements against 4, 92 lines of SQL against 104 of Cypher, SQLite faster end-to-end in process when the graph is small and the activation read is in play, FalkorDB faster per statement and flat in the fact count. The tie is not a disappointment: the plan's §0 said every scoring rule is a function of columns a relational arm can hold, and this is the measurement. What the comparison also showed about the product: (i) the exact-keyword bypass depends on which 10 facts the full-text engine ranks highest, which is why the two arms disagree on 6 probes while agreeing on the aggregate — a fragile rule worth replacing by "any in-scope exact match"; (ii) the recall path costs 4 round trips (5 with the exact-name fallback), and the client-side latency is round trips, not server time. Limits: one seed, one machine, in-process SQLite against a containerised FalkorDB, the SQL written by the author of the Cypher who knew the probes, no Postgres arm, hash-free (fastembed) vectors shared by export rather than re-embedded.
+
+### Part 2: L6-C multi-hop recall — correctness tie, SQL faster at depth, SQL arm less code; the product never surfaces the multi-hop answer
+
+Source: `plexus/demo_data/crucible/l6/20261017T103929Z-c/results.json` (= `latest-c.json`; the post-hoc product re-run is `…T105100Z-c-fastembed-posthoc/`), `python -m plexus.crucible.l6.run_c --scale 1.0`, seed 20261016, hash embedder, 3 repetitions per question (median latency; first answer scored). World: 4,000 entities (40 hubs), 44,294 facts, 17,956 `RELATES`; 75 questions (25 per depth; stages d1 25 `S0`, d2 25 `S0`, d3 2 `S0` + 23 `S1`; `cost_matters` 0.44 / 0.92 / 1.00). Loads: SQLite 0.5 s, FalkorDB 58 s (44k facts with vectors, then full-text + vector indexes built in the background — a first attempt failed because a schema statement queued behind the index build past the client's 5 s socket timeout; the loader now waits and retries).
+
+| Arm | d = 1 strict / 25 | d = 2 | d = 3 | p50 latency ms d = 1 / 2 / 3 | p99 ms d = 1 / 2 / 3 | server ms p50 (Cypher) d = 1 / 2 / 3 | statements per answer | timeouts | code |
+|---|---|---|---|---|---|---|---|---|---|
+| **B1h** (SQLite, one recursive CTE, indexed) | **25** | **25** | **25** | 7.5 / 8.2 / **12.6** | 9.9 / 11.0 / 19.0 | — | 1 | 0 | SQL 21 lines; `loc` 32 |
+| B1h-untuned (no indexes, no ANALYZE) | 25 | 25 | 21 | 71.9 / 304.7 / 3,197 | 99 / 561 / 5,000 | — | 1 | 4 (d = 3) | same SQL |
+| **P-tuned** (level-wise Cypher + Python walk) | **25** | **25** | **25** | **4.7** / 10.7 / 41.3 | 6.2 / 14.7 / 75.5 | 0.7 / 3.5 / 23.2 | 2 / 3 / 4 | 0 | Cypher 18 lines + Python; `loc` 43 |
+| P-product (`recall(k=5, hops=min(d, 2))` as shipped) | 0 (`hit_any` 11) | 0 (`hit_any` 6) | 0 (not answerable; `hit_any` 1) | 32.1 / 41.3 / 51.1 | 39 / 59 / 57 | 10.8 / 12.1 / 13.4 | 6 / 7 / 7 | 0 | product |
+| P-flat (`recall(hops=0)`) | 0 | 0 | 0 | 20.7 / 20.3 / 21.0 | 23 / 22 / 24 | 8.4 / 7.7 / 8.3 | 4 | 0 | product |
+
+P-tuned and B1h returned **identical top-5 lists on 75 / 75 questions**, both equal to the generator's truth.
+
+| Prediction (pre-registered) | Result |
+|---|---|
+| (a) Correctness tie B1h = P-tuned = 25/25 at every depth | **PASS: 75/75 each, identical lists.** |
+| (b) P-product strict <= 15/25 at d = 2, 0/25 at d = 3; P-flat <= 3/25 | **PASS as written, but by construction** (amendment 1 §3): the product ranks hop facts behind every direct hit, so `rows[:5]` never holds one; P-flat 0/75. The labelled `hit_any` column (the answer anywhere in the returned rows) is 11 / 6 / 1 of 25 under the hash embedder. A labelled **post-hoc** re-run of the two product arms with fastembed (`…T105100Z-c-fastembed-posthoc/`, load 355 s) is *worse*: `hit_any` 3 / 1 / 0, strict 0 / 75 both arms, P-product p50 41 / 63 / 58 ms. **Causes, found after the run on a scale-0.3 copy** (`$TMPDIR/l6c_dbg.py`): (i) the hop walk starts from the entities of the *direct* hits, and the direct hits are mostly not the anchor's facts — with either embedder, facts of entities sharing one name word (`bupor kinel` for the anchor `bupor zekel`) are as near to the query as the anchor's own facts, although `recall_entities` has already resolved the anchor by name; (ii) the 20-entities-per-hop cap is filled **alphabetically by entity name** (`relations.expand_hops`: `sorted(found, key=(to_name, to_id))[:20]`), so with five seed entities' neighbourhoods competing, an answer entity whose name sorts late is dropped before its facts are ever read; (iii) hop facts carry a flat +0.25 distance penalty per hop and are appended behind every direct hit, whatever the direct hits' relevance. Under the hash embedder a fourth effect adds noise: 384-d token hashing of ~140 words collides, so dozens of facts tie with the anchor's at distance 0.4037 and the index returns an arbitrary 40. |
+| (c) Latency: B1h faster at d = 1 and 2; gap narrows or flips at d = 3 (sign not predicted) | **Wrong on both ends.** At d = 1 the level-wise Cypher is *faster* (4.7 vs 7.5 ms, with the network hop); at d = 2 SQL is faster (8.2 vs 10.7); at d = 3 **SQL widens its lead to 3.3x (12.6 vs 41.3 ms)**: the Cypher's third hop touches thousands of entities (the hubs' neighbourhoods) and counts each one's fan in a pattern comprehension (server 23 ms), while the indexed recursive CTE, although it enumerates paths, finishes in 12.6 ms. The L6-A reference (SQL faster on the big blast) held here too. **B1h-untuned is 10x / 37x / 250x slower** than B1h at d = 1 / 2 / 3 and times out on 4 of 25 at d = 3: the opposite of L6-A's 1.4x; here the two `relates` indexes are what make the CTE fast. |
+| (d) Code: SQL statement shorter than the Cypher arm | **The SQL statement is 21 lines; the Cypher is 18 lines of Cypher plus the Python level-wise driver (`loc` 43 against 32 for the whole SQL arm).** Whole arm: SQL is 26% less code; statement literals alone: the Cypher is 3 lines shorter but cannot run without the driver. |
+
+**Reading (plan §5.4's rule).** L6-C does **not** earn "beats SQL on retrieval quality": with the same traversal rule hand-written on both sides the arms tie on every question; the SQL arm is faster at depth 2 and 3 (3.3x at d = 3), needs one statement against 2-4, and is less code overall; the graph side is faster only at depth 1 and in server time per statement. The product's own `recall(hops)` (the thing an agent can call) never puts the multi-hop answer in its top 5 — by its ranking rule, independent of the embedder — and finds it anywhere in the result for 11 / 25 at d = 1 and 6 / 25 at d = 2 with the hash embedder, 3 / 25 and 1 / 25 with fastembed. That is a product finding (three defects: the walk starts from the direct hits' entities rather than the entity the query names, although `recall_entities` already resolves it; the per-hop entity cap is filled alphabetically; hop facts are ranked behind all direct hits however relevant), not a graph-vs-SQL finding, and it is the next product fix, as a new pre-registration. Limits: one seed; oracle-quality relations from one generator; the depth-3 questions needed the `S1` relaxation (23 of 25 exempt hubs from the "no closer entity" rule); SQLite in process against a containerised FalkorDB; both hand-written arms by the author who wrote the generator.
+
+## Predicate cue pre-registration (CROSS_CHECK §3.2 + §3.3): the L5b same-entity residual and the plan's §5.3 hub variant; written before any run
+
+Spec: `docs/research/neuro-memory/CROSS_CHECK.md` §3.2 (the predicate as a second ACT-R cue), §3.3 (the named entity's facts join the candidates) and appendix A.2–A.3; `docs/research/MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md` §5.3 (the hub variant, deferred by the L5b-D013 and §5.4 runs). Branch `feature/neuro-memory-research`, worktree `wt-neuro-memory`, FalkorDB 6.0.2 on `plexus-db-13`. Code under test: the commit that adds this section (the implementation is in it; nothing has been run against a graph except the unit / integration tests). LLM calls: 0. P2 stays opt-in and untouched; P3 is not built; the §5.4 SQL arm is **not** re-run (see "what is not claimed" below).
+
+**What changed in the product (shipped default, `PLEXUS_ACT_CUES=entity+predicate`).** The separation term of D-013 was one cue: `sep = gamma · max(0, 1 − ln fan / S_max)` for facts about the entity the query names (`gamma = 0.15`, `S_max = ln 50`). It is now the ACT-R context term over two cues, `sep = w_entity · max(0, S − ln fan_entity) + w_predicate · max(0, S − ln fan_predicate)` with `w_entity = 0.6`, `w_predicate = 0.4`, `S = 5` (CROSS_CHECK §3.2, the constants as recommended there), where a fact matches the entity cue when the query names its entity (unchanged rule: every word of the entity name in the query) and the predicate cue when the query names its predicate (the same rule applied to the words of `Fact.predicate`, which is stored normalised: `api_version` is the words `api` and `version`); `fan_predicate` = current facts with that predicate in the searched scopes, read by the new `engram/recall_predicates` (one `Fact.predicate` index seek per named predicate; the candidates' predicates are the ones tested, since only a candidate can be lifted). Two implementation choices that deviate from the appendix text, fixed before the run: (i) **each cue is floored at 0** (`max(0, S − ln fan)`), so a hub cue with fan > e^5 ≈ 148 adds nothing rather than subtracting — the appendix's bare `S − ln fan` would push a 200-fact hub's own facts *below* unrelated facts; (ii) the RELATES-neighbour half-weight of A.3 is not implemented (no relation is walked at hop 0). §3.3: the named entities' own current facts join the candidate set before scoring (one bounded read in the `engram/recall_hop_facts` shape at hop 0, the `2k` facts nearest to the query per named entity; a fact the vector / keyword fetch already returned keeps its row). `PLEXUS_ACT_CUES=entity` restores the single-cue term exactly (the L5b harness mode `sep-entity`); `PLEXUS_RECALL_SEPARATION=off` is unchanged and the identity test (`tests/activation/test_recall_off.py`) is the guard. Cost: two more bounded reads per recall that names an entity.
+
+**Why these constants are a prediction, not a fit.** On the L5b probe (A.2) the named fact gets `0.6·(5 − ln 12) + 0.4·(5 − ln 20) ≈ 2.06` nats, its same-entity sibling `≈ 1.26`, its other-entity twin `≈ 0.80`; the median rank-1/rank-2 cosine gap measured in L5b-D013 is 0.017 in relevance (≈ 0.02 nats). So any fact that is a candidate and matches both cues outranks every candidate that matches one — the cue structure, not the weights, decides; `w_entity > w_predicate` only orders the two one-cue classes (sibling above twin). The constants will not be tuned after the run; if the run says they are wrong, the number of record is the pre-registered one and a labelled sensitivity run may follow.
+
+### Part 1: L5b-D013 `sep` re-run with the two-cue term (the 20 same-entity rows)
+
+**Design.** Exactly the L5b-D013 design (K = 20, 90 simulated days, seed 20261016, fastembed, probes `"<subject> <predicate>"`, 140 real facts: critical 80, hot 9, cold 51), three runs: N = 5, N = 15, N = 5 `--burst`; `python -m plexus.crucible.l5 --only forgetting --modes off,sep-entity,sep,sep+mult --tag pc-n5|pc-n15|pc-n5-burst`. Modes: `off` (control), `sep-entity` (the single-cue term P1 first shipped, forgetting off: the in-run control that should reproduce the committed 85.7% within id noise — a fresh play gives new ids, as the §5.4 section warned), `sep` (the two-cue term, forgetting off: the registered number), `sep+mult` (the shipped default: two cues + the D-012 multiplier). Same columns as L5b-D013; the same-entity / other-entity split of the rows above the target is the column this run exists for.
+
+**Hypotheses and decision rules (N = 5 is the registered run; N = 15 and burst are reported with the same rules as stress cases).**
+1. `sep` recall@1 ≥ **0.95** (the 20 same-entity rows were 20 of 140 probes; the prediction is that the predicate cue clears all but a handful). **Falsified** if `sep` recall@1 ≤ `sep-entity` recall@1 + 0.02 (no gain beyond id noise): then a candidate's predicate is not what the query word matches on this data, and the fix is elsewhere.
+2. Same-entity rows above the target under `sep` ≤ 5 (20 under the committed `sep`); other-entity rows stay 0.
+3. `sep` recall@5 ≥ `sep-entity` recall@5 (100% in L5b-D013); critical loss 0.
+4. Noise share under `sep` ≤ `sep-entity` + 0.01: the predicate cue lifts the asked fact only (noise predicates are unique, `review_note_123`, and their words are not in the query), so it cannot raise the noise share; a *drop* is expected because the asked fact now displaces the entity's noise facts from the top 5 more often.
+5. `sep+mult` recall@1 within 1 probe (0.72 points) of `sep`: the multiplier cannot reorder what a 1-nat cue gap orders.
+6. Reported, not a criterion: the `gap12` distribution (unchanged by construction: measured in `off`), the entity read ms, statements per probe (expected 5 for `sep`, 6 for `sep+mult`, against 4 / 5 before), probe ms p50.
+
+**What I expect, stated plainly.** Confident on 1–3 if the asked fact is a candidate — and the §3.3 union makes it one whenever the entity is resolved. The residual I can see in advance: probes whose predicate word is also a word of *another* predicate of the same entity (`api_version` vs `version_policy` share `version`, but the rule needs every word of the predicate, so only a predicate that is a strict sub-multiset of the query's words is a false cue); and entities the lexical rule does not resolve (none in L5b: every subject is named verbatim). On the noise share I am less sure of the direction than of the bound.
+
+### Part 2: the plan's §5.3 hub variant (one entity, 200 facts of distinct predicates)
+
+**World (`plexus.crucible.l5.hub`, seed 20261016, fastembed, no reads simulated, forgetting off in every arm).** One scope. The hub `Atlas Core Platform` with 200 active facts whose predicates are distinct two-word names `w1_w2` (20 × 10 word pairs); 40 ordinary entities (two-word names from disjoint word lists) with 5 facts each whose predicates are drawn from the same pool, so a predicate's fan is ≈ 2 (CROSS_CHECK §3.2 says "1 in the hub variant"; the ordinary entities exist so that the hub's facts compete with other entities' facts under the *same* predicate, the harder case). Values are short phrases that never contain a predicate or entity word, so the full-text keyword path returns nothing and the exact-keyword bypass never fires: the vector seeds, the §3.3 union and the cues alone decide. 200 probes, one per hub fact: `"Atlas Core Platform <predicate>"`. Arms, all `mult`: `off` (separation off: relevance only), `sep-entity` (the single damped cue, `S_max = ln 50`: zero lift at fan 200 — the committed P1), `sep-flat` (the plan's "flat entity boost without the fan term": `cues=entity` with `S_max = 20`, the settings cap, so all 200 hub facts get the same `0.15 · (1 − ln 200 / 20) ≈ 0.11` lift), `sep` (the two-cue term, shipped default). Metrics per arm: recall@1, recall@5, the share of probes with another hub fact **above the target** (the sharp reading of the plan's "an arbitrary fact of the hub"), the share with another hub fact **anywhere in the top 5** (the plan's wording as written), the mean number of candidates the §3.3 union added, probe ms p50, statements per probe.
+
+**Hypotheses and decision rules.**
+1. `sep` recall@1 ≥ **0.90** (plan §5.3). **Falsified** if < 0.80.
+2. `sep-flat`: another hub fact *above the target* for ≥ 30% of probes, and another hub fact *in the top 5* for ≥ 30% (plan §5.3's claim, both readings).
+3. `sep` recall@1 − `sep-entity` recall@1 ≥ 0.10: the predicate cue, not the §3.3 union or the damped expansion, is what the hub variant needs. (`sep-entity` already includes §3.3, so this isolates the cue.)
+4. `sep-entity` recall@1 within 2 probes (0.01) of `off`: the committed P1 term gives a 200-fact hub nothing, as its own test (`test_a_hub_entity_gets_no_lift`) documented.
+5. Under `sep`, another hub fact above the target ≤ 10%.
+6. Stated in advance so it cannot be read as a result: "another hub fact in the top 5" will be high (likely > 90%) under **every** arm including `sep`, because the hub's 200 facts are 50% of the graph and the entity cue (where it applies) lifts all of them equally; the plan's metric does not discriminate between the forms and is reported as written next to the sharper "above the target" one.
+
+**What I expect, stated plainly.** `off` and `sep-entity` close to each other and well below 0.9 (relevance alone among 200 near-identical fact texts, fastembed); `sep-flat` equal to `sep-entity` on recall@1 (a flat lift reorders nothing within the hub); `sep` ≥ 0.9 if the asked fact is among the candidates — the §3.3 union adds the 10 nearest hub facts to the query, which should contain it, but "should" is the thing under test. If `sep` fails while `entity_facts_added` is 0 for the missed probes, the defect is candidate starvation (§3.3's bound), not the cue; both are reported.
+
+**What is not claimed, whatever the result.** The §5.4 SQL arm (B1h-L5) implements the single-cue term and is not re-run here: a gap between Plexus and that arm after this change would be the arm lacking a feature, not a graph advantage (plan §0: every scoring rule here is a function of columns a relational arm can hold, and the predicate fan is a `GROUP BY predicate` count). The "tie on L5b" and "no family beats SQL on quality" readings of §5.4 and `PLEXUS_REPORT.md` stand; only the *flat-retrieval* margins of the product change.
+
+## Predicate cue results (registered runs; 0 LLM calls) and a labelled post-hoc sensitivity
+
+Source: `plexus/demo_data/crucible/l5/20261017T125546Z-pc-n5/`, `…T125634Z-pc-n15/`, `…T125738Z-pc-n5-burst/`, `…T125826Z-pc-hub/` (`results.json`, `report.md`); code `468601e` (the pre-registration commit); FalkorDB 6.0.2 on `plexus-db-13`, fastembed, seed 20261016. Each L5b run ~45 s, the hub run ~2 min.
+
+### Part 1: L5b — falsified; the 20 rows were never a predicate-cue problem
+
+| Run | Mode | recall@1 | recall@5 | noise share | critical loss | above target: same entity / other entity | statements / probe | probe ms p50 (server) |
+|---|---|---|---|---|---|---|---|---|
+| N = 5 | `off` | 75.7% | 98.6% | 22.9% | n/a | 38 / 13 | 2 | 14.2 (2.1) |
+| N = 5 | `sep-entity` (single cue, P1 as shipped + §3.3) | 85.7% | 100% | 28.4% | 0 | 20 / 0 | 5 | 26.0 (5.0) |
+| N = 5 | **`sep` (two cues, 0.6 / 0.4 / S = 5)** | **85.7%** | **100%** | **32.3%** | 0 | **20 / 0** | 5 | 25.6 (5.0) |
+| N = 5 | `sep+mult` (two cues + multiplier) | 85.7% | 100% | 28.1% | 0 | 20 / 0 | 6 | 40.5 (9.2) |
+| N = 15 | `off` | 76.4% | 98.6% | 31.0% | n/a | 40 / 11 | 2 | 15.0 (2.7) |
+| N = 15 | `sep-entity` | 85.7% | 100% | 32.9% | 0 | 20 / 0 | 5 | 26.7 (6.2) |
+| N = 15 | **`sep`** | **85.7%** | **100%** | **43.6%** | 0 | **20 / 0** | 5 | 26.8 (6.1) |
+| N = 15 | `sep+mult` | 85.7% | 100% | 31.6% | 0 | 20 / 0 | 6 | 40.3 (10.0) |
+| burst | `off` | 75.0% | 98.6% | 24.9% | n/a | 40 / 12 | 2 | 13.9 (2.0) |
+| burst | `sep-entity` | 85.7% | 100% | 29.6% | 0 | 20 / 0 | 5 | 26.3 (5.3) |
+| burst | **`sep`** | **85.7%** | **100%** | **33.1%** | 0 | **20 / 0** | 5 | 25.6 (5.1) |
+| burst | `sep+mult` | 85.7% | 100% | 26.9% | 0 | 20 / 0 | 6 | 42.0 (9.8) |
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. `sep` recall@1 ≥ 0.95; **falsified** if ≤ `sep-entity` + 0.02 | **FALSIFIED** at every N: `sep` = `sep-entity` = 85.7%, the same 20 probes miss, the same 20 rows sit above them. |
+| 2. Same-entity rows above the target ≤ 5; other-entity 0 | **FAIL** (20) / PASS (0). |
+| 3. recall@5 ≥ `sep-entity`'s; critical loss 0 | PASS (100%, 0). |
+| 4. Noise share ≤ `sep-entity` + 0.01 | **FAIL** at every N: +3.9 / +10.7 / +3.5 points (N = 5 / 15 / burst). |
+| 5. `sep+mult` within 1 probe of `sep` | PASS (identical). |
+
+**Why, found after the run on a kept graph (`$TMPDIR/pc/diag_misses.py`, same seed).** Every one of the 20 misses is the scenario's designed **auth conflict**: `scale_scenario.py` asserts, for each of the 20 sprint subjects, `auth_method = JWT bearer tokens (…)` and then `auth_method = API key in X-…-Key header` as a `CONTRADICTS` pair, and both stay *active* in the same scope. Both are real facts, both are probes (`"<subject> auth_method"`), and for either probe the other is a candidate that matches **both cues identically** (entity fan 10, predicate fan 40, `sep` 2.14 nats each): the only thing that separates them is the value, which the probe does not name. One of each pair must therefore lose rank 1, so **85.7% (120 / 140) is the recall@1 ceiling of L5b for any scorer that does not read the value** — and P1 had already reached it in L5b-D013. Two earlier readings were wrong and are corrected here: the L5b-D013 results section called the residual "another predicate of the same sprint subject" (it is the *same* predicate, a contradicting pair), and CROSS_CHECK §3.2's claim that the L5b residual is a predicate-cue problem was built on that reading. The plan's 0.90 target was unreachable by construction. The ordering inside a contradicting pair is a different question (recency? the P3 reliability term? `resolve_contradiction`), not a cue question, and it is not decided here.
+
+**Where the noise went.** Two separate effects, both costs of this change on L5b, where neither mechanism had anything to fix:
+- `sep-entity` (28.4%) sits above the committed `sep` of L5b-D013 (23.3%) although it is the same scoring term; the only code difference is the **§3.3 union** (the named entity's `2k` nearest facts always join the candidates — on L5b that is the subject's 5 noise facts, whose values mention the predicate word, which the 4·k vector over-fetch had often missed). The union makes recall *complete* about the named entity; the noise-share metric counts that completeness as worse. (Attribution by elimination, not by a switch: the union has no off switch.)
+- `sep` above `sep-entity` (+3.9 / +10.7 / +3.5 points) is the **magnitude of the entity cue** under CROSS_CHECK's constants: `0.6 · (5 − ln 12) ≈ 1.26` nats (×3.5 in relevance) against P1's `0.075` (×1.08). At ×3.5 every fact about the named entity, noise included, outranks every real fact about any other entity; at ×1.08 only near-ties flip. The predicate cue itself cannot raise the noise share (noise predicates are unique and never named), and the post-hoc rows below confirm the dependence is on the weights.
+Rank-1/rank-2 gap p50: `off` 0.0167, `sep-entity` 0.0262, `sep` 0.0309 (the cues widen the margin at rank 1 — but on the 20 pairs it is 0 by construction). Statements per probe 5 (`sep`) / 6 (`sep+mult`), against 4 / 5 before: the entity-facts read and the predicate-fan read; `sep+mult` probe ms p50 40.5 against the §5.4 run's 30.6 for the same mode (two more round trips at ~5 ms each on Docker Desktop).
+
+### Part 2: the hub variant — passes, but relevance alone nearly passes it too
+
+Source: `…T125826Z-pc-hub/`. World as registered: hub fan 200 (resolved by name), 40 × 5 ordinary facts, 400 facts, predicate fan mean 2.00 (max 6), 200 probes; the keyword path returned nothing (values carry no query word), `entity_facts_added` 0.0 for every arm (the 10 vector seeds already held the hub's nearest facts).
+
+| Arm | recall@1 | recall@5 | other hub fact above the target | other hub fact in the top 5 | probe ms p50 | statements / probe |
+|---|---|---|---|---|---|---|
+| `off` | 97.5% | 100% | 2.5% | 100% | 15.5 | 2 |
+| `sep-entity` (single cue, zero at fan 200) | 97.5% | 100% | 2.5% | 100% | 29.5 | 5 |
+| `sep-flat` (flat entity boost, `S_max = 20`) | 97.5% | 100% | 2.5% | 100% | 29.2 | 5 |
+| **`sep` (two cues)** | **100%** | 100% | **0.0%** | 100% | 29.8 | 5 |
+
+| Hypothesis (pre-registered) | Result |
+|---|---|
+| 1. `sep` recall@1 ≥ 0.90; falsified if < 0.80 | **PASS** (100%). |
+| 2. Flat boost: another hub fact above the target ≥ 30%; in the top 5 ≥ 30% | **FAIL** (2.5%) / PASS (100%, as predicted in rule 6: uninformative). |
+| 3. `sep` − `sep-entity` ≥ 0.10 | **FAIL** (+2.5 points: 5 probes). |
+| 4. `sep-entity` within 0.01 of `off` | PASS (equal). |
+| 5. `sep`: another hub fact above the target ≤ 10% | PASS (0%). |
+
+**Reading.** The plan's §5.3 world, as specified (200 distinct predicates, one entity), is solved by cosine relevance alone with fastembed: 195 of 200 probes put the asked fact first with no cue at all, so the plan's prediction that a flat entity boost "returns an arbitrary fact of the hub in the top 5 for ≥ 30%" is false in its sharp reading (2.5% above the target) and vacuous in its literal one (100% under every arm, since the hub is half the graph). The predicate cue fixed the remaining 5 (97.5 → 100%, 0 hub facts above the target) — real, small, and the only measured benefit of this change. My pre-run expectation ("`off` well below 0.9") was wrong; the variant is weak evidence either way. What would make it informative is a hub whose facts share words across predicates or a weaker embedder; not run.
+
+### Labelled post-hoc sensitivity (weights chosen after the registered run; not confirmatory)
+
+`plexus/demo_data/crucible/l5_posthoc/pc/20261017T130229Z-sens-n5/` (L5b, N = 5) and `…T130406Z-sens-hub/` (the hub world), same seed and code, the two-cue term with the weights scaled down 10× and 20× (the 0.6 : 0.4 ratio and `S = 5` kept):
+
+| Term | L5b recall@1 | L5b recall@5 | L5b noise share | same / other entity | hub recall@1 | hub: other hub fact above target |
+|---|---|---|---|---|---|---|
+| `off` | 75.7% | 98.6% | 23.6% | 36 / 13 | 97.5% | 2.5% |
+| `sep-entity` (single cue) | 85.7% | 100% | 29.4% | 20 / 0 | 97.5% | 2.5% |
+| `sep` 0.6 / 0.4 (registered) | 85.7% | 100% | 33.6% | 20 / 0 | 100% | 0% |
+| `sep` 0.06 / 0.04 | 85.7% | 100% | 31.9% | 20 / 0 | 100% | 0% |
+| `sep` **0.03 / 0.02** | 85.7% | 100% | **27.9%** | 20 / 0 | 100% | 0% |
+
+The noise share is monotone in the entity-cue weight and at `w_entity = 0.03` — the scale at which the entity cue at fan 12 (`0.03 · (5 − ln 12) = 0.075`) equals the P1 lift that cleared every cross-entity twin — the two-cue term is below the single-cue form on noise (27.9 vs 29.4%) at the same recall, and still 100% on the hub. In other words CROSS_CHECK §3.2's *structure* (two cues, `S − ln fan`, no zero at fan 50) holds up; its *magnitude* (per-nat weights 0.6 / 0.4) is ~20× too large for a term that is added to ln-cosine, where the twin gaps are 0.02–0.07 nats. The number of record for this task stays the registered one (85.7% recall@1, noise 32.3% at N = 5); what to ship is decided by the confirmatory run below, not by this table.
+
+## Predicate cue confirmatory pre-registration (post-hoc weights, D-012-floor precedent); written before the run
+
+Candidate default: `PLEXUS_ACT_W_ENTITY = 0.03`, `PLEXUS_ACT_W_PREDICATE = 0.02`, `PLEXUS_ACT_CUE_S = 5`, `PLEXUS_ACT_CUES = entity+predicate` (the structure of CROSS_CHECK §3.2 at P1's magnitude). Runs: L5b N = 5, N = 15, N = 5 burst, `--modes off,sep-entity,sep[w_entity=0.03;w_predicate=0.02],sep+mult[w_entity=0.03;w_predicate=0.02] --tag pcc-*` (fresh plays: new ids; the N = 5 sensitivity row above is *not* reused). The hub world is deterministic in the seed and was measured at these weights in the sensitivity run (100%); it is not re-run.
+
+Decision rules (all three runs; a failure in any one is a failure):
+1. `sep[0.03/0.02]` recall@1 = `sep-entity` recall@1 (the ceiling, 85.7%); **falsified** if lower by ≥ 1 probe.
+2. `sep[0.03/0.02]` noise share ≤ `sep-entity` noise share + 0.005 in every run (**falsified** otherwise: then the sensitivity row was id noise).
+3. recall@5 100%, critical loss 0, other-entity rows 0 (unchanged from P1).
+4. `sep+mult[0.03/0.02]` recall@1 within 1 probe of `sep[0.03/0.02]`.
+
+Outcome rule, stated now: if 1–4 pass, the shipped default becomes the two-cue term at 0.03 / 0.02 / 5 (recorded in D-013 as a post-hoc-then-confirmed constant, like the 0.9 floor); if any fails, the shipped default reverts to `PLEXUS_ACT_CUES=entity` (P1 exactly as it was) and the two-cue term stays opt-in. Either way the §3.3 union stays on (it is a completeness fix for the named entity's own facts and its cost on L5b is recorded above), and `PLEXUS_RECALL_SEPARATION=off` is unchanged.
+
+## Predicate cue confirmatory results (run after the confirmatory pre-registration above; 0 LLM calls)
+
+Source: `plexus/demo_data/crucible/l5/20261017T130612Z-pcc-n5/`, `…T130659Z-pcc-n15/`, `…T130804Z-pcc-n5-burst/`; code `2d0ec96` (the confirmatory pre-registration commit; same scoring code as `468601e`, weights passed as mode overrides); FalkorDB 6.0.2 on `plexus-db-13`, fastembed, seed 20261016, fresh plays.
+
+| Run | Mode | recall@1 | recall@5 | noise share | critical loss | above target: same / other entity |
+|---|---|---|---|---|---|---|
+| N = 5 | `off` | 75.7% | 98.6% | 24.3% | n/a | 36 / 13 |
+| N = 5 | `sep-entity` | 85.7% | 100% | 29.7% | 0 | 20 / 0 |
+| N = 5 | **`sep[0.03/0.02]`** | **85.7%** | 100% | **28.0%** | 0 | 20 / 0 |
+| N = 5 | **`sep+mult[0.03/0.02]`** (the shipped default) | **85.7%** | **100%** | **20.6%** | 0 | 20 / 0 |
+| N = 15 | `off` | 77.1% | 97.9% | 33.1% | n/a | 37 / 12 |
+| N = 15 | `sep-entity` | 85.7% | 100% | 31.9% | 0 | 21 / 0 |
+| N = 15 | **`sep[0.03/0.02]`** | **85.7%** | 100% | **30.7%** | 0 | 20 / 0 |
+| N = 15 | **`sep+mult[0.03/0.02]`** | **85.7%** | **100%** | **20.9%** | 0 | 20 / 0 |
+| burst | `off` | 75.7% | 98.6% | 23.4% | n/a | 36 / 13 |
+| burst | `sep-entity` | 85.7% | 100% | 29.0% | 0 | 20 / 0 |
+| burst | **`sep[0.03/0.02]`** | **85.7%** | 100% | **25.6%** | 0 | 20 / 0 |
+| burst | **`sep+mult[0.03/0.02]`** | **85.7%** | **100%** | **20.7%** | 0 | 20 / 0 |
+
+| Rule (pre-registered) | Result |
+|---|---|
+| 1. `sep[0.03/0.02]` recall@1 = `sep-entity`'s (85.7%); falsified if lower by ≥ 1 probe | **PASS** in all three runs (equal). |
+| 2. noise share ≤ `sep-entity` + 0.005 in every run | **PASS**: −1.7 / −1.2 / −3.4 points. |
+| 3. recall@5 100%, critical loss 0, other-entity rows 0 | **PASS** in all three. |
+| 4. `sep+mult[0.03/0.02]` within 1 probe of `sep[0.03/0.02]` | **PASS** (equal). |
+
+**Outcome (by the rule stated before the run).** The shipped default is the two-cue context term at `w_entity = 0.03`, `w_predicate = 0.02`, `S = 5` (`PLEXUS_ACT_CUES=entity+predicate`), set as the code defaults in the commit after this section. The shipped default (`sep+mult`) now measures recall@1 **85.7%** (the L5b ceiling), recall@5 **100%**, noise share **20.6–20.9%**, critical loss 0, cross-entity displacers 0 — against D-013 as first shipped (85.0% / 100% / 22.1%, post-hoc run) and the §5.4 paired run (82.9–85.7% / 100% / 19.1–21.6%). Honest reading of the gain: recall@1 is unchanged in substance (the ceiling was already reached; the +0.7 is id noise between plays), the noise share is ~1 point lower than D-013's shipped default and the hub edge case is fixed; the cost is two bounded reads (5 → 6 statements with forgetting on, ~+10 ms per probe on Docker Desktop). The §5.4 SQL arm was not re-run (see "what is not claimed" in the first pre-registration): the tie claim stands, the SQL arm lacks the predicate feature by omission, not by inability.
+
+## Audit fixes re-run pre-registration (`docs/research/CYPHER_AUDIT_SUMMARY.md` C1–C5, P1–P3, B1–B2, `BRANCH_REVIEW.md` 1–2); written before any run
+
+The fixes sit on three paths the published numbers came from: the L5b ranking path (C1 `artifacts_ok`, C2 `recall_hop_facts`
+diamond duplicates, finding 1 salience protection gated on `add`, finding 2 `rerank` → `score.score()`), the L6 blast-radius path
+(C4 `impact_fact` root-first, P1 `quarantine` tail, B1 `forget_source` tail) and the write path every arm uses (P3 empty-list seeks in
+`link_step` / `record_decision` / `handoff` / `complete_task` / `create_tasks` / `record_recall` / `create_scope`, C3 `assert_fact`
+nearest-first `soft` cut). Runs, same seeds and worlds as the published ones, 0 LLM calls, on `plexus-db-13`:
+L5b `--only forgetting --modes off,sep+mult[w_entity=0.03;w_predicate=0.02]` at N = 5, N = 15 and N = 5 burst (seed 20261016,
+fastembed, `--tag afx-*`); L6 `postfix` (A `impact` arms + F, 200 kills) and L6 `conc` (E: the quarantiner uses `lineage/quarantine`).
+
+**Expectation, grounded in the fixtures (checked in the code before the run):**
+1. **C1 and finding 1 change no L5b number.** The L5b world never calls `verify_artifact` or `verify_fact` (no `VERIFIED_BY` edge on
+   any Artifact or Fact: `crucible/l2/scenario.py` has no such call), the simulated reads are all by one agent (`l5-reader`,
+   `crucible/l5_add_reads`), so `use_agents` is 0 from the schedule, and every remaining salience input (decision, handoff, pin, trusted
+   source) coincides with a D-012 boolean rule that protects in both modes. The only path left is a fact used (`via = 'use'`) by ≥ 3
+   distinct scenario agents through their own Steps with no decision or handoff on it; not expected, and if any `sep+mult` number
+   moves this is the first place to look.
+2. **C2 changes no L5b number.** L5b scopes are `global` plus `project:` / `user:` scopes that inherit `global` (`mcp/tenant.py`): a
+   tree, no diamond, so every fact is reached over exactly one `INHERITS` path.
+3. **Finding 2 is an identity rewrite** (`score()` and the inline formula agreed; `tests/activation/test_rank_d013.py` pins it), and
+   `mult` mode never goes through it: no L5b number moves.
+4. **C3 / P3 change no L5b number**: the L5b world has at most one same-`dup_key` candidate per assertion (the cap never bites), and
+   the P3 rewrite changes plan shape, not rows.
+5. **L6:** A `impact` stays 24/24 strict (service) / 18/24 (tool, list cap) with the same counts; C4 moves the root fact to the front
+   of `fact_ids` (`impact_fact` only; the A arm reads `impact('source')`, unchanged). F stays 0 orphans. E stays 0 violations for
+   `P-1stmt` with a *higher* quarantine count per run expected (P1: the quarantiner's statement is faster) — a timing-dependent
+   count, not a quality number. Wall times are reported but are not a hypothesis (Docker Desktop noise, 2× swings).
+
+**Decision rule:** a changed recall@1 / recall@5 / noise share / critical loss in any L5b run, or a changed L6 A/E/F correctness
+count, is reported as a change and explained from the fixes above (or reported as unexplained); `PLEXUS_REPORT.md` is updated only if
+a published number moves. The pre-fix result directories are kept.
+
+## Audit fixes re-run results (run after the pre-registration above; 0 LLM calls)
+
+Source: `plexus/demo_data/crucible/l5/20261017T160947Z-afx-n5/`, `…T161106Z-afx-n15/`, `…T161259Z-afx-n5-burst/`,
+`plexus/demo_data/crucible/l6/20261017T163122Z-postfix/`, `…T164411Z-conc/`; code = the commit after this section (all audit
+fixes applied); FalkorDB 6.0.2 on `plexus-db-13`, fastembed, seed 20261016, fresh plays. The pre-fix directories are unchanged.
+
+| Run | Mode | recall@1 | recall@5 | noise share | critical loss | above target: same / other | published (`pcc-*`) |
+|---|---|---|---|---|---|---|---|
+| N = 5 | `sep+mult[0.03/0.02]` | **85.7%** | **100%** | 22.1% | 0 | 20 / 0 | 85.7% / 100% / 20.6% / 0 / 20 / 0 |
+| N = 15 | `sep+mult[0.03/0.02]` | **85.7%** | **100%** | 19.9% | 0 | 20 / 0 | 85.7% / 100% / 20.9% / 0 / 20 / 0 |
+| burst | `sep+mult[0.03/0.02]` | **85.7%** | **100%** | 21.0% | 0 | 20 / 0 | 85.7% / 100% / 20.7% / 0 / 20 / 0 |
+| N = 5 | `off` (control: no fixed code on its path) | 75.0% | 98.6% | 24.6% | n/a | 38 / 13 | 75.7% / 98.6% / 24.3% / 36 / 13 |
+| N = 15 | `off` | 77.1% | 98.6% | 29.1% | n/a | 35 / 12 | 77.1% / 97.9% / 33.1% / 37 / 12 |
+| burst | `off` | 75.7% | 98.6% | 23.3% | n/a | 39 / 13 | 75.7% / 98.6% / 23.4% / 36 / 13 |
+
+**Reading, by the decision rule.** Every quality number of the shipped default is unchanged: recall@1 85.7% (the ceiling),
+recall@5 100%, critical loss 0, cross-entity displacers 0, same-entity rows 20, in all three runs — as pre-registered for C1, C2,
+finding 1, finding 2, C3 and P3. The noise share moved by +1.5 / −1.0 / +0.3 points. That is play-to-play id noise, not the fixes:
+the `off` control arm, whose path contains none of the changed code, moved by as much or more in the same plays (−4.0 points at
+N = 15; recall@1 −0.7 at N = 5; recall@5 +0.7 at N = 15), and the published text already records the same band between plays
+(`sep+mult` 19.1–22.1% across the D-013, §5.4 and pcc plays). No published number is updated.
+
+**L6.** A `impact`: B1h 24/24, P-tuned 24/24, P-product-service **24/24 strict, 0 timeouts** (p50 9.4 ms, p99 638 ms; published
+13.2 / 626), P-product-tool 18/24 (the 2,000-id list cap, as published; p50 11.2, p99 643). F: **0 orphans** of 1,458 records (814
+facts, 336 decisions, 308 handoffs), 0 lost of 1,383 acknowledged writes, `missing_derived_from` 13 (published: 0 of 1,842, 13).
+E: `P-1stmt` **0 / 0 / 0** violations in 10/10 runs (reads 15,127, appends 8,925, quarantines 200; published 14,377 / 8,323 /
+200); the other six arms as published (`P-levelwise`, `B1h-levelwise`, `B0-naive` tear in 10/10; the other three 0). The
+pre-registered "higher quarantine count" expectation for E was wrong in form: the count is the number of `Q` sources (20 per run),
+so it cannot rise; it stayed 200. The quarantiner's statement is the P1 rewrite, and it ran 200 times with 0 errors.

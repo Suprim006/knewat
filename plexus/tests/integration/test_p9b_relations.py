@@ -183,10 +183,13 @@ def test_hops_zero_issues_no_extra_query(eng, world, client, monkeypatch):
     plain = list(seen)
     seen.clear()
     eng.recall(QUERY, world["glob"], k=1, hops=0, **OFF)
-    assert seen == plain and not any("relates" in n or "hop" in n for n in seen)
+    # the named entity's own facts join the candidates (CROSS_CHECK §3.3) through the recall_hop_facts
+    # shape at hop 0; no relation is walked
+    assert seen == plain and not any("relates" in n for n in seen)
+    assert seen.count("engram/recall_hop_facts") == 1, "the §3.3 union read; the query names Payment Service"
     seen.clear()
     eng.recall(QUERY, world["glob"], k=1, hops=2, **OFF)
-    assert seen.count("engram/relates_level") == 2 and seen.count("engram/recall_hop_facts") == 1
+    assert seen.count("engram/relates_level") == 2 and seen.count("engram/recall_hop_facts") == 2
 
 
 def test_hops_work_with_the_default_forgetting_rerank_too(eng, world):
