@@ -1,0 +1,53 @@
+built hub of 1000 facts in 1.1s
+recall rows: 20 params lim/over/sibs/damp: 120 240 5 True kw_ids 60
+Sort |  | 120 records | 0.070447 ms
+  Project |  | 120 records | 0.137458 ms
+    Apply |  | 120 records | 0.606694 ms
+      Apply |  | 120 records | 0.610994 ms
+        Apply |  | 120 records | 0.601139 ms
+          Conditional Traverse | (n)->(en:Entity) | 120 records | 0.064726 ms
+            Conditional Traverse | (n)->(ns:Scope) | 120 records | 0.130787 ms
+              Limit |  | 120 records | 0.001801 ms
+                Sort |  | 120 records | 0.092372 ms
+                  Aggregate |  | 121 records | 1.564965 ms
+                    Unwind |  | 661 records | 0.052724 ms
+                      Project |  | 120 records | 4.253366 ms
+                        Aggregate |  | 120 records | 48.518041 ms
+                          Sort |  | 61175 records | 57.087051 ms
+                            Project |  | 61175 records | 39.462344 ms
+                              Project |  | 61175 records | 11.268086 ms
+                                Apply |  | 61175 records | 4.038749 ms
+                                  Project |  | 61175 records | 7.627968 ms
+                                    Apply |  | 61175 records | 1.814338 ms
+                                      Project |  | 120 records | 0.038184 ms
+                                        Project |  | 120 records | 0.309034 ms
+                                          Apply |  | 120 records | 0.56926 ms
+                                            Limit |  | 120 records | 0.001823 ms
+                                              Sort |  | 120 records | 0.261209 ms
+                                                Project |  | 300 records | 0.034078 ms
+                                                  Conditional Traverse | (f)->(e:Entity) | 300 records | 0.167456 ms
+                                                    Filter |  | 300 records | 0.059627 ms
+                                                      Conditional Traverse | (fs)<-(f) | 300 records | 0.228947 ms
+                                                        Filter |  | 300 records | 0.198979 ms
+                                                          Aggregate |  | 300 records | 0.647836 ms
+                                                            Filter |  | 300 records | 0.036621 ms
+                                                              Project |  | 300 records | 0.269075 ms
+                                                                Unwind |  | 300 records | 0.022614 ms
+                                                                    Optional |  | 60 records | 0.022613 ms
+                                                                      Unwind |  | 60 records | 0.012335 ms
+                                                                          Node By Vector Index Scan |  | 240 records | 0.427164 ms
+                                                                      Filter |  | 60 records | 0.026192 ms
+                                                                        Node By Index Scan | (kx:Fact) | 60 records | 0.124382 ms
+                                            Aggregate |  | 120 records | 2.158146 ms
+                                              Filter |  | 61295 records | 3.486 ms
+                                                Conditional Traverse | (_anon_5)->(e:Entity) | 61295 records | 15.722358 ms
+                                        Filter |  | 61175 records | 32.202153 ms
+                                          Conditional Traverse | (g0)->(e) | 61295 records | 14.333381 ms
+                                    Filter |  | 61175 records | 9.450346 ms
+                                      Conditional Traverse | (gs)<-(g0) | 61175 records | 21.494145 ms
+          Aggregate |  | 120 records | 0.42542 ms
+        Aggregate |  | 120 records | 0.528108 ms
+          Conditional Traverse | (ag)<-(n) | 120 records | 2.048143 ms
+      Aggregate |  | 120 records | 0.335489 ms
+MAX records: 61295
+run_time_ms median of 5: 316.479115 rows 120

@@ -423,6 +423,43 @@ predicate in *every* scope plus one `IN_SCOPE` hop each; the scope is an edge, n
 index can absorb it and the cost of a common predicate grows with the number of current facts across the tenant's scopes, not with
 its history. Documented in the query header; bounded by `RECALL_PREDICATES` (10 predicates per recall).
 
+**Amendment 2026-10-18 (3) — P12's lexical fusion is off by default; recall's per-entity reads run once per entity (`docs/BASELINE.md`
+"Recall-check", `docs/research/TRIALS_INT_MERGE.md` §6 items 1-3).** The merge of p12 into main left three open questions; this
+records the answers, each measured under a pre-registration written before the first run.
+
+*1. Double counting.* p12's `fuse_scores` (relevance = `(1 - w) · cosine + w · lexical`, `w = 0.5`) and D-013's cues both reward query words that sit
+in the entity name or the predicate (the lexical score counts them as coverage, the cue term adds `w · (S - ln fan)` for the same match). The
+decision was made by the rule fixed before the runs: nine criteria (L5b `sep+mult` recall@1 / recall@5 / critical loss / other-entity rows / noise
+share over N = 5, 15, burst; hub `sep` recall@1; L8 needed facts, canonical, replay >= 28/36); if neither setting passes all nine, the default is the one
+failing fewer. Measured on the merged build with FalkorDB 6.0.2: **lexical OFF fails 2** (noise share 32.3 / 41.6 / 33.3 % against the registered <= 24 %;
+L8 replay 27/36), **ON fails 3** (the same two, noise 42.7 / 60.1 / 41.6 %, and one critical probe lost of 80 at N = 15, where D-012/D-013 had 0). On the
+metrics that were reported but not criteria, OFF is also ahead (L6-C `P-product` `hit_any` at depth 1/2/3: OFF 23/9/0 = main's tip today, ON 13/3/1) or
+level (the two clean L8 runs found the same facts in every replay call). The fusion's clear gains are on flat retrieval: the hub world's no-scoring arms (100 % instead
+of 96.5 %) and L5b `off` recall@1 (85.0 % instead of 79.3 %); D-013's cues already give the same in the arms that ship (`sep` 100 % / 85.7 % in both settings). **Decision: `PLEXUS_RECALL_LEXICAL_WEIGHT` defaults to 0** (main's
+relevance, `1 - rank`); `FUSION_WEIGHT = 0.5` is what the fusion was designed with and is available as an opt-in (`PLEXUS_RECALL_LEXICAL_WEIGHT=0.5`).
+The fusion code, its tests and its env switch stay. Honest limits of the decision: it is a count of two failures against three, one of them the replay
+number, which moves by +-1 between plays of identical code (27, 28 and 29 were all measured: new ids decide the near-ties of the twenty
+`billing_cycle` facts); without that criterion the counts are 1 and 2 and the decision is the same. The L5b / hub harness keeps its pin
+(`PLEXUS_L5_LEXICAL_WEIGHT`, default 0): it now equals the product default, and the variable stays for the ON/OFF comparison.
+
+*2. Published numbers on the merged build.* Recall@1 (85.7 %, the ceiling), recall@5 (100 %), critical loss (0), cross-entity displacers (0) and the hub
+result (100 %) reproduce with the fusion off. **The noise share does not, in either setting, and is reported as a moved number:** `sep+mult` 32.3 % (N = 5),
+41.6 % (N = 15), 33.3 % (burst) on the merged build against 22.1 / 20.0 / 21.6 % measured today on main's tip `1ddeb13` through the same harness (published
+20.6-22.1 %); `sep+mult` no longer removes noise relative to `sep` (31.7 -> 32.3, where it removed 4-9 points on main). The fusion explains part of it
+(ON - OFF: +10.4 / +18.5 / +8.3 points); a remainder of +10.2 / +21.6 / +11.7 points over main is already present on p12's own tip before any D-013 code
+(`off` mode: 40.3 / 57.4 % there, with the fusion on) and **no single switch removes it** (bypass text, pool size, value-only keyword ids: post-hoc X1, X3, X4,
+X5, all within +-2 points; dropping the keyword channel (X2) cuts the noise to 16.7 / 17.7 % but costs recall@1 (72.9 / 68.6 %), because the keyword bypass is
+what shields the cold target facts from the D-012 multiplier). The cause is therefore **not attributed**; the untested differences are the Python sibling boost
+(seeds, order), the fused sort, and the `search_text` full-text ranking. The published noise-share figures of `PLEXUS_REPORT` §7.5 describe main's build, not the merged one. L6-C's product arms
+(the only L6 family that calls `recall`): `hit_any` is 23 / 9 / 0 against the published 11 / 6 / 1, but main's tip gives the same 23 / 9 / 0 today (the published row predates main's predicate cue and
+section 3.3 union), the merged build with the fusion off reproduces it exactly and with the fusion on it is 13 / 3 / 1; strict stays 0/75 in every run, as registered. L6 A/B/D/E/F do not call `recall` and are re-run once for the write-path
+changes of the merge (see BASELINE).
+
+*3. `fan_e` on a hub.* Confirmed as a defect, then fixed: `fan_e` and the sibling scan ran per surviving row (up to `$lim` = 120-300 rows after p12), so a
+hub contributing 60 rows rescanned its `ABOUT` edges 60 times: 61,295 records in one operator for a 1,000-fact hub (289 ms), 305,295 for 5,000 facts (1,478 ms).
+They now run once per distinct entity in a `CALL` subquery (1,060 and 5,060 records, 19.6 and 34.2 ms); rows, ranks, `damp` and `sib_of` are unchanged (576 old-vs-new
+parameter sets, 0 differences) and `tests/integration/test_recall_hub_plan.py` pins the record counts at both sizes.
+
 ## D-014 — Integration of p9f-b: one statement per answer, and a write's provenance (integ, P9-f)
 
 **Context.** Branch `p9f-b` fixed what Crucible L6 found (impact timeout and truncation, `why` / `blocked_by_failure` read

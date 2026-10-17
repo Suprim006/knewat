@@ -1,0 +1,239 @@
+{
+  "criteria": [
+    {
+      "hard": false,
+      "id": "hub: sep recall@1 >= 0.90 (plan \u00a75.3)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "hub: sep recall@1 >= 0.80 (falsification floor)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep other hub fact above the target <= 10%",
+      "ok": true,
+      "value": [
+        0.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: flat boost puts another hub fact above the target >= 30% (plan \u00a75.3)",
+      "ok": false,
+      "value": [
+        0.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: flat boost has another hub fact in the top 5 >= 30% (plan \u00a75.3 as written)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep recall@1 - sep-entity recall@1 >= 0.10 (the predicate cue is what helps)",
+      "ok": false,
+      "value": [
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep-entity recall@1 within 2 probes (0.01) of off (zero lift at fan 200)",
+      "ok": true,
+      "value": [
+        1.0,
+        1.0
+      ]
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "git_commit": "ae17aee",
+  "hub": {
+    "arms": {
+      "off": {
+        "entity_facts_added_mean": 0,
+        "hub_fact_above_target": 0.0,
+        "missed_rank": [],
+        "n": 200,
+        "other_hub_fact_in_top5": 1.0,
+        "probe_ms_p50": 205.464500002563,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "statements_per_probe": 2
+      },
+      "sep": {
+        "entity_facts_added_mean": 0,
+        "hub_fact_above_target": 0.0,
+        "missed_rank": [],
+        "n": 200,
+        "other_hub_fact_in_top5": 1.0,
+        "probe_ms_p50": 165.85670001222752,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "statements_per_probe": 5
+      },
+      "sep-entity": {
+        "entity_facts_added_mean": 0,
+        "hub_fact_above_target": 0.0,
+        "missed_rank": [],
+        "n": 200,
+        "other_hub_fact_in_top5": 1.0,
+        "probe_ms_p50": 167.68920002505183,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "statements_per_probe": 5
+      },
+      "sep-flat": {
+        "entity_facts_added_mean": 0,
+        "hub_fact_above_target": 0.0,
+        "missed_rank": [],
+        "n": 200,
+        "other_hub_fact_in_top5": 1.0,
+        "probe_ms_p50": 168.01579997991212,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "statements_per_probe": 5
+      }
+    },
+    "config": {
+      "arms": [
+        "off",
+        "sep-entity",
+        "sep-flat",
+        "sep"
+      ],
+      "embedder": "FastEmbedder",
+      "facts_per_other": 5,
+      "hub": "Atlas Core Platform",
+      "hub_facts": 200,
+      "lexical_weight": 0.5,
+      "others": 40,
+      "seed": 20261016,
+      "settings": {
+        "off": {
+          "cue_s": 5.0,
+          "cues": "entity+predicate",
+          "gamma": 0.15,
+          "s_max": 3.912023005428146,
+          "separation": false,
+          "w_entity": 0.03,
+          "w_predicate": 0.02
+        },
+        "sep": {
+          "cue_s": 5.0,
+          "cues": "entity+predicate",
+          "gamma": 0.15,
+          "s_max": 3.912023005428146,
+          "separation": true,
+          "w_entity": 0.03,
+          "w_predicate": 0.02
+        },
+        "sep-entity": {
+          "cue_s": 5.0,
+          "cues": "entity",
+          "gamma": 0.15,
+          "s_max": 3.912023005428146,
+          "separation": true,
+          "w_entity": 0.03,
+          "w_predicate": 0.02
+        },
+        "sep-flat": {
+          "cue_s": 5.0,
+          "cues": "entity",
+          "gamma": 0.15,
+          "s_max": 20.0,
+          "separation": true,
+          "w_entity": 0.03,
+          "w_predicate": 0.02
+        }
+      }
+    },
+    "criteria": [
+      {
+        "hard": false,
+        "id": "hub: sep recall@1 >= 0.90 (plan \u00a75.3)",
+        "ok": true,
+        "value": [
+          1.0
+        ]
+      },
+      {
+        "hard": true,
+        "id": "hub: sep recall@1 >= 0.80 (falsification floor)",
+        "ok": true,
+        "value": [
+          1.0
+        ]
+      },
+      {
+        "hard": false,
+        "id": "hub: sep other hub fact above the target <= 10%",
+        "ok": true,
+        "value": [
+          0.0
+        ]
+      },
+      {
+        "hard": false,
+        "id": "hub: flat boost puts another hub fact above the target >= 30% (plan \u00a75.3)",
+        "ok": false,
+        "value": [
+          0.0
+        ]
+      },
+      {
+        "hard": false,
+        "id": "hub: flat boost has another hub fact in the top 5 >= 30% (plan \u00a75.3 as written)",
+        "ok": true,
+        "value": [
+          1.0
+        ]
+      },
+      {
+        "hard": false,
+        "id": "hub: sep recall@1 - sep-entity recall@1 >= 0.10 (the predicate cue is what helps)",
+        "ok": false,
+        "value": [
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "hard": false,
+        "id": "hub: sep-entity recall@1 within 2 probes (0.01) of off (zero lift at fan 200)",
+        "ok": true,
+        "value": [
+          1.0,
+          1.0
+        ]
+      }
+    ],
+    "seconds": {
+      "build": 34.5,
+      "total": 180.9
+    },
+    "world": {
+      "facts": 400,
+      "hub_fan_resolved": 200,
+      "predicate_fan_max": 6,
+      "predicate_fan_mean": 2
+    }
+  },
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 181.0,
+  "started_at": "2026-10-17T21:21:16Z"
+}

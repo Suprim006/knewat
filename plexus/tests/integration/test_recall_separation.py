@@ -275,9 +275,9 @@ def test_the_python_sibling_boost_keeps_the_fan_damping(eng, scope):
     assert boosted and all(r["rank"] == pytest.approx(r["score"] - svc.EXPAND_BOOST) for r in boosted)
 
 
-def test_defaults_lexical_fusion_and_separation_together(eng, scope, twins):
+def test_opt_in_lexical_fusion_and_separation_together(eng, scope, twins):
     target, twin, sib, sib8 = twins
-    eng.lexical_weight = svc.LEXICAL_WEIGHT  # P12 default, on top of the D-013 default (separation on)
+    eng.lexical_weight = svc.FUSION_WEIGHT  # P12's fusion (opt-in since the recall-check), on top of D-013
     got = eng.recall(Q, scope, k=3)
     assert ids(got)[0] == target and set(ids(got)) <= {target, twin, sib, sib8}
 

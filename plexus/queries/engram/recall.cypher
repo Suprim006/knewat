@@ -14,6 +14,10 @@
 // (sib_of; plexus.engram.service._sibling_boost), as before P12; `rank` here boosts siblings of every seed.
 // Trials-int merge: the D-013 fan damping (`damp`, scales $boost per seed entity) is computed after the $lim cut, on the rows that survive it, and is
 // returned per row (a sibling shares its seed's entity, so one factor per fact) because the Python caller re-applies the sibling boost (P12) and must scale it the same way.
+// Recall-check (hub entities): the per-entity reads (the fan `fan_e` and the sibling scan of the entity's ABOUT facts) run ONCE PER DISTINCT ENTITY of the surviving rows, in a
+// CALL subquery that returns one map per entity ({eid, damp, pool: the nearest sibs + 1 facts}); each row then takes its own siblings from that pool (all but itself, first
+// $sibs). Written per row they rescanned the entity for every row it contributed: a 1,000-fact hub with 60 rows in the pool produced 61,295 records in one operator, a 5,000-fact
+// hub 305,295 (1.9 s); now they are about the entity's fan (1,060 / 5,060 records), whatever the number of rows. The rows and ranks are unchanged (tests/integration/test_recall_hub_plan.py).
 // Seeds: the top `over` nearest facts of the WHOLE graph plus the facts in kw_ids (full-text hits from engram/recall_keywords),
 // then filtered. LIMITATION: FalkorDB's vector procedure has no pre-filter, so scope/status/validity are applied AFTER the
 // index returns `over` nodes; nearer out-of-scope or superseded facts can crowd the target out. The Python wrapper therefore
@@ -48,20 +52,32 @@ MATCH (f)-[:ABOUT]->(e:Entity)
 WITH sids, raw, f, e, score, kw
 ORDER BY kw DESC, score ASC
 LIMIT $lim
-WITH sids, raw, f, e, score, kw, size([(e)<-[:ABOUT]-(:Fact {status: 'active'}) | 1]) AS fan_e
-WITH sids, raw, f, e, score, kw,
-     CASE WHEN NOT $damp THEN 1.0 WHEN fan_e < 1 THEN 1.0 WHEN log(fan_e) >= $smax THEN 0.0 ELSE 1.0 - log(fan_e) / $smax END AS damp
-OPTIONAL MATCH (e)<-[:ABOUT]-(g0:Fact)
-  WHERE g0.id <> f.id AND g0.status IN $statuses AND g0.valid_from <= $t AND $t < g0.valid_to
-WITH sids, raw, f, e, score, kw, damp, g0
-OPTIONAL MATCH (g0)-[:IN_SCOPE]->(gs:Scope)
-  WHERE $all OR gs.id IN sids
-WITH raw, f, e, score, kw, damp, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
-WITH raw, f, e, score, kw, damp, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
-ORDER BY gd ASC
-WITH raw, f, e, score, kw, damp, collect({g: g, d: gd})[0..$sibs] AS sibs
+WITH sids, raw, collect({f: f, e: e, score: score, kw: kw}) AS rws
+CALL {
+  WITH sids, rws
+  UNWIND rws AS r
+  WITH sids, collect(DISTINCT r.e) AS es
+  UNWIND es AS e
+  WITH sids, e, size([(e)<-[:ABOUT]-(:Fact {status: 'active'}) | 1]) AS fan_e
+  WITH sids, e,
+       CASE WHEN NOT $damp THEN 1.0 WHEN fan_e < 1 THEN 1.0 WHEN log(fan_e) >= $smax THEN 0.0 ELSE 1.0 - log(fan_e) / $smax END AS damp
+  OPTIONAL MATCH (e)<-[:ABOUT]-(g0:Fact)
+    WHERE g0.status IN $statuses AND g0.valid_from <= $t AND $t < g0.valid_to
+  WITH sids, e, damp, g0
+  OPTIONAL MATCH (g0)-[:IN_SCOPE]->(gs:Scope)
+    WHERE $all OR gs.id IN sids
+  WITH e, damp, CASE WHEN gs IS NULL THEN null ELSE g0 END AS g
+  WITH e, damp, g, CASE WHEN g IS NULL THEN 2.0 ELSE vec.cosineDistance(g.embedding, vecf32($q)) END AS gd
+  ORDER BY gd ASC
+  WITH e, damp, collect({g: g, d: gd})[0..$sibs + 1] AS pool
+  RETURN collect({eid: e.id, damp: damp, pool: pool}) AS ents
+}
+UNWIND rws AS r
+WITH raw, ents, r.f AS f, r.score AS score, r.kw AS kw, r.e.id AS eid
+WITH raw, f, score, kw, head([x IN ents WHERE x.eid = eid]) AS en
+WITH raw, f, score, kw, en.damp AS damp, [s IN en.pool WHERE s.g IS NOT NULL AND s.g.id <> f.id][0..$sibs] AS sibs
 WITH raw, [{n: f, rank: score, dist: score, seed: 1, via: f.id, kw: kw, damp: damp}]
-     + [s IN sibs WHERE s.g IS NOT NULL | {n: s.g, rank: CASE WHEN s.d - $boost * damp < 0 THEN 0.0 ELSE s.d - $boost * damp END, dist: s.d, seed: 0, via: f.id, kw: 0, damp: damp}] AS cands
+     + [s IN sibs | {n: s.g, rank: CASE WHEN s.d - $boost * damp < 0 THEN 0.0 ELSE s.d - $boost * damp END, dist: s.d, seed: 0, via: f.id, kw: 0, damp: damp}] AS cands
 UNWIND cands AS c
 WITH raw, c.n AS n, min(c.rank) AS rank, min(c.dist) AS dist, max(c.seed) AS isseed, max(c.kw) AS kw, max(c.damp) AS damp, collect(CASE WHEN c.seed = 0 THEN c.via END) AS vias
 ORDER BY kw DESC, rank ASC
