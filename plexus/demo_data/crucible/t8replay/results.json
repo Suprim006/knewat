@@ -1,0 +1,291 @@
+[
+  {
+    "after_session1": {
+      "c1_sources": [
+        "memo",
+        "spec"
+      ],
+      "recalled": [
+        "C1",
+        "C2",
+        "C3",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "active",
+        "C3": "active",
+        "P1": "active"
+      }
+    },
+    "forget_memo": {
+      "c1_sources": [
+        "spec"
+      ],
+      "forgotten": [
+        "C2",
+        "C3"
+      ],
+      "recalled": [
+        "C1",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "forgotten",
+        "C3": "forgotten",
+        "P1": "active"
+      },
+      "unlinked": [
+        {
+          "fact": "C1",
+          "other_sources": [
+            "spec"
+          ]
+        }
+      ]
+    },
+    "quarantine_memo": {
+      "c1_sources": [
+        "memo",
+        "spec"
+      ],
+      "corroborated": [
+        {
+          "fact": "C1",
+          "other_sources": [
+            "spec"
+          ]
+        }
+      ],
+      "hidden": [
+        "C2",
+        "C3"
+      ],
+      "recalled": [
+        "C1",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "quarantined",
+        "C3": "quarantined",
+        "P1": "active"
+      }
+    },
+    "release_memo": {
+      "c1_sources": [
+        "memo",
+        "spec"
+      ],
+      "recalled": [
+        "C1",
+        "C2",
+        "C3",
+        "P1"
+      ],
+      "restored": [
+        "C2",
+        "C3"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "active",
+        "C3": "active",
+        "P1": "active"
+      }
+    },
+    "scenario": "source_ids",
+    "session1": {}
+  },
+  {
+    "after_session1": {
+      "c1_sources": [
+        "memo",
+        "spec"
+      ],
+      "recalled": [
+        "C1",
+        "C2",
+        "C3",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "active",
+        "C3": "active",
+        "P1": "active"
+      }
+    },
+    "forget_memo": {
+      "c1_sources": [
+        "spec"
+      ],
+      "forgotten": [
+        "C2",
+        "C3"
+      ],
+      "recalled": [
+        "C1",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "forgotten",
+        "C3": "forgotten",
+        "P1": "active"
+      },
+      "unlinked": [
+        {
+          "fact": "C1",
+          "other_sources": [
+            "spec"
+          ]
+        }
+      ]
+    },
+    "quarantine_memo": {
+      "c1_sources": [
+        "memo",
+        "spec"
+      ],
+      "corroborated": [
+        {
+          "fact": "C1",
+          "other_sources": [
+            "spec"
+          ]
+        }
+      ],
+      "hidden": [
+        "C2",
+        "C3"
+      ],
+      "recalled": [
+        "C1",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "quarantined",
+        "C3": "quarantined",
+        "P1": "active"
+      }
+    },
+    "release_memo": {
+      "c1_sources": [
+        "memo",
+        "spec"
+      ],
+      "recalled": [
+        "C1",
+        "C2",
+        "C3",
+        "P1"
+      ],
+      "restored": [
+        "C2",
+        "C3"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "active",
+        "C3": "active",
+        "P1": "active"
+      }
+    },
+    "scenario": "corroboration",
+    "session1": {
+      "second_assert": {
+        "duplicate_of": "82a1ae39-816e-46a9-90bb-c02856344249",
+        "sources_added": [
+          "ddb6e1aa-feec-4706-9b9a-90aec5b168f6"
+        ]
+      },
+      "second_assert_same_fact": true
+    }
+  },
+  {
+    "after_session1": {
+      "c1_sources": [
+        "memo"
+      ],
+      "recalled": [
+        "C1",
+        "C2",
+        "C3",
+        "P1"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "active",
+        "C3": "active",
+        "P1": "active"
+      }
+    },
+    "forget_memo": {
+      "c1_sources": [
+        "memo"
+      ],
+      "forgotten": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "recalled": [
+        "P1"
+      ],
+      "status": {
+        "C1": "forgotten",
+        "C2": "forgotten",
+        "C3": "forgotten",
+        "P1": "active"
+      },
+      "unlinked": []
+    },
+    "quarantine_memo": {
+      "c1_sources": [
+        "memo"
+      ],
+      "corroborated": [],
+      "hidden": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "recalled": [
+        "P1"
+      ],
+      "status": {
+        "C1": "quarantined",
+        "C2": "quarantined",
+        "C3": "quarantined",
+        "P1": "active"
+      }
+    },
+    "release_memo": {
+      "c1_sources": [
+        "memo"
+      ],
+      "recalled": [
+        "C1",
+        "C2",
+        "C3",
+        "P1"
+      ],
+      "restored": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "status": {
+        "C1": "active",
+        "C2": "active",
+        "C3": "active",
+        "P1": "active"
+      }
+    },
+    "scenario": "single_source",
+    "session1": {}
+  }
+]
