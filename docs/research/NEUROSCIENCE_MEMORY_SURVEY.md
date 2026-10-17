@@ -3,7 +3,9 @@
 Branch `feature/neuro-memory-research`, October 2026. Per-mechanism notes with full citations are in
 `docs/research/neuro-memory/01…06-*.md`; the shared brief is `00-brief.md`. This document consolidates them and,
 for each mechanism, answers one question honestly: **would this move Plexus off the SQL tie on retrieval quality?**
-The implementation plan for the picks is `MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md`.
+The implementation plan for the picks is `MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md`. A second, independent
+orchestrator pass over the same brief wrote the slug-named notes in `neuro-memory/` and the review
+`neuro-memory/CROSS_CHECK.md`, which lists where the two passes agree and what the plan should change.
 
 Process note: the brief planned six parallel Sonnet subagents; the one-shot run had no delegation budget, so the
 orchestrator did the survey itself. Every source cited in the notes was opened (abstract, PDF or full text);

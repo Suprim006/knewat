@@ -2,7 +2,9 @@
 
 Branch `feature/neuro-memory-research`. Companion: `NEUROSCIENCE_MEMORY_SURVEY.md` (why) and
 `docs/research/neuro-memory/0N-*.md` (per-mechanism detail and sources). This document is the spec a coding
-subagent implements. It picks three techniques, in priority order, and states for each what changes, how it is
+subagent implements. **Read `neuro-memory/CROSS_CHECK.md` first**: an independent pass found one required fix
+(the sweep threshold under the new decay scale, §3.1 there) and four recommended additions (predicate cue, candidate
+union, trace inheritance, a guard on the latent-cause flag). It picks three techniques, in priority order, and states for each what changes, how it is
 measured, and how confident the author is that it moves a number.
 
 ## 0. The picks, and the honest expectation
