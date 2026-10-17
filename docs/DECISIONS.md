@@ -366,8 +366,14 @@ is deferred because the activation read already has every input (CROSS_CHECK §3
 that drifts from the formula is worse than none. (d) `add` is not the default: the plan made that conditional on
 §5.1 passing, and it did not.
 
-**Consequences / follow-ups.** P3 (prediction-error-gated reliability, `why_confidence`), the hub variant (§5.3) and
-the SQL-arm extension (§5.4) are not built. The next P1 step is the predicate cue (CROSS_CHECK §3.2 / A.3), which is
+**Consequences / follow-ups.** P3 (prediction-error-gated reliability, `why_confidence`) and the hub variant (§5.3)
+are not built. *Amendment (§5.4 run, `docs/BASELINE.md` "§5.4 results"):* the SQL-arm extension was built and run;
+a hand-written SQL arm given the same columns ties `sep+mult` exactly on recall@1/5 in all three L5b runs with 92
+lines of SQL (vs 104 of Cypher) and 3 statements (vs 4), and reproduces the activation of every fact; L6-C ties on
+correctness (75/75 both) with SQL 3.3x faster at depth 3. The confidence stated in the table of the plan ("tie by
+construction vs a SQL arm") is confirmed; the claim this decision supports is "beats flat retrieval, explains every
+rank", not "beats SQL". L6-C also found that the shipped `recall(hops)` never ranks a hop fact into the top 5 and
+fills its per-hop cap alphabetically — a product defect recorded for the next decision, not fixed here. The next P1 step is the predicate cue (CROSS_CHECK §3.2 / A.3), which is
 what the remaining same-entity displacers need; the next P2 step is a fit of `beta`/`delta` against the recorded
 `gap12` distribution (median rank-1/rank-2 gap 0.0167) rather than the declared defaults — as a new pre-registration,
 not a tuned re-run of this one.
