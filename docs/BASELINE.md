@@ -1044,3 +1044,35 @@ Source: `plexus/demo_data/crucible/l5/20261017T130612Z-pcc-n5/`, `…T130659Z-pc
 | 4. `sep+mult[0.03/0.02]` within 1 probe of `sep[0.03/0.02]` | **PASS** (equal). |
 
 **Outcome (by the rule stated before the run).** The shipped default is the two-cue context term at `w_entity = 0.03`, `w_predicate = 0.02`, `S = 5` (`PLEXUS_ACT_CUES=entity+predicate`), set as the code defaults in the commit after this section. The shipped default (`sep+mult`) now measures recall@1 **85.7%** (the L5b ceiling), recall@5 **100%**, noise share **20.6–20.9%**, critical loss 0, cross-entity displacers 0 — against D-013 as first shipped (85.0% / 100% / 22.1%, post-hoc run) and the §5.4 paired run (82.9–85.7% / 100% / 19.1–21.6%). Honest reading of the gain: recall@1 is unchanged in substance (the ceiling was already reached; the +0.7 is id noise between plays), the noise share is ~1 point lower than D-013's shipped default and the hub edge case is fixed; the cost is two bounded reads (5 → 6 statements with forgetting on, ~+10 ms per probe on Docker Desktop). The §5.4 SQL arm was not re-run (see "what is not claimed" in the first pre-registration): the tie claim stands, the SQL arm lacks the predicate feature by omission, not by inability.
+
+## Audit fixes re-run pre-registration (`docs/research/CYPHER_AUDIT_SUMMARY.md` C1–C5, P1–P3, B1–B2, `BRANCH_REVIEW.md` 1–2); written before any run
+
+The fixes sit on three paths the published numbers came from: the L5b ranking path (C1 `artifacts_ok`, C2 `recall_hop_facts`
+diamond duplicates, finding 1 salience protection gated on `add`, finding 2 `rerank` → `score.score()`), the L6 blast-radius path
+(C4 `impact_fact` root-first, P1 `quarantine` tail, B1 `forget_source` tail) and the write path every arm uses (P3 empty-list seeks in
+`link_step` / `record_decision` / `handoff` / `complete_task` / `create_tasks` / `record_recall` / `create_scope`, C3 `assert_fact`
+nearest-first `soft` cut). Runs, same seeds and worlds as the published ones, 0 LLM calls, on `plexus-db-13`:
+L5b `--only forgetting --modes off,sep+mult[w_entity=0.03;w_predicate=0.02]` at N = 5, N = 15 and N = 5 burst (seed 20261016,
+fastembed, `--tag afx-*`); L6 `postfix` (A `impact` arms + F, 200 kills) and L6 `conc` (E: the quarantiner uses `lineage/quarantine`).
+
+**Expectation, grounded in the fixtures (checked in the code before the run):**
+1. **C1 and finding 1 change no L5b number.** The L5b world never calls `verify_artifact` or `verify_fact` (no `VERIFIED_BY` edge on
+   any Artifact or Fact: `crucible/l2/scenario.py` has no such call), the simulated reads are all by one agent (`l5-reader`,
+   `crucible/l5_add_reads`), so `use_agents` is 0 from the schedule, and every remaining salience input (decision, handoff, pin, trusted
+   source) coincides with a D-012 boolean rule that protects in both modes. The only path left is a fact used (`via = 'use'`) by ≥ 3
+   distinct scenario agents through their own Steps with no decision or handoff on it; not expected, and if any `sep+mult` number
+   moves this is the first place to look.
+2. **C2 changes no L5b number.** L5b scopes are `global` plus `project:` / `user:` scopes that inherit `global` (`mcp/tenant.py`): a
+   tree, no diamond, so every fact is reached over exactly one `INHERITS` path.
+3. **Finding 2 is an identity rewrite** (`score()` and the inline formula agreed; `tests/activation/test_rank_d013.py` pins it), and
+   `mult` mode never goes through it: no L5b number moves.
+4. **C3 / P3 change no L5b number**: the L5b world has at most one same-`dup_key` candidate per assertion (the cap never bites), and
+   the P3 rewrite changes plan shape, not rows.
+5. **L6:** A `impact` stays 24/24 strict (service) / 18/24 (tool, list cap) with the same counts; C4 moves the root fact to the front
+   of `fact_ids` (`impact_fact` only; the A arm reads `impact('source')`, unchanged). F stays 0 orphans. E stays 0 violations for
+   `P-1stmt` with a *higher* quarantine count per run expected (P1: the quarantiner's statement is faster) — a timing-dependent
+   count, not a quality number. Wall times are reported but are not a hypothesis (Docker Desktop noise, 2× swings).
+
+**Decision rule:** a changed recall@1 / recall@5 / noise share / critical loss in any L5b run, or a changed L6 A/E/F correctness
+count, is reported as a change and explained from the fixes above (or reported as unexplained); `PLEXUS_REPORT.md` is updated only if
+a published number moves. The pre-fix result directories are kept.
