@@ -110,12 +110,15 @@ def test_the_environment_switch_does_the_same(world, monkeypatch):
 
 
 def test_p12_lexical_weight_env_and_default(world, monkeypatch):
-    from plexus.engram.service import LEXICAL_WEIGHT, Engram
+    """Recall-check (D-013 amendment 3): the shipped default is no lexical term (main's relevance); P12's
+    fusion (``FUSION_WEIGHT`` 0.5) is opt-in through ``PLEXUS_RECALL_LEXICAL_WEIGHT``."""
+    from plexus.engram.service import FUSION_WEIGHT, LEXICAL_WEIGHT, Engram
 
     eng, scope = world
-    assert eng.lexical_weight == LEXICAL_WEIGHT == 0.5
-    monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "0")
-    assert Engram(eng.client, eng.graph, eng.embedder).lexical_weight == 0.0
+    assert eng.lexical_weight == LEXICAL_WEIGHT == 0.0
+    assert FUSION_WEIGHT == 0.5
+    monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "0.5")
+    assert Engram(eng.client, eng.graph, eng.embedder).lexical_weight == FUSION_WEIGHT
     monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "2")
     with pytest.raises(ValueError):
         Engram(eng.client, eng.graph, eng.embedder)

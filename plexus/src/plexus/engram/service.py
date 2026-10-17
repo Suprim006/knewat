@@ -45,7 +45,11 @@ DEFAULT_BUDGET_CHARS = 6000  # P12: recall's default text budget (was 2,000: abo
 POOL_FACTOR = 3  # P12: candidates ranked before the cut to k: max(POOL_FACTOR * k, MIN_POOL) <= MAX_POOL
 MIN_POOL = 60
 MAX_POOL = 150
-LEXICAL_WEIGHT = 0.5  # P12: weight of the lexical score in recall's hybrid relevance (fuse_scores)
+# Lexical term of recall's relevance (P12 fuse_scores). The shipped default is none (recall-check, D-013
+# amendment 3); FUSION_WEIGHT is the weight P12 designed and measured it with, opt-in via
+# PLEXUS_RECALL_LEXICAL_WEIGHT=0.5.
+LEXICAL_WEIGHT = 0.0
+FUSION_WEIGHT = 0.5
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 12  # distinct query words sent to the Fact full-text index (value + search_text)
 RECALL_ENTITIES = 5  # entities the pattern-separation read resolves per recall (D-013 P1)
@@ -123,8 +127,8 @@ def _query_words(query: str) -> list[str]:
 
 
 def _lexical_weight() -> float:
-    """``PLEXUS_RECALL_LEXICAL_WEIGHT`` (0..1, default ``LEXICAL_WEIGHT``); 0 reproduces the vector-only
-    order."""
+    """``PLEXUS_RECALL_LEXICAL_WEIGHT`` (0..1, default ``LEXICAL_WEIGHT`` = 0: the vector-only relevance of
+    main); ``FUSION_WEIGHT`` (0.5) is P12's fusion, opt-in since the recall-check."""
     raw = os.environ.get("PLEXUS_RECALL_LEXICAL_WEIGHT", "").strip()
     if not raw:
         return LEXICAL_WEIGHT
@@ -141,11 +145,12 @@ def search_text(entity_name: str, predicate: str) -> str:
     return " ".join([entity_name, *re.split(r"[\W_]+", predicate)]).strip()
 
 
-def fuse_scores(rows: list[dict[str, Any]], words: list[str], weight: float = LEXICAL_WEIGHT) -> None:
+def fuse_scores(rows: list[dict[str, Any]], words: list[str], weight: float = FUSION_WEIGHT) -> None:
     """Hybrid relevance of every candidate, written into each row as ``fused`` in [0, 1] (P12).
 
-    ``fused = (1 - weight) * vector + weight * lexical`` (``weight`` = ``LEXICAL_WEIGHT`` 0.5 by default,
-    ``PLEXUS_RECALL_LEXICAL_WEIGHT``; 0 = the vector order of earlier versions):
+    ``fused = (1 - weight) * vector + weight * lexical`` (``weight`` = ``Engram.lexical_weight``, from
+    ``PLEXUS_RECALL_LEXICAL_WEIGHT``: 0 by default = the vector order of earlier versions; ``FUSION_WEIGHT``
+    0.5 = P12's fusion, opt-in since the recall-check, and this function's own default):
 
     * ``vector = 1 - rank`` (``rank`` = cosine distance after the sibling boost; the only relevance before
       P12), clamped to [0, 1];
@@ -677,7 +682,9 @@ class Engram:
         (the entity name and predicate words). A pool of ``max(POOL_FACTOR * k, MIN_POOL)`` (<=
         ``MAX_POOL``) candidates is fetched from each; every in-scope keyword hit survives into the pool, and
         the two rankings are fused (:func:`fuse_scores`: cosine relevance and an IDF-weighted query-word
-        coverage) into ``relevance``. Before P12 the pool was ``2*k`` and keyword hits competed on cosine
+        coverage) into ``relevance`` when ``PLEXUS_RECALL_LEXICAL_WEIGHT`` > 0; the default 0 keeps the cosine
+        relevance (the fusion cost noise share and a critical probe on L5b and gained nothing on L6-C / L8,
+        BASELINE "Recall-check"). Before P12 the pool was ``2*k`` and keyword hits competed on cosine
         distance only. The sibling boost is re-applied in Python to the siblings of the ``2*k`` (``k`` without
         re-ranking) nearest seeds (:func:`_sibling_boost`), scaled by the entity-fan damping below.
 
