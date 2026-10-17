@@ -1,7 +1,7 @@
 // name: activation/activation
 // purpose: Gather, for up to 200 facts, the access events and protection inputs that the Python activation model (plexus.activation) turns into A(f) (D-012). Nothing is computed or written here.
 // params: fact_ids:list[str], now:int, events:int
-// returns: one row per existing fact id: id, status, created_at, entity (the ABOUT entity's name), predicate, value, surprise (0 when absent), pinned (false when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), reads [{k:'use'|'recall', t, s}] (newest `events` READ edges with t <= now; s = READ.suspect: 1 doubted when read, 0 not, -1 unknown / written before P7-04), asserted_at [ms] (every ASSERTED_BY edge), decisions [{id, t, flagged}] (BASED_ON), handoffs [{id, t}] (CARRIES), verified_at [ms] (VERIFIED_BY), supersedes [ids] (outgoing SUPERSEDES, at most 3), contradicts [ids] (CONTRADICTS either way, at most 3), sources [{id, trust}] (Sources reached by DERIVED_FROM 1..3 hops)
+// returns: one row per existing fact id: id, status, created_at, entity (the ABOUT entity's name), predicate, value, surprise (0 when absent), pinned (false when absent), salience (the cached Fact.salience, -1 when absent), salience_at (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), reads [{k:'use'|'recall', t, s, ag}] (newest `events` READ edges with t <= now; s = READ.suspect: 1 doubted when read, 0 not, -1 unknown / written before P7-04; ag = the reading Step's agent_id), asserted_at [ms] (every ASSERTED_BY edge), decisions [{id, t, flagged, tasks_done, artifacts_ok}] (BASED_ON; tasks_done = the decision's FOR tasks with status 'done', artifacts_ok = artifacts FOR those tasks with an independent VERIFIED_BY; D-013 salience inputs), handoffs [{id, t}] (CARRIES), verified_at [ms] (VERIFIED_BY), supersedes [ids] (outgoing SUPERSEDES, at most 3), contradicts [ids] (CONTRADICTS either way, at most 3), sources [{id, trust}] (Sources reached by DERIVED_FROM 1..3 hops)
 // mode: ro
 
 // Event sources (all edges Plexus already writes; docs/P7-contract.md gives the weights, which the model applies):
@@ -22,7 +22,9 @@ MATCH (f:Fact {id: fid})
 OPTIONAL MATCH (f)-[:ABOUT]->(e:Entity)
 WITH f, e.name AS entity,
      [(f)-[a:ASSERTED_BY]->(:Agent) | a.at] AS asserted_at,
-     [(d:Decision)-[:BASED_ON]->(f) | {id: d.id, t: d.created_at, flagged: coalesce(d.flagged, false)}] AS decisions,
+     [(d:Decision)-[:BASED_ON]->(f) | {id: d.id, t: d.created_at, flagged: coalesce(d.flagged, false),
+        tasks_done: size([(d)-[:FOR]->(:Task {status: 'done'}) | 1]),
+        artifacts_ok: size([(d)-[:FOR]->(:Task)<-[:FOR]-(:Artifact)-[:VERIFIED_BY {independent: true}]->(:Agent) | 1])}] AS decisions,
      [(h:Handoff)-[:CARRIES]->(f) | {id: h.id, t: h.created_at}] AS handoffs,
      [(f)-[v:VERIFIED_BY]->(:Agent) | v.at] AS verified_at,
      [(f)-[:SUPERSEDES]->(o:Fact) | o.id][0..3] AS supersedes,
@@ -32,13 +34,16 @@ OPTIONAL MATCH (s:Step)-[r:READ]->(f)
 WITH f, entity, asserted_at, decisions, handoffs, verified_at, supersedes, contradicts, sources,
      CASE WHEN coalesce(r.at, s.at) <= $now THEN coalesce(r.at, s.at) ELSE null END AS t,
      CASE WHEN r.via = 'use' THEN 'use' ELSE 'recall' END AS k,
-     CASE WHEN r.suspect IS NULL THEN -1 WHEN r.suspect THEN 1 ELSE 0 END AS sp
+     CASE WHEN r.suspect IS NULL THEN -1 WHEN r.suspect THEN 1 ELSE 0 END AS sp,
+     s.agent_id AS ag
 ORDER BY t DESC
 WITH f, entity, asserted_at, decisions, handoffs, verified_at, supersedes, contradicts, sources,
-     collect(CASE WHEN t IS NULL THEN null ELSE {k: k, t: t, s: sp} END)[0..$events] AS reads
+     collect(CASE WHEN t IS NULL THEN null ELSE {k: k, t: t, s: sp, ag: ag} END)[0..$events] AS reads
 RETURN f.id AS id, f.status AS status, f.created_at AS created_at, entity, f.predicate AS predicate, f.value AS value,
        coalesce(f.surprise, 0.0) AS surprise,
        coalesce(f.pinned, false) AS pinned,
+       coalesce(f.salience, -1.0) AS salience,
+       coalesce(f.salience_at, 0) AS salience_at,
        coalesce(f.verify_state, 'verified') AS verify_state,
        coalesce(f.suspect_since, 0) AS suspect_since,
        coalesce(f.verify_after, 9999999999999) AS verify_after,

@@ -6,11 +6,13 @@ recalled, and nothing here ever deletes: a sweep only moves facts to ``dormant``
 
 from __future__ import annotations
 
+import math
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
 from plexus.activation import model
+from plexus.activation import score as score_mod
 from plexus.activation.model import Event
 from plexus.activation.settings import Settings
 from plexus.common import check_between, now_ms, unique
@@ -18,7 +20,10 @@ from plexus.graph.client import GraphClient
 
 MAX_IDS = 200  # fact ids per activation query
 MAX_SWEEP_SCAN = 5000  # active facts of a scope that one sweep looks at (oldest first)
-SWEEP_MARGIN = 2.0  # default threshold = A0 - 2
+SWEEP_MARGIN = 2.0  # default threshold under the D-012 model = A0 - 2 (Settings.sweep_margin is mode-aware)
+# D-013: a fact with salience >= SALIENCE_PROTECT is never swept (the boolean rules stay as the floor)
+SALIENCE_PROTECT = 0.5
+SALIENCE_PIN = 0.95  # pin_fact raises the cached salience to at least this
 
 _WEIGHTS = {
     "create": model.W_CREATE,
@@ -29,6 +34,41 @@ _WEIGHTS = {
     "recall": model.W_RECALL,
     "verified": model.W_VERIFIED,
 }
+
+
+# D-013 salience weights (docs/research/neuro-memory/05-salience-and-emotional-tagging.md §3.1)
+SALIENCE_W = {
+    "decisions": 1.0,  # unflagged decisions BASED_ON the fact
+    "verified": 1.5,  # VERIFIED_BY confirmations
+    "artifacts_ok": 1.0,  # independently verified artifacts of the decisions' tasks
+    "tasks_done": 0.5,  # done tasks of those decisions
+    "use_agents": 0.5,  # distinct agents that used it, minus one
+    "handoffs": 0.5,
+    "trusted_source": 1.0,
+    "pinned": 3.0,
+}
+
+
+def salience_of(r: Mapping[str, Any], now: int) -> tuple[float, dict[str, int]]:
+    """Graded salience ``1 - exp(-sum(w * count))`` of one ``activation/activation`` row, and its inputs.
+
+    Pure graph structure, no LLM: what was decided on, verified, handed over, used by several agents, built
+    and independently checked downstream, pinned, or derived from a trusted source. Events after ``now`` do
+    not count. Never fed into ``confidence`` (note 05 §3.5).
+    """
+    decisions = [d for d in r["decisions"] if d["t"] <= now]
+    inputs = {
+        "decisions": sum(1 for d in decisions if not d["flagged"]),
+        "verified": sum(1 for t in r["verified_at"] if t <= now),
+        "artifacts_ok": sum(int(d.get("artifacts_ok") or 0) for d in decisions if not d["flagged"]),
+        "tasks_done": sum(int(d.get("tasks_done") or 0) for d in decisions if not d["flagged"]),
+        "use_agents": max(0, len({e.get("ag") for e in r["reads"] if e["k"] == "use" and e.get("ag")}) - 1),
+        "handoffs": sum(1 for h in r["handoffs"] if h["t"] <= now),
+        "trusted_source": int(any(s["trust"] == "high" for s in r["sources"])),
+        "pinned": int(bool(r["pinned"])),
+    }
+    total = sum(SALIENCE_W[k] * v for k, v in inputs.items())
+    return (1.0 - math.exp(-total)) if total > 0 else 0.0, inputs
 
 
 @dataclass
@@ -50,6 +90,9 @@ class FactActivation:
     entity: str = ""
     predicate: str = ""
     value: str = ""
+    salience: float = 0.0  # D-013 graded salience in [0, 1), from the graph (docs/forgetting.md)
+    salience_inputs: dict[str, int] = field(default_factory=dict)
+    decays: list[float] = field(default_factory=list)  # per counted event (oldest first), add mode only
 
 
 class Activation:
@@ -102,6 +145,8 @@ class Activation:
 
     def _one(self, r: Mapping[str, Any], now: int) -> FactActivation:
         created = int(r["created_at"])
+        st = self.settings
+        sal, sal_in = salience_of(r, now)
         events = [Event("create", created, _WEIGHTS["create"])]
         # a doubted fact is not strengthened by being surfaced: recalls taken while suspect do not count
         events += [
@@ -123,6 +168,31 @@ class Activation:
         reasons += [f"supersedes:{x}" for x in r["supersedes"]][:1]
         reasons += [f"contradicts:{x}" for x in r["contradicts"]][:1]
         reasons += [f"trusted_source:{s['id']}" for s in r["sources"] if s["trust"] == "high"][:1]
+        if sal >= SALIENCE_PROTECT and not reasons:
+            reasons.append(f"salience:{sal:.2f}")
+        decays: list[float] = []
+        if st.additive:
+            act, decays = model.activation_spaced(
+                events,
+                now=now,
+                created_at=created,
+                surprise=float(r["surprise"]),
+                c=st.c,
+                a=st.a,
+                d_max=st.d_max,
+                kappa_s=st.kappa * sal,
+                a0=st.neutral,
+                max_events=st.events,
+            )
+        else:
+            act = model.activation(
+                events,
+                now=now,
+                created_at=created,
+                surprise=float(r["surprise"]),
+                decay=st.decay,
+                max_events=st.events,
+            )
         return FactActivation(
             fact_id=r["id"],
             status=r["status"],
@@ -133,19 +203,15 @@ class Activation:
             suspect_since=int(r["suspect_since"]),
             verify_after=int(r["verify_after"]),
             events=events,
-            activation=model.activation(
-                events,
-                now=now,
-                created_at=r["created_at"],
-                surprise=float(r["surprise"]),
-                decay=self.settings.decay,
-                max_events=self.settings.events,
-            ),
+            activation=act,
             protected=bool(reasons),
             protect_reasons=reasons,
             entity=r["entity"] or "",
             predicate=r["predicate"] or "",
             value=r["value"] or "",
+            salience=sal,
+            salience_inputs=sal_in,
+            decays=decays,
         )
 
     # -- pin ---------------------------------------------------------------------------------------------
@@ -164,9 +230,15 @@ class Activation:
         fa = self.compute([fact_id], t).get(fact_id)
         if fa is None:
             return None
+        fan = self._fan(fact_id)
         st = self.settings
         a0 = st.neutral
-        mult = model.multiplier(fa.activation, a0, st.floor, protected=fa.protected)
+        if st.additive:
+            act_term = score_mod.act_term(fa.activation, a0, beta=st.beta, s_noise=st.s_noise)
+            mult = math.exp(act_term)
+        else:
+            act_term = None
+            mult = model.multiplier(fa.activation, a0, st.floor, protected=fa.protected)
         counts = {k: 0 for k in _WEIGHTS}
         last: dict[str, int] = {}
         for e in fa.events:  # newest first
@@ -192,8 +264,68 @@ class Activation:
             "events_considered": len(fa.events),
             "last_use": last.get("use"),
             "last_recall": last.get("recall"),
+            # D-013
+            "mode": st.act_mode,
+            "act_term": act_term,
+            "salience": fa.salience,
+            "salience_inputs": fa.salience_inputs,
+            "decays": [round(d, 3) for d in fa.decays],
+            "fan": fan,
+            "entity_lift": score_mod.sep_term(True, fan, gamma=st.gamma, s_max=st.s_max) if fan else 0.0,
+            "suggested_verify_after": (
+                self._suggest_verify_after(fa, t) if fa.salience >= SALIENCE_PROTECT else None
+            ),
             "explanation": _explain(fa, counts, last, t, a0, mult, finite),
         }
+
+    def _fan(self, fact_id: str) -> int:
+        rows = self.client.ro(self.graph, "activation/entity_fan", {"fact_id": fact_id})
+        return int(rows[0]["fan"]) if rows else 0
+
+    def _activation_at(self, fa: FactActivation, t: int) -> float:
+        st = self.settings
+        if st.additive:
+            return model.activation_spaced(
+                fa.events,
+                now=t,
+                created_at=fa.created_at,
+                surprise=fa.surprise,
+                c=st.c,
+                a=st.a,
+                d_max=st.d_max,
+                kappa_s=st.kappa * fa.salience,
+                a0=st.neutral,
+                max_events=st.events,
+            )[0]
+        return model.activation(
+            fa.events,
+            now=t,
+            created_at=fa.created_at,
+            surprise=fa.surprise,
+            decay=st.decay,
+            max_events=st.events,
+        )
+
+    def _suggest_verify_after(self, fa: FactActivation, now: int) -> int | None:
+        """When this fact's activation would cross the sweep threshold if nobody touches it (epoch ms).
+
+        A review-date suggestion for salient facts (plan §3.3): reported by ``memory_strength``, never
+        written.
+        ``None`` when the fact stays above the threshold for a year; ``now`` when it is already below.
+        """
+        thr = self.settings.neutral - self.settings.sweep_margin
+        if fa.activation < thr:
+            return now
+        lo, hi = now, now + 365 * model.DAY_MS
+        if self._activation_at(fa, hi) >= thr:
+            return None
+        for _ in range(24):  # bisection to about an hour
+            mid = (lo + hi) // 2
+            if self._activation_at(fa, mid) >= thr:
+                lo = mid
+            else:
+                hi = mid
+        return hi
 
     # -- sweep -------------------------------------------------------------------------------------------
     def sweep(
@@ -215,7 +347,7 @@ class Activation:
         check_between("limit", limit, MAX_IDS)
         check_between("scan", scan, MAX_SWEEP_SCAN)
         t = self._clock() if now is None else now
-        thr = self.settings.neutral - SWEEP_MARGIN if threshold is None else float(threshold)
+        thr = self.settings.neutral - self.settings.sweep_margin if threshold is None else float(threshold)
         ids = [
             r["id"]
             for r in self.client.ro(
