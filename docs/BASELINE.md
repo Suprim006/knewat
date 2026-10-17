@@ -1135,3 +1135,16 @@ Written on branch `p11` (base `main` f96df06) before any L8 code or `claude -p` 
 ## L8 round A results (P11): P, B1, B0′ × 5 seeds, $21.87
 
 Round A only (owner-approved; B0 and B3 not run, so the design-vs-graph question stays open). Full results, metrics table, amendments 1–4 and what could not be executed: **`docs/research/L8_LONG_HORIZON_OUTCOMES.md` § Round A results**; files `plexus/demo_data/crucible/l8/` (`latest-roundA.json`, `20261016T155630Z-roundA/report.md`). Headline, by the pre-stated rule: **Plexus did not reduce stale actions versus SQLite (4.5% vs 5.7%, n = 5 seeds each, p = 0.56) and used 2.51× the tokens per correct action (2.01× billing-weighted)** — a tie on stale actions and a loss on cost. Versus Claude Code with memory files (B0′, 2.4%): a tie (p = 0.40), B0′ numerically lower. Step repetition, missing completion and mismatch: not changed by the backend (all ≈ 0). Losses and ties published as such: P finished 14/16 tasks in 4 of 5 seeds (its `recall` on the `hash` embedder missed an S07 history fact and the agent failed the task; B0′ found all history facts by grep, 15/15), noticed code changes later than B1, and its agents made 0 `anchor_fact` calls, so the staleness feature was never exercised. P and B1 tie on provenance (100% at kill turns too) and on the cold Cypher-vs-SQL probe (7/9 first-try each); P and B1 beat B0′ on write-time contradiction surfacing (5/5 vs 0/5) and audit Q1 (5/5 vs 0/5).
+
+## L6 on integ (P9-f ported onto P9-int + the Cypher audit): $0 deterministic re-run, pre-registered before the run
+
+Branch `integ` = `trials-int` + p10 + p11 + the ported parts of `p9f-b` (`docs/research/INTEG_MERGE.md`). The p9f-b section of this file
+(below, "L6 post-fix (P9-f)") measured p9f-b's own build; this re-run measures the merged one. Commands (port 6374, no LLM call):
+`python -m plexus.crucible.l6.run postfix --arms P-product-tool,P-product-service,P-product-tool-p9f --kills 200` (A arms + F for arm P) and
+`python -m plexus.crucible.l6.run det --families B`. Result files: `plexus/demo_data/crucible/l6-integ/`.
+
+**Expected, written before the run:** (1) A `P-product-tool-p9f` (200-id page, `order='valid_from'`, `probe_ids`) **24/24 strict**, probes
+24/24, 0 timeouts; `P-product-service` 24/24; `P-product-tool` (2,000-id cap, no probes) unchanged from the audit re-run. (2) B
+`P-product-tool-p9f` (`why(depth=12)`, 200 elements) **20/24**, `P-product-service` (5,000 elements) **24/24**, both 0 errors. (3) F arm P:
+**0 orphans, 0 lost acknowledged writes, `missing_derived_from` 0** (the audit re-run on `trials-int` had 0 orphans and 13 missing
+DERIVED_FROM, because the benchmark arm linked origins in a second statement). **A result off these is reported as such.**
