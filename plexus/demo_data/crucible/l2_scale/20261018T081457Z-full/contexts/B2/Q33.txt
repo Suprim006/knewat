@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Episode recorded by researcher: "S18: Style guide v36 was published: API version v35 is withdrawn, routes move to /v36/."
+[2] Episode recorded by researcher: "S09: Style guide v18 was published: API version v17 is withdrawn, routes move to /v18/."
+[3] Episode recorded by researcher: "S17: Style guide v34 was published: API version v33 is withdrawn, routes move to /v34/."
+[4] Episode recorded by researcher: "S20: Style guide v40 was published: API version v39 is withdrawn, routes move to /v40/."
+[5] Episode recorded by researcher: "S02: Style guide v4 was published: API version v3 is withdrawn, routes move to /v4/."
+[6] Episode recorded by researcher: "S19: Style guide v38 was published: API version v37 is withdrawn, routes move to /v38/."
+[7] Episode recorded by researcher: "S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[8] Episode recorded by researcher: "S03: Style guide v6 was published: API version v5 is withdrawn, routes move to /v6/."
+[9] Episode recorded by researcher: "S13: Style guide v26 was published: API version v25 is withdrawn, routes move to /v26/."
+[10] Episode recorded by researcher: "S01: Style guide v2 was published: API version v1 is withdrawn, routes move to /v2/."
+[11] Episode recorded by researcher: "S10: Style guide v20 was published: API version v19 is withdrawn, routes move to /v20/."
+[12] Episode recorded by researcher: "S05: Style guide v10 was published: API version v9 is withdrawn, routes move to /v10/."

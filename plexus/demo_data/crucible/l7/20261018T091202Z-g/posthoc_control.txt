@@ -1,0 +1,7 @@
+POST-HOC control (not registered; run after the G run on the same DB, still concurrent with 3 other benchmarks). Script: posthoc_control.py
+Raw q1 (MATCH (f:Fact {id:'f0001'}) RETURN f.value, GRAPH.RO_QUERY), 1500 ops, p50/p99 ms:
+ N=200 present, random tenant      9.629 / 124.863   (PING p50 12.721 ms in the same minute)
+ N=200 present, always tenant g0000 6.199 / 51.863
+ after GRAPH.DELETE of 199 tenants (N=1): 6.166 / 32.129   (PING p50 4.541 ms)
+ N=1 again: 6.094 / 28.323
+Reading: machine contention (PING 4.5-12.7 ms, vs ~0.3 ms on an idle machine) moves the number by more than the N effect.

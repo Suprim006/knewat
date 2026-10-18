@@ -1,5 +1,5 @@
 {
- "note": "C7X run with the real fastembed embedder (BAAI/bge-small-en-v1.5), sequential, one run per arm; see docs/BASELINE.md 'C7 extended results'. Command: scripts in the P9-c report (plexus.crucible.l1.c7x via ArmRun).",
+ "note": "C7X run with the real fastembed embedder (BAAI/bge-small-en-v1.5), sequential, one run per arm; see docs/BASELINE.md 'C7 extended results' and 'Re-verification on main (2026-10-18)'. Rebuilt by rerun_c7x.py (plexus.crucible.l1.run_test per arm) at 2026-10-18T08:11:38Z.",
  "arms": {
   "P": {
    "violations": {
@@ -425,7 +425,7 @@
     },
     "false_merge_upper_95": 0.02
    },
-   "seconds": 40.5
+   "seconds": 18.4
   },
   "P-mcp": {
    "violations": {
@@ -851,7 +851,7 @@
     },
     "false_merge_upper_95": 0.02
    },
-   "seconds": 44.5
+   "seconds": 20.4
   },
   "B0": {
    "violations": {
@@ -1277,7 +1277,7 @@
     },
     "false_merge_upper_95": 0.02
    },
-   "seconds": 15.5
+   "seconds": 9.2
   },
   "B1": {
    "violations": {
@@ -1703,7 +1703,7 @@
     },
     "false_merge_upper_95": 0.02
    },
-   "seconds": 0.6
+   "seconds": 0.4
   },
   "B2": {
    "violations": {
@@ -2129,7 +2129,7 @@
     },
     "false_merge_upper_95": null
    },
-   "seconds": 9.9
+   "seconds": 5.1
   }
  }
 }

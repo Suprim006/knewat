@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import inspect
 import json
+import os
 import random
 import shutil
 import subprocess
@@ -315,7 +316,9 @@ def run_i3_arm(
     arm_name: str, kills: int, host: str, port: int, root: str, seed: int, writers: int = 4
 ) -> dict[str, Any]:
     container = common.container_for_port(port)
-    assert container == "plexus-db-68", "I3 may only kill plexus-db-68"
+    assert container == f"plexus-db-{port % 100}" and 6310 <= port <= 6399, (
+        "I3 may only kill the slot's own plexus-db-NN"
+    )
     run = uuid.uuid4().hex[:6]
     arm = new_world(arm_name, host, port, root, run)
     rng = random.Random(seed)
@@ -644,6 +647,10 @@ def cmd_run(a: argparse.Namespace) -> int:
             if a.aof_result:
                 aof = json.loads(Path(a.aof_result).read_text(encoding="utf-8"))
             else:
+                if not a.aof_data:
+                    raise SystemExit(
+                        "I3A needs --aof-data or PLEXUS_AOF_EVIDENCE (the crash evidence is not in the repo)"
+                    )
                 aof = i_aof.run_repro(Path(a.aof_data), repeats=3)
             doc["parts"].setdefault("I3", {"arms": {}})["aof_repro"] = aof
         if "I4" in parts:
@@ -728,7 +735,11 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="JSON written by `python -m plexus.crucible.l7.i_aof` (skips the repro)",
     )
-    r.add_argument("--aof-data", default="C:/Change_folder_after_HDD/wt-p10/.p10/aof-crash-evidence/data")
+    r.add_argument(
+        "--aof-data",
+        default=os.environ.get("PLEXUS_AOF_EVIDENCE"),
+        help="data dir of the AOF that crashed FalkorDB on replay (not in the repo; env PLEXUS_AOF_EVIDENCE)",
+    )
     m = sub.add_parser("merge")
     m.add_argument("--out", required=True)
     m.add_argument("--aof-result", default="")
@@ -739,8 +750,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if a.cmd == "merge":
         return cmd_merge(a)
-    if a.port != 6368:
-        print("family I uses port 6368 only", file=sys.stderr)
+    if not 6310 <= a.port <= 6399:
+        print("family I needs an agent DB port 63NN (container plexus-db-NN)", file=sys.stderr)
         return 2
     return cmd_run(a)
 

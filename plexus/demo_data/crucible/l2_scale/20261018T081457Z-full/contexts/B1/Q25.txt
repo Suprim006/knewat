@@ -1,0 +1,352 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table tasks
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+s01-t01-gather-requirements,Gather requirements (S01),50,0,done,researcher,1760000121000,2,1760000000004,1760000003002
+s01-t03-design-endpoints,Design endpoints (S01),40,2,done,researcher,1760000132500,3,1760000000004,1760000014501
+s01-t05-choose-auth,Choose authentication (S01),30,4,done,planner,1760000150500,2,1760000000004,1760000033501
+s01-t09-review-spec,Review spec (S01),12,8,done,planner,1760000174500,2,1760000000004,1760000056501
+s01-t10-write-docs,Write documentation (S01),10,9,done,researcher,1760000178500,2,1760000000004,1760000059501
+s01-t11-package-release,Package release (S01),5,10,done,builder,1760000181500,2,1760000000004,1760000061501
+s02-t01-gather-requirements,Gather requirements (S02),50,12,done,researcher,1760000189500,2,1760000068501,1760000071502
+s02-t03-design-endpoints,Design endpoints (S02),40,14,done,researcher,1760000201000,3,1760000068501,1760000083001
+s02-t05-choose-auth,Choose authentication (S02),30,16,done,planner,1760000219000,2,1760000068501,1760000102001
+s02-t09-review-spec,Review spec (S02),12,20,done,planner,1760000243000,2,1760000068501,1760000125001
+s02-t10-write-docs,Write documentation (S02),10,21,done,researcher,1760000247000,2,1760000068501,1760000128001
+s02-t11-package-release,Package release (S02),5,22,done,builder,1760000250000,2,1760000068501,1760000130001
+s03-t01-gather-requirements,Gather requirements (S03),50,24,done,researcher,1760000258000,2,1760000137001,1760000140002
+s03-t03-design-endpoints,Design endpoints (S03),40,26,done,researcher,1760000269500,3,1760000137001,1760000151501
+s03-t05-choose-auth,Choose authentication (S03),30,28,done,planner,1760000287500,2,1760000137001,1760000170501
+s03-t09-review-spec,Review spec (S03),12,32,done,planner,1760000311500,2,1760000137001,1760000193501
+s03-t10-write-docs,Write documentation (S03),10,33,done,researcher,1760000315500,2,1760000137001,1760000196501
+s03-t11-package-release,Package release (S03),5,34,done,builder,1760000318500,2,1760000137001,1760000198501
+s04-t01-gather-requirements,Gather requirements (S04),50,36,done,researcher,1760000326500,2,1760000205501,1760000208502
+s04-t03-design-endpoints,Design endpoints (S04),40,38,done,researcher,1760000338000,3,1760000205501,1760000220001
+s04-t05-choose-auth,Choose authentication (S04),30,40,done,planner,1760000356000,2,1760000205501,1760000239001
+s04-t09-review-spec,Review spec (S04),12,44,done,planner,1760000380000,2,1760000205501,1760000262001
+s04-t10-write-docs,Write documentation (S04),10,45,done,researcher,1760000384000,2,1760000205501,1760000265001
+s04-t11-package-release,Package release (S04),5,46,done,builder,1760000387000,2,1760000205501,1760000267001
+s05-t01-gather-requirements,Gather requirements (S05),50,48,done,researcher,1760000395000,2,1760000274001,1760000277002
+s05-t02-choose-api-version,Choose API version (S05),45,49,done,planner,1760000399000,2,1760000274001,1760000280001
+s05-t03-design-endpoints,Design endpoints (S05),40,50,done,researcher,1760000406500,3,1760000274001,1760000288501
+s05-t04-survey-infra-security,Survey infra and security constraints (S05),35,51,done,researcher,1760000420500,2,1760000274001,1760000302502
+s05-t05-choose-auth,Choose authentication (S05),30,52,done,planner,1760000424500,2,1760000274001,1760000307501
+s05-t06-write-db-schema,Write database schema (S05),25,53,done,builder,1760000435500,2,1760000274001,1760000318501
+s05-t07-implement-crud-spec,Implement CRUD spec (S05),20,54,done,builder,1760000440500,2,1760000274001,1760000322501
+s05-t08-write-test-plan,Write test plan (S05),15,55,done,researcher,1760000445500,2,1760000274001,1760000326501
+s05-t09-review-spec,Review spec (S05),12,56,done,planner,1760000448500,2,1760000274001,1760000330501
+s05-t10-write-docs,Write documentation (S05),10,57,done,researcher,1760000452500,2,1760000274001,1760000333501
+s05-t11-package-release,Package release (S05),5,58,done,builder,1760000455500,2,1760000274001,1760000335501
+s05-t12-update-endpoints-for-v2,Update endpoint design for API v2 (S05),60,59,done,builder,1760000415500,2,1760000294501,1760000297501
+s06-t01-gather-requirements,Gather requirements (S06),50,60,done,researcher,1760000463500,2,1760000342501,1760000345502
+s06-t03-design-endpoints,Design endpoints (S06),40,62,done,researcher,1760000475000,3,1760000342501,1760000357001
+s06-t05-choose-auth,Choose authentication (S06),30,64,done,planner,1760000493000,2,1760000342501,1760000376001
+s06-t09-review-spec,Review spec (S06),12,68,done,planner,1760000517000,2,1760000342501,1760000399001
+s06-t10-write-docs,Write documentation (S06),10,69,done,researcher,1760000521000,2,1760000342501,1760000402001
+s06-t11-package-release,Package release (S06),5,70,done,builder,1760000524000,2,1760000342501,1760000404001
+s07-t01-gather-requirements,Gather requirements (S07),50,72,done,researcher,1760000532000,2,1760000411001,1760000414002
+s07-t03-design-endpoints,Design endpoints (S07),40,74,done,researcher,1760000543500,3,1760000411001,1760000425501
+s07-t05-choose-auth,Choose authentication (S07),30,76,done,planner,1760000561500,2,1760000411001,1760000444501
+s07-t09-review-spec,Review spec (S07),12,80,done,planner,1760000585500,2,1760000411001,1760000467501
+s07-t10-write-docs,Write documentation (S07),10,81,done,researcher,1760000589500,2,1760000411001,1760000470501
+s07-t11-package-release,Package release (S07),5,82,done,builder,1760000592500,2,1760000411001,1760000472501
+s08-t01-gather-requirements,Gather requirements (S08),50,84,done,researcher,1760000600500,2,1760000479501,1760000482502
+s08-t03-design-endpoints,Design endpoints (S08),40,86,done,researcher,1760000612000,3,1760000479501,1760000494001
+s08-t05-choose-auth,Choose authentication (S08),30,88,done,planner,1760000630000,2,1760000479501,1760000513001
+s08-t09-review-spec,Review spec (S08),12,92,done,planner,1760000654000,2,1760000479501,1760000536001
+s08-t10-write-docs,Write documentation (S08),10,93,done,researcher,1760000658000,2,1760000479501,1760000539001
+s08-t11-package-release,Package release (S08),5,94,done,builder,1760000661000,2,1760000479501,1760000541001
+s09-t01-gather-requirements,Gather requirements (S09),50,96,done,researcher,1760000669000,2,1760000548001,1760000551002
+s09-t03-design-endpoints,Design endpoints (S09),40,98,done,researcher,1760000680500,3,1760000548001,1760000562501
+s09-t05-choose-auth,Choose authentication (S09),30,100,done,planner,1760000698500,2,1760000548001,1760000581501
+s09-t09-review-spec,Review spec (S09),12,104,done,planner,1760000722500,2,1760000548001,1760000604501
+s09-t10-write-docs,Write documentation (S09),10,105,done,researcher,1760000726500,2,1760000548001,1760000607501
+s09-t11-package-release,Package release (S09),5,106,done,builder,1760000729500,2,1760000548001,1760000609501
+s10-t01-gather-requirements,Gather requirements (S10),50,108,done,researcher,1760000737500,2,1760000616501,1760000619502
+s10-t03-design-endpoints,Design endpoints (S10),40,110,done,researcher,1760000749000,3,1760000616501,1760000631001
+s10-t05-choose-auth,Choose authentication (S10),30,112,done,planner,1760000767000,2,1760000616501,1760000650001
+s10-t09-review-spec,Review spec (S10),12,116,done,planner,1760000791000,2,1760000616501,1760000673001
+s10-t10-write-docs,Write documentation (S10),10,117,done,researcher,1760000795000,2,1760000616501,1760000676001
+s10-t11-package-release,Package release (S10),5,118,done,builder,1760000798000,2,1760000616501,1760000678001
+s11-t01-gather-requirements,Gather requirements (S11),50,120,done,researcher,1760000806000,2,1760000685001,1760000688002
+s11-t03-design-endpoints,Design endpoints (S11),40,122,done,researcher,1760000817500,3,1760000685001,1760000699501
+s11-t05-choose-auth,Choose authentication (S11),30,124,done,planner,1760000835500,2,1760000685001,1760000718501
+s11-t09-review-spec,Review spec (S11),12,128,done,planner,1760000859500,2,1760000685001,1760000741501
+s11-t10-write-docs,Write documentation (S11),10,129,done,researcher,1760000863500,2,1760000685001,1760000744501
+s11-t11-package-release,Package release (S11),5,130,done,builder,1760000866500,2,1760000685001,1760000746501
+s12-t01-gather-requirements,Gather requirements (S12),50,132,done,researcher,1760000874500,2,1760000753501,1760000756502
+s12-t03-design-endpoints,Design endpoints (S12),40,134,done,researcher,1760000886000,3,1760000753501,1760000768001
+s12-t05-choose-auth,Choose authentication (S12),30,136,done,planner,1760000904000,2,1760000753501,1760000787001
+s12-t09-review-spec,Review spec (S12),12,140,done,planner,1760000928000,2,1760000753501,1760000810001
+s12-t10-write-docs,Write documentation (S12),10,141,done,researcher,1760000932000,2,1760000753501,1760000813001
+s12-t11-package-release,Package release (S12),5,142,done,builder,1760000935000,2,1760000753501,1760000815001
+s13-t01-gather-requirements,Gather requirements (S13),50,144,done,researcher,1760000943000,2,1760000822001,1760000825002
+s13-t03-design-endpoints,Design endpoints (S13),40,146,done,researcher,1760000954500,3,1760000822001,1760000836501
+s13-t05-choose-auth,Choose authentication (S13),30,148,done,planner,1760000972500,2,1760000822001,1760000855501
+s13-t09-review-spec,Review spec (S13),12,152,done,planner,1760000996500,2,1760000822001,1760000878501
+s13-t10-write-docs,Write documentation (S13),10,153,done,researcher,1760001000500,2,1760000822001,1760000881501
+s13-t11-package-release,Package release (S13),5,154,done,builder,1760001003500,2,1760000822001,1760000883501
+s14-t01-gather-requirements,Gather requirements (S14),50,156,done,researcher,1760001011500,2,1760000890501,1760000893502
+s14-t03-design-endpoints,Design endpoints (S14),40,158,done,researcher,1760001023000,3,1760000890501,1760000905001
+s14-t05-choose-auth,Choose authentication (S14),30,160,done,planner,1760001041000,2,1760000890501,1760000924001
+s14-t09-review-spec,Review spec (S14),12,164,done,planner,1760001065000,2,1760000890501,1760000947001
+s14-t10-write-docs,Write documentation (S14),10,165,done,researcher,1760001069000,2,1760000890501,1760000950001
+s14-t11-package-release,Package release (S14),5,166,done,builder,1760001072000,2,1760000890501,1760000952001
+s15-t01-gather-requirements,Gather requirements (S15),50,168,done,researcher,1760001080000,2,1760000959001,1760000962002
+s15-t03-design-endpoints,Design endpoints (S15),40,170,done,researcher,1760001091500,3,1760000959001,1760000973501
+s15-t05-choose-auth,Choose authentication (S15),30,172,done,planner,1760001109500,2,1760000959001,1760000992501
+s15-t09-review-spec,Review spec (S15),12,176,done,planner,1760001133500,2,1760000959001,1760001015501
+s15-t10-write-docs,Write documentation (S15),10,177,done,researcher,1760001137500,2,1760000959001,1760001018501
+s15-t11-package-release,Package release (S15),5,178,done,builder,1760001140500,2,1760000959001,1760001020501
+s16-t01-gather-requirements,Gather requirements (S16),50,180,done,researcher,1760001148500,2,1760001027501,1760001030502
+s16-t03-design-endpoints,Design endpoints (S16),40,182,done,researcher,1760001160000,3,1760001027501,1760001042001
+
+-- table deps
+task_id,dep_id
+s05-t02-choose-api-version,s05-t01-gather-requirements
+s05-t03-design-endpoints,s05-t02-choose-api-version
+s05-t04-survey-infra-security,s05-t01-gather-requirements
+s05-t05-choose-auth,s05-t04-survey-infra-security
+s05-t06-write-db-schema,s05-t02-choose-api-version
+s05-t06-write-db-schema,s05-t04-survey-infra-security
+s05-t07-implement-crud-spec,s05-t03-design-endpoints
+s05-t07-implement-crud-spec,s05-t05-choose-auth
+s05-t07-implement-crud-spec,s05-t06-write-db-schema
+s05-t08-write-test-plan,s05-t03-design-endpoints
+s05-t09-review-spec,s05-t07-implement-crud-spec
+s05-t09-review-spec,s05-t08-write-test-plan
+s05-t10-write-docs,s05-t09-review-spec
+s05-t11-package-release,s05-t10-write-docs
+s05-t12-update-endpoints-for-v2,s05-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+68996fe2-e518-55db-a858-d69a051573d4,s05-t01-gather-requirements,file,artifacts/s05/requirements.md,,"S05 requirements: notes CRUD, tags, API version v9",researcher,1760000277002
+fc3ba49c-61e2-505a-adce-6e24175c67fd,s05-t03-design-endpoints,file,artifacts/s05/openapi-draft.yaml,,S05 endpoint draft for /v9/notes (CRUD),researcher,1760000288501
+79974657-4a4a-5c35-849a-1731418875be,s05-t12-update-endpoints-for-v2,file,artifacts/s05/openapi-v2.yaml,,S05 endpoint design for /v10/notes,builder,1760000297501
+2248c58f-fec3-515b-8276-e7a9f0afbd99,s05-t04-survey-infra-security,file,artifacts/s05/constraints.md,,"S05 infra and security constraints: SQL Server 2022, JWT auth",researcher,1760000302502
+815e50b3-023d-580a-b065-f194aa8ff344,s05-t06-write-db-schema,file,artifacts/s05/schema.sql,,"S05 SQL Server 2022 schema: notes, tags, note_tags",builder,1760000318501
+b2ee9a12-5645-5138-87a3-303d5063554a,s05-t07-implement-crud-spec,file,artifacts/s05/crud-spec.md,,S05 CRUD spec for the current API version with JWT auth,builder,1760000322501
+1097871a-dfcc-53e9-8208-f0586ca3951a,s05-t08-write-test-plan,file,artifacts/s05/test-plan.md,,S05 test plan for the CRUD endpoints,researcher,1760000326501
+9fdb133b-8fb2-5a4a-9f25-df4a35e8a674,s05-t10-write-docs,file,artifacts/s05/docs.md,,S05 API documentation,researcher,1760000333501
+c7d80e0f-81e0-5a1f-a8cb-b367b324673b,s05-t11-package-release,file,artifacts/s05/release.tar,,S05 release bundle of the Acme Notes API,builder,1760000335501
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+89222f2a-accb-5b29-9824-7d13443ea4d3,Acme Notes API S05,purpose,"REST service to create, tag and search notes (S05)",global,active,1760000276000,9999999999999
+ca0ea7ab-cc37-5143-b241-878499db2bd5,Acme Notes API S05,api_version,v9,global,superseded,1760000277000,1760000291500
+cbde9957-b402-503b-bef3-f0a0733a8c27,Acme Notes API S05,api_version,v10,global,active,1760000291500,9999999999999
+56aae829-cd18-53c7-b1f0-748deb332dfb,Acme Notes API S05,database,SQL Server 2022,global,active,1760000301500,9999999999999
+caaa893a-626f-5079-bebd-835aa31eb750,Acme Notes API S05,auth_method,"JWT bearer tokens (ES384, key s05)",global,active,1760000302500,9999999999999
+489da596-b3ca-5043-a0ea-5086de9014b6,Acme Notes API S05,auth_method,API key in X-App-Key header,global,active,1760000306500,9999999999999
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,Acme Notes API S05,database,Redis 8,global,forgotten,1760000309500,1760000311501
+830e0e56-2b7b-50ec-be73-451989cb507e,Bolt Billing API S05,billing_cycle,"monthly, invoiced on day 5",project:billing-s05,active,1760000313500,9999999999999
+b5f311d2-6ea7-5e99-90d8-db978bca5428,Acme Notes API S05,release_channel,general availability,project:acme-s05,active,1760000314500,9999999999999
+
+-- table fact_agents
+fact_id,agent_id,at
+89222f2a-accb-5b29-9824-7d13443ea4d3,researcher,1760000276000
+ca0ea7ab-cc37-5143-b241-878499db2bd5,researcher,1760000277000
+cbde9957-b402-503b-bef3-f0a0733a8c27,researcher,1760000291500
+56aae829-cd18-53c7-b1f0-748deb332dfb,researcher,1760000301500
+caaa893a-626f-5079-bebd-835aa31eb750,researcher,1760000302500
+489da596-b3ca-5043-a0ea-5086de9014b6,planner,1760000306500
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,planner,1760000309500
+830e0e56-2b7b-50ec-be73-451989cb507e,researcher,1760000313500
+b5f311d2-6ea7-5e99-90d8-db978bca5428,planner,1760000314500
+
+-- table fact_links
+src,dst,kind
+89222f2a-accb-5b29-9824-7d13443ea4d3,befbf972-2c5a-5744-aba1-a643a4c7edf2,derived_from
+ca0ea7ab-cc37-5143-b241-878499db2bd5,e866d2c3-18c0-5987-bbb0-925ce526c9e4,derived_from
+cbde9957-b402-503b-bef3-f0a0733a8c27,eee47460-6df3-5c18-876c-c4da21de79b1,derived_from
+cbde9957-b402-503b-bef3-f0a0733a8c27,ca0ea7ab-cc37-5143-b241-878499db2bd5,supersedes
+56aae829-cd18-53c7-b1f0-748deb332dfb,9adad08f-65e2-5a9e-978f-66d2a45f7767,derived_from
+caaa893a-626f-5079-bebd-835aa31eb750,6cb51554-80b7-5311-aa63-26842afbbf8c,derived_from
+489da596-b3ca-5043-a0ea-5086de9014b6,6549e120-18b1-50cb-a13a-3ccc3a7877cc,derived_from
+489da596-b3ca-5043-a0ea-5086de9014b6,caaa893a-626f-5079-bebd-835aa31eb750,contradicts
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,14284b1e-5c73-5edc-b916-8a8ed5b096c2,derived_from
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,56aae829-cd18-53c7-b1f0-748deb332dfb,contradicts
+830e0e56-2b7b-50ec-be73-451989cb507e,8bb8e9cd-7f5e-518e-8179-b16b22406edb,derived_from
+
+-- table sources
+id,uri,kind,trust,created_at
+befbf972-2c5a-5744-aba1-a643a4c7edf2,acme-docs/s05/01_product_brief.md,doc,1.0,1760000275001
+e866d2c3-18c0-5987-bbb0-925ce526c9e4,acme-docs/s05/02_api_style_guide_v1.md,doc,1.0,1760000275002
+eee47460-6df3-5c18-876c-c4da21de79b1,acme-docs/s05/06_api_style_guide_v2.md,doc,1.0,1760000290501
+9adad08f-65e2-5a9e-978f-66d2a45f7767,acme-docs/s05/03_infra_note.md,doc,1.0,1760000300501
+6cb51554-80b7-5311-aa63-26842afbbf8c,acme-docs/s05/04_security_note.md,doc,1.0,1760000300502
+6549e120-18b1-50cb-a13a-3ccc3a7877cc,acme-docs/s05/05_customer_request.md,chat,0.8,1760000305501
+14284b1e-5c73-5edc-b916-8a8ed5b096c2,acme-docs/s05/07_forum_post_unverified.md,web,0.2,1760000308501
+8bb8e9cd-7f5e-518e-8179-b16b22406edb,billing-docs/s05/01_overview.md,doc,1.0,1760000312501
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+82f3af6c-2e74-5829-860e-0f4ff3257333,planner,s05-t02-choose-api-version,S05: Build the Acme Notes API against v9 of the style guide (routes under /v9/).,1760000279001,0
+c9072b15-a345-5512-9020-46cdb23e5ed4,planner,s05-t02-choose-api-version,S05: Adopt style guide v10: the API version is now v10 (routes under /v10/).,1760000293501,0
+0be418c2-82f8-5ce5-9456-1f0c70789d7f,planner,s05-t05-choose-auth,S05: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.,1760000306502,0
+b014b68b-cb82-5a7c-93da-20a91e4ad5c8,planner,s05-t06-write-db-schema,S05: Evaluate Redis 8 as the database (forum post).,1760000309502,1
+489d214c-73f7-5810-a8ba-987db261610a,builder,s05-t06-write-db-schema,"S05: Use SQL Server 2022 for the notes, tags and note_tags tables.",1760000317501,0
+62932fdb-3076-59d2-ba7e-bf5b9bab07ea,planner,s05-t09-review-spec,"S05: Spec approved: endpoints, schema and JWT auth are consistent.",1760000329501,0
+
+-- table decision_facts
+decision_id,fact_id
+82f3af6c-2e74-5829-860e-0f4ff3257333,ca0ea7ab-cc37-5143-b241-878499db2bd5
+c9072b15-a345-5512-9020-46cdb23e5ed4,cbde9957-b402-503b-bef3-f0a0733a8c27
+0be418c2-82f8-5ce5-9456-1f0c70789d7f,caaa893a-626f-5079-bebd-835aa31eb750
+0be418c2-82f8-5ce5-9456-1f0c70789d7f,489da596-b3ca-5043-a0ea-5086de9014b6
+b014b68b-cb82-5a7c-93da-20a91e4ad5c8,8b709ed9-81a2-5c6c-801a-bd45c94e7a6d
+489d214c-73f7-5810-a8ba-987db261610a,56aae829-cd18-53c7-b1f0-748deb332dfb
+62932fdb-3076-59d2-ba7e-bf5b9bab07ea,cbde9957-b402-503b-bef3-f0a0733a8c27
+62932fdb-3076-59d2-ba7e-bf5b9bab07ea,caaa893a-626f-5079-bebd-835aa31eb750
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,researcher,builder,s05-t03-design-endpoints,S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000289501
+40cb7ea3-a858-55fd-8c7b-71675760c139,builder,planner,s05-t12-update-endpoints-for-v2,S05: Updated for API v10.,1760000298501
+152c0486-f2fa-5da5-bb8d-4f89714562d1,builder,planner,s05-t07-implement-crud-spec,S05: CRUD spec ready for review.,1760000323501
+33f70db4-6bf8-5816-9887-b03772acc401,builder,planner,s05-t11-package-release,S05: Release bundle is ready.,1760000336501
+
+-- table handoff_items
+handoff_id,kind,item_id
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,artifact,fc3ba49c-61e2-505a-adce-6e24175c67fd
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,fact,ca0ea7ab-cc37-5143-b241-878499db2bd5
+40cb7ea3-a858-55fd-8c7b-71675760c139,artifact,79974657-4a4a-5c35-849a-1731418875be
+40cb7ea3-a858-55fd-8c7b-71675760c139,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+152c0486-f2fa-5da5-bb8d-4f89714562d1,artifact,b2ee9a12-5645-5138-87a3-303d5063554a
+152c0486-f2fa-5da5-bb8d-4f89714562d1,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+152c0486-f2fa-5da5-bb8d-4f89714562d1,fact,caaa893a-626f-5079-bebd-835aa31eb750
+33f70db4-6bf8-5816-9887-b03772acc401,artifact,c7d80e0f-81e0-5a1f-a8cb-b367b324673b
+33f70db4-6bf8-5816-9887-b03772acc401,fact,cbde9957-b402-503b-bef3-f0a0733a8c27
+
+-- table episodes
+id,agent_id,step,text,at
+2b2927c9-445d-5b91-9ed7-3cd8f8ca5f60,researcher,,S01: Took over s01-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000013501
+66343eeb-328f-543b-b800-5456b3b6aaf6,researcher,,S02: Took over s02-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000082001
+73d51714-8921-5c9c-a31b-0355a087932c,researcher,,S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000150501
+e4d2112e-1617-5cff-9baf-63d7df42b1ee,researcher,,S04: Took over s04-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000219001
+9732e8b0-96d2-5243-acaf-a3505d0fd7f6,researcher,,S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000287501
+d94bd003-3954-54f8-a3a1-9302087d9cf2,researcher,,"S05: Style guide v10 was published: API version v9 is withdrawn, routes move to /v10/.",1760000291502
+002d3d3e-28e3-5056-9088-b85f666792ba,builder,,S05: Endpoint design moves from /v9/ to /v10/: page_token/page_size lists and problem+json errors.,1760000296501
+0a1a32f9-575a-5d35-8727-aa94f68f7884,builder,,"S05: Schema: notes, tags and note_tags tables in SQL Server 2022.",1760000316501
+37e849fd-d33a-5694-9b19-129c8b625c33,researcher,,S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000356001
+cecd5680-faf9-5359-85ef-98d8dd09161b,researcher,,S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000424501
+3deb2979-de41-59b3-a58b-2d82de004a8b,researcher,,S08: Took over s08-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000493001
+27529bf0-fa9e-554c-a8dc-44ccbb91e425,researcher,,S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000561501
+f8c93f28-c86b-514e-a5c2-63345dcff9a5,researcher,,S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000630001
+3605540b-9086-52cb-8dcd-94b93b0dfa43,researcher,,S11: Took over s11-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000698501
+2346e1e7-e4e6-5a86-902c-902b626bc08a,researcher,,S12: Took over s12-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000767001
+9baad9e1-5110-5af2-a8db-e0a0fa09d707,researcher,,S13: Took over s13-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000835501
+3b1e306e-be98-5346-884c-8870b40ae48a,researcher,,S14: Took over s14-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000904001
+41cccec9-4b18-579a-8599-ca2236a6c04a,researcher,,S15: Took over s15-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000972501
+6ae754c3-3860-5dca-80d5-86f47d276622,researcher,,S16: Took over s16-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001041001
+d5789121-beda-5571-8692-22e0d213796f,researcher,,S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001109501
+c4e45a75-4c61-50fe-9aa8-e6d76fca022c,researcher,,S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001178001
+01276057-5ad4-581c-a9a3-78c8a16cceaf,researcher,,S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001246501
+e0e4bed4-343d-5960-bbbc-5a2209706cc7,researcher,,S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001315001
+
+-- table step_reads
+step_id,fact_id
+143,ca0ea7ab-cc37-5143-b241-878499db2bd5
+144,ca0ea7ab-cc37-5143-b241-878499db2bd5
+144,89222f2a-accb-5b29-9824-7d13443ea4d3
+145,ca0ea7ab-cc37-5143-b241-878499db2bd5
+145,89222f2a-accb-5b29-9824-7d13443ea4d3
+147,ca0ea7ab-cc37-5143-b241-878499db2bd5
+148,ca0ea7ab-cc37-5143-b241-878499db2bd5
+150,cbde9957-b402-503b-bef3-f0a0733a8c27
+150,89222f2a-accb-5b29-9824-7d13443ea4d3
+151,cbde9957-b402-503b-bef3-f0a0733a8c27
+152,cbde9957-b402-503b-bef3-f0a0733a8c27
+152,89222f2a-accb-5b29-9824-7d13443ea4d3
+154,cbde9957-b402-503b-bef3-f0a0733a8c27
+157,caaa893a-626f-5079-bebd-835aa31eb750
+157,89222f2a-accb-5b29-9824-7d13443ea4d3
+157,cbde9957-b402-503b-bef3-f0a0733a8c27
+157,56aae829-cd18-53c7-b1f0-748deb332dfb
+158,caaa893a-626f-5079-bebd-835aa31eb750
+159,caaa893a-626f-5079-bebd-835aa31eb750
+159,489da596-b3ca-5043-a0ea-5086de9014b6
+160,56aae829-cd18-53c7-b1f0-748deb332dfb
+161,8b709ed9-81a2-5c6c-801a-bd45c94e7a6d
+162,8b709ed9-81a2-5c6c-801a-bd45c94e7a6d
+162,56aae829-cd18-53c7-b1f0-748deb332dfb
+162,caaa893a-626f-5079-bebd-835aa31eb750
+162,89222f2a-accb-5b29-9824-7d13443ea4d3
+162,cbde9957-b402-503b-bef3-f0a0733a8c27
+165,56aae829-cd18-53c7-b1f0-748deb332dfb
+165,caaa893a-626f-5079-bebd-835aa31eb750
+165,89222f2a-accb-5b29-9824-7d13443ea4d3
+165,cbde9957-b402-503b-bef3-f0a0733a8c27
+167,56aae829-cd18-53c7-b1f0-748deb332dfb
+168,cbde9957-b402-503b-bef3-f0a0733a8c27
+168,caaa893a-626f-5079-bebd-835aa31eb750
+168,89222f2a-accb-5b29-9824-7d13443ea4d3
+168,56aae829-cd18-53c7-b1f0-748deb332dfb
+169,caaa893a-626f-5079-bebd-835aa31eb750
+169,89222f2a-accb-5b29-9824-7d13443ea4d3
+169,cbde9957-b402-503b-bef3-f0a0733a8c27
+169,56aae829-cd18-53c7-b1f0-748deb332dfb
+169,489da596-b3ca-5043-a0ea-5086de9014b6
+170,cbde9957-b402-503b-bef3-f0a0733a8c27
+170,caaa893a-626f-5079-bebd-835aa31eb750
+171,cbde9957-b402-503b-bef3-f0a0733a8c27
+171,caaa893a-626f-5079-bebd-835aa31eb750
+171,89222f2a-accb-5b29-9824-7d13443ea4d3
+171,56aae829-cd18-53c7-b1f0-748deb332dfb
+172,cbde9957-b402-503b-bef3-f0a0733a8c27
+172,caaa893a-626f-5079-bebd-835aa31eb750
+172,89222f2a-accb-5b29-9824-7d13443ea4d3
+172,56aae829-cd18-53c7-b1f0-748deb332dfb
+173,cbde9957-b402-503b-bef3-f0a0733a8c27
+173,caaa893a-626f-5079-bebd-835aa31eb750
+174,cbde9957-b402-503b-bef3-f0a0733a8c27
+174,caaa893a-626f-5079-bebd-835aa31eb750
+174,89222f2a-accb-5b29-9824-7d13443ea4d3
+174,56aae829-cd18-53c7-b1f0-748deb332dfb
+175,cbde9957-b402-503b-bef3-f0a0733a8c27
+
+-- table step_wrote
+step_id,node_id,label,summary
+141,89222f2a-accb-5b29-9824-7d13443ea4d3,Fact,"REST service to create, tag and search notes (S05)"
+142,ca0ea7ab-cc37-5143-b241-878499db2bd5,Fact,v9
+143,82f3af6c-2e74-5829-860e-0f4ff3257333,Decision,S05: Build the Acme Notes API against v9 of the style guide (routes under /v9/).
+147,94a75fce-e5ac-51e9-8804-7dddeb7f936e,Handoff,S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+148,cbde9957-b402-503b-bef3-f0a0733a8c27,Fact,v10
+151,c9072b15-a345-5512-9020-46cdb23e5ed4,Decision,S05: Adopt style guide v10: the API version is now v10 (routes under /v10/).
+154,40cb7ea3-a858-55fd-8c7b-71675760c139,Handoff,S05: Updated for API v10.
+155,56aae829-cd18-53c7-b1f0-748deb332dfb,Fact,SQL Server 2022
+156,caaa893a-626f-5079-bebd-835aa31eb750,Fact,"JWT bearer tokens (ES384, key s05)"
+158,489da596-b3ca-5043-a0ea-5086de9014b6,Fact,API key in X-App-Key header
+159,0be418c2-82f8-5ce5-9456-1f0c70789d7f,Decision,S05: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.
+160,8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,Fact,Redis 8
+161,b014b68b-cb82-5a7c-93da-20a91e4ad5c8,Decision,S05: Evaluate Redis 8 as the database (forum post).
+163,830e0e56-2b7b-50ec-be73-451989cb507e,Fact,"monthly, invoiced on day 5"
+164,b5f311d2-6ea7-5e99-90d8-db978bca5428,Fact,general availability
+167,489d214c-73f7-5810-a8ba-987db261610a,Decision,"S05: Use SQL Server 2022 for the notes, tags and note_tags tables."
+170,152c0486-f2fa-5da5-bb8d-4f89714562d1,Handoff,S05: CRUD spec ready for review.
+173,62932fdb-3076-59d2-ba7e-bf5b9bab07ea,Decision,"S05: Spec approved: endpoints, schema and JWT auth are consistent."
+175,33f70db4-6bf8-5816-9887-b03772acc401,Handoff,S05: Release bundle is ready.
+

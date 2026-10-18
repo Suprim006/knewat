@@ -2,18 +2,18 @@
  "schema": "crucible-l6/1",
  "kind": "postfix",
  "run": {
-  "id": "20261016T072750Z-postfix",
-  "started_at": "2026-10-16T07:27:50Z",
-  "finished_at": "2026-10-16T07:38:09Z",
-  "command": "python -m plexus.crucible.l6.run postfix --port 6366 --kills 200",
+  "id": "20261018T104109Z-postfix",
+  "started_at": "2026-10-18T10:41:08Z",
+  "finished_at": "2026-10-18T10:49:25Z",
+  "command": "python -m plexus.crucible.l6.run postfix --port 6386 --kills 200",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
  "git": {
-  "commit": "a58b783785f9f1ea3bf298b74926b3ac868e8f85",
-  "short": "a58b783",
+  "commit": "8c705faf14818ebca0cee07cae03555b0f6e783d",
+  "short": "8c705fa",
   "dirty": false,
-  "branch": "p9int"
+  "branch": "rerun-current"
  },
  "environment": {
   "python": "3.12.14",
@@ -21,11 +21,11 @@
   "machine": "AMD64",
   "cpu_count": 12,
   "in_docker": false,
-  "git_commit": "a58b783",
+  "git_commit": "8c705fa",
   "embedder": "none",
   "falkordb": {
    "host": "127.0.0.1",
-   "port": 6366,
+   "port": 6386,
    "reachable": true,
    "redis_version": "8.10.2",
    "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
@@ -36,12 +36,16 @@
      "ver": 60002,
      "path": "/var/lib/falkordb/bin/falkordb.so",
      "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
       "MAX_QUEUED_QUERIES",
-      "25",
-      "TIMEOUT",
-      "1000",
+      "500",
       "RESULTSET_SIZE",
-      "10000"
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
      ]
     },
     {
@@ -52,11 +56,11 @@
     }
    ],
    "graph_config": {
-    "TIMEOUT_MAX": 0,
-    "TIMEOUT_DEFAULT": 0,
-    "MAX_QUEUED_QUERIES": 25,
-    "RESULTSET_SIZE": 10000,
-    "QUERY_MEM_CAPACITY": 0,
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
     "THREAD_COUNT": 12,
     "CACHE_SIZE": 25,
     "OMP_THREAD_COUNT": 12
@@ -109,9 +113,9 @@
      },
      "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 32.99,
-      "p99": 181.76,
-      "max": 181.76
+      "p50": 29.9,
+      "p99": 138.31,
+      "max": 138.31
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -129,11 +133,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 30.67,
+       "latency_ms_median": 20.48,
        "latency_ms_all": [
-        31.4,
-        26.46,
-        30.67
+        26.88,
+        17.29,
+        20.48
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -152,11 +156,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 31.66,
+       "latency_ms_median": 21.0,
        "latency_ms_all": [
-        31.66,
-        31.96,
-        26.82
+        21.0,
+        20.56,
+        26.58
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -175,11 +179,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 52.53,
+       "latency_ms_median": 47.32,
        "latency_ms_all": [
-        56.18,
-        52.53,
-        51.22
+        47.32,
+        48.35,
+        37.47
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -198,11 +202,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 116.96,
+       "latency_ms_median": 98.03,
        "latency_ms_all": [
-        113.67,
-        116.96,
-        130.45
+        95.2,
+        102.66,
+        98.03
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -221,11 +225,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 22.9,
+       "latency_ms_median": 22.68,
        "latency_ms_all": [
-        22.9,
-        24.45,
-        20.53
+        22.68,
+        22.77,
+        22.67
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -244,11 +248,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 30.03,
+       "latency_ms_median": 29.46,
        "latency_ms_all": [
-        30.03,
-        29.59,
-        32.99
+        29.46,
+        29.89,
+        28.31
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -267,11 +271,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 56.38,
+       "latency_ms_median": 47.19,
        "latency_ms_all": [
-        55.64,
-        61.54,
-        56.38
+        47.19,
+        42.56,
+        49.31
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -290,11 +294,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 171.21,
+       "latency_ms_median": 120.96,
        "latency_ms_all": [
-        171.21,
-        153.41,
-        171.96
+        107.25,
+        131.98,
+        120.96
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -313,11 +317,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 23.51,
+       "latency_ms_median": 20.29,
        "latency_ms_all": [
-        24.16,
-        23.08,
-        23.51
+        20.29,
+        20.95,
+        19.6
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -336,11 +340,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 29.94,
+       "latency_ms_median": 26.63,
        "latency_ms_all": [
-        27.73,
-        31.34,
-        29.94
+        24.46,
+        26.63,
+        28.05
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -359,11 +363,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 57.65,
+       "latency_ms_median": 47.32,
        "latency_ms_all": [
-        57.65,
-        57.85,
-        56.06
+        47.32,
+        47.24,
+        48.81
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -382,11 +386,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 142.6,
+       "latency_ms_median": 115.85,
        "latency_ms_all": [
-        142.6,
-        152.07,
-        131.3
+        121.71,
+        115.85,
+        110.2
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -405,11 +409,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 19.27,
+       "latency_ms_median": 22.33,
        "latency_ms_all": [
-        19.27,
-        19.69,
-        18.44
+        22.33,
+        22.63,
+        21.55
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -428,11 +432,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 25.92,
+       "latency_ms_median": 29.43,
        "latency_ms_all": [
-        25.76,
-        25.92,
-        26.16
+        29.53,
+        29.35,
+        29.43
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -451,11 +455,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 51.15,
+       "latency_ms_median": 51.37,
        "latency_ms_all": [
-        51.75,
-        51.15,
-        49.64
+        51.37,
+        44.09,
+        55.86
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -474,11 +478,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 123.23,
+       "latency_ms_median": 122.62,
        "latency_ms_all": [
-        118.89,
-        131.38,
-        123.23
+        118.61,
+        137.35,
+        122.62
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -497,11 +501,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 20.39,
+       "latency_ms_median": 22.87,
        "latency_ms_all": [
-        20.39,
-        18.35,
-        20.55
+        23.13,
+        22.35,
+        22.87
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -520,11 +524,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 30.57,
+       "latency_ms_median": 29.04,
        "latency_ms_all": [
-        28.74,
-        31.4,
-        30.57
+        29.04,
+        29.9,
+        27.74
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -543,11 +547,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 56.42,
+       "latency_ms_median": 46.29,
        "latency_ms_all": [
-        65.24,
-        56.42,
-        47.25
+        44.01,
+        47.24,
+        46.29
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -566,11 +570,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 102.91,
+       "latency_ms_median": 98.03,
        "latency_ms_all": [
-        102.91,
-        102.39,
-        113.46
+        98.03,
+        100.12,
+        95.27
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -589,11 +593,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 22.16,
+       "latency_ms_median": 21.64,
        "latency_ms_all": [
-        21.66,
-        22.16,
-        22.23
+        19.49,
+        22.57,
+        21.64
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -612,11 +616,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 28.89,
+       "latency_ms_median": 28.7,
        "latency_ms_all": [
-        31.8,
-        28.27,
-        28.89
+        28.7,
+        27.87,
+        29.51
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -635,11 +639,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 49.03,
+       "latency_ms_median": 49.8,
        "latency_ms_all": [
-        48.2,
-        55.58,
-        49.03
+        52.84,
+        48.29,
+        49.8
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -658,11 +662,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 179.81,
+       "latency_ms_median": 121.17,
        "latency_ms_all": [
-        135.17,
-        179.81,
-        181.76
+        138.31,
+        113.33,
+        121.17
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -686,11 +690,11 @@
      },
      "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 50.77,
-      "p99": 520.56,
-      "max": 520.56
+      "p50": 35.08,
+      "p99": 374.02,
+      "max": 374.02
      },
-     "server_ms_median": 21.797,
+     "server_ms_median": 16.25,
      "statements_per_answer_median": 10.0,
      "questions": [
       {
@@ -706,13 +710,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 14.44,
+       "latency_ms_median": 13.09,
        "latency_ms_all": [
-        19.85,
-        12.25,
-        14.44
+        14.6,
+        13.09,
+        12.77
        ],
-       "server_ms_median": 1.539,
+       "server_ms_median": 1.286,
        "expected": null,
        "got": null
       },
@@ -729,13 +733,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 22.14,
+       "latency_ms_median": 15.88,
        "latency_ms_all": [
-        22.14,
-        22.13,
-        22.33
+        15.61,
+        15.88,
+        16.45
        ],
-       "server_ms_median": 5.327,
+       "server_ms_median": 3.367,
        "expected": null,
        "got": null
       },
@@ -752,13 +756,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 76.02,
+       "latency_ms_median": 55.43,
        "latency_ms_all": [
-        69.6,
-        76.02,
-        101.79
+        54.16,
+        56.93,
+        55.43
        ],
-       "server_ms_median": 42.455,
+       "server_ms_median": 28.6,
        "expected": null,
        "got": null
       },
@@ -775,13 +779,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 436.99,
+       "latency_ms_median": 333.95,
        "latency_ms_all": [
-        460.4,
-        431.47,
-        436.99
+        306.59,
+        350.09,
+        333.95
        ],
-       "server_ms_median": 300.949,
+       "server_ms_median": 219.606,
        "expected": null,
        "got": null
       },
@@ -798,13 +802,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 17.89,
+       "latency_ms_median": 16.62,
        "latency_ms_all": [
-        24.0,
-        16.89,
-        17.89
+        16.81,
+        15.58,
+        16.62
        ],
-       "server_ms_median": 1.507,
+       "server_ms_median": 1.353,
        "expected": null,
        "got": null
       },
@@ -821,13 +825,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 37.73,
+       "latency_ms_median": 20.32,
        "latency_ms_all": [
-        29.66,
-        39.2,
-        37.73
+        20.32,
+        20.27,
+        20.84
        ],
-       "server_ms_median": 7.033,
+       "server_ms_median": 3.802,
        "expected": null,
        "got": null
       },
@@ -844,13 +848,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 93.21,
+       "latency_ms_median": 65.41,
        "latency_ms_all": [
-        88.81,
-        93.21,
-        102.91
+        66.96,
+        65.41,
+        64.18
        ],
-       "server_ms_median": 51.395,
+       "server_ms_median": 31.347,
        "expected": null,
        "got": null
       },
@@ -867,13 +871,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 475.01,
+       "latency_ms_median": 334.17,
        "latency_ms_all": [
-        475.01,
-        432.35,
-        513.46
+        334.17,
+        310.44,
+        374.02
        ],
-       "server_ms_median": 298.695,
+       "server_ms_median": 207.173,
        "expected": null,
        "got": null
       },
@@ -890,13 +894,13 @@
        },
        "error": "",
        "statements": 12,
-       "latency_ms_median": 30.34,
+       "latency_ms_median": 22.64,
        "latency_ms_all": [
-        30.26,
-        32.59,
-        30.34
+        22.64,
+        22.21,
+        29.29
        ],
-       "server_ms_median": 2.314,
+       "server_ms_median": 1.708,
        "expected": null,
        "got": null
       },
@@ -913,13 +917,13 @@
        },
        "error": "",
        "statements": 12,
-       "latency_ms_median": 37.39,
+       "latency_ms_median": 25.69,
        "latency_ms_all": [
-        50.77,
-        37.39,
-        37.33
+        28.5,
+        25.69,
+        25.25
        ],
-       "server_ms_median": 6.321,
+       "server_ms_median": 4.178,
        "expected": null,
        "got": null
       },
@@ -936,13 +940,13 @@
        },
        "error": "",
        "statements": 12,
-       "latency_ms_median": 93.35,
+       "latency_ms_median": 70.84,
        "latency_ms_all": [
-        107.68,
-        90.33,
-        93.35
+        70.84,
+        71.69,
+        70.22
        ],
-       "server_ms_median": 45.05,
+       "server_ms_median": 30.328,
        "expected": null,
        "got": null
       },
@@ -959,13 +963,13 @@
        },
        "error": "",
        "statements": 18,
-       "latency_ms_median": 397.06,
+       "latency_ms_median": 311.33,
        "latency_ms_all": [
-        397.06,
-        392.17,
-        413.64
+        306.24,
+        311.33,
+        317.84
        ],
-       "server_ms_median": 261.357,
+       "server_ms_median": 191.835,
        "expected": null,
        "got": null
       },
@@ -982,13 +986,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 39.18,
+       "latency_ms_median": 26.07,
        "latency_ms_all": [
-        39.18,
-        39.54,
-        35.16
+        26.78,
+        23.55,
+        26.07
        ],
-       "server_ms_median": 2.789,
+       "server_ms_median": 1.666,
        "expected": null,
        "got": null
       },
@@ -1005,13 +1009,13 @@
        },
        "error": "",
        "statements": 16,
-       "latency_ms_median": 38.59,
+       "latency_ms_median": 33.42,
        "latency_ms_all": [
-        38.59,
-        48.79,
-        38.06
+        33.42,
+        35.08,
+        33.15
        ],
-       "server_ms_median": 5.453,
+       "server_ms_median": 4.471,
        "expected": null,
        "got": null
       },
@@ -1028,13 +1032,13 @@
        },
        "error": "",
        "statements": 16,
-       "latency_ms_median": 86.67,
+       "latency_ms_median": 80.29,
        "latency_ms_all": [
-        89.17,
-        86.67,
-        80.89
+        80.29,
+        80.3,
+        76.87
        ],
-       "server_ms_median": 36.561,
+       "server_ms_median": 31.145,
        "expected": null,
        "got": null
       },
@@ -1051,13 +1055,13 @@
        },
        "error": "",
        "statements": 22,
-       "latency_ms_median": 380.99,
+       "latency_ms_median": 309.19,
        "latency_ms_all": [
-        362.15,
-        380.99,
-        391.25
+        309.82,
+        309.19,
+        306.64
        ],
-       "server_ms_median": 237.163,
+       "server_ms_median": 180.338,
        "expected": null,
        "got": null
       },
@@ -1074,13 +1078,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 11.76,
+       "latency_ms_median": 11.39,
        "latency_ms_all": [
-        13.26,
-        11.41,
-        11.76
+        12.89,
+        11.39,
+        11.03
        ],
-       "server_ms_median": 1.052,
+       "server_ms_median": 0.993,
        "expected": null,
        "got": null
       },
@@ -1097,13 +1101,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 22.3,
+       "latency_ms_median": 15.35,
        "latency_ms_all": [
-        22.13,
-        22.3,
-        23.37
+        17.81,
+        15.35,
+        14.48
        ],
-       "server_ms_median": 5.206,
+       "server_ms_median": 3.139,
        "expected": null,
        "got": null
       },
@@ -1120,13 +1124,13 @@
        },
        "error": "",
        "statements": 6,
-       "latency_ms_median": 75.15,
+       "latency_ms_median": 56.55,
        "latency_ms_all": [
-        68.83,
-        98.38,
-        75.15
+        56.55,
+        56.55,
+        56.96
        ],
-       "server_ms_median": 42.021,
+       "server_ms_median": 28.249,
        "expected": null,
        "got": null
       },
@@ -1143,13 +1147,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 428.55,
+       "latency_ms_median": 311.4,
        "latency_ms_all": [
-        428.55,
-        417.39,
-        520.56
+        296.26,
+        311.4,
+        359.34
        ],
-       "server_ms_median": 280.652,
+       "server_ms_median": 192.52,
        "expected": null,
        "got": null
       },
@@ -1166,13 +1170,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 21.93,
+       "latency_ms_median": 14.89,
        "latency_ms_all": [
-        21.93,
-        23.73,
-        21.78
+        15.91,
+        14.89,
+        14.65
        ],
-       "server_ms_median": 1.626,
+       "server_ms_median": 1.149,
        "expected": null,
        "got": null
       },
@@ -1189,13 +1193,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 30.43,
+       "latency_ms_median": 19.03,
        "latency_ms_all": [
-        32.03,
-        30.43,
-        20.79
+        19.03,
+        20.51,
+        18.97
        ],
-       "server_ms_median": 5.933,
+       "server_ms_median": 3.382,
        "expected": null,
        "got": null
       },
@@ -1212,13 +1216,13 @@
        },
        "error": "",
        "statements": 8,
-       "latency_ms_median": 76.26,
+       "latency_ms_median": 60.85,
        "latency_ms_all": [
-        81.86,
-        74.74,
-        76.26
+        60.8,
+        60.85,
+        62.08
        ],
-       "server_ms_median": 41.639,
+       "server_ms_median": 28.029,
        "expected": null,
        "got": null
       },
@@ -1235,13 +1239,13 @@
        },
        "error": "",
        "statements": 14,
-       "latency_ms_median": 474.71,
+       "latency_ms_median": 296.02,
        "latency_ms_all": [
-        474.71,
-        471.09,
-        490.81
+        296.02,
+        282.07,
+        298.92
        ],
-       "server_ms_median": 338.608,
+       "server_ms_median": 190.213,
        "expected": null,
        "got": null
       }
@@ -1263,9 +1267,9 @@
      },
      "strict_without_earliest5": 18,
      "latency_ms": {
-      "p50": 13.1,
-      "p99": 669.0,
-      "max": 669.0
+      "p50": 12.95,
+      "p99": 614.82,
+      "max": 614.82
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -1283,11 +1287,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.6,
+       "latency_ms_median": 6.36,
        "latency_ms_all": [
-        9.16,
-        6.6,
-        6.16
+        6.36,
+        4.89,
+        12.95
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1306,11 +1310,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.57,
+       "latency_ms_median": 8.42,
        "latency_ms_all": [
-        9.44,
-        7.57,
-        7.37
+        8.11,
+        8.42,
+        8.62
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1329,11 +1333,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 54.58,
+       "latency_ms_median": 57.47,
        "latency_ms_all": [
-        54.58,
-        55.55,
-        46.23
+        57.47,
+        61.15,
+        56.3
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1352,11 +1356,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 551.84,
+       "latency_ms_median": 550.23,
        "latency_ms_all": [
-        461.07,
-        615.71,
-        551.84
+        567.21,
+        550.23,
+        526.31
        ],
        "server_ms_median": 0,
        "expected": {
@@ -1399,11 +1403,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 8.45,
+       "latency_ms_median": 4.58,
        "latency_ms_all": [
-        8.45,
-        8.9,
-        8.43
+        4.8,
+        4.58,
+        4.43
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1422,11 +1426,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 9.97,
+       "latency_ms_median": 9.4,
        "latency_ms_all": [
-        9.93,
-        9.97,
-        13.1
+        9.4,
+        11.09,
+        9.12
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1445,11 +1449,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 54.27,
+       "latency_ms_median": 65.49,
        "latency_ms_all": [
-        55.19,
-        47.02,
-        54.27
+        64.08,
+        66.04,
+        65.49
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1468,11 +1472,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 471.02,
+       "latency_ms_median": 551.19,
        "latency_ms_all": [
-        465.15,
-        471.02,
-        494.27
+        551.19,
+        614.82,
+        534.39
        ],
        "server_ms_median": 0,
        "expected": {
@@ -1515,11 +1519,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.84,
+       "latency_ms_median": 4.31,
        "latency_ms_all": [
-        5.84,
-        5.52,
-        6.3
+        4.34,
+        4.31,
+        3.86
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1538,11 +1542,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 8.39,
+       "latency_ms_median": 9.1,
        "latency_ms_all": [
-        7.35,
-        9.53,
-        8.39
+        8.88,
+        9.1,
+        9.14
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1561,11 +1565,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 43.14,
+       "latency_ms_median": 57.25,
        "latency_ms_all": [
-        40.17,
-        44.84,
-        43.14
+        57.25,
+        60.04,
+        57.23
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1584,11 +1588,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 505.22,
+       "latency_ms_median": 561.32,
        "latency_ms_all": [
-        604.82,
-        505.22,
-        466.26
+        542.88,
+        587.09,
+        561.32
        ],
        "server_ms_median": 0,
        "expected": {
@@ -1631,11 +1635,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.49,
+       "latency_ms_median": 4.18,
        "latency_ms_all": [
-        5.49,
-        5.07,
-        5.53
+        5.45,
+        4.14,
+        4.18
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1654,11 +1658,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 8.86,
+       "latency_ms_median": 8.79,
        "latency_ms_all": [
-        10.15,
-        8.86,
-        6.54
+        8.79,
+        9.59,
+        8.58
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1677,11 +1681,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 42.33,
+       "latency_ms_median": 56.35,
        "latency_ms_all": [
-        42.2,
-        48.14,
-        42.33
+        70.92,
+        56.35,
+        55.0
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1700,11 +1704,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 595.11,
+       "latency_ms_median": 541.97,
        "latency_ms_all": [
-        577.64,
-        595.11,
-        616.01
+        541.97,
+        596.64,
+        519.95
        ],
        "server_ms_median": 0,
        "expected": {
@@ -1747,11 +1751,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.24,
+       "latency_ms_median": 4.12,
        "latency_ms_all": [
-        6.38,
-        6.01,
-        6.24
+        5.19,
+        3.72,
+        4.12
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1770,11 +1774,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 10.46,
+       "latency_ms_median": 8.44,
        "latency_ms_all": [
-        9.6,
-        10.55,
-        10.46
+        8.23,
+        8.99,
+        8.44
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1793,11 +1797,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 48.09,
+       "latency_ms_median": 55.57,
        "latency_ms_all": [
-        42.03,
-        61.25,
-        48.09
+        56.32,
+        54.07,
+        55.57
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1816,11 +1820,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 574.27,
+       "latency_ms_median": 552.83,
        "latency_ms_all": [
-        470.69,
-        624.18,
-        574.27
+        552.0,
+        597.87,
+        552.83
        ],
        "server_ms_median": 0,
        "expected": {
@@ -1863,11 +1867,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.92,
+       "latency_ms_median": 4.3,
        "latency_ms_all": [
-        7.34,
-        6.92,
-        6.79
+        4.26,
+        4.3,
+        4.34
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1886,11 +1890,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 10.2,
+       "latency_ms_median": 9.19,
        "latency_ms_all": [
-        10.2,
-        10.96,
-        8.66
+        9.49,
+        8.48,
+        9.19
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1909,11 +1913,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 68.66,
+       "latency_ms_median": 61.29,
        "latency_ms_all": [
-        53.81,
-        84.18,
-        68.66
+        58.08,
+        61.29,
+        62.51
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -1932,11 +1936,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 637.95,
+       "latency_ms_median": 557.43,
        "latency_ms_all": [
-        669.0,
-        637.95,
-        512.84
+        538.86,
+        557.43,
+        585.65
        ],
        "server_ms_median": 0,
        "expected": {
@@ -1984,9 +1988,9 @@
      },
      "strict_without_earliest5": 24,
      "latency_ms": {
-      "p50": 13.24,
-      "p99": 626.49,
-      "max": 626.49
+      "p50": 10.45,
+      "p99": 623.7,
+      "max": 623.7
      },
      "server_ms_median": 0.0,
      "statements_per_answer_median": 1.0,
@@ -2004,11 +2008,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 5.27,
+       "latency_ms_median": 4.43,
        "latency_ms_all": [
-        5.18,
-        5.27,
-        5.56
+        5.0,
+        4.43,
+        4.12
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2027,11 +2031,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.87,
+       "latency_ms_median": 9.08,
        "latency_ms_all": [
-        7.17,
-        7.87,
-        8.81
+        9.08,
+        7.89,
+        9.37
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2050,11 +2054,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 46.58,
+       "latency_ms_median": 60.29,
        "latency_ms_all": [
-        42.11,
-        46.58,
-        54.97
+        62.23,
+        56.7,
+        60.29
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2073,11 +2077,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 553.64,
+       "latency_ms_median": 547.38,
        "latency_ms_all": [
-        558.45,
-        463.38,
-        553.64
+        547.38,
+        539.15,
+        623.7
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2096,11 +2100,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.38,
+       "latency_ms_median": 5.01,
        "latency_ms_all": [
-        7.38,
-        6.83,
-        7.5
+        4.8,
+        5.43,
+        5.01
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2119,11 +2123,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 10.77,
+       "latency_ms_median": 9.31,
        "latency_ms_all": [
-        10.77,
-        13.24,
-        8.07
+        9.31,
+        8.3,
+        10.45
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2142,11 +2146,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 50.32,
+       "latency_ms_median": 62.19,
        "latency_ms_all": [
-        50.32,
-        55.72,
-        47.75
+        62.19,
+        63.79,
+        59.83
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2165,11 +2169,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 553.35,
+       "latency_ms_median": 548.64,
        "latency_ms_all": [
-        626.49,
-        546.78,
-        553.35
+        548.64,
+        527.02,
+        588.84
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2188,11 +2192,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 4.99,
+       "latency_ms_median": 4.54,
        "latency_ms_all": [
-        5.15,
-        4.51,
-        4.99
+        4.54,
+        5.16,
+        4.51
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2211,11 +2215,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 7.49,
+       "latency_ms_median": 8.93,
        "latency_ms_all": [
-        7.12,
-        8.54,
-        7.49
+        8.93,
+        8.89,
+        9.03
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2234,11 +2238,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 51.51,
+       "latency_ms_median": 57.68,
        "latency_ms_all": [
-        51.51,
-        48.01,
-        56.51
+        56.67,
+        57.68,
+        58.18
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2257,11 +2261,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 539.47,
+       "latency_ms_median": 545.78,
        "latency_ms_all": [
-        520.67,
-        539.47,
-        583.06
+        545.78,
+        530.16,
+        622.06
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2280,11 +2284,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.12,
+       "latency_ms_median": 4.49,
        "latency_ms_all": [
-        5.88,
-        6.12,
-        6.3
+        4.47,
+        4.49,
+        4.83
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2303,11 +2307,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 9.12,
+       "latency_ms_median": 9.35,
        "latency_ms_all": [
-        9.08,
-        9.12,
-        9.73
+        9.35,
+        9.53,
+        8.88
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2326,11 +2330,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 52.65,
+       "latency_ms_median": 70.45,
        "latency_ms_all": [
-        46.21,
-        52.65,
-        59.8
+        66.21,
+        70.45,
+        74.97
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2349,11 +2353,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 470.2,
+       "latency_ms_median": 519.79,
        "latency_ms_all": [
-        581.9,
-        470.2,
-        443.61
+        519.79,
+        506.58,
+        563.78
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2372,11 +2376,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 4.05,
+       "latency_ms_median": 4.13,
        "latency_ms_all": [
-        4.86,
-        3.67,
-        4.05
+        5.23,
+        4.04,
+        4.13
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2395,11 +2399,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 6.48,
+       "latency_ms_median": 8.28,
        "latency_ms_all": [
-        6.53,
-        6.48,
-        6.01
+        8.19,
+        8.28,
+        8.5
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2418,11 +2422,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 38.71,
+       "latency_ms_median": 63.15,
        "latency_ms_all": [
-        39.77,
-        38.19,
-        38.71
+        55.9,
+        63.29,
+        63.15
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2441,11 +2445,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 529.86,
+       "latency_ms_median": 549.95,
        "latency_ms_all": [
-        452.8,
-        559.04,
-        529.86
+        554.45,
+        546.16,
+        549.95
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2464,11 +2468,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 4.89,
+       "latency_ms_median": 4.74,
        "latency_ms_all": [
-        4.89,
-        4.97,
-        3.65
+        4.3,
+        4.83,
+        4.74
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2487,11 +2491,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 9.65,
+       "latency_ms_median": 8.62,
        "latency_ms_all": [
-        7.29,
-        9.65,
-        10.34
+        8.62,
+        10.13,
+        8.53
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2510,11 +2514,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 46.45,
+       "latency_ms_median": 63.73,
        "latency_ms_all": [
-        68.02,
-        46.45,
-        44.27
+        107.4,
+        63.73,
+        61.09
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2533,11 +2537,11 @@
        },
        "error": "",
        "statements": 1,
-       "latency_ms_median": 547.12,
+       "latency_ms_median": 535.08,
        "latency_ms_all": [
-        492.72,
-        547.12,
-        556.75
+        535.08,
+        519.17,
+        579.68
        ],
        "server_ms_median": 0,
        "expected": null,
@@ -2722,9 +2726,9 @@
   "F": {
    "P": {
     "totals": {
-     "facts": 1005,
-     "decisions": 431,
-     "handoffs": 406
+     "facts": 1127,
+     "decisions": 503,
+     "handoffs": 463
     },
     "orphans": {
      "facts": 0,
@@ -2732,16 +2736,16 @@
      "handoffs": 0
     },
     "orphans_total": 0,
-    "missing_derived_from": 13,
+    "missing_derived_from": 0,
     "lost_acknowledged": {
      "facts": 0,
      "decisions": 0,
      "handoffs": 0
     },
     "lost_acknowledged_total": 0,
-    "rule_of_three_upper_pct": null,
+    "rule_of_three_upper_pct": 0.14,
     "kills": 200,
-    "acknowledged_writes": 1776
+    "acknowledged_writes": 2023
    }
   }
  }

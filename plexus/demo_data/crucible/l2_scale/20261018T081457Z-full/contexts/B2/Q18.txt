@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Task s16-t09-review-spec ('Review spec (S16)', priority 12) status done, claimed by planner; depends on s16-t07-implement-crud-spec, s16-t08-write-test-plan; artifacts none.
+[2] Task s17-t09-review-spec ('Review spec (S17)', priority 12) status done, claimed by planner; depends on s17-t07-implement-crud-spec, s17-t08-write-test-plan; artifacts none.
+[3] Task s15-t09-review-spec ('Review spec (S15)', priority 12) status done, claimed by planner; depends on s15-t07-implement-crud-spec, s15-t08-write-test-plan; artifacts none.
+[4] Task s10-t09-review-spec ('Review spec (S10)', priority 12) status done, claimed by planner; depends on s10-t07-implement-crud-spec, s10-t08-write-test-plan; artifacts none.
+[5] Task s09-t09-review-spec ('Review spec (S09)', priority 12) status done, claimed by planner; depends on s09-t07-implement-crud-spec, s09-t08-write-test-plan; artifacts none.
+[6] Task s14-t09-review-spec ('Review spec (S14)', priority 12) status done, claimed by planner; depends on s14-t07-implement-crud-spec, s14-t08-write-test-plan; artifacts none.
+[7] Task s07-t09-review-spec ('Review spec (S07)', priority 12) status done, claimed by planner; depends on s07-t07-implement-crud-spec, s07-t08-write-test-plan; artifacts none.
+[8] Task s13-t09-review-spec ('Review spec (S13)', priority 12) status done, claimed by planner; depends on s13-t07-implement-crud-spec, s13-t08-write-test-plan; artifacts none.
+[9] Task s19-t09-review-spec ('Review spec (S19)', priority 12) status done, claimed by planner; depends on s19-t07-implement-crud-spec, s19-t08-write-test-plan; artifacts none.
+[10] Task s05-t09-review-spec ('Review spec (S05)', priority 12) status done, claimed by planner; depends on s05-t07-implement-crud-spec, s05-t08-write-test-plan; artifacts none.
+[11] Task s03-t09-review-spec ('Review spec (S03)', priority 12) status done, claimed by planner; depends on s03-t07-implement-crud-spec, s03-t08-write-test-plan; artifacts none.
+[12] Task s18-t09-review-spec ('Review spec (S18)', priority 12) status done, claimed by planner; depends on s18-t07-implement-crud-spec, s18-t08-write-test-plan; artifacts none.

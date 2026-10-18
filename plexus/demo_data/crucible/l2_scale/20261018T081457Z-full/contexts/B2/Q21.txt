@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact purpose=REST service to create, tag and search notes (S20) about 'Acme Notes API S20' (scope global; status active; valid_from 1760001303500; valid_to 9999999999999); asserted by researcher; source acme-docs/s20/01_product_brief.md.
+[2] Fact database=TiDB 8 about 'Acme Notes API S19' (scope global; status active; valid_from 1760001260500; valid_to 9999999999999); asserted by researcher; source acme-docs/s19/03_infra_note.md; contradicts database=ScyllaDB 22.
+[3] Fact database=TiDB 8 about 'Acme Notes API S09' (scope global; status active; valid_from 1760000575500; valid_to 9999999999999); asserted by researcher; source acme-docs/s09/03_infra_note.md; contradicts database=ScyllaDB 12.
+[4] Decision by planner for task s20-t06-write-db-schema: "S20: Evaluate Riak 23 as the database (forum post)." Based on facts: database=Riak 23. Flagged: a fact it relied on was forgotten.
+[5] Fact database=Aurora MySQL 3 about 'Acme Notes API S20' (scope global; status active; valid_from 1760001329000; valid_to 9999999999999); asserted by researcher; source acme-docs/s20/03_infra_note.md; contradicts database=Riak 23.
+[6] Fact purpose=REST service to create, tag and search notes (S19) about 'Acme Notes API S19' (scope global; status active; valid_from 1760001235000; valid_to 9999999999999); asserted by researcher; source acme-docs/s19/01_product_brief.md.
+[7] Fact purpose=REST service to create, tag and search notes (S05) about 'Acme Notes API S05' (scope global; status active; valid_from 1760000276000; valid_to 9999999999999); asserted by researcher; source acme-docs/s05/01_product_brief.md.
+[8] Fact purpose=REST service to create, tag and search notes (S01) about 'Acme Notes API S01' (scope global; status active; valid_from 1760000002000; valid_to 9999999999999); asserted by researcher; source acme-docs/s01/01_product_brief.md.
+[9] Fact purpose=REST service to create, tag and search notes (S10) about 'Acme Notes API S10' (scope global; status active; valid_from 1760000618500; valid_to 9999999999999); asserted by researcher; source acme-docs/s10/01_product_brief.md.
+[10] Fact purpose=REST service to create, tag and search notes (S18) about 'Acme Notes API S18' (scope global; status active; valid_from 1760001166500; valid_to 9999999999999); asserted by researcher; source acme-docs/s18/01_product_brief.md.
+[11] Fact purpose=REST service to create, tag and search notes (S09) about 'Acme Notes API S09' (scope global; status active; valid_from 1760000550000; valid_to 9999999999999); asserted by researcher; source acme-docs/s09/01_product_brief.md.
+[12] Fact purpose=REST service to create, tag and search notes (S02) about 'Acme Notes API S02' (scope global; status active; valid_from 1760000070500; valid_to 9999999999999); asserted by researcher; source acme-docs/s02/01_product_brief.md.

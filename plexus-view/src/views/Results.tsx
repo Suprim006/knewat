@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ApiError } from '../api';
 import { useApi } from '../app/context';
+import { parseProvenance } from '../lib/provenance';
 import { parseResults } from '../lib/results';
 import type { ParsedResults } from '../lib/results';
 import { useAsync } from '../lib/useAsync';
@@ -12,6 +13,7 @@ import { B1hSection } from './results/B1hSection';
 import { C7xSection } from './results/C7xSection';
 import { L4Section } from './results/L4Section';
 import { L6Section } from './results/L6Section';
+import { ProvenanceBanner } from './results/ProvenanceBanner';
 import { StringList } from './results/StringList';
 
 function RunMeta({ run }: { run: NonNullable<ParsedResults['run']> }) {
@@ -81,6 +83,7 @@ export function Results() {
   return (
     <section className="page results" aria-labelledby="res-h">
       <h1 id="res-h">Results</h1>
+      {res.data && <ProvenanceBanner p={parseProvenance(res.data)} />}
       <p className="muted">
         The Crucible benchmark: Files, SQLite, Vector and Plexus on the same tool interface. Read from{' '}
         <code>/api/results</code>.

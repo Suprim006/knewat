@@ -1,0 +1,4 @@
+[plexus smoke1] session_1 (cwd tinytasks): rc=0 24.3s $0.145 turns=15 denials=0 (total $0.14)
+[plexus smoke1] session_2 (cwd tasksync): rc=0 35.0s $0.105 turns=20 denials=0 (total $0.25)
+[plexus smoke1] session_3 (cwd tasksync): rc=0 26.3s $0.069 turns=13 denials=0 (total $0.32)
+[plexus smoke1] session_4 (cwd tasksync): rc=0 24.0s $0.075 turns=14 denials=0 (total $0.39)

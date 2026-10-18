@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Handoff for task s17-t07-implement-crud-spec from builder to planner: "S17: CRUD spec ready for review." Artifacts: artifacts/s17/crud-spec.md. Facts: api_version=v34, auth_method=JWT bearer tokens (ES256, key s17).
+[2] Handoff for task s07-t07-implement-crud-spec from builder to planner: "S07: CRUD spec ready for review." Artifacts: artifacts/s07/crud-spec.md. Facts: api_version=v14, auth_method=JWT bearer tokens (ES256, key s07).
+[3] Handoff for task s16-t07-implement-crud-spec from builder to planner: "S16: CRUD spec ready for review." Artifacts: artifacts/s16/crud-spec.md. Facts: api_version=v32, auth_method=JWT bearer tokens (RS256, key s16).
+[4] Handoff for task s20-t07-implement-crud-spec from builder to planner: "S20: CRUD spec ready for review." Artifacts: artifacts/s20/crud-spec.md. Facts: api_version=v40, auth_method=JWT bearer tokens (ES384, key s20).
+[5] Handoff for task s08-t07-implement-crud-spec from builder to planner: "S08: CRUD spec ready for review." Artifacts: artifacts/s08/crud-spec.md. Facts: api_version=v16, auth_method=JWT bearer tokens (PS256, key s08).
+[6] Handoff for task s09-t07-implement-crud-spec from builder to planner: "S09: CRUD spec ready for review." Artifacts: artifacts/s09/crud-spec.md. Facts: api_version=v18, auth_method=JWT bearer tokens (RS384, key s09).
+[7] Handoff for task s18-t07-implement-crud-spec from builder to planner: "S18: CRUD spec ready for review." Artifacts: artifacts/s18/crud-spec.md. Facts: api_version=v36, auth_method=JWT bearer tokens (PS256, key s18).
+[8] Handoff for task s03-t07-implement-crud-spec from builder to planner: "S03: CRUD spec ready for review." Artifacts: artifacts/s03/crud-spec.md. Facts: api_version=v6, auth_method=JWT bearer tokens (PS256, key s03).
+[9] Handoff for task s15-t07-implement-crud-spec from builder to planner: "S15: CRUD spec ready for review." Artifacts: artifacts/s15/crud-spec.md. Facts: api_version=v30, auth_method=JWT bearer tokens (ES384, key s15).
+[10] Handoff for task s05-t07-implement-crud-spec from builder to planner: "S05: CRUD spec ready for review." Artifacts: artifacts/s05/crud-spec.md. Facts: api_version=v10, auth_method=JWT bearer tokens (ES384, key s05).
+[11] Handoff for task s01-t07-implement-crud-spec from builder to planner: "S01: CRUD spec ready for review." Artifacts: artifacts/s01/crud-spec.md. Facts: api_version=v2, auth_method=JWT bearer tokens (RS256, key s01).
+[12] Handoff for task s12-t07-implement-crud-spec from builder to planner: "S12: CRUD spec ready for review." Artifacts: artifacts/s12/crud-spec.md. Facts: api_version=v24, auth_method=JWT bearer tokens (ES256, key s12).

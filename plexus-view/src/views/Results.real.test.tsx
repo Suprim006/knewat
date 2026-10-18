@@ -39,7 +39,7 @@ describe('parseResults on the real combined file', () => {
     expect(by.B0).toMatchObject({ wholeReplyCorrect: 36, tokensPerQuestion: 15930, costUsd: 2.6683 });
     expect(by.B0!.wholeReplyPct).toBeCloseTo(83.7, 1);
     expect(by.B0!.latencyMedianMs).toBeCloseTo(5754.6, 1);
-    expect(by.P!.latencyMedianMs).toBeCloseTo(2.5, 1);
+    expect(by.P!.latencyMedianMs).toBeCloseTo(2.6, 1);
     expect(by.B0!.replyFormat).toEqual({ jsonOnly: 36, proseThenJson: 7, unparseable: 0, callFailed: 0 });
     expect(r.l2Info).toMatchObject({ mode: 'full', model: 'sonnet', asked: 43, total: 43 });
     expect(r.l2Info!.families).toHaveLength(10);
@@ -83,7 +83,7 @@ describe('Results page on the real combined file', () => {
     expect(within(l2).getByTestId('l2-cost-B0')).toHaveTextContent('$2.67');
     expect(within(l2).getByTestId('l2-cost-P')).toHaveTextContent('$0 (no LLM)');
     expect(within(l2).getByTestId('l2-latency-B0')).toHaveTextContent('5.75 s');
-    expect(within(l2).getByTestId('l2-latency-P')).toHaveTextContent('2.50 ms');
+    expect(within(l2).getByTestId('l2-latency-P')).toHaveTextContent('2.60 ms');
     expect(within(l2).getByTestId('l2-reply-format')).toHaveTextContent('36 JSON-only, 7 prose then JSON');
   });
 
@@ -206,7 +206,7 @@ describe('Results page: L2 at scale section', () => {
     );
     expect(box).toHaveTextContent('sprints here do not interact, which favours retrieval');
     expect(box).toHaveTextContent('that engineering effort is part of what P costs');
-    expect(screen.getByTestId('l2scale-notes')).toHaveTextContent('recomputed from the saved contexts');
+    expect(screen.getByTestId('l2scale-notes')).toHaveTextContent('re-used from the on-disk cache');
   });
 
   it('lists the changes made to the Plexus answerer', async () => {
@@ -270,7 +270,7 @@ describe('Results page: P9 sections on the real combined file', () => {
     }
     expect(within(l6).getByTestId('l6-A-fix-P-product-service')).toHaveTextContent('24/24');
     expect(within(l6).getByTestId('l6-F-crash-P')).toHaveTextContent('94');
-    expect(within(l6).getByTestId('l6-F-fix-P')).toHaveTextContent('0 of 1842');
+    expect(within(l6).getByTestId('l6-F-fix-P')).toHaveTextContent('0 of 2093');
     expect(within(l6).getByTestId('l6-D-speed')).toHaveTextContent('4.6x faster');
     expect(within(l6).getByTestId('l6-pilot-P-mcp')).toHaveTextContent('10/16');
     expect(within(l6).getByTestId('l6-pilot-B0r')).toHaveTextContent('2/24');

@@ -1,0 +1,244 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"next_seq":240}
+[...]
+{"s03-t07-implement-crud-spec":{"id":"s03-t07-implement-crud-spec","title":"Implement CRUD spec (S03)","priority":20,"seq":30,"status":"done","claimed_by":"builder","lease_until":1760000303500,"version":2,"created_at":1760000137001,"done_at":1760000185501,"deps":["s03-t03-design-endpoints","s03-t05-choose-auth","s03-t06-write-db-schema"],"artifacts":[{"id":"ccc99f24-fa03-56d7-add8-9e4a492be44f","kind":"file","uri":"artifacts/s03/crud-spec.md","hash":"","summary":"S03 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000185501}]}}
+[...]
+{"s03-t10-write-docs":{"id":"s03-t10-write-docs","title":"Write documentation (S03)","priority":10,"seq":33,"status":"done","claimed_by":"researcher","lease_until":1760000315500,"version":2,"created_at":1760000137001,"done_at":1760000196501,"deps":["s03-t09-review-spec"],"artifacts":[{"id":"a711bd5e-2265-5419-8930-a1657fd9cde9","kind":"file","uri":"artifacts/s03/docs.md","hash":"","summary":"S03 API documentation","agent_id":"researcher","created_at":1760000196501}]}}
+{"s03-t11-package-release":{"id":"s03-t11-package-release","title":"Package release (S03)","priority":5,"seq":34,"status":"done","claimed_by":"builder","lease_until":1760000318500,"version":2,"created_at":1760000137001,"done_at":1760000198502,"deps":["s03-t10-write-docs"],"artifacts":[{"id":"c3ec9fb3-9334-50e9-adb8-3cbd42eded49","kind":"file","uri":"artifacts/s03/release.tar","hash":"","summary":"S03 release bundle of the Acme Notes API","agent_id":"builder","created_at":1760000198502}]}}
+
+=== file: MEMORY.md ===
+# Shared team memory
+[...]
+- **Acme Notes API S03** purpose: REST service to create, tag and search notes (S03) (active, global) <!--{"id":"48e68b78-b5ec-51c8-846d-7ef799fb8204","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"purpose","value":"REST service to create, tag and search notes (S03)","norm_value":"rest service to create, tag and search notes (s03)","scope":"global","status":"active","valid_from":1760000139000,"valid_to":9999999999999,"recorded_at":1760000139000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["2cd7752a-5a26-541e-af6a-1eeb3d4049e4"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S03** api_version: v5 (superseded, global) <!--{"id":"fc4e0924-6721-5efd-bd74-45c790960ce6","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"api_version","value":"v5","norm_value":"v5","scope":"global","status":"superseded","valid_from":1760000140000,"valid_to":1760000154500,"recorded_at":1760000140000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a1b92333-9f22-553b-a091-6987afa9f06a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S03** api_version: v6 (active, global) <!--{"id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"api_version","value":"v6","norm_value":"v6","scope":"global","status":"active","valid_from":1760000154500,"valid_to":9999999999999,"recorded_at":1760000154500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a3157cf7-c91c-5f87-be04-71e3c929bd80"],"supersedes":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}-->
+- **Acme Notes API S03** database: MariaDB 11 (active, global) <!--{"id":"f68de5be-dd66-5ad8-bc70-58e5a90803ce","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"database","value":"MariaDB 11","norm_value":"mariadb 11","scope":"global","status":"active","valid_from":1760000164500,"valid_to":9999999999999,"recorded_at":1760000164500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["45d132f9-8197-5d56-9837-31a9a62d083a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S03** auth_method: JWT bearer tokens (PS256, key s03) (active, global) <!--{"id":"8c782244-d287-5241-97fe-81123ca9a9a9","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"auth_method","value":"JWT bearer tokens (PS256, key s03)","norm_value":"jwt bearer tokens (ps256, key s03)","scope":"global","status":"active","valid_from":1760000165500,"valid_to":9999999999999,"recorded_at":1760000165500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["06728c2f-ac38-5eff-bfe4-af34004ab853"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S03** auth_method: API key in X-Client-Key header (active, global) <!--{"id":"246b7904-0d0c-53ef-b7a4-974669a37be8","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"auth_method","value":"API key in X-Client-Key header","norm_value":"api key in x-client-key header","scope":"global","status":"active","valid_from":1760000169500,"valid_to":9999999999999,"recorded_at":1760000169500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["2e57ef4b-e590-51a0-bd5c-8399750c5698"],"supersedes":[],"contradicts":["8c782244-d287-5241-97fe-81123ca9a9a9"]}-->
+- **Acme Notes API S03** database: Couchbase 6 (forgotten, global) <!--{"id":"9bfc1e64-3bac-5fa5-ad23-e26c14efcd47","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"database","value":"Couchbase 6","norm_value":"couchbase 6","scope":"global","status":"forgotten","valid_from":1760000172500,"valid_to":1760000174501,"recorded_at":1760000172500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["50a82728-74ce-51ca-8126-1bfcad8093cc"],"supersedes":[],"contradicts":["f68de5be-dd66-5ad8-bc70-58e5a90803ce"]}-->
+[...]
+- **Acme Notes API S03** release_channel: private preview (active, project:acme-s03) <!--{"id":"7b2ccab8-fe0b-5973-8419-ec7d9ed33a44","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"release_channel","value":"private preview","norm_value":"private preview","scope":"project:acme-s03","status":"active","valid_from":1760000177500,"valid_to":9999999999999,"recorded_at":1760000177500,"confidence":1.0,"asserted_by":["planner"],"derived_from":[],"supersedes":[],"contradicts":[]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"1ecc2885-26f6-5914-a67b-ef6c30f16c27","agent":"planner","task":"s01-t06-write-db-schema","text":"S01: Evaluate MongoDB 4 as the database (forum post).","based_on":["d04e6e8e-1f06-55a2-a92f-7e931314a9db"],"at":1760000035502}
+{"type":"forget","source_id":"1531c911-182a-5a91-ae0a-1b92e90e2ce5","fact_ids":["d04e6e8e-1f06-55a2-a92f-7e931314a9db"],"at":1760000037501}
+[...]
+{"type":"decision","id":"c2768527-08b0-597d-a83d-6e5f577abdec","agent":"planner","task":"s02-t06-write-db-schema","text":"S02: Evaluate Cassandra 5 as the database (forum post).","based_on":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000104002}
+{"type":"forget","source_id":"5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a","fact_ids":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000106001}
+[...]
+{"type":"decision","id":"e7e5c47b-e9f9-56ff-aa91-d15f746fd0ce","agent":"planner","task":"s03-t06-write-db-schema","text":"S03: Evaluate Couchbase 6 as the database (forum post).","based_on":["9bfc1e64-3bac-5fa5-ad23-e26c14efcd47"],"at":1760000172502}
+{"type":"forget","source_id":"50a82728-74ce-51ca-8126-1bfcad8093cc","fact_ids":["9bfc1e64-3bac-5fa5-ad23-e26c14efcd47"],"at":1760000174501}
+[...]
+{"type":"decision","id":"3ec33149-f8f9-5802-8f21-98104778f70a","agent":"planner","task":"s04-t06-write-db-schema","text":"S04: Evaluate DynamoDB 7 as the database (forum post).","based_on":["21402263-e0ee-5823-9999-b8b0073049d5"],"at":1760000241002}
+{"type":"forget","source_id":"88dae90f-05ce-5028-bc63-af5836789f02","fact_ids":["21402263-e0ee-5823-9999-b8b0073049d5"],"at":1760000243001}
+[...]
+{"type":"decision","id":"b014b68b-cb82-5a7c-93da-20a91e4ad5c8","agent":"planner","task":"s05-t06-write-db-schema","text":"S05: Evaluate Redis 8 as the database (forum post).","based_on":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000309502}
+{"type":"forget","source_id":"14284b1e-5c73-5edc-b916-8a8ed5b096c2","fact_ids":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000311501}
+[...]
+{"type":"decision","id":"b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9","agent":"planner","task":"s06-t06-write-db-schema","text":"S06: Evaluate CouchDB 9 as the database (forum post).","based_on":["a358e2a2-9b4c-5143-97ec-721836d2a9de"],"at":1760000378002}
+{"type":"forget","source_id":"c477da62-2474-573b-851d-1e136de0257a","fact_ids":["a358e2a2-9b4c-5143-97ec-721836d2a9de"],"at":1760000380001}
+[...]
+{"type":"decision","id":"08a171d3-d7cf-56b7-bf89-66584f33edf7","agent":"planner","task":"s07-t06-write-db-schema","text":"S07: Evaluate RethinkDB 10 as the database (forum post).","based_on":["cc4ca4b0-4d9e-5305-aeca-1d63e046a297"],"at":1760000446502}
+{"type":"forget","source_id":"c5d7113f-1c71-55f0-9770-7ffee4112b3e","fact_ids":["cc4ca4b0-4d9e-5305-aeca-1d63e046a297"],"at":1760000448501}
+[...]
+{"type":"decision","id":"9e4af6aa-2f02-52e7-881a-b59decb90332","agent":"planner","task":"s08-t06-write-db-schema","text":"S08: Evaluate Neo4j 11 as the database (forum post).","based_on":["89d0ea3a-71e0-54c0-ad11-ad8dc201b757"],"at":1760000515002}
+{"type":"forget","source_id":"20d49ab5-015b-5a6b-a5a0-85c90a3f0d76","fact_ids":["89d0ea3a-71e0-54c0-ad11-ad8dc201b757"],"at":1760000517001}
+[...]
+{"type":"decision","id":"96e9e1aa-20d9-5746-b630-bedb9425649a","agent":"planner","task":"s09-t06-write-db-schema","text":"S09: Evaluate ScyllaDB 12 as the database (forum post).","based_on":["627cee86-09ce-53a8-8797-fbf748462ecb"],"at":1760000583502}
+{"type":"forget","source_id":"e5611a24-7de2-532c-a909-85db31e7657f","fact_ids":["627cee86-09ce-53a8-8797-fbf748462ecb"],"at":1760000585501}
+[...]
+{"type":"decision","id":"080ac483-a67c-55ac-a6e0-9ce1a6aa1d80","agent":"planner","task":"s10-t06-write-db-schema","text":"S10: Evaluate Riak 13 as the database (forum post).","based_on":["a7c6ea31-4300-5afb-a980-2f6dba60fc95"],"at":1760000652002}
+{"type":"forget","source_id":"21c87012-3ab3-5927-9747-7be6156e72ea","fact_ids":["a7c6ea31-4300-5afb-a980-2f6dba60fc95"],"at":1760000654001}
+[...]
+{"type":"decision","id":"a34874f3-ebe0-52fb-9d27-a7aa14f96d94","agent":"planner","task":"s11-t06-write-db-schema","text":"S11: Evaluate MongoDB 14 as the database (forum post).","based_on":["840758d6-b085-5fb7-8439-41ea4d9075e2"],"at":1760000720502}
+{"type":"forget","source_id":"0b38768f-c32e-5d8e-8ca2-2b38b8239eab","fact_ids":["840758d6-b085-5fb7-8439-41ea4d9075e2"],"at":1760000722501}
+[...]
+{"type":"decision","id":"e58506c9-24f6-5063-be8f-d80e205130dc","agent":"planner","task":"s12-t06-write-db-schema","text":"S12: Evaluate Cassandra 15 as the database (forum post).","based_on":["95e1d954-04a9-5d9a-8441-994f908947d4"],"at":1760000789002}
+{"type":"forget","source_id":"9aad5fe4-ef32-51c4-80a8-b3cdc43cef96","fact_ids":["95e1d954-04a9-5d9a-8441-994f908947d4"],"at":1760000791001}
+[...]
+{"type":"decision","id":"e4c1fb22-8f33-5326-b439-096db849e51b","agent":"planner","task":"s13-t06-write-db-schema","text":"S13: Evaluate Couchbase 16 as the database (forum post).","based_on":["89edb49c-4d7d-5da0-b79c-14d927fe6390"],"at":1760000857502}
+{"type":"forget","source_id":"203c5d63-1133-5029-a45a-d7e225c3d5e5","fact_ids":["89edb49c-4d7d-5da0-b79c-14d927fe6390"],"at":1760000859501}
+[...]
+{"type":"decision","id":"fb9a364e-958f-53c1-8db7-72cabb71cf6a","agent":"planner","task":"s14-t06-write-db-schema","text":"S14: Evaluate DynamoDB 17 as the database (forum post).","based_on":["909bf6fb-2c0d-5c9b-a327-e3c3803ff755"],"at":1760000926002}
+{"type":"forget","source_id":"96231bab-e1e8-5422-92f8-27d3f98d3fd9","fact_ids":["909bf6fb-2c0d-5c9b-a327-e3c3803ff755"],"at":1760000928001}
+[...]
+{"type":"decision","id":"a913056a-8c85-5859-a2e2-0bf257ad7506","agent":"planner","task":"s15-t06-write-db-schema","text":"S15: Evaluate Redis 18 as the database (forum post).","based_on":["d90f88cf-844f-53f2-ae23-ee244ac551bf"],"at":1760000994502}
+{"type":"forget","source_id":"f5b88b48-3666-511e-9da7-5fde53059225","fact_ids":["d90f88cf-844f-53f2-ae23-ee244ac551bf"],"at":1760000996501}
+[...]
+{"type":"decision","id":"a058c6d5-d503-5e8e-99c4-cc338d94e8d6","agent":"planner","task":"s16-t06-write-db-schema","text":"S16: Evaluate CouchDB 19 as the database (forum post).","based_on":["8c0c9c0e-e435-5989-b4d5-0b471560e947"],"at":1760001063002}
+{"type":"forget","source_id":"c9505fea-78a0-575f-b569-0d272e7e74ac","fact_ids":["8c0c9c0e-e435-5989-b4d5-0b471560e947"],"at":1760001065001}
+[...]
+{"type":"decision","id":"d906d405-5d7f-5646-b053-8464e2681021","agent":"planner","task":"s17-t06-write-db-schema","text":"S17: Evaluate RethinkDB 20 as the database (forum post).","based_on":["bc5bb23b-a206-5d2a-a0d1-800573fa5575"],"at":1760001131502}
+{"type":"forget","source_id":"2b32abee-1156-5b5b-b04d-5b6d42420594","fact_ids":["bc5bb23b-a206-5d2a-a0d1-800573fa5575"],"at":1760001133501}
+[...]
+{"type":"decision","id":"ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2","agent":"planner","task":"s18-t06-write-db-schema","text":"S18: Evaluate Neo4j 21 as the database (forum post).","based_on":["7a67ca14-839a-5170-9971-a20197810304"],"at":1760001200002}
+{"type":"forget","source_id":"06de3fcd-ed3b-59e6-a82f-7a56587aaefb","fact_ids":["7a67ca14-839a-5170-9971-a20197810304"],"at":1760001202001}
+[...]
+{"type":"decision","id":"9acc129e-f910-5b32-8f14-80475529c123","agent":"planner","task":"s19-t06-write-db-schema","text":"S19: Evaluate ScyllaDB 22 as the database (forum post).","based_on":["e4fcdd43-d040-5571-a6ad-13d72dfaec1f"],"at":1760001268502}
+{"type":"forget","source_id":"433f47b1-eac7-5fcc-80a1-9a37cdbed257","fact_ids":["e4fcdd43-d040-5571-a6ad-13d72dfaec1f"],"at":1760001270501}
+[...]
+{"type":"decision","id":"1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97","agent":"planner","task":"s20-t06-write-db-schema","text":"S20: Evaluate Riak 23 as the database (forum post).","based_on":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001337002}
+{"type":"forget","source_id":"0d04ac3e-ab11-50fc-8239-48273717b517","fact_ids":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001339001}
+
+=== file: handoffs.jsonl ===
+{"id":"8c410f22-7191-553a-84e8-b4748682424d","from":"researcher","to":"builder","task":"s03-t03-design-endpoints","note":"S03: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["43c95bc7-09ef-520f-b7c4-f7dc844b4617"],"facts":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"at":1760000152501}
+{"id":"059b350c-3f17-5a85-b0ad-dcd63af1ab57","from":"builder","to":"planner","task":"s03-t12-update-endpoints-for-v2","note":"S03: Updated for API v6.","artifacts":["aca951fd-7570-5816-8b28-48c758f15282"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd"],"at":1760000161501}
+{"id":"ca66045d-b446-5002-b023-ae96f7e1a787","from":"builder","to":"planner","task":"s03-t07-implement-crud-spec","note":"S03: CRUD spec ready for review.","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000186501}
+{"id":"d92ca6d4-d296-58d8-b904-11943ddd547e","from":"builder","to":"planner","task":"s03-t11-package-release","note":"S03: Release bundle is ready.","artifacts":["c3ec9fb3-9334-50e9-adb8-3cbd42eded49"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd"],"at":1760000199501}
+
+=== file: sources.json ===
+{"1f13bc4f-1fca-59c1-9909-6abccb791bdc":{"uri":"acme-docs/s01/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000001002}}
+[...]
+{"f2cdeb01-8b98-5c8b-91c8-fa5084ebee10":{"uri":"acme-docs/s01/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000026502}}
+{"9f419ca1-904b-51dc-aa42-be01587c6e46":{"uri":"acme-docs/s01/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000026503}}
+{"0279cad1-5117-57e4-94a7-2b487b14db9a":{"uri":"acme-docs/s01/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000031501}}
+{"1531c911-182a-5a91-ae0a-1b92e90e2ce5":{"uri":"acme-docs/s01/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000034501}}
+[...]
+{"6ac9410a-aedf-56e9-9448-fb8cf91b7651":{"uri":"acme-docs/s02/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000069502}}
+[...]
+{"f4de9588-0730-548b-83dc-6624572ec2e9":{"uri":"acme-docs/s02/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000095002}}
+{"39cb9ae0-2883-5516-aa68-a70780f00db6":{"uri":"acme-docs/s02/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000095003}}
+{"6594f109-e9dc-53da-a746-ad1e08f90b10":{"uri":"acme-docs/s02/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000100001}}
+{"5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a":{"uri":"acme-docs/s02/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000103001}}
+[...]
+{"2cd7752a-5a26-541e-af6a-1eeb3d4049e4":{"uri":"acme-docs/s03/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000138002}}
+{"a1b92333-9f22-553b-a091-6987afa9f06a":{"uri":"acme-docs/s03/02_api_style_guide_v1.md","kind":"doc","trust":1.0,"created_at":1760000138003}}
+{"a3157cf7-c91c-5f87-be04-71e3c929bd80":{"uri":"acme-docs/s03/06_api_style_guide_v2.md","kind":"doc","trust":1.0,"created_at":1760000153501}}
+{"45d132f9-8197-5d56-9837-31a9a62d083a":{"uri":"acme-docs/s03/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000163502}}
+{"06728c2f-ac38-5eff-bfe4-af34004ab853":{"uri":"acme-docs/s03/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000163503}}
+{"2e57ef4b-e590-51a0-bd5c-8399750c5698":{"uri":"acme-docs/s03/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000168501}}
+{"50a82728-74ce-51ca-8126-1bfcad8093cc":{"uri":"acme-docs/s03/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000171501}}
+{"a6bbed10-44c3-51f2-8046-e46b23517f91":{"uri":"billing-docs/s03/01_overview.md","kind":"doc","trust":1.0,"created_at":1760000175501}}
+{"e0bd7c84-90b5-57d0-b40a-016f212a21ea":{"uri":"acme-docs/s04/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000206502}}
+[...]
+{"bc2bd91f-2e50-56fa-92eb-ff29aa467586":{"uri":"acme-docs/s04/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000232002}}
+{"33596035-df90-506b-bebe-896d5f493856":{"uri":"acme-docs/s04/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000232003}}
+{"89d35c09-4922-529a-9579-aade059c0c0f":{"uri":"acme-docs/s04/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000237001}}
+{"88dae90f-05ce-5028-bc63-af5836789f02":{"uri":"acme-docs/s04/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000240001}}
+[...]
+{"befbf972-2c5a-5744-aba1-a643a4c7edf2":{"uri":"acme-docs/s05/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000275002}}
+[...]
+{"9adad08f-65e2-5a9e-978f-66d2a45f7767":{"uri":"acme-docs/s05/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000300502}}
+{"6cb51554-80b7-5311-aa63-26842afbbf8c":{"uri":"acme-docs/s05/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000300503}}
+{"6549e120-18b1-50cb-a13a-3ccc3a7877cc":{"uri":"acme-docs/s05/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000305501}}
+{"14284b1e-5c73-5edc-b916-8a8ed5b096c2":{"uri":"acme-docs/s05/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000308501}}
+[...]
+{"9fb044a0-ddc3-570b-8cc6-d13485ca6b65":{"uri":"acme-docs/s06/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000343502}}
+[...]
+{"25c69ed9-6900-5a24-9220-b828122c457f":{"uri":"acme-docs/s06/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000369002}}
+{"1e93d619-1697-50f6-9d74-98340c8d9645":{"uri":"acme-docs/s06/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000369003}}
+{"120b450b-4ed5-5a55-9940-adc6d7047fc4":{"uri":"acme-docs/s06/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000374001}}
+{"c477da62-2474-573b-851d-1e136de0257a":{"uri":"acme-docs/s06/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000377001}}
+[...]
+{"752dc7ec-dfa2-5397-a300-2a99543010d1":{"uri":"acme-docs/s07/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000412002}}
+[...]
+{"8fca5de6-eefb-5898-a627-a940668d993b":{"uri":"acme-docs/s07/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000437502}}
+{"7a3ace3e-26f6-50bf-bee5-64b7c7483084":{"uri":"acme-docs/s07/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000437503}}
+{"b778417b-f0e4-5e04-a289-54778fbb1545":{"uri":"acme-docs/s07/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000442501}}
+{"c5d7113f-1c71-55f0-9770-7ffee4112b3e":{"uri":"acme-docs/s07/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000445501}}
+[...]
+{"4f4d6c96-4af2-5b6e-a29c-e6363095dc0c":{"uri":"acme-docs/s08/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000480502}}
+[...]
+{"abe9bff6-3960-59bd-bc4f-ccd91bb355d6":{"uri":"acme-docs/s08/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000506002}}
+{"924612e4-2e2f-5e76-b4c5-b35350f7644c":{"uri":"acme-docs/s08/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000506003}}
+{"f506859c-7970-51a0-97db-d84207f453f9":{"uri":"acme-docs/s08/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000511001}}
+{"20d49ab5-015b-5a6b-a5a0-85c90a3f0d76":{"uri":"acme-docs/s08/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000514001}}
+[...]
+{"f9b4f85c-cfc3-5d36-a2ac-4b8cb21da28a":{"uri":"acme-docs/s09/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000549002}}
+[...]
+{"d74bf2e2-fdfe-5ed4-832c-1e71b2dc93f5":{"uri":"acme-docs/s09/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000574502}}
+{"8ada797a-e3fc-5439-aac3-8b71257d35c0":{"uri":"acme-docs/s09/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000574503}}
+{"54e63ae0-bede-5abe-8854-35559c106a24":{"uri":"acme-docs/s09/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000579501}}
+{"e5611a24-7de2-532c-a909-85db31e7657f":{"uri":"acme-docs/s09/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000582501}}
+[...]
+{"4cfd52c6-8413-5528-8ef9-2bd7332f17fb":{"uri":"acme-docs/s10/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000617502}}
+[...]
+{"c2e7dc71-a10d-52c7-ac51-3fce70f0a0ff":{"uri":"acme-docs/s10/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000643002}}
+{"4cdcd00a-4654-5805-9def-743b2dbec44a":{"uri":"acme-docs/s10/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000643003}}
+{"82f31efd-0cfe-52e7-860b-a65389429cb2":{"uri":"acme-docs/s10/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000648001}}
+{"21c87012-3ab3-5927-9747-7be6156e72ea":{"uri":"acme-docs/s10/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000651001}}
+[...]
+{"235f1a64-9257-5ead-bece-f4fdfb42a7db":{"uri":"acme-docs/s11/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000686002}}
+[...]
+{"2ec25b2e-15fa-56c0-9a1a-4b5d4d0f9dd5":{"uri":"acme-docs/s11/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000711502}}
+{"23f454f2-2cd6-57ee-a6b0-2bb9c20ca7b5":{"uri":"acme-docs/s11/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000711503}}
+{"90ed1eb4-a29f-550a-a206-c6490ce1088a":{"uri":"acme-docs/s11/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000716501}}
+{"0b38768f-c32e-5d8e-8ca2-2b38b8239eab":{"uri":"acme-docs/s11/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000719501}}
+[...]
+{"400b94ff-38db-56ae-8bbd-876a5c851ef9":{"uri":"acme-docs/s12/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000754502}}
+[...]
+{"f0b0a8a4-3708-5c76-94f1-b0a26acb63e5":{"uri":"acme-docs/s12/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000780002}}
+{"6a64380c-34c4-5a97-99f4-e01c2af78b8f":{"uri":"acme-docs/s12/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000780003}}
+{"8588540b-401b-5a01-9c56-8ba9b6864274":{"uri":"acme-docs/s12/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000785001}}
+{"9aad5fe4-ef32-51c4-80a8-b3cdc43cef96":{"uri":"acme-docs/s12/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000788001}}
+[...]
+{"d3786390-1dbf-5866-bedc-fa82e6b1b40a":{"uri":"acme-docs/s13/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000823002}}
+[...]
+{"ab00d2a9-10f5-56eb-99ca-94af3ede14c2":{"uri":"acme-docs/s13/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000848502}}
+{"86813e16-af98-5492-a687-6dbde64fd316":{"uri":"acme-docs/s13/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000848503}}
+{"9cd776e3-669d-5faa-a239-2a19fe736349":{"uri":"acme-docs/s13/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000853501}}
+{"203c5d63-1133-5029-a45a-d7e225c3d5e5":{"uri":"acme-docs/s13/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000856501}}
+[...]
+{"630cab7f-ca91-5e5b-8ffc-24ecf1f246d3":{"uri":"acme-docs/s14/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000891502}}
+[...]
+{"bb74b1bc-c777-5356-b576-3c6355324084":{"uri":"acme-docs/s14/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000917002}}
+{"6ace22dd-9fd8-517d-aa2f-cd1167e5a814":{"uri":"acme-docs/s14/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000917003}}
+{"9d69b057-e672-5f9d-bad8-cb9f7e005ae1":{"uri":"acme-docs/s14/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000922001}}
+{"96231bab-e1e8-5422-92f8-27d3f98d3fd9":{"uri":"acme-docs/s14/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000925001}}
+[...]
+{"de782705-393d-577b-9675-cf01af77c7ad":{"uri":"acme-docs/s15/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760000960002}}
+[...]
+{"598425c6-5edb-53db-8bcc-b3cc2ca273d2":{"uri":"acme-docs/s15/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760000985502}}
+{"cde4e28d-4b99-51ce-af8e-47f6be6af021":{"uri":"acme-docs/s15/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760000985503}}
+{"97d55ad1-da58-57d1-8719-54616b0937dc":{"uri":"acme-docs/s15/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760000990501}}
+{"f5b88b48-3666-511e-9da7-5fde53059225":{"uri":"acme-docs/s15/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000993501}}
+[...]
+{"5d0b50ae-f866-5c62-abcc-60597a2913f5":{"uri":"acme-docs/s16/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760001028502}}
+[...]
+{"7c00e46c-f53f-5bbe-89fb-21cd7c6143f4":{"uri":"acme-docs/s16/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760001054002}}
+{"8b03f1ce-ba6f-5881-9db3-54dc7695055d":{"uri":"acme-docs/s16/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760001054003}}
+{"ee80410d-eea7-52eb-ade0-f2be2fd2b208":{"uri":"acme-docs/s16/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760001059001}}
+{"c9505fea-78a0-575f-b569-0d272e7e74ac":{"uri":"acme-docs/s16/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001062001}}
+[...]
+{"48f102e7-bce6-525b-b543-395067fb90ed":{"uri":"acme-docs/s17/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760001097002}}
+[...]
+{"022eebb0-cce9-53d3-a1ce-57e5920b4480":{"uri":"acme-docs/s17/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760001122502}}
+{"7f819974-6229-571e-a86d-c3093affdf3f":{"uri":"acme-docs/s17/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760001122503}}
+{"a7507f29-792e-58b0-a4bd-8e2ca1127943":{"uri":"acme-docs/s17/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760001127501}}
+{"2b32abee-1156-5b5b-b04d-5b6d42420594":{"uri":"acme-docs/s17/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001130501}}
+[...]
+{"035fa372-9b02-5ca4-ac8b-086de9ee632d":{"uri":"acme-docs/s18/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760001165502}}
+[...]
+{"a94d255e-8389-523e-87b6-ede330edc27e":{"uri":"acme-docs/s18/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760001191002}}
+{"2e1b1482-0960-5c29-afcf-ee144db7aeb7":{"uri":"acme-docs/s18/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760001191003}}
+{"028ba9b7-6c12-5e69-941b-1df80c0c1f9d":{"uri":"acme-docs/s18/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760001196001}}
+{"06de3fcd-ed3b-59e6-a82f-7a56587aaefb":{"uri":"acme-docs/s18/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001199001}}
+[...]
+{"dcb6a066-7789-5474-a6a4-4d7c56704c93":{"uri":"acme-docs/s19/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760001234002}}
+[...]
+{"11821551-c490-517f-965c-e94a52effb27":{"uri":"acme-docs/s19/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760001259502}}
+{"80401274-db22-5422-88b3-2f326993bae1":{"uri":"acme-docs/s19/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760001259503}}
+{"286b5282-5143-54de-82ef-62f67b4c57a4":{"uri":"acme-docs/s19/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760001264501}}
+{"433f47b1-eac7-5fcc-80a1-9a37cdbed257":{"uri":"acme-docs/s19/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001267501}}
+[...]
+{"df71f9f2-f60d-57ea-ade8-138693805032":{"uri":"acme-docs/s20/01_product_brief.md","kind":"doc","trust":1.0,"created_at":1760001302502}}
+[...]
+{"c51fc7a1-395f-5173-8de6-98c16f02fdcf":{"uri":"acme-docs/s20/03_infra_note.md","kind":"doc","trust":1.0,"created_at":1760001328002}}
+{"402de8e3-28a6-5757-b250-67e17c1975ce":{"uri":"acme-docs/s20/04_security_note.md","kind":"doc","trust":1.0,"created_at":1760001328003}}
+{"6706b1cf-499b-5e4e-b605-38c03014d712":{"uri":"acme-docs/s20/05_customer_request.md","kind":"chat","trust":0.8,"created_at":1760001333001}}
+{"0d04ac3e-ab11-50fc-8239-48273717b517":{"uri":"acme-docs/s20/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001336001}}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000161502,"tool":"handoff","id":"059b350c-3f17-5a85-b0ad-dcd63af1ab57","to":"planner","task":"s03-t12-update-endpoints-for-v2","note":"S03: Updated for API v6.","artifacts":["aca951fd-7570-5816-8b28-48c758f15282"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd"],"at":1760000161501}
+[...]
+{"ts":1760000186502,"tool":"handoff","id":"ca66045d-b446-5002-b023-ae96f7e1a787","to":"planner","task":"s03-t07-implement-crud-spec","note":"S03: CRUD spec ready for review.","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000186501}
+[...]
+{"ts":1760000199502,"tool":"handoff","id":"d92ca6d4-d296-58d8-b904-11943ddd547e","to":"planner","task":"s03-t11-package-release","note":"S03: Release bundle is ready.","artifacts":["c3ec9fb3-9334-50e9-adb8-3cbd42eded49"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd"],"at":1760000199501}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000152502,"tool":"handoff","id":"8c410f22-7191-553a-84e8-b4748682424d","to":"builder","task":"s03-t03-design-endpoints","note":"S03: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["43c95bc7-09ef-520f-b7c4-f7dc844b4617"],"facts":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"at":1760000152501}
+[...]
+{"ts":1760000196502,"tool":"complete_task","task":"s03-t10-write-docs","artifacts":["a711bd5e-2265-5419-8930-a1657fd9cde9"]}
+

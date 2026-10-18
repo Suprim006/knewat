@@ -1,0 +1,343 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table deps
+task_id,dep_id
+s15-t02-choose-api-version,s15-t01-gather-requirements
+s15-t03-design-endpoints,s15-t02-choose-api-version
+s15-t04-survey-infra-security,s15-t01-gather-requirements
+s15-t05-choose-auth,s15-t04-survey-infra-security
+s15-t06-write-db-schema,s15-t02-choose-api-version
+s15-t07-implement-crud-spec,s15-t03-design-endpoints
+s15-t07-implement-crud-spec,s15-t05-choose-auth
+s15-t08-write-test-plan,s15-t03-design-endpoints
+s15-t09-review-spec,s15-t07-implement-crud-spec
+s15-t09-review-spec,s15-t08-write-test-plan
+s15-t10-write-docs,s15-t09-review-spec
+s15-t11-package-release,s15-t10-write-docs
+s15-t12-update-endpoints-for-v2,s15-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+0ee5f4f9-0a33-52cc-898d-b4955346f3e3,s15-t01-gather-requirements,file,artifacts/s15/requirements.md,,"S15 requirements: notes CRUD, tags, API version v29",researcher,1760000962002
+614024b9-b96b-5417-8716-c3f5379df053,s15-t03-design-endpoints,file,artifacts/s15/openapi-draft.yaml,,S15 endpoint draft for /v29/notes (CRUD),researcher,1760000973501
+df3d8849-54e7-5591-b48e-3701f4d28516,s15-t12-update-endpoints-for-v2,file,artifacts/s15/openapi-v2.yaml,,S15 endpoint design for /v30/notes,builder,1760000982501
+7c811ef9-5784-5619-8850-6146d186caf7,s15-t06-write-db-schema,file,artifacts/s15/schema.sql,,"S15 SQL Server 2022 schema: notes, tags, note_tags",builder,1760001003501
+a8166a94-af06-514f-aa6d-29ef076b114a,s15-t07-implement-crud-spec,file,artifacts/s15/crud-spec.md,,S15 CRUD spec for the current API version with JWT auth,builder,1760001007501
+6fbb1b4c-8187-59ed-8743-9cec288a02d4,s15-t10-write-docs,file,artifacts/s15/docs.md,,S15 API documentation,researcher,1760001018501
+6ee8da39-134c-5ee4-9231-c4790b56a9be,s15-t11-package-release,file,artifacts/s15/release.tar,,S15 release bundle of the Acme Notes API,builder,1760001020501
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+21d13d2e-59ec-5b10-8891-eb1bd3ccc0bf,Acme Notes API S01,purpose,"REST service to create, tag and search notes (S01)",global,active,1760000002000,9999999999999
+2b927606-c02e-5d86-8c84-18c267e87215,Acme Notes API S01,api_version,v1,global,superseded,1760000003000,1760000017500
+e3d70963-c74e-5c24-9814-4c48b55c84bc,Acme Notes API S01,api_version,v2,global,active,1760000017500,9999999999999
+64481d26-77ec-5176-b2be-13b1074c32ee,Acme Notes API S01,database,PostgreSQL 16,global,active,1760000027500,9999999999999
+f5aae893-1530-56f3-8882-3bed05324144,Acme Notes API S01,auth_method,API key in X-Api-Key header,global,active,1760000032500,9999999999999
+d04e6e8e-1f06-55a2-a92f-7e931314a9db,Acme Notes API S01,database,MongoDB 4,global,forgotten,1760000035500,1760000037501
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,Bolt Billing API S01,billing_cycle,"monthly, invoiced on day 1",project:billing-s01,active,1760000039500,9999999999999
+eaf77560-4cef-5eca-b904-e65479ecb272,Acme Notes API S01,release_channel,closed beta,project:acme-s01,active,1760000040500,9999999999999
+d6c1fd09-8fa8-5038-a694-6cecd2fb2334,Acme Notes API S02,purpose,"REST service to create, tag and search notes (S02)",global,active,1760000070500,9999999999999
+271b3641-7f41-5602-9219-6f7236a6b215,Acme Notes API S02,api_version,v3,global,superseded,1760000071500,1760000086000
+399e1e16-1b03-5184-b159-958079bedc70,Acme Notes API S02,api_version,v4,global,active,1760000086000,9999999999999
+2db29fe7-a2f9-5d63-936b-f07eaf671eb6,Acme Notes API S02,database,MySQL 8,global,active,1760000096000,9999999999999
+829390c2-ab74-5246-8ede-795f0315774d,Acme Notes API S02,database,Cassandra 5,global,forgotten,1760000104000,1760000106001
+3a5f4992-3d29-52f0-8de7-0b5710925d3c,Bolt Billing API S02,billing_cycle,"weekly, invoiced on day 2",project:billing-s02,active,1760000108000,9999999999999
+f388cc5f-a42f-533d-881f-f3c0e3903e3e,Acme Notes API S02,release_channel,open beta,project:acme-s02,active,1760000109000,9999999999999
+48e68b78-b5ec-51c8-846d-7ef799fb8204,Acme Notes API S03,purpose,"REST service to create, tag and search notes (S03)",global,active,1760000139000,9999999999999
+fc4e0924-6721-5efd-bd74-45c790960ce6,Acme Notes API S03,api_version,v5,global,superseded,1760000140000,1760000154500
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,Acme Notes API S03,api_version,v6,global,active,1760000154500,9999999999999
+f68de5be-dd66-5ad8-bc70-58e5a90803ce,Acme Notes API S03,database,MariaDB 11,global,active,1760000164500,9999999999999
+9bfc1e64-3bac-5fa5-ad23-e26c14efcd47,Acme Notes API S03,database,Couchbase 6,global,forgotten,1760000172500,1760000174501
+d91d92d8-9f70-5951-a9f4-0b75f833ff07,Bolt Billing API S03,billing_cycle,"quarterly, invoiced on day 3",project:billing-s03,active,1760000176500,9999999999999
+7b2ccab8-fe0b-5973-8419-ec7d9ed33a44,Acme Notes API S03,release_channel,private preview,project:acme-s03,active,1760000177500,9999999999999
+e02989a3-582c-5338-8e14-3afd9019faea,Acme Notes API S04,purpose,"REST service to create, tag and search notes (S04)",global,active,1760000207500,9999999999999
+a3e6a516-fc31-5e62-ab92-e9f92abb72e9,Acme Notes API S04,api_version,v7,global,superseded,1760000208500,1760000223000
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,Acme Notes API S04,api_version,v8,global,active,1760000223000,9999999999999
+b18ce498-ca5b-5425-b920-72c0df42f780,Acme Notes API S04,database,CockroachDB 24,global,active,1760000233000,9999999999999
+21402263-e0ee-5823-9999-b8b0073049d5,Acme Notes API S04,database,DynamoDB 7,global,forgotten,1760000241000,1760000243001
+693d6da9-fee9-58ca-8816-10fecff2b269,Bolt Billing API S04,billing_cycle,"biweekly, invoiced on day 4",project:billing-s04,active,1760000245000,9999999999999
+2debeff6-b858-539e-8c70-f73c0a1ca8c5,Acme Notes API S04,release_channel,early access,project:acme-s04,active,1760000246000,9999999999999
+89222f2a-accb-5b29-9824-7d13443ea4d3,Acme Notes API S05,purpose,"REST service to create, tag and search notes (S05)",global,active,1760000276000,9999999999999
+ca0ea7ab-cc37-5143-b241-878499db2bd5,Acme Notes API S05,api_version,v9,global,superseded,1760000277000,1760000291500
+cbde9957-b402-503b-bef3-f0a0733a8c27,Acme Notes API S05,api_version,v10,global,active,1760000291500,9999999999999
+56aae829-cd18-53c7-b1f0-748deb332dfb,Acme Notes API S05,database,SQL Server 2022,global,active,1760000301500,9999999999999
+8b709ed9-81a2-5c6c-801a-bd45c94e7a6d,Acme Notes API S05,database,Redis 8,global,forgotten,1760000309500,1760000311501
+830e0e56-2b7b-50ec-be73-451989cb507e,Bolt Billing API S05,billing_cycle,"monthly, invoiced on day 5",project:billing-s05,active,1760000313500,9999999999999
+b5f311d2-6ea7-5e99-90d8-db978bca5428,Acme Notes API S05,release_channel,general availability,project:acme-s05,active,1760000314500,9999999999999
+ce8520b9-c5e5-58eb-ad66-4494e9f418ca,Acme Notes API S06,purpose,"REST service to create, tag and search notes (S06)",global,active,1760000344500,9999999999999
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,Acme Notes API S06,api_version,v11,global,superseded,1760000345500,1760000360000
+8d2b5d80-fe43-5534-8e8a-955905c4975b,Acme Notes API S06,api_version,v12,global,active,1760000360000,9999999999999
+1654df3c-dbba-515b-85a1-fb158f3a95b0,Acme Notes API S06,database,Oracle 23,global,active,1760000370000,9999999999999
+a358e2a2-9b4c-5143-97ec-721836d2a9de,Acme Notes API S06,database,CouchDB 9,global,forgotten,1760000378000,1760000380001
+7b476e2f-dae4-5ff3-acb4-24ef0025b065,Bolt Billing API S06,billing_cycle,"weekly, invoiced on day 6",project:billing-s06,active,1760000382000,9999999999999
+f290faec-6971-59de-8164-6ba6aab35ab3,Acme Notes API S06,release_channel,closed beta,project:acme-s06,active,1760000383000,9999999999999
+872a25c1-97cc-5676-b4ec-866339fea19e,Acme Notes API S07,purpose,"REST service to create, tag and search notes (S07)",global,active,1760000413000,9999999999999
+9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,Acme Notes API S07,api_version,v13,global,superseded,1760000414000,1760000428500
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,Acme Notes API S07,api_version,v14,global,active,1760000428500,9999999999999
+81a13776-eecc-5127-af30-f5e30618d336,Acme Notes API S07,database,PostgreSQL 15,global,active,1760000438500,9999999999999
+cc4ca4b0-4d9e-5305-aeca-1d63e046a297,Acme Notes API S07,database,RethinkDB 10,global,forgotten,1760000446500,1760000448501
+74f296cb-6df6-5f59-86f6-3dc971410666,Bolt Billing API S07,billing_cycle,"quarterly, invoiced on day 7",project:billing-s07,active,1760000450500,9999999999999
+70905c5f-9ab9-5580-8a79-8aad4b1a6633,Acme Notes API S07,release_channel,open beta,project:acme-s07,active,1760000451500,9999999999999
+f1e922a8-111f-5bdd-8b14-af19f65ddee6,Acme Notes API S08,purpose,"REST service to create, tag and search notes (S08)",global,active,1760000481500,9999999999999
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,Acme Notes API S08,api_version,v15,global,superseded,1760000482500,1760000497000
+f4918c86-ef7f-50df-94d1-abc537082890,Acme Notes API S08,api_version,v16,global,active,1760000497000,9999999999999
+e5ca0231-f709-5a9b-905f-27706b8cdc3e,Acme Notes API S08,database,Db2 12,global,active,1760000507000,9999999999999
+8d09189a-de26-57cf-9d86-0b803170cfb1,Acme Notes API S08,auth_method,API key in X-Notes-Key header,global,active,1760000512000,9999999999999
+89d0ea3a-71e0-54c0-ad11-ad8dc201b757,Acme Notes API S08,database,Neo4j 11,global,forgotten,1760000515000,1760000517001
+89e9ab1b-d617-5098-adb0-a7aa78a5e724,Bolt Billing API S08,billing_cycle,"biweekly, invoiced on day 8",project:billing-s08,active,1760000519000,9999999999999
+87d2ead0-f00f-5204-8292-58c486e0b01d,Acme Notes API S08,release_channel,private preview,project:acme-s08,active,1760000520000,9999999999999
+0fd23cd1-9926-5d51-926c-dd01541755cf,Acme Notes API S09,purpose,"REST service to create, tag and search notes (S09)",global,active,1760000550000,9999999999999
+c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,Acme Notes API S09,api_version,v17,global,superseded,1760000551000,1760000565500
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,Acme Notes API S09,api_version,v18,global,active,1760000565500,9999999999999
+213040a9-fd8c-54ce-88b8-18b5642c6258,Acme Notes API S09,database,TiDB 8,global,active,1760000575500,9999999999999
+627cee86-09ce-53a8-8797-fbf748462ecb,Acme Notes API S09,database,ScyllaDB 12,global,forgotten,1760000583500,1760000585501
+6fb8103d-ab8e-5b4f-b696-0a95900ccc04,Bolt Billing API S09,billing_cycle,"monthly, invoiced on day 9",project:billing-s09,active,1760000587500,9999999999999
+58fc3de5-8126-591d-9708-96b7ec12f196,Acme Notes API S09,release_channel,early access,project:acme-s09,active,1760000588500,9999999999999
+d5d4fc01-97cc-593d-a7f6-347560198edf,Acme Notes API S10,purpose,"REST service to create, tag and search notes (S10)",global,active,1760000618500,9999999999999
+ae28d59b-3427-5793-b33d-9abfe80363c8,Acme Notes API S10,api_version,v19,global,superseded,1760000619500,1760000634000
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,Acme Notes API S10,api_version,v20,global,active,1760000634000,9999999999999
+c171bdc8-2c65-5c84-b9d1-f56c58740be9,Acme Notes API S10,database,Aurora MySQL 3,global,active,1760000644000,9999999999999
+a7c6ea31-4300-5afb-a980-2f6dba60fc95,Acme Notes API S10,database,Riak 13,global,forgotten,1760000652000,1760000654001
+5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed,Bolt Billing API S10,billing_cycle,"weekly, invoiced on day 10",project:billing-s10,active,1760000656000,9999999999999
+9cb66ebf-fe08-5a0d-bb90-075f85ab1605,Acme Notes API S10,release_channel,general availability,project:acme-s10,active,1760000657000,9999999999999
+75b60846-398b-5560-b627-f38319ed3d47,Acme Notes API S11,purpose,"REST service to create, tag and search notes (S11)",global,active,1760000687000,9999999999999
+a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,Acme Notes API S11,api_version,v21,global,superseded,1760000688000,1760000702500
+6e976d44-c6ad-52c2-918c-f396900cc85e,Acme Notes API S11,api_version,v22,global,active,1760000702500,9999999999999
+a409f3e8-d6af-55b5-ac10-76322be26bcc,Acme Notes API S11,database,PostgreSQL 16,global,active,1760000712500,9999999999999
+840758d6-b085-5fb7-8439-41ea4d9075e2,Acme Notes API S11,database,MongoDB 14,global,forgotten,1760000720500,1760000722501
+912de14c-085a-5b4b-817b-8e01357babce,Bolt Billing API S11,billing_cycle,"quarterly, invoiced on day 11",project:billing-s11,active,1760000724500,9999999999999
+8e111424-9735-5695-a76b-90410f7a4818,Acme Notes API S11,release_channel,closed beta,project:acme-s11,active,1760000725500,9999999999999
+fd51d50f-66d5-5d7c-8bbd-e64780d87d4d,Acme Notes API S12,purpose,"REST service to create, tag and search notes (S12)",global,active,1760000755500,9999999999999
+9d31097e-bc44-5443-b9c6-6e15ee7fceba,Acme Notes API S12,api_version,v23,global,superseded,1760000756500,1760000771000
+9c6f3395-6466-5261-87f5-70fa6df0101e,Acme Notes API S12,api_version,v24,global,active,1760000771000,9999999999999
+10b8bab6-920b-56d7-8a22-210c07835836,Acme Notes API S12,database,MySQL 8,global,active,1760000781000,9999999999999
+95e1d954-04a9-5d9a-8441-994f908947d4,Acme Notes API S12,database,Cassandra 15,global,forgotten,1760000789000,1760000791001
+2a2f20a8-61ae-50c5-abeb-3aad5b02779e,Bolt Billing API S12,billing_cycle,"biweekly, invoiced on day 12",project:billing-s12,active,1760000793000,9999999999999
+140e176c-68fd-5743-bc59-eb7d8b0cbd4a,Acme Notes API S12,release_channel,open beta,project:acme-s12,active,1760000794000,9999999999999
+d1590cf4-d43e-564b-a8e9-3d12529bba5f,Acme Notes API S13,purpose,"REST service to create, tag and search notes (S13)",global,active,1760000824000,9999999999999
+a8d569a8-4806-56a9-b86e-f497a45654d5,Acme Notes API S13,api_version,v25,global,superseded,1760000825000,1760000839500
+cf3fd407-5373-5c92-a502-6ca529fefeca,Acme Notes API S13,api_version,v26,global,active,1760000839500,9999999999999
+e186e943-f3c8-561f-892d-5b6711d9ebc8,Acme Notes API S13,database,MariaDB 11,global,active,1760000849500,9999999999999
+89edb49c-4d7d-5da0-b79c-14d927fe6390,Acme Notes API S13,database,Couchbase 16,global,forgotten,1760000857500,1760000859501
+fac5fc92-c1d1-5fc1-b074-8bede03f1284,Bolt Billing API S13,billing_cycle,"monthly, invoiced on day 13",project:billing-s13,active,1760000861500,9999999999999
+49f52e35-8611-555b-99e0-c7accb9cc5e3,Acme Notes API S13,release_channel,private preview,project:acme-s13,active,1760000862500,9999999999999
+d057581f-7df1-5cc4-b028-25ca36bca348,Acme Notes API S14,purpose,"REST service to create, tag and search notes (S14)",global,active,1760000892500,9999999999999
+dabba289-f252-508f-9c32-f03223137480,Acme Notes API S14,api_version,v27,global,superseded,1760000893500,1760000908000
+9fd49e10-ddb9-5be8-b66f-63cf9ce130f3,Acme Notes API S14,api_version,v28,global,active,1760000908000,9999999999999
+ebf95c3e-be4e-5a31-ba0c-945f2ea4f373,Acme Notes API S14,database,CockroachDB 24,global,active,1760000918000,9999999999999
+909bf6fb-2c0d-5c9b-a327-e3c3803ff755,Acme Notes API S14,database,DynamoDB 17,global,forgotten,1760000926000,1760000928001
+4363b17f-3322-56a0-8d2b-1b5a1e28f43a,Bolt Billing API S14,billing_cycle,"weekly, invoiced on day 14",project:billing-s14,active,1760000930000,9999999999999
+240fbc02-c650-5b0b-964d-411a8ef0771e,Acme Notes API S14,release_channel,early access,project:acme-s14,active,1760000931000,9999999999999
+5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79,Acme Notes API S15,purpose,"REST service to create, tag and search notes (S15)",global,active,1760000961000,9999999999999
+eeb91d3d-4345-5271-9659-12e1597fda54,Acme Notes API S15,api_version,v29,global,superseded,1760000962000,1760000976500
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,Acme Notes API S15,api_version,v30,global,active,1760000976500,9999999999999
+83c9ac76-b3e6-5f7b-b728-9034960b4407,Acme Notes API S15,database,SQL Server 2022,global,active,1760000986500,9999999999999
+174dde7f-0a35-54ec-849b-1bb81f3919c9,Acme Notes API S15,auth_method,"JWT bearer tokens (ES384, key s15)",global,active,1760000987500,9999999999999
+87611194-56da-542a-9bce-78206b3ffdb8,Acme Notes API S15,auth_method,API key in X-Web-Key header,global,active,1760000991500,9999999999999
+d90f88cf-844f-53f2-ae23-ee244ac551bf,Acme Notes API S15,database,Redis 18,global,forgotten,1760000994500,1760000996501
+0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,Bolt Billing API S15,billing_cycle,"quarterly, invoiced on day 15",project:billing-s15,active,1760000998500,9999999999999
+dddf3933-ecf8-5793-8e2f-b7467db404ac,Acme Notes API S15,release_channel,general availability,project:acme-s15,active,1760000999500,9999999999999
+af929ff1-791f-5778-a1cd-28e88d43f1e1,Acme Notes API S16,purpose,"REST service to create, tag and search notes (S16)",global,active,1760001029500,9999999999999
+343721a0-acf1-5d8a-b8bb-a4eff45c56d5,Acme Notes API S16,api_version,v31,global,superseded,1760001030500,1760001045000
+cab11576-003a-511c-86e7-a5bb6da5dbf4,Acme Notes API S16,api_version,v32,global,active,1760001045000,9999999999999
+661c6b9a-615a-575b-9022-2dc167b28eaf,Acme Notes API S16,database,Oracle 23,global,active,1760001055000,9999999999999
+8c0c9c0e-e435-5989-b4d5-0b471560e947,Acme Notes API S16,database,CouchDB 19,global,forgotten,1760001063000,1760001065001
+c7e8b034-4761-5a82-8fad-ebc65571848c,Bolt Billing API S16,billing_cycle,"biweekly, invoiced on day 16",project:billing-s16,active,1760001067000,9999999999999
+caff852d-6e06-52c3-9e24-d6119f0977ed,Acme Notes API S16,release_channel,closed beta,project:acme-s16,active,1760001068000,9999999999999
+4b5b8857-ce3d-538e-a207-6496124481b1,Acme Notes API S17,purpose,"REST service to create, tag and search notes (S17)",global,active,1760001098000,9999999999999
+767c0e30-7c17-5b0a-afca-43d877935410,Acme Notes API S17,api_version,v33,global,superseded,1760001099000,1760001113500
+4e6d9291-e9a9-5e7e-b158-836682b7f9c2,Acme Notes API S17,api_version,v34,global,active,1760001113500,9999999999999
+0a07e018-2944-50d3-afee-056128b01781,Acme Notes API S17,database,PostgreSQL 15,global,active,1760001123500,9999999999999
+bc5bb23b-a206-5d2a-a0d1-800573fa5575,Acme Notes API S17,database,RethinkDB 20,global,forgotten,1760001131500,1760001133501
+4490b294-47f7-5bdc-922a-93c3e89025fb,Bolt Billing API S17,billing_cycle,"monthly, invoiced on day 17",project:billing-s17,active,1760001135500,9999999999999
+a493bc4a-c3ab-5c84-a8cc-546bd4ec70ff,Acme Notes API S17,release_channel,open beta,project:acme-s17,active,1760001136500,9999999999999
+f4694c65-a438-53f4-8ded-10de4787565c,Acme Notes API S18,purpose,"REST service to create, tag and search notes (S18)",global,active,1760001166500,9999999999999
+37c89e1d-d386-5dd8-874f-7da4a9406202,Acme Notes API S18,api_version,v35,global,superseded,1760001167500,1760001182000
+db6089a8-7374-54f4-9bf6-f233ae2d1d4d,Acme Notes API S18,api_version,v36,global,active,1760001182000,9999999999999
+605f027c-e18c-50b3-b33e-c5e54407570a,Acme Notes API S18,database,Db2 12,global,active,1760001192000,9999999999999
+7a67ca14-839a-5170-9971-a20197810304,Acme Notes API S18,database,Neo4j 21,global,forgotten,1760001200000,1760001202001
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,Bolt Billing API S18,billing_cycle,"weekly, invoiced on day 18",project:billing-s18,active,1760001204000,9999999999999
+f646a829-19e3-57ce-8aaa-920070d468cd,Acme Notes API S18,release_channel,private preview,project:acme-s18,active,1760001205000,9999999999999
+fe13037b-cc88-5469-b07b-1577cff14510,Acme Notes API S19,purpose,"REST service to create, tag and search notes (S19)",global,active,1760001235000,9999999999999
+21836852-1574-5d90-9068-b12642ab4ccd,Acme Notes API S19,api_version,v37,global,superseded,1760001236000,1760001250500
+28a328cd-86a1-5480-9a95-d398ed40eb33,Acme Notes API S19,api_version,v38,global,active,1760001250500,9999999999999
+6e0b3ad2-753f-5f6a-b06d-aa6393260428,Acme Notes API S19,database,TiDB 8,global,active,1760001260500,9999999999999
+e4fcdd43-d040-5571-a6ad-13d72dfaec1f,Acme Notes API S19,database,ScyllaDB 22,global,forgotten,1760001268500,1760001270501
+1329b454-6349-510a-bc35-8fcc8867f611,Bolt Billing API S19,billing_cycle,"quarterly, invoiced on day 19",project:billing-s19,active,1760001272500,9999999999999
+01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,Acme Notes API S19,release_channel,early access,project:acme-s19,active,1760001273500,9999999999999
+b55b96c8-ef25-512e-acde-fa3bb5a37f6c,Acme Notes API S20,purpose,"REST service to create, tag and search notes (S20)",global,active,1760001303500,9999999999999
+314cea0e-655e-578d-b067-95bf5b16cb93,Acme Notes API S20,api_version,v39,global,superseded,1760001304500,1760001319000
+94fef2a4-a13b-53ed-9d07-0f8cf862efa6,Acme Notes API S20,api_version,v40,global,active,1760001319000,9999999999999
+7f1d8278-94f2-5c84-948a-e34170fedb65,Acme Notes API S20,database,Aurora MySQL 3,global,active,1760001329000,9999999999999
+3feb9534-3d34-5900-84f0-73e95a1532ea,Acme Notes API S20,database,Riak 23,global,forgotten,1760001337000,1760001339001
+368a3f28-d754-5731-b810-e2d4d01debbc,Bolt Billing API S20,billing_cycle,"biweekly, invoiced on day 20",project:billing-s20,active,1760001341000,9999999999999
+e507c7cc-74bf-53e4-b40b-40037024086b,Acme Notes API S20,release_channel,general availability,project:acme-s20,active,1760001342000,9999999999999
+
+-- table fact_agents
+fact_id,agent_id,at
+5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79,researcher,1760000961000
+eeb91d3d-4345-5271-9659-12e1597fda54,researcher,1760000962000
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,researcher,1760000976500
+83c9ac76-b3e6-5f7b-b728-9034960b4407,researcher,1760000986500
+174dde7f-0a35-54ec-849b-1bb81f3919c9,researcher,1760000987500
+d90f88cf-844f-53f2-ae23-ee244ac551bf,planner,1760000994500
+0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,researcher,1760000998500
+dddf3933-ecf8-5793-8e2f-b7467db404ac,planner,1760000999500
+
+-- table fact_links
+src,dst,kind
+5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79,de782705-393d-577b-9675-cf01af77c7ad,derived_from
+eeb91d3d-4345-5271-9659-12e1597fda54,6874e4c1-5a5e-5325-aca1-40da0f75530b,derived_from
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,0f430b25-1004-5258-af83-b706946f124b,derived_from
+4a728057-55a9-5aca-8e1e-b552d2f8daa5,eeb91d3d-4345-5271-9659-12e1597fda54,supersedes
+83c9ac76-b3e6-5f7b-b728-9034960b4407,598425c6-5edb-53db-8bcc-b3cc2ca273d2,derived_from
+174dde7f-0a35-54ec-849b-1bb81f3919c9,cde4e28d-4b99-51ce-af8e-47f6be6af021,derived_from
+87611194-56da-542a-9bce-78206b3ffdb8,97d55ad1-da58-57d1-8719-54616b0937dc,derived_from
+87611194-56da-542a-9bce-78206b3ffdb8,174dde7f-0a35-54ec-849b-1bb81f3919c9,contradicts
+d90f88cf-844f-53f2-ae23-ee244ac551bf,f5b88b48-3666-511e-9da7-5fde53059225,derived_from
+d90f88cf-844f-53f2-ae23-ee244ac551bf,83c9ac76-b3e6-5f7b-b728-9034960b4407,contradicts
+0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,a2d55b14-79ae-50e9-af07-06389712ed28,derived_from
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+5a926988-bc21-59db-a9f4-f78d83aa3012,planner,s15-t02-choose-api-version,S15: Build the Acme Notes API against v29 of the style guide (routes under /v29/).,1760000964001,0
+d0c30ce2-124f-57cd-aab6-e7c460ec4806,planner,s15-t02-choose-api-version,S15: Adopt style guide v30: the API version is now v30 (routes under /v30/).,1760000978501,0
+
+-- table decision_facts
+decision_id,fact_id
+5a926988-bc21-59db-a9f4-f78d83aa3012,eeb91d3d-4345-5271-9659-12e1597fda54
+d0c30ce2-124f-57cd-aab6-e7c460ec4806,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+96c0e0f7-c96d-54d0-ab72-20dc1e7e9233,174dde7f-0a35-54ec-849b-1bb81f3919c9
+96c0e0f7-c96d-54d0-ab72-20dc1e7e9233,87611194-56da-542a-9bce-78206b3ffdb8
+a913056a-8c85-5859-a2e2-0bf257ad7506,d90f88cf-844f-53f2-ae23-ee244ac551bf
+02eb71bc-eb6d-540c-b0c3-4eb8034f8ecc,83c9ac76-b3e6-5f7b-b728-9034960b4407
+088c32c9-9211-501e-8eab-f6ea616d8eb4,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+088c32c9-9211-501e-8eab-f6ea616d8eb4,174dde7f-0a35-54ec-849b-1bb81f3919c9
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+0a5bee96-8991-5ad5-a970-5e8f410b233f,researcher,builder,s15-t03-design-endpoints,S15: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000974501
+d27471aa-e216-5b7d-a706-6398fcdfcc03,builder,planner,s15-t12-update-endpoints-for-v2,S15: Updated for API v30.,1760000983501
+
+-- table handoff_items
+handoff_id,kind,item_id
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,fact,2b927606-c02e-5d86-8c84-18c267e87215
+6d1c8827-5364-5087-b34b-8f5ab75fc134,fact,271b3641-7f41-5602-9219-6f7236a6b215
+8c410f22-7191-553a-84e8-b4748682424d,fact,fc4e0924-6721-5efd-bd74-45c790960ce6
+c9ae64b6-af8c-56ff-b547-2b7cad06361c,fact,a3e6a516-fc31-5e62-ab92-e9f92abb72e9
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,fact,ca0ea7ab-cc37-5143-b241-878499db2bd5
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,fact,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+0160c629-b5f5-5ea0-b2bd-661e3e27fe6e,fact,9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d
+3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2,fact,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9
+055e0241-8283-5c4f-8491-576d5d73be55,fact,c591ebd4-30f6-5f5a-bdd3-03a2c78fb133
+357e4c93-b791-52a8-a731-c6f51a269a8a,fact,ae28d59b-3427-5793-b33d-9abfe80363c8
+a4e86dad-a233-58ab-8e66-ebfedc265fd1,fact,a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a
+e56e47d7-f618-5c4f-8aa3-d373c94991fe,fact,9d31097e-bc44-5443-b9c6-6e15ee7fceba
+543b5765-aa76-55ba-9c62-490eec17d1da,fact,a8d569a8-4806-56a9-b86e-f497a45654d5
+8ebcca38-a83e-56a8-b7d4-340bd20009f5,fact,dabba289-f252-508f-9c32-f03223137480
+0a5bee96-8991-5ad5-a970-5e8f410b233f,artifact,614024b9-b96b-5417-8716-c3f5379df053
+0a5bee96-8991-5ad5-a970-5e8f410b233f,fact,eeb91d3d-4345-5271-9659-12e1597fda54
+d27471aa-e216-5b7d-a706-6398fcdfcc03,artifact,df3d8849-54e7-5591-b48e-3701f4d28516
+d27471aa-e216-5b7d-a706-6398fcdfcc03,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,artifact,a8166a94-af06-514f-aa6d-29ef076b114a
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+924f23f7-7c01-5a36-870b-8a0a4a002dc5,fact,174dde7f-0a35-54ec-849b-1bb81f3919c9
+36c8a8ee-f3bd-5d05-898e-6bc8f82471ab,artifact,6ee8da39-134c-5ee4-9231-c4790b56a9be
+36c8a8ee-f3bd-5d05-898e-6bc8f82471ab,fact,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+557e0af8-ad36-58d3-8116-66262ca0fb46,fact,343721a0-acf1-5d8a-b8bb-a4eff45c56d5
+fcb5aa76-3f00-5c66-8368-4d8a8f895556,fact,767c0e30-7c17-5b0a-afca-43d877935410
+
+-- table step_reads
+step_id,fact_id
+493,eeb91d3d-4345-5271-9659-12e1597fda54
+494,eeb91d3d-4345-5271-9659-12e1597fda54
+494,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+495,eeb91d3d-4345-5271-9659-12e1597fda54
+495,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+497,eeb91d3d-4345-5271-9659-12e1597fda54
+498,eeb91d3d-4345-5271-9659-12e1597fda54
+500,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+500,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+501,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+502,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+502,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+504,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+507,174dde7f-0a35-54ec-849b-1bb81f3919c9
+507,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+507,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+507,83c9ac76-b3e6-5f7b-b728-9034960b4407
+508,174dde7f-0a35-54ec-849b-1bb81f3919c9
+509,174dde7f-0a35-54ec-849b-1bb81f3919c9
+510,83c9ac76-b3e6-5f7b-b728-9034960b4407
+511,d90f88cf-844f-53f2-ae23-ee244ac551bf
+512,d90f88cf-844f-53f2-ae23-ee244ac551bf
+512,83c9ac76-b3e6-5f7b-b728-9034960b4407
+512,174dde7f-0a35-54ec-849b-1bb81f3919c9
+512,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+512,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+515,83c9ac76-b3e6-5f7b-b728-9034960b4407
+515,174dde7f-0a35-54ec-849b-1bb81f3919c9
+515,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+515,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+517,83c9ac76-b3e6-5f7b-b728-9034960b4407
+518,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+518,174dde7f-0a35-54ec-849b-1bb81f3919c9
+518,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+518,83c9ac76-b3e6-5f7b-b728-9034960b4407
+519,174dde7f-0a35-54ec-849b-1bb81f3919c9
+519,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+519,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+519,83c9ac76-b3e6-5f7b-b728-9034960b4407
+520,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+520,174dde7f-0a35-54ec-849b-1bb81f3919c9
+521,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+521,174dde7f-0a35-54ec-849b-1bb81f3919c9
+521,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+521,83c9ac76-b3e6-5f7b-b728-9034960b4407
+522,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+522,174dde7f-0a35-54ec-849b-1bb81f3919c9
+522,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+522,83c9ac76-b3e6-5f7b-b728-9034960b4407
+523,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+523,174dde7f-0a35-54ec-849b-1bb81f3919c9
+524,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+524,174dde7f-0a35-54ec-849b-1bb81f3919c9
+524,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79
+524,83c9ac76-b3e6-5f7b-b728-9034960b4407
+525,4a728057-55a9-5aca-8e1e-b552d2f8daa5
+
+-- table step_wrote
+step_id,node_id,label,summary
+491,5f7cb2ec-ddcc-54dd-b6ed-bd157f0f3e79,Fact,"REST service to create, tag and search notes (S15)"
+492,eeb91d3d-4345-5271-9659-12e1597fda54,Fact,v29
+493,5a926988-bc21-59db-a9f4-f78d83aa3012,Decision,S15: Build the Acme Notes API against v29 of the style guide (routes under /v29/).
+497,0a5bee96-8991-5ad5-a970-5e8f410b233f,Handoff,S15: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+498,4a728057-55a9-5aca-8e1e-b552d2f8daa5,Fact,v30
+504,d27471aa-e216-5b7d-a706-6398fcdfcc03,Handoff,S15: Updated for API v30.
+506,174dde7f-0a35-54ec-849b-1bb81f3919c9,Fact,"JWT bearer tokens (ES384, key s15)"
+510,d90f88cf-844f-53f2-ae23-ee244ac551bf,Fact,Redis 18
+513,0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,Fact,"quarterly, invoiced on day 15"
+514,dddf3933-ecf8-5793-8e2f-b7467db404ac,Fact,general availability
+

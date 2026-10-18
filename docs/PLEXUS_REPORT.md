@@ -1,6 +1,6 @@
 # Plexus: the full report
 
-> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+> **Partly STALE (2026-10-18):** the numbers that [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md) lists as CURRENT were re-verified on `rerun-current` (the code of main 7cca016; $0 layers L1, L4, ablation, L2, L2-scale, B1h, C7 extended, L5a, L5b surviving arms, hub, L6). Every other number in this document was measured on an earlier build and is not valid for the current build until re-run.
 
 **One shared graph brain for AI agent teams.** Graph Hacks (WeMakeDevs × FalkorDB), **Track 02: Agent Memory and
 Coordination**.

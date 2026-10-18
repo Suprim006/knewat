@@ -2,18 +2,19 @@
  "schema": "crucible-l7/1",
  "kind": "i",
  "run": {
-  "id": "20261016T100730Z-i-merged",
-  "started_at": "2026-10-16T10:07:30Z",
-  "finished_at": "2026-10-16T10:56:13Z",
-  "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
+  "id": "20261018T101752Z-i",
+  "started_at": "2026-10-18T10:17:52Z",
+  "finished_at": "2026-10-18T10:29:09Z",
+  "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6392 --scale full --parts I3 --arms F-1stmt,F-multi",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
  "git": {
-  "commit": "b4a4dcf3b3bdd93c95e27b242c1a5e13867dcb3e",
-  "short": "b4a4dcf",
+  "commit": "f1eccf8b062d2d70f3a5c7a4268e781487732427",
+  "short": "f1eccf8",
   "dirty": false,
-  "branch": "p10"
+  "dirty_files": [],
+  "branch": "rerun-l7i"
  },
  "environment": {
   "python": "3.12.14",
@@ -21,11 +22,11 @@
   "machine": "AMD64",
   "cpu_count": 12,
   "in_docker": false,
-  "git_commit": "b4a4dcf",
+  "git_commit": "f1eccf8",
   "embedder": "none",
   "falkordb": {
    "host": "127.0.0.1",
-   "port": 6368,
+   "port": 6392,
    "reachable": true,
    "redis_version": "8.10.2",
    "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
@@ -72,478 +73,20 @@
  "timeout_ms": 10000,
  "scale": "full",
  "parts": {
-  "I1": {
-   "kills_per_arm": 200,
-   "arms": {
-    "S-txn": {
-     "started": 40163,
-     "acknowledged": 40013,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 40090,
-      "partial": 0,
-      "absent": 73
-     },
-     "partial": 0,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 150,
-     "inflight_complete": 77,
-     "inflight_partial": 0,
-     "inflight_absent": 73,
-     "entities_without_intent": 0,
-     "partial_missing_items": {},
-     "partial_rate_per_acknowledged": 0.0,
-     "arm": "S-txn",
-     "kills": 200,
-     "mean_kill_delay_s": 0.188,
-     "run_s": 205.1,
-     "tenant": "l7i_stxn_fb3ff2",
-     "partial_rate_per_kill": 0.0,
-     "rule_of_three_95_upper_per_kill": 0.015,
-     "rule_of_three_95_upper_per_acknowledged": 7.5e-05,
-     "lost_rule_of_three_95_upper_per_acknowledged": 7.5e-05
-    },
-    "S-auto": {
-     "started": 54084,
-     "acknowledged": 53910,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 53921,
-      "partial": 143,
-      "absent": 20
-     },
-     "partial": 143,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 174,
-     "inflight_complete": 11,
-     "inflight_partial": 143,
-     "inflight_absent": 20,
-     "entities_without_intent": 0,
-     "partial_missing_items": {
-      "handoff_carries": 143,
-      "handoff": 130,
-      "handoff_links": 130,
-      "artifact_links": 109,
-      "artifact": 109,
-      "task_done": 99,
-      "decision_based_on": 81,
-      "decision_decided_for": 70,
-      "decision": 70,
-      "step_wrote": 56,
-      "fact_asserted": 37,
-      "fact_derived": 25,
-      "fact": 13
-     },
-     "partial_rate_per_acknowledged": 0.002653,
-     "arm": "S-auto",
-     "kills": 200,
-     "mean_kill_delay_s": 0.201,
-     "run_s": 174.1,
-     "tenant": "l7i_sauto_6c410d",
-     "partial_rate_per_kill": 0.715,
-     "lost_rule_of_three_95_upper_per_acknowledged": 5.6e-05
-    },
-    "F-product": {
-     "started": 365,
-     "acknowledged": 230,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 243,
-      "partial": 86,
-      "absent": 36
-     },
-     "partial": 86,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 135,
-     "inflight_complete": 13,
-     "inflight_partial": 86,
-     "inflight_absent": 36,
-     "entities_without_intent": 0,
-     "partial_missing_items": {
-      "handoff": 86,
-      "handoff_links": 86,
-      "handoff_carries": 86,
-      "artifact_links": 51,
-      "task_done": 51,
-      "artifact": 51,
-      "decision": 28,
-      "decision_based_on": 28,
-      "decision_decided_for": 28
-     },
-     "partial_rate_per_acknowledged": 0.373913,
-     "arm": "F-product",
-     "kills": 200,
-     "mean_kill_delay_s": 0.188,
-     "run_s": 478.8,
-     "tenant": "l7i_fprod_835448",
-     "partial_rate_per_kill": 0.43,
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.013043
-    },
-    "F-multi": {
-     "started": 1783,
-     "acknowledged": 1617,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 1637,
-      "partial": 145,
-      "absent": 1
-     },
-     "partial": 145,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 166,
-     "inflight_complete": 20,
-     "inflight_partial": 145,
-     "inflight_absent": 1,
-     "entities_without_intent": 0,
-     "partial_missing_items": {
-      "handoff": 145,
-      "handoff_links": 145,
-      "handoff_carries": 145,
-      "artifact_links": 123,
-      "artifact": 123,
-      "task_done": 80,
-      "decision": 57,
-      "decision_based_on": 57,
-      "decision_decided_for": 57,
-      "step_wrote": 20,
-      "fact": 20,
-      "fact_asserted": 20,
-      "fact_derived": 20
-     },
-     "partial_rate_per_acknowledged": 0.089672,
-     "arm": "F-multi",
-     "kills": 200,
-     "mean_kill_delay_s": 0.201,
-     "run_s": 208.0,
-     "tenant": "l7i_fmulti_0bbf66",
-     "partial_rate_per_kill": 0.725,
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.001855
-    },
-    "F-multiexec": {
-     "started": 2704,
-     "acknowledged": 2546,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 2701,
-      "partial": 0,
-      "absent": 3
-     },
-     "partial": 0,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 158,
-     "inflight_complete": 155,
-     "inflight_partial": 0,
-     "inflight_absent": 3,
-     "entities_without_intent": 0,
-     "partial_missing_items": {},
-     "partial_rate_per_acknowledged": 0.0,
-     "arm": "F-multiexec",
-     "kills": 200,
-     "mean_kill_delay_s": 0.189,
-     "run_s": 182.2,
-     "tenant": "l7i_fmexec_a19ffd",
-     "partial_rate_per_kill": 0.0,
-     "rule_of_three_95_upper_per_kill": 0.015,
-     "rule_of_three_95_upper_per_acknowledged": 0.001178,
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.001178
-    },
-    "F-1stmt": {
-     "started": 3198,
-     "acknowledged": 3055,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 3196,
-      "partial": 0,
-      "absent": 2
-     },
-     "partial": 0,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 143,
-     "inflight_complete": 141,
-     "inflight_partial": 0,
-     "inflight_absent": 2,
-     "entities_without_intent": 0,
-     "partial_missing_items": {},
-     "partial_rate_per_acknowledged": 0.0,
-     "arm": "F-1stmt",
-     "kills": 200,
-     "mean_kill_delay_s": 0.208,
-     "run_s": 195.2,
-     "tenant": "l7i_f1first_370554",
-     "partial_rate_per_kill": 0.0,
-     "rule_of_three_95_upper_per_kill": 0.015,
-     "rule_of_three_95_upper_per_acknowledged": 0.000982,
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.000982
-    }
-   }
-  },
-  "I2": {
-   "closeouts_per_arm": 400,
-   "stale_fraction": 0.25,
-   "arms": {
-    "S-txn": {
-     "arm": "S-txn",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 0.26,
-      "p99": 5.122,
-      "max": 6.024,
-      "mean": 0.316
-     },
-     "tenant": "l7i_stxn_d87bdd",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
-    },
-    "S-auto": {
-     "arm": "S-auto",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 103,
-     "stale_absent": 0,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 824,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 0.265,
-      "p99": 5.937,
-      "max": 31.826,
-      "mean": 0.44
-     },
-     "tenant": "l7i_sauto_1b1e7f",
-     "partial_total": 103
-    },
-    "F-product": {
-     "arm": "F-product",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 103,
-     "stale_absent": 0,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 824,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 63.418,
-      "p99": 87.246,
-      "max": 108.693,
-      "mean": 61.104
-     },
-     "tenant": "l7i_fprod_7a1985",
-     "partial_total": 103,
-     "note": "no compensation: as the client convention / product is",
-     "queries_per_closeout_last": 19
-    },
-    "F-multi": {
-     "arm": "F-multi",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 103,
-     "stale_absent": 0,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 824,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 14.2,
-      "p99": 20.268,
-      "max": 21.385,
-      "mean": 13.696
-     },
-     "tenant": "l7i_fmulti_221b92",
-     "partial_total": 103,
-     "note": "no compensation: as the client convention / product is"
-    },
-    "F-multi-cas-first": {
-     "arm": "F-multi-cas-first",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 14.483,
-      "p99": 21.037,
-      "max": 23.202,
-      "mean": 12.071
-     },
-     "tenant": "l7i_fmulticas_b3eebe",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
-    },
-    "F-multiexec": {
-     "arm": "F-multiexec",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 103,
-     "stale_absent": 0,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 1339,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 4.539,
-      "p99": 6.913,
-      "max": 7.946,
-      "mean": 4.62
-     },
-     "tenant": "l7i_fmexec_a6e6c9",
-     "partial_total": 103
-    },
-    "F-multiexec-err": {
-     "arm": "F-multiexec-err",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 103,
-     "stale_absent": 0,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 1339,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 4.566,
-      "p99": 8.189,
-      "max": 9.055,
-      "mean": 4.793
-     },
-     "tenant": "l7i_fmexecerr_36f019",
-     "partial_total": 103
-    },
-    "F-1stmt-first": {
-     "arm": "F-1stmt-first",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 3.535,
-      "p99": 6.086,
-      "max": 7.686,
-      "mean": 3.549
-     },
-     "tenant": "l7i_f1first_e0990b",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
-    },
-    "F-1stmt-last": {
-     "arm": "F-1stmt-last",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 3.163,
-      "p99": 4.414,
-      "max": 5.289,
-      "mean": 3.195
-     },
-     "tenant": "l7i_f1last_29cded",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
-    }
-   }
-  },
   "I3": {
    "kills_per_arm": 20,
    "arms": {
     "F-1stmt": {
-     "started": 2974,
-     "acknowledged": 2930,
+     "started": 2307,
+     "acknowledged": 2263,
      "acknowledged_rejected": 0,
      "totals": {
-      "complete": 2930,
+      "complete": 2241,
       "partial": 0,
-      "absent": 44
+      "absent": 66
      },
      "partial": 0,
-     "lost_acknowledged": 0,
+     "lost_acknowledged": 22,
      "partial_among_acknowledged": 0,
      "inflight_at_kill": 44,
      "inflight_complete": 0,
@@ -562,23 +105,23 @@
      "server_extra_bounces": 0,
      "restart_ready_s": {
       "n": 20,
-      "p50": 9.51,
-      "p99": 11.63,
-      "max": 11.63,
-      "mean": 9.588
+      "p50": 16.42,
+      "p99": 26.77,
+      "max": 26.77,
+      "mean": 15.319
      },
      "restarts": [
       {
        "k": 0,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.52,
+       "ready_after_s": 17.01,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.56,
+       "kill_to_start_s": 0.81,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -586,13 +129,13 @@
        "k": 1,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.5,
+       "ready_after_s": 16.8,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.46,
+       "kill_to_start_s": 1.11,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -600,13 +143,13 @@
        "k": 2,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.66,
+       "ready_after_s": 21.28,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.53,
+       "kill_to_start_s": 2.42,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -614,13 +157,13 @@
        "k": 3,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.63,
+       "ready_after_s": 14.95,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.58,
+       "kill_to_start_s": 1.06,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -628,13 +171,13 @@
        "k": 4,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.75,
+       "ready_after_s": 16.42,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.56,
+       "kill_to_start_s": 1.01,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -642,13 +185,13 @@
        "k": 5,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.55,
+       "ready_after_s": 16.54,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.66,
+       "kill_to_start_s": 0.75,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -656,13 +199,13 @@
        "k": 6,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.03,
+       "ready_after_s": 14.28,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.57,
+       "kill_to_start_s": 0.83,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -670,13 +213,13 @@
        "k": 7,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.19,
+       "ready_after_s": 18.43,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.57,
+       "kill_to_start_s": 0.79,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -684,7 +227,133 @@
        "k": 8,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.36,
+       "ready_after_s": 20.4,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.9,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 23.83,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.11,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 14.74,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.76,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 20.11,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 14.17,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 7.13,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 18.05,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 26.77,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.13,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 22.8,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.66,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 7.68,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.77,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 7.74,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.95,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 7.1,
        "up": true,
        "state": "true 0",
        "writer_errors": [
@@ -695,66 +364,10 @@
        "new_bug_reports": 0
       },
       {
-       "k": 9,
+       "k": 18,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.13,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.61,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 10,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.34,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.5,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 11,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.12,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.5,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 12,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.27,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.5,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 13,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.36,
+       "ready_after_s": 5.63,
        "up": true,
        "state": "true 0",
        "writer_errors": [
@@ -765,24 +378,10 @@
        "new_bug_reports": 0
       },
       {
-       "k": 14,
+       "k": 19,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 9.64,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.51,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 15,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.56,
+       "ready_after_s": 6.74,
        "up": true,
        "state": "true 0",
        "writer_errors": [
@@ -791,101 +390,44 @@
        "kill_to_start_s": 0.57,
        "extra_bounces": 0,
        "new_bug_reports": 0
-      },
-      {
-       "k": 16,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.54,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.66,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 17,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.51,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.58,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 18,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.57,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.66,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 19,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.54,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.62,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
       }
      ],
-     "tenant": "l7i_f1first_87025f",
-     "rule_of_three_95_upper_per_kill": 0.15,
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.001024
+     "tenant": "l7i_f1first_4c0ccc",
+     "rule_of_three_95_upper_per_kill": 0.15
     },
     "F-multi": {
-     "started": 2473,
-     "acknowledged": 2412,
+     "started": 1908,
+     "acknowledged": 1847,
      "acknowledged_rejected": 0,
      "totals": {
-      "complete": 2412,
-      "partial": 52,
-      "absent": 9
+      "complete": 1847,
+      "partial": 53,
+      "absent": 8
      },
-     "partial": 52,
+     "partial": 53,
      "lost_acknowledged": 0,
      "partial_among_acknowledged": 0,
      "inflight_at_kill": 61,
      "inflight_complete": 0,
-     "inflight_partial": 52,
-     "inflight_absent": 9,
+     "inflight_partial": 53,
+     "inflight_absent": 8,
      "entities_without_intent": 0,
      "partial_missing_items": {
-      "handoff": 52,
-      "handoff_links": 52,
-      "handoff_carries": 52,
-      "artifact_links": 34,
-      "artifact": 34,
-      "task_done": 28,
-      "decision": 16,
-      "decision_based_on": 16,
-      "decision_decided_for": 16,
-      "step_wrote": 12,
-      "fact": 12,
-      "fact_asserted": 12,
-      "fact_derived": 12
+      "handoff_carries": 53,
+      "handoff_links": 53,
+      "handoff": 53,
+      "artifact_links": 42,
+      "artifact": 42,
+      "task_done": 22,
+      "decision_based_on": 9,
+      "decision": 9,
+      "decision_decided_for": 9,
+      "fact_asserted": 7,
+      "fact_derived": 7,
+      "fact": 7,
+      "step_wrote": 7
      },
-     "partial_rate_per_acknowledged": 0.021559,
+     "partial_rate_per_acknowledged": 0.028695,
      "server_bug_reports_arm_total": 0,
      "arm": "F-multi",
      "kills_requested": 20,
@@ -896,45 +438,17 @@
      "server_extra_bounces": 0,
      "restart_ready_s": {
       "n": 20,
-      "p50": 10.75,
-      "p99": 11.62,
-      "max": 11.62,
-      "mean": 10.721
+      "p50": 8.3,
+      "p99": 12.39,
+      "max": 12.39,
+      "mean": 8.875
      },
      "restarts": [
       {
        "k": 0,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.13,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.64,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 1,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 10.16,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.67,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
-       "k": 2,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 9.85,
+       "ready_after_s": 5.95,
        "up": true,
        "state": "true 0",
        "writer_errors": [
@@ -945,10 +459,52 @@
        "new_bug_reports": 0
       },
       {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.98,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.24,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.1,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.75,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
        "k": 3,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.22,
+       "ready_after_s": 7.61,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.54,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 7.86,
        "up": true,
        "state": "true 0",
        "writer_errors": [
@@ -959,30 +515,16 @@
        "new_bug_reports": 0
       },
       {
-       "k": 4,
-       "kill_rc": 0,
-       "start_rc": 0,
-       "ready_after_s": 10.19,
-       "up": true,
-       "state": "true 0",
-       "writer_errors": [
-        "ConnectionError"
-       ],
-       "kill_to_start_s": 0.48,
-       "extra_bounces": 0,
-       "new_bug_reports": 0
-      },
-      {
        "k": 5,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.71,
+       "ready_after_s": 6.97,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.51,
+       "kill_to_start_s": 0.65,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -990,13 +532,13 @@
        "k": 6,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.44,
+       "ready_after_s": 6.5,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.47,
+       "kill_to_start_s": 0.71,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1004,13 +546,13 @@
        "k": 7,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.36,
+       "ready_after_s": 7.83,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.49,
+       "kill_to_start_s": 0.61,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1018,13 +560,13 @@
        "k": 8,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.57,
+       "ready_after_s": 8.3,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.47,
+       "kill_to_start_s": 0.65,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1032,13 +574,13 @@
        "k": 9,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.52,
+       "ready_after_s": 12.07,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.44,
+       "kill_to_start_s": 0.58,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1046,13 +588,13 @@
        "k": 10,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.75,
+       "ready_after_s": 12.39,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.5,
+       "kill_to_start_s": 0.67,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1060,13 +602,13 @@
        "k": 11,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.91,
+       "ready_after_s": 12.36,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.53,
+       "kill_to_start_s": 0.69,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1074,13 +616,13 @@
        "k": 12,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.78,
+       "ready_after_s": 8.47,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.51,
+       "kill_to_start_s": 0.55,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1088,13 +630,13 @@
        "k": 13,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.86,
+       "ready_after_s": 8.63,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.47,
+       "kill_to_start_s": 1.39,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1102,13 +644,13 @@
        "k": 14,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 10.85,
+       "ready_after_s": 7.11,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.53,
+       "kill_to_start_s": 0.65,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1116,13 +658,13 @@
        "k": 15,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.02,
+       "ready_after_s": 8.14,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.52,
+       "kill_to_start_s": 0.58,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1130,13 +672,13 @@
        "k": 16,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.62,
+       "ready_after_s": 8.54,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.59,
+       "kill_to_start_s": 0.66,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1144,13 +686,13 @@
        "k": 17,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.09,
+       "ready_after_s": 8.02,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.5,
+       "kill_to_start_s": 0.63,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1158,13 +700,13 @@
        "k": 18,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.19,
+       "ready_after_s": 10.42,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.45,
+       "kill_to_start_s": 0.61,
        "extra_bounces": 0,
        "new_bug_reports": 0
       },
@@ -1172,815 +714,25 @@
        "k": 19,
        "kill_rc": 0,
        "start_rc": 0,
-       "ready_after_s": 11.2,
+       "ready_after_s": 9.25,
        "up": true,
        "state": "true 0",
        "writer_errors": [
         "ConnectionError"
        ],
-       "kill_to_start_s": 0.48,
+       "kill_to_start_s": 0.63,
        "extra_bounces": 0,
        "new_bug_reports": 0
       }
      ],
-     "tenant": "l7i_fmulti_0a502b",
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.001244
-    }
-   },
-   "aof_repro": {
-    "data_dir": "C:\\Change_folder_after_HDD\\wt-p10\\.p10\\aof-crash-evidence\\data",
-    "container": "plexus-db-71-aofrepro",
-    "attempts": [
-     {
-      "crashed": true,
-      "ready": false,
-      "signature": "crashed by signal: 11, si_code: 1",
-      "eip": "redis-server *:6379(sdsfree+0x9) [0x55dcc3a024b9]",
-      "in_aof_load": true,
-      "seconds": 3.1
-     },
-     {
-      "crashed": true,
-      "ready": false,
-      "signature": "Guru Meditation: illegal decrRefCount for object with: type 0, encoding 8, refcount 0 #object.c:648",
-      "eip": "/lib/x86_64-linux-gnu/libc.so.6(+0x9469c) [0x7f1b220f069c]",
-      "in_aof_load": true,
-      "seconds": 4.5
-     },
-     {
-      "crashed": true,
-      "ready": false,
-      "signature": "Guru Meditation: illegal decrRefCount for object with: type 0, encoding 8, refcount 0 #object.c:648",
-      "eip": "/lib/x86_64-linux-gnu/libc.so.6(+0x9469c) [0x7f601b2e169c]",
-      "in_aof_load": true,
-      "seconds": 4.1
-     }
-    ],
-    "summary": {
-     "attempts": 3,
-     "crashed": 3,
-     "signatures": [
-      "Guru Meditation: illegal decrRefCount for object with: type 0, encoding 8, refcount 0 #object.c:648",
-      "crashed by signal: 11, si_code: 1"
-     ]
-    },
-    "incr_commands": 69516,
-    "incr_bytes": 51772616,
-    "bisect_steps": [
-     {
-      "commands": 34758,
-      "bytes": 27952298,
-      "crashed": false,
-      "ready": true
-     },
-     {
-      "commands": 52137,
-      "bytes": 47672822,
-      "crashed": false,
-      "ready": true
-     },
-     {
-      "commands": 60826,
-      "bytes": 49518958,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 56481,
-      "bytes": 48693979,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 54309,
-      "bytes": 48201758,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 53223,
-      "bytes": 47968727,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 52680,
-      "bytes": 47816645,
-      "crashed": false,
-      "ready": true
-     },
-     {
-      "commands": 52951,
-      "bytes": 47894921,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 52815,
-      "bytes": 47868243,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 52747,
-      "bytes": 47850772,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 52713,
-      "bytes": 47842011,
-      "crashed": false,
-      "ready": true
-     },
-     {
-      "commands": 52730,
-      "bytes": 47847769,
-      "crashed": false,
-      "ready": true
-     },
-     {
-      "commands": 52738,
-      "bytes": 47849467,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 52734,
-      "bytes": 47848961,
-      "crashed": false,
-      "ready": true
-     },
-     {
-      "commands": 52736,
-      "bytes": 47849177,
-      "crashed": true,
-      "ready": false
-     },
-     {
-      "commands": 52735,
-      "bytes": 47849017,
-      "crashed": true,
-      "ready": false
-     }
-    ],
-    "smallest_crashing_prefix_commands": 52735,
-    "largest_clean_prefix_commands": 52734,
-    "culprit_command_index": 52735,
-    "culprit_command_head": "*2 | $12 | GRAPH.DELETE | $26 | plexus_t_mcpt_5ad035fb0276 | ",
-    "confirm_prefix_without_culprit_crashed": true,
-    "culprit_alone_crashed": false,
-    "rate_full_file": {
-     "attempts": 8,
-     "crashed": 7
-    },
-    "rate_largest_clean_prefix": {
-     "commands": 52734,
-     "attempts": 8,
-     "crashed": 6
-    }
-   }
-  },
-  "I4": {
-   "a": [
-    {
-     "backend": "SQLite",
-     "mode": "naive",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 102,
-     "lost_acked": 898,
-     "lost_vs_attempted": 898,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 0.9,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "SQLite",
-     "mode": "atomic",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 1000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 0.27,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "SQLite",
-     "mode": "cas",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 1000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 106,
-     "wall_s": 0.23,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "SQLite",
-     "mode": "pessimistic",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 1000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 1.0,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "naive",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 88,
-     "lost_acked": 912,
-     "lost_vs_attempted": 912,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 0.69,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "atomic",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 1000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 0.45,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "cas",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 1000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 6331,
-     "wall_s": 5.34,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "pessimistic",
-     "W": 20,
-     "ops": 50,
-     "attempted": 1000,
-     "acked": 1000,
-     "final": 1000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 8180,
-     "wall_s": 7.15,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "SQLite",
-     "mode": "naive",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 195,
-     "lost_acked": 9805,
-     "lost_vs_attempted": 9805,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 3.74,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "SQLite",
-     "mode": "atomic",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 10000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 4.44,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "SQLite",
-     "mode": "cas",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 10000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 111292,
-     "wall_s": 13.93,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "SQLite",
-     "mode": "pessimistic",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 10000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 8.25,
-     "completed_in_budget": true,
-     "busy_timeout_ms": 10000
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "naive",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 103,
-     "lost_acked": 9897,
-     "lost_vs_attempted": 9897,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 7.34,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "atomic",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 10000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 0,
-     "wall_s": 4.79,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "cas",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 10000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 284541,
-     "wall_s": 225.17,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "pessimistic",
-     "W": 200,
-     "ops": 50,
-     "attempted": 10000,
-     "acked": 10000,
-     "final": 10000,
-     "lost_acked": 0,
-     "lost_vs_attempted": 0,
-     "errors": 0,
-     "error_kinds": {},
-     "retries": 437463,
-     "wall_s": 346.7,
-     "completed_in_budget": true,
-     "busy_timeout_ms": null,
-     "rerun_budget_s": 1500.0,
-     "replaces_incomplete_cell": true
-    }
-   ],
-   "b": [
-    {
-     "backend": "SQLite",
-     "mode": "one statement",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "one statement",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "SQLite",
-     "mode": "multi-statement no txn",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 485,
-     "both": 485,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "SQLite",
-     "mode": "multi-statement no txn",
-     "think_ms": 2,
-     "rounds": 500,
-     "violations": 500,
-     "both": 500,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "multi-statement no txn",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 499,
-     "both": 499,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "multi-statement no txn",
-     "think_ms": 2,
-     "rounds": 500,
-     "violations": 499,
-     "both": 499,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "SQLite",
-     "mode": "BEGIN IMMEDIATE",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "SQLite",
-     "mode": "BEGIN IMMEDIATE",
-     "think_ms": 2,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "SQLite",
-     "mode": "BEGIN DEFERRED",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 494,
-     "error_kinds": {
-      "OperationalError: database is locked": 494
-     }
-    },
-    {
-     "backend": "SQLite",
-     "mode": "BEGIN DEFERRED",
-     "think_ms": 2,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 500,
-     "error_kinds": {
-      "OperationalError: database is locked": 500
-     }
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "WATCH+MULTI/EXEC",
-     "think_ms": 0,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    },
-    {
-     "backend": "FalkorDB",
-     "mode": "WATCH+MULTI/EXEC",
-     "think_ms": 2,
-     "rounds": 500,
-     "violations": 0,
-     "both": 0,
-     "none": 0,
-     "errors": 0,
-     "error_kinds": {}
-    }
-   ],
-   "busy_timeout_ms": 10000,
-   "mode_budget_s": 240.0
-  },
-  "I5": {
-   "lines_statement_text": {
-    "F-1stmt": 14,
-    "S-txn": 12
-   },
-   "lines_python_glue_closeout_method": {
-    "F-1stmt": 12,
-    "S-txn": 27
-   },
-   "statements_per_closeout": {
-    "F-1stmt": 1,
-    "S-txn": 13
-   },
-   "n_per_writer": 400,
-   "F-1stmt": {
-    "writers_1": {
-     "latency_ms": {
-      "n": 400,
-      "p50": 3.4,
-      "p99": 4.694,
-      "max": 5.972,
-      "mean": 3.409
-     },
-     "errors": 0,
-     "error_kinds": [],
-     "closeouts_per_s": 169.8,
-     "round_trips_per_closeout": 1
-    },
-    "writers_8": {
-     "latency_ms": {
-      "n": 3200,
-      "p50": 35.42,
-      "p99": 82.681,
-      "max": 102.314,
-      "mean": 37.809
-     },
-     "errors": 0,
-     "error_kinds": [],
-     "closeouts_per_s": 112.5,
-     "round_trips_per_closeout": 1
-    }
-   },
-   "S-txn": {
-    "writers_1": {
-     "latency_ms": {
-      "n": 400,
-      "p50": 0.19,
-      "p99": 5.219,
-      "max": 5.847,
-      "mean": 0.324
-     },
-     "errors": 0,
-     "error_kinds": [],
-     "closeouts_per_s": 2511.4,
-     "round_trips_per_closeout": 13
-    },
-    "writers_8": {
-     "latency_ms": {
-      "n": 3200,
-      "p50": 0.222,
-      "p99": 6.376,
-      "max": 432.388,
-      "mean": 0.633
-     },
-     "errors": 0,
-     "error_kinds": [],
-     "closeouts_per_s": 2001.8,
-     "round_trips_per_closeout": 13
-    }
-   },
-   "embedded_vs_server": "S-txn: embedded (in-process SQLite, no network); F-1stmt: server (Docker port-forward)",
-   "i1_outcomes": {
-    "F-1stmt": {
-     "started": 3198,
-     "acknowledged": 3055,
-     "acknowledged_rejected": 0,
-     "totals": {
-      "complete": 3196,
-      "partial": 0,
-      "absent": 2
-     },
-     "partial": 0,
-     "lost_acknowledged": 0,
-     "partial_among_acknowledged": 0,
-     "inflight_at_kill": 143,
-     "inflight_complete": 141,
-     "inflight_partial": 0,
-     "inflight_absent": 2,
-     "entities_without_intent": 0,
-     "partial_missing_items": {},
-     "partial_rate_per_acknowledged": 0.0,
-     "arm": "F-1stmt",
-     "kills": 200,
-     "mean_kill_delay_s": 0.208,
-     "run_s": 195.2,
-     "tenant": "l7i_f1first_370554",
-     "partial_rate_per_kill": 0.0,
-     "rule_of_three_95_upper_per_kill": 0.015,
-     "rule_of_three_95_upper_per_acknowledged": 0.000982,
-     "lost_rule_of_three_95_upper_per_acknowledged": 0.000982
-    }
-   },
-   "i2_outcomes": {
-    "S-txn": {
-     "arm": "S-txn",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 0.26,
-      "p99": 5.122,
-      "max": 6.024,
-      "mean": 0.316
-     },
-     "tenant": "l7i_stxn_d87bdd",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
-    },
-    "F-1stmt-first": {
-     "arm": "F-1stmt-first",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 3.535,
-      "p99": 6.086,
-      "max": 7.686,
-      "mean": 3.549
-     },
-     "tenant": "l7i_f1first_e0990b",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
-    },
-    "F-1stmt-last": {
-     "arm": "F-1stmt-last",
-     "closeouts": 400,
-     "stale": 103,
-     "stale_partial": 0,
-     "stale_absent": 103,
-     "stale_complete": 0,
-     "stale_task_mutated": 0,
-     "stale_leftover_items_total": 0,
-     "fresh": 297,
-     "fresh_complete": 297,
-     "fresh_partial": 0,
-     "fresh_absent": 0,
-     "client_reported_rejected": 103,
-     "client_reported_ok_on_fresh": 297,
-     "errors": 0,
-     "latency_ms": {
-      "n": 400,
-      "p50": 3.163,
-      "p99": 4.414,
-      "max": 5.289,
-      "mean": 3.195
-     },
-     "tenant": "l7i_f1last_29cded",
-     "partial_total": 0,
-     "stale_partial_rule_of_three_95_upper": 0.029126
+     "tenant": "l7i_fmulti_9c5ff4",
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.001624
     }
    }
   }
  },
- "db_port": 6368,
+ "db_port": 6392,
  "i4_busy_timeout_ms": 10000,
- "server_bug_reports_at_start": 1,
- "server_bug_reports_at_end": 1,
- "merged_from": [
-  {
-   "run_id": "20261016T100730Z-i",
-   "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
-   "parts": [
-    "I1"
-   ],
-   "started_at": "2026-10-16T10:07:30Z",
-   "finished_at": "2026-10-16T10:13:54Z"
-  },
-  {
-   "run_id": "20261016T100746Z-i",
-   "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1,I2,I3,I4,I5 --arms F-product,F-multi,F-multiexec,F-1stmt",
-   "parts": [
-    "I1",
-    "I2",
-    "I3",
-    "I4",
-    "I5"
-   ],
-   "started_at": "2026-10-16T10:07:46Z",
-   "finished_at": "2026-10-16T10:45:43Z"
-  },
-  {
-   "run_id": "20261016T104743Z-i",
-   "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I4C",
-   "parts": [
-    "I4"
-   ],
-   "started_at": "2026-10-16T10:47:43Z",
-   "finished_at": "2026-10-16T10:53:31Z"
-  }
- ]
+ "server_bug_reports_at_start": 0,
+ "server_bug_reports_at_end": 0
 }

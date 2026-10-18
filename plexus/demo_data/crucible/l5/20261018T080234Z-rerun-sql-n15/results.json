@@ -1,0 +1,419 @@
+{
+  "criteria": [],
+  "embedder": "FastEmbedder",
+  "forgetting": {
+    "classes": {
+      "cold": 51,
+      "critical": 80,
+      "hot": 9
+    },
+    "config": {
+      "burst": false,
+      "days": 90,
+      "embedder": "FastEmbedder",
+      "ks": [
+        1,
+        3,
+        5
+      ],
+      "modes": [
+        "off",
+        "sep+mult"
+      ],
+      "noise_per_subject": 15,
+      "seed": 20261016,
+      "sprints": 20
+    },
+    "history": {
+      "agents": [
+        "planner",
+        "researcher",
+        "builder"
+      ],
+      "conflicting_pairs": 40,
+      "decisions": 120,
+      "episodes": 80,
+      "facts": 180,
+      "forgotten_facts": 20,
+      "handoffs": 80,
+      "real_active_facts": 140,
+      "reclaims": 20,
+      "sources": 160,
+      "sprints": 20,
+      "supersedes": 20,
+      "tasks": 240
+    },
+    "modes": {
+      "off": {
+        "above_other_entity": 6,
+        "above_same_entity": 33,
+        "chars_per_recall": 378.29285714285714,
+        "entity_read_ms": null,
+        "gap12": {
+          "n": 140,
+          "p10": 0.004312545075762397,
+          "p25": 0.008246211274513998,
+          "p50": 0.018687999675563005,
+          "p75": 0.0365652176086427,
+          "p90": 0.0593396685169783
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.46285714285714286,
+        "probe_ms": {
+          "n": 140,
+          "p10": 50.72880000079749,
+          "p25": 59.46410000069591,
+          "p50": 101.69019999921147,
+          "p75": 139.27950000106648,
+          "p90": 189.4200999995519
+        },
+        "ranked_above_target": {
+          "cold": 4,
+          "critical": 31,
+          "noise": 4
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8071428571428572,
+            "recall@3": 0.9857142857142858,
+            "recall@5": 0.9928571428571429
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.9803921568627451,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.675,
+            "recall@3": 0.975,
+            "recall@5": 0.9875
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 19.608621,
+          "p25": 22.667759,
+          "p50": 36.042988,
+          "p75": 46.227694,
+          "p90": 59.209948
+        },
+        "statements_per_probe": 2
+      },
+      "sep+mult": {
+        "above_other_entity": 0,
+        "above_same_entity": 23,
+        "chars_per_recall": 378.3142857142857,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 3.2480999998369953,
+        "gap12": {
+          "n": 140,
+          "p10": 0.0035224352432633027,
+          "p25": 0.010200590260483103,
+          "p50": 0.020131901506828406,
+          "p75": 0.0385683980887032,
+          "p90": 0.0595996072268343
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.4442857142857143,
+        "probe_ms": {
+          "n": 140,
+          "p10": 128.8844999999128,
+          "p25": 151.72030000030645,
+          "p50": 193.00570000086736,
+          "p75": 275.52819999982603,
+          "p90": 384.91439999961585
+        },
+        "ranked_above_target": {
+          "critical": 20,
+          "noise": 3
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 44.539664,
+          "p25": 49.587675000000004,
+          "p50": 63.21655299999999,
+          "p75": 83.284816,
+          "p90": 103.573294
+        },
+        "statements_per_probe": 6
+      }
+    },
+    "noise_facts": 900,
+    "reads": {
+      "critical_reads": 80,
+      "hot_facts": 9,
+      "read_edges": 1096
+    },
+    "seconds": {
+      "noise": 65.2,
+      "play": 44.9
+    },
+    "sql_arm": {
+      "activation_fidelity": {
+        "disagreements": 0,
+        "examples": [],
+        "facts": 1080,
+        "worst_abs_gap": 0.0
+      },
+      "export_seconds": 2.17,
+      "path": "C:\\Users\\ACER\\AppData\\Local\\Temp\\l5-sql-5pk3g1ik\\l5b.sqlite",
+      "rows": {
+        "entities": 40,
+        "fact_decisions": 160,
+        "fact_events": 3783,
+        "fact_links": 260,
+        "facts": 1080,
+        "scopes": 41,
+        "sources": 160
+      },
+      "sql_lines": 92,
+      "sqlite_version": "3.53.1"
+    },
+    "sql_modes": {
+      "off": {
+        "above_other_entity": 12,
+        "above_same_entity": 40,
+        "chars_per_recall": 344.1642857142857,
+        "entity_read_ms": null,
+        "gap12": {
+          "n": 140,
+          "p10": 0.0017538964748382568,
+          "p25": 0.004042118787765503,
+          "p50": 0.01666979119181633,
+          "p75": 0.043594714254140854,
+          "p90": 0.07069265097379684
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.3457142857142857,
+        "probe_ms": {
+          "n": 140,
+          "p10": 19.61970000047586,
+          "p25": 20.136700000875862,
+          "p50": 20.664300000134972,
+          "p75": 21.70489999843994,
+          "p90": 22.954400001253816
+        },
+        "ranked_above_target": {
+          "cold": 4,
+          "critical": 41,
+          "hot": 1,
+          "noise": 6
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.75,
+            "recall@3": 0.9642857142857143,
+            "recall@5": 0.9857142857142858
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.9803921568627451,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6,
+            "recall@3": 0.95,
+            "recall@5": 0.975
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 0.7777777777777778,
+            "recall@3": 0.8888888888888888,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 13.552399999753106,
+          "p25": 13.757899998381617,
+          "p50": 14.166399998430279,
+          "p75": 14.904699999533477,
+          "p90": 16.17170000099577
+        },
+        "statements_per_probe": 1
+      },
+      "sep+mult": {
+        "above_other_entity": 0,
+        "above_same_entity": 20,
+        "chars_per_recall": 317.5642857142857,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 0.8145499996317085,
+        "gap12": {
+          "n": 140,
+          "p10": 0.001864902675151825,
+          "p25": 0.007322587072849274,
+          "p50": 0.02356749027967453,
+          "p75": 0.040578365325927734,
+          "p90": 0.06077397242188454
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.24428571428571427,
+        "probe_ms": {
+          "n": 140,
+          "p10": 35.91920000144455,
+          "p25": 48.87280000002647,
+          "p50": 61.53009999979986,
+          "p75": 82.78470000004745,
+          "p90": 99.5212999987416
+        },
+        "ranked_above_target": {
+          "critical": 20
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 24.017600000661332,
+          "p25": 28.53310000136844,
+          "p50": 39.973499999177875,
+          "p75": 51.944999999250285,
+          "p90": 67.97710000137158
+        },
+        "statements_per_probe": 3
+      }
+    },
+    "sql_pairs": {
+      "off": {
+        "differing_at1": [
+          "056d10ab-603d-46ee-a318-97c35aa3f6b1",
+          "0a4b6215-c2d1-4ff9-b779-a61bdee540ff",
+          "120a2baa-db00-4fd9-a510-4e85d9f357c7",
+          "18057a4a-c45b-41a3-af85-4fbd703f65ff",
+          "1c27a0db-b562-4a7f-b04b-77f99c699ce8",
+          "1c7a8c07-086a-476c-b28c-a4c8ad122063",
+          "1f84441f-cd72-4562-8d37-c30c31b3a028",
+          "2d9cef77-94db-468d-82c8-e8bbba90dbe4",
+          "33cb4d16-cc7e-4419-a78d-34aff7356d91",
+          "409b303b-4953-451b-9f4e-9266b7fe4f35",
+          "62a76620-2542-452a-9c6e-2b3867fc1fe3",
+          "685ed969-f2b4-47df-a1b5-b0a0b3bb2911",
+          "7780a44b-0094-4813-8678-e9f5707f9941",
+          "786dc676-85bb-4631-a56a-cfd6ae9e7dbc",
+          "83acac56-1f46-468d-b154-e94b4a2e23af",
+          "8d62e723-1bbb-465b-93f6-323894595630",
+          "92ca34bb-1e89-4449-84c4-41bab0dab4ba",
+          "931aee9e-e227-40c2-9bf3-53f565f304db",
+          "94ba6389-78c3-4d0a-8032-0c7cd5e9eb9e",
+          "a03d4eae-09f2-4e9b-9e17-dd6ae01ef21d",
+          "a0c1ceb3-82f5-4383-8f83-a3ffb3038744",
+          "b2ef4759-340d-4f29-8dd4-3f313e1bd821",
+          "f601163e-52c1-4ed4-8f6e-feec7beee992",
+          "fdfcf294-34db-4069-b67a-2570ac0fa896"
+        ],
+        "n": 140,
+        "only_plexus_at1": 16,
+        "only_plexus_at5": 1,
+        "only_sql_at1": 8,
+        "only_sql_at5": 0,
+        "same_top1": 114,
+        "same_top5_list": 8
+      },
+      "sep+mult": {
+        "differing_at1": [
+          "13aa23a5-d31e-4ab5-9c70-bc6d2b66755c",
+          "409b303b-4953-451b-9f4e-9266b7fe4f35",
+          "685ed969-f2b4-47df-a1b5-b0a0b3bb2911",
+          "7780a44b-0094-4813-8678-e9f5707f9941",
+          "931aee9e-e227-40c2-9bf3-53f565f304db",
+          "a03d4eae-09f2-4e9b-9e17-dd6ae01ef21d",
+          "b2ef4759-340d-4f29-8dd4-3f313e1bd821",
+          "d779eba9-3390-4e8b-95c8-a19c42883058"
+        ],
+        "n": 140,
+        "only_plexus_at1": 4,
+        "only_plexus_at5": 0,
+        "only_sql_at1": 4,
+        "only_sql_at5": 0,
+        "same_top1": 132,
+        "same_top5_list": 2
+      }
+    },
+    "sweep": {
+      "dry_run_critical_candidates": 0,
+      "fact_nodes_after": 1080,
+      "fact_nodes_before": 1080,
+      "moved_by_class": {
+        "cold_real": 0,
+        "critical": 0,
+        "hot": 0,
+        "noise": 0
+      },
+      "moved_total": 0
+    }
+  },
+  "git_commit": "7f28f60",
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 172.9,
+  "started_at": "2026-10-18T08:02:34Z"
+}

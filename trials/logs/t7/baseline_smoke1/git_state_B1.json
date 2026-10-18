@@ -1,0 +1,69 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_smoke1/tinytasks\nHEAD a6768cb2d6e54507aa57b2555360981fb4e96b12\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_smoke1/wt_a\nHEAD d35907ba68cca18e2fc5eda5ecddcd0ba040ed01\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_smoke1/wt_b\nHEAD 1f82ab6b91dbe5fa5705a7bc614ba8dfcbd1947a\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "a6768cb2d6e54507aa57b2555360981fb4e96b12",
+      "log": [
+        "a6768cb initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "d35907ba68cca18e2fc5eda5ecddcd0ba040ed01",
+      "log": [
+        "d35907b Add snooze command and snooze_task API",
+        "a6768cb initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "1f82ab6b91dbe5fa5705a7bc614ba8dfcbd1947a",
+      "log": [
+        "1f82ab6 Add quick-add and postpone commands",
+        "a6768cb initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tests/test_cli.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [],
+    "feat-b": []
+  }
+}

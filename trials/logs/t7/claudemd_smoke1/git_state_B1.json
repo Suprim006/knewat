@@ -1,0 +1,71 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/claudemd_smoke1/tinytasks\nHEAD a6768cb2d6e54507aa57b2555360981fb4e96b12\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/claudemd_smoke1/wt_a\nHEAD 9c2ccc7a948199fb29e2304763e39121ecd8515e\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/claudemd_smoke1/wt_b\nHEAD 7fb8172318bb9409def35db7fe80508406aea7dd\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "a6768cb2d6e54507aa57b2555360981fb4e96b12",
+      "log": [
+        "a6768cb initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "9c2ccc7a948199fb29e2304763e39121ecd8515e",
+      "log": [
+        "9c2ccc7 Add snooze command with minute-rounded due_at; record convention in CLAUDE.md",
+        "a6768cb initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "CLAUDE.md",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "7fb8172318bb9409def35db7fe80508406aea7dd",
+      "log": [
+        "7fb8172 Add quick-add and postpone commands",
+        "a6768cb initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [
+      "CLAUDE.md"
+    ],
+    "feat-b": []
+  }
+}

@@ -1,0 +1,4 @@
+[plexus r1] session_1 (cwd tinytasks): rc=0 170.4s $0.102 turns=16 denials=0 (total $0.10)
+[plexus r1] session_2 (cwd tasksync): rc=0 36.5s $0.081 turns=13 denials=0 (total $0.18)
+[plexus r1] session_3 (cwd tasksync): rc=0 41.5s $0.095 turns=17 denials=0 (total $0.28)
+[plexus r1] session_4 (cwd tasksync): rc=0 41.2s $0.093 turns=17 denials=0 (total $0.37)

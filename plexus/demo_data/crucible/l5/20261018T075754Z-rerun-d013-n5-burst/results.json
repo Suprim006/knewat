@@ -1,0 +1,408 @@
+{
+  "criteria": [
+    {
+      "hard": false,
+      "id": "PC sep recall@1 >= 0.95",
+      "ok": false,
+      "value": [
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": false,
+      "id": "PC sep same-entity rows above target <= 5",
+      "ok": false,
+      "value": [
+        20
+      ]
+    },
+    {
+      "hard": false,
+      "id": "PC sep+mult recall@1 within 1 probe (0.0072) of sep",
+      "ok": true,
+      "value": [
+        0.8571428571428571,
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b-D013 sep recall@1 >= 0.90",
+      "ok": false,
+      "value": [
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": true,
+      "id": "L5b-D013 sep recall@1 >= 0.85 (falsification floor)",
+      "ok": true,
+      "value": [
+        0.8571428571428571
+      ]
+    },
+    {
+      "hard": false,
+      "id": "L5b-D013 sep recall@5 >= off - 0.005",
+      "ok": true,
+      "value": [
+        0.9928571428571429,
+        1.0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "L5b-D013 sep critical loss = 0",
+      "ok": true,
+      "value": 0
+    },
+    {
+      "hard": false,
+      "id": "L5b-D013 kw-fix recall@1 (report only)",
+      "ok": true,
+      "value": 0.8214285714285714
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "forgetting": {
+    "classes": {
+      "cold": 51,
+      "critical": 80,
+      "hot": 9
+    },
+    "config": {
+      "burst": true,
+      "days": 90,
+      "embedder": "FastEmbedder",
+      "ks": [
+        1,
+        3,
+        5
+      ],
+      "modes": [
+        "off",
+        "kw-fix",
+        "sep",
+        "sep+mult"
+      ],
+      "noise_per_subject": 5,
+      "seed": 20261016,
+      "sprints": 20
+    },
+    "history": {
+      "agents": [
+        "planner",
+        "researcher",
+        "builder"
+      ],
+      "conflicting_pairs": 40,
+      "decisions": 120,
+      "episodes": 80,
+      "facts": 180,
+      "forgotten_facts": 20,
+      "handoffs": 80,
+      "real_active_facts": 140,
+      "reclaims": 20,
+      "sources": 160,
+      "sprints": 20,
+      "supersedes": 20,
+      "tasks": 240
+    },
+    "modes": {
+      "kw-fix": {
+        "above_other_entity": 4,
+        "above_same_entity": 40,
+        "chars_per_recall": 344.12142857142857,
+        "critical_probe_loss": 0,
+        "entity_read_ms": null,
+        "gap12": {
+          "n": 140,
+          "p10": 0.007181621301161206,
+          "p25": 0.015893930460888994,
+          "p50": 0.030808221746977102,
+          "p75": 0.044365252180406003,
+          "p90": 0.05910962605210289
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.3242857142857143,
+        "probe_ms": {
+          "n": 140,
+          "p10": 120.60639999981504,
+          "p25": 130.3250000000844,
+          "p50": 193.37570000061532,
+          "p75": 276.12539999972796,
+          "p90": 337.98810000007506
+        },
+        "ranked_above_target": {
+          "critical": 24,
+          "noise": 20
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8214285714285714,
+            "recall@3": 0.9714285714285714,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6875,
+            "recall@3": 0.95,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 42.037399,
+          "p25": 45.18618,
+          "p50": 59.937194000000005,
+          "p75": 80.5525,
+          "p90": 99.185174
+        },
+        "statements_per_probe": 3
+      },
+      "off": {
+        "above_other_entity": 6,
+        "above_same_entity": 34,
+        "chars_per_recall": 350.62857142857143,
+        "entity_read_ms": null,
+        "gap12": {
+          "n": 140,
+          "p10": 0.004477309748569497,
+          "p25": 0.008745990269552792,
+          "p50": 0.0192062267911519,
+          "p75": 0.037815644274089,
+          "p90": 0.0632929605336617
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.3242857142857143,
+        "probe_ms": {
+          "n": 140,
+          "p10": 50.031400000079884,
+          "p25": 53.16879999918456,
+          "p50": 91.35340000102588,
+          "p75": 124.86010000066017,
+          "p90": 178.20279999978084
+        },
+        "ranked_above_target": {
+          "cold": 4,
+          "critical": 32,
+          "hot": 1,
+          "noise": 3
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.7928571428571428,
+            "recall@3": 0.9785714285714285,
+            "recall@5": 0.9928571428571429
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 0.9607843137254902,
+            "recall@3": 0.9803921568627451,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.6625,
+            "recall@3": 0.975,
+            "recall@5": 0.9875
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 18.45332,
+          "p25": 20.624099,
+          "p50": 30.462058,
+          "p75": 44.026297,
+          "p90": 54.07101
+        },
+        "statements_per_probe": 2
+      },
+      "sep": {
+        "above_other_entity": 0,
+        "above_same_entity": 20,
+        "chars_per_recall": 357.74285714285713,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 2.73525000011432,
+        "gap12": {
+          "n": 140,
+          "p10": 0.004477309748569497,
+          "p25": 0.010200590260483103,
+          "p50": 0.02011267434715021,
+          "p75": 0.040131882629340504,
+          "p90": 0.0632929605336617
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.3342857142857143,
+        "probe_ms": {
+          "n": 140,
+          "p10": 63.15280000126222,
+          "p25": 64.78120000065246,
+          "p50": 72.65970000116795,
+          "p75": 92.44589999980235,
+          "p90": 115.57579999862355
+        },
+        "ranked_above_target": {
+          "critical": 20
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 19.731791,
+          "p25": 20.726087999999997,
+          "p50": 24.437393,
+          "p75": 32.384761000000005,
+          "p90": 41.010385
+        },
+        "statements_per_probe": 5
+      },
+      "sep+mult": {
+        "above_other_entity": 0,
+        "above_same_entity": 24,
+        "chars_per_recall": 355.1642857142857,
+        "critical_probe_loss": 0,
+        "entity_read_ms": 2.6675999997678446,
+        "gap12": {
+          "n": 140,
+          "p10": 0.004477309748569497,
+          "p25": 0.012167657014285294,
+          "p50": 0.0230725012515762,
+          "p75": 0.0397175296909191,
+          "p90": 0.05910962605210289
+        },
+        "hot_above_cold": 0.0,
+        "hot_above_cold_n": 0,
+        "noise_share": 0.3342857142857143,
+        "probe_ms": {
+          "n": 140,
+          "p10": 131.45020000047225,
+          "p25": 146.00439999958326,
+          "p50": 173.31480000029842,
+          "p75": 215.03339999981108,
+          "p90": 263.0829999998241
+        },
+        "ranked_above_target": {
+          "critical": 20,
+          "noise": 4
+        },
+        "recall": {
+          "all": {
+            "n": 140,
+            "recall@1": 0.8571428571428571,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "cold": {
+            "n": 51,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "critical": {
+            "n": 80,
+            "recall@1": 0.75,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          },
+          "hot": {
+            "n": 9,
+            "recall@1": 1.0,
+            "recall@3": 1.0,
+            "recall@5": 1.0
+          }
+        },
+        "rows_returned": 700,
+        "server_ms": {
+          "n": 140,
+          "p10": 42.992176,
+          "p25": 46.533893000000006,
+          "p50": 53.022719,
+          "p75": 65.40251,
+          "p90": 81.688141
+        },
+        "statements_per_probe": 6
+      }
+    },
+    "noise_facts": 300,
+    "reads": {
+      "critical_reads": 80,
+      "hot_facts": 9,
+      "read_edges": 1051
+    },
+    "seconds": {
+      "noise": 8.8,
+      "play": 74.2
+    },
+    "sql_arm": {},
+    "sql_modes": {},
+    "sql_pairs": {},
+    "sweep": {
+      "dry_run_critical_candidates": 0,
+      "fact_nodes_after": 480,
+      "fact_nodes_before": 480,
+      "moved_by_class": {
+        "cold_real": 0,
+        "critical": 0,
+        "hot": 0,
+        "noise": 0
+      },
+      "moved_total": 0
+    }
+  },
+  "git_commit": "7f28f60",
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 164.9,
+  "started_at": "2026-10-18T07:57:54Z"
+}

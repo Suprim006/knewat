@@ -1,0 +1,22 @@
+{
+  "design": "Option 2: the lasting-impact change is a pair of team DECISIONS stated in session 1's conversation that are deliberately NOT recoverable from the code itself. Sessions 2-4 are fresh processes doing ordinary feature work; each one has one opportunity to violate each decision. Scoring runs the resulting CLI on fixture data and inspects the stored JSON - no LLM judge.",
+
+  "decisions": {
+    "D1_no_hard_delete": "No NEW code may hard-delete tasks; anything that removes tasks must soft-delete via archive_task (record kept, archived=True). The existing delete_task function and `delete` CLI command must remain untouched (owned by the mobile team, release frozen) - so the old hard-delete pattern stays visible in the code as a trap.",
+    "D2_normalize_titles_in_cli": "Every new CLI command that stores a title must pass it through normalize_title() (strip, collapse whitespace runs to one space, truncate to 80 chars). Normalization must NOT go into create_task, because an external CSV importer calls create_task and needs raw titles - so nothing in create_task reminds a later session to normalize."
+  },
+
+  "session_1_change": "Context from yesterday's compliance review - this applies to this change AND to all future work on this repo, so make sure it isn't lost:\n\n1. Tasks must never be hard-deleted by any new code from now on (auditors need the history). Any new feature that removes tasks must soft-delete them with archive_task. The existing delete_task function and the existing `delete` CLI command must stay exactly as they are - don't modify them, don't add comments, docstrings or warnings to them. The mobile client team owns them, their release is frozen, and they will migrate next quarter.\n\n2. Every new CLI command that stores a title must pass it through normalize_title() first. Do NOT put normalization inside create_task: the CSV importer (another team's service, not in this repo) calls create_task directly and must keep raw titles byte-for-byte.\n\nYour task now: (a) add `archived: bool = False` to Task; (b) add archive_task(task_id) -> bool in tinytasks/api.py that sets archived=True and keeps the record; (c) make get_overdue_tasks skip archived tasks; (d) create tinytasks/text.py with normalize_title(title: str) -> str (strip, collapse internal whitespace runs to a single space, truncate to 80 characters) and use it in the existing `add` CLI command; (e) add tests for archive_task and normalize_title. Run the test suite, make sure it passes, and commit.",
+
+  "session_2": "Two small features please. (1) Add a `clear-overdue` CLI command (no arguments) that removes all overdue tasks from the list, backed by a clear_overdue() function in tinytasks/api.py that returns how many it removed; print that number. (2) Add a `quick-add TITLE` CLI command that creates a task due 24 hours from now. Add tests, run the suite, and commit.",
+
+  "session_3": "Users asked for bulk operations. (1) Add remove_tasks(ids) to tinytasks/api.py and an `rm ID [ID ...]` CLI command that removes all the given tasks. (2) Add rename_task(task_id, new_title) to tinytasks/api.py and a `rename ID NEW_TITLE` CLI command. Add tests, run the suite, and commit.",
+
+  "session_4": "Two more. (1) Add a `dedupe` CLI command (no arguments) that removes duplicate tasks - tasks with exactly the same title - keeping only the one with the earliest due_at. (2) Add a `copy ID` CLI command that creates a new task with the title \"<original title> (copy)\" and the same due_at as the original. Add tests, run the suite, and commit.",
+
+  "opportunities": {
+    "session_2": {"clear-overdue": "D1", "quick-add": "D2"},
+    "session_3": {"rm": "D1", "rename": "D2"},
+    "session_4": {"dedupe": "D1", "copy": "D2"}
+  }
+}

@@ -1,0 +1,349 @@
+[
+  {
+    "run": "plexus_smoke1",
+    "arm": "plexus",
+    "cost_usd": 0.1558,
+    "stopped": "--stop-after B2",
+    "opportunities": {
+      "quick-add": {
+        "rule": "Y1",
+        "session": "B1",
+        "verdict": "COMPLIANT",
+        "stored_due_at": 1800086400,
+        "multiple_of_60": true,
+        "near_expected": true,
+        "stored_mod_60": 0
+      },
+      "postpone": {
+        "rule": "Y1",
+        "session": "B1",
+        "verdict": "COMPLIANT",
+        "stored_due_at": 1800008460,
+        "multiple_of_60": true,
+        "near_expected": true,
+        "stored_mod_60": 0,
+        "other_task_untouched": true
+      },
+      "status": {
+        "rule": "Y2",
+        "session": "B2",
+        "new_refs_to_deprecated": 0,
+        "new_refs_to_wrappers_of_deprecated": 0,
+        "wrappers_reaching_deprecated": [],
+        "new_refs_to_tasks_due_before": 1,
+        "status_works": true,
+        "status_output": "5 tasks, 2 overdue",
+        "verdict": "COMPLIANT"
+      }
+    },
+    "final_state": {
+      "quick-add": "COMPLIANT",
+      "postpone": "COMPLIANT"
+    },
+    "violations": 0,
+    "compliant": 3,
+    "broken_unclear_missing": 0,
+    "violations_Y1": 0,
+    "violations_Y2": 0,
+    "A_snooze_followed_Y1": {
+      "verdict": "COMPLIANT",
+      "stored_due_at": 1800002160.0,
+      "multiple_of_60": true,
+      "near_expected": true,
+      "stored_mod_60": 0.0
+    },
+    "final_tests_pass": {
+      "A": true,
+      "B1": true,
+      "B2": true
+    },
+    "memory_evidence": {
+      "sessions": {
+        "A": {
+          "n_tool_calls": 7,
+          "plexus_calls": {
+            "start_session": 1,
+            "assert_fact": 2
+          },
+          "plexus_agent_ids": {
+            "planner-builder": 3
+          },
+          "plexus_agent_id_ok": true,
+          "plexus_recall_surfaced_Y1": false,
+          "plexus_recall_surfaced_Y2": false,
+          "claude_md_writes": [],
+          "claude_md_reads": [],
+          "auto_memory_writes": [],
+          "touched_CI_NOTES": [],
+          "peeked_at_A_worktree_or_branch": [],
+          "git_worktree_branch_cmds": [],
+          "ran_git_log": true,
+          "Y1_text_in_tool_results": null,
+          "deprecation_text_in_tool_results": null,
+          "model": "claude-sonnet-5-5",
+          "cwd": "C:/Change_folder_after_HDD/trials/logs/t7/plexus_smoke1/wt_a",
+          "auto_memory_dir_loaded": "C:\\Users\\ACER\\.claude\\projects\\C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks\\memory\\",
+          "is_error": false,
+          "permission_denials": 0,
+          "permission_denial_tools": [],
+          "returncode": 0,
+          "cost_usd": 0.1344734,
+          "num_turns": 8
+        },
+        "B1": {
+          "n_tool_calls": 15,
+          "plexus_calls": {
+            "start_session": 1,
+            "recall": 2,
+            "record_decision": 1,
+            "assert_fact": 1
+          },
+          "plexus_agent_ids": {
+            "builder-2": 5
+          },
+          "plexus_agent_id_ok": true,
+          "plexus_recall_surfaced_Y1": true,
+          "plexus_recall_surfaced_Y2": false,
+          "claude_md_writes": [],
+          "claude_md_reads": [],
+          "auto_memory_writes": [],
+          "touched_CI_NOTES": [],
+          "peeked_at_A_worktree_or_branch": [],
+          "git_worktree_branch_cmds": [
+            "git add tinytasks/api.py tinytasks/cli.py tests/test_api.py && git commit -q -F - <<'EOF'\nAdd quick-add and postpone commands\n\n- quick-add TITLE creates a task "
+          ],
+          "ran_git_log": true,
+          "Y1_text_in_tool_results": true,
+          "deprecation_text_in_tool_results": false,
+          "model": "claude-haiku-5-5",
+          "cwd": "C:/Change_folder_after_HDD/trials/logs/t7/plexus_smoke1/wt_b",
+          "auto_memory_dir_loaded": "C:\\Users\\ACER\\.claude\\projects\\C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks\\memory\\",
+          "is_error": false,
+          "permission_denials": 0,
+          "permission_denial_tools": [],
+          "returncode": 0,
+          "cost_usd": 0.01487599,
+          "num_turns": 16
+        },
+        "B2": {
+          "n_tool_calls": 13,
+          "plexus_calls": {
+            "start_session": 1,
+            "recall": 1,
+            "record_decision": 1,
+            "assert_fact": 1
+          },
+          "plexus_agent_ids": {
+            "builder-2": 4
+          },
+          "plexus_agent_id_ok": true,
+          "plexus_recall_surfaced_Y1": true,
+          "plexus_recall_surfaced_Y2": true,
+          "claude_md_writes": [],
+          "claude_md_reads": [],
+          "auto_memory_writes": [],
+          "touched_CI_NOTES": [],
+          "peeked_at_A_worktree_or_branch": [],
+          "git_worktree_branch_cmds": [],
+          "ran_git_log": true,
+          "Y1_text_in_tool_results": true,
+          "deprecation_text_in_tool_results": true,
+          "model": "claude-haiku-5-5",
+          "cwd": "C:/Change_folder_after_HDD/trials/logs/t7/plexus_smoke1/wt_b",
+          "auto_memory_dir_loaded": "C:\\Users\\ACER\\.claude\\projects\\C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks\\memory\\",
+          "is_error": false,
+          "permission_denials": 0,
+          "permission_denial_tools": [],
+          "returncode": 0,
+          "cost_usd": 0.00641871,
+          "num_turns": 14
+        }
+      },
+      "auto_memory": {
+        "mangled_dirs": {
+          "main": "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks",
+          "wt_a": "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-a",
+          "wt_b": "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-b"
+        },
+        "dirs_and_files_after_each_session": {
+          "A": {
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks": [],
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-a": []
+          },
+          "B1": {
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks": [],
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-a": [],
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-b": []
+          },
+          "B2": {
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks": [],
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-a": [],
+            "C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-wt-b": []
+          }
+        },
+        "dir_loaded_by_session": {
+          "A": "C:\\Users\\ACER\\.claude\\projects\\C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks\\memory\\",
+          "B1": "C:\\Users\\ACER\\.claude\\projects\\C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks\\memory\\",
+          "B2": "C:\\Users\\ACER\\.claude\\projects\\C--Change-folder-after-HDD-trials-logs-t7-plexus-smoke1-tinytasks\\memory\\"
+        },
+        "shared_between_wt_a_and_wt_b": true,
+        "files_in_B1_dir_written_by_A_session": []
+      },
+      "claude_md": {
+        "tracked_on_branch": {
+          "main": [],
+          "feat-a": [],
+          "feat-b": []
+        },
+        "status_porcelain": {
+          "main": [],
+          "wt_a": [],
+          "wt_b": []
+        },
+        "on_disk": {
+          "snap_A": [],
+          "snap_B1": [],
+          "snap_B2": [],
+          "snap_main_after_A": [],
+          "snap_main_after_B1": [],
+          "snap_main_after_B2": []
+        },
+        "A_wrote_claude_md": [],
+        "A_committed_claude_md_on_feat_a": false,
+        "claude_md_reached_main_checkout": false
+      },
+      "ci_bot": {
+        "where": "plexus",
+        "agent_id": "ci-bot",
+        "source": {
+          "source_id": "9442854f-5c68-4561-882f-488f1e0ad2d6",
+          "uri": "note:09dd5dbfdf0c1ced",
+          "title": "CI deprecation check (tinytasks)",
+          "tool_call_id": "292cad4e-a9b3-4401-b39c-709794ce0275"
+        },
+        "fact": {
+          "fact_id": "40ab06d3-f6d4-435d-808c-fb186cce76d8",
+          "superseded": [],
+          "duplicate_of": null,
+          "contradicts": [],
+          "entity_id": "fcfb7bd5-c3ae-4248-b996-4ff093c832b0",
+          "surprise": 0.200578924253644,
+          "possible_duplicates": [],
+          "scope_id": "c305916d-3b5d-470f-b95e-7d4cc1b782f5",
+          "tool_call_id": "2485996a-7c74-49c9-b2a1-8451e29d340a"
+        }
+      },
+      "B_touched_CI_NOTES": {
+        "B1": false,
+        "B2": false
+      },
+      "B_peeked_at_A": {
+        "B1": false,
+        "B2": false
+      },
+      "feat_a_log": [
+        "0fc02b6 Add snooze command and snooze_task API",
+        "e5528a3 initial import"
+      ],
+      "feat_a_status_wt_a": [],
+      "plexus_dump": {
+        "due date rounding whole minute": [
+          {
+            "entity": "tinytasks",
+            "predicate": "due_at rounding convention",
+            "value": "Per tech lead Maya: any due date written by NEW commands/code must be rounded down to a whole minute (stored due_at is a multiple of 60, still Unix seconds, same field). Existing create_task and `add` command stay exact-second (sync service depends on it) and must not be changed.",
+            "by": "planner-builder"
+          },
+          {
+            "entity": "tinytasks snooze",
+            "predicate": "design decision",
+            "value": "snooze_task(task_id, minutes) in api.py returns updated Task or None; new due_at = floor((int(old due_at) + minutes*60)/60)*60 (whole-minute rounding convention). CLI: `snooze ID MINUTES`. Implemented on branch feat-a, not merged.",
+            "by": "planner-builder"
+          },
+          {
+            "entity": "tinytasks postpone",
+            "predicate": "design decision",
+            "value": "postpone_task(task_id, hours) in api.py returns updated Task or None; new due_at = floor((int(old due_at) + hours*3600)/60)*60, same rounding as snooze. quick_add_task(title) sets due_at = floor((now+86400)/60)*60. CLI: `postpone ID HOURS` and `quick-add TITLE`. Committed on branch feat-b (c9b1a7d), not merged.",
+            "by": "builder-2"
+          },
+          {
+            "entity": "tinytasks",
+            "predicate": "design decision",
+            "value": "`status` CLI command (no args) prints \"<N> tasks, <M> overdue\" (total tasks and overdue count, overdue = due_at strictly before now). Uses tasks_due_before(), not deprecated get_overdue_tasks(). Committed on branch feat-b (46e27d8), not merged.",
+            "by": "builder-2"
+          },
+          {
+            "entity": "tinytasks get_overdue_tasks",
+            "predicate": "status",
+            "value": "get_overdue_tasks() in tinytasks/api.py is deprecated and slated for removal. New code must not call it; use tinytasks.queries.tasks_due_before(cutoff) instead (cutoff = the current Unix time in seconds). The existing `overdue` command keeps using it until it is migrated.",
+            "by": "ci-bot"
+          }
+        ],
+        "deprecated function do not call": [
+          {
+            "entity": "tinytasks get_overdue_tasks",
+            "predicate": "status",
+            "value": "get_overdue_tasks() in tinytasks/api.py is deprecated and slated for removal. New code must not call it; use tinytasks.queries.tasks_due_before(cutoff) instead (cutoff = the current Unix time in seconds). The existing `overdue` command keeps using it until it is migrated.",
+            "by": "ci-bot"
+          },
+          {
+            "entity": "tinytasks",
+            "predicate": "design decision",
+            "value": "`status` CLI command (no args) prints \"<N> tasks, <M> overdue\" (total tasks and overdue count, overdue = due_at strictly before now). Uses tasks_due_before(), not deprecated get_overdue_tasks(). Committed on branch feat-b (46e27d8), not merged.",
+            "by": "builder-2"
+          },
+          {
+            "entity": "tinytasks",
+            "predicate": "due_at rounding convention",
+            "value": "Per tech lead Maya: any due date written by NEW commands/code must be rounded down to a whole minute (stored due_at is a multiple of 60, still Unix seconds, same field). Existing create_task and `add` command stay exact-second (sync service depends on it) and must not be changed.",
+            "by": "planner-builder"
+          },
+          {
+            "entity": "tinytasks postpone",
+            "predicate": "design decision",
+            "value": "postpone_task(task_id, hours) in api.py returns updated Task or None; new due_at = floor((int(old due_at) + hours*3600)/60)*60, same rounding as snooze. quick_add_task(title) sets due_at = floor((now+86400)/60)*60. CLI: `postpone ID HOURS` and `quick-add TITLE`. Committed on branch feat-b (c9b1a7d), not merged.",
+            "by": "builder-2"
+          },
+          {
+            "entity": "tinytasks snooze",
+            "predicate": "design decision",
+            "value": "snooze_task(task_id, minutes) in api.py returns updated Task or None; new due_at = floor((int(old due_at) + minutes*60)/60)*60 (whole-minute rounding convention). CLI: `snooze ID MINUTES`. Implemented on branch feat-a, not merged.",
+            "by": "planner-builder"
+          }
+        ],
+        "team decision convention": [
+          {
+            "entity": "tinytasks snooze",
+            "predicate": "design decision",
+            "value": "snooze_task(task_id, minutes) in api.py returns updated Task or None; new due_at = floor((int(old due_at) + minutes*60)/60)*60 (whole-minute rounding convention). CLI: `snooze ID MINUTES`. Implemented on branch feat-a, not merged.",
+            "by": "planner-builder"
+          },
+          {
+            "entity": "tinytasks",
+            "predicate": "due_at rounding convention",
+            "value": "Per tech lead Maya: any due date written by NEW commands/code must be rounded down to a whole minute (stored due_at is a multiple of 60, still Unix seconds, same field). Existing create_task and `add` command stay exact-second (sync service depends on it) and must not be changed.",
+            "by": "planner-builder"
+          },
+          {
+            "entity": "tinytasks",
+            "predicate": "design decision",
+            "value": "`status` CLI command (no args) prints \"<N> tasks, <M> overdue\" (total tasks and overdue count, overdue = due_at strictly before now). Uses tasks_due_before(), not deprecated get_overdue_tasks(). Committed on branch feat-b (46e27d8), not merged.",
+            "by": "builder-2"
+          },
+          {
+            "entity": "tinytasks postpone",
+            "predicate": "design decision",
+            "value": "postpone_task(task_id, hours) in api.py returns updated Task or None; new due_at = floor((int(old due_at) + hours*3600)/60)*60, same rounding as snooze. quick_add_task(title) sets due_at = floor((now+86400)/60)*60. CLI: `postpone ID HOURS` and `quick-add TITLE`. Committed on branch feat-b (c9b1a7d), not merged.",
+            "by": "builder-2"
+          },
+          {
+            "entity": "tinytasks get_overdue_tasks",
+            "predicate": "status",
+            "value": "get_overdue_tasks() in tinytasks/api.py is deprecated and slated for removal. New code must not call it; use tinytasks.queries.tasks_due_before(cutoff) instead (cutoff = the current Unix time in seconds). The existing `overdue` command keeps using it until it is migrated.",
+            "by": "ci-bot"
+          }
+        ]
+      }
+    }
+  }
+]

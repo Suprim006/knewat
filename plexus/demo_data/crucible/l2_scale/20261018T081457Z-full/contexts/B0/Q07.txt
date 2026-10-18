@@ -1,0 +1,179 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"s05-t01-gather-requirements":{"id":"s05-t01-gather-requirements","title":"Gather requirements (S05)","priority":50,"seq":48,"status":"done","claimed_by":"researcher","lease_until":1760000395000,"version":2,"created_at":1760000274001,"done_at":1760000277002,"deps":[],"artifacts":[{"id":"68996fe2-e518-55db-a858-d69a051573d4","kind":"file","uri":"artifacts/s05/requirements.md","hash":"","summary":"S05 requirements: notes CRUD, tags, API version v9","agent_id":"researcher","created_at":1760000277002}]}}
+{"s05-t02-choose-api-version":{"id":"s05-t02-choose-api-version","title":"Choose API version (S05)","priority":45,"seq":49,"status":"done","claimed_by":"planner","lease_until":1760000399000,"version":2,"created_at":1760000274001,"done_at":1760000280001,"deps":["s05-t01-gather-requirements"],"artifacts":[]}}
+{"s05-t03-design-endpoints":{"id":"s05-t03-design-endpoints","title":"Design endpoints (S05)","priority":40,"seq":50,"status":"done","claimed_by":"researcher","lease_until":1760000406500,"version":3,"created_at":1760000274001,"done_at":1760000288501,"deps":["s05-t02-choose-api-version"],"artifacts":[{"id":"fc3ba49c-61e2-505a-adce-6e24175c67fd","kind":"file","uri":"artifacts/s05/openapi-draft.yaml","hash":"","summary":"S05 endpoint draft for /v9/notes (CRUD)","agent_id":"researcher","created_at":1760000288501}]}}
+{"s05-t04-survey-infra-security":{"id":"s05-t04-survey-infra-security","title":"Survey infra and security constraints (S05)","priority":35,"seq":51,"status":"done","claimed_by":"researcher","lease_until":1760000420500,"version":2,"created_at":1760000274001,"done_at":1760000302502,"deps":["s05-t01-gather-requirements"],"artifacts":[{"id":"2248c58f-fec3-515b-8276-e7a9f0afbd99","kind":"file","uri":"artifacts/s05/constraints.md","hash":"","summary":"S05 infra and security constraints: SQL Server 2022, JWT auth","agent_id":"researcher","created_at":1760000302502}]}}
+{"s05-t05-choose-auth":{"id":"s05-t05-choose-auth","title":"Choose authentication (S05)","priority":30,"seq":52,"status":"done","claimed_by":"planner","lease_until":1760000424500,"version":2,"created_at":1760000274001,"done_at":1760000307501,"deps":["s05-t04-survey-infra-security"],"artifacts":[]}}
+{"s05-t06-write-db-schema":{"id":"s05-t06-write-db-schema","title":"Write database schema (S05)","priority":25,"seq":53,"status":"done","claimed_by":"builder","lease_until":1760000435500,"version":2,"created_at":1760000274001,"done_at":1760000318501,"deps":["s05-t02-choose-api-version","s05-t04-survey-infra-security"],"artifacts":[{"id":"815e50b3-023d-580a-b065-f194aa8ff344","kind":"file","uri":"artifacts/s05/schema.sql","hash":"","summary":"S05 SQL Server 2022 schema: notes, tags, note_tags","agent_id":"builder","created_at":1760000318501}]}}
+{"s05-t07-implement-crud-spec":{"id":"s05-t07-implement-crud-spec","title":"Implement CRUD spec (S05)","priority":20,"seq":54,"status":"done","claimed_by":"builder","lease_until":1760000440500,"version":2,"created_at":1760000274001,"done_at":1760000322501,"deps":["s05-t03-design-endpoints","s05-t05-choose-auth","s05-t06-write-db-schema"],"artifacts":[{"id":"b2ee9a12-5645-5138-87a3-303d5063554a","kind":"file","uri":"artifacts/s05/crud-spec.md","hash":"","summary":"S05 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000322501}]}}
+{"s05-t08-write-test-plan":{"id":"s05-t08-write-test-plan","title":"Write test plan (S05)","priority":15,"seq":55,"status":"done","claimed_by":"researcher","lease_until":1760000445500,"version":2,"created_at":1760000274001,"done_at":1760000326501,"deps":["s05-t03-design-endpoints"],"artifacts":[{"id":"1097871a-dfcc-53e9-8208-f0586ca3951a","kind":"file","uri":"artifacts/s05/test-plan.md","hash":"","summary":"S05 test plan for the CRUD endpoints","agent_id":"researcher","created_at":1760000326501}]}}
+{"s05-t09-review-spec":{"id":"s05-t09-review-spec","title":"Review spec (S05)","priority":12,"seq":56,"status":"done","claimed_by":"planner","lease_until":1760000448500,"version":2,"created_at":1760000274001,"done_at":1760000330501,"deps":["s05-t07-implement-crud-spec","s05-t08-write-test-plan"],"artifacts":[]}}
+{"s05-t10-write-docs":{"id":"s05-t10-write-docs","title":"Write documentation (S05)","priority":10,"seq":57,"status":"done","claimed_by":"researcher","lease_until":1760000452500,"version":2,"created_at":1760000274001,"done_at":1760000333501,"deps":["s05-t09-review-spec"],"artifacts":[{"id":"9fdb133b-8fb2-5a4a-9f25-df4a35e8a674","kind":"file","uri":"artifacts/s05/docs.md","hash":"","summary":"S05 API documentation","agent_id":"researcher","created_at":1760000333501}]}}
+{"s05-t11-package-release":{"id":"s05-t11-package-release","title":"Package release (S05)","priority":5,"seq":58,"status":"done","claimed_by":"builder","lease_until":1760000455500,"version":2,"created_at":1760000274001,"done_at":1760000335502,"deps":["s05-t10-write-docs"],"artifacts":[{"id":"c7d80e0f-81e0-5a1f-a8cb-b367b324673b","kind":"file","uri":"artifacts/s05/release.tar","hash":"","summary":"S05 release bundle of the Acme Notes API","agent_id":"builder","created_at":1760000335502}]}}
+{"s05-t12-update-endpoints-for-v2":{"id":"s05-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S05)","priority":60,"seq":59,"status":"done","claimed_by":"builder","lease_until":1760000415500,"version":2,"created_at":1760000294501,"done_at":1760000297501,"deps":["s05-t03-design-endpoints"],"artifacts":[{"id":"79974657-4a4a-5c35-849a-1731418875be","kind":"file","uri":"artifacts/s05/openapi-v2.yaml","hash":"","summary":"S05 endpoint design for /v10/notes","agent_id":"builder","created_at":1760000297501}]}}
+
+=== file: MEMORY.md ===
+- **Acme Notes API S05** purpose: REST service to create, tag and search notes (S05) (active, global) <!--{"id":"89222f2a-accb-5b29-9824-7d13443ea4d3","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"purpose","value":"REST service to create, tag and search notes (S05)","norm_value":"rest service to create, tag and search notes (s05)","scope":"global","status":"active","valid_from":1760000276000,"valid_to":9999999999999,"recorded_at":1760000276000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["befbf972-2c5a-5744-aba1-a643a4c7edf2"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S05** auth_method: JWT bearer tokens (ES384, key s05) (active, global) <!--{"id":"caaa893a-626f-5079-bebd-835aa31eb750","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"auth_method","value":"JWT bearer tokens (ES384, key s05)","norm_value":"jwt bearer tokens (es384, key s05)","scope":"global","status":"active","valid_from":1760000302500,"valid_to":9999999999999,"recorded_at":1760000302500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["6cb51554-80b7-5311-aa63-26842afbbf8c"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S05** database: Redis 8 (forgotten, global) <!--{"id":"8b709ed9-81a2-5c6c-801a-bd45c94e7a6d","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"database","value":"Redis 8","norm_value":"redis 8","scope":"global","status":"forgotten","valid_from":1760000309500,"valid_to":1760000311501,"recorded_at":1760000309500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["14284b1e-5c73-5edc-b916-8a8ed5b096c2"],"supersedes":[],"contradicts":["56aae829-cd18-53c7-b1f0-748deb332dfb"]}-->
+[...]
+- **Acme Notes API S05** release_channel: general availability (active, project:acme-s05) <!--{"id":"b5f311d2-6ea7-5e99-90d8-db978bca5428","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"release_channel","value":"general availability","norm_value":"general availability","scope":"project:acme-s05","status":"active","valid_from":1760000314500,"valid_to":9999999999999,"recorded_at":1760000314500,"confidence":1.0,"asserted_by":["planner"],"derived_from":[],"supersedes":[],"contradicts":[]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"82f3af6c-2e74-5829-860e-0f4ff3257333","agent":"planner","task":"s05-t02-choose-api-version","text":"S05: Build the Acme Notes API against v9 of the style guide (routes under /v9/).","based_on":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"at":1760000279002}
+{"type":"decision","id":"c9072b15-a345-5512-9020-46cdb23e5ed4","agent":"planner","task":"s05-t02-choose-api-version","text":"S05: Adopt style guide v10: the API version is now v10 (routes under /v10/).","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27"],"at":1760000293501}
+{"type":"decision","id":"0be418c2-82f8-5ce5-9456-1f0c70789d7f","agent":"planner","task":"s05-t05-choose-auth","text":"S05: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["caaa893a-626f-5079-bebd-835aa31eb750","489da596-b3ca-5043-a0ea-5086de9014b6"],"at":1760000306502}
+{"type":"decision","id":"b014b68b-cb82-5a7c-93da-20a91e4ad5c8","agent":"planner","task":"s05-t06-write-db-schema","text":"S05: Evaluate Redis 8 as the database (forum post).","based_on":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000309502}
+[...]
+{"type":"decision","id":"62932fdb-3076-59d2-ba7e-bf5b9bab07ea","agent":"planner","task":"s05-t09-review-spec","text":"S05: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000329501}
+
+=== file: handoffs.jsonl ===
+{"id":"40cb7ea3-a858-55fd-8c7b-71675760c139","from":"builder","to":"planner","task":"s05-t12-update-endpoints-for-v2","note":"S05: Updated for API v10.","artifacts":["79974657-4a4a-5c35-849a-1731418875be"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27"],"at":1760000298501}
+{"id":"152c0486-f2fa-5da5-bb8d-4f89714562d1","from":"builder","to":"planner","task":"s05-t07-implement-crud-spec","note":"S05: CRUD spec ready for review.","artifacts":["b2ee9a12-5645-5138-87a3-303d5063554a"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000323501}
+{"id":"33f70db4-6bf8-5816-9887-b03772acc401","from":"builder","to":"planner","task":"s05-t11-package-release","note":"S05: Release bundle is ready.","artifacts":["c7d80e0f-81e0-5a1f-a8cb-b367b324673b"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27"],"at":1760000336501}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000024502,"tool":"handoff","id":"6bc546bd-8bc8-5700-9233-6c6718ab2bc3","to":"planner","task":"s01-t12-update-endpoints-for-v2","note":"S01: Updated for API v2.","artifacts":["37dce107-05b5-5c9f-8a28-bd687a3670f8"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc"],"at":1760000024501}
+[...]
+{"ts":1760000049502,"tool":"handoff","id":"208456fd-84ac-52a7-b766-cef373b38b31","to":"planner","task":"s01-t07-implement-crud-spec","note":"S01: CRUD spec ready for review.","artifacts":["27ef1b24-205d-5803-8a6d-b59547042ff8"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"],"at":1760000049501}
+[...]
+{"ts":1760000062502,"tool":"handoff","id":"4fd27171-41a3-557b-9a37-6599cb9a7855","to":"planner","task":"s01-t11-package-release","note":"S01: Release bundle is ready.","artifacts":["d21c02f5-7dca-5fc4-9583-b230506ad773"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc"],"at":1760000062501}
+[...]
+{"ts":1760000093002,"tool":"handoff","id":"0ca31f69-6cb8-5a25-ab92-bb5ce1e8b36f","to":"planner","task":"s02-t12-update-endpoints-for-v2","note":"S02: Updated for API v4.","artifacts":["e77b5744-3fd9-58d4-ba71-3abf0148b480"],"facts":["399e1e16-1b03-5184-b159-958079bedc70"],"at":1760000093001}
+[...]
+{"ts":1760000118002,"tool":"handoff","id":"d04e9737-19af-51e3-b2c3-69a2d16d23a9","to":"planner","task":"s02-t07-implement-crud-spec","note":"S02: CRUD spec ready for review.","artifacts":["0e6b7bc2-796b-5295-ad42-bfc0a62594ba"],"facts":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000118001}
+[...]
+{"ts":1760000131002,"tool":"handoff","id":"ef0ee3ab-9c04-5bda-b160-99921a49c854","to":"planner","task":"s02-t11-package-release","note":"S02: Release bundle is ready.","artifacts":["796ef38e-09aa-5ff9-ae3a-aa03d57053a3"],"facts":["399e1e16-1b03-5184-b159-958079bedc70"],"at":1760000131001}
+[...]
+{"ts":1760000161502,"tool":"handoff","id":"059b350c-3f17-5a85-b0ad-dcd63af1ab57","to":"planner","task":"s03-t12-update-endpoints-for-v2","note":"S03: Updated for API v6.","artifacts":["aca951fd-7570-5816-8b28-48c758f15282"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd"],"at":1760000161501}
+[...]
+{"ts":1760000186502,"tool":"handoff","id":"ca66045d-b446-5002-b023-ae96f7e1a787","to":"planner","task":"s03-t07-implement-crud-spec","note":"S03: CRUD spec ready for review.","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000186501}
+[...]
+{"ts":1760000199502,"tool":"handoff","id":"d92ca6d4-d296-58d8-b904-11943ddd547e","to":"planner","task":"s03-t11-package-release","note":"S03: Release bundle is ready.","artifacts":["c3ec9fb3-9334-50e9-adb8-3cbd42eded49"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd"],"at":1760000199501}
+[...]
+{"ts":1760000230002,"tool":"handoff","id":"5af8810a-070a-556b-ab66-4043fa66f25e","to":"planner","task":"s04-t12-update-endpoints-for-v2","note":"S04: Updated for API v8.","artifacts":["9a8f0d25-912c-54db-8b09-8446ce2954d5"],"facts":["c73b692e-9cd9-58f6-a146-aa387e5d2e33"],"at":1760000230001}
+[...]
+{"ts":1760000255002,"tool":"handoff","id":"dcae7214-ee5d-59da-a431-1d3670c8cce5","to":"planner","task":"s04-t07-implement-crud-spec","note":"S04: CRUD spec ready for review.","artifacts":["f800fe12-3a0d-5ecf-9463-25316e8b0776"],"facts":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"],"at":1760000255001}
+[...]
+{"ts":1760000268002,"tool":"handoff","id":"7c05f813-32f1-5c8f-8b7a-08548f8702b3","to":"planner","task":"s04-t11-package-release","note":"S04: Release bundle is ready.","artifacts":["08505d9a-3a4b-5d46-a6a3-31874104ff0b"],"facts":["c73b692e-9cd9-58f6-a146-aa387e5d2e33"],"at":1760000268001}
+[...]
+{"ts":1760000298502,"tool":"handoff","id":"40cb7ea3-a858-55fd-8c7b-71675760c139","to":"planner","task":"s05-t12-update-endpoints-for-v2","note":"S05: Updated for API v10.","artifacts":["79974657-4a4a-5c35-849a-1731418875be"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27"],"at":1760000298501}
+[...]
+{"ts":1760000323502,"tool":"handoff","id":"152c0486-f2fa-5da5-bb8d-4f89714562d1","to":"planner","task":"s05-t07-implement-crud-spec","note":"S05: CRUD spec ready for review.","artifacts":["b2ee9a12-5645-5138-87a3-303d5063554a"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000323501}
+[...]
+{"ts":1760000336502,"tool":"handoff","id":"33f70db4-6bf8-5816-9887-b03772acc401","to":"planner","task":"s05-t11-package-release","note":"S05: Release bundle is ready.","artifacts":["c7d80e0f-81e0-5a1f-a8cb-b367b324673b"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27"],"at":1760000336501}
+[...]
+{"ts":1760000367002,"tool":"handoff","id":"9d7cebfd-874c-5e0d-89da-27e66f64a5ea","to":"planner","task":"s06-t12-update-endpoints-for-v2","note":"S06: Updated for API v12.","artifacts":["6aa07c46-b70f-5a79-87a2-2300fc191e20"],"facts":["8d2b5d80-fe43-5534-8e8a-955905c4975b"],"at":1760000367001}
+[...]
+{"ts":1760000392002,"tool":"handoff","id":"0aff62b2-52de-5019-aeb4-ea6f9488fb44","to":"planner","task":"s06-t07-implement-crud-spec","note":"S06: CRUD spec ready for review.","artifacts":["19715af8-0853-577c-a079-771cecf2f34a"],"facts":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"],"at":1760000392001}
+[...]
+{"ts":1760000405002,"tool":"handoff","id":"16c140ee-b857-5484-8171-56ca555ba268","to":"planner","task":"s06-t11-package-release","note":"S06: Release bundle is ready.","artifacts":["f03e6bcf-516d-5bb0-87c2-9774bbe34f4e"],"facts":["8d2b5d80-fe43-5534-8e8a-955905c4975b"],"at":1760000405001}
+[...]
+{"ts":1760000435502,"tool":"handoff","id":"45dd3ffa-7b5c-5cf3-9ab3-cb2f93ebcb83","to":"planner","task":"s07-t12-update-endpoints-for-v2","note":"S07: Updated for API v14.","artifacts":["26ccd88e-4a22-5b06-b8fc-d53cde49e168"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605"],"at":1760000435501}
+[...]
+{"ts":1760000460502,"tool":"handoff","id":"8ff3f392-de52-5299-ad8f-cb75c615c81d","to":"planner","task":"s07-t07-implement-crud-spec","note":"S07: CRUD spec ready for review.","artifacts":["1fd0fea1-4134-5a70-a173-ddd7cb97836b"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"],"at":1760000460501}
+[...]
+{"ts":1760000473502,"tool":"handoff","id":"b8ebd551-0f4d-5fb2-b0ab-6b1506c3cdaa","to":"planner","task":"s07-t11-package-release","note":"S07: Release bundle is ready.","artifacts":["8eb933f0-4509-5a32-88d9-029618f871ae"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605"],"at":1760000473501}
+[...]
+{"ts":1760000504002,"tool":"handoff","id":"9667e5d7-ed2a-5648-bcb0-06ec5f20a23e","to":"planner","task":"s08-t12-update-endpoints-for-v2","note":"S08: Updated for API v16.","artifacts":["7253b2be-e185-58e7-bcd2-1364d108d38f"],"facts":["f4918c86-ef7f-50df-94d1-abc537082890"],"at":1760000504001}
+[...]
+{"ts":1760000529002,"tool":"handoff","id":"70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b","to":"planner","task":"s08-t07-implement-crud-spec","note":"S08: CRUD spec ready for review.","artifacts":["d76294c4-c550-5029-845f-880e44cb4bf1"],"facts":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"],"at":1760000529001}
+[...]
+{"ts":1760000542002,"tool":"handoff","id":"b5aa54ac-f8db-5fb0-930a-3888c9185415","to":"planner","task":"s08-t11-package-release","note":"S08: Release bundle is ready.","artifacts":["9b23678d-08c1-5a60-80fb-42e413e0ccc0"],"facts":["f4918c86-ef7f-50df-94d1-abc537082890"],"at":1760000542001}
+[...]
+{"ts":1760000572502,"tool":"handoff","id":"b19435e3-2f21-5ade-b5f7-e937e833ca29","to":"planner","task":"s09-t12-update-endpoints-for-v2","note":"S09: Updated for API v18.","artifacts":["6e9ca35f-8635-5e8b-b860-96be85496752"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c"],"at":1760000572501}
+[...]
+{"ts":1760000597502,"tool":"handoff","id":"a133d97a-e731-5223-a8ff-0925912bf303","to":"planner","task":"s09-t07-implement-crud-spec","note":"S09: CRUD spec ready for review.","artifacts":["c15b251d-c799-5fb6-99ca-e6b78a41b088"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000597501}
+[...]
+{"ts":1760000610502,"tool":"handoff","id":"54b240fc-2f84-57bb-96b2-7d99a74d6ed2","to":"planner","task":"s09-t11-package-release","note":"S09: Release bundle is ready.","artifacts":["9a938ff3-58b7-5541-8bf1-ca604afc6437"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c"],"at":1760000610501}
+[...]
+{"ts":1760000641002,"tool":"handoff","id":"a22e7489-1ac9-5b97-9569-fe356491e3c2","to":"planner","task":"s10-t12-update-endpoints-for-v2","note":"S10: Updated for API v20.","artifacts":["879e36e3-c268-595f-8906-ebbc3b1067e6"],"facts":["9d834c69-70bf-51a2-a771-d04e1f6a0a07"],"at":1760000641001}
+[...]
+{"ts":1760000666002,"tool":"handoff","id":"69e73a46-631b-58b6-85f3-f89634202221","to":"planner","task":"s10-t07-implement-crud-spec","note":"S10: CRUD spec ready for review.","artifacts":["c87489d9-9608-51ba-a15a-db6abf9fd091"],"facts":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"],"at":1760000666001}
+[...]
+{"ts":1760000679002,"tool":"handoff","id":"6e92f678-f18c-5999-9912-ec8415fc7da2","to":"planner","task":"s10-t11-package-release","note":"S10: Release bundle is ready.","artifacts":["b0aeec6e-bf45-550b-9570-968aad22e139"],"facts":["9d834c69-70bf-51a2-a771-d04e1f6a0a07"],"at":1760000679001}
+[...]
+{"ts":1760000709502,"tool":"handoff","id":"5330f315-775b-5949-a809-889db467312c","to":"planner","task":"s11-t12-update-endpoints-for-v2","note":"S11: Updated for API v22.","artifacts":["1487ccdd-3f31-51aa-bac8-2defe1803704"],"facts":["6e976d44-c6ad-52c2-918c-f396900cc85e"],"at":1760000709501}
+[...]
+{"ts":1760000734502,"tool":"handoff","id":"bfcd23c6-ae34-5363-8253-c4b8fb8e9d61","to":"planner","task":"s11-t07-implement-crud-spec","note":"S11: CRUD spec ready for review.","artifacts":["bf750cef-8374-5117-a75b-cb228bf48e39"],"facts":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"],"at":1760000734501}
+[...]
+{"ts":1760000747502,"tool":"handoff","id":"d8751268-de6c-5eb6-9b44-c1061cc89f7f","to":"planner","task":"s11-t11-package-release","note":"S11: Release bundle is ready.","artifacts":["9bf278ec-1adc-542e-848c-e4e525170bf2"],"facts":["6e976d44-c6ad-52c2-918c-f396900cc85e"],"at":1760000747501}
+[...]
+{"ts":1760000778002,"tool":"handoff","id":"c73c2ee0-484b-56a1-b471-11cc1a710f8b","to":"planner","task":"s12-t12-update-endpoints-for-v2","note":"S12: Updated for API v24.","artifacts":["f9ff72e6-53c5-5a52-9d82-7855aa48dc88"],"facts":["9c6f3395-6466-5261-87f5-70fa6df0101e"],"at":1760000778001}
+[...]
+{"ts":1760000803002,"tool":"handoff","id":"65b478b3-d1cf-57b3-8a6c-5742497ffa24","to":"planner","task":"s12-t07-implement-crud-spec","note":"S12: CRUD spec ready for review.","artifacts":["82365dcb-e9ac-585f-a493-0c6efa43b506"],"facts":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"],"at":1760000803001}
+[...]
+{"ts":1760000816002,"tool":"handoff","id":"2187e643-9ef3-5352-b417-5d530fc28c94","to":"planner","task":"s12-t11-package-release","note":"S12: Release bundle is ready.","artifacts":["d5037930-5f80-5d5e-9b58-6af8da45e614"],"facts":["9c6f3395-6466-5261-87f5-70fa6df0101e"],"at":1760000816001}
+[...]
+{"ts":1760000846502,"tool":"handoff","id":"70e4d5a5-d6e6-565d-a996-9559f222a053","to":"planner","task":"s13-t12-update-endpoints-for-v2","note":"S13: Updated for API v26.","artifacts":["9d7b2303-5861-5ea4-bb15-9d8ef467dcda"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000846501}
+[...]
+{"ts":1760000871502,"tool":"handoff","id":"c45b3769-f3cb-5369-ac8b-24830f52e357","to":"planner","task":"s13-t07-implement-crud-spec","note":"S13: CRUD spec ready for review.","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000871501}
+[...]
+{"ts":1760000884502,"tool":"handoff","id":"eece0352-6fee-5dfa-bf7b-f35be556b905","to":"planner","task":"s13-t11-package-release","note":"S13: Release bundle is ready.","artifacts":["6051f482-ebbc-5398-a424-d12821331ff4"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000884501}
+[...]
+{"ts":1760000915002,"tool":"handoff","id":"2c50784b-6e55-5ee2-92e0-bf5171c924e9","to":"planner","task":"s14-t12-update-endpoints-for-v2","note":"S14: Updated for API v28.","artifacts":["4c0d39c0-72a3-5432-ab84-9b9688d92da0"],"facts":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3"],"at":1760000915001}
+[...]
+{"ts":1760000940002,"tool":"handoff","id":"ca0b29f4-363a-57e4-81bf-f609a231a089","to":"planner","task":"s14-t07-implement-crud-spec","note":"S14: CRUD spec ready for review.","artifacts":["5e1cc5e6-991f-5fb3-bf84-9377b8a89805"],"facts":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"],"at":1760000940001}
+[...]
+{"ts":1760000953002,"tool":"handoff","id":"8b871045-f36b-5f09-8616-17186a9e3220","to":"planner","task":"s14-t11-package-release","note":"S14: Release bundle is ready.","artifacts":["3e009e47-33a7-5559-8302-59e5dd7a92c4"],"facts":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3"],"at":1760000953001}
+[...]
+{"ts":1760000983502,"tool":"handoff","id":"d27471aa-e216-5b7d-a706-6398fcdfcc03","to":"planner","task":"s15-t12-update-endpoints-for-v2","note":"S15: Updated for API v30.","artifacts":["df3d8849-54e7-5591-b48e-3701f4d28516"],"facts":["4a728057-55a9-5aca-8e1e-b552d2f8daa5"],"at":1760000983501}
+[...]
+{"ts":1760001008502,"tool":"handoff","id":"924f23f7-7c01-5a36-870b-8a0a4a002dc5","to":"planner","task":"s15-t07-implement-crud-spec","note":"S15: CRUD spec ready for review.","artifacts":["a8166a94-af06-514f-aa6d-29ef076b114a"],"facts":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"],"at":1760001008501}
+[...]
+{"ts":1760001021502,"tool":"handoff","id":"36c8a8ee-f3bd-5d05-898e-6bc8f82471ab","to":"planner","task":"s15-t11-package-release","note":"S15: Release bundle is ready.","artifacts":["6ee8da39-134c-5ee4-9231-c4790b56a9be"],"facts":["4a728057-55a9-5aca-8e1e-b552d2f8daa5"],"at":1760001021501}
+[...]
+{"ts":1760001052002,"tool":"handoff","id":"9ea84b0f-c667-5df6-bde1-e6c3efcedd51","to":"planner","task":"s16-t12-update-endpoints-for-v2","note":"S16: Updated for API v32.","artifacts":["5006e7c2-97d0-5cb2-93d7-bf6a45c6a74d"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4"],"at":1760001052001}
+[...]
+{"ts":1760001077002,"tool":"handoff","id":"2081e45a-3076-554a-9a08-25d03365657c","to":"planner","task":"s16-t07-implement-crud-spec","note":"S16: CRUD spec ready for review.","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001077001}
+[...]
+{"ts":1760001090002,"tool":"handoff","id":"e875da2c-ffd6-58f9-be4a-1b036888b8c6","to":"planner","task":"s16-t11-package-release","note":"S16: Release bundle is ready.","artifacts":["ac3e4536-3c2b-5f03-a372-d1ee1633ccff"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4"],"at":1760001090001}
+[...]
+{"ts":1760001120502,"tool":"handoff","id":"30599fdf-ce03-5e10-b4a1-e58c3b175932","to":"planner","task":"s17-t12-update-endpoints-for-v2","note":"S17: Updated for API v34.","artifacts":["5bf93bc9-e4e7-56c0-971b-42d5603aea84"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2"],"at":1760001120501}
+[...]
+{"ts":1760001145502,"tool":"handoff","id":"b5bdb2aa-2104-568e-aa83-ae98bd3c42bc","to":"planner","task":"s17-t07-implement-crud-spec","note":"S17: CRUD spec ready for review.","artifacts":["d7abdc81-f7d7-5996-9cf5-27b78fe17339"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"],"at":1760001145501}
+[...]
+{"ts":1760001158502,"tool":"handoff","id":"3e775cce-fadf-537a-9cc1-617c6f039461","to":"planner","task":"s17-t11-package-release","note":"S17: Release bundle is ready.","artifacts":["1e974324-d993-5fae-aed0-c0e495f9c56b"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2"],"at":1760001158501}
+[...]
+{"ts":1760001189002,"tool":"handoff","id":"885b4432-61ea-5f01-bcd4-aa0c5e1880f7","to":"planner","task":"s18-t12-update-endpoints-for-v2","note":"S18: Updated for API v36.","artifacts":["7f6c9a50-5bb7-543c-9b15-e9bb663d03a7"],"facts":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d"],"at":1760001189001}
+[...]
+{"ts":1760001214002,"tool":"handoff","id":"5d3b5248-07a2-54cf-bc45-5813ec8e9e1d","to":"planner","task":"s18-t07-implement-crud-spec","note":"S18: CRUD spec ready for review.","artifacts":["3cfb4932-60c7-5e17-a32c-06a963667df4"],"facts":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"],"at":1760001214001}
+[...]
+{"ts":1760001227002,"tool":"handoff","id":"a1c481f4-1960-533b-8678-827d85efd5ff","to":"planner","task":"s18-t11-package-release","note":"S18: Release bundle is ready.","artifacts":["7680c162-e1b2-5337-a0d6-2eddc234a001"],"facts":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d"],"at":1760001227001}
+[...]
+{"ts":1760001257502,"tool":"handoff","id":"0c7205f8-6b55-57b7-b67c-87e64a40937d","to":"planner","task":"s19-t12-update-endpoints-for-v2","note":"S19: Updated for API v38.","artifacts":["1c0d05f1-45ba-5830-810f-6b80d4da47f1"],"facts":["28a328cd-86a1-5480-9a95-d398ed40eb33"],"at":1760001257501}
+[...]
+{"ts":1760001295502,"tool":"handoff","id":"1d677918-4f3d-5e40-a1c4-76f150894e20","to":"planner","task":"s19-t11-package-release","note":"S19: Release bundle is ready.","artifacts":["3991bc77-3505-566d-95d9-9eccaf6a1884"],"facts":["28a328cd-86a1-5480-9a95-d398ed40eb33"],"at":1760001295501}
+[...]
+{"ts":1760001326002,"tool":"handoff","id":"9e3ebf44-8b77-59d1-a95b-7b042fdea0e6","to":"planner","task":"s20-t12-update-endpoints-for-v2","note":"S20: Updated for API v40.","artifacts":["08a3099d-1dc9-503e-aa10-f96efe7a360e"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001326001}
+[...]
+{"ts":1760001364002,"tool":"handoff","id":"7bbf6041-419d-5037-a0f4-94c2747a34ed","to":"planner","task":"s20-t11-package-release","note":"S20: Release bundle is ready.","artifacts":["39a2636d-0bc6-5313-ab44-0961f7bf83a3"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6"],"at":1760001364001}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000279001,"tool":"claim_next_task","task":"s05-t02-choose-api-version","version":1,"reclaimed_from":""}
+{"ts":1760000279003,"tool":"record_decision","id":"82f3af6c-2e74-5829-860e-0f4ff3257333","task":"s05-t02-choose-api-version","based_on":["ca0ea7ab-cc37-5143-b241-878499db2bd5"]}
+{"ts":1760000280002,"tool":"complete_task","task":"s05-t02-choose-api-version","artifacts":[]}
+{"ts":1760000292502,"tool":"recall","query":"API version S05","scope":"global","returned":["cbde9957-b402-503b-bef3-f0a0733a8c27","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","89222f2a-accb-5b29-9824-7d13443ea4d3","c73b692e-9cd9-58f6-a146-aa387e5d2e33"]}
+{"ts":1760000293502,"tool":"record_decision","id":"c9072b15-a345-5512-9020-46cdb23e5ed4","task":"s05-t02-choose-api-version","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27"]}
+{"ts":1760000304501,"tool":"claim_next_task","task":"s05-t05-choose-auth","version":1,"reclaimed_from":""}
+{"ts":1760000304503,"tool":"recall","query":"authentication S05","scope":"global","returned":["56aae829-cd18-53c7-b1f0-748deb332dfb","89222f2a-accb-5b29-9824-7d13443ea4d3","caaa893a-626f-5079-bebd-835aa31eb750","cbde9957-b402-503b-bef3-f0a0733a8c27"]}
+[...]
+{"ts":1760000306503,"tool":"record_decision","id":"0be418c2-82f8-5ce5-9456-1f0c70789d7f","task":"s05-t05-choose-auth","based_on":["caaa893a-626f-5079-bebd-835aa31eb750","489da596-b3ca-5043-a0ea-5086de9014b6"]}
+{"ts":1760000307502,"tool":"complete_task","task":"s05-t05-choose-auth","artifacts":[]}
+[...]
+{"ts":1760000309503,"tool":"record_decision","id":"b014b68b-cb82-5a7c-93da-20a91e4ad5c8","task":"s05-t06-write-db-schema","based_on":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"]}
+{"ts":1760000314501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"release_channel","value":"general availability","scope":"project:acme-s05","fact_id":"b5f311d2-6ea7-5e99-90d8-db978bca5428","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000328501,"tool":"claim_next_task","task":"s05-t09-review-spec","version":1,"reclaimed_from":""}
+{"ts":1760000328503,"tool":"recall","query":"API version S05","scope":"global","returned":["cbde9957-b402-503b-bef3-f0a0733a8c27","1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","399e1e16-1b03-5184-b159-958079bedc70","489da596-b3ca-5043-a0ea-5086de9014b6","56aae829-cd18-53c7-b1f0-748deb332dfb"]}
+{"ts":1760000329502,"tool":"record_decision","id":"62932fdb-3076-59d2-ba7e-bf5b9bab07ea","task":"s05-t09-review-spec","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"]}
+{"ts":1760000330502,"tool":"complete_task","task":"s05-t09-review-spec","artifacts":[]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000289502,"tool":"handoff","id":"94a75fce-e5ac-51e9-8804-7dddeb7f936e","to":"builder","task":"s05-t03-design-endpoints","note":"S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["fc3ba49c-61e2-505a-adce-6e24175c67fd"],"facts":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"at":1760000289501}
+[...]
+{"ts":1760000333502,"tool":"complete_task","task":"s05-t10-write-docs","artifacts":["9fdb133b-8fb2-5a4a-9f25-df4a35e8a674"]}
+

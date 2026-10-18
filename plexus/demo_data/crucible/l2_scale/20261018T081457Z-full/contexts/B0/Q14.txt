@@ -1,0 +1,168 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"s08-t01-gather-requirements":{"id":"s08-t01-gather-requirements","title":"Gather requirements (S08)","priority":50,"seq":84,"status":"done","claimed_by":"researcher","lease_until":1760000600500,"version":2,"created_at":1760000479501,"done_at":1760000482502,"deps":[],"artifacts":[{"id":"e0d54790-b1ed-50cf-aba0-a3452e33dd46","kind":"file","uri":"artifacts/s08/requirements.md","hash":"","summary":"S08 requirements: notes CRUD, tags, API version v15","agent_id":"researcher","created_at":1760000482502}]}}
+{"s08-t02-choose-api-version":{"id":"s08-t02-choose-api-version","title":"Choose API version (S08)","priority":45,"seq":85,"status":"done","claimed_by":"planner","lease_until":1760000604500,"version":2,"created_at":1760000479501,"done_at":1760000485501,"deps":["s08-t01-gather-requirements"],"artifacts":[]}}
+{"s08-t03-design-endpoints":{"id":"s08-t03-design-endpoints","title":"Design endpoints (S08)","priority":40,"seq":86,"status":"done","claimed_by":"researcher","lease_until":1760000612000,"version":3,"created_at":1760000479501,"done_at":1760000494001,"deps":["s08-t02-choose-api-version"],"artifacts":[{"id":"7e2dee80-d58a-5a18-9eb7-70ccfa65385b","kind":"file","uri":"artifacts/s08/openapi-draft.yaml","hash":"","summary":"S08 endpoint draft for /v15/notes (CRUD)","agent_id":"researcher","created_at":1760000494001}]}}
+[...]
+{"s08-t07-implement-crud-spec":{"id":"s08-t07-implement-crud-spec","title":"Implement CRUD spec (S08)","priority":20,"seq":90,"status":"done","claimed_by":"builder","lease_until":1760000646000,"version":2,"created_at":1760000479501,"done_at":1760000528001,"deps":["s08-t03-design-endpoints","s08-t05-choose-auth","s08-t06-write-db-schema"],"artifacts":[{"id":"d76294c4-c550-5029-845f-880e44cb4bf1","kind":"file","uri":"artifacts/s08/crud-spec.md","hash":"","summary":"S08 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000528001}]}}
+[...]
+{"s08-t10-write-docs":{"id":"s08-t10-write-docs","title":"Write documentation (S08)","priority":10,"seq":93,"status":"done","claimed_by":"researcher","lease_until":1760000658000,"version":2,"created_at":1760000479501,"done_at":1760000539001,"deps":["s08-t09-review-spec"],"artifacts":[{"id":"b7ce2593-5cbc-578d-969c-a88212204a64","kind":"file","uri":"artifacts/s08/docs.md","hash":"","summary":"S08 API documentation","agent_id":"researcher","created_at":1760000539001}]}}
+
+=== file: MEMORY.md ===
+- **Acme Notes API S01** api_version: v1 (superseded, global) <!--{"id":"2b927606-c02e-5d86-8c84-18c267e87215","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"api_version","value":"v1","norm_value":"v1","scope":"global","status":"superseded","valid_from":1760000003000,"valid_to":1760000017500,"recorded_at":1760000003000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["053aefcf-235a-504d-9717-957fd1a2215a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S01** api_version: v2 (active, global) <!--{"id":"e3d70963-c74e-5c24-9814-4c48b55c84bc","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"api_version","value":"v2","norm_value":"v2","scope":"global","status":"active","valid_from":1760000017500,"valid_to":9999999999999,"recorded_at":1760000017500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["08921194-59e1-5b7b-9d29-b3db6ba9e3ab"],"supersedes":["2b927606-c02e-5d86-8c84-18c267e87215"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S02** api_version: v3 (superseded, global) <!--{"id":"271b3641-7f41-5602-9219-6f7236a6b215","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"api_version","value":"v3","norm_value":"v3","scope":"global","status":"superseded","valid_from":1760000071500,"valid_to":1760000086000,"recorded_at":1760000071500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["b83ab153-22ee-50b3-8961-418c640369fd"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S02** api_version: v4 (active, global) <!--{"id":"399e1e16-1b03-5184-b159-958079bedc70","entity":"acme notes api s02","entity_name":"Acme Notes API S02","predicate":"api_version","value":"v4","norm_value":"v4","scope":"global","status":"active","valid_from":1760000086000,"valid_to":9999999999999,"recorded_at":1760000086000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["b942a2c4-3fa2-5dbe-9f13-476a31eb2453"],"supersedes":["271b3641-7f41-5602-9219-6f7236a6b215"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S03** api_version: v5 (superseded, global) <!--{"id":"fc4e0924-6721-5efd-bd74-45c790960ce6","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"api_version","value":"v5","norm_value":"v5","scope":"global","status":"superseded","valid_from":1760000140000,"valid_to":1760000154500,"recorded_at":1760000140000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a1b92333-9f22-553b-a091-6987afa9f06a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S03** api_version: v6 (active, global) <!--{"id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"api_version","value":"v6","norm_value":"v6","scope":"global","status":"active","valid_from":1760000154500,"valid_to":9999999999999,"recorded_at":1760000154500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a3157cf7-c91c-5f87-be04-71e3c929bd80"],"supersedes":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S04** api_version: v7 (superseded, global) <!--{"id":"a3e6a516-fc31-5e62-ab92-e9f92abb72e9","entity":"acme notes api s04","entity_name":"Acme Notes API S04","predicate":"api_version","value":"v7","norm_value":"v7","scope":"global","status":"superseded","valid_from":1760000208500,"valid_to":1760000223000,"recorded_at":1760000208500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["127f89af-2f69-58ef-9f4e-97156837348a"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S04** api_version: v8 (active, global) <!--{"id":"c73b692e-9cd9-58f6-a146-aa387e5d2e33","entity":"acme notes api s04","entity_name":"Acme Notes API S04","predicate":"api_version","value":"v8","norm_value":"v8","scope":"global","status":"active","valid_from":1760000223000,"valid_to":9999999999999,"recorded_at":1760000223000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["33afd039-81e6-5afe-a3ff-d692210600e4"],"supersedes":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S05** api_version: v9 (superseded, global) <!--{"id":"ca0ea7ab-cc37-5143-b241-878499db2bd5","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"api_version","value":"v9","norm_value":"v9","scope":"global","status":"superseded","valid_from":1760000277000,"valid_to":1760000291500,"recorded_at":1760000277000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["e866d2c3-18c0-5987-bbb0-925ce526c9e4"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S05** api_version: v10 (active, global) <!--{"id":"cbde9957-b402-503b-bef3-f0a0733a8c27","entity":"acme notes api s05","entity_name":"Acme Notes API S05","predicate":"api_version","value":"v10","norm_value":"v10","scope":"global","status":"active","valid_from":1760000291500,"valid_to":9999999999999,"recorded_at":1760000291500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["eee47460-6df3-5c18-876c-c4da21de79b1"],"supersedes":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S06** api_version: v11 (superseded, global) <!--{"id":"f91cd115-13a9-5c16-bb96-f8a9c4b990eb","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"api_version","value":"v11","norm_value":"v11","scope":"global","status":"superseded","valid_from":1760000345500,"valid_to":1760000360000,"recorded_at":1760000345500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["fa6709cb-2c39-53ac-b0be-247d40d19369"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S06** api_version: v12 (active, global) <!--{"id":"8d2b5d80-fe43-5534-8e8a-955905c4975b","entity":"acme notes api s06","entity_name":"Acme Notes API S06","predicate":"api_version","value":"v12","norm_value":"v12","scope":"global","status":"active","valid_from":1760000360000,"valid_to":9999999999999,"recorded_at":1760000360000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["c15bc998-60b5-5fbd-83de-0068f1d0a6ea"],"supersedes":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S07** api_version: v13 (superseded, global) <!--{"id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"api_version","value":"v13","norm_value":"v13","scope":"global","status":"superseded","valid_from":1760000414000,"valid_to":1760000428500,"recorded_at":1760000414000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8ec6c76b-30af-5963-a883-dc5b07bb74a3"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S07** api_version: v14 (active, global) <!--{"id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","entity":"acme notes api s07","entity_name":"Acme Notes API S07","predicate":"api_version","value":"v14","norm_value":"v14","scope":"global","status":"active","valid_from":1760000428500,"valid_to":9999999999999,"recorded_at":1760000428500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["869f233b-3538-59ce-85e5-df14448ec824"],"supersedes":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S08** purpose: REST service to create, tag and search notes (S08) (active, global) <!--{"id":"f1e922a8-111f-5bdd-8b14-af19f65ddee6","entity":"acme notes api s08","entity_name":"Acme Notes API S08","predicate":"purpose","value":"REST service to create, tag and search notes (S08)","norm_value":"rest service to create, tag and search notes (s08)","scope":"global","status":"active","valid_from":1760000481500,"valid_to":9999999999999,"recorded_at":1760000481500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["4f4d6c96-4af2-5b6e-a29c-e6363095dc0c"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S08** api_version: v15 (superseded, global) <!--{"id":"2d18baf0-1ce3-5f5f-94b3-5d524493d2f9","entity":"acme notes api s08","entity_name":"Acme Notes API S08","predicate":"api_version","value":"v15","norm_value":"v15","scope":"global","status":"superseded","valid_from":1760000482500,"valid_to":1760000497000,"recorded_at":1760000482500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["8db9312f-53c0-59a9-8018-8c984ab125d7"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S08** api_version: v16 (active, global) <!--{"id":"f4918c86-ef7f-50df-94d1-abc537082890","entity":"acme notes api s08","entity_name":"Acme Notes API S08","predicate":"api_version","value":"v16","norm_value":"v16","scope":"global","status":"active","valid_from":1760000497000,"valid_to":9999999999999,"recorded_at":1760000497000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["6e8458f2-1a44-5607-8240-9c18a2c08e4e"],"supersedes":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S09** api_version: v17 (superseded, global) <!--{"id":"c591ebd4-30f6-5f5a-bdd3-03a2c78fb133","entity":"acme notes api s09","entity_name":"Acme Notes API S09","predicate":"api_version","value":"v17","norm_value":"v17","scope":"global","status":"superseded","valid_from":1760000551000,"valid_to":1760000565500,"recorded_at":1760000551000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["1abe3754-097b-525b-898d-8fcbc775edeb"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S09** api_version: v18 (active, global) <!--{"id":"1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","entity":"acme notes api s09","entity_name":"Acme Notes API S09","predicate":"api_version","value":"v18","norm_value":"v18","scope":"global","status":"active","valid_from":1760000565500,"valid_to":9999999999999,"recorded_at":1760000565500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["a544dc16-5f41-5160-8bff-d71dd5400678"],"supersedes":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S10** api_version: v19 (superseded, global) <!--{"id":"ae28d59b-3427-5793-b33d-9abfe80363c8","entity":"acme notes api s10","entity_name":"Acme Notes API S10","predicate":"api_version","value":"v19","norm_value":"v19","scope":"global","status":"superseded","valid_from":1760000619500,"valid_to":1760000634000,"recorded_at":1760000619500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["38cdc76e-414d-564c-9188-7a6af3010502"],"supersedes":[],"contradicts":[]}-->
+- **Acme Notes API S10** api_version: v20 (active, global) <!--{"id":"9d834c69-70bf-51a2-a771-d04e1f6a0a07","entity":"acme notes api s10","entity_name":"Acme Notes API S10","predicate":"api_version","value":"v20","norm_value":"v20","scope":"global","status":"active","valid_from":1760000634000,"valid_to":9999999999999,"recorded_at":1760000634000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["9057dfda-8909-579e-b9f0-0069760a6038"],"supersedes":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"contradicts":[]}-->
+[...]
+- **Acme Notes API S11** api_version: v21 (superseded, global) <!--{"id":"a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a","entity":"acme notes api s11","entity_name":"Acme Notes API S11","predicate":"api_version","value":"v21","norm_value":"v21","scope":"global","status":"superseded","valid_from":1760000688000,"valid_to":1760000702500,"recorded_at":1760000688000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["86e5bde8-3396-50de-b079-518943120969"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S12** api_version: v23 (superseded, global) <!--{"id":"9d31097e-bc44-5443-b9c6-6e15ee7fceba","entity":"acme notes api s12","entity_name":"Acme Notes API S12","predicate":"api_version","value":"v23","norm_value":"v23","scope":"global","status":"superseded","valid_from":1760000756500,"valid_to":1760000771000,"recorded_at":1760000756500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["11c8e79f-8d95-5601-bf84-6a0c4e09af17"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S13** api_version: v25 (superseded, global) <!--{"id":"a8d569a8-4806-56a9-b86e-f497a45654d5","entity":"acme notes api s13","entity_name":"Acme Notes API S13","predicate":"api_version","value":"v25","norm_value":"v25","scope":"global","status":"superseded","valid_from":1760000825000,"valid_to":1760000839500,"recorded_at":1760000825000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["5d563c9a-d8a3-54b3-84f4-dbef8f943c1e"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S14** api_version: v27 (superseded, global) <!--{"id":"dabba289-f252-508f-9c32-f03223137480","entity":"acme notes api s14","entity_name":"Acme Notes API S14","predicate":"api_version","value":"v27","norm_value":"v27","scope":"global","status":"superseded","valid_from":1760000893500,"valid_to":1760000908000,"recorded_at":1760000893500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["5db5a3c9-a8d8-5095-be9a-984cf39a7448"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S15** api_version: v29 (superseded, global) <!--{"id":"eeb91d3d-4345-5271-9659-12e1597fda54","entity":"acme notes api s15","entity_name":"Acme Notes API S15","predicate":"api_version","value":"v29","norm_value":"v29","scope":"global","status":"superseded","valid_from":1760000962000,"valid_to":1760000976500,"recorded_at":1760000962000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["6874e4c1-5a5e-5325-aca1-40da0f75530b"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S16** api_version: v31 (superseded, global) <!--{"id":"343721a0-acf1-5d8a-b8bb-a4eff45c56d5","entity":"acme notes api s16","entity_name":"Acme Notes API S16","predicate":"api_version","value":"v31","norm_value":"v31","scope":"global","status":"superseded","valid_from":1760001030500,"valid_to":1760001045000,"recorded_at":1760001030500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["4220badb-08ab-5afa-9a27-6f95d3b33f3c"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S17** api_version: v33 (superseded, global) <!--{"id":"767c0e30-7c17-5b0a-afca-43d877935410","entity":"acme notes api s17","entity_name":"Acme Notes API S17","predicate":"api_version","value":"v33","norm_value":"v33","scope":"global","status":"superseded","valid_from":1760001099000,"valid_to":1760001113500,"recorded_at":1760001099000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["ca9d44d1-ef72-52df-8cc8-7d4e2e8190d8"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S18** api_version: v35 (superseded, global) <!--{"id":"37c89e1d-d386-5dd8-874f-7da4a9406202","entity":"acme notes api s18","entity_name":"Acme Notes API S18","predicate":"api_version","value":"v35","norm_value":"v35","scope":"global","status":"superseded","valid_from":1760001167500,"valid_to":1760001182000,"recorded_at":1760001167500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["28cd0fbc-8f79-589d-a39c-7bcbf449d68c"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S19** api_version: v37 (superseded, global) <!--{"id":"21836852-1574-5d90-9068-b12642ab4ccd","entity":"acme notes api s19","entity_name":"Acme Notes API S19","predicate":"api_version","value":"v37","norm_value":"v37","scope":"global","status":"superseded","valid_from":1760001236000,"valid_to":1760001250500,"recorded_at":1760001236000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["dafcc7e1-ddf1-5675-9c88-9fa8bd5e8d21"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S20** api_version: v39 (superseded, global) <!--{"id":"314cea0e-655e-578d-b067-95bf5b16cb93","entity":"acme notes api s20","entity_name":"Acme Notes API S20","predicate":"api_version","value":"v39","norm_value":"v39","scope":"global","status":"superseded","valid_from":1760001304500,"valid_to":1760001319000,"recorded_at":1760001304500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["0042c983-67c6-5f1b-867f-ccfb9dd8bc53"],"supersedes":[],"contradicts":[]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"67edc01c-7910-5aa0-aceb-fdfd0856a6db","agent":"planner","task":"s08-t02-choose-api-version","text":"S08: Build the Acme Notes API against v15 of the style guide (routes under /v15/).","based_on":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"at":1760000484502}
+{"type":"decision","id":"baf11370-e45c-581d-a186-52aefcfb5397","agent":"planner","task":"s08-t02-choose-api-version","text":"S08: Adopt style guide v16: the API version is now v16 (routes under /v16/).","based_on":["f4918c86-ef7f-50df-94d1-abc537082890"],"at":1760000499001}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000502001,"tool":"episode","id":"9c2d081a-3d06-55b0-9969-8f2de60654ae","step":null,"text":"S08: Endpoint design moves from /v15/ to /v16/: page_token/page_size lists and problem+json errors."}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000485502,"tool":"complete_task","task":"s08-t02-choose-api-version","artifacts":[]}
+[...]
+{"ts":1760000512001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"auth_method","value":"API key in X-Notes-Key header","scope":"global","fact_id":"8d09189a-de26-57cf-9d86-0b803170cfb1","duplicate_of":null,"superseded":[],"contradicts":["796aea04-86c3-5458-9108-e6250cae575b"]}
+[...]
+{"ts":1760000513002,"tool":"complete_task","task":"s08-t05-choose-auth","artifacts":[]}
+{"ts":1760000515001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"database","value":"Neo4j 11","scope":"global","fact_id":"89d0ea3a-71e0-54c0-ad11-ad8dc201b757","duplicate_of":null,"superseded":[],"contradicts":["e5ca0231-f709-5a9b-905f-27706b8cdc3e"]}
+[...]
+{"ts":1760000520001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"release_channel","value":"private preview","scope":"project:acme-s08","fact_id":"87d2ead0-f00f-5204-8292-58c486e0b01d","duplicate_of":null,"superseded":[],"contradicts":[]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000003001,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v1","scope":"global","fact_id":"2b927606-c02e-5d86-8c84-18c267e87215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000017501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"api_version","value":"v2","scope":"global","fact_id":"e3d70963-c74e-5c24-9814-4c48b55c84bc","duplicate_of":null,"superseded":["2b927606-c02e-5d86-8c84-18c267e87215"],"contradicts":[]}
+[...]
+{"ts":1760000071501,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v3","scope":"global","fact_id":"271b3641-7f41-5602-9219-6f7236a6b215","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000086001,"tool":"assert_fact","subject":"Acme Notes API S02","predicate":"api_version","value":"v4","scope":"global","fact_id":"399e1e16-1b03-5184-b159-958079bedc70","duplicate_of":null,"superseded":["271b3641-7f41-5602-9219-6f7236a6b215"],"contradicts":[]}
+[...]
+{"ts":1760000140001,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v5","scope":"global","fact_id":"fc4e0924-6721-5efd-bd74-45c790960ce6","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000154501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"api_version","value":"v6","scope":"global","fact_id":"1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","duplicate_of":null,"superseded":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"contradicts":[]}
+[...]
+{"ts":1760000208501,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v7","scope":"global","fact_id":"a3e6a516-fc31-5e62-ab92-e9f92abb72e9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000223001,"tool":"assert_fact","subject":"Acme Notes API S04","predicate":"api_version","value":"v8","scope":"global","fact_id":"c73b692e-9cd9-58f6-a146-aa387e5d2e33","duplicate_of":null,"superseded":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"contradicts":[]}
+[...]
+{"ts":1760000277001,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v9","scope":"global","fact_id":"ca0ea7ab-cc37-5143-b241-878499db2bd5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000291501,"tool":"assert_fact","subject":"Acme Notes API S05","predicate":"api_version","value":"v10","scope":"global","fact_id":"cbde9957-b402-503b-bef3-f0a0733a8c27","duplicate_of":null,"superseded":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"contradicts":[]}
+[...]
+{"ts":1760000345501,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v11","scope":"global","fact_id":"f91cd115-13a9-5c16-bb96-f8a9c4b990eb","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000360001,"tool":"assert_fact","subject":"Acme Notes API S06","predicate":"api_version","value":"v12","scope":"global","fact_id":"8d2b5d80-fe43-5534-8e8a-955905c4975b","duplicate_of":null,"superseded":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"contradicts":[]}
+[...]
+{"ts":1760000414001,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v13","scope":"global","fact_id":"9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000428501,"tool":"assert_fact","subject":"Acme Notes API S07","predicate":"api_version","value":"v14","scope":"global","fact_id":"a708b29f-1316-57c9-9cd2-e1d93d1fd605","duplicate_of":null,"superseded":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"contradicts":[]}
+[...]
+{"ts":1760000481501,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"purpose","value":"REST service to create, tag and search notes (S08)","scope":"global","fact_id":"f1e922a8-111f-5bdd-8b14-af19f65ddee6","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000482501,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v15","scope":"global","fact_id":"2d18baf0-1ce3-5f5f-94b3-5d524493d2f9","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000497001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"api_version","value":"v16","scope":"global","fact_id":"f4918c86-ef7f-50df-94d1-abc537082890","duplicate_of":null,"superseded":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"contradicts":[]}
+{"ts":1760000497002,"tool":"episode","id":"2069bbff-0806-5850-b062-aa8d06834980","step":null,"text":"S08: Style guide v16 was published: API version v15 is withdrawn, routes move to /v16/."}
+[...]
+{"ts":1760000507001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"database","value":"Db2 12","scope":"global","fact_id":"e5ca0231-f709-5a9b-905f-27706b8cdc3e","duplicate_of":null,"superseded":[],"contradicts":[]}
+{"ts":1760000508001,"tool":"assert_fact","subject":"Acme Notes API S08","predicate":"auth_method","value":"JWT bearer tokens (PS256, key s08)","scope":"global","fact_id":"796aea04-86c3-5458-9108-e6250cae575b","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000519001,"tool":"assert_fact","subject":"Bolt Billing API S08","predicate":"billing_cycle","value":"biweekly, invoiced on day 8","scope":"project:billing-s08","fact_id":"89e9ab1b-d617-5098-adb0-a7aa78a5e724","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000551001,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v17","scope":"global","fact_id":"c591ebd4-30f6-5f5a-bdd3-03a2c78fb133","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000565501,"tool":"assert_fact","subject":"Acme Notes API S09","predicate":"api_version","value":"v18","scope":"global","fact_id":"1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","duplicate_of":null,"superseded":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"contradicts":[]}
+[...]
+{"ts":1760000619501,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"api_version","value":"v19","scope":"global","fact_id":"ae28d59b-3427-5793-b33d-9abfe80363c8","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000634001,"tool":"assert_fact","subject":"Acme Notes API S10","predicate":"api_version","value":"v20","scope":"global","fact_id":"9d834c69-70bf-51a2-a771-d04e1f6a0a07","duplicate_of":null,"superseded":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"contradicts":[]}
+[...]
+{"ts":1760000688001,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"api_version","value":"v21","scope":"global","fact_id":"a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000702501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"api_version","value":"v22","scope":"global","fact_id":"6e976d44-c6ad-52c2-918c-f396900cc85e","duplicate_of":null,"superseded":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"contradicts":[]}
+[...]
+{"ts":1760000756501,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"api_version","value":"v23","scope":"global","fact_id":"9d31097e-bc44-5443-b9c6-6e15ee7fceba","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000771001,"tool":"assert_fact","subject":"Acme Notes API S12","predicate":"api_version","value":"v24","scope":"global","fact_id":"9c6f3395-6466-5261-87f5-70fa6df0101e","duplicate_of":null,"superseded":["9d31097e-bc44-5443-b9c6-6e15ee7fceba"],"contradicts":[]}
+[...]
+{"ts":1760000825001,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"api_version","value":"v25","scope":"global","fact_id":"a8d569a8-4806-56a9-b86e-f497a45654d5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000839501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"api_version","value":"v26","scope":"global","fact_id":"cf3fd407-5373-5c92-a502-6ca529fefeca","duplicate_of":null,"superseded":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"contradicts":[]}
+[...]
+{"ts":1760000893501,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"api_version","value":"v27","scope":"global","fact_id":"dabba289-f252-508f-9c32-f03223137480","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000908001,"tool":"assert_fact","subject":"Acme Notes API S14","predicate":"api_version","value":"v28","scope":"global","fact_id":"9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","duplicate_of":null,"superseded":["dabba289-f252-508f-9c32-f03223137480"],"contradicts":[]}
+[...]
+{"ts":1760000962001,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"api_version","value":"v29","scope":"global","fact_id":"eeb91d3d-4345-5271-9659-12e1597fda54","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000976501,"tool":"assert_fact","subject":"Acme Notes API S15","predicate":"api_version","value":"v30","scope":"global","fact_id":"4a728057-55a9-5aca-8e1e-b552d2f8daa5","duplicate_of":null,"superseded":["eeb91d3d-4345-5271-9659-12e1597fda54"],"contradicts":[]}
+[...]
+{"ts":1760001030501,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"api_version","value":"v31","scope":"global","fact_id":"343721a0-acf1-5d8a-b8bb-a4eff45c56d5","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001045001,"tool":"assert_fact","subject":"Acme Notes API S16","predicate":"api_version","value":"v32","scope":"global","fact_id":"cab11576-003a-511c-86e7-a5bb6da5dbf4","duplicate_of":null,"superseded":["343721a0-acf1-5d8a-b8bb-a4eff45c56d5"],"contradicts":[]}
+[...]
+{"ts":1760001099001,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"api_version","value":"v33","scope":"global","fact_id":"767c0e30-7c17-5b0a-afca-43d877935410","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001113501,"tool":"assert_fact","subject":"Acme Notes API S17","predicate":"api_version","value":"v34","scope":"global","fact_id":"4e6d9291-e9a9-5e7e-b158-836682b7f9c2","duplicate_of":null,"superseded":["767c0e30-7c17-5b0a-afca-43d877935410"],"contradicts":[]}
+[...]
+{"ts":1760001167501,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"api_version","value":"v35","scope":"global","fact_id":"37c89e1d-d386-5dd8-874f-7da4a9406202","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001182001,"tool":"assert_fact","subject":"Acme Notes API S18","predicate":"api_version","value":"v36","scope":"global","fact_id":"db6089a8-7374-54f4-9bf6-f233ae2d1d4d","duplicate_of":null,"superseded":["37c89e1d-d386-5dd8-874f-7da4a9406202"],"contradicts":[]}
+[...]
+{"ts":1760001236001,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"api_version","value":"v37","scope":"global","fact_id":"21836852-1574-5d90-9068-b12642ab4ccd","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001250501,"tool":"assert_fact","subject":"Acme Notes API S19","predicate":"api_version","value":"v38","scope":"global","fact_id":"28a328cd-86a1-5480-9a95-d398ed40eb33","duplicate_of":null,"superseded":["21836852-1574-5d90-9068-b12642ab4ccd"],"contradicts":[]}
+[...]
+{"ts":1760001304501,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v39","scope":"global","fact_id":"314cea0e-655e-578d-b067-95bf5b16cb93","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760001319001,"tool":"assert_fact","subject":"Acme Notes API S20","predicate":"api_version","value":"v40","scope":"global","fact_id":"94fef2a4-a13b-53ed-9d07-0f8cf862efa6","duplicate_of":null,"superseded":["314cea0e-655e-578d-b067-95bf5b16cb93"],"contradicts":[]}
+

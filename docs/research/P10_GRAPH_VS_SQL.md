@@ -199,7 +199,7 @@ Tests:
 * **I3 database-server crash**: F: `docker kill -s KILL` of the arm's own FalkorDB container while 4 writers run
   close-outs (F-1stmt and F-multi), restart, count partial and lost acknowledged; 20 kills. S: the SQLite engine runs
   inside the writer, so I1 is its server crash. Also: the slot-64 container found at the start of this round
-  segfaults while replaying its own AOF on restart (`.p10/aof-crash-evidence/`, `container.log`: "Guru Meditation:
+  segfaults while replaying its own AOF on restart (`.p10/aof-crash-evidence/`, now archived outside the repo at `.plexus-agents/archive/p10-scratch/aof-crash-evidence/`; the L7 I3A harness reads it from `PLEXUS_AOF_EVIDENCE`, `container.log`: "Guru Meditation:
   illegal decrRefCount", stack in `graph_free`); I3 tries to reproduce that from the preserved data directory and
   reports whether it does.
 * **I4 conflicting concurrent writers** (W = 20 and 200 threads, 50 operations each, one tenant):
@@ -568,7 +568,7 @@ ready: 9.5-10.8 s p50 (AOF replay, growing with the file). No acknowledged write
 **I3, AOF replay crash (found at the start of this round, reproduced).** The slot-64 container of an earlier round
 could not restart: Redis 8.10.2 / FalkorDB 6.0.2 aborted while replaying its own AOF (`Guru Meditation: illegal
 decrRefCount for object with: type 0, encoding 8, refcount 0 #object.c:648`, stack in a Rust thread running
-`falkordb::graph_core::graph_free`). On a copy of its data directory (`.p10/aof-crash-evidence/`, 118 KB base RDB +
+`falkordb::graph_core::graph_free`). On a copy of its data directory (`.p10/aof-crash-evidence/`, now archived outside the repo at `.plexus-agents/archive/p10-scratch/aof-crash-evidence/`; the L7 I3A harness reads it from `PLEXUS_AOF_EVIDENCE`, 118 KB base RDB +
 51.8 MB incremental AOF of 69,516 commands, `GRAPH.EFFECT` / `GRAPH.DELETE` of test graphs): **3 of 3** fresh
 containers crashed during AOF load (two signatures: the one above and `signal 11` in `sdsfree`), and 7 of 8 more.
 Bisecting by command prefix does not isolate one command: the 52,734-command prefix that loaded once crashed 6 of 8

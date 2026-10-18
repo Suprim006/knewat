@@ -1,0 +1,201 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"next_seq":240}
+[...]
+{"s01-t07-implement-crud-spec":{"id":"s01-t07-implement-crud-spec","title":"Implement CRUD spec (S01)","priority":20,"seq":6,"status":"done","claimed_by":"builder","lease_until":1760000166500,"version":2,"created_at":1760000000004,"done_at":1760000048501,"deps":["s01-t03-design-endpoints","s01-t05-choose-auth","s01-t06-write-db-schema"],"artifacts":[{"id":"27ef1b24-205d-5803-8a6d-b59547042ff8","kind":"file","uri":"artifacts/s01/crud-spec.md","hash":"","summary":"S01 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000048501}]}}
+[...]
+{"s02-t07-implement-crud-spec":{"id":"s02-t07-implement-crud-spec","title":"Implement CRUD spec (S02)","priority":20,"seq":18,"status":"done","claimed_by":"builder","lease_until":1760000235000,"version":2,"created_at":1760000068501,"done_at":1760000117001,"deps":["s02-t03-design-endpoints","s02-t05-choose-auth","s02-t06-write-db-schema"],"artifacts":[{"id":"0e6b7bc2-796b-5295-ad42-bfc0a62594ba","kind":"file","uri":"artifacts/s02/crud-spec.md","hash":"","summary":"S02 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000117001}]}}
+[...]
+{"s03-t07-implement-crud-spec":{"id":"s03-t07-implement-crud-spec","title":"Implement CRUD spec (S03)","priority":20,"seq":30,"status":"done","claimed_by":"builder","lease_until":1760000303500,"version":2,"created_at":1760000137001,"done_at":1760000185501,"deps":["s03-t03-design-endpoints","s03-t05-choose-auth","s03-t06-write-db-schema"],"artifacts":[{"id":"ccc99f24-fa03-56d7-add8-9e4a492be44f","kind":"file","uri":"artifacts/s03/crud-spec.md","hash":"","summary":"S03 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000185501}]}}
+[...]
+{"s04-t07-implement-crud-spec":{"id":"s04-t07-implement-crud-spec","title":"Implement CRUD spec (S04)","priority":20,"seq":42,"status":"done","claimed_by":"builder","lease_until":1760000372000,"version":2,"created_at":1760000205501,"done_at":1760000254001,"deps":["s04-t03-design-endpoints","s04-t05-choose-auth","s04-t06-write-db-schema"],"artifacts":[{"id":"f800fe12-3a0d-5ecf-9463-25316e8b0776","kind":"file","uri":"artifacts/s04/crud-spec.md","hash":"","summary":"S04 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000254001}]}}
+[...]
+{"s05-t07-implement-crud-spec":{"id":"s05-t07-implement-crud-spec","title":"Implement CRUD spec (S05)","priority":20,"seq":54,"status":"done","claimed_by":"builder","lease_until":1760000440500,"version":2,"created_at":1760000274001,"done_at":1760000322501,"deps":["s05-t03-design-endpoints","s05-t05-choose-auth","s05-t06-write-db-schema"],"artifacts":[{"id":"b2ee9a12-5645-5138-87a3-303d5063554a","kind":"file","uri":"artifacts/s05/crud-spec.md","hash":"","summary":"S05 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000322501}]}}
+[...]
+{"s06-t07-implement-crud-spec":{"id":"s06-t07-implement-crud-spec","title":"Implement CRUD spec (S06)","priority":20,"seq":66,"status":"done","claimed_by":"builder","lease_until":1760000509000,"version":2,"created_at":1760000342501,"done_at":1760000391001,"deps":["s06-t03-design-endpoints","s06-t05-choose-auth","s06-t06-write-db-schema"],"artifacts":[{"id":"19715af8-0853-577c-a079-771cecf2f34a","kind":"file","uri":"artifacts/s06/crud-spec.md","hash":"","summary":"S06 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000391001}]}}
+[...]
+{"s07-t07-implement-crud-spec":{"id":"s07-t07-implement-crud-spec","title":"Implement CRUD spec (S07)","priority":20,"seq":78,"status":"done","claimed_by":"builder","lease_until":1760000577500,"version":2,"created_at":1760000411001,"done_at":1760000459501,"deps":["s07-t03-design-endpoints","s07-t05-choose-auth","s07-t06-write-db-schema"],"artifacts":[{"id":"1fd0fea1-4134-5a70-a173-ddd7cb97836b","kind":"file","uri":"artifacts/s07/crud-spec.md","hash":"","summary":"S07 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000459501}]}}
+[...]
+{"s08-t07-implement-crud-spec":{"id":"s08-t07-implement-crud-spec","title":"Implement CRUD spec (S08)","priority":20,"seq":90,"status":"done","claimed_by":"builder","lease_until":1760000646000,"version":2,"created_at":1760000479501,"done_at":1760000528001,"deps":["s08-t03-design-endpoints","s08-t05-choose-auth","s08-t06-write-db-schema"],"artifacts":[{"id":"d76294c4-c550-5029-845f-880e44cb4bf1","kind":"file","uri":"artifacts/s08/crud-spec.md","hash":"","summary":"S08 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000528001}]}}
+[...]
+{"s09-t07-implement-crud-spec":{"id":"s09-t07-implement-crud-spec","title":"Implement CRUD spec (S09)","priority":20,"seq":102,"status":"done","claimed_by":"builder","lease_until":1760000714500,"version":2,"created_at":1760000548001,"done_at":1760000596501,"deps":["s09-t03-design-endpoints","s09-t05-choose-auth","s09-t06-write-db-schema"],"artifacts":[{"id":"c15b251d-c799-5fb6-99ca-e6b78a41b088","kind":"file","uri":"artifacts/s09/crud-spec.md","hash":"","summary":"S09 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000596501}]}}
+[...]
+{"s10-t07-implement-crud-spec":{"id":"s10-t07-implement-crud-spec","title":"Implement CRUD spec (S10)","priority":20,"seq":114,"status":"done","claimed_by":"builder","lease_until":1760000783000,"version":2,"created_at":1760000616501,"done_at":1760000665001,"deps":["s10-t03-design-endpoints","s10-t05-choose-auth","s10-t06-write-db-schema"],"artifacts":[{"id":"c87489d9-9608-51ba-a15a-db6abf9fd091","kind":"file","uri":"artifacts/s10/crud-spec.md","hash":"","summary":"S10 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000665001}]}}
+[...]
+{"s11-t07-implement-crud-spec":{"id":"s11-t07-implement-crud-spec","title":"Implement CRUD spec (S11)","priority":20,"seq":126,"status":"done","claimed_by":"builder","lease_until":1760000851500,"version":2,"created_at":1760000685001,"done_at":1760000733501,"deps":["s11-t03-design-endpoints","s11-t05-choose-auth","s11-t06-write-db-schema"],"artifacts":[{"id":"bf750cef-8374-5117-a75b-cb228bf48e39","kind":"file","uri":"artifacts/s11/crud-spec.md","hash":"","summary":"S11 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000733501}]}}
+[...]
+{"s12-t07-implement-crud-spec":{"id":"s12-t07-implement-crud-spec","title":"Implement CRUD spec (S12)","priority":20,"seq":138,"status":"done","claimed_by":"builder","lease_until":1760000920000,"version":2,"created_at":1760000753501,"done_at":1760000802001,"deps":["s12-t03-design-endpoints","s12-t05-choose-auth","s12-t06-write-db-schema"],"artifacts":[{"id":"82365dcb-e9ac-585f-a493-0c6efa43b506","kind":"file","uri":"artifacts/s12/crud-spec.md","hash":"","summary":"S12 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000802001}]}}
+[...]
+{"s13-t07-implement-crud-spec":{"id":"s13-t07-implement-crud-spec","title":"Implement CRUD spec (S13)","priority":20,"seq":150,"status":"done","claimed_by":"builder","lease_until":1760000988500,"version":2,"created_at":1760000822001,"done_at":1760000870501,"deps":["s13-t03-design-endpoints","s13-t05-choose-auth","s13-t06-write-db-schema"],"artifacts":[{"id":"69ce9b3f-1ffd-5ee1-a99d-4909596d0457","kind":"file","uri":"artifacts/s13/crud-spec.md","hash":"","summary":"S13 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000870501}]}}
+[...]
+{"s14-t07-implement-crud-spec":{"id":"s14-t07-implement-crud-spec","title":"Implement CRUD spec (S14)","priority":20,"seq":162,"status":"done","claimed_by":"builder","lease_until":1760001057000,"version":2,"created_at":1760000890501,"done_at":1760000939001,"deps":["s14-t03-design-endpoints","s14-t05-choose-auth","s14-t06-write-db-schema"],"artifacts":[{"id":"5e1cc5e6-991f-5fb3-bf84-9377b8a89805","kind":"file","uri":"artifacts/s14/crud-spec.md","hash":"","summary":"S14 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000939001}]}}
+[...]
+{"s15-t07-implement-crud-spec":{"id":"s15-t07-implement-crud-spec","title":"Implement CRUD spec (S15)","priority":20,"seq":174,"status":"done","claimed_by":"builder","lease_until":1760001125500,"version":2,"created_at":1760000959001,"done_at":1760001007501,"deps":["s15-t03-design-endpoints","s15-t05-choose-auth","s15-t06-write-db-schema"],"artifacts":[{"id":"a8166a94-af06-514f-aa6d-29ef076b114a","kind":"file","uri":"artifacts/s15/crud-spec.md","hash":"","summary":"S15 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001007501}]}}
+[...]
+{"s16-t07-implement-crud-spec":{"id":"s16-t07-implement-crud-spec","title":"Implement CRUD spec (S16)","priority":20,"seq":186,"status":"done","claimed_by":"builder","lease_until":1760001194000,"version":2,"created_at":1760001027501,"done_at":1760001076001,"deps":["s16-t03-design-endpoints","s16-t05-choose-auth","s16-t06-write-db-schema"],"artifacts":[{"id":"38c9690b-72a3-58ad-899c-d2a034a39f1c","kind":"file","uri":"artifacts/s16/crud-spec.md","hash":"","summary":"S16 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001076001}]}}
+[...]
+{"s17-t07-implement-crud-spec":{"id":"s17-t07-implement-crud-spec","title":"Implement CRUD spec (S17)","priority":20,"seq":198,"status":"done","claimed_by":"builder","lease_until":1760001262500,"version":2,"created_at":1760001096001,"done_at":1760001144501,"deps":["s17-t03-design-endpoints","s17-t05-choose-auth","s17-t06-write-db-schema"],"artifacts":[{"id":"d7abdc81-f7d7-5996-9cf5-27b78fe17339","kind":"file","uri":"artifacts/s17/crud-spec.md","hash":"","summary":"S17 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001144501}]}}
+[...]
+{"s17-t09-review-spec":{"id":"s17-t09-review-spec","title":"Review spec (S17)","priority":12,"seq":200,"status":"done","claimed_by":"planner","lease_until":1760001270500,"version":2,"created_at":1760001096001,"done_at":1760001152501,"deps":["s17-t07-implement-crud-spec","s17-t08-write-test-plan"],"artifacts":[]}}
+[...]
+{"s18-t07-implement-crud-spec":{"id":"s18-t07-implement-crud-spec","title":"Implement CRUD spec (S18)","priority":20,"seq":210,"status":"done","claimed_by":"builder","lease_until":1760001331000,"version":2,"created_at":1760001164501,"done_at":1760001213001,"deps":["s18-t03-design-endpoints","s18-t05-choose-auth","s18-t06-write-db-schema"],"artifacts":[{"id":"3cfb4932-60c7-5e17-a32c-06a963667df4","kind":"file","uri":"artifacts/s18/crud-spec.md","hash":"","summary":"S18 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001213001}]}}
+[...]
+{"s19-t07-implement-crud-spec":{"id":"s19-t07-implement-crud-spec","title":"Implement CRUD spec (S19)","priority":20,"seq":222,"status":"done","claimed_by":"builder","lease_until":1760001399500,"version":2,"created_at":1760001233001,"done_at":1760001281501,"deps":["s19-t03-design-endpoints","s19-t05-choose-auth","s19-t06-write-db-schema"],"artifacts":[{"id":"35526b32-184f-5c71-9231-8c8a80ecd34c","kind":"file","uri":"artifacts/s19/crud-spec.md","hash":"","summary":"S19 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001281501}]}}
+[...]
+{"s20-t07-implement-crud-spec":{"id":"s20-t07-implement-crud-spec","title":"Implement CRUD spec (S20)","priority":20,"seq":234,"status":"done","claimed_by":"builder","lease_until":1760001468000,"version":2,"created_at":1760001301501,"done_at":1760001350001,"deps":["s20-t03-design-endpoints","s20-t05-choose-auth","s20-t06-write-db-schema"],"artifacts":[{"id":"b42170a8-7f57-562e-afbc-cabf2df369be","kind":"file","uri":"artifacts/s20/crud-spec.md","hash":"","summary":"S20 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760001350001}]}}
+
+=== file: handoffs.jsonl ===
+{"id":"208456fd-84ac-52a7-b766-cef373b38b31","from":"builder","to":"planner","task":"s01-t07-implement-crud-spec","note":"S01: CRUD spec ready for review.","artifacts":["27ef1b24-205d-5803-8a6d-b59547042ff8"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"],"at":1760000049501}
+[...]
+{"id":"d04e9737-19af-51e3-b2c3-69a2d16d23a9","from":"builder","to":"planner","task":"s02-t07-implement-crud-spec","note":"S02: CRUD spec ready for review.","artifacts":["0e6b7bc2-796b-5295-ad42-bfc0a62594ba"],"facts":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000118001}
+[...]
+{"id":"ca66045d-b446-5002-b023-ae96f7e1a787","from":"builder","to":"planner","task":"s03-t07-implement-crud-spec","note":"S03: CRUD spec ready for review.","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000186501}
+[...]
+{"id":"dcae7214-ee5d-59da-a431-1d3670c8cce5","from":"builder","to":"planner","task":"s04-t07-implement-crud-spec","note":"S04: CRUD spec ready for review.","artifacts":["f800fe12-3a0d-5ecf-9463-25316e8b0776"],"facts":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"],"at":1760000255001}
+[...]
+{"id":"152c0486-f2fa-5da5-bb8d-4f89714562d1","from":"builder","to":"planner","task":"s05-t07-implement-crud-spec","note":"S05: CRUD spec ready for review.","artifacts":["b2ee9a12-5645-5138-87a3-303d5063554a"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000323501}
+[...]
+{"id":"0aff62b2-52de-5019-aeb4-ea6f9488fb44","from":"builder","to":"planner","task":"s06-t07-implement-crud-spec","note":"S06: CRUD spec ready for review.","artifacts":["19715af8-0853-577c-a079-771cecf2f34a"],"facts":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"],"at":1760000392001}
+[...]
+{"id":"8ff3f392-de52-5299-ad8f-cb75c615c81d","from":"builder","to":"planner","task":"s07-t07-implement-crud-spec","note":"S07: CRUD spec ready for review.","artifacts":["1fd0fea1-4134-5a70-a173-ddd7cb97836b"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"],"at":1760000460501}
+[...]
+{"id":"70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b","from":"builder","to":"planner","task":"s08-t07-implement-crud-spec","note":"S08: CRUD spec ready for review.","artifacts":["d76294c4-c550-5029-845f-880e44cb4bf1"],"facts":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"],"at":1760000529001}
+[...]
+{"id":"a133d97a-e731-5223-a8ff-0925912bf303","from":"builder","to":"planner","task":"s09-t07-implement-crud-spec","note":"S09: CRUD spec ready for review.","artifacts":["c15b251d-c799-5fb6-99ca-e6b78a41b088"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000597501}
+[...]
+{"id":"69e73a46-631b-58b6-85f3-f89634202221","from":"builder","to":"planner","task":"s10-t07-implement-crud-spec","note":"S10: CRUD spec ready for review.","artifacts":["c87489d9-9608-51ba-a15a-db6abf9fd091"],"facts":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"],"at":1760000666001}
+[...]
+{"id":"bfcd23c6-ae34-5363-8253-c4b8fb8e9d61","from":"builder","to":"planner","task":"s11-t07-implement-crud-spec","note":"S11: CRUD spec ready for review.","artifacts":["bf750cef-8374-5117-a75b-cb228bf48e39"],"facts":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"],"at":1760000734501}
+[...]
+{"id":"65b478b3-d1cf-57b3-8a6c-5742497ffa24","from":"builder","to":"planner","task":"s12-t07-implement-crud-spec","note":"S12: CRUD spec ready for review.","artifacts":["82365dcb-e9ac-585f-a493-0c6efa43b506"],"facts":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"],"at":1760000803001}
+[...]
+{"id":"c45b3769-f3cb-5369-ac8b-24830f52e357","from":"builder","to":"planner","task":"s13-t07-implement-crud-spec","note":"S13: CRUD spec ready for review.","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000871501}
+[...]
+{"id":"ca0b29f4-363a-57e4-81bf-f609a231a089","from":"builder","to":"planner","task":"s14-t07-implement-crud-spec","note":"S14: CRUD spec ready for review.","artifacts":["5e1cc5e6-991f-5fb3-bf84-9377b8a89805"],"facts":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"],"at":1760000940001}
+[...]
+{"id":"924f23f7-7c01-5a36-870b-8a0a4a002dc5","from":"builder","to":"planner","task":"s15-t07-implement-crud-spec","note":"S15: CRUD spec ready for review.","artifacts":["a8166a94-af06-514f-aa6d-29ef076b114a"],"facts":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"],"at":1760001008501}
+[...]
+{"id":"2081e45a-3076-554a-9a08-25d03365657c","from":"builder","to":"planner","task":"s16-t07-implement-crud-spec","note":"S16: CRUD spec ready for review.","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001077001}
+[...]
+{"id":"b5bdb2aa-2104-568e-aa83-ae98bd3c42bc","from":"builder","to":"planner","task":"s17-t07-implement-crud-spec","note":"S17: CRUD spec ready for review.","artifacts":["d7abdc81-f7d7-5996-9cf5-27b78fe17339"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"],"at":1760001145501}
+[...]
+{"id":"5d3b5248-07a2-54cf-bc45-5813ec8e9e1d","from":"builder","to":"planner","task":"s18-t07-implement-crud-spec","note":"S18: CRUD spec ready for review.","artifacts":["3cfb4932-60c7-5e17-a32c-06a963667df4"],"facts":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"],"at":1760001214001}
+[...]
+{"id":"06ebdeee-a486-5452-8706-29e8c33c6f6d","from":"builder","to":"planner","task":"s19-t07-implement-crud-spec","note":"S19: CRUD spec ready for review.","artifacts":["35526b32-184f-5c71-9231-8c8a80ecd34c"],"facts":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"],"at":1760001282501}
+[...]
+{"id":"cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f","from":"builder","to":"planner","task":"s20-t07-implement-crud-spec","note":"S20: CRUD spec ready for review.","artifacts":["b42170a8-7f57-562e-afbc-cabf2df369be"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001351001}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000046501,"tool":"claim_next_task","task":"s01-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000048502,"tool":"complete_task","task":"s01-t07-implement-crud-spec","artifacts":["27ef1b24-205d-5803-8a6d-b59547042ff8"]}
+{"ts":1760000049502,"tool":"handoff","id":"208456fd-84ac-52a7-b766-cef373b38b31","to":"planner","task":"s01-t07-implement-crud-spec","note":"S01: CRUD spec ready for review.","artifacts":["27ef1b24-205d-5803-8a6d-b59547042ff8"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"],"at":1760000049501}
+[...]
+{"ts":1760000115001,"tool":"claim_next_task","task":"s02-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000117002,"tool":"complete_task","task":"s02-t07-implement-crud-spec","artifacts":["0e6b7bc2-796b-5295-ad42-bfc0a62594ba"]}
+{"ts":1760000118002,"tool":"handoff","id":"d04e9737-19af-51e3-b2c3-69a2d16d23a9","to":"planner","task":"s02-t07-implement-crud-spec","note":"S02: CRUD spec ready for review.","artifacts":["0e6b7bc2-796b-5295-ad42-bfc0a62594ba"],"facts":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"],"at":1760000118001}
+[...]
+{"ts":1760000183501,"tool":"claim_next_task","task":"s03-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000185502,"tool":"complete_task","task":"s03-t07-implement-crud-spec","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"]}
+{"ts":1760000186502,"tool":"handoff","id":"ca66045d-b446-5002-b023-ae96f7e1a787","to":"planner","task":"s03-t07-implement-crud-spec","note":"S03: CRUD spec ready for review.","artifacts":["ccc99f24-fa03-56d7-add8-9e4a492be44f"],"facts":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"],"at":1760000186501}
+[...]
+{"ts":1760000252001,"tool":"claim_next_task","task":"s04-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000254002,"tool":"complete_task","task":"s04-t07-implement-crud-spec","artifacts":["f800fe12-3a0d-5ecf-9463-25316e8b0776"]}
+{"ts":1760000255002,"tool":"handoff","id":"dcae7214-ee5d-59da-a431-1d3670c8cce5","to":"planner","task":"s04-t07-implement-crud-spec","note":"S04: CRUD spec ready for review.","artifacts":["f800fe12-3a0d-5ecf-9463-25316e8b0776"],"facts":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"],"at":1760000255001}
+[...]
+{"ts":1760000320501,"tool":"claim_next_task","task":"s05-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000322502,"tool":"complete_task","task":"s05-t07-implement-crud-spec","artifacts":["b2ee9a12-5645-5138-87a3-303d5063554a"]}
+{"ts":1760000323502,"tool":"handoff","id":"152c0486-f2fa-5da5-bb8d-4f89714562d1","to":"planner","task":"s05-t07-implement-crud-spec","note":"S05: CRUD spec ready for review.","artifacts":["b2ee9a12-5645-5138-87a3-303d5063554a"],"facts":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"],"at":1760000323501}
+[...]
+{"ts":1760000389001,"tool":"claim_next_task","task":"s06-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000391002,"tool":"complete_task","task":"s06-t07-implement-crud-spec","artifacts":["19715af8-0853-577c-a079-771cecf2f34a"]}
+{"ts":1760000392002,"tool":"handoff","id":"0aff62b2-52de-5019-aeb4-ea6f9488fb44","to":"planner","task":"s06-t07-implement-crud-spec","note":"S06: CRUD spec ready for review.","artifacts":["19715af8-0853-577c-a079-771cecf2f34a"],"facts":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"],"at":1760000392001}
+[...]
+{"ts":1760000457501,"tool":"claim_next_task","task":"s07-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000459502,"tool":"complete_task","task":"s07-t07-implement-crud-spec","artifacts":["1fd0fea1-4134-5a70-a173-ddd7cb97836b"]}
+{"ts":1760000460502,"tool":"handoff","id":"8ff3f392-de52-5299-ad8f-cb75c615c81d","to":"planner","task":"s07-t07-implement-crud-spec","note":"S07: CRUD spec ready for review.","artifacts":["1fd0fea1-4134-5a70-a173-ddd7cb97836b"],"facts":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"],"at":1760000460501}
+[...]
+{"ts":1760000526001,"tool":"claim_next_task","task":"s08-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000528002,"tool":"complete_task","task":"s08-t07-implement-crud-spec","artifacts":["d76294c4-c550-5029-845f-880e44cb4bf1"]}
+{"ts":1760000529002,"tool":"handoff","id":"70cb15d8-c6a4-5be0-ae5e-39e9f4f06e7b","to":"planner","task":"s08-t07-implement-crud-spec","note":"S08: CRUD spec ready for review.","artifacts":["d76294c4-c550-5029-845f-880e44cb4bf1"],"facts":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"],"at":1760000529001}
+[...]
+{"ts":1760000594501,"tool":"claim_next_task","task":"s09-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000596502,"tool":"complete_task","task":"s09-t07-implement-crud-spec","artifacts":["c15b251d-c799-5fb6-99ca-e6b78a41b088"]}
+{"ts":1760000597502,"tool":"handoff","id":"a133d97a-e731-5223-a8ff-0925912bf303","to":"planner","task":"s09-t07-implement-crud-spec","note":"S09: CRUD spec ready for review.","artifacts":["c15b251d-c799-5fb6-99ca-e6b78a41b088"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000597501}
+[...]
+{"ts":1760000663001,"tool":"claim_next_task","task":"s10-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000665002,"tool":"complete_task","task":"s10-t07-implement-crud-spec","artifacts":["c87489d9-9608-51ba-a15a-db6abf9fd091"]}
+{"ts":1760000666002,"tool":"handoff","id":"69e73a46-631b-58b6-85f3-f89634202221","to":"planner","task":"s10-t07-implement-crud-spec","note":"S10: CRUD spec ready for review.","artifacts":["c87489d9-9608-51ba-a15a-db6abf9fd091"],"facts":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"],"at":1760000666001}
+[...]
+{"ts":1760000731501,"tool":"claim_next_task","task":"s11-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000733502,"tool":"complete_task","task":"s11-t07-implement-crud-spec","artifacts":["bf750cef-8374-5117-a75b-cb228bf48e39"]}
+{"ts":1760000734502,"tool":"handoff","id":"bfcd23c6-ae34-5363-8253-c4b8fb8e9d61","to":"planner","task":"s11-t07-implement-crud-spec","note":"S11: CRUD spec ready for review.","artifacts":["bf750cef-8374-5117-a75b-cb228bf48e39"],"facts":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"],"at":1760000734501}
+[...]
+{"ts":1760000800001,"tool":"claim_next_task","task":"s12-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000802002,"tool":"complete_task","task":"s12-t07-implement-crud-spec","artifacts":["82365dcb-e9ac-585f-a493-0c6efa43b506"]}
+{"ts":1760000803002,"tool":"handoff","id":"65b478b3-d1cf-57b3-8a6c-5742497ffa24","to":"planner","task":"s12-t07-implement-crud-spec","note":"S12: CRUD spec ready for review.","artifacts":["82365dcb-e9ac-585f-a493-0c6efa43b506"],"facts":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"],"at":1760000803001}
+[...]
+{"ts":1760000868501,"tool":"claim_next_task","task":"s13-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000870502,"tool":"complete_task","task":"s13-t07-implement-crud-spec","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"]}
+{"ts":1760000871502,"tool":"handoff","id":"c45b3769-f3cb-5369-ac8b-24830f52e357","to":"planner","task":"s13-t07-implement-crud-spec","note":"S13: CRUD spec ready for review.","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000871501}
+[...]
+{"ts":1760000937001,"tool":"claim_next_task","task":"s14-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000939002,"tool":"complete_task","task":"s14-t07-implement-crud-spec","artifacts":["5e1cc5e6-991f-5fb3-bf84-9377b8a89805"]}
+{"ts":1760000940002,"tool":"handoff","id":"ca0b29f4-363a-57e4-81bf-f609a231a089","to":"planner","task":"s14-t07-implement-crud-spec","note":"S14: CRUD spec ready for review.","artifacts":["5e1cc5e6-991f-5fb3-bf84-9377b8a89805"],"facts":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"],"at":1760000940001}
+[...]
+{"ts":1760001005501,"tool":"claim_next_task","task":"s15-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001007502,"tool":"complete_task","task":"s15-t07-implement-crud-spec","artifacts":["a8166a94-af06-514f-aa6d-29ef076b114a"]}
+{"ts":1760001008502,"tool":"handoff","id":"924f23f7-7c01-5a36-870b-8a0a4a002dc5","to":"planner","task":"s15-t07-implement-crud-spec","note":"S15: CRUD spec ready for review.","artifacts":["a8166a94-af06-514f-aa6d-29ef076b114a"],"facts":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"],"at":1760001008501}
+[...]
+{"ts":1760001074001,"tool":"claim_next_task","task":"s16-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001076002,"tool":"complete_task","task":"s16-t07-implement-crud-spec","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"]}
+{"ts":1760001077002,"tool":"handoff","id":"2081e45a-3076-554a-9a08-25d03365657c","to":"planner","task":"s16-t07-implement-crud-spec","note":"S16: CRUD spec ready for review.","artifacts":["38c9690b-72a3-58ad-899c-d2a034a39f1c"],"facts":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"],"at":1760001077001}
+[...]
+{"ts":1760001120502,"tool":"handoff","id":"30599fdf-ce03-5e10-b4a1-e58c3b175932","to":"planner","task":"s17-t12-update-endpoints-for-v2","note":"S17: Updated for API v34.","artifacts":["5bf93bc9-e4e7-56c0-971b-42d5603aea84"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2"],"at":1760001120501}
+[...]
+{"ts":1760001142501,"tool":"claim_next_task","task":"s17-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001144502,"tool":"complete_task","task":"s17-t07-implement-crud-spec","artifacts":["d7abdc81-f7d7-5996-9cf5-27b78fe17339"]}
+{"ts":1760001145502,"tool":"handoff","id":"b5bdb2aa-2104-568e-aa83-ae98bd3c42bc","to":"planner","task":"s17-t07-implement-crud-spec","note":"S17: CRUD spec ready for review.","artifacts":["d7abdc81-f7d7-5996-9cf5-27b78fe17339"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"],"at":1760001145501}
+[...]
+{"ts":1760001158502,"tool":"handoff","id":"3e775cce-fadf-537a-9cc1-617c6f039461","to":"planner","task":"s17-t11-package-release","note":"S17: Release bundle is ready.","artifacts":["1e974324-d993-5fae-aed0-c0e495f9c56b"],"facts":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2"],"at":1760001158501}
+[...]
+{"ts":1760001211001,"tool":"claim_next_task","task":"s18-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001213002,"tool":"complete_task","task":"s18-t07-implement-crud-spec","artifacts":["3cfb4932-60c7-5e17-a32c-06a963667df4"]}
+{"ts":1760001214002,"tool":"handoff","id":"5d3b5248-07a2-54cf-bc45-5813ec8e9e1d","to":"planner","task":"s18-t07-implement-crud-spec","note":"S18: CRUD spec ready for review.","artifacts":["3cfb4932-60c7-5e17-a32c-06a963667df4"],"facts":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"],"at":1760001214001}
+[...]
+{"ts":1760001279501,"tool":"claim_next_task","task":"s19-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001281502,"tool":"complete_task","task":"s19-t07-implement-crud-spec","artifacts":["35526b32-184f-5c71-9231-8c8a80ecd34c"]}
+{"ts":1760001282502,"tool":"handoff","id":"06ebdeee-a486-5452-8706-29e8c33c6f6d","to":"planner","task":"s19-t07-implement-crud-spec","note":"S19: CRUD spec ready for review.","artifacts":["35526b32-184f-5c71-9231-8c8a80ecd34c"],"facts":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"],"at":1760001282501}
+[...]
+{"ts":1760001348001,"tool":"claim_next_task","task":"s20-t07-implement-crud-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001350002,"tool":"complete_task","task":"s20-t07-implement-crud-spec","artifacts":["b42170a8-7f57-562e-afbc-cabf2df369be"]}
+{"ts":1760001351002,"tool":"handoff","id":"cdf918a8-e79c-5949-9a0e-cd8cf64a0c6f","to":"planner","task":"s20-t07-implement-crud-spec","note":"S20: CRUD spec ready for review.","artifacts":["b42170a8-7f57-562e-afbc-cabf2df369be"],"facts":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"],"at":1760001351001}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760001150501,"tool":"claim_next_task","task":"s17-t09-review-spec","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001152502,"tool":"complete_task","task":"s17-t09-review-spec","artifacts":[]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760001111502,"tool":"handoff","id":"fcb5aa76-3f00-5c66-8368-4d8a8f895556","to":"builder","task":"s17-t03-design-endpoints","note":"S17: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["22029c20-86ea-54fc-8b0a-97fcdba8117c"],"facts":["767c0e30-7c17-5b0a-afca-43d877935410"],"at":1760001111501}
+

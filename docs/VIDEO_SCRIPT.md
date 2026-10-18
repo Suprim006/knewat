@@ -1,5 +1,7 @@
 # Demo video script (target 2:50, hard limit 3:00)
 
+> **Numbers status (2026-10-18):** on-screen figures in beat 8 (L1, L2-at-scale, L4, L5) and beat 7's cost note come from earlier builds; which are current is tracked in docs/NUMBERS_STATUS.md. Re-check before recording.
+
 Track 02: Agent Memory and Coordination. Nine beats from `docs/PLAN.md` P6, plus the P7 beat (memory that notices change, forgetting). Narration is at most 25 words per beat, so
 the voice-over runs about 80 seconds and the screen carries the rest. Every id below was read from a replay of the real
 recording `acme-claude-sonnet` (`plexus demo replay acme-claude-sonnet --tenant demo`: 247 nodes, 708 edges, 83 steps,

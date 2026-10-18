@@ -1,0 +1,270 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"next_seq":240}
+[...]
+{"s13-t06-write-db-schema":{"id":"s13-t06-write-db-schema","title":"Write database schema (S13)","priority":25,"seq":149,"status":"done","claimed_by":"builder","lease_until":1760000983500,"version":2,"created_at":1760000822001,"done_at":1760000866501,"deps":["s13-t02-choose-api-version","s13-t04-survey-infra-security"],"artifacts":[{"id":"e2ba3059-b89a-510e-a4b7-653ea6abc936","kind":"file","uri":"artifacts/s13/schema.sql","hash":"","summary":"S13 MariaDB 11 schema: notes, tags, note_tags","agent_id":"builder","created_at":1760000866501}]}}
+
+=== file: MEMORY.md ===
+- **Acme Notes API S01** database: PostgreSQL 16 (active, global) <!--{"id":"64481d26-77ec-5176-b2be-13b1074c32ee","entity":"acme notes api s01","entity_name":"Acme Notes API S01","predicate":"database","value":"PostgreSQL 16","norm_value":"postgresql 16","scope":"global","status":"active","valid_from":1760000027500,"valid_to":9999999999999,"recorded_at":1760000027500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["f2cdeb01-8b98-5c8b-91c8-fa5084ebee10"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S03** database: Couchbase 6 (forgotten, global) <!--{"id":"9bfc1e64-3bac-5fa5-ad23-e26c14efcd47","entity":"acme notes api s03","entity_name":"Acme Notes API S03","predicate":"database","value":"Couchbase 6","norm_value":"couchbase 6","scope":"global","status":"forgotten","valid_from":1760000172500,"valid_to":1760000174501,"recorded_at":1760000172500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["50a82728-74ce-51ca-8126-1bfcad8093cc"],"supersedes":[],"contradicts":["f68de5be-dd66-5ad8-bc70-58e5a90803ce"]}-->
+[...]
+- **Acme Notes API S11** database: PostgreSQL 16 (active, global) <!--{"id":"a409f3e8-d6af-55b5-ac10-76322be26bcc","entity":"acme notes api s11","entity_name":"Acme Notes API S11","predicate":"database","value":"PostgreSQL 16","norm_value":"postgresql 16","scope":"global","status":"active","valid_from":1760000712500,"valid_to":9999999999999,"recorded_at":1760000712500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["2ec25b2e-15fa-56c0-9a1a-4b5d4d0f9dd5"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S13** database: MariaDB 11 (active, global) <!--{"id":"e186e943-f3c8-561f-892d-5b6711d9ebc8","entity":"acme notes api s13","entity_name":"Acme Notes API S13","predicate":"database","value":"MariaDB 11","norm_value":"mariadb 11","scope":"global","status":"active","valid_from":1760000849500,"valid_to":9999999999999,"recorded_at":1760000849500,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["ab00d2a9-10f5-56eb-99ca-94af3ede14c2"],"supersedes":[],"contradicts":[]}-->
+[...]
+- **Acme Notes API S13** database: Couchbase 16 (forgotten, global) <!--{"id":"89edb49c-4d7d-5da0-b79c-14d927fe6390","entity":"acme notes api s13","entity_name":"Acme Notes API S13","predicate":"database","value":"Couchbase 16","norm_value":"couchbase 16","scope":"global","status":"forgotten","valid_from":1760000857500,"valid_to":1760000859501,"recorded_at":1760000857500,"confidence":1.0,"asserted_by":["planner"],"derived_from":["203c5d63-1133-5029-a45a-d7e225c3d5e5"],"supersedes":[],"contradicts":["e186e943-f3c8-561f-892d-5b6711d9ebc8"]}-->
+[...]
+- **Bolt Billing API S16** billing_cycle: biweekly, invoiced on day 16 (active, project:billing-s16) <!--{"id":"c7e8b034-4761-5a82-8fad-ebc65571848c","entity":"bolt billing api s16","entity_name":"Bolt Billing API S16","predicate":"billing_cycle","value":"biweekly, invoiced on day 16","norm_value":"biweekly, invoiced on day 16","scope":"project:billing-s16","status":"active","valid_from":1760001067000,"valid_to":9999999999999,"recorded_at":1760001067000,"confidence":1.0,"asserted_by":["researcher"],"derived_from":["9300b701-b80d-564f-83f2-e24e7217b008"],"supersedes":[],"contradicts":[]}-->
+
+=== file: decisions.jsonl ===
+{"type":"decision","id":"1ecc2885-26f6-5914-a67b-ef6c30f16c27","agent":"planner","task":"s01-t06-write-db-schema","text":"S01: Evaluate MongoDB 4 as the database (forum post).","based_on":["d04e6e8e-1f06-55a2-a92f-7e931314a9db"],"at":1760000035502}
+[...]
+{"type":"decision","id":"8bcccfbc-4974-5fcc-b706-19b189499cfc","agent":"builder","task":"s01-t06-write-db-schema","text":"S01: Use PostgreSQL 16 for the notes, tags and note_tags tables.","based_on":["64481d26-77ec-5176-b2be-13b1074c32ee"],"at":1760000043501}
+[...]
+{"type":"decision","id":"c2768527-08b0-597d-a83d-6e5f577abdec","agent":"planner","task":"s02-t06-write-db-schema","text":"S02: Evaluate Cassandra 5 as the database (forum post).","based_on":["829390c2-ab74-5246-8ede-795f0315774d"],"at":1760000104002}
+[...]
+{"type":"decision","id":"e7e5c47b-e9f9-56ff-aa91-d15f746fd0ce","agent":"planner","task":"s03-t06-write-db-schema","text":"S03: Evaluate Couchbase 6 as the database (forum post).","based_on":["9bfc1e64-3bac-5fa5-ad23-e26c14efcd47"],"at":1760000172502}
+[...]
+{"type":"decision","id":"3ec33149-f8f9-5802-8f21-98104778f70a","agent":"planner","task":"s04-t06-write-db-schema","text":"S04: Evaluate DynamoDB 7 as the database (forum post).","based_on":["21402263-e0ee-5823-9999-b8b0073049d5"],"at":1760000241002}
+[...]
+{"type":"decision","id":"b014b68b-cb82-5a7c-93da-20a91e4ad5c8","agent":"planner","task":"s05-t06-write-db-schema","text":"S05: Evaluate Redis 8 as the database (forum post).","based_on":["8b709ed9-81a2-5c6c-801a-bd45c94e7a6d"],"at":1760000309502}
+[...]
+{"type":"decision","id":"b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9","agent":"planner","task":"s06-t06-write-db-schema","text":"S06: Evaluate CouchDB 9 as the database (forum post).","based_on":["a358e2a2-9b4c-5143-97ec-721836d2a9de"],"at":1760000378002}
+[...]
+{"type":"decision","id":"08a171d3-d7cf-56b7-bf89-66584f33edf7","agent":"planner","task":"s07-t06-write-db-schema","text":"S07: Evaluate RethinkDB 10 as the database (forum post).","based_on":["cc4ca4b0-4d9e-5305-aeca-1d63e046a297"],"at":1760000446502}
+[...]
+{"type":"decision","id":"9e4af6aa-2f02-52e7-881a-b59decb90332","agent":"planner","task":"s08-t06-write-db-schema","text":"S08: Evaluate Neo4j 11 as the database (forum post).","based_on":["89d0ea3a-71e0-54c0-ad11-ad8dc201b757"],"at":1760000515002}
+[...]
+{"type":"decision","id":"96e9e1aa-20d9-5746-b630-bedb9425649a","agent":"planner","task":"s09-t06-write-db-schema","text":"S09: Evaluate ScyllaDB 12 as the database (forum post).","based_on":["627cee86-09ce-53a8-8797-fbf748462ecb"],"at":1760000583502}
+[...]
+{"type":"decision","id":"080ac483-a67c-55ac-a6e0-9ce1a6aa1d80","agent":"planner","task":"s10-t06-write-db-schema","text":"S10: Evaluate Riak 13 as the database (forum post).","based_on":["a7c6ea31-4300-5afb-a980-2f6dba60fc95"],"at":1760000652002}
+[...]
+{"type":"decision","id":"a34874f3-ebe0-52fb-9d27-a7aa14f96d94","agent":"planner","task":"s11-t06-write-db-schema","text":"S11: Evaluate MongoDB 14 as the database (forum post).","based_on":["840758d6-b085-5fb7-8439-41ea4d9075e2"],"at":1760000720502}
+[...]
+{"type":"decision","id":"c075a860-4748-59fc-9326-b361bffa1ae2","agent":"builder","task":"s11-t06-write-db-schema","text":"S11: Use PostgreSQL 16 for the notes, tags and note_tags tables.","based_on":["a409f3e8-d6af-55b5-ac10-76322be26bcc"],"at":1760000728501}
+[...]
+{"type":"decision","id":"e58506c9-24f6-5063-be8f-d80e205130dc","agent":"planner","task":"s12-t06-write-db-schema","text":"S12: Evaluate Cassandra 15 as the database (forum post).","based_on":["95e1d954-04a9-5d9a-8441-994f908947d4"],"at":1760000789002}
+[...]
+{"type":"decision","id":"0239283d-f514-56f1-ab23-875cafa0ed90","agent":"planner","task":"s13-t02-choose-api-version","text":"S13: Build the Acme Notes API against v25 of the style guide (routes under /v25/).","based_on":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"at":1760000827002}
+{"type":"decision","id":"837ec50c-122d-512c-bd5f-ee3fa31c8acd","agent":"planner","task":"s13-t02-choose-api-version","text":"S13: Adopt style guide v26: the API version is now v26 (routes under /v26/).","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000841501}
+{"type":"decision","id":"470a72ca-83d3-5abe-b9a2-8b824327ac7f","agent":"planner","task":"s13-t05-choose-auth","text":"S13: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.","based_on":["281fe1b5-fe2f-570f-b317-b10819b44639","e0bfc28b-0c15-5c06-82d1-c39499d7b337"],"at":1760000854502}
+{"type":"decision","id":"e4c1fb22-8f33-5326-b439-096db849e51b","agent":"planner","task":"s13-t06-write-db-schema","text":"S13: Evaluate Couchbase 16 as the database (forum post).","based_on":["89edb49c-4d7d-5da0-b79c-14d927fe6390"],"at":1760000857502}
+[...]
+{"type":"decision","id":"1f02335a-3973-5b8f-b9e3-3e9572e1f563","agent":"builder","task":"s13-t06-write-db-schema","text":"S13: Use MariaDB 11 for the notes, tags and note_tags tables.","based_on":["e186e943-f3c8-561f-892d-5b6711d9ebc8"],"at":1760000865501}
+{"type":"decision","id":"8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1","agent":"planner","task":"s13-t09-review-spec","text":"S13: Spec approved: endpoints, schema and JWT auth are consistent.","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000877501}
+[...]
+{"type":"decision","id":"fb9a364e-958f-53c1-8db7-72cabb71cf6a","agent":"planner","task":"s14-t06-write-db-schema","text":"S14: Evaluate DynamoDB 17 as the database (forum post).","based_on":["909bf6fb-2c0d-5c9b-a327-e3c3803ff755"],"at":1760000926002}
+[...]
+{"type":"decision","id":"a913056a-8c85-5859-a2e2-0bf257ad7506","agent":"planner","task":"s15-t06-write-db-schema","text":"S15: Evaluate Redis 18 as the database (forum post).","based_on":["d90f88cf-844f-53f2-ae23-ee244ac551bf"],"at":1760000994502}
+[...]
+{"type":"decision","id":"a058c6d5-d503-5e8e-99c4-cc338d94e8d6","agent":"planner","task":"s16-t06-write-db-schema","text":"S16: Evaluate CouchDB 19 as the database (forum post).","based_on":["8c0c9c0e-e435-5989-b4d5-0b471560e947"],"at":1760001063002}
+[...]
+{"type":"decision","id":"d906d405-5d7f-5646-b053-8464e2681021","agent":"planner","task":"s17-t06-write-db-schema","text":"S17: Evaluate RethinkDB 20 as the database (forum post).","based_on":["bc5bb23b-a206-5d2a-a0d1-800573fa5575"],"at":1760001131502}
+[...]
+{"type":"decision","id":"ae3c93b1-8d93-55e6-82c7-9b3a4f0d07e2","agent":"planner","task":"s18-t06-write-db-schema","text":"S18: Evaluate Neo4j 21 as the database (forum post).","based_on":["7a67ca14-839a-5170-9971-a20197810304"],"at":1760001200002}
+[...]
+{"type":"decision","id":"9acc129e-f910-5b32-8f14-80475529c123","agent":"planner","task":"s19-t06-write-db-schema","text":"S19: Evaluate ScyllaDB 22 as the database (forum post).","based_on":["e4fcdd43-d040-5571-a6ad-13d72dfaec1f"],"at":1760001268502}
+[...]
+{"type":"decision","id":"1ac5a9e7-7ec1-5f95-b1a7-f9e58b22bd97","agent":"planner","task":"s20-t06-write-db-schema","text":"S20: Evaluate Riak 23 as the database (forum post).","based_on":["3feb9534-3d34-5900-84f0-73e95a1532ea"],"at":1760001337002}
+
+=== file: handoffs.jsonl ===
+{"id":"543b5765-aa76-55ba-9c62-490eec17d1da","from":"researcher","to":"builder","task":"s13-t03-design-endpoints","note":"S13: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["f46d85c3-1e7b-5865-8e0f-a24d1eaef54d"],"facts":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"at":1760000837501}
+{"id":"70e4d5a5-d6e6-565d-a996-9559f222a053","from":"builder","to":"planner","task":"s13-t12-update-endpoints-for-v2","note":"S13: Updated for API v26.","artifacts":["9d7b2303-5861-5ea4-bb15-9d8ef467dcda"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000846501}
+{"id":"c45b3769-f3cb-5369-ac8b-24830f52e357","from":"builder","to":"planner","task":"s13-t07-implement-crud-spec","note":"S13: CRUD spec ready for review.","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000871501}
+{"id":"eece0352-6fee-5dfa-bf7b-f35be556b905","from":"builder","to":"planner","task":"s13-t11-package-release","note":"S13: Release bundle is ready.","artifacts":["6051f482-ebbc-5398-a424-d12821331ff4"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000884501}
+
+=== file: sources.json ===
+{"1531c911-182a-5a91-ae0a-1b92e90e2ce5":{"uri":"acme-docs/s01/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000034501}}
+[...]
+{"5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a":{"uri":"acme-docs/s02/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000103001}}
+[...]
+{"50a82728-74ce-51ca-8126-1bfcad8093cc":{"uri":"acme-docs/s03/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000171501}}
+[...]
+{"88dae90f-05ce-5028-bc63-af5836789f02":{"uri":"acme-docs/s04/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000240001}}
+[...]
+{"14284b1e-5c73-5edc-b916-8a8ed5b096c2":{"uri":"acme-docs/s05/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000308501}}
+[...]
+{"c477da62-2474-573b-851d-1e136de0257a":{"uri":"acme-docs/s06/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000377001}}
+[...]
+{"c5d7113f-1c71-55f0-9770-7ffee4112b3e":{"uri":"acme-docs/s07/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000445501}}
+[...]
+{"20d49ab5-015b-5a6b-a5a0-85c90a3f0d76":{"uri":"acme-docs/s08/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000514001}}
+[...]
+{"e5611a24-7de2-532c-a909-85db31e7657f":{"uri":"acme-docs/s09/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000582501}}
+[...]
+{"21c87012-3ab3-5927-9747-7be6156e72ea":{"uri":"acme-docs/s10/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000651001}}
+[...]
+{"0b38768f-c32e-5d8e-8ca2-2b38b8239eab":{"uri":"acme-docs/s11/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000719501}}
+[...]
+{"9aad5fe4-ef32-51c4-80a8-b3cdc43cef96":{"uri":"acme-docs/s12/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000788001}}
+[...]
+{"203c5d63-1133-5029-a45a-d7e225c3d5e5":{"uri":"acme-docs/s13/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000856501}}
+[...]
+{"96231bab-e1e8-5422-92f8-27d3f98d3fd9":{"uri":"acme-docs/s14/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000925001}}
+[...]
+{"f5b88b48-3666-511e-9da7-5fde53059225":{"uri":"acme-docs/s15/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760000993501}}
+[...]
+{"c9505fea-78a0-575f-b569-0d272e7e74ac":{"uri":"acme-docs/s16/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001062001}}
+[...]
+{"2b32abee-1156-5b5b-b04d-5b6d42420594":{"uri":"acme-docs/s17/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001130501}}
+[...]
+{"06de3fcd-ed3b-59e6-a82f-7a56587aaefb":{"uri":"acme-docs/s18/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001199001}}
+[...]
+{"433f47b1-eac7-5fcc-80a1-9a37cdbed257":{"uri":"acme-docs/s19/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001267501}}
+[...]
+{"0d04ac3e-ab11-50fc-8239-48273717b517":{"uri":"acme-docs/s20/07_forum_post_unverified.md","kind":"web","trust":0.2,"created_at":1760001336001}}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000042501,"tool":"episode","id":"0d903881-4fe3-58c2-a177-5393fb771f2e","step":null,"text":"S01: Schema: notes, tags and note_tags tables in PostgreSQL 16."}
+{"ts":1760000043502,"tool":"record_decision","id":"8bcccfbc-4974-5fcc-b706-19b189499cfc","task":"s01-t06-write-db-schema","based_on":["64481d26-77ec-5176-b2be-13b1074c32ee"]}
+[...]
+{"ts":1760000112002,"tool":"record_decision","id":"ddc43da5-6203-5b25-902e-0482f81a67ea","task":"s02-t06-write-db-schema","based_on":["2db29fe7-a2f9-5d63-936b-f07eaf671eb6"]}
+[...]
+{"ts":1760000180502,"tool":"record_decision","id":"4560e114-a6f8-5acc-ab83-764573b48137","task":"s03-t06-write-db-schema","based_on":["f68de5be-dd66-5ad8-bc70-58e5a90803ce"]}
+[...]
+{"ts":1760000249002,"tool":"record_decision","id":"37c03fa7-0f97-58a6-b14c-2a1af9850b89","task":"s04-t06-write-db-schema","based_on":["b18ce498-ca5b-5425-b920-72c0df42f780"]}
+[...]
+{"ts":1760000317502,"tool":"record_decision","id":"489d214c-73f7-5810-a8ba-987db261610a","task":"s05-t06-write-db-schema","based_on":["56aae829-cd18-53c7-b1f0-748deb332dfb"]}
+[...]
+{"ts":1760000386002,"tool":"record_decision","id":"3b90669c-44c3-5bf4-821c-07c5ec6eaf52","task":"s06-t06-write-db-schema","based_on":["1654df3c-dbba-515b-85a1-fb158f3a95b0"]}
+[...]
+{"ts":1760000454502,"tool":"record_decision","id":"8b960688-9c9f-5562-90df-369275e34723","task":"s07-t06-write-db-schema","based_on":["81a13776-eecc-5127-af30-f5e30618d336"]}
+[...]
+{"ts":1760000523002,"tool":"record_decision","id":"9e994591-e1e5-5fff-82ca-b14c6eec2ad0","task":"s08-t06-write-db-schema","based_on":["e5ca0231-f709-5a9b-905f-27706b8cdc3e"]}
+[...]
+{"ts":1760000591502,"tool":"record_decision","id":"1bb726c8-f724-569f-a3b8-cc8d8236ec2b","task":"s09-t06-write-db-schema","based_on":["213040a9-fd8c-54ce-88b8-18b5642c6258"]}
+[...]
+{"ts":1760000660002,"tool":"record_decision","id":"1ad4a497-61f6-53ea-9db1-794faafe4656","task":"s10-t06-write-db-schema","based_on":["c171bdc8-2c65-5c84-b9d1-f56c58740be9"]}
+[...]
+{"ts":1760000727501,"tool":"episode","id":"db176b2d-3803-5b2d-9f25-768bb59ccdcc","step":null,"text":"S11: Schema: notes, tags and note_tags tables in PostgreSQL 16."}
+{"ts":1760000728502,"tool":"record_decision","id":"c075a860-4748-59fc-9326-b361bffa1ae2","task":"s11-t06-write-db-schema","based_on":["a409f3e8-d6af-55b5-ac10-76322be26bcc"]}
+[...]
+{"ts":1760000797002,"tool":"record_decision","id":"339b3717-f447-5c7d-9047-d6bd0e58fd46","task":"s12-t06-write-db-schema","based_on":["10b8bab6-920b-56d7-8a22-210c07835836"]}
+[...]
+{"ts":1760000846502,"tool":"handoff","id":"70e4d5a5-d6e6-565d-a996-9559f222a053","to":"planner","task":"s13-t12-update-endpoints-for-v2","note":"S13: Updated for API v26.","artifacts":["9d7b2303-5861-5ea4-bb15-9d8ef467dcda"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000846501}
+[...]
+{"ts":1760000863503,"tool":"recall","query":"database S13","scope":"global","returned":["e186e943-f3c8-561f-892d-5b6711d9ebc8","10b8bab6-920b-56d7-8a22-210c07835836","1654df3c-dbba-515b-85a1-fb158f3a95b0","213040a9-fd8c-54ce-88b8-18b5642c6258","281fe1b5-fe2f-570f-b317-b10819b44639"]}
+[...]
+{"ts":1760000865502,"tool":"record_decision","id":"1f02335a-3973-5b8f-b9e3-3e9572e1f563","task":"s13-t06-write-db-schema","based_on":["e186e943-f3c8-561f-892d-5b6711d9ebc8"]}
+[...]
+{"ts":1760000871502,"tool":"handoff","id":"c45b3769-f3cb-5369-ac8b-24830f52e357","to":"planner","task":"s13-t07-implement-crud-spec","note":"S13: CRUD spec ready for review.","artifacts":["69ce9b3f-1ffd-5ee1-a99d-4909596d0457"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"],"at":1760000871501}
+[...]
+{"ts":1760000884502,"tool":"handoff","id":"eece0352-6fee-5dfa-bf7b-f35be556b905","to":"planner","task":"s13-t11-package-release","note":"S13: Release bundle is ready.","artifacts":["6051f482-ebbc-5398-a424-d12821331ff4"],"facts":["cf3fd407-5373-5c92-a502-6ca529fefeca"],"at":1760000884501}
+[...]
+{"ts":1760000934002,"tool":"record_decision","id":"c2c9bb2f-ab5e-52d7-9bf0-9b63043168d4","task":"s14-t06-write-db-schema","based_on":["ebf95c3e-be4e-5a31-ba0c-945f2ea4f373"]}
+[...]
+{"ts":1760001002502,"tool":"record_decision","id":"02eb71bc-eb6d-540c-b0c3-4eb8034f8ecc","task":"s15-t06-write-db-schema","based_on":["83c9ac76-b3e6-5f7b-b728-9034960b4407"]}
+[...]
+{"ts":1760001071002,"tool":"record_decision","id":"010224fb-29ba-56be-99c4-d33174f6f565","task":"s16-t06-write-db-schema","based_on":["661c6b9a-615a-575b-9022-2dc167b28eaf"]}
+[...]
+{"ts":1760001139502,"tool":"record_decision","id":"89b1fe4e-0f94-5412-a758-acb77ff9df0d","task":"s17-t06-write-db-schema","based_on":["0a07e018-2944-50d3-afee-056128b01781"]}
+[...]
+{"ts":1760001208002,"tool":"record_decision","id":"77475b25-bd2b-5670-9864-28530180052d","task":"s18-t06-write-db-schema","based_on":["605f027c-e18c-50b3-b33e-c5e54407570a"]}
+[...]
+{"ts":1760001276502,"tool":"record_decision","id":"234a2e9d-22a3-5ecb-9c5e-14e8f5215c99","task":"s19-t06-write-db-schema","based_on":["6e0b3ad2-753f-5f6a-b06d-aa6393260428"]}
+[...]
+{"ts":1760001345002,"tool":"record_decision","id":"7a399c5d-8466-5a73-a025-d311f59d7a7c","task":"s20-t06-write-db-schema","based_on":["7f1d8278-94f2-5c84-948a-e34170fedb65"]}
+
+=== file: logs/planner.jsonl ===
+{"ts":1760000032503,"tool":"record_decision","id":"ca23b005-8686-53a8-9ab7-55f145266a71","task":"s01-t05-choose-auth","based_on":["2c6740d8-7444-5f79-8d75-ce7112466e7f","f5aae893-1530-56f3-8882-3bed05324144"]}
+[...]
+{"ts":1760000055502,"tool":"record_decision","id":"a95eed0c-9058-5840-b7ef-00b13a18ee88","task":"s01-t09-review-spec","based_on":["e3d70963-c74e-5c24-9814-4c48b55c84bc","2c6740d8-7444-5f79-8d75-ce7112466e7f"]}
+[...]
+{"ts":1760000101003,"tool":"record_decision","id":"aa9ce909-9647-5e6b-be6c-30c9f687d82a","task":"s02-t05-choose-auth","based_on":["adce43a0-b0da-5936-b9e3-11456941bd65","8aa0e063-17d5-5061-922f-ecb6884e4eca"]}
+[...]
+{"ts":1760000124002,"tool":"record_decision","id":"7efc5fbb-61ae-5b3f-b965-6cefad5f77f0","task":"s02-t09-review-spec","based_on":["399e1e16-1b03-5184-b159-958079bedc70","adce43a0-b0da-5936-b9e3-11456941bd65"]}
+[...]
+{"ts":1760000169503,"tool":"record_decision","id":"fa935234-53c8-5970-8f5f-551235160409","task":"s03-t05-choose-auth","based_on":["8c782244-d287-5241-97fe-81123ca9a9a9","246b7904-0d0c-53ef-b7a4-974669a37be8"]}
+[...]
+{"ts":1760000172501,"tool":"assert_fact","subject":"Acme Notes API S03","predicate":"database","value":"Couchbase 6","scope":"global","fact_id":"9bfc1e64-3bac-5fa5-ad23-e26c14efcd47","duplicate_of":null,"superseded":[],"contradicts":["f68de5be-dd66-5ad8-bc70-58e5a90803ce"]}
+[...]
+{"ts":1760000192502,"tool":"record_decision","id":"d05051b1-49c1-5cd5-a51c-2a64a1af1409","task":"s03-t09-review-spec","based_on":["1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd","8c782244-d287-5241-97fe-81123ca9a9a9"]}
+[...]
+{"ts":1760000238003,"tool":"record_decision","id":"7311882b-09bd-544a-9f83-e77884ba8431","task":"s04-t05-choose-auth","based_on":["6a825d90-ffb7-5427-ba96-9e4db1fb916a","d84cd0fb-8f2d-54be-a05a-23e0a2b00462"]}
+[...]
+{"ts":1760000261002,"tool":"record_decision","id":"ecefce34-9176-58d8-94f6-c6d6783639ad","task":"s04-t09-review-spec","based_on":["c73b692e-9cd9-58f6-a146-aa387e5d2e33","6a825d90-ffb7-5427-ba96-9e4db1fb916a"]}
+[...]
+{"ts":1760000306503,"tool":"record_decision","id":"0be418c2-82f8-5ce5-9456-1f0c70789d7f","task":"s05-t05-choose-auth","based_on":["caaa893a-626f-5079-bebd-835aa31eb750","489da596-b3ca-5043-a0ea-5086de9014b6"]}
+[...]
+{"ts":1760000329502,"tool":"record_decision","id":"62932fdb-3076-59d2-ba7e-bf5b9bab07ea","task":"s05-t09-review-spec","based_on":["cbde9957-b402-503b-bef3-f0a0733a8c27","caaa893a-626f-5079-bebd-835aa31eb750"]}
+[...]
+{"ts":1760000375003,"tool":"record_decision","id":"1e35ca91-55b3-57a8-bc76-48963a1353d8","task":"s06-t05-choose-auth","based_on":["a7d999dc-22d8-5a8f-9859-1e0bf1c06070","df087bdd-00a4-582c-8b35-5ab24374ba4a"]}
+[...]
+{"ts":1760000398002,"tool":"record_decision","id":"3bc6e6b9-213b-5a05-8e74-175df8e45057","task":"s06-t09-review-spec","based_on":["8d2b5d80-fe43-5534-8e8a-955905c4975b","a7d999dc-22d8-5a8f-9859-1e0bf1c06070"]}
+[...]
+{"ts":1760000443503,"tool":"record_decision","id":"6146b0ed-711b-585b-aa7b-c56ddbe62134","task":"s07-t05-choose-auth","based_on":["9aa3ca0d-ddf3-5024-b383-b632b16c6648","420dbc5d-4360-5896-9a31-6d72eaf60eb9"]}
+[...]
+{"ts":1760000466502,"tool":"record_decision","id":"151ec366-1445-5726-b70d-6a9513cb94de","task":"s07-t09-review-spec","based_on":["a708b29f-1316-57c9-9cd2-e1d93d1fd605","9aa3ca0d-ddf3-5024-b383-b632b16c6648"]}
+[...]
+{"ts":1760000512003,"tool":"record_decision","id":"36705ae7-678a-5284-a7da-9cf7ffa2d0d4","task":"s08-t05-choose-auth","based_on":["796aea04-86c3-5458-9108-e6250cae575b","8d09189a-de26-57cf-9d86-0b803170cfb1"]}
+[...]
+{"ts":1760000535002,"tool":"record_decision","id":"66744935-c4fa-5a06-bddd-7835dfc6a7af","task":"s08-t09-review-spec","based_on":["f4918c86-ef7f-50df-94d1-abc537082890","796aea04-86c3-5458-9108-e6250cae575b"]}
+[...]
+{"ts":1760000580503,"tool":"record_decision","id":"8b33f23b-07cc-5b89-b920-76c55909df67","task":"s09-t05-choose-auth","based_on":["3a1468b7-0a5c-5b70-9e35-98f20baacab6","13efb66e-9d5d-54a9-ae84-c2274ed15e81"]}
+[...]
+{"ts":1760000603502,"tool":"record_decision","id":"3f0f1bb9-3e3e-5e69-a75a-bf83124ef9ca","task":"s09-t09-review-spec","based_on":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"]}
+[...]
+{"ts":1760000649003,"tool":"record_decision","id":"d3d1eb53-18de-5a60-9ee8-c6ed8290a067","task":"s10-t05-choose-auth","based_on":["1957d113-2caf-53d4-a9c9-713c893bed4e","e2a918a4-327c-555e-ba96-36c9375fea00"]}
+[...]
+{"ts":1760000672002,"tool":"record_decision","id":"3fe2bc7c-7a9c-5912-a157-bfd5ce773d4a","task":"s10-t09-review-spec","based_on":["9d834c69-70bf-51a2-a771-d04e1f6a0a07","1957d113-2caf-53d4-a9c9-713c893bed4e"]}
+[...]
+{"ts":1760000717503,"tool":"record_decision","id":"ad51edc8-1e17-5621-b861-114fa4f8a490","task":"s11-t05-choose-auth","based_on":["facb64f3-a7ed-5ee0-859d-5752d670f2c7","c8c99a70-f727-5676-9ae3-35ab4de58986"]}
+[...]
+{"ts":1760000740502,"tool":"record_decision","id":"5a045ccd-4ca8-5279-900a-661aab445648","task":"s11-t09-review-spec","based_on":["6e976d44-c6ad-52c2-918c-f396900cc85e","facb64f3-a7ed-5ee0-859d-5752d670f2c7"]}
+[...]
+{"ts":1760000786003,"tool":"record_decision","id":"c78e7d92-66b5-5698-8991-9da1f71a2a49","task":"s12-t05-choose-auth","based_on":["c741d5a2-182e-533c-bac5-124f08e9a37a","38c8d041-eef8-59ec-9099-41b2cb46ac35"]}
+[...]
+{"ts":1760000809002,"tool":"record_decision","id":"5dbc39fc-7fec-5955-9ed6-f7a01bfa23e3","task":"s12-t09-review-spec","based_on":["9c6f3395-6466-5261-87f5-70fa6df0101e","c741d5a2-182e-533c-bac5-124f08e9a37a"]}
+[...]
+{"ts":1760000827003,"tool":"record_decision","id":"0239283d-f514-56f1-ab23-875cafa0ed90","task":"s13-t02-choose-api-version","based_on":["a8d569a8-4806-56a9-b86e-f497a45654d5"]}
+[...]
+{"ts":1760000841502,"tool":"record_decision","id":"837ec50c-122d-512c-bd5f-ee3fa31c8acd","task":"s13-t02-choose-api-version","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca"]}
+[...]
+{"ts":1760000854503,"tool":"record_decision","id":"470a72ca-83d3-5abe-b9a2-8b824327ac7f","task":"s13-t05-choose-auth","based_on":["281fe1b5-fe2f-570f-b317-b10819b44639","e0bfc28b-0c15-5c06-82d1-c39499d7b337"]}
+{"ts":1760000855502,"tool":"complete_task","task":"s13-t05-choose-auth","artifacts":[]}
+{"ts":1760000857501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"database","value":"Couchbase 16","scope":"global","fact_id":"89edb49c-4d7d-5da0-b79c-14d927fe6390","duplicate_of":null,"superseded":[],"contradicts":["e186e943-f3c8-561f-892d-5b6711d9ebc8"]}
+{"ts":1760000857503,"tool":"record_decision","id":"e4c1fb22-8f33-5326-b439-096db849e51b","task":"s13-t06-write-db-schema","based_on":["89edb49c-4d7d-5da0-b79c-14d927fe6390"]}
+[...]
+{"ts":1760000877502,"tool":"record_decision","id":"8575fe55-a7d8-5b4a-9c6e-a8f8fa3170a1","task":"s13-t09-review-spec","based_on":["cf3fd407-5373-5c92-a502-6ca529fefeca","281fe1b5-fe2f-570f-b317-b10819b44639"]}
+[...]
+{"ts":1760000923003,"tool":"record_decision","id":"9d089b2b-3f53-52e8-a086-0df5f5ac8453","task":"s14-t05-choose-auth","based_on":["a1585f54-8bb4-5e20-b07a-d2d19e89af89","fd06adfe-07c0-53f6-9faf-0642215810b3"]}
+[...]
+{"ts":1760000946002,"tool":"record_decision","id":"c5e4aaf8-7959-55b9-8526-2ac75e975544","task":"s14-t09-review-spec","based_on":["9fd49e10-ddb9-5be8-b66f-63cf9ce130f3","a1585f54-8bb4-5e20-b07a-d2d19e89af89"]}
+[...]
+{"ts":1760000991503,"tool":"record_decision","id":"96c0e0f7-c96d-54d0-ab72-20dc1e7e9233","task":"s15-t05-choose-auth","based_on":["174dde7f-0a35-54ec-849b-1bb81f3919c9","87611194-56da-542a-9bce-78206b3ffdb8"]}
+[...]
+{"ts":1760001014502,"tool":"record_decision","id":"088c32c9-9211-501e-8eab-f6ea616d8eb4","task":"s15-t09-review-spec","based_on":["4a728057-55a9-5aca-8e1e-b552d2f8daa5","174dde7f-0a35-54ec-849b-1bb81f3919c9"]}
+[...]
+{"ts":1760001060003,"tool":"record_decision","id":"36bff734-0b39-5ab8-a3e7-2b2265e643d4","task":"s16-t05-choose-auth","based_on":["5973c274-277d-5dd2-bd7c-dce1278d8139","9f3b6391-e763-5939-ae40-d897fb75be2c"]}
+[...]
+{"ts":1760001083002,"tool":"record_decision","id":"7f71e476-1a85-5b91-9885-e133ad3a02c2","task":"s16-t09-review-spec","based_on":["cab11576-003a-511c-86e7-a5bb6da5dbf4","5973c274-277d-5dd2-bd7c-dce1278d8139"]}
+[...]
+{"ts":1760001128503,"tool":"record_decision","id":"1481bbd7-bba7-5e4e-998f-8332add1f38b","task":"s17-t05-choose-auth","based_on":["d2ef79a9-557b-5225-8093-670c4f36db73","7f5d1ec6-c136-55f8-b51f-8cf943553a70"]}
+[...]
+{"ts":1760001151502,"tool":"record_decision","id":"c7d232bd-c4b4-5ac1-89ae-decaf18696bb","task":"s17-t09-review-spec","based_on":["4e6d9291-e9a9-5e7e-b158-836682b7f9c2","d2ef79a9-557b-5225-8093-670c4f36db73"]}
+[...]
+{"ts":1760001197003,"tool":"record_decision","id":"a9019881-d439-51fc-bb53-02e73f630977","task":"s18-t05-choose-auth","based_on":["eef8f7cb-f76e-5e79-8d53-d51d76f57fe4","7391eb9e-0e08-5a18-b064-95861cfada02"]}
+[...]
+{"ts":1760001220002,"tool":"record_decision","id":"a21750a7-4500-5e73-b55a-067a4ca490af","task":"s18-t09-review-spec","based_on":["db6089a8-7374-54f4-9bf6-f233ae2d1d4d","eef8f7cb-f76e-5e79-8d53-d51d76f57fe4"]}
+[...]
+{"ts":1760001265503,"tool":"record_decision","id":"37e78a9e-2728-5662-8aba-54f484114147","task":"s19-t05-choose-auth","based_on":["23fa06c9-0de6-5176-a4a8-778840fb69e2","48fc4ea1-e142-54b8-909b-1d578b143614"]}
+[...]
+{"ts":1760001288502,"tool":"record_decision","id":"d7599553-d578-5ca7-9422-4f7161446421","task":"s19-t09-review-spec","based_on":["28a328cd-86a1-5480-9a95-d398ed40eb33","23fa06c9-0de6-5176-a4a8-778840fb69e2"]}
+[...]
+{"ts":1760001334003,"tool":"record_decision","id":"b1a4bc6c-442e-55de-9ec1-09f6b58ded95","task":"s20-t05-choose-auth","based_on":["984f762e-88d6-54ff-a7d4-9cd8d024486a","c30226fc-2b32-5539-9e38-2a7c33585dcf"]}
+[...]
+{"ts":1760001357002,"tool":"record_decision","id":"2f3bfbdb-ff3b-5075-9f34-b47d193db3ef","task":"s20-t09-review-spec","based_on":["94fef2a4-a13b-53ed-9d07-0f8cf862efa6","984f762e-88d6-54ff-a7d4-9cd8d024486a"]}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000027501,"tool":"assert_fact","subject":"Acme Notes API S01","predicate":"database","value":"PostgreSQL 16","scope":"global","fact_id":"64481d26-77ec-5176-b2be-13b1074c32ee","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000712501,"tool":"assert_fact","subject":"Acme Notes API S11","predicate":"database","value":"PostgreSQL 16","scope":"global","fact_id":"a409f3e8-d6af-55b5-ac10-76322be26bcc","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000837502,"tool":"handoff","id":"543b5765-aa76-55ba-9c62-490eec17d1da","to":"builder","task":"s13-t03-design-endpoints","note":"S13: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["f46d85c3-1e7b-5865-8e0f-a24d1eaef54d"],"facts":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"at":1760000837501}
+[...]
+{"ts":1760000849501,"tool":"assert_fact","subject":"Acme Notes API S13","predicate":"database","value":"MariaDB 11","scope":"global","fact_id":"e186e943-f3c8-561f-892d-5b6711d9ebc8","duplicate_of":null,"superseded":[],"contradicts":[]}
+[...]
+{"ts":1760000858502,"tool":"recall","query":"database S13","scope":"global","returned":["89edb49c-4d7d-5da0-b79c-14d927fe6390","e186e943-f3c8-561f-892d-5b6711d9ebc8","10b8bab6-920b-56d7-8a22-210c07835836","1654df3c-dbba-515b-85a1-fb158f3a95b0","213040a9-fd8c-54ce-88b8-18b5642c6258"]}
+

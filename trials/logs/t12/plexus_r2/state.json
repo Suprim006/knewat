@@ -1,0 +1,17 @@
+{
+  "session_id": "7123070c-da45-4c89-a135-c07ba825a8ed",
+  "cwd": "C:\\Change_folder_after_HDD\\trials\\logs\\t12\\plexus_r2\\cwd",
+  "done": 100,
+  "cost": 1.1377,
+  "tenant": "t12_plexus_r2_aaa43d",
+  "mcp": {
+    "mcpServers": {
+      "plexus": {
+        "type": "http",
+        "url": "http://127.0.0.1:8766/mcp/t/t12_plexus_r2_aaa43d"
+      }
+    }
+  },
+  "cost_sum_of_running_totals_v1": 40.8973,
+  "cost_fixed_v2": true
+}

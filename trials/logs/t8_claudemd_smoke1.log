@@ -1,0 +1,3 @@
+[claudemd smoke1] session_1: rc=0 38.9s $0.116 turns=20 denials=0 (total $0.12)
+[claudemd smoke1] session_2: rc=0 27.6s $0.077 turns=14 denials=0 (total $0.19)
+[claudemd smoke1] session_3: rc=0 29.6s $0.090 turns=16 denials=0 (total $0.28)

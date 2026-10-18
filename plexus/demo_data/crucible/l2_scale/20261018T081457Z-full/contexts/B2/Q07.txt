@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Handoff for task s05-t11-package-release from builder to planner: "S05: Release bundle is ready." Artifacts: artifacts/s05/release.tar. Facts: api_version=v10.
+[2] Handoff for task s05-t12-update-endpoints-for-v2 from builder to planner: "S05: Updated for API v10." Artifacts: artifacts/s05/openapi-v2.yaml. Facts: api_version=v10.
+[3] Handoff for task s18-t11-package-release from builder to planner: "S18: Release bundle is ready." Artifacts: artifacts/s18/release.tar. Facts: api_version=v36.
+[4] Handoff for task s13-t11-package-release from builder to planner: "S13: Release bundle is ready." Artifacts: artifacts/s13/release.tar. Facts: api_version=v26.
+[5] Handoff for task s19-t11-package-release from builder to planner: "S19: Release bundle is ready." Artifacts: artifacts/s19/release.tar. Facts: api_version=v38.
+[6] Handoff for task s11-t11-package-release from builder to planner: "S11: Release bundle is ready." Artifacts: artifacts/s11/release.tar. Facts: api_version=v22.
+[7] Handoff for task s20-t11-package-release from builder to planner: "S20: Release bundle is ready." Artifacts: artifacts/s20/release.tar. Facts: api_version=v40.
+[8] Handoff for task s17-t11-package-release from builder to planner: "S17: Release bundle is ready." Artifacts: artifacts/s17/release.tar. Facts: api_version=v34.
+[9] Handoff for task s09-t11-package-release from builder to planner: "S09: Release bundle is ready." Artifacts: artifacts/s09/release.tar. Facts: api_version=v18.
+[10] Handoff for task s19-t12-update-endpoints-for-v2 from builder to planner: "S19: Updated for API v38." Artifacts: artifacts/s19/openapi-v2.yaml. Facts: api_version=v38.
+[11] Handoff for task s13-t12-update-endpoints-for-v2 from builder to planner: "S13: Updated for API v26." Artifacts: artifacts/s13/openapi-v2.yaml. Facts: api_version=v26.
+[12] Handoff for task s18-t12-update-endpoints-for-v2 from builder to planner: "S18: Updated for API v36." Artifacts: artifacts/s18/openapi-v2.yaml. Facts: api_version=v36.

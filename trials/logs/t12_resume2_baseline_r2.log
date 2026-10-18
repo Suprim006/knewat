@@ -1,0 +1,24 @@
+[baseline r2] 78/100 ctx=22462 tools=0 $0.939 total=$0.94
+[baseline r2] 79/100 ctx=24202 tools=0 $0.941 total=$0.94
+[baseline r2] 80/100 ctx=25783 tools=0 $0.942 total=$0.94
+[baseline r2] 81/100 ctx=27486 tools=0 $0.944 total=$0.94
+[baseline r2] 82/100 ctx=29950 tools=0 $0.946 total=$0.95
+[baseline r2] 83/100 ctx=33613 tools=0 $0.949 total=$0.95
+[baseline r2] 84/100 ctx=37577 tools=0 $0.953 total=$0.95
+[baseline r2] 85/100 ctx=42883 tools=0 $0.970 total=$0.97
+[baseline r2] 86/100 ctx=19786 tools=0 COMPACTED $0.982 total=$0.98
+[baseline r2] 87/100 ctx=24598 tools=0 $0.985 total=$0.98
+[baseline r2] 88/100 ctx=28839 tools=0 $0.987 total=$0.99
+[baseline r2] 89/100 ctx=31470 tools=0 $0.989 total=$0.99
+[baseline r2] 90/100 ctx=33164 tools=0 $0.990 total=$0.99
+[baseline r2] 91/100 ctx=33466 tools=0 $0.992 total=$0.99
+[baseline r2] 92/100 ctx=36618 tools=0 $0.995 total=$0.99
+[baseline r2] 93/100 ctx=40811 tools=0 $0.998 total=$1.00
+[baseline r2] 94/100 ctx=44554 tools=0 $1.002 total=$1.00
+[baseline r2] 95/100 ctx=50072 tools=0 $1.025 total=$1.02
+[baseline r2] 96/100 ctx=20779 tools=0 COMPACTED $1.037 total=$1.04
+[baseline r2] 97/100 ctx=26130 tools=0 $1.040 total=$1.04
+[baseline r2] 98/100 ctx=30445 tools=0 $1.043 total=$1.04
+[baseline r2] 99/100 ctx=33163 tools=0 $1.045 total=$1.04
+[baseline r2] 100/100 ctx=35523 tools=0 $1.048 total=$1.05
+done: 100 turns, $1.05

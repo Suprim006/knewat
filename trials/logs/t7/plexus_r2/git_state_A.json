@@ -1,0 +1,67 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/plexus_r2/tinytasks\nHEAD 5e5375852794ac62e9e4e45196600f37a09860ac\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/plexus_r2/wt_a\nHEAD 609633df69abe66eeb5f536f6a7e16a1ab7728df\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/plexus_r2/wt_b\nHEAD 5e5375852794ac62e9e4e45196600f37a09860ac\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "5e5375852794ac62e9e4e45196600f37a09860ac",
+      "log": [
+        "5e53758 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "609633df69abe66eeb5f536f6a7e16a1ab7728df",
+      "log": [
+        "609633d Add snooze command with whole-minute due_at rounding",
+        "5e53758 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "5e5375852794ac62e9e4e45196600f37a09860ac",
+      "log": [
+        "5e53758 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [],
+    "feat-b": []
+  }
+}
