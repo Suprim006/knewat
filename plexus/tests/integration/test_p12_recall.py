@@ -44,21 +44,6 @@ def _row(fid, ent, pred, val, dist):
     return {"fact_id": fid, "entity_name": ent, "predicate": pred, "value": val, "score": dist, "rank": dist}
 
 
-def test_fuse_scores_weights_rare_words_over_common_ones():
-    rows = [
-        _row(f"s{n:02d}", f"Bolt Billing API S{n:02d}", "billing_cycle", f"day {n}", 0.66)
-        for n in range(1, 21)
-    ]
-    rows.append(_row("acme7", "Acme Notes API S07", "api_version", "v14", 0.30))
-    target = rows[6]  # S07, the same distance as its 19 siblings
-    svc.fuse_scores(rows, svc._query_words("billing cycle decided in sprint S07"))
-    best = max(rows, key=lambda r: r["fused"])
-    assert best is target and target["lexical"] == pytest.approx(1.0)
-    # weight 0 = the vector order of earlier versions: the nearest (Acme) fact wins
-    svc.fuse_scores(rows, svc._query_words("billing cycle decided in sprint S07"), 0.0)
-    assert max(rows, key=lambda r: r["fused"])["fact_id"] == "acme7"
-
-
 def test_sibling_boost_only_for_the_best_seeds_and_never_from_zero_similarity():
     rows = [
         {**_row("a", "A", "p", "x", 0.2), "sib_of": ["b"]},

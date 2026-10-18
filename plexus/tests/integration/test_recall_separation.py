@@ -58,14 +58,6 @@ def eng(client, graph) -> Engram:
     return Engram(client, graph, NamingEmbedder())
 
 
-@pytest.fixture(autouse=True)
-def _no_lexical_fusion(eng) -> None:
-    """These tests pin the D-013 terms against an exact cosine relevance. P12's lexical fusion (a query-word
-    coverage score mixed into the relevance, ``fuse_scores``) is orthogonal and tested in test_p12_recall.py;
-    the one test that runs both together sets the weight back (``test_defaults_*``)."""
-    eng.lexical_weight = 0.0
-
-
 @pytest.fixture
 def scope(eng) -> str:
     return eng.create_scope("global", "global", now=1)
@@ -254,7 +246,7 @@ def test_the_named_entitys_facts_join_the_candidates_when_the_vector_fetch_misse
     assert got[0]["via"] is None and got[0]["score"] == pytest.approx(0.62, abs=1e-3)
 
 
-# -- merged with P12: the pool, scope 'all' and lexical fusion next to the D-013 terms ----------------------
+# -- merged with P12: the pool and scope 'all' next to the D-013 terms ----------------------
 
 
 def test_the_python_sibling_boost_keeps_the_fan_damping(eng, scope):
@@ -273,13 +265,6 @@ def test_the_python_sibling_boost_keeps_the_fan_damping(eng, scope):
     assert all(r["rank"] == pytest.approx(r["score"]) for r in damped), "fan 61 >= 50: no sibling boost"
     boosted = [r for r in plain if r["rank"] < r["score"]]
     assert boosted and all(r["rank"] == pytest.approx(r["score"] - svc.EXPAND_BOOST) for r in boosted)
-
-
-def test_opt_in_lexical_fusion_and_separation_together(eng, scope, twins):
-    target, twin, sib, sib8 = twins
-    eng.lexical_weight = svc.FUSION_WEIGHT  # P12's fusion (opt-in since the recall-check), on top of D-013
-    got = eng.recall(Q, scope, k=3)
-    assert ids(got)[0] == target and set(ids(got)) <= {target, twin, sib, sib8}
 
 
 def test_all_scopes_counts_the_fans_over_every_scope(eng, scope):

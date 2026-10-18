@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import json
 import logging
-import math
-import os
 import re
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -47,11 +45,6 @@ DEFAULT_BUDGET_CHARS = 6000  # P12: recall's default text budget (was 2,000: abo
 POOL_FACTOR = 3  # P12: candidates ranked before the cut to k: max(POOL_FACTOR * k, MIN_POOL) <= MAX_POOL
 MIN_POOL = 60
 MAX_POOL = 150
-# Lexical term of recall's relevance (P12 fuse_scores). The shipped default is none (recall-check, D-013
-# amendment 3); FUSION_WEIGHT is the weight P12 designed and measured it with, opt-in via
-# PLEXUS_RECALL_LEXICAL_WEIGHT=0.5.
-LEXICAL_WEIGHT = 0.0
-FUSION_WEIGHT = 0.5
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 12  # distinct query words sent to the Fact full-text index (value + search_text)
 RECALL_ENTITIES = 5  # entities the pattern-separation read resolves per recall (D-013 P1)
@@ -128,63 +121,11 @@ def _query_words(query: str) -> list[str]:
     return list(dict.fromkeys(keep))[:MAX_KEYWORDS]
 
 
-def _lexical_weight() -> float:
-    """``PLEXUS_RECALL_LEXICAL_WEIGHT`` (0..1, default ``LEXICAL_WEIGHT`` = 0: the vector-only relevance of
-    main); ``FUSION_WEIGHT`` (0.5) is P12's fusion, opt-in since the recall-check."""
-    raw = os.environ.get("PLEXUS_RECALL_LEXICAL_WEIGHT", "").strip()
-    if not raw:
-        return LEXICAL_WEIGHT
-    w = float(raw)
-    if not 0.0 <= w <= 1.0:
-        raise ValueError(f"PLEXUS_RECALL_LEXICAL_WEIGHT must be within 0..1, got {raw}")
-    return w
-
-
 def search_text(entity_name: str, predicate: str) -> str:
     """``Fact.search_text``: the entity name and the predicate split into words (``billing_cycle`` ->
     ``billing cycle``), indexed by the Fact full-text index next to ``Fact.value`` (the full-text tokenizer
     keeps ``billing_cycle`` as one token, so the words are written out)."""
     return " ".join([entity_name, *re.split(r"[\W_]+", predicate)]).strip()
-
-
-def fuse_scores(rows: list[dict[str, Any]], words: list[str], weight: float = FUSION_WEIGHT) -> None:
-    """Hybrid relevance of every candidate, written into each row as ``fused`` in [0, 1] (P12).
-
-    ``fused = (1 - weight) * vector + weight * lexical`` (``weight`` = ``Engram.lexical_weight``, from
-    ``PLEXUS_RECALL_LEXICAL_WEIGHT``: 0 by default = the vector order of earlier versions; ``FUSION_WEIGHT``
-    0.5 = P12's fusion, opt-in since the recall-check, and this function's own default):
-
-    * ``vector = 1 - rank`` (``rank`` = cosine distance after the sibling boost; the only relevance before
-      P12), clamped to [0, 1];
-    * ``lexical`` = the share of the query's word weight the fact's text (entity name, predicate words, value)
-      contains, each query word weighted by its rarity in the candidate pool, ``ln(1 + N / df)`` (``N`` rows,
-      ``df`` = rows containing the word; words no candidate contains are left out). A fact that names every
-      discriminating query word scores 1; ``S07`` or ``Bolt`` count for far more than ``API``, which every
-      candidate contains.
-
-    Before P12 keyword hits were only unioned into the candidates and then ranked by cosine distance alone. A
-    score fusion is used rather than reciprocal rank fusion: on the L8 store (``crucible/l8/recall_bench``) an
-    RRF variant still ranked ``Bolt Billing API S07 billing_cycle`` 7th-12th for "billing cycle decided in
-    sprint S07" among twenty near-identical sprint facts, because the activation multiplier (0.9..1) outweighs
-    RRF's flat rank curve and the keyword ranks of near-identical facts are mostly ties; this fusion ranks it
-    first.
-    """
-    texts = [
-        set(_tokens(f"{r.get('entity_name', '')} {r.get('predicate', '')} {r.get('value', '')}"))
-        for r in rows
-    ]
-    n = len(rows)
-    weights = {}
-    for w in words:
-        df = sum(1 for tx in texts if w in tx)
-        if df:
-            weights[w] = math.log(1.0 + n / df)
-    total = sum(weights.values())
-    for r, tx in zip(rows, texts, strict=True):
-        vec = min(1.0, max(0.0, 1.0 - float(r["rank"])))
-        lex = sum(v for w, v in weights.items() if w in tx) / total if total else 0.0
-        r["lexical"] = lex
-        r["fused"] = (1.0 - weight) * vec + weight * lex
 
 
 def _sibling_boost(rows: list[dict[str, Any]], seeds: int) -> None:
@@ -239,7 +180,6 @@ class Engram:
         self.entity_threshold = entity_threshold
         self.dup_threshold = dup_threshold
         self.dedup = dedup or DedupSettings.from_env()
-        self.lexical_weight = _lexical_weight()
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
         """Embed ``texts`` and refuse a vector that is not 384 floats (FalkorDB would store it silently)."""
@@ -724,16 +664,13 @@ class Engram:
         default scope ``all``, P12) searches every scope of the tenant graph, ``scope_id`` is then ignored
         (the entity / predicate fans of pattern separation are counted over every scope as well).
 
-        **Candidates (P12).** Two channels: the vector index (cosine distance of the fact text to the query,
-        with the 1-hop sibling expansion) and the full-text index over ``Fact.value`` and ``Fact.search_text``
-        (the entity name and predicate words). A pool of ``max(POOL_FACTOR * k, MIN_POOL)`` (<=
-        ``MAX_POOL``) candidates is fetched from each; every in-scope keyword hit survives into the pool, and
-        the two rankings are fused (:func:`fuse_scores`: cosine relevance and an IDF-weighted query-word
-        coverage) into ``relevance`` when ``PLEXUS_RECALL_LEXICAL_WEIGHT`` > 0; the default 0 keeps the cosine
-        relevance (the fusion cost noise share and a critical probe on L5b and gained nothing on L6-C / L8,
-        BASELINE "Recall-check"). Before P12 the pool was ``2*k`` and keyword hits competed on cosine
-        distance only. The sibling boost is re-applied in Python to the siblings of the ``2*k`` (``k`` without
-        re-ranking) nearest seeds (:func:`_sibling_boost`), scaled by the entity-fan damping below.
+        **Candidates.** Two channels: the vector index (cosine distance of the fact text to the query, with
+        the 1-hop sibling expansion) and the full-text index over ``Fact.value`` and ``Fact.search_text``
+        (the entity name and predicate words). A pool of ``max(POOL_FACTOR * k, MIN_POOL)`` (<= ``MAX_POOL``)
+        candidates is fetched from the vector side and every in-scope keyword hit joins it; relevance is the
+        cosine score (``1 - rank``). The sibling boost is re-applied in Python to the siblings of the ``2*k``
+        (``k`` without re-ranking) nearest seeds (:func:`_sibling_boost`), scaled by the entity-fan damping
+        below.
 
         **Pattern separation (D-013 P1, CROSS_CHECK §3.2-3.3).** With ``separation`` on (``True``, or ``None``
         and ``PLEXUS_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
@@ -752,9 +689,9 @@ class Engram:
 
         **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
         not ``off``) and no ``as_of``, the pool is re-ranked by ``relevance x (floor + (1 - floor) x sigmoid(A
-        - A0))`` (``plexus.activation.rank``; ``relevance`` is the fused score), then cut to ``k``; the rows
+        - A0))`` (``plexus.activation.rank``), then cut to ``k``; the rows
         gain ``activation`` and ``protected``. With forgetting and separation both off, or with ``as_of``,
-        the order is the fused relevance and those two fields are ``None``. Rows always carry ``surprise``,
+        the order is the relevance and those two fields are ``None``. Rows always carry ``surprise``,
         ``verify_state`` (``suspect`` when marked so or when the review date has passed), ``suspect_since``
         and ``suspect_reason``. ``include_dormant`` adds facts a sweep moved to ``dormant``; ``as_of``
         always includes them (forgetting never changes history).
@@ -828,7 +765,6 @@ class Engram:
             have = {r["fact_id"] for r in rows}
             added = [r for r in named_rows if r["fact_id"] not in have]
             rows, meta["entity_facts_added"] = rows + added, len(added)
-        fuse_scores(rows, _query_words(query), self.lexical_weight)
         if sp:
             meta["predicates"] = self._resolve_predicates(query, rows, scope_id, t, statuses, all_scopes)
         acts: dict[str, Any] = {}
@@ -851,7 +787,7 @@ class Engram:
             top = [x.row for x in best]
             ranked = {x.row["fact_id"]: x for x in best}
         else:
-            top = sorted(rows, key=lambda r: (-r["fused"], r["rank"], r["fact_id"]))[:k]
+            top = sorted(rows, key=lambda r: (r["rank"], r["fact_id"]))[:k]
         more = len(rows) > len(top)
         hmeta: dict[str, Any] = {}
         if hops:

@@ -437,7 +437,7 @@ metrics that were reported but not criteria, OFF is also ahead (L6-C `P-product`
 level (the two clean L8 runs found the same facts in every replay call). The fusion's clear gains are on flat retrieval: the hub world's no-scoring arms (100 % instead
 of 96.5 %) and L5b `off` recall@1 (85.0 % instead of 79.3 %); D-013's cues already give the same in the arms that ship (`sep` 100 % / 85.7 % in both settings). **Decision: `PLEXUS_RECALL_LEXICAL_WEIGHT` defaults to 0** (main's
 relevance, `1 - rank`); `FUSION_WEIGHT = 0.5` is what the fusion was designed with and is available as an opt-in (`PLEXUS_RECALL_LEXICAL_WEIGHT=0.5`).
-The fusion code, its tests and its env switch stay. Honest limits of the decision: it is a count of two failures against three, one of them the replay
+The fusion code, its tests and its env switch stayed in the tree then. Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup` (`fuse_scores`, `PLEXUS_RECALL_LEXICAL_WEIGHT`, harness `PLEXUS_L5_LEXICAL_WEIGHT`). Honest limits of the decision: it is a count of two failures against three, one of them the replay
 number, which moves by +-1 between plays of identical code (27, 28 and 29 were all measured: new ids decide the near-ties of the twenty
 `billing_cycle` facts); without that criterion the counts are 1 and 2 and the decision is the same. The L5b / hub harness keeps its pin
 (`PLEXUS_L5_LEXICAL_WEIGHT`, default 0): it now equals the product default, and the variable stays for the ON/OFF comparison.

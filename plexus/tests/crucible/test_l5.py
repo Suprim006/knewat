@@ -174,17 +174,3 @@ def test_run_all_writes_results_and_report(tmp_path, l5_client):
     text = (out / "report.md").read_text(encoding="utf-8")
     assert "## L5a: staleness" in text and "## L5b: forgetting" in text and "PASS" in text
     assert DB_HOST and DB_PORT
-
-
-def test_harness_lexical_weight_is_pinned_off_unless_the_recall_check_asks(monkeypatch):
-    """The L5b / hub harness runs with P12's lexical fusion off (the SQL arm mirrors the cosine relevance);
-    ``PLEXUS_L5_LEXICAL_WEIGHT`` is the recall-check's switch and is validated like the product's."""
-    from plexus.crucible.l5.forgetting import harness_lexical_weight
-
-    monkeypatch.delenv("PLEXUS_L5_LEXICAL_WEIGHT", raising=False)
-    assert harness_lexical_weight() == 0.0
-    monkeypatch.setenv("PLEXUS_L5_LEXICAL_WEIGHT", "0.5")
-    assert harness_lexical_weight() == 0.5
-    monkeypatch.setenv("PLEXUS_L5_LEXICAL_WEIGHT", "1.5")
-    with pytest.raises(ValueError):
-        harness_lexical_weight()
