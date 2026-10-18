@@ -145,8 +145,8 @@ changed nothing in session 3. That's an honest no-op, not a wrong retraction.
   dropped in session 2.
 - **Plexus's provenance graph was incomplete.** `assert_fact` takes a single `source_id`. Agents
   linked C1 only to the memo and wrote "also product P2" into the fact's text. Session 3 got C1 right
-  by reading that text, not by tracing source links, and no agent called `quarantine_source` or
-  `why`. A `quarantine_source(memo)` would have hidden C1 wrongly. A fact can't name two
+  by reading that text, not by tracing source links. No agent called `quarantine_source`; two runs
+  called `why` (twice each in session 3), but `why` could only show the memo as C1's source. A `quarantine_source(memo)` would have hidden C1 wrongly. A fact can't name two
   sources; that's a product fix.
 - **Contradiction (session 2):** all CLAUDE.md and Plexus runs flagged the conflict with the
   redaction rule, and baseline flagged it in 3/4 runs. What they did next differed: CLAUDE.md

@@ -267,7 +267,7 @@ logic changed.
 - P18 **half confirmed.** plexus and claudemd tie on the final rule states (C1 and P1 kept 8/8, C3
   removed 4/4 each; C2 is trivial in claudemd because session 2 removed it). The baseline-C1 prediction is refuted: no baseline run removed C1, because all 4 refused to
   act without knowing the sources (0 changes). Plexus attribution was textual: the provenance graph
-  linked C1 to the memo only (single `source_id` per fact), and no session used `quarantine_source`/`why`.
+  linked C1 to the memo only (single `source_id` per fact), and no session used `quarantine_source` (2 runs called `why` in session 3, which showed only the memo; corrected 2026-10-18).
 - P19 **confirmed on flags; the mechanism was untested.** Flagged: claudemd 4/4, plexus 4/4 (baseline
   3/4). `contradicts` fired 0/22, but not for the predicted reason: session 2 asserted nothing, and
   session 3 overrode with `supersede=true` (explicit, so by design not a contradiction).
