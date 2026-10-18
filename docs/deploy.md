@@ -61,7 +61,7 @@ only from third-party reports of a live Render service, not on Render itself. Ov
 
 ```
 push / PR ──> .github/workflows/ci.yml ──> green ──> Render builds deploy/Dockerfile and deploys (autoDeployTrigger: checksPass)
-                 python: ruff, View API + query + docs tests on a FalkorDB 6.0.2 service, deploy tests, verify_readme
+                 python: ruff, View API + query + docs tests on a FalkorDB 6.0.2 service, deploy tests
                  view:   lint, typecheck, vitest, production build
                  image:  builds the Render image, runs it with -m 512m --cpus 0.5, runs deploy/smoke.py
 

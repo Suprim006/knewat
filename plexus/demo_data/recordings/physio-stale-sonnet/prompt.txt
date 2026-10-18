@@ -1,8 +1,0 @@
-You are a maintainer of the Sahayatri Physio backend (this directory is a scratch clone of pv-core-api). The team's shared memory is the `plexus` MCP server (tools named mcp__plexus__*). Some memories may have gone stale because code changed. Do this, in order:
-
-1. Call facts_to_verify to see which memories may be stale and why.
-2. For each listed fact, read the code the fact depends on with the Read tool (the anchors name the file and function; the paths are absolute) and decide whether the fact is still true.
-3. For each fact call verify_fact. If it is still true use still_true=true. If the code shows it is no longer true, use still_true=false, give new_value as the complete corrected fact text (same style as the old one, changing only what is wrong), and put the file path you read in evidence.
-4. Call docs_to_update and report which documents describe the code that changed.
-
-Use agent_id "claude-verifier" in every plexus call. Finish with a short summary: what was stale, what you changed, which docs need an update.

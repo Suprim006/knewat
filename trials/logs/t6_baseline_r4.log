@@ -1,4 +1,0 @@
-[baseline r4] session_1 (cwd tinytasks): rc=0 29.7s $0.054 turns=5 denials=0 (total $0.05)
-[baseline r4] session_2 (cwd tasksync): rc=0 31.5s $0.050 turns=5 denials=0 (total $0.10)
-[baseline r4] session_3 (cwd tasksync): rc=0 57.0s $0.076 turns=10 denials=0 (total $0.18)
-[baseline r4] session_4 (cwd tasksync): rc=0 41.5s $0.053 turns=5 denials=0 (total $0.23)

@@ -1639,3 +1639,38 @@ DB slots. They were not run here; their rows stay STALE in NUMBERS_STATUS until 
 * **L1 + L4 took 58 minutes in the container, not 24**; the machine / Docker state is slower for the Plexus client path (claim p50 at 1 worker 4.9 vs 1.8 ms) while server times are unchanged. Absolute L4 values do not transfer between plays; the ordering conclusions do.
 * One `lineage: after-hook failed ... UnknownStep` degrade-path trace appeared several times in the L4 P-mcp recall at 200 workers (the audit hook could not find ids it had just written; the harness continued). Not investigated.
 * `verify_readme.py` pinned the old tenant-sweep, L4 median, C7 and C4 numbers; it now derives them from `latest-all.json` (README updated together). `docs/BLOG_DRAFT.md` still quotes 678 → 1,174 and is flagged, not edited.
+
+## Re-verification on main (2026-10-18): L7 families G, H, I, J and the L8 recall bench
+
+Run on branches `rerun-l7g`, `rerun-l7h`, `rerun-l7i`, `rerun-l7j` (each cut from `rerun-current` `9c31b48`, harness-only commits
+`b9f01b8`, `f1eccf8`), each on its own DB slot, merged into main at `c9f44f5`. 0 LLM calls. **The four families ran at the same
+time on one machine**, so every timing below was measured concurrently and is not comparable to the quiet-machine values;
+correctness counts and verdicts don't depend on timing and are compared exactly. Run directories: `plexus/demo_data/crucible/l7/20261018T*`
+(`latest-{g,h,i,j}.json` point to them), `plexus/demo_data/crucible/l8_rerun/recall_bench-rerun-current.json`.
+
+| Family | Correctness and verdicts | Moved or not re-verifiable |
+|---|---|---|
+| G multi-tenant (N <= 200; N = 2,000 not attempted, as registered) | reproduced: 0 leaks at every N, ACL / authorizer probes identical (50/50 leak without, 0/50 with), footprint within 2% (S-file and S-shared exact), 0 wrong answers | "FalkorDB latency flat in N" not re-verifiable: `PING` p50 was 4.5-12.7 ms (about 0.3 ms quiet), and load moved q1 more than N did (post-hoc control in the run dir) |
+| H expressiveness / traversal | reproduced: every correct / wrong count, the `shortestpath` 8/12 traps, line counts 5/7/13/6/4/7 vs 12/20/20/14/8/8 | three cells at the 10 s timeout flipped to timeouts under load (H4 SQL large: correct in 27-35 s without a budget); SQL faster in 9 of 10 answered cells (was 9 of 11) |
+| I crash consistency | reproduced: I1 partial counts per arm, I2 103 of 400 stale close-outs and 824 / 1,339 leftover items, I4 lost updates and write skew, I5 lines and round trips, AOF replay crash 10 of 11 | **I3 "0 lost acknowledged writes in server kills": falsified, see below** |
+| J session populations | reproduced: S-file fastest in all 24 cells; `Max pending queries exceeded` only in the 1,000-session team layout (85-88% of calls, was 89-90%); J2 and J3 directions | J-real ran 1 of the 3 registered reps; one load-induced anomaly (F-mcp, 1,000 sessions, one tenant: 910 threads still waiting at the 30 s grace) |
+| L8 recall bench | reproduced: needed facts 5/5, 5/5, 1/1; canonical 1000/1000; replay 29/36 (inside the known 27-29 band); mean response chars 5,338 / 5,766 | - |
+
+**I3 on a quiet machine (post-hoc, after the concurrent run).** The concurrent run lost acknowledged close-outs in 3 of 6 arm-plays
+(F-multi 4 of 829 and 51 of 1,191; F-1stmt 22 of 2,263). To separate load from the product, I3 was re-run alone on main `50a6aab`,
+slot 96 (`--appendonly yes`, the compose default `appendfsync everysec`), 3 plays x 20 `docker kill -s KILL` per arm:
+
+| Play | F-1stmt lost / acknowledged | F-multi lost / acknowledged | F-multi partial |
+|---|---|---|---|
+| 1 | 0 / 2,458 | 3 / 1,708 | 58 |
+| 2 | 3 / 2,362 | 0 / 1,813 | 59 |
+| 3 | 0 / 2,437 | 0 / 1,728 | 56 |
+
+So a hard server kill **can** lose a few just-acknowledged writes on a quiet machine too: 6 of 12,506 acknowledged writes in 120
+kills (about 1 in 2,000), in both arms; load made it more frequent. The pre-registered I3 prediction ("Redis appends to the AOF before
+replying, and the page cache survives a process kill") is falsified; the published "0 lost" came from one play per arm. The one-statement
+atomicity result holds in every play (F-1stmt 0 partial, F-multi > 0). The mechanism is not established. FalkorDB runs writes on worker
+threads, and a reply sent before the main thread appends the AOF would explain it; this is a hypothesis, untested (a run with
+`appendfsync always` would separate it from fsync timing). For Plexus: a server crash can drop the last few acknowledged memory writes;
+an agent's next `recall` would not see them. Process kills of the writer (L6-F) are a different test and stay at 0 lost.
+Results: `plexus/demo_data/crucible/l7/20261018-i3-quiet/play{1,2,3}-results.json` and the run logs.

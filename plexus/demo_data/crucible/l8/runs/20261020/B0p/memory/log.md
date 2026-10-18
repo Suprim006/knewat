@@ -1,6 +1,0 @@
-# Log (Acme Notes API S21)
-
-- t03-design-endpoints (builder): building against API v1 (facts: style_guide.api_version = v1, api.base_path = AX-18174). Will draft list/create/read/update/delete notes endpoints under the base path AX-18174.
-- t06-write-db-schema (researcher, finishing builder's interrupted task; no earlier artifact existed): database is PostgreSQL 16 (fact infra.database). Will create tables notes (id, title, body, timestamps), tags (id, unique name) and note_tags (note_id, tag_id join table, composite PK, cascading FKs), in schema db.schema_name = AX-76631, with db.engine = AX-14196, db.pool_size = AX-52276.
-- ingest-v2 (researcher): style_guide.api_version changed v1 -> v2 per acme-docs/06_api_style_guide_v2.md (replaces v1 from 02_api_style_guide_v1.md); routes now under /v2/, so t03's v1 assumption is outdated.
-- t12-update-endpoints-for-v2 (builder): building against API v2 (fact style_guide.api_version = v2). Changes to the endpoint design: (1) all routes move under /v2/; (2) v1 style guide reference replaced by the v2 guide; (3) api.cors_origin stated explicitly, current repo/api.py value AX-10863 (facts.md says AX-20729, code changed); (4) api.base_path AX-18174, page size, body limit and error format unchanged.

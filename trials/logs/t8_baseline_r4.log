@@ -1,3 +1,0 @@
-[baseline r4] session_1: rc=0 44.7s $0.073 turns=6 denials=0 (total $0.07)
-[baseline r4] session_2: rc=0 29.8s $0.035 turns=5 denials=0 (total $0.11)
-[baseline r4] session_3: rc=0 34.1s $0.049 turns=4 denials=0 (total $0.16)

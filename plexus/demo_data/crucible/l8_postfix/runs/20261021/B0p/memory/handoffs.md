@@ -1,6 +1,0 @@
-# Handoffs (Acme Notes API S21)
-
-- builder -> planner (t03-design-endpoints): artifact artifacts/t03-design-endpoints/openapi-draft.md, built against API v1. Facts relied on: product.api_version = v1, api.base_path = AX-63003, api.page_size = AX-51173, api.max_body = AX-93646 (all re-checked against repo/api.py).
-- builder -> planner (t12-update-endpoints-for-v2): artifact artifacts/t12-update-endpoints-for-v2/openapi-v2.md, built against API v2. Facts relied on: product.api_version = v2, api.base_path = AX-63003, api.cors_origin = AX-94293 (settings re-read from repo/api.py).
-- builder -> planner (t11-package-release): artifact artifacts/t11-package-release/release.md, built against API v2. Facts relied on: product.api_version = v2, release.channel = AX-38240, release.version_tag = AX-84412, release.rollout_pct = AX-61963, release.freeze_day = AX-94005, release.changelog_path = AX-22467 (all read from repo/release.py).
-- builder -> planner (t07-implement-crud-spec): artifact artifacts/t07-implement-crud-spec/crud-spec.md, built against API v1 and JWT RS256 bearer auth (t05). Facts relied on: product.api_version = v1, api.base_path = AX-63003, auth.token_ttl = AX-65554, auth.session_cookie = AX-86065, notes.max_length = AX-92475 (all re-read from repo/ code).

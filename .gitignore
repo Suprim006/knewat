@@ -34,3 +34,29 @@ mcp.local.json
 # scratch probes
 plexus/probe_*.db
 .worktrees/
+
+# Kept on the owner's disk, not published (raw run output, working notes, plans, drafts). The submission keeps the
+# docs the README and the required docs cite as evidence.
+CLAUDE.md
+.agent-task-*.md
+*.log
+trials/logs/
+trials/t678/
+trials/BLOG_SECTION.md
+trials/DEMO_BEAT.md
+plexus/demo_data/crucible/l8*/runs/
+plexus/demo_data/recordings/physio-stale-sonnet/
+docs/*
+!docs/AI_USAGE.md
+!docs/DECISIONS.md
+!docs/graph-model.md
+!docs/queries.md
+!docs/deploy.md
+!docs/mcp.md
+!docs/BASELINE.md
+!docs/forgetting.md
+!docs/staleness.md
+!docs/NUMBERS_STATUS.md
+!docs/TESTING.md
+!docs/demo.md
+!docs/view-api.schema.json

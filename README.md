@@ -11,8 +11,8 @@ with a graph query, not a guess.
 | | |
 |---|---|
 | Live demo | `<RENDER_URL>` (one container on Render Free: the View, the read-only API and a read-only Cypher console; no MCP endpoint, see [Live demo](#live-demo)) |
-| Demo video (≤ 3 min) | `<VIDEO_URL>` (script: [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md)) |
-| Blog post | [`docs/BLOG_DRAFT.md`](docs/BLOG_DRAFT.md) |
+| Demo video (≤ 3 min) | `<VIDEO_URL>` |
+| Blog post | `<BLOG_URL>` |
 | Run it yourself | `docker compose up -d --wait --build`, see [Setup](#setup) (Docker is the only requirement) |
 
 Plexus itself contains **no LLM and no LLM credentials**. The agents in the demo are the unmodified `claude` binary; every
@@ -107,7 +107,7 @@ lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days
 
 > *(stale: the floor 0.5 runs were measured on `75bd122`, the floor 0.9 confirmatory run on `92c9bd7`. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
 
-**D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey ([`docs/research/`](docs/research/))
+**D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey (working notes, not in this repo)
 traced the recall@1 loss to the combination rule, not the decay curve. `recall` now resolves the entities the query names (one
 bounded full-text read) and lifts their facts by an ACT-R context term over two cues, the entity and the predicate the query
 names (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
@@ -472,7 +472,7 @@ cd ../plexus-view && npm ci && npm run dev         # View on http://localhost:51
 cd ../plexus && uv run plexus mcp-config --tenant demo   # an MCP config for Claude Code for this checkout (docs/mcp.md)
 ```
 
-Quick dev loop (see `docs/PLAN.md` and `CLAUDE.md`; the full gate and the owner's manual checklist are in `docs/TESTING.md`):
+Quick dev loop (the full gate and the owner's manual checklist are in `docs/TESTING.md`):
 
 ```bash
 bash scripts/agent_db.sh 10                                   # FalkorDB 6.0.2 on 127.0.0.1:6310
@@ -492,7 +492,7 @@ plexus/                  the product (Python 3.12, uv)
   tests/                 pytest against throw-away graphs
 plexus-view/             the demonstrator (React + TypeScript + Cytoscape); read-only
 deploy/, render.yaml     the one-container public deployment
-docs/                    graph-model, queries, PLAN, DECISIONS, BASELINE, demo, mcp, deploy, TESTING, AI_USAGE, VIDEO_SCRIPT, BLOG_DRAFT
+docs/                    graph-model, queries, DECISIONS, BASELINE, demo, mcp, deploy, TESTING, AI_USAGE, NUMBERS_STATUS, forgetting, staleness
 scripts/                 agent_db.sh (throw-away FalkorDB), verify_readme.py (link and number checker)
 docker-compose.yml       FalkorDB 6.0.2, plexus-api, plexus-mcp, plexus-view, plexus-cli, crucible (bench profile)
 ```
@@ -515,7 +515,9 @@ link in this README, the video script and the blog draft resolves and that the q
 - [`docs/BASELINE.md`](docs/BASELINE.md): benchmark plan, results, pre-registration of L2-scale
 - [`docs/demo.md`](docs/demo.md), [`docs/mcp.md`](docs/mcp.md), [`docs/deploy.md`](docs/deploy.md): the demo scenario and ablation, the MCP server, the public deployment
 - [`docs/DECISIONS.md`](docs/DECISIONS.md): every design decision with its reasoning
-- [`docs/TESTING.md`](docs/TESTING.md), [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md), [`docs/BLOG_DRAFT.md`](docs/BLOG_DRAFT.md)
+- [`docs/TESTING.md`](docs/TESTING.md), [`docs/NUMBERS_STATUS.md`](docs/NUMBERS_STATUS.md), [`docs/forgetting.md`](docs/forgetting.md), [`docs/staleness.md`](docs/staleness.md)
+
+Plans, research notes, the video script and blog drafts that these documents cite by path are working files and are not in the repository.
 
 ## AI disclosure
 

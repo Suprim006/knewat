@@ -1,3 +1,0 @@
-[plexus smoke2] session_1: rc=0 49.5s $0.125 turns=17 denials=0 (total $0.12)
-[plexus smoke2] session_2: rc=0 33.1s $0.056 turns=8 denials=0 (total $0.18)
-[plexus smoke2] session_3: rc=0 40.2s $0.089 turns=11 denials=0 (total $0.27)

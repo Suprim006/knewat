@@ -1,4 +1,0 @@
-[claudemd r1] A (planner-builder, sonnet): rc=0 35.4s $0.053 denials=0 (total $0.05)
-[claudemd r1] B1 (builder-2, haiku): rc=0 182.2s $0.011 denials=0 (total $0.06)
-[claudemd r1] ci-bot -> CI_NOTES.md (main checkout, uncommitted)
-[claudemd r1] B2 (builder-2, haiku): rc=0 67.6s $0.008 denials=0 (total $0.07)

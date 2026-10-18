@@ -1,4 +1,0 @@
-[plexus smoke1] A (planner-builder, sonnet): rc=0 41.7s $0.134 denials=0 (total $0.13)
-[plexus smoke1] B1 (builder-2, haiku): rc=0 66.3s $0.015 denials=0 (total $0.15)
-[plexus smoke1] ci-bot -> plexus
-[plexus smoke1] B2 (builder-2, haiku): rc=0 36.7s $0.006 denials=0 (total $0.16)
