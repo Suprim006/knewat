@@ -63,3 +63,5 @@ docs/*
 
 # Published blog figures (the post and README embed them from the repo)
 !docs/blog/
+!docs/RESULTS.md
+!docs/ARCHITECTURE.md

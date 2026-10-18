@@ -7,7 +7,7 @@
 Checked documents: README.md, docs/VIDEO_SCRIPT.md, docs/BLOG_DRAFT.md. Standard library only; no network, no database.
 
 1. Links: every relative markdown link and every backticked repo path resolves to a file or directory; `#anchors` match a heading.
-2. Placeholders: README keeps `<RENDER_URL>` and `<VIDEO_URL>` (the owner fills them in).
+2. Placeholders: README keeps `<VIDEO_URL>` and `<BLOG_URL>` until the owner fills them in (the Render URL is already filled).
 3. Mermaid: each block starts with a known diagram type (and is parsed by mermaid when PLEXUS_MERMAID_DIR is set).
 4. Numbers: every figure quoted from a source must appear in that source file (and, where the source is the results JSON, equal
    the JSON's value) and in the document that quotes it.
@@ -26,7 +26,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-DOCS = ["README.md", "docs/VIDEO_SCRIPT.md", "docs/BLOG_DRAFT.md"]
+DOCS = ["README.md", "docs/RESULTS.md", "docs/ARCHITECTURE.md", "docs/VIDEO_SCRIPT.md", "docs/BLOG_DRAFT.md"]
 RESULTS = ROOT / "plexus/src/plexus/crucible/results/latest-all.json"
 RECORDING = ROOT / "plexus/demo_data/recordings/acme-claude-sonnet"
 
@@ -89,7 +89,11 @@ def check_links(doc: str) -> None:
         if path:
             check((base / path).exists(), f"{doc}: link target missing: {target}")
         if frag:
-            check(slug(frag) in headings or frag in headings, f"{doc}: anchor not found: #{frag}")
+            target_headings = headings
+            if path and (base / path).is_file() and path.endswith(".md"):
+                other = strip_fences((base / path).read_text(encoding="utf-8"))
+                target_headings = {slug(m.group(1)) for m in re.finditer(r"^#{1,6}\s+(.*)$", other, flags=re.M)}
+            check(slug(frag) in target_headings or frag in target_headings, f"{doc}: anchor not found: {target}")
     # backticked repo paths (inline code only, in prose)
     for m in re.finditer(r"`([^`\n]+)`", prose):
         tok = m.group(1).strip()
@@ -145,7 +149,8 @@ def check_mermaid() -> None:
 def numbers() -> None:
     res = json.loads(RESULTS.read_text(encoding="utf-8"))
     L = res["layers"]
-    readme = read("README.md")
+    # the benchmark and trial numbers live in docs/RESULTS.md and docs/ARCHITECTURE.md (moved out of the README, which is a setup guide)
+    readme = "\n".join(read(d) for d in ("README.md", "docs/RESULTS.md", "docs/ARCHITECTURE.md"))
     blog = read("docs/BLOG_DRAFT.md")
 
     # (a) values computed from latest-all.json must match what the README prints
@@ -371,7 +376,7 @@ def main() -> int:
         check((ROOT / doc).exists(), f"missing document {doc}")
         check_links(doc)
     readme = read("README.md")
-    check("<RENDER_URL>" in readme and "<VIDEO_URL>" in readme, "README lost the <RENDER_URL> / <VIDEO_URL> placeholders")
+    check("<VIDEO_URL>" in readme and "<BLOG_URL>" in readme, "README lost the <VIDEO_URL> / <BLOG_URL> placeholders (fill them with the published links, then drop this check)")
     check_mermaid()
     numbers()
     queries()
