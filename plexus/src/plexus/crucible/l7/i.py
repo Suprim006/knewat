@@ -315,7 +315,9 @@ def run_i3_arm(
     arm_name: str, kills: int, host: str, port: int, root: str, seed: int, writers: int = 4
 ) -> dict[str, Any]:
     container = common.container_for_port(port)
-    assert container == f"plexus-db-{port % 100}" and 6310 <= port <= 6399, "I3 may only kill the slot's own plexus-db-NN"
+    assert container == f"plexus-db-{port % 100}" and 6310 <= port <= 6399, (
+        "I3 may only kill the slot's own plexus-db-NN"
+    )
     run = uuid.uuid4().hex[:6]
     arm = new_world(arm_name, host, port, root, run)
     rng = random.Random(seed)
