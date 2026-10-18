@@ -91,7 +91,7 @@ def canonical(spec: str) -> str:
 
 
 def tool_names(spec: str) -> frozenset[str]:
-    """Every tool name in the toolset (a gated tool may still be absent from a server that lacks its backend)."""
+    """Every tool name in the toolset."""
     return frozenset().union(*(MODULES[m] for m in modules_of(spec)))
 
 

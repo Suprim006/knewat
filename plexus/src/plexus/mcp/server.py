@@ -150,7 +150,7 @@ class PlexusServer(MCPServer):
 
 
 def build_server(rt: Runtime, toolset: str | None = None) -> PlexusServer:
-    """An MCPServer with every available tool registered (Lineage tools only if ``plexus.lineage`` exists).
+    """An MCPServer with every tool registered.
 
     ``toolset`` (default: env ``PLEXUS_TOOLSET``, else ``full``) is the process default of the published tool
     list; every tool is still registered, a session sees only its toolset's."""

@@ -24,10 +24,9 @@ WROTE_LABELS = frozenset(
     {"Decision", "Handoff", "Task"}
 )  # nodes a Step can WROTE besides Facts (see link_step)
 HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
-# Tools whose write statement creates (Step)-[:WROTE]->(node) itself (P9-int, L6-F; the five task tools: P12 fix 2):
-# the Runtime opens their Step BEFORE the tool runs and hands it over as ``MeteredClient.step_id``. A crash can then
-# no longer leave the new fact / decision / handoff / task change without its WROTE edge. Every other tool is
-# still linked after its write.
+# Tools whose write statement creates (Step)-[:WROTE]->(node) itself: the Runtime opens their Step BEFORE the tool
+# runs (``MeteredClient.step_id``), so a crash cannot leave the write without its WROTE edge. Every other tool is
+# linked after its write.
 FOLDS_WROTE = frozenset(
     {
         "assert_fact",

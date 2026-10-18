@@ -272,8 +272,7 @@ def recall(
     return Outcome(out, after=record)
 
 
-# A compact recall hit leaves out a field whose value is the default below (P12 token fix: in L8 the full hit
-# was ~750 chars, 42% of it the provenance path, and no agent ever used a path id; ``detail='full'`` has it all).
+# A compact recall hit leaves out a field whose value is the default below (token cost; ``detail='full'`` has it all).
 _COMPACT_DEFAULTS: dict[str, Any] = {
     "status": "active",
     "valid_to": OPEN,
@@ -286,8 +285,7 @@ _COMPACT_DEFAULTS: dict[str, Any] = {
 }
 _COMPACT_ALWAYS = ("fact_id", "entity", "predicate", "value", "valid_from", "score")
 # D-013 ranking inputs (entity_match, predicate_match, sep, salience, lures) are in 'full' and in why_recalled only:
-# `lures` lists fact ids, and on a store of near-identical sprint facts it carries up to ~20 ids per hit (measured
-# in the trials-int recall bench: it tripled the response size, 5.3k -> 18k chars).
+# `lures` can carry ~20 fact ids per hit and tripled the response size in the recall bench.
 _COMPACT_FULL_ONLY = frozenset(
     {"text", "path", "surprise", "activation", "entity_match", "predicate_match", "sep", "salience", "lures"}
 )

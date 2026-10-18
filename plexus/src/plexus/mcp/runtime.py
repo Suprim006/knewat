@@ -235,9 +235,9 @@ class Runtime:
             # there to be explained) and say so loudly. On an 'off' tenant the write was refused instead.
             log.error("tool %s is declared 'read' but wrote (%s); auditing it in full", tool, m.writes)
             mode = "full"
-        # The Step is opened only after the tool succeeded (a rejected call leaves no Step; the three tools that
-        # fold WROTE into their write open it first and remove it again on failure), but stamped with the time the call started: "what the agent knew at this step" is then the
-        # state it acted on, not the state after its own write.
+        # The Step is opened only after the tool succeeded (a rejected call leaves no Step; FOLDS_WROTE tools open
+        # it first and remove it on failure), stamped with the time the call started: "what the agent knew at this
+        # step" is then the state it acted on, not the state after its own write.
         if mode == "full":
             step_id = m.step_id or self._open_step(ts, agent_id, step, started, degraded)
             extra = self._attach(ts, step_id, out, degraded)
