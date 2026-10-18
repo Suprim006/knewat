@@ -287,7 +287,7 @@ the missing relationships, not by a broken copy.
 | P8 | Structure and readability pass with zero behaviour change: four disjoint-scope agents (MCP layer, services/API/CLI, Crucible/demo, viewer) | MCP snapshot and API schema byte-identical; HTML of the viewer pages byte-identical; all suites green |
 | P9 | "Can a graph beat SQL?" and the three product fixes: hand-written SQL control arm, pre-registered Crucible L6, traversal fix, `impact`, typed relations, duplicate precision, atomic entity resolution, audit modes | 1512 tests; L6 results committed incl. a pre-registered loss and its fix; LLM pilot $7.09 |
 
-Current size: ~26,000 lines of Python in `plexus/src` and ~9,000 of TypeScript in `plexus-view/src`; 108 query files; 45 tools; 1512 Python and 229 viewer tests.
+Current size (main @ 9514a03, 2026-10-18): ~44,000 lines of Python in `plexus/src` (~30,000 of them the Crucible benchmark harness) and ~12,700 of TypeScript in `plexus-view/src`; 114 query files; 45 tools; 1799 Python and 227 viewer tests.
 
 ### 4.2 Engineering rules we held to
 

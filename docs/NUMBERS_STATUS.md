@@ -77,7 +77,7 @@ the commit was made. 'Envelope' means the commit recorded in the result's own `r
 | A14 | Recorded Acme run, cost and turns: 16 `claude -p`, 95 turns, 0 permission denials, $0.698 notional, token counts | as listed | REPORT s6.1, TESTING s1 row 4, demo.md | recorded 2026-10-15T02:23+0545 on the P3-F demo build (`03c3a6a` added the recording) | STALE | - |
 | A15 | Physio staleness real run: 1 fact flagged, 3 decisions, `claude -p` 5 turns / 21 s / $0.04 (recording: 10 turns, $0.2165) | as listed | README (Memory that notices change), REPORT s7.3, staleness.md 'Real run' | recorded 2026-10-16T02:24+0545, added in `a7b8226` (p7-int) | STALE | - |
 | A16 | Total LLM spend across demo and benchmarks | about $15 notional | REPORT s9.4 | an aggregate over many builds; not tied to one commit | STALE, build unknown | - |
-| A17 | Size of the code base | about 26,000 lines Python, 9,000 TypeScript; 108 query files (README and `verify_readme.py` say 114) | REPORT s4 | structural, written at P9; the 108 is out of date (see A3). Not a measurement. | STALE | - |
+| A17 | Size of the code base | ~44,000 lines Python (~30,000 Crucible), ~12,700 TypeScript; 114 query files; 45 tools; 1799 Python + 227 viewer tests | REPORT s4 | counted on main @ 9514a03 (2026-10-18). Not a measurement. | CURRENT | - |
 
 ### B. L1, L4 and ablation (one compose run)
 
