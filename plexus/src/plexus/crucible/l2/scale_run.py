@@ -30,26 +30,32 @@ from plexus.crucible.backends import open_backend
 from plexus.crucible.l2 import contexts as C
 from plexus.crucible.l2 import scale_contexts as SC
 from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner
-from plexus.crucible.l2.questions import CONVENTIONS, FAMILIES, Question, parse_reply, score
-from plexus.crucible.l2.run import ANSWERERS, DEMO_DATA, _pct, arm_summary, context_summary, reply_format
+from plexus.crucible.l2.questions import CONVENTIONS, FAMILIES, Question, score
+from plexus.crucible.l2.run import (
+    DEMO_DATA,
+    _pct,
+    arm_summary,
+    ask_with_retry,
+    context_summary,
+    empty_meta,
+    grade_call,
+    reply_format,
+)
 from plexus.crucible.l2.scale_plexus import ScalePlexusAnswerer
 from plexus.crucible.l2.scale_questions import (
     CONVENTIONS_SCALE_EXTRA,
     SEED,
-    build_scale_questions,
     dump_scale_questions,
     generate_scale,
     load_scale_questions,
-    scale_summary,
 )
 from plexus.crucible.l2.scale_scenario import ScaleLedger, play_scale
-from plexus.crucible.util import fmt_ms, iso_utc, percentile, run_stamp
+from plexus.crucible.util import fmt_ms, iso_utc, run_stamp
 
 K_SPRINTS = 20
 QUESTIONS_PATH = DEMO_DATA / "questions_scale.yaml"
 CACHE_DIR = DEMO_DATA / "l2_scale_cache"
 OUT_DIR = DEMO_DATA / "l2_scale"
-BASELINES = ("B0", "B1", "B2")
 ARMS = ("B0", "B1", "B2", "P")
 PROMPT_VERSION = "l2-scale-v1"
 # pre-registered pilot: five families, all three strata (early / middle / late), fixed before any paid call
@@ -160,10 +166,7 @@ def answer_plexus_scale(
             got, meta = ans.answer(q)
             ok, why = score(q, got)
         except Exception as exc:  # noqa: BLE001 - reported per question, never hidden
-            got, meta, ok, why = (
-                None, {"latency_ms": 0.0, "server_ms": 0.0, "statements": 0, "queries": []}, False,
-                f"{type(exc).__name__}: {exc}"[:200],
-            )  # fmt: skip
+            got, meta, ok, why = None, empty_meta(), False, f"{type(exc).__name__}: {exc}"[:200]
         rows.append(
             _row(q, ok, got, why, k, tokens=0, cost_usd=0.0, latency_ms=meta["latency_ms"], server_ms=meta["server_ms"],
                  statements=meta["statements"], cached=False, context_chars=0, truncated=False)
@@ -195,19 +198,11 @@ def answer_baseline_scale(
             d.mkdir(parents=True, exist_ok=True)
             (d / f"{q.id}.txt").write_text(ctx.text, encoding="utf-8", newline="\n")
         try:
-            call = runner.ask(p.arm, q, ctx.text)
-            if call.error and not call.cached:
-                call = runner.ask(p.arm, q, ctx.text, use_cache=False)  # one retry for process-level failures
+            call = ask_with_retry(runner, p.arm, q, ctx.text)
         except BudgetExceeded as exc:
             log(f"  {p.arm}: stopped at {q.id}: {exc}")
             return rows, False
-        if call.error:
-            ok, why, got = False, f"call failed: {call.error}", None
-        elif call.parse_error:
-            ok, why, got = False, call.parse_error, None
-        else:
-            got = call.answer
-            ok, why = score(q, got)
+        ok, why, got = grade_call(q, call)
         share = SC.sprint_share(ctx, q.args["sprint"])
         rows.append(
             _row(
@@ -689,15 +684,6 @@ def main(argv: list[str] | None = None) -> int:
         print(hline)
     return 0
 
-
-_ = (
-    ANSWERERS,
-    BASELINES,
-    build_scale_questions,
-    parse_reply,
-    percentile,
-    scale_summary,
-)  # re-exported for tests
 
 if __name__ == "__main__":
     raise SystemExit(main())

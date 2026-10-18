@@ -10,7 +10,7 @@ import pytest
 
 from mcp import Client
 from plexus.crucible.l3.baseline_mcp import build_baseline_server
-from plexus.crucible.l3.run import BackendWorld, transcript_metrics
+from plexus.crucible.l3.run import BackendWorld, headline_l3, transcript_metrics
 from plexus.demo.engine import run as run_engine
 from plexus.demo.scenario import FaultScript, load_scenario
 from plexus.demo.scripted import ScriptedDriver
@@ -34,8 +34,6 @@ def play_team(backend, **faults):
 
 
 def test_server_exposes_the_plexus_tool_names_and_arguments():
-    from plexus.mcp.runtime import Runtime  # noqa: F401  (the real surface lives in plexus.mcp.tools)
-
     async def names(backend):
         async with Client(build_baseline_server(backend)) as mcp:
             return {t.name: t for t in (await mcp.list_tools()).tools}
@@ -123,3 +121,19 @@ def test_transcript_metrics_counts_the_agents_own_calls():
         and m["handoffs_with_facts"] == 0
     )
     assert m["stale_artifacts"] == 1 and m["stale_artifact_tasks"] == ["t10"]
+
+
+def test_headline_l3_states_ties_and_cost():
+    def arm(cost):
+        return {
+            "tasks_done": 12, "tasks_total": 12, "recovery": {"task_finished_after_reclaim": True},
+            "decisions_with_evidence": 3, "handoffs_with_facts": 2, "stale_artifacts": 0,
+            "contradictions_surfaced": 1, "cost_usd": cost,
+        }  # fmt: skip
+
+    lines = headline_l3({"arms": {"P": arm(0.5), "B0": arm(0.25)}})
+    assert lines[0].endswith("tasks done P 12/12, B0 12/12.")
+    assert "2 of 2 arms (P, B0)" in lines[1]
+    assert "no separation between arms" in lines[2]
+    assert "P $0.50, B0 $0.25" in lines[3]
+    assert headline_l3({"arms": {}}) == []

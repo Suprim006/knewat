@@ -22,11 +22,9 @@ from typing import Any
 from plexus.crucible.api import (
     OPEN,
     UnknownReference,
-    Unsupported,
     valid_tenant,
 )
 from plexus.crucible.backends.base import (
-    MAX_BASED_ON,  # noqa: F401  (re-exported: it used to be defined here)
     MAX_RECALL_K,
     artifact_specs,
     assert_result,
@@ -747,7 +745,3 @@ class SqliteBackend:
                 for w in wrote
             ]
         return out
-
-
-def unsupported(what: str) -> Unsupported:
-    return Unsupported(f"{what}: this arm keeps no provenance; Layer 2 answers it by LLM over its artifacts")

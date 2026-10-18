@@ -433,9 +433,6 @@ class ScaleLedger:
     sprints: list[Sprint]
     ledgers: list[Ledger]
 
-    def of(self, n: int) -> tuple[Sprint, Ledger]:
-        return self.sprints[n - 1], self.ledgers[n - 1]
-
     def summary(self) -> dict[str, Any]:
         ls = self.ledgers
         return {
