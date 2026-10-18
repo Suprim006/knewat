@@ -1,0 +1,402 @@
+[
+ {
+  "k": 0,
+  "acked_this_kill": 60,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 9251414
+  },
+  "ready_s": 12.17,
+  "up": true
+ },
+ {
+  "k": 1,
+  "acked_this_kill": 48,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 9335357
+  },
+  "ready_s": 10.83,
+  "up": true
+ },
+ {
+  "k": 2,
+  "acked_this_kill": 121,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 9570287
+  },
+  "ready_s": 3.48,
+  "up": true
+ },
+ {
+  "k": 3,
+  "acked_this_kill": 176,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 171,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 9909333
+  },
+  "ready_s": 3.65,
+  "up": true
+ },
+ {
+  "k": 4,
+  "acked_this_kill": 227,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 10359725
+  },
+  "ready_s": 7.14,
+  "up": true
+ },
+ {
+  "k": 5,
+  "acked_this_kill": 124,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 10596154
+  },
+  "ready_s": 5.97,
+  "up": true
+ },
+ {
+  "k": 6,
+  "acked_this_kill": 70,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 10740065
+  },
+  "ready_s": 8.98,
+  "up": true
+ },
+ {
+  "k": 7,
+  "acked_this_kill": 68,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 10882298
+  },
+  "ready_s": 10.2,
+  "up": true
+ },
+ {
+  "k": 8,
+  "acked_this_kill": 60,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11003181
+  },
+  "ready_s": 6.49,
+  "up": true
+ },
+ {
+  "k": 9,
+  "acked_this_kill": 65,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 194,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11132968
+  },
+  "ready_s": 8.07,
+  "up": true
+ },
+ {
+  "k": 10,
+  "acked_this_kill": 72,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11269232
+  },
+  "ready_s": 4.74,
+  "up": true
+ },
+ {
+  "k": 11,
+  "acked_this_kill": 87,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11406656
+  },
+  "ready_s": 13.85,
+  "up": true
+ },
+ {
+  "k": 12,
+  "acked_this_kill": 32,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11503109
+  },
+  "ready_s": 9.84,
+  "up": true
+ },
+ {
+  "k": 13,
+  "acked_this_kill": 48,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11572326
+  },
+  "ready_s": 7.34,
+  "up": true
+ },
+ {
+  "k": 14,
+  "acked_this_kill": 45,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11690154
+  },
+  "ready_s": 12.06,
+  "up": true
+ },
+ {
+  "k": 15,
+  "acked_this_kill": 36,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11753177
+  },
+  "ready_s": 10.68,
+  "up": true
+ },
+ {
+  "k": 16,
+  "acked_this_kill": 54,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11843709
+  },
+  "ready_s": 13.17,
+  "up": true
+ },
+ {
+  "k": 17,
+  "acked_this_kill": 38,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 11952845
+  },
+  "ready_s": 11.2,
+  "up": true
+ },
+ {
+  "k": 18,
+  "acked_this_kill": 46,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 12047068
+  },
+  "ready_s": 11.46,
+  "up": true
+ },
+ {
+  "k": 19,
+  "acked_this_kill": 68,
+  "lost_acked_this_kill": 0,
+  "lost_states": {
+   "partial": 0,
+   "absent": 0
+  },
+  "pers_before_kill": {
+   "aof_delayed_fsync": 0,
+   "aof_pending_bio_fsync": 0,
+   "aof_buffer_length": 0,
+   "aof_pending_rewrite": 0,
+   "aof_rewrite_in_progress": 0,
+   "aof_last_write_status": "ok",
+   "aof_current_size": 12180711
+  },
+  "ready_s": 12.88,
+  "up": true
+ }
+]
