@@ -56,6 +56,8 @@ def test_server_exposes_the_plexus_tool_names_and_arguments():
         }  # P9-e: Plexus-only audit level on reads
         if name == "recall":  # P7-K: optional Plexus-only arguments (forgetting, hops); baselines have none
             theirs -= {"include_dormant", "forgetting", "hops", "detail"}  # P9-b: hops; P12: detail
+        if name == "assert_fact":  # P13: multi-source provenance is Plexus-only; baselines take one source_id
+            theirs -= {"source_ids"}
         assert mine == theirs, (name, mine ^ theirs)
 
 
