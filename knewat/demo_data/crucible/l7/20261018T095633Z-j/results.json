@@ -1,0 +1,509 @@
+{
+ "schema": "crucible-l7/1",
+ "kind": "j",
+ "run": {
+  "id": "20261018T095633Z-j",
+  "started_at": "2026-10-18T09:56:33Z",
+  "finished_at": "2026-10-18T09:58:34Z",
+  "command": "python -m knewat.crucible.l7.j run --port 6391 --scale full --mixes J-real --reps 1 --extra-only --extra F-service:200:J-one:J-real:30:5 S-file:1000:J-one:J-real:30:5 F-service:1000:J-one:J-real:30:5 --workdir C:/tmp/l7j/work-redo",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "9c31b488fc69de89a488739e87060b36689e5707",
+  "short": "9c31b48",
+  "dirty": false,
+  "dirty_files": [],
+  "branch": "rerun-l7j"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "9c31b48",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6391,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    },
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "sqlite_version": "3.53.1",
+ "seed": 20261016,
+ "timeout_ms": 10000,
+ "params": {
+  "scale": "full",
+  "arms": [
+   "F-mcp",
+   "F-service",
+   "S-file"
+  ],
+  "pops": [
+   2,
+   20,
+   200,
+   1000
+  ],
+  "layouts": [
+   "J-team",
+   "J-one"
+  ],
+  "mixes": [
+   "J-real"
+  ],
+  "reps": 1,
+  "seconds": 30.0,
+  "warmup": 5.0,
+  "grace": 30.0,
+  "seed_tasks_per_session": 25,
+  "seed_tasks_cap": 5000,
+  "extra": [
+   "F-service:200:J-one:J-real:30:5",
+   "S-file:1000:J-one:J-real:30:5",
+   "F-service:1000:J-one:J-real:30:5"
+  ],
+  "recorded_mix": {
+   "start_session": 20,
+   "recall": 16,
+   "claim_next_task": 16,
+   "complete_task": 14,
+   "add_source": 8,
+   "assert_fact": 8,
+   "remember_episode": 5,
+   "record_decision": 5,
+   "handoff": 4,
+   "create_tasks": 3,
+   "verify_artifact": 1
+  },
+  "sequences": {
+   "acme-claude-sonnet/builder": 25,
+   "acme-claude-sonnet/planner": 25,
+   "acme-claude-sonnet/researcher": 33,
+   "pilot-haiku/builder": 3,
+   "pilot-haiku/planner": 7,
+   "pilot-haiku/researcher": 7
+  },
+  "falkordb_pool": "512"
+ },
+ "cells": [
+  {
+   "arm": "F-service",
+   "pop": 200,
+   "layout": "J-one",
+   "mix": "J-real",
+   "rep": 0,
+   "seconds": 30.0,
+   "warmup": 5.0,
+   "tag": "4cb1fc0",
+   "procs": 8,
+   "threads_per_proc": 25,
+   "tenants": 1,
+   "seed_tasks_per_tenant": 5000,
+   "failed": {
+    "stage": "setup",
+    "error": "ResponseError: Query timed out",
+    "trace": "7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 867, in execute_command\n    return self._execute_command(*args, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 889, in _execute_command\n    result = conn.retry.call_with_retry(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\retry.py\", line 120, in call_with_retry\n    return do()\n           ^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 890, in <lambda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.ResponseError: Query timed out\n"
+   },
+   "teardown_s": 0.0,
+   "wall_s": 34.18,
+   "extra": true
+  },
+  {
+   "arm": "S-file",
+   "pop": 1000,
+   "layout": "J-one",
+   "mix": "J-real",
+   "rep": 0,
+   "seconds": 30.0,
+   "warmup": 5.0,
+   "tag": "4cb1fc1",
+   "procs": 8,
+   "threads_per_proc": 125,
+   "tenants": 1,
+   "seed_tasks_per_tenant": 5000,
+   "setup_s": 0.33,
+   "ready_s": 5.58,
+   "attempted": 6635,
+   "completed": 5635,
+   "late_finishers": 1000,
+   "errors": 0,
+   "throughput_calls_s": 187.83,
+   "throughput_excl_refill_calls_s": 187.83,
+   "error_rate": 0.0,
+   "errors_by_class": {
+    "locked": 0,
+    "timeout": 0,
+    "max_pending": 0,
+    "pool": 0,
+    "connection": 0,
+    "unknown_ref": 0,
+    "other": 0
+   },
+   "domain_outcomes": {
+    "no_task": 0,
+    "claim_conflict": 0
+   },
+   "lat_ms": {
+    "n": 6635,
+    "p50": 23.673,
+    "p99": 42422.906,
+    "max": 48012.992,
+    "mean": 5625.856
+   },
+   "lat_all_ms": {
+    "n": 6635,
+    "p50": 23.673,
+    "p99": 42422.906,
+    "max": 48012.992,
+    "mean": 5625.856
+   },
+   "per_tool": {
+    "add_source": {
+     "n": 564,
+     "status": {
+      "ok": 564
+     },
+     "lat_ms": {
+      "n": 564,
+      "p50": 0.489,
+      "p99": 32239.463,
+      "max": 42837.619,
+      "mean": 2558.506
+     },
+     "lat_all_ms": {
+      "n": 564,
+      "p50": 0.489,
+      "p99": 32239.463,
+      "max": 42837.619,
+      "mean": 2558.506
+     }
+    },
+    "assert_fact": {
+     "n": 503,
+     "status": {
+      "ok": 503
+     },
+     "lat_ms": {
+      "n": 503,
+      "p50": 2.749,
+      "p99": 32253.912,
+      "max": 42468.058,
+      "mean": 2460.837
+     },
+     "lat_all_ms": {
+      "n": 503,
+      "p50": 2.749,
+      "p99": 32253.912,
+      "max": 42468.058,
+      "mean": 2460.837
+     }
+    },
+    "claim_next_task": {
+     "n": 1146,
+     "status": {
+      "ok": 1146
+     },
+     "lat_ms": {
+      "n": 1146,
+      "p50": 27.278,
+      "p99": 37059.977,
+      "max": 43914.833,
+      "mean": 3799.556
+     },
+     "lat_all_ms": {
+      "n": 1146,
+      "p50": 27.278,
+      "p99": 37059.977,
+      "max": 43914.833,
+      "mean": 3799.556
+     }
+    },
+    "complete_task": {
+     "n": 605,
+     "status": {
+      "ok": 605
+     },
+     "lat_ms": {
+      "n": 605,
+      "p50": 1.023,
+      "p99": 29141.118,
+      "max": 38489.937,
+      "mean": 2276.321
+     },
+     "lat_all_ms": {
+      "n": 605,
+      "p50": 1.023,
+      "p99": 29141.118,
+      "max": 38489.937,
+      "mean": 2276.321
+     }
+    },
+    "create_tasks": {
+     "n": 356,
+     "status": {
+      "ok": 356
+     },
+     "lat_ms": {
+      "n": 356,
+      "p50": 237.221,
+      "p99": 39324.587,
+      "max": 42619.669,
+      "mean": 6814.392
+     },
+     "lat_all_ms": {
+      "n": 356,
+      "p50": 237.221,
+      "p99": 39324.587,
+      "max": 42619.669,
+      "mean": 6814.392
+     }
+    },
+    "handoff": {
+     "n": 144,
+     "status": {
+      "ok": 144
+     },
+     "lat_ms": {
+      "n": 144,
+      "p50": 1.544,
+      "p99": 29483.484,
+      "max": 31351.009,
+      "mean": 1873.045
+     },
+     "lat_all_ms": {
+      "n": 144,
+      "p50": 1.544,
+      "p99": 29483.484,
+      "max": 31351.009,
+      "mean": 1873.045
+     }
+    },
+    "recall": {
+     "n": 904,
+     "status": {
+      "ok": 904
+     },
+     "lat_ms": {
+      "n": 904,
+      "p50": 494.507,
+      "p99": 37302.894,
+      "max": 43088.143,
+      "mean": 4900.342
+     },
+     "lat_all_ms": {
+      "n": 904,
+      "p50": 494.507,
+      "p99": 37302.894,
+      "max": 43088.143,
+      "mean": 4900.342
+     }
+    },
+    "record_decision": {
+     "n": 262,
+     "status": {
+      "ok": 262
+     },
+     "lat_ms": {
+      "n": 262,
+      "p50": 2.845,
+      "p99": 33856.188,
+      "max": 36576.696,
+      "mean": 2693.114
+     },
+     "lat_all_ms": {
+      "n": 262,
+      "p50": 2.845,
+      "p99": 33856.188,
+      "max": 36576.696,
+      "mean": 2693.114
+     }
+    },
+    "remember_episode": {
+     "n": 300,
+     "status": {
+      "ok": 300
+     },
+     "lat_ms": {
+      "n": 300,
+      "p50": 0.803,
+      "p99": 21158.56,
+      "max": 39448.79,
+      "mean": 1888.917
+     },
+     "lat_all_ms": {
+      "n": 300,
+      "p50": 0.803,
+      "p99": 21158.56,
+      "max": 39448.79,
+      "mean": 1888.917
+     }
+    },
+    "start_session": {
+     "n": 1841,
+     "status": {
+      "ok": 1841
+     },
+     "lat_ms": {
+      "n": 1841,
+      "p50": 4690.911,
+      "p99": 45016.002,
+      "max": 48012.992,
+      "mean": 11139.019
+     },
+     "lat_all_ms": {
+      "n": 1841,
+      "p50": 4690.911,
+      "p99": 45016.002,
+      "max": 48012.992,
+      "mean": 11139.019
+     }
+    },
+    "verify_artifact": {
+     "n": 10,
+     "status": {
+      "ok": 10
+     },
+     "lat_ms": {
+      "n": 10,
+      "p50": 1.45,
+      "p99": 8088.103,
+      "max": 8088.103,
+      "mean": 1053.447
+     },
+     "lat_all_ms": {
+      "n": 10,
+      "p50": 1.45,
+      "p99": 8088.103,
+      "max": 8088.103,
+      "mean": 1053.447
+     }
+    }
+   },
+   "tool_counts": {
+    "start_session": 1841,
+    "create_tasks": 356,
+    "claim_next_task": 1146,
+    "recall": 904,
+    "record_decision": 262,
+    "complete_task": 605,
+    "remember_episode": 300,
+    "handoff": 144,
+    "add_source": 564,
+    "assert_fact": 503,
+    "verify_artifact": 10
+   },
+   "mix_share_pct": {
+    "start_session": 27.7,
+    "claim_next_task": 17.3,
+    "recall": 13.6,
+    "complete_task": 9.1,
+    "add_source": 8.5,
+    "assert_fact": 7.6,
+    "create_tasks": 5.4,
+    "remember_episode": 4.5,
+    "record_decision": 3.9,
+    "handoff": 2.2,
+    "verify_artifact": 0.2
+   },
+   "sessions_completed": 327,
+   "skipped_complete": 0,
+   "stuck_threads": 0,
+   "error_samples": {},
+   "drivers": {
+    "cpu_s_total": 42.39,
+    "cpu_cores_avg": 1.21,
+    "peak_working_set_mb_each": [
+     83.2,
+     83.3,
+     82.3,
+     86.6,
+     94.4,
+     77.9,
+     85.5,
+     84.9
+    ],
+    "peak_working_set_mb_sum": 678.1,
+    "handles_max": 663,
+    "threads_total": 1000
+   },
+   "store": {
+    "tenants_sampled": 1,
+    "per_tenant": [
+     {
+      "file_bytes": 9749328,
+      "rows_facts": 602,
+      "rows_tasks": 7362,
+      "rows_episodes": 326,
+      "rows_steps": 2346
+     }
+    ],
+    "total_bytes_all_tenants": 9749328
+   },
+   "teardown_s": 0.07,
+   "wall_s": 55.88,
+   "extra": true
+  },
+  {
+   "arm": "F-service",
+   "pop": 1000,
+   "layout": "J-one",
+   "mix": "J-real",
+   "rep": 0,
+   "seconds": 30.0,
+   "warmup": 5.0,
+   "tag": "4cb1fc2",
+   "procs": 8,
+   "threads_per_proc": 125,
+   "tenants": 1,
+   "seed_tasks_per_tenant": 5000,
+   "failed": {
+    "stage": "setup",
+    "error": "ResponseError: Query timed out",
+    "trace": "7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 867, in execute_command\n    return self._execute_command(*args, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 889, in _execute_command\n    result = conn.retry.call_with_retry(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\retry.py\", line 120, in call_with_retry\n    return do()\n           ^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 890, in <lambda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.ResponseError: Query timed out\n"
+   },
+   "teardown_s": 0.0,
+   "wall_s": 29.3,
+   "extra": true
+  }
+ ]
+}

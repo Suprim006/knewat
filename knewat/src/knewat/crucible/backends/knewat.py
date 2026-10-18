@@ -1,0 +1,502 @@
+"""P: the Knewat arm. One tenant graph per run, driven through the real service layer.
+
+``KnewatBackend`` calls the same code the MCP tools call (``Engram``, ``Relay``, ``Lineage``) and, in ``mode="mcp"``,
+goes through ``Runtime._run`` so every call also opens a ``Step`` and writes a ``ToolCall`` exactly as the server
+does (the only things left out are the JSON transport and the network hop to the MCP server).
+
+Modes
+-----
+``service`` (arm ``P``)    Engram/Relay/Lineage calls. Memory, decision and handoff calls also open a Step and link
+                           READ/WROTE edges (so ``knew_at`` / ``why`` work); claim/heartbeat/complete do not.
+``mcp`` (arm ``P-mcp``)    every call goes through ``Runtime._run``: Step + READ/WROTE + ToolCall per call.
+
+``ablate()`` deletes the DEPENDS_ON, BASED_ON, DERIVED_FROM and READ relationships (D-001) to show what breaks.
+Server-side execution time of the last call (``run_time_ms`` summed over its queries, as the ToolCall stores it) is
+available from :meth:`last_server_ms` for the L4 report.
+"""
+
+from __future__ import annotations
+
+import os
+import threading
+from collections.abc import Callable, Iterable, Sequence
+from typing import Any
+
+from falkordb import FalkorDB
+from mcp.server.mcpserver.exceptions import ToolError
+
+from knewat.crucible import api
+from knewat.crucible.api import ClaimConflict, UnknownReference
+from knewat.crucible.backends.base import claim_result, list_row, recall_hit, task_status_view
+from knewat.embed import Embedder, get_embedder
+from knewat.engram.errors import UnknownReference as EngramUnknown
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.lineage_hook import FOLDS_WROTE, discard_step, open_pre_step
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.relay import errors as relay_errors
+
+POOL = int(os.environ.get("CRUCIBLE_POOL", "512"))
+
+
+def _client(host: str | None, port: int | None) -> GraphClient:
+    """A GraphClient whose connection pool fits the benchmark's worker threads.
+
+    redis-py's default pool holds 100 connections, so 200 threads sharing one client fail with
+    ``MaxConnectionsError`` (a client-side limit, not a server one; the MCP server caps concurrent tool calls
+    with its thread limiter). The harness raises the pool; nothing else about the client changes.
+    """
+    c = GraphClient(host=host, port=port)
+    old = c.db
+    c.db = FalkorDB(host=c.host, port=c.port, password=_password(), max_connections=POOL)
+    old.connection.close()
+    return c
+
+
+def _password() -> str | None:
+    return os.environ.get("FALKORDB_PASSWORD") or None
+
+
+TRACKED = frozenset({"assert_fact", "recall", "record_decision", "handoff", "remember_episode"})
+STRIP_BATCH = 5000
+
+
+def _ref(fid: str) -> tuple[str, str]:
+    return ("Fact", fid)
+
+
+class KnewatBackend:
+    name = "P"
+    label = "Knewat"
+    capabilities = frozenset(
+        {"why", "knew_at", "as_of", "semantic_dedupe", "contradictions", "forget_cascade", "dependencies"}
+    )
+    isolation = (
+        "one FalkorDB graph per tenant (knewat_t_<tenant>); the tenant is bound at construction, never taken from "
+        "a tool argument, and validated against ^[a-z0-9_]{1,48}$"
+    )
+
+    def __init__(
+        self,
+        tenant: str,
+        host: str | None = None,
+        port: int | None = None,
+        embedder: Embedder | str | None = None,
+        mode: str = "service",
+        client: GraphClient | None = None,
+    ):
+        if mode not in ("service", "mcp"):
+            raise ValueError("mode must be 'service' or 'mcp'")
+        try:
+            self.graph = graph_name(tenant)  # raises ValueError for anything that is not a tenant name
+        except ValueError as exc:
+            raise api.InvalidTenant(str(exc)) from None
+        self.tenant = tenant
+        self.mode = mode
+        self.name = "P" if mode == "service" else "P-mcp"
+        self.label = "Knewat" if mode == "service" else "Knewat (MCP path)"
+        self._owns_client = client is None
+        self.client = client or _client(host, port)
+        self.embedder: Embedder = embedder if isinstance(embedder, Embedder) else get_embedder(embedder)
+        self.rt = Runtime(client=self.client, embedder=self.embedder, stdio_tenant=tenant)
+        self.ts: TenantState = self.rt.state(tenant)  # applies the schema once
+        self._tls = threading.local()
+        self._steps_enabled = True
+
+    # -- plumbing -----------------------------------------------------------------------------------------
+    def last_server_ms(self) -> float:
+        """Server-side ``run_time_ms`` summed over the queries of this thread's last call."""
+        return float(getattr(self._tls, "server_ms", 0.0))
+
+    def _call(
+        self, tool: str, agent_id: str, work: Callable[[TenantState, MeteredClient], Outcome]
+    ) -> dict[str, Any]:
+        holder: dict[str, MeteredClient] = {}
+
+        def wrapped(ts: TenantState, m: MeteredClient) -> Outcome:
+            holder["m"] = m
+            return work(ts, m)
+
+        try:
+            if self.mode == "mcp":
+                data = self.rt._run(self.tenant, tool, agent_id, None, wrapped, self._now())
+            else:
+                m = MeteredClient(self.client)
+                degraded: list[str] = []
+                if (
+                    self._steps_enabled and tool in FOLDS_WROTE
+                ):  # as Runtime._run: Step first, WROTE in the write
+                    m.step_id = open_pre_step(
+                        self.client, self.ts, tool, agent_id, None, self._now(), degraded
+                    )
+                try:
+                    wrapped_out = wrapped(self.ts, m)
+                except Exception:
+                    discard_step(self.client, self.ts, m.step_id)
+                    raise
+                data = dict(wrapped_out.data)
+                if self._steps_enabled and tool in TRACKED:
+                    step_id = m.step_id or self.rt._open_step(self.ts, agent_id, None, self._now(), degraded)
+                    data.update(self.rt._attach(self.ts, step_id, wrapped_out, degraded))
+        except ToolError as exc:  # e.g. an invalid scope spec: a caller mistake, like a ValueError
+            raise ValueError(str(exc)) from None
+        except relay_errors.ClaimConflict as exc:
+            raise ClaimConflict(str(exc)) from None
+        except (relay_errors.UnknownReference, EngramUnknown) as exc:
+            raise UnknownReference(str(exc)) from None
+        finally:
+            m = holder.get("m")
+            self._tls.server_ms = m.run_time_ms if m is not None else 0.0
+        return data
+
+    @staticmethod
+    def _now() -> int:
+        from knewat.crucible.util import now_ms
+
+        return now_ms()
+
+    def close(self) -> None:
+        if self._owns_client:
+            self.client.close()
+
+    # -- agents ---------------------------------------------------------------------------------------------
+    def register_agent(self, agent_id: str, role: str = "") -> None:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).register_agent(agent_id, agent_id, role, "crucible")
+            return Outcome({"agent": r}, updated=[("Agent", agent_id)])
+
+        self._call("register_agent", agent_id, work)
+
+    # -- memory -----------------------------------------------------------------------------------------------
+    def remember_episode(self, agent_id: str, text: str, step: int | None = None) -> str:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            eng = ts.engram(m)
+            sid = eng.start_session(agent_id, "", harness="crucible")
+            eid = eng.remember_episode(sid, "note", text, step)
+            return Outcome({"episode_id": eid}, created=[("Episode", eid)], updated=[("Session", sid)])
+
+        return self._call("remember_episode", agent_id, work)["episode_id"]
+
+    def add_source(self, uri: str, kind: str = "doc", trust: float = 1.0) -> str:
+        from knewat.lineage import Lineage
+
+        m = MeteredClient(self.client)
+        return Lineage(m, self.graph).create_source(uri, kind, trust)  # type: ignore[arg-type]
+
+    def assert_fact(
+        self,
+        agent_id: str,
+        subject: str,
+        predicate: str,
+        value: str,
+        scope: str = "global",
+        source_id: str | None = None,
+        derived_from: Sequence[str] = (),
+        confidence: float = 1.0,
+        supersede: bool = False,
+        now: int | None = None,
+    ) -> dict[str, Any]:
+        origins = list(dict.fromkeys(derived_from))
+
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            sid = ts.scope_id(scope, m)
+            # P9-f: DERIVED_FROM is written by the assert_fact statement itself (an unknown origin raises
+            # EngramUnknown and writes nothing), so a hard kill cannot lose the link
+            r = ts.engram(m).assert_fact(
+                subject, predicate, value, sid, agent_id,
+                source_id=source_id, confidence=confidence, supersede=supersede, now=now, step_id=m.step_id,
+                derived_from=origins,
+            )  # fmt: skip
+            created = [] if r["duplicate_of"] else [_ref(r["fact_id"])]
+            updated = [_ref(f) for f in r["superseded"]]
+            if r["duplicate_of"]:
+                updated.append(_ref(r["duplicate_of"]))
+            linked = [r["fact_id"]] if m.step_id and not r["duplicate_of"] else []
+            return Outcome(
+                {**r, "scope_id": sid}, created=created, updated=updated, assert_result=r, linked=linked
+            )
+
+        d = self._call("assert_fact", agent_id, work)
+        return {
+            "fact_id": d["fact_id"],
+            "duplicate_of": d["duplicate_of"],
+            "superseded": list(d["superseded"]),
+            "contradicts": list(d["contradicts"]),
+        }
+
+    def recall(
+        self, agent_id: str, query: str, scope: str = "global", k: int = 8, as_of: int | None = None
+    ) -> list[dict[str, Any]]:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            sid = ts.scope_id(scope, m)
+            hits = ts.engram(m).recall(query, sid, k=k, as_of=as_of)
+
+            def record(lin: Any, step_id: str | None) -> dict[str, Any]:
+                return {"recall_id": lin.record_recall(agent_id, step_id, query, sid, k, hits)}
+
+            return Outcome({"facts": hits}, after=record)
+
+        d = self._call("recall", agent_id, work)
+        return [
+            recall_hit(
+                h["fact_id"],
+                h["text"],
+                h["entity"],
+                h["predicate"],
+                h["value"],
+                h["status"],
+                float(h["score"]),
+            )
+            for h in d["facts"]
+        ]
+
+    def forget_source(self, source_id: str) -> dict[str, Any]:
+        from knewat.lineage import Lineage
+        from knewat.lineage.service import UnknownNode
+
+        m = MeteredClient(self.client)
+        try:
+            r = Lineage(m, self.graph).forget_source(source_id)  # type: ignore[arg-type]
+        except UnknownNode as exc:
+            raise UnknownReference(str(exc)) from None
+        return {"source_id": source_id, "fact_ids": list(r["fact_ids"])}
+
+    def facts(self, subject: str, predicate: str, scope: str = "global") -> list[dict[str, Any]]:
+        m = MeteredClient(self.client)
+        sid = self.ts.scope_id(scope, m)
+        rows = self.ts.engram(m).fact_history(subject, predicate, sid)
+        return [
+            {
+                "fact_id": r["fact_id"],
+                "value": r["value"],
+                "status": r["status"],
+                "valid_from": r["valid_from"],
+                "valid_to": r["valid_to"],
+                "asserted_by": list(r["asserted_by"]),
+                "supersedes": sorted(r["supersedes"]),
+                "contradicts": sorted(r["contradicts"]),
+            }
+            for r in rows
+        ]
+
+    def as_of(self, subject: str, predicate: str, t: int, scope: str = "global") -> dict[str, Any] | None:
+        m = MeteredClient(self.client)
+        sid = self.ts.scope_id(scope, m)
+        r = self.ts.lineage(m).as_of(subject, predicate, t, sid)
+        if r is None:
+            return None
+
+        def one(x: dict[str, Any]) -> dict[str, Any]:
+            return {k: x[k] for k in ("fact_id", "value", "status", "valid_from", "valid_to")}
+
+        out = one(r)
+        out["also_valid"] = [one(x) for x in r["also_valid"]]
+        return out
+
+    # -- coordination -------------------------------------------------------------------------------------------
+    def create_tasks(self, tasks: Sequence[dict[str, Any]]) -> list[str]:
+        out: list[str] = []
+        # the Relay API takes at most 500 tasks per call; a larger DAG is created batch by batch (in order)
+        for i in range(0, len(tasks), 500):
+            chunk = list(tasks[i : i + 500])
+
+            def work(ts: TenantState, m: MeteredClient, chunk=chunk) -> Outcome:
+                ids = ts.relay(m).create_tasks(chunk, step_id=m.step_id)
+                return Outcome(
+                    {"task_ids": ids}, created=[("Task", x) for x in ids], linked=ids if m.step_id else ()
+                )
+
+            try:
+                out.extend(self._call("create_tasks", "crucible", work)["task_ids"])
+            except relay_errors.InvalidDag as exc:
+                raise ValueError(str(exc)) from None
+            except relay_errors.DuplicateTask as exc:
+                raise ValueError(str(exc)) from None
+        return out
+
+    def claim_next_task(
+        self, agent_id: str, lease_ms: int = 60_000, now: int | None = None
+    ) -> dict[str, Any] | None:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            t = ts.relay(m).claim_next_task(agent_id, lease_ms, now, step_id=m.step_id)
+            if t is None:
+                return Outcome({"task": None})
+            return Outcome({"task": t}, updated=[("Task", t["id"])], linked=[t["id"]] if m.step_id else ())
+
+        t = self._call("claim_next_task", agent_id, work)["task"]
+        if t is None:
+            return None
+        return claim_result(t, t["version"], t["lease_until"], t["reclaimed_from"])
+
+    def heartbeat(self, agent_id: str, task_id: str, lease_ms: int = 60_000, now: int | None = None) -> bool:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            ok = ts.relay(m).heartbeat(agent_id, task_id, lease_ms, now)
+            return Outcome({"alive": ok}, updated=[("Task", task_id)] if ok else [])
+
+        return bool(self._call("heartbeat", agent_id, work)["alive"])
+
+    def complete_task(
+        self, agent_id: str, task_id: str, expected_version: int, artifacts: Sequence[dict[str, Any]] = ()
+    ) -> dict[str, Any]:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).complete_task(
+                agent_id, task_id, expected_version, list(artifacts), step_id=m.step_id
+            )
+            return Outcome(
+                r,
+                created=[("Artifact", a) for a in r["artifact_ids"]],
+                updated=[("Task", task_id)],
+                linked=[task_id] if m.step_id else (),
+            )
+
+        d = self._call("complete_task", agent_id, work)
+        return {k: d[k] for k in ("id", "status", "version", "artifact_ids")}
+
+    def fail_task(
+        self,
+        agent_id: str,
+        task_id: str,
+        expected_version: int,
+        artifacts: Sequence[dict[str, Any]] = (),
+        reason: str = "",
+    ) -> dict[str, Any]:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).fail_task(
+                agent_id, task_id, expected_version, list(artifacts), reason, step_id=m.step_id
+            )
+            return Outcome(
+                r,
+                created=[("Artifact", a) for a in r["artifact_ids"]],
+                updated=[("Task", task_id)],
+                linked=[task_id] if m.step_id else (),
+            )
+
+        d = self._call("fail_task", agent_id, work)
+        return {k: d[k] for k in ("id", "status", "version", "artifact_ids")}
+
+    def reopen_task(self, agent_id: str, task_id: str) -> dict[str, Any]:
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            r = ts.relay(m).reopen_task(agent_id, task_id, step_id=m.step_id)
+            return Outcome({"task": r}, updated=[("Task", task_id)], linked=[task_id] if m.step_id else ())
+
+        return self._call("reopen_task", agent_id, work)["task"]
+
+    def handoff(
+        self,
+        agent_id: str,
+        to_agent: str,
+        task_id: str,
+        note: str,
+        artifact_ids: Iterable[str] = (),
+        fact_ids: Iterable[str] = (),
+    ) -> str:
+        facts = list(fact_ids)
+
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            hid = ts.relay(m).handoff(
+                agent_id, to_agent, task_id, note, list(artifact_ids), facts, step_id=m.step_id
+            )
+            return Outcome(
+                {"handoff_id": hid},
+                created=[("Handoff", hid)],
+                read_ids=facts,
+                linked=[hid] if m.step_id else (),
+            )
+
+        return self._call("handoff", agent_id, work)["handoff_id"]
+
+    def record_decision(
+        self, agent_id: str, task_id: str, text: str, based_on_fact_ids: Iterable[str] = ()
+    ) -> str:
+        facts = list(based_on_fact_ids)
+
+        def work(ts: TenantState, m: MeteredClient) -> Outcome:
+            did = ts.relay(m).record_decision(agent_id, task_id, text, facts, step_id=m.step_id)
+            return Outcome(
+                {"decision_id": did},
+                created=[("Decision", did)],
+                read_ids=facts,
+                linked=[did] if m.step_id else (),
+            )
+
+        return self._call("record_decision", agent_id, work)["decision_id"]
+
+    def task_status(self, task_id: str) -> dict[str, Any] | None:
+        st = self.ts.relay(MeteredClient(self.client)).task_status(task_id)
+        if st is None:
+            return None
+        return task_status_view(st, st["dependencies"])
+
+    def list_tasks(self) -> list[dict[str, Any]]:
+        rows = self.client.ro(self.graph, "crucible/list_tasks", {"limit": 100_000})
+        return [list_row(r) for r in rows]
+
+    def blocked_by_failure(self, task_id: str) -> list[str]:
+        return self.ts.relay(MeteredClient(self.client)).blocked_by_failure(task_id)
+
+    # -- lineage ----------------------------------------------------------------------------------------------------
+    def why(self, node_id: str) -> dict[str, Any]:
+        from knewat.lineage.service import UnknownNode
+
+        try:
+            r = self.ts.lineage(MeteredClient(self.client)).why(node_id)
+        except UnknownNode as exc:
+            raise UnknownReference(str(exc)) from None
+        facts = []
+        for f in r["facts"]:
+            props = f.get("props") or {}
+            facts.append(
+                {
+                    "id": f["id"],
+                    "value": props.get("value"),
+                    "status": props.get("status"),
+                    "asserted_by": list(f["asserted_by"]),
+                    "sources": list(f["sources"]),
+                    "supersedes": list(f["supersedes"]),
+                    "superseded_by": list(f["superseded_by"]),
+                    "contradicts": list(f["contradicts"]),
+                }
+            )
+        return {
+            "root": r["root"],
+            "kind": r["kind"],
+            "facts": facts,
+            "agents": r["agents"],
+            "sources": r["sources"],
+        }
+
+    def knew_at(self, agent_id: str, step_n: int) -> dict[str, Any]:
+        return self.ts.lineage(MeteredClient(self.client)).knew_at(agent_id, step_n)
+
+    def who_knew(self, fact_id: str) -> dict[str, Any]:
+        """Agents whose Steps READ the fact (Knewat-only lineage read; the ablation probes use it)."""
+        from knewat.lineage.service import UnknownNode
+
+        try:
+            return self.ts.lineage(MeteredClient(self.client)).who_knew(fact_id)
+        except UnknownNode as exc:
+            raise UnknownReference(str(exc)) from None
+
+    # -- ablation (D-001) ---------------------------------------------------------------------------------------------
+    def ablate(self) -> dict[str, int]:
+        """Delete every DEPENDS_ON, BASED_ON, DERIVED_FROM and READ relationship. Returns edges deleted per type."""
+        types = ("DEPENDS_ON", "BASED_ON", "DERIVED_FROM", "READ")
+        deleted: dict[str, int] = dict.fromkeys(types, 0)
+        while True:
+            results = self.client.rw_script(self.graph, "crucible/strip_edges", {"limit": STRIP_BATCH})
+            round_total = 0
+            for t, res in zip(types, results, strict=True):
+                n = int(res.stats.get("relationships_deleted", 0)) if res is not None else 0
+                deleted[t] += n
+                round_total += n
+            if round_total == 0:
+                return deleted
+
+    def edge_counts(self) -> dict[str, int]:
+        """Relationship counts by type (verification read, via the View inventory query)."""
+        rows = self.client.ro(self.graph, "view/inventory_edges")
+        return {r["type"]: int(r["n"]) for r in rows}
+
+    def drop(self) -> None:
+        """Delete this tenant's graph (benchmark cleanup)."""
+        self.client.delete_graph(self.graph)

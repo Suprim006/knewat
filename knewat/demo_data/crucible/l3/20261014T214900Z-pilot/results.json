@@ -1,0 +1,986 @@
+{
+  "schema_version": 1,
+  "kind": "crucible-results",
+  "run": {
+    "id": "20261014T214900Z-pilot",
+    "started_at": "2026-10-14T21:49:00Z",
+    "finished_at": "2026-10-14T22:06:41Z",
+    "duration_s": 1060.8,
+    "quick": true,
+    "command": "python -m knewat.crucible.l3.run run --arms P,B0,B1 --model sonnet --embedder fastembed --port 6378 --budget-usd 4",
+    "layers": [
+      "L3"
+    ]
+  },
+  "config": {
+    "arms": [
+      "P",
+      "B0",
+      "B1"
+    ],
+    "l3": {
+      "model": "sonnet",
+      "max_turns": 25,
+      "runs_per_arm": 1
+    }
+  },
+  "arms": {
+    "P": {
+      "label": "Knewat",
+      "represents": "Knewat: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
+      "description": "Engram/Relay/Lineage service layer called directly (memory, decision and handoff calls also write Steps and READ/WROTE edges)",
+      "isolation": "one FalkorDB graph per tenant (knewat_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "knew_at",
+        "semantic_dedupe",
+        "why"
+      ]
+    },
+    "B0": {
+      "label": "Files",
+      "represents": "How Claude Code (CLAUDE.md, auto-memory, agent-team task list) and Hermes (MEMORY.md, kanban, files) coordinate today",
+      "description": "MEMORY.md + JSON task list under inter-process file locks (flock), atomic os.replace writes, append-only per-agent JSONL logs",
+      "isolation": "one directory per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade"
+      ]
+    },
+    "B1": {
+      "label": "SQLite",
+      "represents": "\"Just use a relational database\"",
+      "description": "SQLite in WAL mode, BEGIN IMMEDIATE transactions, FTS5 recall, recursive CTEs for provenance",
+      "isolation": "one SQLite database file per tenant; the tenant name is validated before it becomes a path",
+      "capabilities": [
+        "as_of",
+        "contradictions",
+        "dependencies",
+        "forget_cascade",
+        "knew_at",
+        "why"
+      ]
+    }
+  },
+  "layers": {
+    "L3": {
+      "title": "End-to-end team outcomes (pilot, n=1)",
+      "model": "sonnet",
+      "arms": {
+        "P": {
+          "status": "completed",
+          "error": "",
+          "completed": true,
+          "tasks_done": 12,
+          "tasks_total": 12,
+          "tasks_not_done": [],
+          "faults_fired": {
+            "kill_builder": 17,
+            "publish_v2": 23
+          },
+          "recovery": {
+            "builder_killed": true,
+            "reclaimed_by": "researcher",
+            "task_finished_after_reclaim": true,
+            "seconds_from_kill_to_reclaim": 42.9
+          },
+          "claude_processes": 16,
+          "claude_turns": 94,
+          "tokens": {
+            "input_tokens": 172,
+            "output_tokens": 17064,
+            "cache_creation_input_tokens": 89894,
+            "cache_read_input_tokens": 1616328
+          },
+          "total_tokens": 1723458,
+          "cost_usd": 0.6922,
+          "wall_s": 420.1,
+          "permission_denials": 0,
+          "per_turn": [
+            {
+              "turn": 1,
+              "agent": "planner",
+              "name": "init",
+              "killed": false,
+              "knewat_calls": 2,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 3,
+              "duration_ms": 9261,
+              "total_cost_usd": 0.0902139,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 2,
+              "agent": "researcher",
+              "name": "t01-gather-requirements",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 20418,
+              "total_cost_usd": 0.059298199999999995,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 3,
+              "agent": "planner",
+              "name": "t02-choose-api-version",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 12813,
+              "total_cost_usd": 0.0317879,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 4,
+              "agent": "builder",
+              "name": "t03-design-endpoints",
+              "killed": true,
+              "knewat_calls": 3,
+              "subtype": null,
+              "is_error": null,
+              "num_turns": null,
+              "duration_ms": null,
+              "total_cost_usd": null,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 5,
+              "agent": "researcher",
+              "name": "t03-design-endpoints",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 17160,
+              "total_cost_usd": 0.0398284,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 6,
+              "agent": "researcher",
+              "name": "ingest-v2",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 11248,
+              "total_cost_usd": 0.030105700000000003,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 7,
+              "agent": "planner",
+              "name": "adopt-v2",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 10655,
+              "total_cost_usd": 0.0275355,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 8,
+              "agent": "builder",
+              "name": "t12-update-endpoints-for-v2",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 89947,
+              "total_cost_usd": 0.0453679,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 9,
+              "agent": "researcher",
+              "name": "t04-survey-infra-security",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 14473,
+              "total_cost_usd": 0.042325600000000005,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 10,
+              "agent": "planner",
+              "name": "t05-choose-auth",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 19229,
+              "total_cost_usd": 0.0521618,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 11,
+              "agent": "builder",
+              "name": "t06-write-db-schema",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 15133,
+              "total_cost_usd": 0.041255700000000006,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 12,
+              "agent": "builder",
+              "name": "t07-implement-crud-spec",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 18843,
+              "total_cost_usd": 0.05856310000000001,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 13,
+              "agent": "researcher",
+              "name": "t08-write-test-plan",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 12873,
+              "total_cost_usd": 0.0354497,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 14,
+              "agent": "planner",
+              "name": "t09-review-spec",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 18415,
+              "total_cost_usd": 0.0565178,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 15,
+              "agent": "researcher",
+              "name": "t10-write-docs",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 11167,
+              "total_cost_usd": 0.0361322,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 16,
+              "agent": "builder",
+              "name": "t11-package-release",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 16525,
+              "total_cost_usd": 0.0456494,
+              "permission_denials": [],
+              "problems": []
+            }
+          ],
+          "tool_calls": 82,
+          "tool_errors": 0,
+          "decisions": 4,
+          "decisions_with_evidence": 4,
+          "handoffs": 4,
+          "handoffs_with_facts": 4,
+          "artifacts": 9,
+          "stale_artifacts": 0,
+          "stale_artifact_tasks": [],
+          "contradictions_surfaced": 1,
+          "supersessions_surfaced": 1,
+          "events": [
+            {
+              "event": "kill_builder",
+              "step": 17,
+              "agent": "builder",
+              "task": "t03-design-endpoints",
+              "lease_ms": 45000
+            },
+            {
+              "event": "lease_wait",
+              "step": 17,
+              "task": "t03-design-endpoints",
+              "until_ms": 1792014648103
+            },
+            {
+              "event": "reclaim",
+              "step": 17,
+              "task": "t03-design-endpoints",
+              "agent": "researcher",
+              "reclaimed_from": "builder"
+            },
+            {
+              "event": "publish_v2",
+              "step": 23,
+              "doc": "06_api_style_guide_v2"
+            }
+          ]
+        },
+        "B0": {
+          "status": "completed",
+          "error": "",
+          "completed": true,
+          "tasks_done": 12,
+          "tasks_total": 12,
+          "tasks_not_done": [],
+          "faults_fired": {
+            "kill_builder": 17,
+            "publish_v2": 23
+          },
+          "recovery": {
+            "builder_killed": true,
+            "reclaimed_by": "researcher",
+            "task_finished_after_reclaim": true,
+            "seconds_from_kill_to_reclaim": 43.1
+          },
+          "claude_processes": 16,
+          "claude_turns": 93,
+          "tokens": {
+            "input_tokens": 170,
+            "output_tokens": 17261,
+            "cache_creation_input_tokens": 63061,
+            "cache_read_input_tokens": 900658
+          },
+          "total_tokens": 981150,
+          "cost_usd": 0.5153,
+          "wall_s": 316.4,
+          "permission_denials": 0,
+          "per_turn": [
+            {
+              "turn": 1,
+              "agent": "planner",
+              "name": "init",
+              "killed": false,
+              "knewat_calls": 2,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 3,
+              "duration_ms": 8566,
+              "total_cost_usd": 0.0569089,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 2,
+              "agent": "researcher",
+              "name": "t01-gather-requirements",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 15631,
+              "total_cost_usd": 0.0490779,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 3,
+              "agent": "planner",
+              "name": "t02-choose-api-version",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 11664,
+              "total_cost_usd": 0.023825199999999998,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 4,
+              "agent": "builder",
+              "name": "t03-design-endpoints",
+              "killed": true,
+              "knewat_calls": 3,
+              "subtype": null,
+              "is_error": null,
+              "num_turns": null,
+              "duration_ms": null,
+              "total_cost_usd": null,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 5,
+              "agent": "researcher",
+              "name": "t03-design-endpoints",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 19401,
+              "total_cost_usd": 0.0352591,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 6,
+              "agent": "researcher",
+              "name": "ingest-v2",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 12074,
+              "total_cost_usd": 0.026817100000000003,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 7,
+              "agent": "planner",
+              "name": "adopt-v2",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 9302,
+              "total_cost_usd": 0.021535600000000002,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 8,
+              "agent": "builder",
+              "name": "t12-update-endpoints-for-v2",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 18125,
+              "total_cost_usd": 0.036995,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 9,
+              "agent": "researcher",
+              "name": "t04-survey-infra-security",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 16067,
+              "total_cost_usd": 0.038150300000000005,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 10,
+              "agent": "planner",
+              "name": "t05-choose-auth",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 19143,
+              "total_cost_usd": 0.0399583,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 11,
+              "agent": "builder",
+              "name": "t06-write-db-schema",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 12781,
+              "total_cost_usd": 0.027935200000000004,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 12,
+              "agent": "builder",
+              "name": "t07-implement-crud-spec",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 19446,
+              "total_cost_usd": 0.03832239999999999,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 13,
+              "agent": "researcher",
+              "name": "t08-write-test-plan",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 10916,
+              "total_cost_usd": 0.026925300000000003,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 14,
+              "agent": "planner",
+              "name": "t09-review-spec",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 16985,
+              "total_cost_usd": 0.038149999999999996,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 15,
+              "agent": "researcher",
+              "name": "t10-write-docs",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 11082,
+              "total_cost_usd": 0.0266793,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 16,
+              "agent": "builder",
+              "name": "t11-package-release",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 11983,
+              "total_cost_usd": 0.0287202,
+              "permission_denials": [],
+              "problems": []
+            }
+          ],
+          "tool_calls": 81,
+          "tool_errors": 0,
+          "decisions": 4,
+          "decisions_with_evidence": 4,
+          "handoffs": 4,
+          "handoffs_with_facts": 4,
+          "artifacts": 9,
+          "stale_artifacts": 0,
+          "stale_artifact_tasks": [],
+          "contradictions_surfaced": 1,
+          "supersessions_surfaced": 1,
+          "events": [
+            {
+              "event": "kill_builder",
+              "step": 17,
+              "agent": "builder",
+              "task": "t03-design-endpoints",
+              "lease_ms": 45000
+            },
+            {
+              "event": "lease_wait",
+              "step": 17,
+              "task": "t03-design-endpoints",
+              "until_ms": 1792015059429
+            },
+            {
+              "event": "reclaim",
+              "step": 17,
+              "task": "t03-design-endpoints",
+              "agent": "researcher",
+              "reclaimed_from": "builder"
+            },
+            {
+              "event": "publish_v2",
+              "step": 23,
+              "doc": "06_api_style_guide_v2"
+            }
+          ]
+        },
+        "B1": {
+          "status": "completed",
+          "error": "",
+          "completed": true,
+          "tasks_done": 12,
+          "tasks_total": 12,
+          "tasks_not_done": [],
+          "faults_fired": {
+            "kill_builder": 17,
+            "publish_v2": 23
+          },
+          "recovery": {
+            "builder_killed": true,
+            "reclaimed_by": "researcher",
+            "task_finished_after_reclaim": true,
+            "seconds_from_kill_to_reclaim": 42.9
+          },
+          "claude_processes": 16,
+          "claude_turns": 95,
+          "tokens": {
+            "input_tokens": 172,
+            "output_tokens": 17106,
+            "cache_creation_input_tokens": 57017,
+            "cache_read_input_tokens": 918756
+          },
+          "total_tokens": 993051,
+          "cost_usd": 0.4913,
+          "wall_s": 324.1,
+          "permission_denials": 0,
+          "per_turn": [
+            {
+              "turn": 1,
+              "agent": "planner",
+              "name": "init",
+              "killed": false,
+              "knewat_calls": 2,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 3,
+              "duration_ms": 8045,
+              "total_cost_usd": 0.0317504,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 2,
+              "agent": "researcher",
+              "name": "t01-gather-requirements",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 16238,
+              "total_cost_usd": 0.0489374,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 3,
+              "agent": "planner",
+              "name": "t02-choose-api-version",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 11934,
+              "total_cost_usd": 0.0239503,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 4,
+              "agent": "builder",
+              "name": "t03-design-endpoints",
+              "killed": true,
+              "knewat_calls": 3,
+              "subtype": null,
+              "is_error": null,
+              "num_turns": null,
+              "duration_ms": null,
+              "total_cost_usd": null,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 5,
+              "agent": "researcher",
+              "name": "t03-design-endpoints",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 17514,
+              "total_cost_usd": 0.0338424,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 6,
+              "agent": "researcher",
+              "name": "ingest-v2",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 12561,
+              "total_cost_usd": 0.026574900000000005,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 7,
+              "agent": "planner",
+              "name": "adopt-v2",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 11003,
+              "total_cost_usd": 0.0214205,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 8,
+              "agent": "builder",
+              "name": "t12-update-endpoints-for-v2",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 20232,
+              "total_cost_usd": 0.0387849,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 9,
+              "agent": "researcher",
+              "name": "t04-survey-infra-security",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 15060,
+              "total_cost_usd": 0.03577,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 10,
+              "agent": "planner",
+              "name": "t05-choose-auth",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 19453,
+              "total_cost_usd": 0.038907500000000005,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 11,
+              "agent": "builder",
+              "name": "t06-write-db-schema",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 15704,
+              "total_cost_usd": 0.0276726,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 12,
+              "agent": "builder",
+              "name": "t07-implement-crud-spec",
+              "killed": false,
+              "knewat_calls": 6,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 7,
+              "duration_ms": 19230,
+              "total_cost_usd": 0.0380317,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 13,
+              "agent": "researcher",
+              "name": "t08-write-test-plan",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 11000,
+              "total_cost_usd": 0.025941500000000003,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 14,
+              "agent": "planner",
+              "name": "t09-review-spec",
+              "killed": false,
+              "knewat_calls": 7,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 8,
+              "duration_ms": 14972,
+              "total_cost_usd": 0.03831420000000001,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 15,
+              "agent": "researcher",
+              "name": "t10-write-docs",
+              "killed": false,
+              "knewat_calls": 4,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 5,
+              "duration_ms": 8124,
+              "total_cost_usd": 0.026111500000000003,
+              "permission_denials": [],
+              "problems": []
+            },
+            {
+              "turn": 16,
+              "agent": "builder",
+              "name": "t11-package-release",
+              "killed": false,
+              "knewat_calls": 5,
+              "subtype": "success",
+              "is_error": false,
+              "num_turns": 6,
+              "duration_ms": 18379,
+              "total_cost_usd": 0.0353378,
+              "permission_denials": [],
+              "problems": []
+            }
+          ],
+          "tool_calls": 83,
+          "tool_errors": 0,
+          "decisions": 4,
+          "decisions_with_evidence": 4,
+          "handoffs": 4,
+          "handoffs_with_facts": 4,
+          "artifacts": 9,
+          "stale_artifacts": 0,
+          "stale_artifact_tasks": [],
+          "contradictions_surfaced": 1,
+          "supersessions_surfaced": 1,
+          "events": [
+            {
+              "event": "kill_builder",
+              "step": 17,
+              "agent": "builder",
+              "task": "t03-design-endpoints",
+              "lease_ms": 45000
+            },
+            {
+              "event": "lease_wait",
+              "step": 17,
+              "task": "t03-design-endpoints",
+              "until_ms": 1792015375627
+            },
+            {
+              "event": "reclaim",
+              "step": 17,
+              "task": "t03-design-endpoints",
+              "agent": "researcher",
+              "reclaimed_from": "builder"
+            },
+            {
+              "event": "publish_v2",
+              "step": 23,
+              "doc": "06_api_style_guide_v2"
+            }
+          ]
+        }
+      },
+      "honesty": [
+        "L3 pilot: ONE run per arm (BASELINE \u00a73 asks for >= 5 with fixed seeds); LLM runs are noisy, so nothing here is a ranking.",
+        "B0/B1 agents talk to a purpose-built stdio MCP server with the same tool names and argument names as the Knewat tools the scenario uses (crucible/l3/baseline_mcp.py); they have no lineage tools and `verify_artifact` is only acknowledged. P uses the real knewat-mcp.",
+        "The scheduler, prompts, faults (builder killed at step 15, style guide v2 at step 20) and model are the P3 demo's and identical across arms. The poison fault is off.",
+        "Metrics come from the agents' stream-json transcripts and the final task states; 'stale artifacts' is a text heuristic (an artifact summary written after v2 was published that names v1 and not v2)."
+      ],
+      "headline": [
+        "L3 pilot (n=1 per arm): tasks done P 12/12, B0 12/12, B1 12/12.",
+        "L3: the killed builder's task was reclaimed and finished in 3 of 3 arms (P, B0, B1).",
+        "L3: no separation between arms on evidence-carrying decisions, fact-carrying handoffs, stale artifacts or surfaced contradictions (identical counts).",
+        "L3: cost per full run P $0.69, B0 $0.52, B1 $0.49; with n=1 this is noise-level, not a ranking."
+      ]
+    }
+  },
+  "summary": {
+    "headline": [
+      "L3 pilot (n=1 per arm): tasks done P 12/12, B0 12/12, B1 12/12.",
+      "L3: the killed builder's task was reclaimed and finished in 3 of 3 arms (P, B0, B1).",
+      "L3: no separation between arms on evidence-carrying decisions, fact-carrying handoffs, stale artifacts or surfaced contradictions (identical counts).",
+      "L3: cost per full run P $0.69, B0 $0.52, B1 $0.49; with n=1 this is noise-level, not a ranking."
+    ]
+  },
+  "honesty": [
+    "L3 pilot: ONE run per arm (BASELINE \u00a73 asks for >= 5 with fixed seeds); LLM runs are noisy, so nothing here is a ranking.",
+    "B0/B1 agents talk to a purpose-built stdio MCP server with the same tool names and argument names as the Knewat tools the scenario uses (crucible/l3/baseline_mcp.py); they have no lineage tools and `verify_artifact` is only acknowledged. P uses the real knewat-mcp.",
+    "The scheduler, prompts, faults (builder killed at step 15, style guide v2 at step 20) and model are the P3 demo's and identical across arms. The poison fault is off.",
+    "Metrics come from the agents' stream-json transcripts and the final task states; 'stale artifacts' is a text heuristic (an artifact summary written after v2 was published that names v1 and not v2)."
+  ]
+}

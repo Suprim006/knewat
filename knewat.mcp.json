@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "knewat": {
+      "command": "uv",
+      "args": ["run", "--directory", "knewat", "knewat-mcp", "--transport", "stdio", "--tenant", "demo"],
+      "env": {
+        "FALKORDB_HOST": "127.0.0.1",
+        "FALKORDB_PORT": "6379"
+      }
+    }
+  }
+}

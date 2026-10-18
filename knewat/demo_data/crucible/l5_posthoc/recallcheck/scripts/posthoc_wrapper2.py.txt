@@ -1,0 +1,33 @@
+"""Post-hoc wrapper 2 (recall-check addendum 2): like posthoc_wrapper.py, plus ``PH_KW_VALUE_ONLY=1`` which keeps only the
+keyword ids whose Fact.value contains a query word (main's keyword channel matched Fact.value only). Product code is not edited."""
+
+import os
+import sys
+
+import knewat.engram.service as svc
+
+if sys.argv[1] != "-":
+    for kv in sys.argv[1].split(","):
+        k, v = kv.split("=")
+        assert hasattr(svc, k), k
+        setattr(svc, k, int(v))
+
+if os.environ.get("PH_KW_VALUE_ONLY") == "1":
+    orig = svc.Engram._keyword_ids
+
+    def value_only(self, query, scope_id, k, t, statuses, all_scopes=False):
+        ids = orig(self, query, scope_id, k, t, statuses, all_scopes)
+        if not ids:
+            return ids
+        words = set(svc._query_words(query))
+        res = self.client.graph(self.graph).ro_query(
+            "MATCH (f:Fact) WHERE f.id IN $ids RETURN f.id, f.value", {"ids": ids}
+        )
+        keep = {fid for fid, val in res.result_set if words & set(svc._tokens(str(val)))}
+        return [i for i in ids if i in keep]
+
+    svc.Engram._keyword_ids = value_only
+
+from knewat.crucible.l5.report import main
+
+raise SystemExit(main(sys.argv[2:]))

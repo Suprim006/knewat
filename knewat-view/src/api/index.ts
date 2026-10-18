@@ -1,0 +1,39 @@
+import { createHttpApi, DEFAULT_API_BASE } from './client';
+import type { ViewApi } from './types';
+
+export * from './types';
+export * from './client';
+export * from './sse';
+
+type Env = Record<string, string | boolean | undefined>;
+
+export function isFixtureMode(env: Env = import.meta.env): boolean {
+  return env.VITE_FIXTURES === '1' || env.VITE_FIXTURES === 'true';
+}
+
+/** Lazily loads the fixture client so the dataset stays out of the main chunk until used. */
+function lazyFixtureApi(): ViewApi {
+  const load = import('../fixtures/client').then((m) => m.createFixtureApi());
+  return {
+    tenants: async () => (await load).tenants(),
+    inventory: async (t) => (await load).inventory(t),
+    graph: async (t, q) => (await load).graph(t, q),
+    flow: async (t, a, l) => (await load).flow(t, a, l),
+    step: async (t, n) => (await load).step(t, n),
+    why: async (t, id) => (await load).why(t, id),
+    verifyQueue: async (t, q) => (await load).verifyQueue(t, q),
+    docsToUpdate: async (t, q) => (await load).docsToUpdate(t, q),
+    memoryStrength: async (t, id) => (await load).memoryStrength(t, id),
+    queryText: async (n) => (await load).queryText(n),
+    cypher: async (t, q, p) => (await load).cypher(t, q, p),
+    results: async () => (await load).results(),
+    streamUrl: () => null,
+  };
+}
+
+/** The API the app uses: fixtures when `VITE_FIXTURES=1`, else HTTP at `VITE_KNEWAT_API`. */
+export function createApi(env: Env = import.meta.env): ViewApi {
+  const base =
+    typeof env.VITE_KNEWAT_API === 'string' && env.VITE_KNEWAT_API ? env.VITE_KNEWAT_API : DEFAULT_API_BASE;
+  return isFixtureMode(env) ? lazyFixtureApi() : createHttpApi(base);
+}

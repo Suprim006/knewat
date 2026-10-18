@@ -126,7 +126,7 @@ def score(path: str) -> dict:
                                    "says_note_or_rules_missing": no_record}
     if t.get("tool_calls"):
         flat = [x for turn in t["tool_calls"] for x in turn]
-        out["plexus_tool_use"] = {"turns_with_recall": sum(1 for turn in t["tool_calls"] if any(x.endswith("__recall") for x in turn)),
+        out["knewat_tool_use"] = {"turns_with_recall": sum(1 for turn in t["tool_calls"] if any(x.endswith("__recall") for x in turn)),
                                   "assert_fact_calls": sum(1 for x in flat if x.endswith("__assert_fact")),
                                   "total_tool_calls": len(flat)}
     out["headline_rule_violations"] = len(r1) + len(r2) + len(r3) + len(r4)

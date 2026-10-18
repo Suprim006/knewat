@@ -1,0 +1,150 @@
+{
+ "data_dir": "C:\\Change_folder_after_HDD\\wt-p10\\.p10\\aof-crash-evidence\\data",
+ "container": "knewat-db-rerun-l7i-aofrepro",
+ "attempts": [
+  {
+   "crashed": true,
+   "ready": false,
+   "signature": "crashed by signal: 11, si_code: 1",
+   "eip": "redis-server *:6379(+0x32ac24) [0x55d488ad5c24]",
+   "in_aof_load": true,
+   "seconds": 22.4
+  },
+  {
+   "crashed": false,
+   "ready": true,
+   "signature": null,
+   "seconds": 31.0
+  },
+  {
+   "crashed": true,
+   "ready": false,
+   "signature": "crashed by signal: 11, si_code: 1",
+   "eip": "redis-server *:6379(sdsfree+0x9) [0x55b401ec34b9]",
+   "in_aof_load": true,
+   "seconds": 15.0
+  }
+ ],
+ "summary": {
+  "attempts": 3,
+  "crashed": 2,
+  "signatures": [
+   "crashed by signal: 11, si_code: 1"
+  ]
+ },
+ "incr_commands": 69516,
+ "incr_bytes": 51772616,
+ "bisect_steps": [
+  {
+   "commands": 34758,
+   "bytes": 27952298,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 17379,
+   "bytes": 11626111,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 26068,
+   "bytes": 19296550,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 21723,
+   "bytes": 17924071,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 23895,
+   "bytes": 18596648,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 22809,
+   "bytes": 18218732,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 22266,
+   "bytes": 18080803,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 22537,
+   "bytes": 18143923,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 22673,
+   "bytes": 18179698,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 22741,
+   "bytes": 18199116,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 22707,
+   "bytes": 18184713,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 22724,
+   "bytes": 18187272,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 22732,
+   "bytes": 18190147,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 22728,
+   "bytes": 18187769,
+   "crashed": false,
+   "ready": true
+  },
+  {
+   "commands": 22730,
+   "bytes": 18188027,
+   "crashed": true,
+   "ready": false
+  },
+  {
+   "commands": 22729,
+   "bytes": 18187895,
+   "crashed": false,
+   "ready": true
+  }
+ ],
+ "smallest_crashing_prefix_commands": 22730,
+ "largest_clean_prefix_commands": 22729,
+ "culprit_command_index": 22730,
+ "culprit_command_head": "*3 | $12 | GRAPH.EFFECT | $37 | test_b2531215f3d54fbbaa65cf41f0268def | $58 | \u0003\u0000\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0004\u0000\u0000\u0000\u0007\u0000\u0000\u0000\u0000\u0000\u0000\u0000Entity\u0000\u0001\u0001\u0000\n\u0000\u0000\u0000\u0000\u0000\u0000\u0000norm_name\u0000 | ",
+ "confirm_prefix_without_culprit_crashed": true,
+ "culprit_alone_crashed": false,
+ "rate_full_file": {
+  "attempts": 8,
+  "crashed": 8
+ },
+ "rate_largest_clean_prefix": {
+  "commands": 22729,
+  "attempts": 8,
+  "crashed": 3
+ }
+}

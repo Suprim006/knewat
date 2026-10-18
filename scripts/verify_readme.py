@@ -2,13 +2,13 @@
 """Verify the submission documents: links, mermaid, quoted numbers, video-script ids and timing.
 
     python scripts/verify_readme.py                 # offline checks, exits 1 on any failure
-    PLEXUS_MERMAID_DIR=<dir with `npm i mermaid jsdom`> python scripts/verify_readme.py   # also parses mermaid for real
+    KNEWAT_MERMAID_DIR=<dir with `npm i mermaid jsdom`> python scripts/verify_readme.py   # also parses mermaid for real
 
 Checked documents: README.md, docs/VIDEO_SCRIPT.md, docs/BLOG_DRAFT.md. Standard library only; no network, no database.
 
 1. Links: every relative markdown link and every backticked repo path resolves to a file or directory; `#anchors` match a heading.
 2. Placeholders: README keeps `<VIDEO_URL>` and `<BLOG_URL>` until the owner fills them in (the Render URL is already filled).
-3. Mermaid: each block starts with a known diagram type (and is parsed by mermaid when PLEXUS_MERMAID_DIR is set).
+3. Mermaid: each block starts with a known diagram type (and is parsed by mermaid when KNEWAT_MERMAID_DIR is set).
 4. Numbers: every figure quoted from a source must appear in that source file (and, where the source is the results JSON, equal
    the JSON's value) and in the document that quotes it.
 5. Queries: every linked .cypher exists and has a row in docs/queries.md; the "93 files" claim equals the real file count.
@@ -27,8 +27,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DOCS = ["README.md", "docs/RESULTS.md", "docs/ARCHITECTURE.md", "docs/VIDEO_SCRIPT.md", "docs/BLOG_DRAFT.md"]
-RESULTS = ROOT / "plexus/src/plexus/crucible/results/latest-all.json"
-RECORDING = ROOT / "plexus/demo_data/recordings/acme-claude-sonnet"
+RESULTS = ROOT / "knewat/src/knewat/crucible/results/latest-all.json"
+RECORDING = ROOT / "knewat/demo_data/recordings/acme-claude-sonnet"
 
 failures: list[str] = []
 passed = 0
@@ -71,7 +71,7 @@ def slug(heading: str) -> str:
 
 
 # ---------------------------------------------------------------- 1. links
-PATH_RE = re.compile(r"^(?:docs|plexus|plexus-view|deploy|scripts)/[\w./\-]*$|^(?:render\.yaml|docker-compose\.yml|README\.md|CLAUDE\.md)$")
+PATH_RE = re.compile(r"^(?:docs|knewat|knewat-view|deploy|scripts)/[\w./\-]*$|^(?:render\.yaml|docker-compose\.yml|README\.md|CLAUDE\.md)$")
 
 
 def check_links(doc: str) -> None:
@@ -133,9 +133,9 @@ def check_mermaid() -> None:
             first = block.strip().splitlines()[0] if block.strip() else ""
             check(first.startswith(kinds), f"{doc}: mermaid block {i} starts with an unknown diagram type: {first!r}")
             check(block.count('"') % 2 == 0, f"{doc}: mermaid block {i} has an unbalanced quote")
-    mdir = os.environ.get("PLEXUS_MERMAID_DIR")
+    mdir = os.environ.get("KNEWAT_MERMAID_DIR")
     if not mdir:
-        print("skip  mermaid parse (set PLEXUS_MERMAID_DIR to a directory with `npm i mermaid jsdom`)")
+        print("skip  mermaid parse (set KNEWAT_MERMAID_DIR to a directory with `npm i mermaid jsdom`)")
         return
     script = Path(mdir) / "_verify_parse.mjs"
     script.write_text(MERMAID_JS, encoding="utf-8")
@@ -205,7 +205,7 @@ def numbers() -> None:
     want = f"p99 {cs[('B1', 200)]['p99_ms'] / 1000:.2f} s vs {cs[('P', 200)]['p99_ms'] / 1000:.2f} s"
     check(want in readme, f"README: L4 p99 at 200 workers differs from latest-all.json: {want!r}")
     c7 = {a: L["L1"]["arms"][a]["tests"]["C7"]["metrics"] for a in ("B2", "P")}
-    for a, name in (("B2", "B2"), ("P", "Plexus")):
+    for a, name in (("B2", "B2"), ("P", "Knewat")):
         miss, pairs = int(c7[a]["misses_sequential"]["sum"]), int(c7[a]["pairs"]["sum"])
         want = f"{name} misses {round(100 * miss / pairs)}% ({miss} of {pairs} pairs"
         check(want in readme, f"README: C7 miss rate differs from latest-all.json: {want!r}")
@@ -235,7 +235,7 @@ def numbers() -> None:
         ("view tests", testing, "**229 passed**", readme, "229 View tests"),
         ("tools driven by real run", testing, "11 distinct tools", readme, "only 14 of the 45 tools"),
         ("recording counts", demo, "| `acme-claude-sonnet` | 16 `claude -p` (sonnet) | 247 | 708 |", readme, "247 nodes, 708 edges"),
-        ("blog 36 of 36", baseline, "P answered 36/36" if "P answered 36/36" in baseline else "Plexus answered 36/36", blog, "Plexus scored 36 of 36, SQLite 32, files 30"),
+        ("blog 36 of 36", baseline, "P answered 36/36" if "P answered 36/36" in baseline else "Knewat answered 36/36", blog, "Knewat scored 36 of 36, SQLite 32, files 30"),
     ]
     for label, src, s, doc, d in triples:
         if not src or not doc:
@@ -255,10 +255,10 @@ def numbers() -> None:
         check("83 tool calls" in read("docs/VIDEO_SCRIPT.md") or "83 steps" in read("docs/VIDEO_SCRIPT.md"), "VIDEO_SCRIPT: 83 missing")
 
     # (d) counts derived from the tree
-    n_cypher = len(list((ROOT / "plexus/queries").rglob("*.cypher")))
-    check(f"{n_cypher} files in all" in readme, f"README does not say '{n_cypher} files in all' (plexus/queries has {n_cypher})")
+    n_cypher = len(list((ROOT / "knewat/queries").rglob("*.cypher")))
+    check(f"{n_cypher} files in all" in readme, f"README does not say '{n_cypher} files in all' (knewat/queries has {n_cypher})")
     check(f"({n_cypher} files)" in readme, f"README repo layout does not say ({n_cypher} files)")
-    snap = json.loads((ROOT / "plexus/tests/mcp/snapshots/tools.json").read_text(encoding="utf-8"))
+    snap = json.loads((ROOT / "knewat/tests/mcp/snapshots/tools.json").read_text(encoding="utf-8"))
     n_tools = len(snap)
     mcp_tools = len(re.findall(r"^\s*- \*\*(?:Engram|Relay|Lineage)", read("docs/mcp.md"), flags=re.M))
     check(
@@ -300,7 +300,7 @@ def numbers() -> None:
         f"latest-all.json L6 pilot totals differ from B1a 24/24, B0g 24/24, B0r 2/24, P-mcp 10/16: {tot}",
     )
     check(
-        "B1a 24/24, B0g 24/24, B0r 2/24, Plexus MCP tools 10/16, 88 calls, $7.09" in readme
+        "B1a 24/24, B0g 24/24, B0r 2/24, Knewat MCP tools 10/16, 88 calls, $7.09" in readme
         and L["L6"]["llm_calls_total"] == 88
         and round(L["L6"]["cost_usd_total"], 2) == 7.09,
         "README: L6 pilot line differs from latest-all.json",
@@ -317,7 +317,7 @@ def numbers() -> None:
 def queries() -> None:
     index = read("docs/queries.md")
     seen = 0
-    for m in re.finditer(r"\]\((plexus/queries/([\w/]+)\.cypher)\)", read("README.md")):
+    for m in re.finditer(r"\]\((knewat/queries/([\w/]+)\.cypher)\)", read("README.md")):
         seen += 1
         check((ROOT / m.group(1)).exists(), f"README: query file missing: {m.group(1)}")
         name = m.group(2)

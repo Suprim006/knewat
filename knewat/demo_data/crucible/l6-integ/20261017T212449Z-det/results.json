@@ -1,0 +1,3202 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "det",
+ "run": {
+  "id": "20261017T212449Z-det",
+  "started_at": "2026-10-17T21:24:49Z",
+  "finished_at": "2026-10-17T21:24:57Z",
+  "command": "python -m knewat.crucible.l6.run det --port 6374 --out demo_data/crucible/l6-integ --families B",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "47dd26aee5f741d2ff33a184c84cad91e96c6ae0",
+  "short": "47dd26a",
+  "dirty": false,
+  "branch": "integ"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "47dd26a",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6374,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "families": {
+  "B": {
+   "world": {
+    "agents": 30,
+    "sources": 1388,
+    "facts": 21120,
+    "derived_edges": 21960,
+    "steps": 0,
+    "reads": 0,
+    "decisions": 48,
+    "based_on": 48,
+    "handoffs": 0,
+    "carries": 0,
+    "tasks": 1,
+    "depends_on": 0,
+    "supersedes": 0
+   },
+   "arms": {
+    "B1h": {
+     "arm": "B1h",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "chain": 24,
+      "agent": 24
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 0.09,
+      "p99": 2.9,
+      "max": 2.9
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 2.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.08,
+       "latency_ms_all": [
+        2.9,
+        0.08,
+        0.06
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.06,
+       "latency_ms_all": [
+        0.06,
+        0.06,
+        0.05
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.05,
+       "latency_ms_all": [
+        0.06,
+        0.05,
+        0.05
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.05,
+       "latency_ms_all": [
+        0.06,
+        0.05,
+        0.05
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.07,
+       "latency_ms_all": [
+        0.08,
+        0.06,
+        0.07
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.07,
+       "latency_ms_all": [
+        0.09,
+        0.07,
+        0.07
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.07,
+       "latency_ms_all": [
+        0.08,
+        0.07,
+        0.07
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.07,
+       "latency_ms_all": [
+        0.07,
+        0.07,
+        0.06
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.08,
+       "latency_ms_all": [
+        0.08,
+        0.08,
+        0.08
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.08,
+       "latency_ms_all": [
+        0.1,
+        0.08,
+        0.08
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.08,
+       "latency_ms_all": [
+        0.09,
+        0.08,
+        0.08
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.08,
+       "latency_ms_all": [
+        0.08,
+        0.08,
+        0.08
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.11,
+       "latency_ms_all": [
+        0.11,
+        0.1,
+        0.11
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.1,
+       "latency_ms_all": [
+        0.11,
+        0.1,
+        0.1
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.09,
+       "latency_ms_all": [
+        0.11,
+        0.09,
+        0.09
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.12,
+       "latency_ms_all": [
+        0.24,
+        0.12,
+        0.1
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.14,
+       "latency_ms_all": [
+        0.15,
+        0.14,
+        0.12
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B18",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.09,
+       "latency_ms_all": [
+        0.12,
+        0.09,
+        0.09
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B19",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.1,
+       "latency_ms_all": [
+        0.11,
+        0.09,
+        0.1
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B20",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.09,
+       "latency_ms_all": [
+        0.11,
+        0.09,
+        0.09
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.12,
+       "latency_ms_all": [
+        0.14,
+        0.12,
+        0.12
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B22",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.14,
+       "latency_ms_all": [
+        0.14,
+        0.13,
+        0.22
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B23",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.17,
+       "latency_ms_all": [
+        0.17,
+        0.17,
+        0.2
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B24",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 0.18,
+       "latency_ms_all": [
+        0.22,
+        0.18,
+        0.16
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      }
+     ]
+    },
+    "P-tuned": {
+     "arm": "P-tuned",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "chain": 24,
+      "agent": 24
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 14.81,
+      "p99": 42.4,
+      "max": 42.4
+     },
+     "server_ms_median": 1.105,
+     "statements_per_answer_median": 7.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 4,
+       "latency_ms_median": 8.27,
+       "latency_ms_all": [
+        9.7,
+        7.67,
+        8.27
+       ],
+       "server_ms_median": 0.598,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 4,
+       "latency_ms_median": 8.83,
+       "latency_ms_all": [
+        8.42,
+        8.83,
+        9.36
+       ],
+       "server_ms_median": 0.656,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 4,
+       "latency_ms_median": 9.92,
+       "latency_ms_all": [
+        24.36,
+        9.92,
+        9.91
+       ],
+       "server_ms_median": 0.96,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 4,
+       "latency_ms_median": 9.37,
+       "latency_ms_all": [
+        11.14,
+        9.37,
+        9.18
+       ],
+       "server_ms_median": 0.684,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 5,
+       "latency_ms_median": 10.65,
+       "latency_ms_all": [
+        13.19,
+        10.52,
+        10.65
+       ],
+       "server_ms_median": 0.865,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 5,
+       "latency_ms_median": 11.08,
+       "latency_ms_all": [
+        10.02,
+        11.08,
+        11.51
+       ],
+       "server_ms_median": 0.877,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 5,
+       "latency_ms_median": 11.16,
+       "latency_ms_all": [
+        11.16,
+        12.08,
+        10.56
+       ],
+       "server_ms_median": 0.886,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 5,
+       "latency_ms_median": 10.37,
+       "latency_ms_all": [
+        10.8,
+        10.02,
+        10.37
+       ],
+       "server_ms_median": 0.8,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 11.98,
+       "latency_ms_all": [
+        12.21,
+        11.88,
+        11.98
+       ],
+       "server_ms_median": 1.036,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 12.35,
+       "latency_ms_all": [
+        11.29,
+        13.86,
+        12.35
+       ],
+       "server_ms_median": 0.961,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 11.09,
+       "latency_ms_all": [
+        11.09,
+        10.51,
+        11.93
+       ],
+       "server_ms_median": 0.881,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 6,
+       "latency_ms_median": 11.05,
+       "latency_ms_all": [
+        11.05,
+        12.0,
+        10.82
+       ],
+       "server_ms_median": 0.905,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 15.77,
+       "latency_ms_all": [
+        15.77,
+        15.36,
+        16.57
+       ],
+       "server_ms_median": 1.174,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 14.84,
+       "latency_ms_all": [
+        14.81,
+        14.84,
+        15.34
+       ],
+       "server_ms_median": 1.173,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 16.35,
+       "latency_ms_all": [
+        15.08,
+        16.35,
+        16.43
+       ],
+       "server_ms_median": 1.35,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 8,
+       "latency_ms_median": 15.13,
+       "latency_ms_all": [
+        15.53,
+        14.81,
+        15.13
+       ],
+       "server_ms_median": 1.237,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 10,
+       "latency_ms_median": 18.71,
+       "latency_ms_all": [
+        18.06,
+        20.26,
+        18.71
+       ],
+       "server_ms_median": 1.449,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B18",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 10,
+       "latency_ms_median": 19.11,
+       "latency_ms_all": [
+        19.11,
+        19.28,
+        18.53
+       ],
+       "server_ms_median": 1.463,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B19",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 10,
+       "latency_ms_median": 19.33,
+       "latency_ms_all": [
+        18.48,
+        19.33,
+        20.06
+       ],
+       "server_ms_median": 1.63,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B20",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 10,
+       "latency_ms_median": 19.11,
+       "latency_ms_all": [
+        19.11,
+        20.19,
+        19.01
+       ],
+       "server_ms_median": 1.525,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 32.17,
+       "latency_ms_all": [
+        32.0,
+        42.4,
+        32.17
+       ],
+       "server_ms_median": 2.753,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B22",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 32.85,
+       "latency_ms_all": [
+        29.38,
+        33.18,
+        32.85
+       ],
+       "server_ms_median": 2.595,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B23",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 34.92,
+       "latency_ms_all": [
+        35.81,
+        33.3,
+        34.92
+       ],
+       "server_ms_median": 2.579,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B24",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 14,
+       "latency_ms_median": 29.6,
+       "latency_ms_all": [
+        32.48,
+        29.6,
+        28.28
+       ],
+       "server_ms_median": 2.445,
+       "expected": null,
+       "got": null
+      }
+     ]
+    },
+    "P-naive": {
+     "arm": "P-naive",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "chain": 24,
+      "agent": 24
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 4.77,
+      "p99": 8.72,
+      "max": 8.72
+     },
+     "server_ms_median": 0.364,
+     "statements_per_answer_median": 2.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.54,
+       "latency_ms_all": [
+        4.9,
+        3.52,
+        4.54
+       ],
+       "server_ms_median": 0.319,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.3,
+       "latency_ms_all": [
+        5.73,
+        4.3,
+        4.24
+       ],
+       "server_ms_median": 0.299,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.21,
+       "latency_ms_all": [
+        4.26,
+        4.21,
+        3.9
+       ],
+       "server_ms_median": 0.317,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 3.98,
+       "latency_ms_all": [
+        3.8,
+        3.98,
+        4.64
+       ],
+       "server_ms_median": 0.26,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 6.53,
+       "latency_ms_all": [
+        5.37,
+        6.6,
+        6.53
+       ],
+       "server_ms_median": 0.424,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 5.51,
+       "latency_ms_all": [
+        5.52,
+        4.9,
+        5.51
+       ],
+       "server_ms_median": 0.477,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.27,
+       "latency_ms_all": [
+        5.4,
+        4.24,
+        4.27
+       ],
+       "server_ms_median": 0.322,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 3.92,
+       "latency_ms_all": [
+        4.15,
+        3.92,
+        3.91
+       ],
+       "server_ms_median": 0.312,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.67,
+       "latency_ms_all": [
+        4.45,
+        5.42,
+        4.67
+       ],
+       "server_ms_median": 0.357,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.78,
+       "latency_ms_all": [
+        4.68,
+        5.26,
+        4.78
+       ],
+       "server_ms_median": 0.355,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.95,
+       "latency_ms_all": [
+        4.69,
+        5.31,
+        4.95
+       ],
+       "server_ms_median": 0.403,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.64,
+       "latency_ms_all": [
+        4.92,
+        4.64,
+        4.51
+       ],
+       "server_ms_median": 0.352,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.59,
+       "latency_ms_all": [
+        4.59,
+        4.3,
+        4.86
+       ],
+       "server_ms_median": 0.323,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.77,
+       "latency_ms_all": [
+        4.77,
+        4.67,
+        5.53
+       ],
+       "server_ms_median": 0.372,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.54,
+       "latency_ms_all": [
+        4.39,
+        4.54,
+        5.33
+       ],
+       "server_ms_median": 0.409,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 5.28,
+       "latency_ms_all": [
+        6.02,
+        5.28,
+        4.95
+       ],
+       "server_ms_median": 0.389,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 5.37,
+       "latency_ms_all": [
+        6.02,
+        5.37,
+        5.02
+       ],
+       "server_ms_median": 0.422,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B18",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 5.47,
+       "latency_ms_all": [
+        5.47,
+        7.41,
+        5.33
+       ],
+       "server_ms_median": 0.437,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B19",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 6.3,
+       "latency_ms_all": [
+        6.3,
+        6.99,
+        6.11
+       ],
+       "server_ms_median": 0.525,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B20",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 4.77,
+       "latency_ms_all": [
+        5.33,
+        4.77,
+        4.35
+       ],
+       "server_ms_median": 0.436,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 5.65,
+       "latency_ms_all": [
+        5.65,
+        4.92,
+        8.72
+       ],
+       "server_ms_median": 0.548,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B22",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 5.26,
+       "latency_ms_all": [
+        5.26,
+        5.42,
+        4.34
+       ],
+       "server_ms_median": 0.443,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B23",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 3.57,
+       "latency_ms_all": [
+        3.67,
+        3.49,
+        3.57
+       ],
+       "server_ms_median": 0.308,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B24",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 2,
+       "latency_ms_median": 3.84,
+       "latency_ms_all": [
+        3.84,
+        4.66,
+        3.83
+       ],
+       "server_ms_median": 0.357,
+       "expected": null,
+       "got": null
+      }
+     ]
+    },
+    "P-product-tool": {
+     "arm": "P-product-tool",
+     "n": 24,
+     "strict_correct": 16,
+     "timeouts": 0,
+     "other_errors": 8,
+     "components_correct": {
+      "chain": 16,
+      "agent": 16
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 18.43,
+      "p99": 42.38,
+      "max": 42.38
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 17.28,
+       "latency_ms_all": [
+        30.06,
+        17.28,
+        12.02
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 12.53,
+       "latency_ms_all": [
+        12.53,
+        12.02,
+        12.79
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.3,
+       "latency_ms_all": [
+        11.99,
+        10.88,
+        11.3
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 12.17,
+       "latency_ms_all": [
+        11.85,
+        12.72,
+        12.17
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 13.13,
+       "latency_ms_all": [
+        11.97,
+        13.13,
+        15.85
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 15.79,
+       "latency_ms_all": [
+        15.79,
+        15.43,
+        17.51
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.1,
+       "latency_ms_all": [
+        13.25,
+        16.21,
+        16.1
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.92,
+       "latency_ms_all": [
+        14.97,
+        14.92,
+        14.51
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.87,
+       "latency_ms_all": [
+        18.43,
+        16.87,
+        16.71
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.72,
+       "latency_ms_all": [
+        16.72,
+        14.7,
+        18.14
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.51,
+       "latency_ms_all": [
+        16.51,
+        15.45,
+        19.86
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 19.41,
+       "latency_ms_all": [
+        24.59,
+        19.41,
+        17.11
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 19.07,
+       "latency_ms_all": [
+        19.62,
+        19.07,
+        18.04
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 19.37,
+       "latency_ms_all": [
+        19.37,
+        19.51,
+        18.78
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 20.93,
+       "latency_ms_all": [
+        21.17,
+        19.16,
+        20.93
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 21.82,
+       "latency_ms_all": [
+        21.82,
+        20.89,
+        24.81
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 23.14,
+       "latency_ms_all": [
+        23.63,
+        23.14,
+        22.0
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000512",
+         "f000508",
+         "f000504",
+         "f000500",
+         "f000496",
+         "f000492",
+         "f000488",
+         "f000484"
+        ],
+        "agent": "a24"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B18",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 22.03,
+       "latency_ms_all": [
+        42.38,
+        22.03,
+        19.88
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000576",
+         "f000572",
+         "f000568",
+         "f000564",
+         "f000560",
+         "f000556",
+         "f000552",
+         "f000548"
+        ],
+        "agent": "a07"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B19",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 19.77,
+       "latency_ms_all": [
+        21.04,
+        19.67,
+        19.77
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000640",
+         "f000636",
+         "f000632",
+         "f000628",
+         "f000624",
+         "f000620",
+         "f000616",
+         "f000612"
+        ],
+        "agent": "a30"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B20",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 22.8,
+       "latency_ms_all": [
+        23.94,
+        22.8,
+        22.06
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000704",
+         "f000700",
+         "f000696",
+         "f000692",
+         "f000688",
+         "f000684",
+         "f000680",
+         "f000676"
+        ],
+        "agent": "a27"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B21",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 22.86,
+       "latency_ms_all": [
+        23.04,
+        22.86,
+        21.78
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000784",
+         "f000780",
+         "f000776",
+         "f000772",
+         "f000768",
+         "f000764",
+         "f000760",
+         "f000756",
+         "f000752",
+         "f000748",
+         "f000744",
+         "f000740"
+        ],
+        "agent": "a06"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B22",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 19.74,
+       "latency_ms_all": [
+        24.46,
+        19.74,
+        17.81
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000880",
+         "f000876",
+         "f000872",
+         "f000868",
+         "f000864",
+         "f000860",
+         "f000856",
+         "f000852",
+         "f000848",
+         "f000844",
+         "f000840",
+         "f000836"
+        ],
+        "agent": "a23"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B23",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 18.14,
+       "latency_ms_all": [
+        20.67,
+        18.14,
+        17.27
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000976",
+         "f000972",
+         "f000968",
+         "f000964",
+         "f000960",
+         "f000956",
+         "f000952",
+         "f000948",
+         "f000944",
+         "f000940",
+         "f000936",
+         "f000932"
+        ],
+        "agent": "a09"
+       },
+       "got": "{}"
+      },
+      {
+       "id": "B24",
+       "strict": false,
+       "components": {},
+       "error": "root not in the why result",
+       "statements": 1,
+       "latency_ms_median": 20.31,
+       "latency_ms_all": [
+        21.82,
+        20.31,
+        20.07
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f001072",
+         "f001068",
+         "f001064",
+         "f001060",
+         "f001056",
+         "f001052",
+         "f001048",
+         "f001044",
+         "f001040",
+         "f001036",
+         "f001032",
+         "f001028"
+        ],
+        "agent": "a17"
+       },
+       "got": "{}"
+      }
+     ]
+    },
+    "P-product-service": {
+     "arm": "P-product-service",
+     "n": 24,
+     "strict_correct": 24,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "chain": 24,
+      "agent": 24
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 20.76,
+      "p99": 49.35,
+      "max": 49.35
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.17,
+       "latency_ms_all": [
+        11.17,
+        12.97,
+        10.65
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.9,
+       "latency_ms_all": [
+        10.9,
+        11.72,
+        10.05
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.37,
+       "latency_ms_all": [
+        11.37,
+        12.05,
+        10.48
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 12.85,
+       "latency_ms_all": [
+        12.85,
+        13.53,
+        11.7
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 15.49,
+       "latency_ms_all": [
+        16.31,
+        15.49,
+        14.65
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 24.13,
+       "latency_ms_all": [
+        15.02,
+        24.13,
+        24.46
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.85,
+       "latency_ms_all": [
+        22.91,
+        14.85,
+        13.54
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 13.33,
+       "latency_ms_all": [
+        15.17,
+        13.33,
+        13.23
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.12,
+       "latency_ms_all": [
+        16.53,
+        16.12,
+        15.85
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 15.41,
+       "latency_ms_all": [
+        16.38,
+        15.41,
+        14.79
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.2,
+       "latency_ms_all": [
+        16.2,
+        15.73,
+        16.76
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.45,
+       "latency_ms_all": [
+        17.67,
+        16.35,
+        16.45
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 20.76,
+       "latency_ms_all": [
+        22.06,
+        20.76,
+        19.8
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 22.59,
+       "latency_ms_all": [
+        22.59,
+        23.24,
+        21.78
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 22.94,
+       "latency_ms_all": [
+        22.94,
+        23.67,
+        22.79
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 22.11,
+       "latency_ms_all": [
+        22.11,
+        19.56,
+        24.2
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 27.91,
+       "latency_ms_all": [
+        29.77,
+        27.91,
+        25.71
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B18",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 31.92,
+       "latency_ms_all": [
+        29.26,
+        32.25,
+        31.92
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B19",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 33.07,
+       "latency_ms_all": [
+        35.09,
+        33.07,
+        30.04
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B20",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 29.41,
+       "latency_ms_all": [
+        49.35,
+        29.41,
+        28.16
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B21",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 36.25,
+       "latency_ms_all": [
+        38.95,
+        36.08,
+        36.25
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B22",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 42.99,
+       "latency_ms_all": [
+        42.99,
+        40.17,
+        43.27
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B23",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 36.95,
+       "latency_ms_all": [
+        36.95,
+        35.83,
+        37.76
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B24",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 32.56,
+       "latency_ms_all": [
+        32.56,
+        31.2,
+        34.35
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      }
+     ]
+    },
+    "P-product-tool-p9f": {
+     "arm": "P-product-tool-p9f",
+     "n": 24,
+     "strict_correct": 20,
+     "timeouts": 0,
+     "other_errors": 0,
+     "components_correct": {
+      "chain": 24,
+      "agent": 20
+     },
+     "strict_without_earliest5": null,
+     "latency_ms": {
+      "p50": 21.72,
+      "p99": 49.54,
+      "max": 49.54
+     },
+     "server_ms_median": 0.0,
+     "statements_per_answer_median": 1.0,
+     "questions": [
+      {
+       "id": "B01",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.58,
+       "latency_ms_all": [
+        13.22,
+        10.67,
+        11.58
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B02",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 10.38,
+       "latency_ms_all": [
+        9.93,
+        10.91,
+        10.38
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B03",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.12,
+       "latency_ms_all": [
+        11.12,
+        10.84,
+        11.32
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B04",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 11.28,
+       "latency_ms_all": [
+        11.28,
+        10.78,
+        11.68
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B05",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.33,
+       "latency_ms_all": [
+        14.7,
+        14.33,
+        14.18
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B06",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.58,
+       "latency_ms_all": [
+        14.98,
+        14.11,
+        14.58
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B07",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.03,
+       "latency_ms_all": [
+        13.49,
+        15.46,
+        14.03
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B08",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 14.2,
+       "latency_ms_all": [
+        14.2,
+        14.04,
+        14.84
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B09",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.09,
+       "latency_ms_all": [
+        17.53,
+        16.09,
+        15.04
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B10",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 16.93,
+       "latency_ms_all": [
+        16.94,
+        16.93,
+        16.17
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B11",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 17.65,
+       "latency_ms_all": [
+        17.65,
+        17.1,
+        20.61
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B12",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 21.5,
+       "latency_ms_all": [
+        23.97,
+        21.5,
+        21.28
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B13",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 25.55,
+       "latency_ms_all": [
+        25.55,
+        33.81,
+        24.74
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B14",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 23.29,
+       "latency_ms_all": [
+        25.25,
+        22.42,
+        23.29
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B15",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 23.34,
+       "latency_ms_all": [
+        23.34,
+        21.72,
+        25.7
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B16",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 21.94,
+       "latency_ms_all": [
+        21.94,
+        22.23,
+        21.83
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B17",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 28.16,
+       "latency_ms_all": [
+        23.47,
+        49.54,
+        28.16
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B18",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 27.69,
+       "latency_ms_all": [
+        27.69,
+        24.44,
+        29.35
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B19",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 27.07,
+       "latency_ms_all": [
+        26.68,
+        27.07,
+        27.91
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B20",
+       "strict": true,
+       "components": {
+        "chain": true,
+        "agent": true
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 26.87,
+       "latency_ms_all": [
+        28.09,
+        26.87,
+        24.34
+       ],
+       "server_ms_median": 0,
+       "expected": null,
+       "got": null
+      },
+      {
+       "id": "B21",
+       "strict": false,
+       "components": {
+        "chain": true,
+        "agent": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 36.33,
+       "latency_ms_all": [
+        37.09,
+        36.33,
+        35.41
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000784",
+         "f000780",
+         "f000776",
+         "f000772",
+         "f000768",
+         "f000764",
+         "f000760",
+         "f000756",
+         "f000752",
+         "f000748",
+         "f000744",
+         "f000740"
+        ],
+        "agent": "a06"
+       },
+       "got": "{\"chain\": [\"f000784\", \"f000780\", \"f000776\", \"f000772\", \"f000768\", \"f000764\", \"f000760\", \"f000756\", \"f000752\", \"f000748\", \"f000744\", \"f000740\"], \"agent\": \"\"}"
+      },
+      {
+       "id": "B22",
+       "strict": false,
+       "components": {
+        "chain": true,
+        "agent": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 33.32,
+       "latency_ms_all": [
+        34.21,
+        32.67,
+        33.32
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000880",
+         "f000876",
+         "f000872",
+         "f000868",
+         "f000864",
+         "f000860",
+         "f000856",
+         "f000852",
+         "f000848",
+         "f000844",
+         "f000840",
+         "f000836"
+        ],
+        "agent": "a23"
+       },
+       "got": "{\"chain\": [\"f000880\", \"f000876\", \"f000872\", \"f000868\", \"f000864\", \"f000860\", \"f000856\", \"f000852\", \"f000848\", \"f000844\", \"f000840\", \"f000836\"], \"agent\": \"\"}"
+      },
+      {
+       "id": "B23",
+       "strict": false,
+       "components": {
+        "chain": true,
+        "agent": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 37.32,
+       "latency_ms_all": [
+        35.34,
+        37.98,
+        37.32
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f000976",
+         "f000972",
+         "f000968",
+         "f000964",
+         "f000960",
+         "f000956",
+         "f000952",
+         "f000948",
+         "f000944",
+         "f000940",
+         "f000936",
+         "f000932"
+        ],
+        "agent": "a09"
+       },
+       "got": "{\"chain\": [\"f000976\", \"f000972\", \"f000968\", \"f000964\", \"f000960\", \"f000956\", \"f000952\", \"f000948\", \"f000944\", \"f000940\", \"f000936\", \"f000932\"], \"agent\": \"\"}"
+      },
+      {
+       "id": "B24",
+       "strict": false,
+       "components": {
+        "chain": true,
+        "agent": false
+       },
+       "error": "",
+       "statements": 1,
+       "latency_ms_median": 35.89,
+       "latency_ms_all": [
+        36.07,
+        35.89,
+        32.0
+       ],
+       "server_ms_median": 0,
+       "expected": {
+        "chain": [
+         "f001072",
+         "f001068",
+         "f001064",
+         "f001060",
+         "f001056",
+         "f001052",
+         "f001048",
+         "f001044",
+         "f001040",
+         "f001036",
+         "f001032",
+         "f001028"
+        ],
+        "agent": "a17"
+       },
+       "got": "{\"chain\": [\"f001072\", \"f001068\", \"f001064\", \"f001060\", \"f001056\", \"f001052\", \"f001048\", \"f001044\", \"f001040\", \"f001036\", \"f001032\", \"f001028\"], \"agent\": \"\"}"
+      }
+     ]
+    }
+   },
+   "correct_by_depth_of_4": {
+    "B1h": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 4,
+     "12": 4
+    },
+    "P-tuned": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 4,
+     "12": 4
+    },
+    "P-naive": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 4,
+     "12": 4
+    },
+    "P-product-tool": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 0,
+     "12": 0
+    },
+    "P-product-service": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 4,
+     "12": 4
+    },
+    "P-product-tool-p9f": {
+     "2": 4,
+     "3": 4,
+     "4": 4,
+     "6": 4,
+     "8": 4,
+     "12": 0
+    }
+   },
+   "pairs_vs_B1h": [
+    {
+     "a": "B1h",
+     "b": "P-tuned",
+     "only_a_right": 0,
+     "only_b_right": 0,
+     "both_right": 24,
+     "p_two_sided": 1.0
+    },
+    {
+     "a": "B1h",
+     "b": "P-naive",
+     "only_a_right": 0,
+     "only_b_right": 0,
+     "both_right": 24,
+     "p_two_sided": 1.0
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-tool",
+     "only_a_right": 8,
+     "only_b_right": 0,
+     "both_right": 16,
+     "p_two_sided": 0.0078
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-service",
+     "only_a_right": 0,
+     "only_b_right": 0,
+     "both_right": 24,
+     "p_two_sided": 1.0
+    },
+    {
+     "a": "B1h",
+     "b": "P-product-tool-p9f",
+     "only_a_right": 4,
+     "only_b_right": 0,
+     "both_right": 20,
+     "p_two_sided": 0.125
+    }
+   ],
+   "query_lines": {
+    "B1h": 25,
+    "P-tuned": 43,
+    "P-naive": 19
+   }
+  }
+ }
+}

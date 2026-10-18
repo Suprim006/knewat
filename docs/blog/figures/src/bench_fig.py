@@ -1,13 +1,13 @@
 """Figure 05: benchmark. Reads the real Crucible results, draws three panels, prints every plotted number.
 
 Inputs (nothing typed from memory, except the arm display names the spec asks for):
-  plexus/src/plexus/crucible/results/latest-all.json
+  knewat/src/knewat/crucible/results/latest-all.json
       layers.L2.arms.<arm>.accuracy {correct,total,pct}                 (43 questions)
       layers.L2_scale.arms.<arm>.accuracy {correct,total,pct,wilson95_pct} (36 questions, one run each)
       layers.L2.summary.tokens_per_question
       layers.L2_scale.history.artifact_chars_over_budget               (context multiples)
-      layers.L4.claim_sweep[arm, workers].claim.p50_ms                  (median claim latency; arms B1 = SQLite, P = Plexus)
-  plexus/demo_data/crucible/b1h/latest.json  layers.L2.arm / layers.L2_scale.arm   (hand-written SQL arm; falls back to
+      layers.L4.claim_sweep[arm, workers].claim.p50_ms                  (median claim latency; arms B1 = SQLite, P = Knewat)
+  knewat/demo_data/crucible/b1h/latest.json  layers.L2.arm / layers.L2_scale.arm   (hand-written SQL arm; falls back to
       layers.B1h in latest-all.json, same numbers; BASELINE.md line ~553 quotes 43/43 and 36/36)
   colours: tokens.css (written by figlib.py)
 Canvas: 12 x 6.75 in at 200 dpi = 2400 x 1350 px (= 1200 x 675 at 2x). No bbox_inches='tight', so the size is exact.
@@ -27,14 +27,14 @@ from matplotlib.patches import Patch  # noqa: E402
 SRC = Path(__file__).resolve().parent
 OUT = SRC.parent
 REPO = SRC.parents[3]
-RES = REPO / "plexus/src/plexus/crucible/results/latest-all.json"
-B1H = REPO / "plexus/demo_data/crucible/b1h/latest.json"
+RES = REPO / "knewat/src/knewat/crucible/results/latest-all.json"
+B1H = REPO / "knewat/demo_data/crucible/b1h/latest.json"
 
 # ---- tokens ----------------------------------------------------------------------------------------------------------
 css = (SRC / "tokens.css").read_text(encoding="utf-8")
 tok = dict(re.findall(r"--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})", css))
 CARD, PANEL, INK, MUTED, DIM, GRIDC = tok["card"], tok["panel"], tok["ink"], tok["muted"], tok["dim"], tok["grid"]
-C_PLEXUS = tok["node-fact-stroke"]      # emerald
+C_KNEWAT = tok["node-fact-stroke"]      # emerald
 C_SQL = tok["node-toolcall-stroke"]     # amber: everything SQLite
 C_LLM = tok["node-step-stroke"]         # slate: LLM readers over files / CSV / vectors
 
@@ -46,7 +46,7 @@ run_id = J["run"]["id"]
 # ---- data --------------------------------------------------------------------------------------------------------------
 if B1H.exists():
     b1h = json.loads(B1H.read_text(encoding="utf-8"))["layers"]
-    b1h_src = "plexus/demo_data/crucible/b1h/latest.json"
+    b1h_src = "knewat/demo_data/crucible/b1h/latest.json"
 else:
     b1h = L["B1h"]["layers"]
     b1h_src = "latest-all.json layers.B1h"
@@ -55,7 +55,7 @@ arms = [  # key, label, colour, L2 accuracy dict, L2-scale accuracy dict
     ("B1", "SQLite CSV + Claude", C_LLM, L["L2"]["arms"]["B1"]["accuracy"], L["L2_scale"]["arms"]["B1"]["accuracy"]),
     ("B2", "vector + Claude", C_LLM, L["L2"]["arms"]["B2"]["accuracy"], L["L2_scale"]["arms"]["B2"]["accuracy"]),
     ("B1h", "hand-written SQL", C_SQL, b1h["L2"]["arm"]["accuracy"], b1h["L2_scale"]["arm"]["accuracy"]),
-    ("P", "Plexus (Cypher)", C_PLEXUS, L["L2"]["arms"]["P"]["accuracy"], L["L2_scale"]["arms"]["P"]["accuracy"]),
+    ("P", "Knewat (Cypher)", C_KNEWAT, L["L2"]["arms"]["P"]["accuracy"], L["L2_scale"]["arms"]["P"]["accuracy"]),
 ]
 sweep = {(r["arm"], r["workers"]): r["claim"]["p50_ms"] for r in L["L4"]["claim_sweep"]}
 workers = sorted({w for (_, w) in sweep})
@@ -73,18 +73,18 @@ for k, lab, _, a2, a36 in arms:
     w = a36.get("wilson95_pct")
     print(f"correctness {lab:22s} L2 {a2['correct']}/{a2['total']} ({a2['pct']}%)   L2-scale {a36['correct']}/{a36['total']} ({a36['pct']}%) wilson95={w}")
 print("median claim latency p50 ms, workers", workers)
-for a, nm in (("B1", "SQLite"), ("P", "Plexus")):
+for a, nm in (("B1", "SQLite"), ("P", "Knewat")):
     print(f"  {nm:7s}", lat[a])
 print("L2 tokens/question", {k: tokens[k] for k in ("B0", "B1", "B2", "P")}, " B1h tokens/question", b1h["L2"]["arm"]["usage"]["tokens_per_question"])
 print("context over budget (L2-scale artifact chars / 32k budget)", over)
-print("questions where Plexus and hand SQL differ: L2", d_l2, "L2-scale", d_l2s)
+print("questions where Knewat and hand SQL differ: L2", d_l2, "L2-scale", d_l2s)
 print("B1h source:", b1h_src, "| results file:", RES.name, "| run", run_id, "| commit", commit)
 
 # ---- figure ------------------------------------------------------------------------------------------------------------
 plt.rcParams.update({"font.family": ["Segoe UI", "DejaVu Sans"], "text.color": INK, "axes.labelcolor": MUTED,
                      "xtick.color": MUTED, "ytick.color": INK, "axes.edgecolor": "#334155", "font.size": 10})
 fig = plt.figure(figsize=(12, 6.75), dpi=200, facecolor=CARD)
-fig.text(0.037, 0.945, "Hand-written SQL ties Plexus on correctness; both beat LLM readers at 10-17x context;",
+fig.text(0.037, 0.945, "Hand-written SQL ties Knewat on correctness; both beat LLM readers at 10-17x context;",
          fontsize=17, fontweight="bold", color="#f8fafc", va="center")
 fig.text(0.037, 0.893, "SQLite wins the median claim", fontsize=17, fontweight="bold", color="#f8fafc", va="center")
 gs = fig.add_gridspec(1, 3, left=0.175, right=0.985, top=0.775, bottom=0.215, width_ratios=[1.5, 1.05, 0.9], wspace=0.34)
@@ -121,13 +121,13 @@ ax.legend(handles=[Patch(facecolor=MUTED, alpha=0.42, label=f"L2, {arms[0][3]['t
 # (b) median claim latency
 ax = fig.add_subplot(gs[0, 1]); style(ax)
 ax.plot(workers, lat["B1"], color=C_SQL, marker="o", markersize=6, linewidth=2.4, label="SQLite (in process)")
-ax.plot(workers, lat["P"], color=C_PLEXUS, marker="s", markersize=6, linewidth=2.4, label="Plexus (over the network)")
+ax.plot(workers, lat["P"], color=C_KNEWAT, marker="s", markersize=6, linewidth=2.4, label="Knewat (over the network)")
 ax.set_xscale("log"); ax.set_yscale("log")
 ax.set_xticks(workers); ax.set_xticklabels([str(w) for w in workers]); ax.minorticks_off()
 ax.set_xlabel("concurrent workers", fontsize=10); ax.set_ylabel("median claim latency (ms)", fontsize=10)
 ax.yaxis.grid(True, color=GRIDC, linewidth=0.8); ax.set_axisbelow(True)
 ax.annotate(f"{lat['B1'][-1]:.2f} ms", (workers[-1], lat["B1"][-1]), textcoords="offset points", xytext=(-4, 9), ha="right", fontsize=10, color=C_SQL, fontweight="bold")
-ax.annotate(f"{lat['P'][-1]:.0f} ms", (workers[-1], lat["P"][-1]), textcoords="offset points", xytext=(-10, -3), ha="right", fontsize=10, color=C_PLEXUS, fontweight="bold")
+ax.annotate(f"{lat['P'][-1]:.0f} ms", (workers[-1], lat["P"][-1]), textcoords="offset points", xytext=(-10, -3), ha="right", fontsize=10, color=C_KNEWAT, fontweight="bold")
 ax.set_title("(b) Median claim latency", loc="left", fontsize=12, fontweight="bold", color=INK, pad=22)
 ax.set_ylim(0.05, 2500)
 ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.47), frameon=False, fontsize=9, labelcolor=MUTED, borderaxespad=0.6, handlelength=1.6)
@@ -135,7 +135,7 @@ ax.legend(loc="center right", bbox_to_anchor=(1.0, 0.47), frameon=False, fontsiz
 # (c) tokens per question (L2)
 ax = fig.add_subplot(gs[0, 2]); style(ax)
 rows = [("files", tokens["B0"], C_LLM), ("SQLite CSV", tokens["B1"], C_LLM), ("vector", tokens["B2"], C_LLM),
-        ("hand SQL", b1h["L2"]["arm"]["usage"]["tokens_per_question"], C_SQL), ("Plexus", tokens["P"], C_PLEXUS)]
+        ("hand SQL", b1h["L2"]["arm"]["usage"]["tokens_per_question"], C_SQL), ("Knewat", tokens["P"], C_KNEWAT)]
 yy = list(range(len(rows)))[::-1]
 for y, (nm, v, col) in zip(yy, rows):
     ax.barh(y, v, height=0.55, color=col)
@@ -150,11 +150,11 @@ fig.text(0.037, 0.115,
          f"Synthetic Acme scenario, one model, one run per question. L2-scale history is {over['B1']:.1f}x (SQLite CSV) to {over['B0']:.1f}x (files) the 32k-character context budget, "
          f"vector {over['B2']:.1f}x.",
          fontsize=9.5, color=MUTED, va="center")
-fig.text(0.037, 0.083, "Plexus and hand-written SQL are deterministic query code (no LLM); both were written by the author who knew the questions. "
-         f"Hand SQL and Plexus differ on {d_l2} of {arms[0][3]['total']} and {d_l2s} of {arms[0][4]['total']} questions.", fontsize=9.5, color=MUTED, va="center")
+fig.text(0.037, 0.083, "Knewat and hand-written SQL are deterministic query code (no LLM); both were written by the author who knew the questions. "
+         f"Hand SQL and Knewat differ on {d_l2} of {arms[0][3]['total']} and {d_l2s} of {arms[0][4]['total']} questions.", fontsize=9.5, color=MUTED, va="center")
 fig.text(0.037, 0.035, f"source: {RES.relative_to(REPO).as_posix()} (run {run_id}); hand-written SQL: {b1h_src} · commit {commit} · bench_fig.py",
          fontsize=9, color=DIM, va="center")
-fig.text(0.985, 0.035, "Plexus \u00b7 FalkorDB 6.0.2", fontsize=10, color=DIM, ha="right", va="center")
+fig.text(0.985, 0.035, "Knewat \u00b7 FalkorDB 6.0.2", fontsize=10, color=DIM, ha="right", va="center")
 
 out = OUT / "05_benchmark.png"
 fig.savefig(out, dpi=200, facecolor=CARD)

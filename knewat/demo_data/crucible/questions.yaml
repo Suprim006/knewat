@@ -1,0 +1,540 @@
+schema: crucible-l2-questions/1
+generated_from: knewat.crucible.l2.scenario.play (the Acme Notes script); answers are derived, never typed
+scenario:
+  subject: Acme Notes API
+  agents:
+  - planner
+  - researcher
+  - builder
+  tasks: 12
+  decisions: 6
+  handoffs: 4
+  facts: 9
+  episodes: 4
+  sources: 8
+  supersedes: 1
+  conflicting_pairs: 2
+  reclaims: 1
+  forgotten_facts: 1
+  marks:
+    after_v1: 1760000003500
+    before_v2: 1760000017000
+    after_v2: 1760000018000
+    after_jwt: 1760000029000
+    after_apikey: 1760000033000
+    end: 1760000064500
+conventions: "Conventions for every question:\n- Time is epoch milliseconds. A fact is valid at time t when valid_from <=\
+  \ t < valid_to.\n- A fact is named `predicate=value` (for example `api_version=v1`). A fact is \"current\" when its status\
+  \ is active\n  (not superseded and not forgotten).\n- A decision is named by the first four words of its text, lower case,\
+  \ without punctuation.\n- Tasks are named by their task id (for example `t03-design-endpoints`), agents by their id (planner,\
+  \ researcher,\n  builder), artifacts by their uri, sources by their uri.\n- Answer with ONE JSON object and nothing else:\
+  \ {\"answer\": <value>}, in the format the question asks for."
+questions:
+- id: Q01
+  family: decision_provenance
+  text: Which facts was the decision "Use JWT bearer tokens for user traffic (security requirement); offer API keys only later
+    for service accounts." based on?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (RS256)
+  - auth_method=API key in X-Api-Key header
+  op: decision_facts
+  args:
+    decision: use jwt bearer tokens
+- id: Q02
+  family: decision_provenance
+  text: Which facts was the decision "Build the Acme Notes API against v1 of the style guide (routes under /v1/)." based on?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - api_version=v1
+  op: decision_facts
+  args:
+    decision: build the acme notes
+- id: Q03
+  family: decision_provenance
+  text: 'Which facts was the decision "Spec approved: endpoints, schema and JWT auth are consistent." based on?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - api_version=v2
+  - auth_method=JWT bearer tokens (RS256)
+  op: decision_facts
+  args:
+    decision: spec approved endpoints schema
+- id: Q04
+  family: decision_provenance
+  text: Which facts was the decision "Evaluate MongoDB 4 as the database (forum post)." based on?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - database=MongoDB 4
+  op: decision_facts
+  args:
+    decision: evaluate mongodb 4 as
+- id: Q05
+  family: decision_provenance
+  text: For each fact that the decision "Use JWT bearer tokens for user traffic (security requirement); offer API keys only
+    later for service accounts." was based on, which agent asserted it?
+  format: a JSON list of "fact name @ agent" strings, e.g. ["predicate=value@planner"]
+  kind: set
+  item: fact_by
+  answer:
+  - auth_method=JWT bearer tokens (RS256)@researcher
+  - auth_method=API key in X-Api-Key header@planner
+  op: decision_fact_agents
+  args:
+    decision: use jwt bearer tokens
+- id: Q06
+  family: decision_provenance
+  text: Which source documents (uris) back the facts that the decision "Use JWT bearer tokens for user traffic (security requirement);
+    offer API keys only later for service accounts." relied on?
+  format: a JSON list of source uris
+  kind: set
+  item: source
+  answer:
+  - acme-docs/04_security_note.md
+  - acme-docs/05_customer_request.md
+  op: decision_sources
+  args:
+    decision: use jwt bearer tokens
+- id: Q07
+  family: handoffs
+  text: What artifacts (uris) did the handoff for task t03-design-endpoints carry?
+  format: a JSON list of artifact uris
+  kind: set
+  item: artifact
+  answer:
+  - artifacts/openapi-draft.yaml
+  op: handoff_artifacts
+  args:
+    task: t03-design-endpoints
+- id: Q08
+  family: handoffs
+  text: Who handed task t03-design-endpoints over, and to whom?
+  format: a JSON list with one string "sender->receiver"
+  kind: set
+  item: text
+  answer:
+  - researcher->builder
+  op: handoff_route
+  args:
+    task: t03-design-endpoints
+- id: Q09
+  family: handoffs
+  text: Which facts did the handoff for task t07-implement-crud-spec carry?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - api_version=v2
+  - auth_method=JWT bearer tokens (RS256)
+  op: handoff_facts
+  args:
+    task: t07-implement-crud-spec
+- id: Q10
+  family: handoffs
+  text: For which tasks did the planner receive a handoff?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t12-update-endpoints-for-v2
+  - t07-implement-crud-spec
+  - t11-package-release
+  op: handoffs_to
+  args:
+    agent: planner
+- id: Q11
+  family: handoffs
+  text: Which handoffs carried a fact that has since been superseded? Name the task of each handoff.
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t03-design-endpoints
+  op: handoffs_with_superseded_facts
+  args: {}
+- id: Q12
+  family: time_travel
+  text: What value of the fact `api_version` of subject 'Acme Notes API' (global scope) was valid at t=1760000003500 (just
+    after it was first asserted and before anything newer)?
+  format: a JSON list with the valid value(s), e.g. ["v1"]
+  kind: set
+  item: value
+  answer:
+  - v1
+  op: as_of_values
+  args:
+    subject: Acme Notes API
+    predicate: api_version
+    t: 1760000003500
+- id: Q13
+  family: time_travel
+  text: What value of the fact `api_version` of subject 'Acme Notes API' (global scope) was valid at t=1760000018000 (just
+    after the new style guide was ingested)?
+  format: a JSON list with the valid value(s), e.g. ["v1"]
+  kind: set
+  item: value
+  answer:
+  - v2
+  op: as_of_values
+  args:
+    subject: Acme Notes API
+    predicate: api_version
+    t: 1760000018000
+- id: Q14
+  family: time_travel
+  text: Which `auth_method` facts of subject 'Acme Notes API' (global scope) were valid at t=1760000029000 (after only the
+    security note had been ingested)?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (RS256)
+  op: as_of_facts
+  args:
+    subject: Acme Notes API
+    predicate: auth_method
+    t: 1760000029000
+- id: Q15
+  family: time_travel
+  text: Which `auth_method` facts of subject 'Acme Notes API' (global scope) were valid at t=1760000033000 (after both sides
+    were asserted)?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (RS256)
+  - auth_method=API key in X-Api-Key header
+  op: as_of_facts
+  args:
+    subject: Acme Notes API
+    predicate: auth_method
+    t: 1760000033000
+- id: Q16
+  family: time_travel
+  text: List every value that `api_version` of subject 'Acme Notes API' has had, oldest first.
+  format: a JSON list of values, oldest first
+  kind: ordered
+  item: value
+  answer:
+  - v1
+  - v2
+  op: value_history
+  args:
+    subject: Acme Notes API
+    predicate: api_version
+- id: Q17
+  family: supersession
+  text: Which decisions were based on a fact that was later superseded?
+  format: a JSON list of decision names
+  kind: set
+  item: decision
+  answer:
+  - build the acme notes
+  op: decisions_on_superseded
+  args: {}
+- id: Q18
+  family: supersession
+  text: Which fact superseded `api_version=v1`, and which agent asserted it?
+  format: a JSON list with one string "fact name @ agent"
+  kind: set
+  item: fact_by
+  answer:
+  - api_version=v2@researcher
+  op: superseder
+  args:
+    fact: api_version=v1
+- id: Q19
+  family: supersession
+  text: Which agent asserted the fact `api_version=v1` that was later superseded?
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: fact_agent
+  args:
+    fact: api_version=v1
+- id: Q20
+  family: supersession
+  text: Which decisions are based on the current `api_version` fact?
+  format: a JSON list of decision names
+  kind: set
+  item: decision
+  answer:
+  - adopt style guide v2
+  - spec approved endpoints schema
+  op: decisions_on_fact
+  args:
+    fact: api_version=v2
+- id: Q21
+  family: dependencies
+  text: Which tasks are blocked (directly or transitively) if t03-design-endpoints fails?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t07-implement-crud-spec
+  - t08-write-test-plan
+  - t09-review-spec
+  - t10-write-docs
+  - t11-package-release
+  - t12-update-endpoints-for-v2
+  op: blocked_by_failure
+  args:
+    task: t03-design-endpoints
+- id: Q22
+  family: dependencies
+  text: Which tasks are blocked (directly or transitively) if t06-write-db-schema fails?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t07-implement-crud-spec
+  - t09-review-spec
+  - t10-write-docs
+  - t11-package-release
+  op: blocked_by_failure
+  args:
+    task: t06-write-db-schema
+- id: Q23
+  family: dependencies
+  text: Which tasks are blocked (directly or transitively) if t09-review-spec fails?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t10-write-docs
+  - t11-package-release
+  op: blocked_by_failure
+  args:
+    task: t09-review-spec
+- id: Q24
+  family: dependencies
+  text: Which tasks does t07-implement-crud-spec directly depend on?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t03-design-endpoints
+  - t05-choose-auth
+  - t06-write-db-schema
+  op: direct_dependencies
+  args:
+    task: t07-implement-crud-spec
+- id: Q25
+  family: dependencies
+  text: Considering only the dependency graph, which tasks become ready as soon as t01-gather-requirements is done (all of
+    their dependencies are done, and they are not t01 itself)?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t02-choose-api-version
+  - t04-survey-infra-security
+  op: ready_after
+  args:
+    done:
+    - t01-gather-requirements
+- id: Q26
+  family: contradictions
+  text: Which current facts conflict with each other (same subject and predicate, different values)?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (RS256)
+  - auth_method=API key in X-Api-Key header
+  op: active_conflicts
+  args: {}
+- id: Q27
+  family: contradictions
+  text: For each side of the current conflict, which agent asserted it?
+  format: a JSON list of "fact name @ agent" strings
+  kind: set
+  item: fact_by
+  answer:
+  - auth_method=JWT bearer tokens (RS256)@researcher
+  - auth_method=API key in X-Api-Key header@planner
+  op: active_conflict_agents
+  args: {}
+- id: Q28
+  family: contradictions
+  text: Which source document backs the API-key side of the conflict?
+  format: one source uri
+  kind: value
+  item: source
+  answer: acme-docs/05_customer_request.md
+  op: fact_source
+  args:
+    fact: auth_method=API key in X-Api-Key header
+- id: Q29
+  family: recovery
+  text: Which tasks were reclaimed after the agent holding them stopped (its lease expired)?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t03-design-endpoints
+  op: reclaimed_tasks
+  args: {}
+- id: Q30
+  family: recovery
+  text: Which agent took over t03-design-endpoints after the first claimer died?
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: reclaimer
+  args:
+    task: t03-design-endpoints
+- id: Q31
+  family: recovery
+  text: Which agent held the expired lease on t03-design-endpoints (the one that died)?
+  format: one agent id
+  kind: value
+  item: agent
+  answer: builder
+  op: previous_claimer
+  args:
+    task: t03-design-endpoints
+- id: Q32
+  family: recovery
+  text: Which tasks did the builder complete?
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - t12-update-endpoints-for-v2
+  - t06-write-db-schema
+  - t07-implement-crud-spec
+  - t11-package-release
+  op: completed_by
+  args:
+    agent: builder
+- id: Q33
+  family: memory_scope
+  text: What is the current value of `api_version` for 'Acme Notes API'?
+  format: one value
+  kind: value
+  item: value
+  answer: v2
+  op: current_value
+  args:
+    subject: Acme Notes API
+    predicate: api_version
+- id: Q34
+  family: memory_scope
+  text: What is the current value of `database` for 'Acme Notes API'?
+  format: one value
+  kind: value
+  item: value
+  answer: PostgreSQL 16
+  op: current_value
+  args:
+    subject: Acme Notes API
+    predicate: database
+- id: Q35
+  family: memory_scope
+  text: Which current facts are visible from the scope project:acme (that scope's own facts plus global ones)?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - purpose=REST service to create, tag and search notes
+  - api_version=v2
+  - database=PostgreSQL 16
+  - auth_method=JWT bearer tokens (RS256)
+  - auth_method=API key in X-Api-Key header
+  - release_channel=closed beta
+  op: visible_facts
+  args:
+    scope: project:acme
+- id: Q36
+  family: memory_scope
+  text: Does any fact of the scope project:billing (subject 'Bolt Billing API') appear among the facts visible from project:acme?
+  format: yes or no
+  kind: yesno
+  item: value
+  answer: 'no'
+  op: scope_leak
+  args:
+    scope: project:acme
+    other: project:billing
+- id: Q37
+  family: memory_scope
+  text: In which scope is the fact `billing_cycle=monthly` of subject 'Bolt Billing API'?
+  format: one scope name such as global or project:<name>
+  kind: value
+  item: scope
+  answer: project:billing
+  op: fact_scope
+  args:
+    fact: billing_cycle=monthly
+- id: Q38
+  family: episodes
+  text: Which agent recorded the episode saying that API version v1 is withdrawn?
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: episode_agent
+  args:
+    contains: v1 is withdrawn
+- id: Q39
+  family: episodes
+  text: Which agent recorded the episode about the notes, tags and note_tags tables?
+  format: one agent id
+  kind: value
+  item: agent
+  answer: builder
+  op: episode_agent
+  args:
+    contains: note_tags
+- id: Q40
+  family: episodes
+  text: How many episodes did the builder record in total (across all of its sessions)?
+  format: an integer
+  kind: int
+  item: value
+  answer: 2
+  op: episode_count
+  args:
+    agent: builder
+- id: Q41
+  family: forgetting
+  text: After forgetting the source acme-docs/07_forum_post_unverified.md, which facts derived from it are still current?
+  format: a JSON list of fact names, e.g. ["predicate=value"] (an empty list if none)
+  kind: set
+  item: fact
+  answer: []
+  op: remaining_from_source
+  args:
+    source: acme-docs/07_forum_post_unverified.md
+- id: Q42
+  family: forgetting
+  text: Which facts were forgotten when the source acme-docs/07_forum_post_unverified.md was forgotten?
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - database=MongoDB 4
+  op: forgotten_facts
+  args:
+    source: acme-docs/07_forum_post_unverified.md
+- id: Q43
+  family: forgetting
+  text: Which decisions were based on a fact that was later forgotten?
+  format: a JSON list of decision names
+  kind: set
+  item: decision
+  answer:
+  - evaluate mongodb 4 as
+  op: decisions_on_forgotten
+  args: {}

@@ -1,6 +1,8 @@
-# Plexus
+# Knewat
 
-**One shared memory for agent teams that work across several repos.** Plexus tracks the decisions a team makes ahead of the
+> Knewat was called Plexus until 2026-10-18; the GitHub repo redirects.
+
+**One shared memory for agent teams that work across several repos.** Knewat tracks the decisions a team makes ahead of the
 code, and who changed what and why. Agents connect over MCP to one FalkorDB graph per team: every memory, task, claim, handoff and
 decision is a node, every "because" is an edge, so a rule decided in repo A is recalled in repo B and *"why did we decide that?"* is a
 graph query, not a guess. This README is the setup guide; what was measured is in [docs/RESULTS.md](docs/RESULTS.md).
@@ -9,36 +11,36 @@ graph query, not a guess. This README is the setup guide; what was measured is i
 
 | | |
 |---|---|
-| Live demo | <https://plexus-demo-sj3i.onrender.com> (one container on Render Free: the View, the read-only API and a read-only Cypher console; no MCP endpoint, see [docs/deploy.md](docs/deploy.md)) |
+| Live demo | <https://knewat-demo-sj3i.onrender.com> (one container on Render Free: the View, the read-only API and a read-only Cypher console; no MCP endpoint, see [docs/deploy.md](docs/deploy.md)) |
 | Demo video (≤ 3 min) | `<VIDEO_URL>` |
 | Blog post | `<BLOG_URL>` |
 | Run it yourself | `docker compose up -d --wait --build`, see [Setup](#setup) (Docker is the only requirement) |
 
-Plexus itself contains **no LLM and no LLM credentials**. The agents in the demo are the unmodified `claude` binary; every
-Plexus tool is a deterministic Cypher query. Only synthetic data is used (a fictional "Acme Notes API" team).
+Knewat itself contains **no LLM and no LLM credentials**. The agents in the demo are the unmodified `claude` binary; every
+Knewat tool is a deterministic Cypher query. Only synthetic data is used (a fictional "Acme Notes API" team).
 
 ## What it does, in one screen
 
 - **Shared memory with provenance.** Facts with validity windows (`SUPERSEDES`, `CONTRADICTS`, "as of T"), every write linked to
   the agent, step and source that produced it; `why(decision)`, `knew_at(agent, step)` and `who_knew(fact)` are graph paths.
 - **Coordination.** Dependency-aware atomic claims with leases and heartbeats, dead-agent reclaim, `Handoff` nodes, decisions
-  `BASED_ON` facts. One graph per team (`plexus_t_<tenant>`), bound to the MCP connection.
+  `BASED_ON` facts. One graph per team (`knewat_t_<tenant>`), bound to the MCP connection.
 - **Memory that notices change and fades.** A Claude Code hook marks facts suspect when the code they describe changes;
   unused facts lose rank, facts that decisions rest on are protected ([docs/staleness.md](docs/staleness.md), [docs/forgetting.md](docs/forgetting.md)).
 - **45 MCP tools, 114 Cypher files, no LLM inside.** Architecture and the Track 02 focus-area map: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 **Measured, in brief** (full tables, caveats and builds: [docs/RESULTS.md](docs/RESULTS.md), [docs/BASELINE.md](docs/BASELINE.md), [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md)):
 
-| | Plain Claude Code | + `CLAUDE.md` | + Plexus |
+| | Plain Claude Code | + `CLAUDE.md` | + Knewat |
 |---|---|---|---|
 | A team rule decided in repo A, later work in repo B (rule violations, of 24) | 24 | 24 | **0** |
 | Parallel worktrees: rule on an unmerged branch + a non-AI ci-bot's notice (of 12) | 9 | 8 | **0** |
 | Retract a void document: rules correctly kept (of 8) / void-only rule removed (of 4) | 8 / 0 | 8 / 4 | 8 / 4 |
 
-Real Claude Code agents, separate sessions, scored by running their code; 4 runs per arm, small synthetic repos. Plexus wins where
+Real Claude Code agents, separate sessions, scored by running their code; 4 runs per arm, small synthetic repos. Knewat wins where
 no file reaches the next agent and ties a committed `CLAUDE.md` where one does. On the benchmark, cutting four edge types breaks
 7 of 7 edge-dependent capabilities; all backends tie on correctness under 200 workers; SQLite is faster on the median claim;
-hand-written SQL ties Plexus on provenance questions, while tool-less LLM readers fall to 30-32 of 36 once the history exceeds the context.
+hand-written SQL ties Knewat on provenance questions, while tool-less LLM readers fall to 30-32 of 36 once the history exceeds the context.
 
 ![Three everyday workflows, 4 runs per arm](docs/blog/figures/06_trials.png)
 
@@ -49,17 +51,17 @@ about 1 GB of images including FalkorDB). This exact path was run from a fresh c
 replay; evidence in [`docs/TESTING.md`](docs/TESTING.md); the 216 s is stale, measured on `p5-int`).
 
 ```bash
-git clone <this repo> plexus && cd plexus
+git clone <this repo> knewat && cd knewat
 cp .env.example .env                    # optional: the defaults work; edit it only if a host port below is already taken
 docker compose up -d --wait --build     # builds and starts FalkorDB 6.0.2, the View API, the MCP server and the View
-                                        # (--build matters if an older plexus:dev image exists: compose would reuse it)
-docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo    # load the recorded real Claude Code run
+                                        # (--build matters if an older knewat:dev image exists: compose would reuse it)
+docker compose run --rm knewat-cli demo replay acme-claude-sonnet --tenant demo    # load the recorded real Claude Code run
 ```
 
 | Open | What |
 |---|---|
 | http://localhost:5180 | **The View.** Pick tenant `demo` in the header: Explorer, Flow, Time Machine, Why, Inventory and **Results** (the Crucible benchmark: L1, L2, L2 at scale, L4, ablation) |
-| http://localhost:3000 | FalkorDB Browser (the raw graph: graph `plexus_t_demo`) |
+| http://localhost:3000 | FalkorDB Browser (the raw graph: graph `knewat_t_demo`) |
 | http://localhost:8080/api/tenants | the read-only View API (`/api/demo/inventory`, `/api/demo/graph`, `/api/results`, ...) |
 | http://localhost:8765/mcp/t/demo | the MCP server (streamable HTTP, tenant `demo` pinned by the path). It is an MCP endpoint, not a web page: a plain browser GET answers `Bad Request: Missing session ID`, which is normal. Connect an MCP client (see [Bring your own agent](#bring-your-own-agent)) |
 
@@ -68,25 +70,25 @@ meta.json: True)`; Inventory shows 247 nodes, 708 edges, 14 labels, 26 edge type
 L1 all-pass and the L2-at-scale section. If the View's tenant list is empty, the replay has not run yet.
 
 The replay restores a recording of three unmodified Claude Code agents (planner, researcher, builder) building the fictional
-"Acme Notes API". `docker compose run --rm plexus-cli demo list` shows the other recordings. Ports are `FALKORDB_PORT`,
-`FALKORDB_BROWSER_PORT`, `PLEXUS_API_PORT`, `PLEXUS_MCP_PORT` and `PLEXUS_VIEW_PORT` in `.env`; after changing
-`PLEXUS_API_PORT` or `PLEXUS_VIEW_PORT` run `docker compose up -d --build` (the View bakes the API address into its bundle).
+"Acme Notes API". `docker compose run --rm knewat-cli demo list` shows the other recordings. Ports are `FALKORDB_PORT`,
+`FALKORDB_BROWSER_PORT`, `KNEWAT_API_PORT`, `KNEWAT_MCP_PORT` and `KNEWAT_VIEW_PORT` in `.env`; after changing
+`KNEWAT_API_PORT` or `KNEWAT_VIEW_PORT` run `docker compose up -d --build` (the View bakes the API address into its bundle).
 All compose ports are published on `127.0.0.1` only.
 
 **More to try** (all synthetic data; no LLM and no credentials are involved in any of it):
 
 ```bash
 # watch the Flow page while scripted agents play the whole scenario (builder killed, task reclaimed, style guide v1 -> v2)
-docker compose run --rm plexus-cli demo live --scripted --tenant live --speed 4
+docker compose run --rm knewat-cli demo live --scripted --tenant live --speed 4
 # cut DEPENDS_ON / BASED_ON / DERIVED_FROM / READ in a copy of the tenant and see which features break (docs/demo.md)
-docker compose run --rm plexus-cli demo ablation --tenant demo
-# the benchmark itself (L1 + L4 + ablation; ~20 min full, --quick ~2 min): results land in plexus/src/plexus/crucible/results/
+docker compose run --rm knewat-cli demo ablation --tenant demo
+# the benchmark itself (L1 + L4 + ablation; ~20 min full, --quick ~2 min): results land in knewat/src/knewat/crucible/results/
 docker compose --profile bench run --rm crucible all --quick
 docker compose down -v                  # stop and delete everything
 ```
 
-The Results page reads `plexus/src/plexus/crucible/results/latest-all.json` (L1 + L4 + ablation from the compose run, merged
-with the full L2 and L2-scale runs by `python -m plexus.crucible.combine`), mounted into the API as `PLEXUS_RESULTS_PATH`.
+The Results page reads `knewat/src/knewat/crucible/results/latest-all.json` (L1 + L4 + ablation from the compose run, merged
+with the full L2 and L2-scale runs by `python -m knewat.crucible.combine`), mounted into the API as `KNEWAT_RESULTS_PATH`.
 
 ### Bring your own agent
 
@@ -98,43 +100,43 @@ tenant is part of the connection, never an argument.
 (`docker compose up -d --wait --build`) and connect to `http://127.0.0.1:8765/mcp/t/<tenant>`.
 
 ```bash
-claude mcp add --transport http plexus http://127.0.0.1:8765/mcp/t/alice
-# or in a config file:  { "mcpServers": { "plexus": { "type": "http", "url": "http://127.0.0.1:8765/mcp/t/alice" } } }
-claude    # then ask: "Use the plexus tools as agent 'alice': start a session, assert the fact subject=API predicate=version value=v1,
+claude mcp add --transport http knewat http://127.0.0.1:8765/mcp/t/alice
+# or in a config file:  { "mcpServers": { "knewat": { "type": "http", "url": "http://127.0.0.1:8765/mcp/t/alice" } } }
+claude    # then ask: "Use the knewat tools as agent 'alice': start a session, assert the fact subject=API predicate=version value=v1,
           #            then assert value=v2, recall 'API version', and call why/as_of to show what changed"
 ```
 
 **Against your local stack** (tenant `byo` is created on first use; leave `demo` alone if you want the recording untouched):
 
 ```bash
-claude mcp add --transport http plexus http://127.0.0.1:8765/mcp/t/byo         # streamable HTTP, compose service plexus-mcp
+claude mcp add --transport http knewat http://127.0.0.1:8765/mcp/t/byo         # streamable HTTP, compose service knewat-mcp
 # or stdio, generated for this checkout (fastest start-up; needs Python 3.12 + uv, see the contributor block below):
-cd plexus && uv sync && FALKORDB_PORT=6379 uv run plexus mcp-config --tenant byo --out ../mcp.local.json
+cd knewat && uv sync && FALKORDB_PORT=6379 uv run knewat mcp-config --tenant byo --out ../mcp.local.json
 claude --mcp-config ../mcp.local.json
 ```
 
 To question the recorded run with your own Claude Code, point it at tenant `demo` on the local stack
-(`http://127.0.0.1:8765/mcp/t/demo`; your calls add audit nodes to that tenant) and ask: *"Use the plexus tools: recall the
+(`http://127.0.0.1:8765/mcp/t/demo`; your calls add audit nodes to that tenant) and ask: *"Use the knewat tools: recall the
 API version, then explain why we chose v2."* Expect `start_session`, `recall` (value `v2`) and `why` on the "Adopt API v2"
-decision. For headless `claude -p`, pass `--allowedTools "mcp__plexus__*"` and check `permission_denials` (a blocked tool
+decision. For headless `claude -p`, pass `--allowedTools "mcp__knewat__*"` and check `permission_denials` (a blocked tool
 still exits 0). Details: [`docs/mcp.md`](docs/mcp.md).
 
 <details><summary>Without Docker for the app (Python 3.12 + <code>uv</code>, Node 22+): contributors and the full test suite</summary>
 
 ```bash
 docker compose up -d falkordb                       # or scripts/agent_db.sh <slot> for a throw-away test database
-cd plexus && uv sync
-FALKORDB_PORT=6379 uv run plexus demo replay acme-claude-sonnet --tenant demo
-FALKORDB_PORT=6379 uv run plexus-api &             # View API on :8080
-cd ../plexus-view && npm ci && npm run dev         # View on http://localhost:5180 (VITE_FIXTURES=1 for the built-in dataset)
-cd ../plexus && uv run plexus mcp-config --tenant demo   # an MCP config for Claude Code for this checkout (docs/mcp.md)
+cd knewat && uv sync
+FALKORDB_PORT=6379 uv run knewat demo replay acme-claude-sonnet --tenant demo
+FALKORDB_PORT=6379 uv run knewat-api &             # View API on :8080
+cd ../knewat-view && npm ci && npm run dev         # View on http://localhost:5180 (VITE_FIXTURES=1 for the built-in dataset)
+cd ../knewat && uv run knewat mcp-config --tenant demo   # an MCP config for Claude Code for this checkout (docs/mcp.md)
 ```
 
 Quick dev loop (the full gate and the owner's manual checklist are in `docs/TESTING.md`):
 
 ```bash
 bash scripts/agent_db.sh 10                                   # FalkorDB 6.0.2 on 127.0.0.1:6310
-cd plexus && PLEXUS_TEST_DB_PORT=6310 uv run pytest -q        # throwaway graphs, deleted in teardown
+cd knewat && KNEWAT_TEST_DB_PORT=6310 uv run pytest -q        # throwaway graphs, deleted in teardown
 bash ../scripts/agent_db.sh rm 10
 ```
 
@@ -142,7 +144,7 @@ bash ../scripts/agent_db.sh rm 10
 
 ## Live demo
 
-<https://plexus-demo-sj3i.onrender.com>: one Docker container on Render Free runs FalkorDB 6.0.2, the read-only View API and the static View. The MCP
+<https://knewat-demo-sj3i.onrender.com>: one Docker container on Render Free runs FalkorDB 6.0.2, the read-only View API and the static View. The MCP
 server is **not** deployed until it is stable ([D-016](docs/DECISIONS.md)). How to deploy it yourself (the CI gate, the
 keep-awake check) and the safety controls: [`docs/deploy.md`](docs/deploy.md).
 
@@ -225,31 +227,31 @@ The recorded real run holds 247 nodes and 708 edges (14 labels, 26 relationship 
 
 ## The Cypher queries the product depends on
 
-Every statement lives in a named, parameterised file under [`plexus/queries/<area>/<name>.cypher`](plexus/queries/) with a
+Every statement lives in a named, parameterised file under [`knewat/queries/<area>/<name>.cypher`](knewat/queries/) with a
 header (purpose, params, returns, mode) and is loaded by name; 114 files in all. The complete index with a "why it is a graph
 query" for each is [`docs/queries.md`](docs/queries.md). The ones the product cannot work without:
 
 | Query | What it does | Why it is a graph query |
 |---|---|---|
-| [`engram/assert_fact`](plexus/queries/engram/assert_fact.cypher) | Finds the entity's current facts, classifies duplicate / supersede / contradiction, writes the `Fact` with `ABOUT`, `IN_SCOPE`, `ASSERTED_BY`, `DERIVED_FROM`, `SUPERSEDES`, `CONTRADICTS` | Conflict detection and validity-window closing are traversals plus one atomic multi-edge write; per-graph write serialisation makes it race-free |
-| [`engram/recall`](plexus/queries/engram/recall.cypher) | Hybrid recall: vector seeds, scope inheritance (`INHERITS*0..3`), validity filter at time `t`, 1-hop sibling expansion | Vector index seed, then scope and entity traversals, in one read |
-| [`engram/remember_episode`](plexus/queries/engram/remember_episode.cypher) | Appends an `Episode` to the session's chain | The chain tail is found by traversal and extended atomically, so concurrent appends cannot fork it |
-| [`relay/create_tasks`](plexus/queries/relay/create_tasks.cypher) | Creates a task DAG with `DEPENDS_ON` edges, all or nothing | The dependency graph is stored as edges |
-| [`relay/claim_next_task`](plexus/queries/relay/claim_next_task.cypher) | Claims the best ready task (all `DEPENDS_ON` targets `done`, free or lease-expired), sets lease, `version+1`, `CLAIMED` edge | Readiness is a traversal; the claim is one serialised graph write, so two agents never win the same task (also covers dead-agent reclaim) |
-| [`relay/dependents_closure`](plexus/queries/relay/dependents_closure.cypher) | Every task that transitively depends on a task, nearest first, in one statement | Transitive "what is blocked if T fails" (`blocked_by_failure`) |
-| [`relay/handoff`](plexus/queries/relay/handoff.cypher) | `Handoff` + `FROM`/`TO`/`FOR` + `CARRIES` artifacts and facts; a bad id writes nothing | A handoff is a node linking agents, a task and its evidence, traversable later |
-| [`relay/record_decision`](plexus/queries/relay/record_decision.cypher) | `Decision` with `DECIDED`, `FOR` and all-or-nothing `BASED_ON` facts | Decisions point at the exact facts they rest on |
-| [`lineage/why_edges`](plexus/queries/lineage/why_edges.cypher) | Provenance subgraph of a decision or fact | Variable-length paths from decision to fact to agent, step and source: this is the "why" answer |
-| [`lineage/knew_at`](plexus/queries/lineage/knew_at.cypher) | Time machine: facts an agent had read at or before step N that were still valid then, plus what it wrote | Step chain + `READ`/`WROTE` edges + the fact's validity window |
-| [`lineage/as_of`](plexus/queries/lineage/as_of.cypher) | The fact valid at time t for (subject, predicate), nearest scope first | Entity → `ABOUT` → Fact with a validity filter and scope traversal |
-| [`lineage/who_knew`](plexus/queries/lineage/who_knew.cypher) | Agents whose steps `READ` a fact, and who asserted it | `READ` edges one hop each way |
-| [`lineage/forget_source`](plexus/queries/lineage/forget_source.cypher) | Marks every fact reaching a `Source` through up to 12 `DERIVED_FROM` hops (default 8, level by level) as forgotten (unless another `Source` still supports it: then only that link is dropped) and flags the decisions that rest on them | The cascade follows derivation edges, in one atomic write |
-| [`lineage/quarantine`](plexus/queries/lineage/quarantine.cypher) | Reversible version of the above (stretch feature); hides a fact only when every one of its sources is quarantined; returns the blast radius (readers, decisions, handoffs) and the facts other sources keep alive | Blast radius is a traversal back out through `READ`, `BASED_ON`, `CARRIES` |
-| [`audit/record_tool_call`](plexus/queries/audit/record_tool_call.cypher) | Writes a `ToolCall` with `IN_STEP` and `CREATED`/`UPDATED` edges to what the tool touched | The Flow page draws these edges |
-| [`view/flow`](plexus/queries/view/flow.cypher) | Tool calls in order with the nodes each created or updated | A traversal of `ToolCall` → `CREATED`/`UPDATED`; also the SSE feed |
-| [`crucible/strip_edges`](plexus/queries/crucible/strip_edges.cypher) | **Ablation only:** deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM`, `READ` in bounded batches | Measures which features break without the edges |
+| [`engram/assert_fact`](knewat/queries/engram/assert_fact.cypher) | Finds the entity's current facts, classifies duplicate / supersede / contradiction, writes the `Fact` with `ABOUT`, `IN_SCOPE`, `ASSERTED_BY`, `DERIVED_FROM`, `SUPERSEDES`, `CONTRADICTS` | Conflict detection and validity-window closing are traversals plus one atomic multi-edge write; per-graph write serialisation makes it race-free |
+| [`engram/recall`](knewat/queries/engram/recall.cypher) | Hybrid recall: vector seeds, scope inheritance (`INHERITS*0..3`), validity filter at time `t`, 1-hop sibling expansion | Vector index seed, then scope and entity traversals, in one read |
+| [`engram/remember_episode`](knewat/queries/engram/remember_episode.cypher) | Appends an `Episode` to the session's chain | The chain tail is found by traversal and extended atomically, so concurrent appends cannot fork it |
+| [`relay/create_tasks`](knewat/queries/relay/create_tasks.cypher) | Creates a task DAG with `DEPENDS_ON` edges, all or nothing | The dependency graph is stored as edges |
+| [`relay/claim_next_task`](knewat/queries/relay/claim_next_task.cypher) | Claims the best ready task (all `DEPENDS_ON` targets `done`, free or lease-expired), sets lease, `version+1`, `CLAIMED` edge | Readiness is a traversal; the claim is one serialised graph write, so two agents never win the same task (also covers dead-agent reclaim) |
+| [`relay/dependents_closure`](knewat/queries/relay/dependents_closure.cypher) | Every task that transitively depends on a task, nearest first, in one statement | Transitive "what is blocked if T fails" (`blocked_by_failure`) |
+| [`relay/handoff`](knewat/queries/relay/handoff.cypher) | `Handoff` + `FROM`/`TO`/`FOR` + `CARRIES` artifacts and facts; a bad id writes nothing | A handoff is a node linking agents, a task and its evidence, traversable later |
+| [`relay/record_decision`](knewat/queries/relay/record_decision.cypher) | `Decision` with `DECIDED`, `FOR` and all-or-nothing `BASED_ON` facts | Decisions point at the exact facts they rest on |
+| [`lineage/why_edges`](knewat/queries/lineage/why_edges.cypher) | Provenance subgraph of a decision or fact | Variable-length paths from decision to fact to agent, step and source: this is the "why" answer |
+| [`lineage/knew_at`](knewat/queries/lineage/knew_at.cypher) | Time machine: facts an agent had read at or before step N that were still valid then, plus what it wrote | Step chain + `READ`/`WROTE` edges + the fact's validity window |
+| [`lineage/as_of`](knewat/queries/lineage/as_of.cypher) | The fact valid at time t for (subject, predicate), nearest scope first | Entity → `ABOUT` → Fact with a validity filter and scope traversal |
+| [`lineage/who_knew`](knewat/queries/lineage/who_knew.cypher) | Agents whose steps `READ` a fact, and who asserted it | `READ` edges one hop each way |
+| [`lineage/forget_source`](knewat/queries/lineage/forget_source.cypher) | Marks every fact reaching a `Source` through up to 12 `DERIVED_FROM` hops (default 8, level by level) as forgotten (unless another `Source` still supports it: then only that link is dropped) and flags the decisions that rest on them | The cascade follows derivation edges, in one atomic write |
+| [`lineage/quarantine`](knewat/queries/lineage/quarantine.cypher) | Reversible version of the above (stretch feature); hides a fact only when every one of its sources is quarantined; returns the blast radius (readers, decisions, handoffs) and the facts other sources keep alive | Blast radius is a traversal back out through `READ`, `BASED_ON`, `CARRIES` |
+| [`audit/record_tool_call`](knewat/queries/audit/record_tool_call.cypher) | Writes a `ToolCall` with `IN_STEP` and `CREATED`/`UPDATED` edges to what the tool touched | The Flow page draws these edges |
+| [`view/flow`](knewat/queries/view/flow.cypher) | Tool calls in order with the nodes each created or updated | A traversal of `ToolCall` → `CREATED`/`UPDATED`; also the SSE feed |
+| [`crucible/strip_edges`](knewat/queries/crucible/strip_edges.cypher) | **Ablation only:** deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM`, `READ` in bounded batches | Measures which features break without the edges |
 
-Three of them in the form the demo uses (run in the FalkorDB Browser on graph `plexus_t_demo`, or see
+Three of them in the form the demo uses (run in the FalkorDB Browser on graph `knewat_t_demo`, or see
 [`docs/demo.md`](docs/demo.md) for more):
 
 ```cypher
@@ -271,16 +273,16 @@ MATCH (d:Decision)-[:BASED_ON]->(f:Fact) WHERE f.status <> 'active' RETURN d.tex
 ## Repo layout
 
 ```text
-plexus/                  the product (Python 3.12, uv)
+knewat/                  the product (Python 3.12, uv)
   queries/<area>/*.cypher  every Cypher statement, named and parameterised (114 files)
-  src/plexus/            graph (client, schema, tenancy), engram, relay, lineage, audit, mcp, api, embed, demo, crucible
+  src/knewat/            graph (client, schema, tenancy), engram, relay, lineage, audit, mcp, api, embed, demo, crucible
   demo_data/             the Acme scenario, recordings (acme-claude-sonnet, acme-scripted, pilot-haiku), Crucible questions and caches
   tests/                 pytest against throw-away graphs
-plexus-view/             the demonstrator (React + TypeScript + Cytoscape); read-only
+knewat-view/             the demonstrator (React + TypeScript + Cytoscape); read-only
 deploy/, render.yaml     the one-container public deployment
 docs/                    graph-model, queries, ARCHITECTURE, RESULTS, DECISIONS, BASELINE, demo, mcp, deploy, TESTING, AI_USAGE, NUMBERS_STATUS, forgetting, staleness
 scripts/                 agent_db.sh (throw-away FalkorDB), verify_readme.py (link and number checker)
-docker-compose.yml       FalkorDB 6.0.2, plexus-api, plexus-mcp, plexus-view, plexus-cli, crucible (bench profile)
+docker-compose.yml       FalkorDB 6.0.2, knewat-api, knewat-mcp, knewat-view, knewat-cli, crucible (bench profile)
 ```
 
 ## Testing
@@ -308,7 +310,7 @@ Plans, research notes, the video script and blog drafts that these documents cit
 
 ## AI disclosure
 
-Plexus was built with AI assistants: a Hermes Agent orchestrator and Claude Sonnet subagents wrote most of the code, tests,
+Knewat was built with AI assistants: a Hermes Agent orchestrator and Claude Sonnet subagents wrote most of the code, tests,
 queries and docs from specs, and unmodified Claude Code (the owner's own subscription) plays the demo agents and answers the
 benchmark baselines; the product itself contains no LLM. The owner reviews the graph model, the `.cypher` files and the
 architecture and records decisions in `docs/DECISIONS.md`; what has and has not been reviewed yet is stated, phase by phase,

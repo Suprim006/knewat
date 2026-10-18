@@ -1,7 +1,7 @@
 """Local verification gate for the deployment image (docs/deploy.md records its output).
 
-    docker build -f deploy/Dockerfile -t plexus-deploy .
-    cd plexus && uv run python ../deploy/verify.py [--image plexus-deploy] [--port 18100] [--keep]
+    docker build -f deploy/Dockerfile -t knewat-deploy .
+    cd knewat && uv run python ../deploy/verify.py [--image knewat-deploy] [--port 18100] [--keep]
 
 Runs the image exactly as Render does (`-m 512m --cpus 0.5 -e PORT=10000 -p 127.0.0.1:<port>:10000`), then checks boot
 time, peak memory (docker stats sampled all the way + /proc VmHWM + cgroup peak), everything in `deploy/smoke.py` (the
@@ -25,7 +25,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import smoke  # noqa: E402
 
-NAME = "plexus-deploy-test"
+NAME = "knewat-deploy-test"
 RESULTS: list[tuple[str, bool, str]] = []
 
 
@@ -136,7 +136,7 @@ def tenant_inventory(base: str, tenant: str):
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--image", default="plexus-deploy")
+    ap.add_argument("--image", default="knewat-deploy")
     ap.add_argument("--port", type=int, default=18100)
     ap.add_argument("--keep", action="store_true", help="leave the container running")
     a = ap.parse_args()

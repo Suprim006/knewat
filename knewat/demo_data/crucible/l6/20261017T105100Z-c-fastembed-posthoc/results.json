@@ -1,0 +1,4802 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "c",
+ "run": {
+  "id": "20261017T105100Z-c-fastembed-posthoc",
+  "started_at": "2026-10-17T10:51:00Z",
+  "finished_at": "2026-10-17T10:57:20Z",
+  "command": "python -m knewat.crucible.l6.run_c --host 127.0.0.1 --port 6313 --scale 1.0 --arms P-product,P-flat --embedder fastembed --tag fastembed-posthoc --out demo_data/crucible/l6",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "d76c5079e3465152aa5214c86483d72ce9abc556",
+  "short": "d76c507",
+  "dirty": false,
+  "branch": "feature/neuro-memory-research"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "d76c507",
+  "embedder": "fastembed",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6313,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "config": {
+  "scale": 1.0,
+  "arms": [
+   "P-flat",
+   "P-product"
+  ],
+  "reps": 3,
+  "seed": 20261016,
+  "embedder": "fastembed",
+  "tag": "fastembed-posthoc"
+ },
+ "families": {
+  "C": {
+   "world": {
+    "counts": {
+     "entities": 4000,
+     "hubs": 40,
+     "facts": 44294,
+     "relates": 17956,
+     "questions": 75
+    },
+    "meta": {
+     "attempts": {
+      "1": 113,
+      "2": 2226,
+      "3": 325920
+     },
+     "stage_counts": {
+      "1": {
+       "S0": 25,
+       "S1": 0
+      },
+      "2": {
+       "S0": 25,
+       "S1": 0
+      },
+      "3": {
+       "S0": 2,
+       "S1": 23
+      }
+     },
+     "cost_matters_share": {
+      "1": 0.44,
+      "2": 0.92,
+      "3": 1.0,
+      "all": 0.787
+     },
+     "shortfall": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+     },
+     "seed": 20261016,
+     "scale": 1.0,
+     "fan_range": [
+      6,
+      14
+     ],
+     "hub_degree": 100,
+     "hub_fan": 120,
+     "n_per_depth": 25,
+     "words": [
+      80,
+      80
+     ]
+    }
+   },
+   "timing": {
+    "knewat_load_s": 355.07
+   },
+   "embedder": "FastEmbedder",
+   "arms": {
+    "P-product": {
+     "arm": "P-product",
+     "n": 75,
+     "by_depth": {
+      "1": {
+       "n": 25,
+       "strict": 0,
+       "hit5": 0,
+       "hit_any": 3,
+       "top5_equal_expected": 0,
+       "timeouts": 0,
+       "other_errors": 0,
+       "not_answerable": 0,
+       "latency_ms": {
+        "p50": 41.44,
+        "p99": 50.96,
+        "mean": 41.55
+       },
+       "server_ms": {
+        "p50": 11.61,
+        "p99": 14.55
+       },
+       "statements": {
+        "mean": 6.0
+       }
+      },
+      "2": {
+       "n": 25,
+       "strict": 0,
+       "hit5": 0,
+       "hit_any": 1,
+       "top5_equal_expected": 0,
+       "timeouts": 0,
+       "other_errors": 0,
+       "not_answerable": 0,
+       "latency_ms": {
+        "p50": 62.7,
+        "p99": 88.71,
+        "mean": 63.63
+       },
+       "server_ms": {
+        "p50": 17.23,
+        "p99": 24.51
+       },
+       "statements": {
+        "mean": 7.0
+       }
+      },
+      "3": {
+       "n": 25,
+       "strict": 0,
+       "hit5": 0,
+       "hit_any": 0,
+       "top5_equal_expected": 0,
+       "timeouts": 0,
+       "other_errors": 0,
+       "not_answerable": 25,
+       "latency_ms": {
+        "p50": 57.84,
+        "p99": 65.81,
+        "mean": 56.55
+       },
+       "server_ms": {
+        "p50": 14.67,
+        "p99": 18.42
+       },
+       "statements": {
+        "mean": 7.0
+       }
+      }
+     },
+     "all": {
+      "n": 75,
+      "strict": 0,
+      "hit5": 0,
+      "hit_any": 4,
+      "top5_equal_expected": 0,
+      "timeouts": 0,
+      "other_errors": 0,
+      "not_answerable": 25,
+      "latency_ms": {
+       "p50": 57.27,
+       "p99": 88.71,
+       "mean": 53.91
+      },
+      "server_ms": {
+       "p50": 14.38,
+       "p99": 24.51
+      },
+      "statements": {
+       "mean": 6.67
+      }
+     },
+     "questions": [
+      {
+       "id": "C1-01",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 41.96,
+       "server_ms": 12.514,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f004299",
+        "f004359",
+        "f038574",
+        "f036659",
+        "f003692"
+       ]
+      },
+      {
+       "id": "C1-02",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 43.15,
+       "server_ms": 11.61,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013053",
+        "f010081",
+        "f016340",
+        "f010141",
+        "f026568"
+       ]
+      },
+      {
+       "id": "C1-03",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 42.54,
+       "server_ms": 12.059,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043389",
+        "f007616",
+        "f022063",
+        "f013883",
+        "f034616"
+       ]
+      },
+      {
+       "id": "C1-04",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 40.85,
+       "server_ms": 11.555,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f005236",
+        "f039282",
+        "f005156",
+        "f021569",
+        "f012203"
+       ]
+      },
+      {
+       "id": "C1-05",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 40.19,
+       "server_ms": 13.135,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f030132",
+        "f042431",
+        "f022702",
+        "f032745",
+        "f016855"
+       ]
+      },
+      {
+       "id": "C1-06",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 38.83,
+       "server_ms": 11.396,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025701",
+        "f018635",
+        "f009595",
+        "f019425",
+        "f000130"
+       ]
+      },
+      {
+       "id": "C1-07",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": true,
+       "latency_ms": 36.07,
+       "server_ms": 10.301,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f029995",
+        "f030002",
+        "f029993",
+        "f030003",
+        "f033601"
+       ]
+      },
+      {
+       "id": "C1-08",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 44.08,
+       "server_ms": 12.659,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010833",
+        "f007677",
+        "f011605",
+        "f001621",
+        "f015798"
+       ]
+      },
+      {
+       "id": "C1-09",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 41.79,
+       "server_ms": 11.065,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f042551",
+        "f007755",
+        "f008201",
+        "f019820",
+        "f019760"
+       ]
+      },
+      {
+       "id": "C1-10",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 40.76,
+       "server_ms": 11.057,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f022263",
+        "f009123",
+        "f009673",
+        "f018544",
+        "f013158"
+       ]
+      },
+      {
+       "id": "C1-11",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 39.67,
+       "server_ms": 10.79,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f037228",
+        "f014218",
+        "f015076",
+        "f028448",
+        "f016838"
+       ]
+      },
+      {
+       "id": "C1-12",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 40.93,
+       "server_ms": 11.348,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f015330",
+        "f031899",
+        "f038193",
+        "f043917",
+        "f035223"
+       ]
+      },
+      {
+       "id": "C1-13",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 44.21,
+       "server_ms": 12.726,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010428",
+        "f014754",
+        "f003513",
+        "f007152",
+        "f024146"
+       ]
+      },
+      {
+       "id": "C1-14",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 44.74,
+       "server_ms": 14.552,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f007042",
+        "f013434",
+        "f040616",
+        "f007879",
+        "f032345"
+       ]
+      },
+      {
+       "id": "C1-15",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 40.46,
+       "server_ms": 11.656,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f011143",
+        "f009851",
+        "f028205",
+        "f028235",
+        "f015282"
+       ]
+      },
+      {
+       "id": "C1-16",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 41.44,
+       "server_ms": 12.388,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013745",
+        "f008704",
+        "f034466",
+        "f043308",
+        "f012622"
+       ]
+      },
+      {
+       "id": "C1-17",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 38.68,
+       "server_ms": 10.579,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f037516",
+        "f018352",
+        "f042008",
+        "f036486",
+        "f035739"
+       ]
+      },
+      {
+       "id": "C1-18",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 42.07,
+       "server_ms": 10.74,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f030553",
+        "f008446",
+        "f030650",
+        "f011722",
+        "f005761"
+       ]
+      },
+      {
+       "id": "C1-19",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 50.96,
+       "server_ms": 12.997,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f024067",
+        "f003459",
+        "f005794",
+        "f007765",
+        "f016072"
+       ]
+      },
+      {
+       "id": "C1-20",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 43.69,
+       "server_ms": 11.412,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010607",
+        "f008290",
+        "f001880",
+        "f010884",
+        "f038262"
+       ]
+      },
+      {
+       "id": "C1-21",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": true,
+       "latency_ms": 37.95,
+       "server_ms": 11.173,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f015200",
+        "f015206",
+        "f015205",
+        "f015204",
+        "f027094"
+       ]
+      },
+      {
+       "id": "C1-22",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 42.35,
+       "server_ms": 12.47,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025694",
+        "f018405",
+        "f007932",
+        "f040538",
+        "f029780"
+       ]
+      },
+      {
+       "id": "C1-23",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 43.88,
+       "server_ms": 12.568,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f030836",
+        "f042999",
+        "f025983",
+        "f030538",
+        "f039081"
+       ]
+      },
+      {
+       "id": "C1-24",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 37.38,
+       "server_ms": 10.162,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f041411",
+        "f022300",
+        "f038699",
+        "f002381",
+        "f037768"
+       ]
+      },
+      {
+       "id": "C1-25",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": true,
+       "latency_ms": 40.2,
+       "server_ms": 11.746,
+       "statements": 6,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043134",
+        "f043138",
+        "f024253",
+        "f027222",
+        "f034411"
+       ]
+      },
+      {
+       "id": "C2-01",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 71.35,
+       "server_ms": 18.145,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f000493",
+        "f032608",
+        "f025034",
+        "f032846",
+        "f037766"
+       ]
+      },
+      {
+       "id": "C2-02",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 72.02,
+       "server_ms": 21.888,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f000614",
+        "f001902",
+        "f026930",
+        "f016969",
+        "f010998"
+       ]
+      },
+      {
+       "id": "C2-03",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 88.71,
+       "server_ms": 24.507,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f038328",
+        "f038698",
+        "f015742",
+        "f001231",
+        "f034262"
+       ]
+      },
+      {
+       "id": "C2-04",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 67.13,
+       "server_ms": 20.437,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025095",
+        "f036145",
+        "f021763",
+        "f028463",
+        "f025209"
+       ]
+      },
+      {
+       "id": "C2-05",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 68.27,
+       "server_ms": 17.976,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f039466",
+        "f026543",
+        "f031262",
+        "f011444",
+        "f039561"
+       ]
+      },
+      {
+       "id": "C2-06",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 78.24,
+       "server_ms": 22.697,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f003771",
+        "f025177",
+        "f040244",
+        "f024259",
+        "f004875"
+       ]
+      },
+      {
+       "id": "C2-07",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 70.91,
+       "server_ms": 19.231,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f032520",
+        "f016617",
+        "f038547",
+        "f007794",
+        "f006799"
+       ]
+      },
+      {
+       "id": "C2-08",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 69.87,
+       "server_ms": 19.479,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f002884",
+        "f002886",
+        "f031104",
+        "f010404",
+        "f003077"
+       ]
+      },
+      {
+       "id": "C2-09",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": true,
+       "latency_ms": 51.76,
+       "server_ms": 14.989,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010585",
+        "f010580",
+        "f010586",
+        "f010579",
+        "f010575"
+       ]
+      },
+      {
+       "id": "C2-10",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 61.93,
+       "server_ms": 18.552,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f014659",
+        "f028046",
+        "f009957",
+        "f033574",
+        "f009846"
+       ]
+      },
+      {
+       "id": "C2-11",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 67.35,
+       "server_ms": 20.391,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f021252",
+        "f004420",
+        "f035749",
+        "f038160",
+        "f028084"
+       ]
+      },
+      {
+       "id": "C2-12",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 61.08,
+       "server_ms": 16.16,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013841",
+        "f000828",
+        "f000835",
+        "f013901",
+        "f008066"
+       ]
+      },
+      {
+       "id": "C2-13",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 46.16,
+       "server_ms": 11.854,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013799",
+        "f013800",
+        "f013803",
+        "f013796",
+        "f013797"
+       ]
+      },
+      {
+       "id": "C2-14",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 53.7,
+       "server_ms": 13.503,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f012318",
+        "f012520",
+        "f038083",
+        "f019213",
+        "f030687"
+       ]
+      },
+      {
+       "id": "C2-15",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 46.15,
+       "server_ms": 12.307,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013140",
+        "f013138",
+        "f013141",
+        "f013134",
+        "f013137"
+       ]
+      },
+      {
+       "id": "C2-16",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 62.5,
+       "server_ms": 17.353,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f024425",
+        "f022786",
+        "f023561",
+        "f007968",
+        "f026782"
+       ]
+      },
+      {
+       "id": "C2-17",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 65.25,
+       "server_ms": 16.845,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f002396",
+        "f017142",
+        "f002967",
+        "f018643",
+        "f006230"
+       ]
+      },
+      {
+       "id": "C2-18",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.3,
+       "server_ms": 15.947,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f008095",
+        "f014800",
+        "f008155",
+        "f016907",
+        "f019244"
+       ]
+      },
+      {
+       "id": "C2-19",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 60.87,
+       "server_ms": 14.545,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f037199",
+        "f013122",
+        "f035598",
+        "f038617",
+        "f007790"
+       ]
+      },
+      {
+       "id": "C2-20",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 62.7,
+       "server_ms": 17.231,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f011770",
+        "f012172",
+        "f029298",
+        "f011830",
+        "f020171"
+       ]
+      },
+      {
+       "id": "C2-21",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.24,
+       "server_ms": 17.063,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f027443",
+        "f023039",
+        "f014416",
+        "f027383",
+        "f009790"
+       ]
+      },
+      {
+       "id": "C2-22",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 66.28,
+       "server_ms": 18.637,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043079",
+        "f021218",
+        "f030833",
+        "f028602",
+        "f017809"
+       ]
+      },
+      {
+       "id": "C2-23",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 64.39,
+       "server_ms": 15.855,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f028066",
+        "f021516",
+        "f021514",
+        "f014701",
+        "f028060"
+       ]
+      },
+      {
+       "id": "C2-24",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.72,
+       "server_ms": 14.331,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f041073",
+        "f009557",
+        "f033321",
+        "f011006",
+        "f007306"
+       ]
+      },
+      {
+       "id": "C2-25",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.98,
+       "server_ms": 14.955,
+       "statements": 7,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f040285",
+        "f009562",
+        "f020350",
+        "f033327",
+        "f027564"
+       ]
+      },
+      {
+       "id": "C3-01",
+       "depth": 3,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 61.38,
+       "server_ms": 18.42,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f017213",
+        "f020006",
+        "f032592",
+        "f028899",
+        "f031266"
+       ]
+      },
+      {
+       "id": "C3-02",
+       "depth": 3,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 62.5,
+       "server_ms": 16.795,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f025283",
+        "f028526",
+        "f030773",
+        "f035048",
+        "f008898"
+       ]
+      },
+      {
+       "id": "C3-03",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.11,
+       "server_ms": 13.995,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f042728",
+        "f006251",
+        "f019208",
+        "f022522",
+        "f036306"
+       ]
+      },
+      {
+       "id": "C3-04",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 57.66,
+       "server_ms": 15.089,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f011020",
+        "f006261",
+        "f034255",
+        "f019488",
+        "f013948"
+       ]
+      },
+      {
+       "id": "C3-05",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 57.42,
+       "server_ms": 15.551,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f018445",
+        "f007991",
+        "f031115",
+        "f008391",
+        "f004990"
+       ]
+      },
+      {
+       "id": "C3-06",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 60.26,
+       "server_ms": 14.89,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f025859",
+        "f033779",
+        "f015542",
+        "f009735",
+        "f004248"
+       ]
+      },
+      {
+       "id": "C3-07",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.39,
+       "server_ms": 14.235,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f016933",
+        "f005462",
+        "f020959",
+        "f031948",
+        "f041029"
+       ]
+      },
+      {
+       "id": "C3-08",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 60.58,
+       "server_ms": 16.475,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f010920",
+        "f033984",
+        "f001475",
+        "f042047",
+        "f010572"
+       ]
+      },
+      {
+       "id": "C3-09",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 46.24,
+       "server_ms": 13.517,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f034411",
+        "f034414",
+        "f034418",
+        "f034415",
+        "f034413"
+       ]
+      },
+      {
+       "id": "C3-10",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 47.13,
+       "server_ms": 13.986,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f014385",
+        "f014384",
+        "f014382",
+        "f014381",
+        "f014389"
+       ]
+      },
+      {
+       "id": "C3-11",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 44.15,
+       "server_ms": 12.856,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f038601",
+        "f038603",
+        "f038602",
+        "f038606",
+        "f038608"
+       ]
+      },
+      {
+       "id": "C3-12",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 55.72,
+       "server_ms": 14.806,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f042437",
+        "f033307",
+        "f011165",
+        "f018796",
+        "f011394"
+       ]
+      },
+      {
+       "id": "C3-13",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 65.81,
+       "server_ms": 17.855,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f032401",
+        "f021979",
+        "f029138",
+        "f010147",
+        "f022498"
+       ]
+      },
+      {
+       "id": "C3-14",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 43.29,
+       "server_ms": 11.369,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f022136",
+        "f022139",
+        "f022138",
+        "f022133",
+        "f022137"
+       ]
+      },
+      {
+       "id": "C3-15",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.97,
+       "server_ms": 14.623,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f005201",
+        "f011899",
+        "f017968",
+        "f029548",
+        "f018450"
+       ]
+      },
+      {
+       "id": "C3-16",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 54.12,
+       "server_ms": 13.933,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f035231",
+        "f023647",
+        "f001042",
+        "f012380",
+        "f040542"
+       ]
+      },
+      {
+       "id": "C3-17",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.59,
+       "server_ms": 14.671,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f016326",
+        "f008023",
+        "f030393",
+        "f023735",
+        "f032731"
+       ]
+      },
+      {
+       "id": "C3-18",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 57.06,
+       "server_ms": 13.76,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f016750",
+        "f040996",
+        "f010176",
+        "f016313",
+        "f023964"
+       ]
+      },
+      {
+       "id": "C3-19",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 63.48,
+       "server_ms": 16.07,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f008872",
+        "f027662",
+        "f033081",
+        "f005424",
+        "f025470"
+       ]
+      },
+      {
+       "id": "C3-20",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 57.59,
+       "server_ms": 14.382,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f023111",
+        "f024964",
+        "f017915",
+        "f034223",
+        "f007076"
+       ]
+      },
+      {
+       "id": "C3-21",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 46.58,
+       "server_ms": 12.436,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f043668",
+        "f043672",
+        "f043674",
+        "f043678",
+        "f043677"
+       ]
+      },
+      {
+       "id": "C3-22",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 64.94,
+       "server_ms": 18.094,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f018025",
+        "f022183",
+        "f035597",
+        "f022023",
+        "f022493"
+       ]
+      },
+      {
+       "id": "C3-23",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 58.77,
+       "server_ms": 16.658,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f019748",
+        "f019808",
+        "f022576",
+        "f030573",
+        "f030574"
+       ]
+      },
+      {
+       "id": "C3-24",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 57.84,
+       "server_ms": 15.261,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f003636",
+        "f020205",
+        "f016611",
+        "f039145",
+        "f040243"
+       ]
+      },
+      {
+       "id": "C3-25",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 57.27,
+       "server_ms": 14.552,
+       "statements": 7,
+       "error": "",
+       "not_answerable": true,
+       "top5": [
+        "f003404",
+        "f003400",
+        "f007781",
+        "f020213",
+        "f004208"
+       ]
+      }
+     ]
+    },
+    "P-flat": {
+     "arm": "P-flat",
+     "n": 75,
+     "by_depth": {
+      "1": {
+       "n": 25,
+       "strict": 0,
+       "hit5": 0,
+       "hit_any": 0,
+       "top5_equal_expected": 0,
+       "timeouts": 0,
+       "other_errors": 0,
+       "not_answerable": 0,
+       "latency_ms": {
+        "p50": 26.95,
+        "p99": 34.65,
+        "mean": 27.53
+       },
+       "server_ms": {
+        "p50": 9.07,
+        "p99": 10.28
+       },
+       "statements": {
+        "mean": 4.0
+       }
+      },
+      "2": {
+       "n": 25,
+       "strict": 0,
+       "hit5": 0,
+       "hit_any": 0,
+       "top5_equal_expected": 0,
+       "timeouts": 0,
+       "other_errors": 0,
+       "not_answerable": 0,
+       "latency_ms": {
+        "p50": 25.77,
+        "p99": 28.93,
+        "mean": 25.98
+       },
+       "server_ms": {
+        "p50": 8.24,
+        "p99": 9.79
+       },
+       "statements": {
+        "mean": 4.0
+       }
+      },
+      "3": {
+       "n": 25,
+       "strict": 0,
+       "hit5": 0,
+       "hit_any": 0,
+       "top5_equal_expected": 0,
+       "timeouts": 0,
+       "other_errors": 0,
+       "not_answerable": 0,
+       "latency_ms": {
+        "p50": 25.84,
+        "p99": 30.8,
+        "mean": 26.11
+       },
+       "server_ms": {
+        "p50": 8.33,
+        "p99": 11.46
+       },
+       "statements": {
+        "mean": 4.0
+       }
+      }
+     },
+     "all": {
+      "n": 75,
+      "strict": 0,
+      "hit5": 0,
+      "hit_any": 0,
+      "top5_equal_expected": 0,
+      "timeouts": 0,
+      "other_errors": 0,
+      "not_answerable": 0,
+      "latency_ms": {
+       "p50": 26.13,
+       "p99": 34.65,
+       "mean": 26.54
+      },
+      "server_ms": {
+       "p50": 8.66,
+       "p99": 11.46
+      },
+      "statements": {
+       "mean": 4.0
+      }
+     },
+     "questions": [
+      {
+       "id": "C1-01",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.03,
+       "server_ms": 8.957,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f004299",
+        "f004359",
+        "f038574",
+        "f036659",
+        "f003692"
+       ]
+      },
+      {
+       "id": "C1-02",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.48,
+       "server_ms": 9.683,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013053",
+        "f010081",
+        "f016340",
+        "f010141",
+        "f026568"
+       ]
+      },
+      {
+       "id": "C1-03",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.53,
+       "server_ms": 8.804,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043389",
+        "f007616",
+        "f022063",
+        "f013883",
+        "f034616"
+       ]
+      },
+      {
+       "id": "C1-04",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.06,
+       "server_ms": 8.661,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f005236",
+        "f039282",
+        "f005156",
+        "f021569",
+        "f012203"
+       ]
+      },
+      {
+       "id": "C1-05",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.42,
+       "server_ms": 7.834,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f030132",
+        "f042431",
+        "f022702",
+        "f032745",
+        "f016855"
+       ]
+      },
+      {
+       "id": "C1-06",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.96,
+       "server_ms": 9.071,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025701",
+        "f018635",
+        "f009595",
+        "f019425",
+        "f000130"
+       ]
+      },
+      {
+       "id": "C1-07",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.17,
+       "server_ms": 8.356,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f029995",
+        "f030002",
+        "f029993",
+        "f030003",
+        "f033601"
+       ]
+      },
+      {
+       "id": "C1-08",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.1,
+       "server_ms": 10.093,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010833",
+        "f007677",
+        "f011605",
+        "f001621",
+        "f015798"
+       ]
+      },
+      {
+       "id": "C1-09",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.17,
+       "server_ms": 8.862,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f042551",
+        "f007755",
+        "f008201",
+        "f019820",
+        "f019760"
+       ]
+      },
+      {
+       "id": "C1-10",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.18,
+       "server_ms": 8.653,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f022263",
+        "f009123",
+        "f009673",
+        "f018544",
+        "f013158"
+       ]
+      },
+      {
+       "id": "C1-11",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.93,
+       "server_ms": 8.972,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f037228",
+        "f014218",
+        "f015076",
+        "f028448",
+        "f016838"
+       ]
+      },
+      {
+       "id": "C1-12",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.49,
+       "server_ms": 9.256,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f015330",
+        "f031899",
+        "f038193",
+        "f043917",
+        "f035223"
+       ]
+      },
+      {
+       "id": "C1-13",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.84,
+       "server_ms": 9.172,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010428",
+        "f014754",
+        "f003513",
+        "f007152",
+        "f024146"
+       ]
+      },
+      {
+       "id": "C1-14",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 29.98,
+       "server_ms": 9.992,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f007042",
+        "f013434",
+        "f040616",
+        "f007879",
+        "f032345"
+       ]
+      },
+      {
+       "id": "C1-15",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.05,
+       "server_ms": 8.786,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f011143",
+        "f009851",
+        "f028205",
+        "f028235",
+        "f015282"
+       ]
+      },
+      {
+       "id": "C1-16",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.8,
+       "server_ms": 9.618,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013745",
+        "f008704",
+        "f034466",
+        "f043308",
+        "f012622"
+       ]
+      },
+      {
+       "id": "C1-17",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 34.65,
+       "server_ms": 10.276,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f037516",
+        "f018352",
+        "f042008",
+        "f036486",
+        "f035739"
+       ]
+      },
+      {
+       "id": "C1-18",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.52,
+       "server_ms": 9.778,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f030553",
+        "f008446",
+        "f030650",
+        "f011722",
+        "f005761"
+       ]
+      },
+      {
+       "id": "C1-19",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 29.4,
+       "server_ms": 9.949,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f024067",
+        "f003459",
+        "f005794",
+        "f007765",
+        "f016072"
+       ]
+      },
+      {
+       "id": "C1-20",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.02,
+       "server_ms": 9.295,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010607",
+        "f008290",
+        "f001880",
+        "f010884",
+        "f038262"
+       ]
+      },
+      {
+       "id": "C1-21",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.59,
+       "server_ms": 9.033,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f015200",
+        "f015206",
+        "f015205",
+        "f015204",
+        "f027094"
+       ]
+      },
+      {
+       "id": "C1-22",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.27,
+       "server_ms": 9.423,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025694",
+        "f018405",
+        "f007932",
+        "f040538",
+        "f029780"
+       ]
+      },
+      {
+       "id": "C1-23",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.78,
+       "server_ms": 10.283,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f030836",
+        "f042999",
+        "f025983",
+        "f030538",
+        "f039081"
+       ]
+      },
+      {
+       "id": "C1-24",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.95,
+       "server_ms": 8.912,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f041411",
+        "f022300",
+        "f038699",
+        "f002381",
+        "f037768"
+       ]
+      },
+      {
+       "id": "C1-25",
+       "depth": 1,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.98,
+       "server_ms": 8.996,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043134",
+        "f043138",
+        "f024253",
+        "f027222",
+        "f034411"
+       ]
+      },
+      {
+       "id": "C2-01",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.41,
+       "server_ms": 8.939,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f000493",
+        "f032608",
+        "f025034",
+        "f032846",
+        "f037766"
+       ]
+      },
+      {
+       "id": "C2-02",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.87,
+       "server_ms": 9.278,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f000614",
+        "f001902",
+        "f026930",
+        "f016969",
+        "f010998"
+       ]
+      },
+      {
+       "id": "C2-03",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.6,
+       "server_ms": 8.815,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f038328",
+        "f038698",
+        "f015742",
+        "f001231",
+        "f034262"
+       ]
+      },
+      {
+       "id": "C2-04",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.71,
+       "server_ms": 8.697,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025095",
+        "f036145",
+        "f021763",
+        "f028463",
+        "f025209"
+       ]
+      },
+      {
+       "id": "C2-05",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.95,
+       "server_ms": 7.806,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f039466",
+        "f026543",
+        "f031262",
+        "f011444",
+        "f039561"
+       ]
+      },
+      {
+       "id": "C2-06",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.39,
+       "server_ms": 7.766,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f003771",
+        "f025177",
+        "f040244",
+        "f024259",
+        "f004875"
+       ]
+      },
+      {
+       "id": "C2-07",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.76,
+       "server_ms": 8.396,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f032520",
+        "f016617",
+        "f038547",
+        "f007794",
+        "f006799"
+       ]
+      },
+      {
+       "id": "C2-08",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 24.74,
+       "server_ms": 7.658,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f002884",
+        "f002886",
+        "f031104",
+        "f010404",
+        "f003077"
+       ]
+      },
+      {
+       "id": "C2-09",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.74,
+       "server_ms": 8.238,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010585",
+        "f010580",
+        "f010586",
+        "f010579",
+        "f010575"
+       ]
+      },
+      {
+       "id": "C2-10",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.21,
+       "server_ms": 9.198,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f014659",
+        "f028046",
+        "f009957",
+        "f033574",
+        "f009846"
+       ]
+      },
+      {
+       "id": "C2-11",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.07,
+       "server_ms": 8.419,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f021252",
+        "f004420",
+        "f035749",
+        "f038160",
+        "f028084"
+       ]
+      },
+      {
+       "id": "C2-12",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.68,
+       "server_ms": 9.729,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013841",
+        "f000828",
+        "f000835",
+        "f013901",
+        "f008066"
+       ]
+      },
+      {
+       "id": "C2-13",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 24.93,
+       "server_ms": 7.246,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013799",
+        "f013800",
+        "f013803",
+        "f013796",
+        "f013797"
+       ]
+      },
+      {
+       "id": "C2-14",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 24.7,
+       "server_ms": 7.542,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f012318",
+        "f012520",
+        "f038083",
+        "f019213",
+        "f030687"
+       ]
+      },
+      {
+       "id": "C2-15",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 23.86,
+       "server_ms": 7.576,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f013140",
+        "f013138",
+        "f013141",
+        "f013134",
+        "f013137"
+       ]
+      },
+      {
+       "id": "C2-16",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.7,
+       "server_ms": 7.593,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f024425",
+        "f022786",
+        "f023561",
+        "f007968",
+        "f026782"
+       ]
+      },
+      {
+       "id": "C2-17",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.09,
+       "server_ms": 8.363,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f002396",
+        "f017142",
+        "f002967",
+        "f018643",
+        "f006230"
+       ]
+      },
+      {
+       "id": "C2-18",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.06,
+       "server_ms": 8.043,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f008095",
+        "f014800",
+        "f008155",
+        "f016907",
+        "f019244"
+       ]
+      },
+      {
+       "id": "C2-19",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.77,
+       "server_ms": 7.86,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f037199",
+        "f013122",
+        "f035598",
+        "f038617",
+        "f007790"
+       ]
+      },
+      {
+       "id": "C2-20",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.88,
+       "server_ms": 9.79,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f011770",
+        "f012172",
+        "f029298",
+        "f011830",
+        "f020171"
+       ]
+      },
+      {
+       "id": "C2-21",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.54,
+       "server_ms": 8.981,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f027443",
+        "f023039",
+        "f014416",
+        "f027383",
+        "f009790"
+       ]
+      },
+      {
+       "id": "C2-22",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.77,
+       "server_ms": 8.218,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043079",
+        "f021218",
+        "f030833",
+        "f028602",
+        "f017809"
+       ]
+      },
+      {
+       "id": "C2-23",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.41,
+       "server_ms": 8.003,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f028066",
+        "f021516",
+        "f021514",
+        "f014701",
+        "f028060"
+       ]
+      },
+      {
+       "id": "C2-24",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 28.93,
+       "server_ms": 8.346,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f041073",
+        "f009557",
+        "f033321",
+        "f011006",
+        "f007306"
+       ]
+      },
+      {
+       "id": "C2-25",
+       "depth": 2,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.68,
+       "server_ms": 7.942,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f040285",
+        "f009562",
+        "f020350",
+        "f033327",
+        "f027564"
+       ]
+      },
+      {
+       "id": "C3-01",
+       "depth": 3,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.16,
+       "server_ms": 8.992,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f017213",
+        "f020006",
+        "f032592",
+        "f028899",
+        "f031266"
+       ]
+      },
+      {
+       "id": "C3-02",
+       "depth": 3,
+       "stage": "S0",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.18,
+       "server_ms": 9.43,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025283",
+        "f028526",
+        "f030773",
+        "f035048",
+        "f008898"
+       ]
+      },
+      {
+       "id": "C3-03",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.94,
+       "server_ms": 8.205,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f042728",
+        "f006251",
+        "f019208",
+        "f022522",
+        "f036306"
+       ]
+      },
+      {
+       "id": "C3-04",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.69,
+       "server_ms": 9.245,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f011020",
+        "f006261",
+        "f034255",
+        "f019488",
+        "f013948"
+       ]
+      },
+      {
+       "id": "C3-05",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 27.24,
+       "server_ms": 9.341,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f018445",
+        "f007991",
+        "f031115",
+        "f008391",
+        "f004990"
+       ]
+      },
+      {
+       "id": "C3-06",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.73,
+       "server_ms": 8.482,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f025859",
+        "f033779",
+        "f015542",
+        "f009735",
+        "f004248"
+       ]
+      },
+      {
+       "id": "C3-07",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.11,
+       "server_ms": 8.069,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f016933",
+        "f005462",
+        "f020959",
+        "f031948",
+        "f041029"
+       ]
+      },
+      {
+       "id": "C3-08",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.84,
+       "server_ms": 8.527,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f010920",
+        "f033984",
+        "f001475",
+        "f042047",
+        "f010572"
+       ]
+      },
+      {
+       "id": "C3-09",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.76,
+       "server_ms": 9.294,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f034411",
+        "f034414",
+        "f034418",
+        "f034415",
+        "f034413"
+       ]
+      },
+      {
+       "id": "C3-10",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.04,
+       "server_ms": 8.7,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f014385",
+        "f014384",
+        "f014382",
+        "f014381",
+        "f014389"
+       ]
+      },
+      {
+       "id": "C3-11",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.65,
+       "server_ms": 7.856,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f038601",
+        "f038603",
+        "f038602",
+        "f038606",
+        "f038608"
+       ]
+      },
+      {
+       "id": "C3-12",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.47,
+       "server_ms": 8.108,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f042437",
+        "f033307",
+        "f011165",
+        "f018796",
+        "f011394"
+       ]
+      },
+      {
+       "id": "C3-13",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 30.8,
+       "server_ms": 11.455,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f032401",
+        "f021979",
+        "f029138",
+        "f010147",
+        "f022498"
+       ]
+      },
+      {
+       "id": "C3-14",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.7,
+       "server_ms": 8.425,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f022136",
+        "f022139",
+        "f022138",
+        "f022133",
+        "f022137"
+       ]
+      },
+      {
+       "id": "C3-15",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.35,
+       "server_ms": 7.861,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f005201",
+        "f011899",
+        "f017968",
+        "f029548",
+        "f018450"
+       ]
+      },
+      {
+       "id": "C3-16",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 24.94,
+       "server_ms": 7.904,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f035231",
+        "f023647",
+        "f001042",
+        "f012380",
+        "f040542"
+       ]
+      },
+      {
+       "id": "C3-17",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.41,
+       "server_ms": 8.292,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f016326",
+        "f008023",
+        "f030393",
+        "f023735",
+        "f032731"
+       ]
+      },
+      {
+       "id": "C3-18",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.16,
+       "server_ms": 8.023,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f016750",
+        "f040996",
+        "f010176",
+        "f016313",
+        "f023964"
+       ]
+      },
+      {
+       "id": "C3-19",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.13,
+       "server_ms": 8.466,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f008872",
+        "f027662",
+        "f033081",
+        "f005424",
+        "f025470"
+       ]
+      },
+      {
+       "id": "C3-20",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 24.97,
+       "server_ms": 8.037,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f023111",
+        "f024964",
+        "f017915",
+        "f034223",
+        "f007076"
+       ]
+      },
+      {
+       "id": "C3-21",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.67,
+       "server_ms": 8.011,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f043668",
+        "f043672",
+        "f043674",
+        "f043678",
+        "f043677"
+       ]
+      },
+      {
+       "id": "C3-22",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.5,
+       "server_ms": 8.334,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f018025",
+        "f022183",
+        "f035597",
+        "f022023",
+        "f022493"
+       ]
+      },
+      {
+       "id": "C3-23",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 26.13,
+       "server_ms": 8.745,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f019748",
+        "f019808",
+        "f022576",
+        "f030573",
+        "f030574"
+       ]
+      },
+      {
+       "id": "C3-24",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 25.21,
+       "server_ms": 7.911,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f003636",
+        "f020205",
+        "f016611",
+        "f039145",
+        "f040243"
+       ]
+      },
+      {
+       "id": "C3-25",
+       "depth": 3,
+       "stage": "S1",
+       "strict": false,
+       "hit5": false,
+       "top5_equal_expected": false,
+       "hit_any": false,
+       "latency_ms": 24.99,
+       "server_ms": 7.497,
+       "statements": 4,
+       "error": "",
+       "not_answerable": false,
+       "top5": [
+        "f003404",
+        "f003400",
+        "f007781",
+        "f020213",
+        "f004208"
+       ]
+      }
+     ]
+    }
+   },
+   "pairs": {},
+   "query_lines": {
+    "B1h": 32,
+    "B1h_sql": 21,
+    "P-tuned": 43,
+    "P-tuned_cypher": 18,
+    "P-product": 21
+   },
+   "questions": [
+    {
+     "id": "C1-01",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e03870",
+     "predicate": "falcon",
+     "text": "dutor vitel falcon",
+     "answer_fact_id": "f015407",
+     "cost_matters": false,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f015407",
+      "f027717",
+      "f015424"
+     ]
+    },
+    {
+     "id": "C1-02",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e00665",
+     "predicate": "mentor",
+     "text": "mivor vurel mentor",
+     "answer_fact_id": "f001130",
+     "cost_matters": false,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f001130",
+      "f003302"
+     ]
+    },
+    {
+     "id": "C1-03",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02811",
+     "predicate": "umbrella",
+     "text": "meror polel umbrella",
+     "answer_fact_id": "f020482",
+     "cost_matters": true,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f020482",
+      "f009222",
+      "f007351"
+     ]
+    },
+    {
+     "id": "C1-04",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02172",
+     "predicate": "violin",
+     "text": "mamor togel violin",
+     "answer_fact_id": "f001957",
+     "cost_matters": false,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f001957",
+      "f028593"
+     ]
+    },
+    {
+     "id": "C1-05",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e03462",
+     "predicate": "quartz",
+     "text": "zakor fizel quartz",
+     "answer_fact_id": "f026213",
+     "cost_matters": true,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f026213",
+      "f010976"
+     ]
+    },
+    {
+     "id": "C1-06",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e00112",
+     "predicate": "pepper",
+     "text": "tedor nesel pepper",
+     "answer_fact_id": "f028168",
+     "cost_matters": false,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f028168",
+      "f036977",
+      "f029877"
+     ]
+    },
+    {
+     "id": "C1-07",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02692",
+     "predicate": "region",
+     "text": "zazor besel region",
+     "answer_fact_id": "f003411",
+     "cost_matters": false,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f003411",
+      "f006578",
+      "f006638"
+     ]
+    },
+    {
+     "id": "C1-08",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e03195",
+     "predicate": "eagle",
+     "text": "zuror nomel eagle",
+     "answer_fact_id": "f028305",
+     "cost_matters": true,
+     "n_candidates": 7,
+     "expected_top5": [
+      "f028305",
+      "f006180",
+      "f006240",
+      "f016207",
+      "f016267"
+     ]
+    },
+    {
+     "id": "C1-09",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e01997",
+     "predicate": "cipher",
+     "text": "zoror zomel cipher",
+     "answer_fact_id": "f012138",
+     "cost_matters": true,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f012138",
+      "f009802"
+     ]
+    },
+    {
+     "id": "C1-10",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e01217",
+     "predicate": "quartz",
+     "text": "dikor togel quartz",
+     "answer_fact_id": "f029911",
+     "cost_matters": true,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f029911",
+      "f010452",
+      "f010512"
+     ]
+    },
+    {
+     "id": "C1-11",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e01337",
+     "predicate": "copper",
+     "text": "bigor sotel copper",
+     "answer_fact_id": "f021302",
+     "cost_matters": true,
+     "n_candidates": 6,
+     "expected_top5": [
+      "f021302",
+      "f029470",
+      "f006396",
+      "f006456",
+      "f026950"
+     ]
+    },
+    {
+     "id": "C1-12",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e00948",
+     "predicate": "cipher",
+     "text": "lagor sosel cipher",
+     "answer_fact_id": "f007556",
+     "cost_matters": true,
+     "n_candidates": 4,
+     "expected_top5": [
+      "f007556",
+      "f011088",
+      "f006351",
+      "f006411"
+     ]
+    },
+    {
+     "id": "C1-13",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e01881",
+     "predicate": "mentor",
+     "text": "rezor zalel mentor",
+     "answer_fact_id": "f040718",
+     "cost_matters": true,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f040718",
+      "f026895",
+      "f026955"
+     ]
+    },
+    {
+     "id": "C1-14",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02186",
+     "predicate": "timber",
+     "text": "toror zofel timber",
+     "answer_fact_id": "f041798",
+     "cost_matters": true,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f041798",
+      "f019210",
+      "f008212"
+     ]
+    },
+    {
+     "id": "C1-15",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e00343",
+     "predicate": "eagle",
+     "text": "mibor nipel eagle",
+     "answer_fact_id": "f007980",
+     "cost_matters": false,
+     "n_candidates": 3,
+     "expected_top5": [
+      "f007980",
+      "f040031",
+      "f040091"
+     ]
+    },
+    {
+     "id": "C1-16",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e01864",
+     "predicate": "meadow",
+     "text": "paror bipel meadow",
+     "answer_fact_id": "f012137",
+     "cost_matters": false,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f012137",
+      "f027900"
+     ]
+    },
+    {
+     "id": "C1-17",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02401",
+     "predicate": "violin",
+     "text": "zakor bibel violin",
+     "answer_fact_id": "f007581",
+     "cost_matters": true,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f007581",
+      "f000553"
+     ]
+    },
+    {
+     "id": "C1-18",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02629",
+     "predicate": "budget",
+     "text": "bidor duzel budget",
+     "answer_fact_id": "f010894",
+     "cost_matters": false,
+     "n_candidates": 4,
+     "expected_top5": [
+      "f010894",
+      "f042769",
+      "f019482",
+      "f019542"
+     ]
+    },
+    {
+     "id": "C1-19",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02167",
+     "predicate": "hammer",
+     "text": "bigor vodel hammer",
+     "answer_fact_id": "f027311",
+     "cost_matters": false,
+     "n_candidates": 6,
+     "expected_top5": [
+      "f027311",
+      "f038064",
+      "f034309",
+      "f034369",
+      "f038909"
+     ]
+    },
+    {
+     "id": "C1-20",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02230",
+     "predicate": "signal",
+     "text": "vezor fivel signal",
+     "answer_fact_id": "f013139",
+     "cost_matters": false,
+     "n_candidates": 4,
+     "expected_top5": [
+      "f013139",
+      "f014656",
+      "f034276",
+      "f034336"
+     ]
+    },
+    {
+     "id": "C1-21",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e01373",
+     "predicate": "vendor",
+     "text": "vivor nipel vendor",
+     "answer_fact_id": "f016954",
+     "cost_matters": true,
+     "n_candidates": 7,
+     "expected_top5": [
+      "f016954",
+      "f025190",
+      "f033855",
+      "f006149",
+      "f006209"
+     ]
+    },
+    {
+     "id": "C1-22",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e00336",
+     "predicate": "ribbon",
+     "text": "bepor nikel ribbon",
+     "answer_fact_id": "f012115",
+     "cost_matters": false,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f012115",
+      "f035884"
+     ]
+    },
+    {
+     "id": "C1-23",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e02657",
+     "predicate": "ledger",
+     "text": "bafor fepel ledger",
+     "answer_fact_id": "f016098",
+     "cost_matters": false,
+     "n_candidates": 2,
+     "expected_top5": [
+      "f016098",
+      "f036491"
+     ]
+    },
+    {
+     "id": "C1-24",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e03563",
+     "predicate": "lantern",
+     "text": "bepor zemel lantern",
+     "answer_fact_id": "f000519",
+     "cost_matters": false,
+     "n_candidates": 4,
+     "expected_top5": [
+      "f000519",
+      "f041411",
+      "f006360",
+      "f006420"
+     ]
+    },
+    {
+     "id": "C1-25",
+     "depth": 1,
+     "stage": "S0",
+     "anchor_id": "e03901",
+     "predicate": "bridge",
+     "text": "sodor nikel bridge",
+     "answer_fact_id": "f003804",
+     "cost_matters": false,
+     "n_candidates": 4,
+     "expected_top5": [
+      "f003804",
+      "f014801",
+      "f019515",
+      "f019575"
+     ]
+    },
+    {
+     "id": "C2-01",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00629",
+     "predicate": "planet",
+     "text": "gegor zumel planet",
+     "answer_fact_id": "f008812",
+     "cost_matters": false,
+     "n_candidates": 5,
+     "expected_top5": [
+      "f008812",
+      "f042955",
+      "f043015",
+      "f018924",
+      "f018984"
+     ]
+    },
+    {
+     "id": "C2-02",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02654",
+     "predicate": "eagle",
+     "text": "tiror tosel eagle",
+     "answer_fact_id": "f014804",
+     "cost_matters": true,
+     "n_candidates": 29,
+     "expected_top5": [
+      "f014804",
+      "f037961",
+      "f037536",
+      "f013095",
+      "f017570"
+     ]
+    },
+    {
+     "id": "C2-03",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e03201",
+     "predicate": "yarrow",
+     "text": "nopor fizel yarrow",
+     "answer_fact_id": "f037983",
+     "cost_matters": true,
+     "n_candidates": 18,
+     "expected_top5": [
+      "f037983",
+      "f013395",
+      "f038698",
+      "f036224",
+      "f015401"
+     ]
+    },
+    {
+     "id": "C2-04",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02728",
+     "predicate": "ribbon",
+     "text": "negor kokel ribbon",
+     "answer_fact_id": "f038812",
+     "cost_matters": true,
+     "n_candidates": 28,
+     "expected_top5": [
+      "f038812",
+      "f009788",
+      "f009761",
+      "f040277",
+      "f028294"
+     ]
+    },
+    {
+     "id": "C2-05",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02181",
+     "predicate": "garden",
+     "text": "pogor gevel garden",
+     "answer_fact_id": "f012208",
+     "cost_matters": true,
+     "n_candidates": 15,
+     "expected_top5": [
+      "f012208",
+      "f033943",
+      "f026367",
+      "f006159",
+      "f006219"
+     ]
+    },
+    {
+     "id": "C2-06",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02596",
+     "predicate": "silver",
+     "text": "fopor fibel silver",
+     "answer_fact_id": "f019179",
+     "cost_matters": true,
+     "n_candidates": 13,
+     "expected_top5": [
+      "f019179",
+      "f011053",
+      "f044288",
+      "f019799",
+      "f019859"
+     ]
+    },
+    {
+     "id": "C2-07",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e03919",
+     "predicate": "violin",
+     "text": "tasor fizel violin",
+     "answer_fact_id": "f017117",
+     "cost_matters": true,
+     "n_candidates": 9,
+     "expected_top5": [
+      "f017117",
+      "f008878",
+      "f000635",
+      "f024508",
+      "f024568"
+     ]
+    },
+    {
+     "id": "C2-08",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00299",
+     "predicate": "uplink",
+     "text": "bigor bibel uplink",
+     "answer_fact_id": "f042460",
+     "cost_matters": true,
+     "n_candidates": 8,
+     "expected_top5": [
+      "f042460",
+      "f008211",
+      "f004467",
+      "f004527",
+      "f010109"
+     ]
+    },
+    {
+     "id": "C2-09",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00945",
+     "predicate": "region",
+     "text": "meror zofel region",
+     "answer_fact_id": "f033140",
+     "cost_matters": true,
+     "n_candidates": 14,
+     "expected_top5": [
+      "f033140",
+      "f018731",
+      "f041592",
+      "f037079",
+      "f039473"
+     ]
+    },
+    {
+     "id": "C2-10",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02703",
+     "predicate": "candle",
+     "text": "devor pulel candle",
+     "answer_fact_id": "f025679",
+     "cost_matters": true,
+     "n_candidates": 23,
+     "expected_top5": [
+      "f025679",
+      "f017354",
+      "f020908",
+      "f004472",
+      "f004532"
+     ]
+    },
+    {
+     "id": "C2-11",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00529",
+     "predicate": "silver",
+     "text": "vegor pazel silver",
+     "answer_fact_id": "f017618",
+     "cost_matters": true,
+     "n_candidates": 22,
+     "expected_top5": [
+      "f017618",
+      "f024313",
+      "f041952",
+      "f028282",
+      "f039411"
+     ]
+    },
+    {
+     "id": "C2-12",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02884",
+     "predicate": "beacon",
+     "text": "kefor rutel beacon",
+     "answer_fact_id": "f001912",
+     "cost_matters": false,
+     "n_candidates": 18,
+     "expected_top5": [
+      "f001912",
+      "f040698",
+      "f012395",
+      "f034021",
+      "f009933"
+     ]
+    },
+    {
+     "id": "C2-13",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e01253",
+     "predicate": "domain",
+     "text": "bidor zekel domain",
+     "answer_fact_id": "f040949",
+     "cost_matters": true,
+     "n_candidates": 30,
+     "expected_top5": [
+      "f040949",
+      "f021124",
+      "f040634",
+      "f026028",
+      "f024129"
+     ]
+    },
+    {
+     "id": "C2-14",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e01107",
+     "predicate": "iron",
+     "text": "dotor nipel iron",
+     "answer_fact_id": "f018641",
+     "cost_matters": true,
+     "n_candidates": 26,
+     "expected_top5": [
+      "f018641",
+      "f041382",
+      "f012830",
+      "f015037",
+      "f002854"
+     ]
+    },
+    {
+     "id": "C2-15",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e01188",
+     "predicate": "island",
+     "text": "naror togel island",
+     "answer_fact_id": "f003237",
+     "cost_matters": true,
+     "n_candidates": 23,
+     "expected_top5": [
+      "f003237",
+      "f022437",
+      "f011098",
+      "f003328",
+      "f039524"
+     ]
+    },
+    {
+     "id": "C2-16",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02693",
+     "predicate": "walnut",
+     "text": "gibor vedel walnut",
+     "answer_fact_id": "f039971",
+     "cost_matters": true,
+     "n_candidates": 31,
+     "expected_top5": [
+      "f039971",
+      "f022786",
+      "f018076",
+      "f005764",
+      "f039206"
+     ]
+    },
+    {
+     "id": "C2-17",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00203",
+     "predicate": "rocket",
+     "text": "mivor pazel rocket",
+     "answer_fact_id": "f035384",
+     "cost_matters": true,
+     "n_candidates": 14,
+     "expected_top5": [
+      "f035384",
+      "f007443",
+      "f025099",
+      "f031989",
+      "f013857"
+     ]
+    },
+    {
+     "id": "C2-18",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00150",
+     "predicate": "hammer",
+     "text": "vedor derel hammer",
+     "answer_fact_id": "f038055",
+     "cost_matters": true,
+     "n_candidates": 12,
+     "expected_top5": [
+      "f038055",
+      "f041441",
+      "f022701",
+      "f019946",
+      "f019788"
+     ]
+    },
+    {
+     "id": "C2-19",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e03796",
+     "predicate": "ticket",
+     "text": "bafor fizel ticket",
+     "answer_fact_id": "f028696",
+     "cost_matters": true,
+     "n_candidates": 21,
+     "expected_top5": [
+      "f028696",
+      "f000709",
+      "f015237",
+      "f022072",
+      "f032792"
+     ]
+    },
+    {
+     "id": "C2-20",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e00403",
+     "predicate": "quiver",
+     "text": "gesor duzel quiver",
+     "answer_fact_id": "f012133",
+     "cost_matters": true,
+     "n_candidates": 17,
+     "expected_top5": [
+      "f012133",
+      "f022579",
+      "f020551",
+      "f005949",
+      "f009204"
+     ]
+    },
+    {
+     "id": "C2-21",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e03150",
+     "predicate": "harbor",
+     "text": "paror rukel harbor",
+     "answer_fact_id": "f018441",
+     "cost_matters": true,
+     "n_candidates": 17,
+     "expected_top5": [
+      "f018441",
+      "f016722",
+      "f030731",
+      "f041112",
+      "f001860"
+     ]
+    },
+    {
+     "id": "C2-22",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02779",
+     "predicate": "signal",
+     "text": "dimor gupel signal",
+     "answer_fact_id": "f017363",
+     "cost_matters": true,
+     "n_candidates": 16,
+     "expected_top5": [
+      "f017363",
+      "f016793",
+      "f021251",
+      "f028567",
+      "f008934"
+     ]
+    },
+    {
+     "id": "C2-23",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e01933",
+     "predicate": "island",
+     "text": "vumor nipel island",
+     "answer_fact_id": "f028424",
+     "cost_matters": true,
+     "n_candidates": 21,
+     "expected_top5": [
+      "f028424",
+      "f003356",
+      "f011098",
+      "f016331",
+      "f025805"
+     ]
+    },
+    {
+     "id": "C2-24",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e03842",
+     "predicate": "engine",
+     "text": "dikor nigel engine",
+     "answer_fact_id": "f035085",
+     "cost_matters": true,
+     "n_candidates": 30,
+     "expected_top5": [
+      "f035085",
+      "f012845",
+      "f042664",
+      "f009250",
+      "f041558"
+     ]
+    },
+    {
+     "id": "C2-25",
+     "depth": 2,
+     "stage": "S0",
+     "anchor_id": "e02861",
+     "predicate": "dragon",
+     "text": "dikor filel dragon",
+     "answer_fact_id": "f017321",
+     "cost_matters": true,
+     "n_candidates": 35,
+     "expected_top5": [
+      "f017321",
+      "f003822",
+      "f026883",
+      "f007236",
+      "f002782"
+     ]
+    },
+    {
+     "id": "C3-01",
+     "depth": 3,
+     "stage": "S0",
+     "anchor_id": "e00060",
+     "predicate": "candle",
+     "text": "pogor filel candle",
+     "answer_fact_id": "f041994",
+     "cost_matters": true,
+     "n_candidates": 51,
+     "expected_top5": [
+      "f041994",
+      "f027085",
+      "f018833",
+      "f027623",
+      "f004919"
+     ]
+    },
+    {
+     "id": "C3-02",
+     "depth": 3,
+     "stage": "S0",
+     "anchor_id": "e03512",
+     "predicate": "glacier",
+     "text": "paror fepel glacier",
+     "answer_fact_id": "f025265",
+     "cost_matters": true,
+     "n_candidates": 29,
+     "expected_top5": [
+      "f025265",
+      "f005638",
+      "f012579",
+      "f033352",
+      "f022544"
+     ]
+    },
+    {
+     "id": "C3-03",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e01248",
+     "predicate": "pepper",
+     "text": "pamor bipel pepper",
+     "answer_fact_id": "f039696",
+     "cost_matters": true,
+     "n_candidates": 90,
+     "expected_top5": [
+      "f039696",
+      "f014552",
+      "f020936",
+      "f026283",
+      "f026180"
+     ]
+    },
+    {
+     "id": "C3-04",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e02417",
+     "predicate": "signal",
+     "text": "nopor zomel signal",
+     "answer_fact_id": "f005562",
+     "cost_matters": true,
+     "n_candidates": 119,
+     "expected_top5": [
+      "f005562",
+      "f012749",
+      "f026258",
+      "f036825",
+      "f040324"
+     ]
+    },
+    {
+     "id": "C3-05",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e00052",
+     "predicate": "pepper",
+     "text": "pumor fivel pepper",
+     "answer_fact_id": "f035200",
+     "cost_matters": true,
+     "n_candidates": 103,
+     "expected_top5": [
+      "f035200",
+      "f028216",
+      "f032572",
+      "f036775",
+      "f007009"
+     ]
+    },
+    {
+     "id": "C3-06",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e00810",
+     "predicate": "marble",
+     "text": "bupor sotel marble",
+     "answer_fact_id": "f042880",
+     "cost_matters": true,
+     "n_candidates": 118,
+     "expected_top5": [
+      "f042880",
+      "f032008",
+      "f041301",
+      "f025091",
+      "f011382"
+     ]
+    },
+    {
+     "id": "C3-07",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e02108",
+     "predicate": "kettle",
+     "text": "tiror rozel kettle",
+     "answer_fact_id": "f019361",
+     "cost_matters": true,
+     "n_candidates": 140,
+     "expected_top5": [
+      "f019361",
+      "f020246",
+      "f024257",
+      "f026689",
+      "f003826"
+     ]
+    },
+    {
+     "id": "C3-08",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03786",
+     "predicate": "season",
+     "text": "vivor zalel season",
+     "answer_fact_id": "f015300",
+     "cost_matters": true,
+     "n_candidates": 40,
+     "expected_top5": [
+      "f015300",
+      "f029843",
+      "f035662",
+      "f014147",
+      "f003820"
+     ]
+    },
+    {
+     "id": "C3-09",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03084",
+     "predicate": "domain",
+     "text": "mavor nikel domain",
+     "answer_fact_id": "f038711",
+     "cost_matters": true,
+     "n_candidates": 82,
+     "expected_top5": [
+      "f038711",
+      "f036605",
+      "f008499",
+      "f034254",
+      "f043693"
+     ]
+    },
+    {
+     "id": "C3-10",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e01300",
+     "predicate": "owner",
+     "text": "gumor lifel owner",
+     "answer_fact_id": "f040998",
+     "cost_matters": true,
+     "n_candidates": 152,
+     "expected_top5": [
+      "f040998",
+      "f005263",
+      "f019273",
+      "f019975",
+      "f028449"
+     ]
+    },
+    {
+     "id": "C3-11",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03475",
+     "predicate": "saddle",
+     "text": "keror filel saddle",
+     "answer_fact_id": "f028494",
+     "cost_matters": true,
+     "n_candidates": 111,
+     "expected_top5": [
+      "f028494",
+      "f035707",
+      "f031869",
+      "f023132",
+      "f011559"
+     ]
+    },
+    {
+     "id": "C3-12",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e02435",
+     "predicate": "zenith",
+     "text": "zisor nigel zenith",
+     "answer_fact_id": "f022051",
+     "cost_matters": true,
+     "n_candidates": 81,
+     "expected_top5": [
+      "f022051",
+      "f001028",
+      "f024057",
+      "f002294",
+      "f018181"
+     ]
+    },
+    {
+     "id": "C3-13",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e01081",
+     "predicate": "orbit",
+     "text": "vumor sivel orbit",
+     "answer_fact_id": "f022784",
+     "cost_matters": true,
+     "n_candidates": 196,
+     "expected_top5": [
+      "f022784",
+      "f040168",
+      "f042226",
+      "f032225",
+      "f016364"
+     ]
+    },
+    {
+     "id": "C3-14",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e01984",
+     "predicate": "valley",
+     "text": "kogor kinel valley",
+     "answer_fact_id": "f008855",
+     "cost_matters": true,
+     "n_candidates": 168,
+     "expected_top5": [
+      "f008855",
+      "f014748",
+      "f023813",
+      "f043878",
+      "f004599"
+     ]
+    },
+    {
+     "id": "C3-15",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e01896",
+     "predicate": "engine",
+     "text": "vegor fivel engine",
+     "answer_fact_id": "f017384",
+     "cost_matters": true,
+     "n_candidates": 145,
+     "expected_top5": [
+      "f017384",
+      "f008696",
+      "f009124",
+      "f026778",
+      "f035904"
+     ]
+    },
+    {
+     "id": "C3-16",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03193",
+     "predicate": "uplink",
+     "text": "bidor zomel uplink",
+     "answer_fact_id": "f036860",
+     "cost_matters": true,
+     "n_candidates": 158,
+     "expected_top5": [
+      "f036860",
+      "f006515",
+      "f009378",
+      "f035944",
+      "f007806"
+     ]
+    },
+    {
+     "id": "C3-17",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e00488",
+     "predicate": "quartz",
+     "text": "mopor sivel quartz",
+     "answer_fact_id": "f020883",
+     "cost_matters": true,
+     "n_candidates": 86,
+     "expected_top5": [
+      "f020883",
+      "f008555",
+      "f036854",
+      "f025650",
+      "f029391"
+     ]
+    },
+    {
+     "id": "C3-18",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03892",
+     "predicate": "eagle",
+     "text": "meror vurel eagle",
+     "answer_fact_id": "f019251",
+     "cost_matters": true,
+     "n_candidates": 172,
+     "expected_top5": [
+      "f019251",
+      "f000010",
+      "f020027",
+      "f010622",
+      "f017020"
+     ]
+    },
+    {
+     "id": "C3-19",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03022",
+     "predicate": "copper",
+     "text": "vivor mazel copper",
+     "answer_fact_id": "f029532",
+     "cost_matters": true,
+     "n_candidates": 136,
+     "expected_top5": [
+      "f029532",
+      "f031271",
+      "f000774",
+      "f005154",
+      "f000907"
+     ]
+    },
+    {
+     "id": "C3-20",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e02787",
+     "predicate": "needle",
+     "text": "keror zavel needle",
+     "answer_fact_id": "f017370",
+     "cost_matters": true,
+     "n_candidates": 101,
+     "expected_top5": [
+      "f017370",
+      "f009760",
+      "f007972",
+      "f039441",
+      "f012185"
+     ]
+    },
+    {
+     "id": "C3-21",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03935",
+     "predicate": "valley",
+     "text": "devor vedel valley",
+     "answer_fact_id": "f000271",
+     "cost_matters": true,
+     "n_candidates": 147,
+     "expected_top5": [
+      "f000271",
+      "f005257",
+      "f015141",
+      "f040325",
+      "f002473"
+     ]
+    },
+    {
+     "id": "C3-22",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e03258",
+     "predicate": "ribbon",
+     "text": "pumor mubel ribbon",
+     "answer_fact_id": "f022879",
+     "cost_matters": true,
+     "n_candidates": 85,
+     "expected_top5": [
+      "f022879",
+      "f025209",
+      "f024284",
+      "f009255",
+      "f005590"
+     ]
+    },
+    {
+     "id": "C3-23",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e02737",
+     "predicate": "region",
+     "text": "zoror kokel region",
+     "answer_fact_id": "f003258",
+     "cost_matters": true,
+     "n_candidates": 152,
+     "expected_top5": [
+      "f003258",
+      "f023870",
+      "f012864",
+      "f036620",
+      "f027661"
+     ]
+    },
+    {
+     "id": "C3-24",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e00371",
+     "predicate": "anchor",
+     "text": "dimor makel anchor",
+     "answer_fact_id": "f010574",
+     "cost_matters": true,
+     "n_candidates": 227,
+     "expected_top5": [
+      "f010574",
+      "f018711",
+      "f037898",
+      "f011218",
+      "f028310"
+     ]
+    },
+    {
+     "id": "C3-25",
+     "depth": 3,
+     "stage": "S1",
+     "anchor_id": "e00350",
+     "predicate": "iron",
+     "text": "vivor zekel iron",
+     "answer_fact_id": "f022409",
+     "cost_matters": true,
+     "n_candidates": 96,
+     "expected_top5": [
+      "f022409",
+      "f027694",
+      "f018892",
+      "f015135",
+      "f001735"
+     ]
+    }
+   ]
+  }
+ }
+}

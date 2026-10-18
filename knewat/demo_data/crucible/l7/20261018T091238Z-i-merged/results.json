@@ -1,0 +1,1906 @@
+{
+ "schema": "crucible-l7/1",
+ "kind": "i",
+ "run": {
+  "id": "20261018T091238Z-i-merged",
+  "started_at": "2026-10-18T09:12:38Z",
+  "finished_at": "2026-10-18T10:17:57Z",
+  "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I1 --arms S-txn,S-auto",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "f1eccf8b062d2d70f3a5c7a4268e781487732427",
+  "short": "f1eccf8",
+  "dirty": false,
+  "dirty_files": [],
+  "branch": "rerun-l7i"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "f1eccf8",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6390,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "sqlite_version": "3.53.1",
+ "seed": 20261016,
+ "timeout_ms": 10000,
+ "scale": "full",
+ "parts": {
+  "I1": {
+   "kills_per_arm": 200,
+   "arms": {
+    "S-txn": {
+     "started": 18927,
+     "acknowledged": 18776,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 18878,
+      "partial": 0,
+      "absent": 49
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 151,
+     "inflight_complete": 102,
+     "inflight_partial": 0,
+     "inflight_absent": 49,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "S-txn",
+     "kills": 200,
+     "mean_kill_delay_s": 0.188,
+     "run_s": 453.0,
+     "tenant": "l7i_stxn_cf9185",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 0.00016,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.00016
+    },
+    "S-auto": {
+     "started": 22133,
+     "acknowledged": 21957,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 21971,
+      "partial": 142,
+      "absent": 20
+     },
+     "partial": 142,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 176,
+     "inflight_complete": 14,
+     "inflight_partial": 142,
+     "inflight_absent": 20,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff_carries": 142,
+      "handoff_links": 125,
+      "handoff": 125,
+      "artifact": 113,
+      "artifact_links": 113,
+      "task_done": 102,
+      "decision_based_on": 87,
+      "decision_decided_for": 66,
+      "decision": 66,
+      "step_wrote": 53,
+      "fact_asserted": 41,
+      "fact_derived": 24,
+      "fact": 15
+     },
+     "partial_rate_per_acknowledged": 0.006467,
+     "arm": "S-auto",
+     "kills": 200,
+     "mean_kill_delay_s": 0.201,
+     "run_s": 753.8,
+     "tenant": "l7i_sauto_54629e",
+     "partial_rate_per_kill": 0.71,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.000137
+    },
+    "F-product": {
+     "started": 123,
+     "acknowledged": 24,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 31,
+      "partial": 52,
+      "absent": 40
+     },
+     "partial": 52,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 99,
+     "inflight_complete": 7,
+     "inflight_partial": 52,
+     "inflight_absent": 40,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff": 52,
+      "handoff_carries": 52,
+      "handoff_links": 52,
+      "artifact_links": 43,
+      "artifact": 43,
+      "task_done": 43,
+      "decision_decided_for": 27,
+      "decision_based_on": 27,
+      "decision": 27
+     },
+     "partial_rate_per_acknowledged": 2.166667,
+     "arm": "F-product",
+     "kills": 200,
+     "mean_kill_delay_s": 0.188,
+     "run_s": 2563.2,
+     "tenant": "l7i_fprod_32a1bb",
+     "partial_rate_per_kill": 0.26,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.125
+    },
+    "F-multi": {
+     "started": 478,
+     "acknowledged": 314,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 337,
+      "partial": 141,
+      "absent": 0
+     },
+     "partial": 141,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 164,
+     "inflight_complete": 23,
+     "inflight_partial": 141,
+     "inflight_absent": 0,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff": 141,
+      "handoff_links": 141,
+      "handoff_carries": 141,
+      "artifact_links": 107,
+      "artifact": 107,
+      "task_done": 72,
+      "decision": 49,
+      "decision_based_on": 49,
+      "decision_decided_for": 49,
+      "fact_derived": 18,
+      "fact": 18,
+      "step_wrote": 18,
+      "fact_asserted": 18
+     },
+     "partial_rate_per_acknowledged": 0.449045,
+     "arm": "F-multi",
+     "kills": 200,
+     "mean_kill_delay_s": 0.188,
+     "run_s": 776.6,
+     "tenant": "l7i_fmulti_b85b02",
+     "partial_rate_per_kill": 0.705,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.009554
+    },
+    "F-multiexec": {
+     "started": 1008,
+     "acknowledged": 881,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 1005,
+      "partial": 0,
+      "absent": 3
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 127,
+     "inflight_complete": 124,
+     "inflight_partial": 0,
+     "inflight_absent": 3,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "F-multiexec",
+     "kills": 200,
+     "mean_kill_delay_s": 0.201,
+     "run_s": 756.7,
+     "tenant": "l7i_fmexec_bc95d2",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 0.003405,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.003405
+    },
+    "F-1stmt": {
+     "started": 988,
+     "acknowledged": 862,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 987,
+      "partial": 0,
+      "absent": 1
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 126,
+     "inflight_complete": 125,
+     "inflight_partial": 0,
+     "inflight_absent": 1,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "F-1stmt",
+     "kills": 200,
+     "mean_kill_delay_s": 0.189,
+     "run_s": 923.0,
+     "tenant": "l7i_f1first_02593f",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 0.00348,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.00348
+    }
+   }
+  },
+  "I2": {
+   "closeouts_per_arm": 400,
+   "stale_fraction": 0.25,
+   "arms": {
+    "S-txn": {
+     "arm": "S-txn",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.374,
+      "p99": 6.658,
+      "max": 10.518,
+      "mean": 0.52
+     },
+     "tenant": "l7i_stxn_a831b6",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "S-auto": {
+     "arm": "S-auto",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 824,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.523,
+      "p99": 7.805,
+      "max": 9.205,
+      "mean": 0.718
+     },
+     "tenant": "l7i_sauto_19e010",
+     "partial_total": 103
+    },
+    "F-product": {
+     "arm": "F-product",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 824,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 115.173,
+      "p99": 355.717,
+      "max": 617.859,
+      "mean": 129.749
+     },
+     "tenant": "l7i_fprod_cf98d2",
+     "partial_total": 103,
+     "note": "no compensation: as the client convention / product is",
+     "queries_per_closeout_last": 21
+    },
+    "F-multi": {
+     "arm": "F-multi",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 824,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 32.847,
+      "p99": 155.154,
+      "max": 356.906,
+      "mean": 39.707
+     },
+     "tenant": "l7i_fmulti_f5c159",
+     "partial_total": 103,
+     "note": "no compensation: as the client convention / product is"
+    },
+    "F-multi-cas-first": {
+     "arm": "F-multi-cas-first",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 33.63,
+      "p99": 238.988,
+      "max": 651.839,
+      "mean": 44.302
+     },
+     "tenant": "l7i_fmulticas_f5a2b2",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "F-multiexec": {
+     "arm": "F-multiexec",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 1339,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 11.511,
+      "p99": 30.633,
+      "max": 48.088,
+      "mean": 11.994
+     },
+     "tenant": "l7i_fmexec_70669f",
+     "partial_total": 103
+    },
+    "F-multiexec-err": {
+     "arm": "F-multiexec-err",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 1339,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 12.218,
+      "p99": 54.338,
+      "max": 95.501,
+      "mean": 15.255
+     },
+     "tenant": "l7i_fmexecerr_e1f9c1",
+     "partial_total": 103
+    },
+    "F-1stmt-first": {
+     "arm": "F-1stmt-first",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 11.143,
+      "p99": 202.249,
+      "max": 471.414,
+      "mean": 22.202
+     },
+     "tenant": "l7i_f1first_60148a",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "F-1stmt-last": {
+     "arm": "F-1stmt-last",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 6.166,
+      "p99": 81.541,
+      "max": 156.602,
+      "mean": 9.769
+     },
+     "tenant": "l7i_f1last_d4e514",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    }
+   }
+  },
+  "I3": {
+   "kills_per_arm": 20,
+   "arms": {
+    "F-1stmt": {
+     "started": 1691,
+     "acknowledged": 1639,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 1639,
+      "partial": 0,
+      "absent": 52
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 52,
+     "inflight_complete": 0,
+     "inflight_partial": 0,
+     "inflight_absent": 52,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "server_bug_reports_arm_total": 0,
+     "arm": "F-1stmt",
+     "kills_requested": 20,
+     "kills_done": 20,
+     "writers": 4,
+     "server_failed_to_restart": 0,
+     "server_bug_reports": 0,
+     "server_extra_bounces": 0,
+     "restart_ready_s": {
+      "n": 20,
+      "p50": 2.33,
+      "p99": 4.7,
+      "max": 4.7,
+      "mean": 2.33
+     },
+     "restarts": [
+      {
+       "k": 0,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 0.57,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.11,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 0.55,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.91,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 0.9,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.97,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 3,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 1.04,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.78,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 1.24,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.18,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 5,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.16,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.06,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 6,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 1.66,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.9,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 7,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.03,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 8,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.35,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.82,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.32,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.4,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.33,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.73,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.9,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.34,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.39,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.72,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.34,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.95,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.14,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.21,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.76,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.2,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.19,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.61,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 18,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.7,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.09,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 19,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.76,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.42,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      }
+     ],
+     "tenant": "l7i_f1first_b98c1b",
+     "rule_of_three_95_upper_per_kill": 0.15,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.00183
+    },
+    "F-multi": {
+     "started": 895,
+     "acknowledged": 829,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 825,
+      "partial": 61,
+      "absent": 9
+     },
+     "partial": 61,
+     "lost_acknowledged": 4,
+     "partial_among_acknowledged": 4,
+     "inflight_at_kill": 66,
+     "inflight_complete": 0,
+     "inflight_partial": 57,
+     "inflight_absent": 9,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff_links": 61,
+      "handoff_carries": 61,
+      "handoff": 61,
+      "artifact_links": 47,
+      "artifact": 47,
+      "task_done": 33,
+      "decision": 21,
+      "decision_decided_for": 21,
+      "decision_based_on": 21,
+      "fact": 7,
+      "fact_asserted": 7,
+      "step_wrote": 7,
+      "fact_derived": 7
+     },
+     "partial_rate_per_acknowledged": 0.073583,
+     "server_bug_reports_arm_total": 0,
+     "arm": "F-multi",
+     "kills_requested": 20,
+     "kills_done": 20,
+     "writers": 4,
+     "server_failed_to_restart": 0,
+     "server_bug_reports": 0,
+     "server_extra_bounces": 0,
+     "restart_ready_s": {
+      "n": 20,
+      "p50": 5.56,
+      "p99": 8.77,
+      "max": 8.77,
+      "mean": 5.726
+     },
+     "restarts": [
+      {
+       "k": 0,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.88,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.12,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.68,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.15,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.01,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.64,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 3,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.98,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 4.78,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.14,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.59,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 5,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.24,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 5.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 6,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.68,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.96,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 7,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.75,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.41,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 8,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.56,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.94,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.12,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 6.48,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.56,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 4.14,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.45,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 7.86,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.88,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.69,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.58,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 4.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.24,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.83,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.81,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 8.32,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.1,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.8,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.83,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 18,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 8.77,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 5.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 19,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 8.07,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      }
+     ],
+     "tenant": "l7i_fmulti_111631"
+    }
+   },
+   "aof_repro": {
+    "data_dir": "C:\\Change_folder_after_HDD\\wt-p10\\.p10\\aof-crash-evidence\\data",
+    "container": "knewat-db-rerun-l7i-aofrepro",
+    "attempts": [
+     {
+      "crashed": true,
+      "ready": false,
+      "signature": "crashed by signal: 11, si_code: 1",
+      "eip": "redis-server *:6379(+0x32ac24) [0x55d488ad5c24]",
+      "in_aof_load": true,
+      "seconds": 22.4
+     },
+     {
+      "crashed": false,
+      "ready": true,
+      "signature": null,
+      "seconds": 31.0
+     },
+     {
+      "crashed": true,
+      "ready": false,
+      "signature": "crashed by signal: 11, si_code: 1",
+      "eip": "redis-server *:6379(sdsfree+0x9) [0x55b401ec34b9]",
+      "in_aof_load": true,
+      "seconds": 15.0
+     }
+    ],
+    "summary": {
+     "attempts": 3,
+     "crashed": 2,
+     "signatures": [
+      "crashed by signal: 11, si_code: 1"
+     ]
+    },
+    "incr_commands": 69516,
+    "incr_bytes": 51772616,
+    "bisect_steps": [
+     {
+      "commands": 34758,
+      "bytes": 27952298,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 17379,
+      "bytes": 11626111,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 26068,
+      "bytes": 19296550,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 21723,
+      "bytes": 17924071,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 23895,
+      "bytes": 18596648,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 22809,
+      "bytes": 18218732,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 22266,
+      "bytes": 18080803,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 22537,
+      "bytes": 18143923,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 22673,
+      "bytes": 18179698,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 22741,
+      "bytes": 18199116,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 22707,
+      "bytes": 18184713,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 22724,
+      "bytes": 18187272,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 22732,
+      "bytes": 18190147,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 22728,
+      "bytes": 18187769,
+      "crashed": false,
+      "ready": true
+     },
+     {
+      "commands": 22730,
+      "bytes": 18188027,
+      "crashed": true,
+      "ready": false
+     },
+     {
+      "commands": 22729,
+      "bytes": 18187895,
+      "crashed": false,
+      "ready": true
+     }
+    ],
+    "smallest_crashing_prefix_commands": 22730,
+    "largest_clean_prefix_commands": 22729,
+    "culprit_command_index": 22730,
+    "culprit_command_head": "*3 | $12 | GRAPH.EFFECT | $37 | test_b2531215f3d54fbbaa65cf41f0268def | $58 | \u0003\u0000\r\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0001\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0004\u0000\u0000\u0000\u0007\u0000\u0000\u0000\u0000\u0000\u0000\u0000Entity\u0000\u0001\u0001\u0000\n\u0000\u0000\u0000\u0000\u0000\u0000\u0000norm_name\u0000 | ",
+    "confirm_prefix_without_culprit_crashed": true,
+    "culprit_alone_crashed": false,
+    "rate_full_file": {
+     "attempts": 8,
+     "crashed": 8
+    },
+    "rate_largest_clean_prefix": {
+     "commands": 22729,
+     "attempts": 8,
+     "crashed": 3
+    }
+   }
+  },
+  "I4": {
+   "a": [
+    {
+     "backend": "SQLite",
+     "mode": "naive",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 89,
+     "lost_acked": 911,
+     "lost_vs_attempted": 911,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.34,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "atomic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.29,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "cas",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 10,
+     "wall_s": 0.69,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "pessimistic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.49,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "naive",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 88,
+     "lost_acked": 912,
+     "lost_vs_attempted": 912,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 3.04,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "atomic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 1.32,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "cas",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 8551,
+     "wall_s": 15.35,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "pessimistic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 10265,
+     "wall_s": 40.8,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "SQLite",
+     "mode": "naive",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 128,
+     "lost_acked": 9872,
+     "lost_vs_attempted": 9872,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 2.54,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "atomic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 2.85,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "cas",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 90746,
+     "wall_s": 16.68,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "pessimistic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 3.82,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "naive",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 112,
+     "lost_acked": 9888,
+     "lost_vs_attempted": 9888,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 16.24,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "atomic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 6.46,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "cas",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 510102,
+     "wall_s": 681.55,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null,
+     "rerun_budget_s": 1500.0,
+     "replaces_incomplete_cell": true
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "pessimistic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 9955,
+     "final": 9955,
+     "lost_acked": 0,
+     "lost_vs_attempted": 45,
+     "errors": 45,
+     "error_kinds": {
+      "TimeoutError: Timeout reading from socket": 45
+     },
+     "retries": 576604,
+     "wall_s": 747.83,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null,
+     "rerun_budget_s": 1500.0,
+     "replaces_incomplete_cell": true
+    }
+   ],
+   "b": [
+    {
+     "backend": "SQLite",
+     "mode": "one statement",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "one statement",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "multi-statement no txn",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 390,
+     "both": 390,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "multi-statement no txn",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 499,
+     "both": 499,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "multi-statement no txn",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 498,
+     "both": 498,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "multi-statement no txn",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 499,
+     "both": 499,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN IMMEDIATE",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN IMMEDIATE",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN DEFERRED",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 424,
+     "error_kinds": {
+      "OperationalError: database is locked": 424
+     }
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN DEFERRED",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 498,
+     "error_kinds": {
+      "OperationalError: database is locked": 498
+     }
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "WATCH+MULTI/EXEC",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "WATCH+MULTI/EXEC",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    }
+   ],
+   "busy_timeout_ms": 10000,
+   "mode_budget_s": 240.0
+  },
+  "I5": {
+   "lines_statement_text": {
+    "F-1stmt": 14,
+    "S-txn": 12
+   },
+   "lines_python_glue_closeout_method": {
+    "F-1stmt": 12,
+    "S-txn": 27
+   },
+   "statements_per_closeout": {
+    "F-1stmt": 1,
+    "S-txn": 13
+   },
+   "n_per_writer": 400,
+   "F-1stmt": {
+    "writers_1": {
+     "latency_ms": {
+      "n": 400,
+      "p50": 5.355,
+      "p99": 32.484,
+      "max": 39.779,
+      "mean": 6.899
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 88.8,
+     "round_trips_per_closeout": 1
+    },
+    "writers_8": {
+     "latency_ms": {
+      "n": 3200,
+      "p50": 117.986,
+      "p99": 252.05,
+      "max": 387.19,
+      "mean": 113.342
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 37.6,
+     "round_trips_per_closeout": 1
+    }
+   },
+   "S-txn": {
+    "writers_1": {
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.413,
+      "p99": 7.419,
+      "max": 9.007,
+      "mean": 0.605
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 1255.3,
+     "round_trips_per_closeout": 13
+    },
+    "writers_8": {
+     "latency_ms": {
+      "n": 3200,
+      "p50": 0.453,
+      "p99": 9.635,
+      "max": 1292.495,
+      "mean": 2.202
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 1059.7,
+     "round_trips_per_closeout": 13
+    }
+   },
+   "embedded_vs_server": "S-txn: embedded (in-process SQLite, no network); F-1stmt: server (Docker port-forward)"
+  }
+ },
+ "db_port": 6390,
+ "i4_busy_timeout_ms": 10000,
+ "server_bug_reports_at_start": 0,
+ "server_bug_reports_at_end": 0,
+ "merged_from": [
+  {
+   "run_id": "20261018T091238Z-i",
+   "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I1 --arms S-txn,S-auto",
+   "parts": [
+    "I1"
+   ],
+   "started_at": "2026-10-18T09:12:38Z",
+   "finished_at": "2026-10-18T09:32:50Z"
+  },
+  {
+   "run_id": "20261018T092740Z-i",
+   "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I1 --arms F-product",
+   "parts": [
+    "I1"
+   ],
+   "started_at": "2026-10-18T09:27:40Z",
+   "finished_at": "2026-10-18T10:10:40Z"
+  },
+  {
+   "run_id": "20261018T092741Z-i",
+   "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I1,I2 --arms F-multi,F-multiexec,F-1stmt",
+   "parts": [
+    "I1",
+    "I2"
+   ],
+   "started_at": "2026-10-18T09:27:41Z",
+   "finished_at": "2026-10-18T10:11:41Z"
+  },
+  {
+   "run_id": "20261018T094400Z-i",
+   "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6392 --scale full --parts I3 --arms F-1stmt,F-multi",
+   "parts": [
+    "I3"
+   ],
+   "started_at": "2026-10-18T09:44:00Z",
+   "finished_at": "2026-10-18T09:53:01Z"
+  },
+  {
+   "run_id": "20261018T092741Z-i",
+   "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I4",
+   "parts": [
+    "I4"
+   ],
+   "started_at": "2026-10-18T09:27:41Z",
+   "finished_at": "2026-10-18T09:41:56Z"
+  },
+  {
+   "run_id": "20261018T094459Z-i",
+   "command": "script: i_conc.rerun_a_cell FalkorDB cas+pessimistic W=200 ops=50 budget=1500 (rerun of the two cells that hit the 240 s budget under concurrent load) on port 6393",
+   "parts": [
+    "I4"
+   ],
+   "started_at": "2026-10-18T09:44:59Z",
+   "finished_at": "2026-10-18T10:08:53Z"
+  },
+  {
+   "run_id": "20261018T101537Z-i",
+   "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I5",
+   "parts": [
+    "I5"
+   ],
+   "started_at": "2026-10-18T10:15:37Z",
+   "finished_at": "2026-10-18T10:17:12Z"
+  }
+ ]
+}

@@ -1,0 +1,155 @@
+{
+ "schema": "crucible-l7/1",
+ "kind": "i",
+ "run": {
+  "id": "20261016T100730Z-i",
+  "started_at": "2026-10-16T10:07:30Z",
+  "finished_at": "2026-10-16T10:13:54Z",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/knewat/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "b4a4dcf3b3bdd93c95e27b242c1a5e13867dcb3e",
+  "short": "b4a4dcf",
+  "dirty": false,
+  "branch": "p10"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "b4a4dcf",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6368,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "sqlite_version": "3.53.1",
+ "seed": 20261016,
+ "timeout_ms": 10000,
+ "scale": "full",
+ "parts": {
+  "I1": {
+   "kills_per_arm": 200,
+   "arms": {
+    "S-txn": {
+     "started": 40163,
+     "acknowledged": 40013,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 40090,
+      "partial": 0,
+      "absent": 73
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 150,
+     "inflight_complete": 77,
+     "inflight_partial": 0,
+     "inflight_absent": 73,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "S-txn",
+     "kills": 200,
+     "mean_kill_delay_s": 0.188,
+     "run_s": 205.1,
+     "tenant": "l7i_stxn_fb3ff2",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 7.5e-05,
+     "lost_rule_of_three_95_upper_per_acknowledged": 7.5e-05
+    },
+    "S-auto": {
+     "started": 54084,
+     "acknowledged": 53910,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 53921,
+      "partial": 143,
+      "absent": 20
+     },
+     "partial": 143,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 174,
+     "inflight_complete": 11,
+     "inflight_partial": 143,
+     "inflight_absent": 20,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff_carries": 143,
+      "handoff": 130,
+      "handoff_links": 130,
+      "artifact_links": 109,
+      "artifact": 109,
+      "task_done": 99,
+      "decision_based_on": 81,
+      "decision_decided_for": 70,
+      "decision": 70,
+      "step_wrote": 56,
+      "fact_asserted": 37,
+      "fact_derived": 25,
+      "fact": 13
+     },
+     "partial_rate_per_acknowledged": 0.002653,
+     "arm": "S-auto",
+     "kills": 200,
+     "mean_kill_delay_s": 0.201,
+     "run_s": 174.1,
+     "tenant": "l7i_sauto_6c410d",
+     "partial_rate_per_kill": 0.715,
+     "lost_rule_of_three_95_upper_per_acknowledged": 5.6e-05
+    }
+   }
+  }
+ },
+ "db_port": 6368,
+ "i4_busy_timeout_ms": 10000,
+ "server_bug_reports_at_start": 1,
+ "server_bug_reports_at_end": 1
+}

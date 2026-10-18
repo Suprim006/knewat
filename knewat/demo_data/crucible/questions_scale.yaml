@@ -1,0 +1,573 @@
+schema: crucible-l2-scale-questions/1
+generated_from: knewat.crucible.l2.scale_scenario.play_scale (K sprints); answers are derived from the per-sprint ledgers,
+  never typed
+seed: 20261015
+scenario:
+  sprints: 20
+  agents:
+  - planner
+  - researcher
+  - builder
+  tasks: 240
+  decisions: 120
+  handoffs: 80
+  facts: 180
+  episodes: 80
+  sources: 160
+  supersedes: 20
+  conflicting_pairs: 40
+  reclaims: 20
+  forgotten_facts: 20
+  question_sprints:
+    Q01: s03
+    Q02: s13
+    Q03: s20
+    Q04: s01
+    Q05: s09
+    Q06: s17
+    Q07: s05
+    Q08: s12
+    Q09: s19
+    Q10: s04
+    Q11: s10
+    Q12: s15
+    Q13: s06
+    Q14: s08
+    Q15: s18
+    Q16: s02
+    Q17: s11
+    Q18: s16
+    Q19: s03
+    Q20: s14
+    Q21: s20
+    Q22: s01
+    Q23: s07
+    Q24: s17
+    Q25: s05
+    Q26: s13
+    Q27: s19
+    Q28: s04
+    Q29: s09
+    Q30: s15
+    Q31: s06
+    Q32: s12
+    Q33: s18
+    Q34: s02
+    Q35: s10
+    Q36: s16
+    Q37: s03
+    Q38: s08
+    Q39: s20
+    Q40: s01
+questions:
+- id: Q01
+  family: decision_provenance
+  text: 'In sprint S03: Which facts was the decision "S03: Use JWT bearer tokens for user traffic (security requirement);
+    offer API keys only later for service accounts." based on?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (PS256, key s03)
+  - auth_method=API key in X-Client-Key header
+  op: decision_facts
+  args:
+    decision: s03 use jwt bearer
+    sprint: s03
+- id: Q02
+  family: decision_provenance
+  text: 'In sprint S13: Which facts was the decision "S13: Evaluate Couchbase 16 as the database (forum post)." based on?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - database=Couchbase 16
+  op: decision_facts
+  args:
+    decision: s13 evaluate couchbase 16
+    sprint: s13
+- id: Q03
+  family: decision_provenance
+  text: 'In sprint S20: For each fact that the decision "S20: Use JWT bearer tokens for user traffic (security requirement);
+    offer API keys only later for service accounts." was based on, which agent asserted it?'
+  format: a JSON list of "fact name @ agent" strings, e.g. ["predicate=value@planner"]
+  kind: set
+  item: fact_by
+  answer:
+  - auth_method=JWT bearer tokens (ES384, key s20)@researcher
+  - auth_method=API key in X-Ops-Key header@planner
+  op: decision_fact_agents
+  args:
+    decision: s20 use jwt bearer
+    sprint: s20
+- id: Q04
+  family: decision_provenance
+  text: 'In sprint S01: Which source documents (uris) back the facts that the decision "S01: Use JWT bearer tokens for user
+    traffic (security requirement); offer API keys only later for service accounts." relied on?'
+  format: a JSON list of source uris
+  kind: set
+  item: source
+  answer:
+  - acme-docs/s01/04_security_note.md
+  - acme-docs/s01/05_customer_request.md
+  op: decision_sources
+  args:
+    decision: s01 use jwt bearer
+    sprint: s01
+- id: Q05
+  family: handoffs
+  text: 'In sprint S09: What artifacts (uris) did the handoff for task s09-t03-design-endpoints carry?'
+  format: a JSON list of artifact uris
+  kind: set
+  item: artifact
+  answer:
+  - artifacts/s09/openapi-draft.yaml
+  op: handoff_artifacts
+  args:
+    task: s09-t03-design-endpoints
+    sprint: s09
+- id: Q06
+  family: handoffs
+  text: 'In sprint S17: Which facts did the handoff for task s17-t07-implement-crud-spec carry?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - api_version=v34
+  - auth_method=JWT bearer tokens (ES256, key s17)
+  op: handoff_facts
+  args:
+    task: s17-t07-implement-crud-spec
+    sprint: s17
+- id: Q07
+  family: handoffs
+  text: 'In sprint S05: For which tasks did the planner receive a handoff?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s05-t12-update-endpoints-for-v2
+  - s05-t07-implement-crud-spec
+  - s05-t11-package-release
+  op: handoffs_to
+  args:
+    agent: planner
+    sprint: s05
+- id: Q08
+  family: handoffs
+  text: 'In sprint S12: Which handoffs carried a fact that has since been superseded? Name the task of each handoff.'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s12-t03-design-endpoints
+  op: handoffs_with_superseded_facts
+  args:
+    sprint: s12
+- id: Q09
+  family: time_travel
+  text: 'In sprint S19: What value of the fact `api_version` of subject ''Acme Notes API S19'' (global scope) was valid at
+    t=1760001236500 (just after it was first asserted and before anything newer)?'
+  format: a JSON list with the valid value(s), e.g. ["v37"]
+  kind: set
+  item: value
+  answer:
+  - v37
+  op: as_of_values
+  args:
+    subject: Acme Notes API S19
+    predicate: api_version
+    t: 1760001236500
+    sprint: s19
+- id: Q10
+  family: time_travel
+  text: 'In sprint S04: Which `auth_method` facts of subject ''Acme Notes API S04'' (global scope) were valid at t=1760000234500
+    (after only the security note had been ingested)?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (RS384, key s04)
+  op: as_of_facts
+  args:
+    subject: Acme Notes API S04
+    predicate: auth_method
+    t: 1760000234500
+    sprint: s04
+- id: Q11
+  family: time_travel
+  text: 'In sprint S10: Which `auth_method` facts of subject ''Acme Notes API S10'' (global scope) were valid at t=1760000649500
+    (after both sides were asserted)?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (ES384, key s10)
+  - auth_method=API key in X-Partner-Key header
+  op: as_of_facts
+  args:
+    subject: Acme Notes API S10
+    predicate: auth_method
+    t: 1760000649500
+    sprint: s10
+- id: Q12
+  family: time_travel
+  text: 'In sprint S15: List every value that `api_version` of subject ''Acme Notes API S15'' has had, oldest first.'
+  format: a JSON list of values, oldest first
+  kind: ordered
+  item: value
+  answer:
+  - v29
+  - v30
+  op: value_history
+  args:
+    subject: Acme Notes API S15
+    predicate: api_version
+    sprint: s15
+- id: Q13
+  family: supersession
+  text: 'In sprint S06: Which decisions were based on a fact that was later superseded?'
+  format: a JSON list of decision names
+  kind: set
+  item: decision
+  answer:
+  - s06 build the acme
+  op: decisions_on_superseded
+  args:
+    sprint: s06
+- id: Q14
+  family: supersession
+  text: 'In sprint S08: Which fact superseded `api_version=v15`, and which agent asserted it?'
+  format: a JSON list with one string "fact name @ agent"
+  kind: set
+  item: fact_by
+  answer:
+  - api_version=v16@researcher
+  op: superseder
+  args:
+    fact: api_version=v15
+    sprint: s08
+- id: Q15
+  family: supersession
+  text: 'In sprint S18: Which agent asserted the fact `api_version=v35` that was later superseded?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: fact_agent
+  args:
+    fact: api_version=v35
+    sprint: s18
+- id: Q16
+  family: supersession
+  text: 'In sprint S02: Which decisions are based on the current `api_version` fact of ''Acme Notes API S02''?'
+  format: a JSON list of decision names
+  kind: set
+  item: decision
+  answer:
+  - s02 adopt style guide
+  - s02 spec approved endpoints
+  op: decisions_on_fact
+  args:
+    fact: api_version=v4
+    sprint: s02
+- id: Q17
+  family: dependencies
+  text: 'In sprint S11: Which tasks are blocked (directly or transitively) if s11-t03-design-endpoints fails?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s11-t07-implement-crud-spec
+  - s11-t08-write-test-plan
+  - s11-t09-review-spec
+  - s11-t10-write-docs
+  - s11-t11-package-release
+  - s11-t12-update-endpoints-for-v2
+  op: blocked_by_failure
+  args:
+    task: s11-t03-design-endpoints
+    sprint: s11
+- id: Q18
+  family: dependencies
+  text: 'In sprint S16: Which tasks are blocked (directly or transitively) if s16-t09-review-spec fails?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s16-t10-write-docs
+  - s16-t11-package-release
+  op: blocked_by_failure
+  args:
+    task: s16-t09-review-spec
+    sprint: s16
+- id: Q19
+  family: dependencies
+  text: 'In sprint S03: Which tasks does s03-t07-implement-crud-spec directly depend on?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s03-t03-design-endpoints
+  - s03-t05-choose-auth
+  - s03-t06-write-db-schema
+  op: direct_dependencies
+  args:
+    task: s03-t07-implement-crud-spec
+    sprint: s03
+- id: Q20
+  family: dependencies
+  text: 'In sprint S14: Considering only the dependency graph, which tasks become ready as soon as s14-t01-gather-requirements
+    is done (all of their dependencies are done, and they are not that task itself)?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s14-t02-choose-api-version
+  - s14-t04-survey-infra-security
+  op: ready_after
+  args:
+    done:
+    - s14-t01-gather-requirements
+    sprint: s14
+- id: Q21
+  family: contradictions
+  text: 'In sprint S20: Which current facts conflict with each other (same subject and predicate, different values)?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - auth_method=JWT bearer tokens (ES384, key s20)
+  - auth_method=API key in X-Ops-Key header
+  op: active_conflicts
+  args:
+    sprint: s20
+- id: Q22
+  family: contradictions
+  text: 'In sprint S01: For each side of the current conflict, which agent asserted it?'
+  format: a JSON list of "fact name @ agent" strings
+  kind: set
+  item: fact_by
+  answer:
+  - auth_method=JWT bearer tokens (RS256, key s01)@researcher
+  - auth_method=API key in X-Api-Key header@planner
+  op: active_conflict_agents
+  args:
+    sprint: s01
+- id: Q23
+  family: contradictions
+  text: 'In sprint S07: Which source document backs the API-key side of the conflict?'
+  format: one source uri
+  kind: value
+  item: source
+  answer: acme-docs/s07/05_customer_request.md
+  op: fact_source
+  args:
+    fact: auth_method=API key in X-Team-Key header
+    sprint: s07
+- id: Q24
+  family: contradictions
+  text: 'In sprint S17: Which agent asserted the fact `auth_method=JWT bearer tokens (ES256, key s17)`?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: fact_agent
+  args:
+    fact: auth_method=JWT bearer tokens (ES256, key s17)
+    sprint: s17
+- id: Q25
+  family: recovery
+  text: 'In sprint S05: Which tasks were reclaimed after the agent holding them stopped (its lease expired)?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s05-t03-design-endpoints
+  op: reclaimed_tasks
+  args:
+    sprint: s05
+- id: Q26
+  family: recovery
+  text: 'In sprint S13: Which agent took over s13-t03-design-endpoints after the first claimer died?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: reclaimer
+  args:
+    task: s13-t03-design-endpoints
+    sprint: s13
+- id: Q27
+  family: recovery
+  text: 'In sprint S19: Which agent held the expired lease on s19-t03-design-endpoints (the one that died)?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: builder
+  op: previous_claimer
+  args:
+    task: s19-t03-design-endpoints
+    sprint: s19
+- id: Q28
+  family: recovery
+  text: 'In sprint S04: Which tasks did the builder complete?'
+  format: a JSON list of task ids
+  kind: set
+  item: task
+  answer:
+  - s04-t12-update-endpoints-for-v2
+  - s04-t06-write-db-schema
+  - s04-t07-implement-crud-spec
+  - s04-t11-package-release
+  op: completed_by
+  args:
+    agent: builder
+    sprint: s04
+- id: Q29
+  family: memory_scope
+  text: 'In sprint S09: What is the current value of `api_version` for ''Acme Notes API S09''?'
+  format: one value
+  kind: value
+  item: value
+  answer: v18
+  op: current_value
+  args:
+    subject: Acme Notes API S09
+    predicate: api_version
+    sprint: s09
+- id: Q30
+  family: memory_scope
+  text: 'In sprint S15: Which current facts about ''Acme Notes API S15'' are visible from the scope project:acme-s15 (that
+    scope''s own facts plus global ones)?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - purpose=REST service to create, tag and search notes (S15)
+  - api_version=v30
+  - database=SQL Server 2022
+  - auth_method=JWT bearer tokens (ES384, key s15)
+  - auth_method=API key in X-Web-Key header
+  - release_channel=general availability
+  op: visible_facts
+  args:
+    scope: project:acme-s15
+    subject: Acme Notes API S15
+    sprint: s15
+- id: Q31
+  family: memory_scope
+  text: 'In sprint S06: Does any fact of the scope project:billing-s06 (subject ''Bolt Billing API S06'') appear among the
+    facts visible from project:acme-s06?'
+  format: yes or no
+  kind: yesno
+  item: value
+  answer: 'no'
+  op: scope_leak
+  args:
+    scope: project:acme-s06
+    other: project:billing-s06
+    sprint: s06
+- id: Q32
+  family: memory_scope
+  text: 'In sprint S12: In which scope is the fact `billing_cycle=biweekly, invoiced on day 12` of subject ''Bolt Billing
+    API S12''?'
+  format: one scope name such as global or project:<name>
+  kind: value
+  item: scope
+  answer: project:billing-s12
+  op: fact_scope
+  args:
+    fact: billing_cycle=biweekly, invoiced on day 12
+    sprint: s12
+- id: Q33
+  family: episodes
+  text: 'In sprint S18: Which agent recorded the episode saying that API version v35 is withdrawn?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: episode_agent
+  args:
+    contains: 'S18: Style guide'
+    sprint: s18
+- id: Q34
+  family: episodes
+  text: 'In sprint S02: Which agent recorded the episode about the notes, tags and note_tags tables?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: builder
+  op: episode_agent
+  args:
+    contains: 'S02: Schema:'
+    sprint: s02
+- id: Q35
+  family: episodes
+  text: 'In sprint S10: How many episodes did the builder record in total (across all of its sessions)?'
+  format: an integer
+  kind: int
+  item: value
+  answer: 2
+  op: episode_count
+  args:
+    agent: builder
+    sprint: s10
+- id: Q36
+  family: episodes
+  text: 'In sprint S16: Which agent recorded the episode about taking over s16-t03-design-endpoints after the previous owner''s
+    lease expired?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: researcher
+  op: episode_agent
+  args:
+    contains: 'S16: Took over'
+    sprint: s16
+- id: Q37
+  family: forgetting
+  text: 'In sprint S03: After forgetting the source acme-docs/s03/07_forum_post_unverified.md, which facts derived from it
+    are still current?'
+  format: a JSON list of fact names, e.g. ["predicate=value"] (an empty list if none)
+  kind: set
+  item: fact
+  answer: []
+  op: remaining_from_source
+  args:
+    source: acme-docs/s03/07_forum_post_unverified.md
+    sprint: s03
+- id: Q38
+  family: forgetting
+  text: 'In sprint S08: Which facts were forgotten when the source acme-docs/s08/07_forum_post_unverified.md was forgotten?'
+  format: a JSON list of fact names, e.g. ["predicate=value"]
+  kind: set
+  item: fact
+  answer:
+  - database=Neo4j 11
+  op: forgotten_facts
+  args:
+    source: acme-docs/s08/07_forum_post_unverified.md
+    sprint: s08
+- id: Q39
+  family: forgetting
+  text: 'In sprint S20: Which decisions were based on a fact that was later forgotten?'
+  format: a JSON list of decision names
+  kind: set
+  item: decision
+  answer:
+  - s20 evaluate riak 23
+  op: decisions_on_forgotten
+  args:
+    sprint: s20
+- id: Q40
+  family: forgetting
+  text: 'In sprint S01: Which agent asserted the fact `database=MongoDB 4` that was later forgotten?'
+  format: one agent id
+  kind: value
+  item: agent
+  answer: planner
+  op: fact_agent
+  args:
+    fact: database=MongoDB 4
+    sprint: s01

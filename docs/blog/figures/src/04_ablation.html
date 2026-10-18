@@ -8,12 +8,12 @@ Figure 04: ablation. Remove the edges and the memory can no longer say why.
 ONE generator draws the same 14-node layout twice (draw_panel); the right panel only differs by `ablated=True`, which
 turns the four stripped edge types into faint ghost lines with a red cross and outlines the nodes that lost them.
 
-Graph = the Crucible ablation seed (plexus/src/plexus/crucible/ablation.py seed()): agent builder; tasks T1..T5 with
+Graph = the Crucible ablation seed (knewat/src/knewat/crucible/ablation.py seed()): agent builder; tasks T1..T5 with
 T2->T1, T3->T2, T4->T3 (DEPENDS_ON); sources acme-spec, team-wiki; facts version v1 (f1), database (f2),
 digest (f3, derived from f1+f2), owner (f4), version v2 (f1b, SUPERSEDES f1); decision d1 BASED_ON f1+f2;
 DERIVED_FROM f1,f2 -> acme-spec, f4 -> team-wiki, f3 -> f1,f2. READ is drawn once (builder -> f1): the JSON counts 8 READ
 edges, the exact Step->Fact endpoints are not drawn.
-Numbers (nothing typed): plexus/src/plexus/crucible/results/latest-all.json
+Numbers (nothing typed): knewat/src/knewat/crucible/results/latest-all.json
   layers.ablation.summary.{capabilities_needing_edges, broken_by_ablation, controls, controls_unaffected}
   layers.ablation.edges_before / edges_deleted               (DEPENDS_ON 3, BASED_ON 2, DERIVED_FROM 5, READ 8)
   layers.ablation.l1_rerun.{P,P-abl}.C4.violations_total.started_before_deps_done   (0 vs 181)
@@ -145,6 +145,6 @@ Layout (1400x600): panel A origin (56,148), panel B origin (736,148); local rows
 <text x="1148.3" y="576.5" font-size="13" class="t-muted">READ</text>
 <path d="M1193.9,572 L1229.9,572" class="e-supersedes" marker-end="url(#m-supersedes)"/>
 <text x="1241.9" y="576.5" font-size="13" class="t-muted">SUPERSEDES</text>
-<text x="1356" y="594" font-size="13" text-anchor="end" class="t-dim">Plexus · FalkorDB 6.0.2</text>
+<text x="1356" y="594" font-size="13" text-anchor="end" class="t-dim">Knewat · FalkorDB 6.0.2</text>
 </svg>
 </body></html>

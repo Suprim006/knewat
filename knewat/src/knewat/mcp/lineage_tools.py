@@ -1,0 +1,268 @@
+"""Lineage MCP tools: why, why_recalled, who_knew, knew_at, as_of, add_source, forget_source, quarantine_source,
+release_quarantine. Each is a thin wrapper over ``knewat.lineage.Lineage``. Step recording and READ/WROTE/Recall
+attachment for every call live in ``knewat.mcp.runtime``.
+"""
+
+from __future__ import annotations
+
+import hashlib
+from typing import Annotated, Any, Literal
+
+from mcp.server.mcpserver import MCPServer
+from pydantic import Field
+
+from knewat.lineage import Lineage
+from knewat.lineage.service import (
+    DEFAULT_CASCADE_DEPTH,
+    DEFAULT_WHY_DEPTH,
+    MAX_DEPTH,
+    MAX_DETAIL,
+    MAX_WHY_ELEMENTS,
+)
+from knewat.mcp.limits import (
+    MAX_INT,
+    AgentId,
+    EpochMs,
+    IdStr,
+    Name,
+    NameReq,
+    ScopeArg,
+    Short,
+    Step,
+    Text,
+    Title,
+)
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
+
+LINEAGE_TOOLS = ToolTable()
+tool = LINEAGE_TOOLS
+
+
+def _lineage(ts: TenantState, m: MeteredClient) -> Lineage:
+    return Lineage(m, ts.graph)
+
+
+def _jsonable(x: Any) -> Any:
+    if isinstance(x, dict):
+        return {str(k): _jsonable(v) for k, v in x.items()}
+    if isinstance(x, list | tuple | set):
+        return [_jsonable(v) for v in x]
+    return x if isinstance(x, str | int | float | bool | type(None)) else str(x)
+
+
+def _note_uri(title: str, text: str) -> str:
+    """A stable uri for a source given without one (so repeating add_source returns the same id)."""
+    digest = hashlib.sha1(f"{title.strip()}\n{text.strip()}".encode()).hexdigest()[:16]  # noqa: S324
+    return f"note:{digest}"
+
+
+def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
+    """Register the Lineage tools on ``mcp``; returns their names."""
+    return LINEAGE_TOOLS.register(mcp, rt)
+
+
+# ---------------------------------------------------------------- explain and time machine
+@tool(kind="read")
+def why(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    node_id: Annotated[IdStr, Field(description="A decision id or a fact id.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow back from the decision or fact (1..{MAX_DEPTH}, default {DEFAULT_WHY_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_WHY_DEPTH,
+    max_elements: Annotated[
+        int,
+        Field(
+            description=f"Nodes + edges returned (default {MAX_WHY_ELEMENTS}, closest to the root first; "
+            "'truncated' says whether anything was cut).",
+            ge=2,
+            le=MAX_DETAIL,
+        ),
+    ] = MAX_WHY_ELEMENTS,
+    step: Step = None,
+) -> Outcome:
+    """Explain WHY a decision was made (or where a fact comes from): the graph paths from a decision_id
+    or fact_id to the facts it rests on, who asserted them, their sources, and the steps that wrote them."""
+    return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id, depth=depth, max_elements=max_elements))})
+
+
+@tool(kind="read")
+def why_recalled(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    recall_id: Annotated[IdStr, Field(description="A recall id.")],
+    step: Step = None,
+) -> Outcome:
+    """Explain why a past recall returned the facts it did. The recall_id comes from the recall tool's
+    result. Gives the query, each returned fact in rank order with its score, and where it came from."""
+    return Outcome({"why_recalled": _jsonable(_lineage(ts, m).why_recalled(recall_id))})
+
+
+@tool(kind="read")
+def who_knew(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    fact_id: Annotated[IdStr, Field(description="A fact id.")],
+    step: Step = None,
+) -> Outcome:
+    """Which agents asserted, wrote or READ a fact, and at which step: who knew this, and since when."""
+    return Outcome({"who_knew": _jsonable(_lineage(ts, m).who_knew(fact_id))})
+
+
+@tool(kind="read")
+def knew_at(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    subject_agent: Annotated[IdStr, Field(description="The agent whose knowledge to reconstruct.")],
+    step_n: Annotated[int, Field(description="The step number.", ge=0, le=MAX_INT)],
+    step: Step = None,
+) -> Outcome:
+    """Time machine: what a given agent knew at its step N (the facts it had read that were still valid
+    then) and everything it had written by then."""
+    return Outcome({"knew_at": _jsonable(_lineage(ts, m).knew_at(subject_agent, step_n))})
+
+
+@tool(kind="read")
+def as_of(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    subject: Annotated[NameReq, Field(description="Fact subject.")],
+    predicate: Annotated[NameReq, Field(description="Fact attribute.")],
+    t: Annotated[EpochMs, Field(description="Epoch milliseconds.")],
+    scope: ScopeArg = "global",
+    step: Step = None,
+) -> Outcome:
+    """The value a (subject, predicate) had at time t (epoch ms), or null if it had none yet. Forgotten
+    and quarantined facts never answer."""
+    sid = ts.scope_id(scope, m, create=False)  # a read never creates a Scope
+    if sid is None:
+        return Outcome({"as_of": None})
+    return Outcome({"as_of": _jsonable(_lineage(ts, m).as_of(subject, predicate, t, sid))})
+
+
+# ---------------------------------------------------------------- sources
+@tool
+def add_source(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    title: Annotated[Title, Field(description="Short name of the source, e.g. 'Acme API design doc'.")],
+    uri: Annotated[
+        Short | None,
+        Field(
+            description="Where it lives (URL or path). The same uri always gives the same source id. "
+            "Omit for a pasted note: an id is derived from the title and text."
+        ),
+    ] = None,
+    text: Annotated[Text | None, Field(description="Optional excerpt or the pasted content.")] = None,
+    kind: Annotated[Name, Field(description="'doc', 'web', 'chat', 'note', 'tool'... (free text).")] = "doc",
+    trust: Annotated[
+        Literal["normal", "high"] | Annotated[float, Field(ge=0.0, le=1.0)] | None,
+        Field(
+            description="'high' for a source you fully trust: facts derived from it are protected from "
+            "fading in recall. 'normal' (default). A number 0..1 is accepted for older clients and means "
+            "'normal'; leaving it out keeps the trust an existing source already has."
+        ),
+    ] = None,
+    step: Step = None,
+) -> Outcome:
+    """Register WHERE knowledge comes from (a document, web page, chat or note) and get a source_id.
+    Pass that source_id to assert_fact for every fact you take from it: the fact then points back at the
+    source, why() can show it, and forget_source / quarantine_source can remove or isolate everything
+    that came from it. Safe to repeat: the same uri returns the same source_id."""
+    where = uri.strip() if uri and uri.strip() else _note_uri(title, text or "")
+    sid = _lineage(ts, m).create_source(where, kind, trust, title=title, text=text or "")
+    return Outcome({"source_id": sid, "uri": where, "title": title}, created=[("Source", sid)])
+
+
+def _lean(r: dict[str, Any], key: str) -> dict[str, Any]:
+    """Drop the multi-source list ``key`` and its ``<key>_total`` from a retraction result when it is empty (tokens)."""
+    if not r.get(key):
+        r.pop(key, None)
+        r.pop(f"{key}_total", None)
+    return r
+
+
+@tool
+def forget_source(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    source_id: Annotated[IdStr, Field(description="Source whose derived facts should be forgotten.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the source (1..{MAX_DEPTH}, default {DEFAULT_CASCADE_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_CASCADE_DEPTH,
+    step: Step = None,
+) -> Outcome:
+    """Permanently forget a source and the facts derived from it (cascade): they stop appearing in recall and
+    as_of. Use it when a source is wrong, withdrawn or void. A fact another source still supports stays, only
+    unlinked from this one (listed in 'unlinked'). Decisions that rested on forgotten facts are flagged, not
+    deleted. Returns fact_ids, decision_ids, handoff_ids. Unsure? quarantine_source can be undone."""
+    r = _lean(_jsonable(_lineage(ts, m).forget_source(source_id, depth=depth)), "unlinked")
+    return Outcome({"forgotten": r}, updated=[("Fact", f) for f in r["fact_ids"]])
+
+
+@tool
+def quarantine_source(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    source_id: Annotated[IdStr, Field(description="The suspected (poisoned or wrong) source.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the source (1..{MAX_DEPTH}, default {DEFAULT_CASCADE_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_CASCADE_DEPTH,
+    step: Step = None,
+) -> Outcome:
+    """Isolate a suspect source (wrong, withdrawn or void): the facts derived from it are hidden from recall and
+    as_of right away, nothing is deleted (undo with release_quarantine). A fact another source still supports
+    stays visible (listed in 'corroborated'). Returns the blast radius: fact_ids, which agents/steps had READ
+    them (readers, agents), and the decision_ids and handoff_ids built on them, so you know what to re-check."""
+    r = _lean(_jsonable(_lineage(ts, m).quarantine(source_id, depth=depth)), "corroborated")
+    return Outcome({"quarantined": r}, updated=[("Fact", f) for f in r["fact_ids"]])
+
+
+@tool
+def release_quarantine(
+    ts: TenantState,
+    m: MeteredClient,
+    agent_id: AgentId,
+    source_id: Annotated[IdStr, Field(description="A source previously passed to quarantine_source.")],
+    depth: Annotated[
+        int,
+        Field(
+            description=f"How many DERIVED_FROM hops to follow from the source (at least the depth quarantine_source used) (1..{MAX_DEPTH}, default {DEFAULT_CASCADE_DEPTH}). "
+            "Raise it for a deep lineage: a chain longer than `depth` is cut there.",
+            ge=1,
+            le=MAX_DEPTH,
+        ),
+    ] = DEFAULT_CASCADE_DEPTH,
+    step: Step = None,
+) -> Outcome:
+    """Undo quarantine_source: the source's facts get their previous status back and show up in recall
+    again. Use it when the source turned out to be fine. Returns the restored fact_ids."""
+    r = _jsonable(_lineage(ts, m).release_quarantine(source_id, depth=depth))
+    return Outcome({"released": r}, updated=[("Fact", f) for f in r["fact_ids"]])

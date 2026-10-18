@@ -1,9 +1,9 @@
-# Plexus graph model v1 (with the v1.1 / v1.2 / v1.3 additions of P1, P2 and P7, and v1.4 of P9)
+# Knewat graph model v1 (with the v1.1 / v1.2 / v1.3 additions of P1, P2 and P7, and v1.4 of P9)
 
-> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/KNEWAT_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
 
-Source of truth: `docs/PLAN.md` §2. The schema is applied by `plexus/queries/schema/*.cypher` through
-`plexus.graph.schema.apply_schema`, and `plexus/tests/test_schema.py` checks the live indexes and constraints
+Source of truth: `docs/PLAN.md` §2. The schema is applied by `knewat/queries/schema/*.cypher` through
+`knewat.graph.schema.apply_schema`, and `knewat/tests/test_schema.py` checks the live indexes and constraints
 against the lists below. If this file and the schema files disagree, that is a bug.
 
 Every node has `id` (UUID string) and `created_at` (epoch ms). Embeddings are `vecf32`, 384-d, cosine.
@@ -61,7 +61,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | `Scope` | `id, kind: user\|project\|global, name` | Engram |
 | `Session` | `id, agent_id, started_at, ended_at` | Engram |
 | `Episode` | `id, role, text, at, step, embedding` | Engram |
-| `Entity` | `id, name, norm_name, kind, embedding, tok, num_key` | Engram. `tok`: sorted distinct casefolded name tokens (full-text candidate Jaccard); `num_key`: the discriminator key of the name (`engram.service.entity_key`: P9-c's numbers, unit-normalised quantities, number words and negation tokens, plus a hyphenated trailing letter, so `auth-service-a` and `auth-service-b` stay apart); two names are the same thing only if their keys are equal. Both written by `engram/resolve_entity`; `plexus migrate entities` backfills older entities (P9-d, P9-int). `norm_name` is UNIQUE |
+| `Entity` | `id, name, norm_name, kind, embedding, tok, num_key` | Engram. `tok`: sorted distinct casefolded name tokens (full-text candidate Jaccard); `num_key`: the discriminator key of the name (`engram.service.entity_key`: P9-c's numbers, unit-normalised quantities, number words and negation tokens, plus a hyphenated trailing letter, so `auth-service-a` and `auth-service-b` stay apart); two names are the same thing only if their keys are equal. Both written by `engram/resolve_entity`; `knewat migrate entities` backfills older entities (P9-d, P9-int). `norm_name` is UNIQUE |
 | `Fact` | `id, subject_id, predicate, value, valid_from, valid_to (OPEN), recorded_at, status: active\|superseded\|quarantined\|forgotten\|dormant, confidence, embedding`; P7: `verify_state: verified\|suspect, suspect_since, verified_at, verify_after (OPEN), surprise, pinned`; P9: `dup_key, tok, tok_seq` (duplicate-detection features, see v1.4) | Engram (P7: Staleness, Activation) |
 | `Source` | `id, uri, kind: doc\|tool\|note\|code\|external\|…, trust: normal\|high, title, text`; P7: `content_hash, commit, repo` | Lineage (P7: Staleness) |
 | `Procedure` | `id, name, task_type, steps_json` | Engram |
@@ -139,7 +139,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | Full-text | `Entity.name`, `Fact.value`, `Episode.text` | keyword entity resolution and recall |
 | Vector (384-d, cosine) | `Entity.embedding`, `Fact.embedding`, `Episode.embedding` | semantic seeds for recall |
 | UNIQUE constraint | `Task.id`, `Fact.id`, `Agent.id`, `Decision.id`, `Handoff.id` | no duplicate ids; `apply_schema` waits until each is `OPERATIONAL` |
-| UNIQUE constraint | `Entity.norm_name` | backstop behind `engram/resolve_entity` (which already MERGEs on it). `resolve_entity_ex` retries once on `unique constraint violation`. A graph that still holds two entities with one `norm_name` ends this constraint `FAILED`: `apply_schema` logs a warning instead of raising, and `plexus migrate entities` lists the duplicates |
+| UNIQUE constraint | `Entity.norm_name` | backstop behind `engram/resolve_entity` (which already MERGEs on it). `resolve_entity_ex` retries once on `unique constraint violation`. A graph that still holds two entities with one `norm_name` ends this constraint `FAILED`: `apply_schema` logs a warning instead of raising, and `knewat migrate entities` lists the duplicates |
 
 ## Conventions
 
@@ -152,8 +152,8 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 - **Maps are JSON strings.** Map and null-containing array properties are rejected, so maps go through
   `toJSON()` (for example `Procedure.steps_json`).
 - **Vector scores are distances.** Cosine `score` is lower-is-nearer: `ORDER BY score ASC`.
-- **Graph naming.** One graph per tenant: `plexus_t_<tenant>` with `^[a-z0-9_]{1,48}$`
-  (`plexus.graph.tenancy.graph_name`). Tests use `test_<uuid hex>` and delete the graph in teardown.
+- **Graph naming.** One graph per tenant: `knewat_t_<tenant>` with `^[a-z0-9_]{1,48}$`
+  (`knewat.graph.tenancy.graph_name`). Tests use `test_<uuid hex>` and delete the graph in teardown.
   Agents never pass a graph name; the tenant is bound per connection.
 - **Statuses** are lowercase strings: `Fact.status` ∈ `active|superseded|quarantined|forgotten|dormant`,
   `Task.status` ∈ `open|claimed|done|failed`.

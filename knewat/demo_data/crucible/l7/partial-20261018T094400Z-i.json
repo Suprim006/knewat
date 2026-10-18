@@ -1,0 +1,737 @@
+{
+ "schema": "crucible-l7/1",
+ "kind": "i",
+ "run": {
+  "id": "20261018T094400Z-i",
+  "started_at": "2026-10-18T09:44:00Z",
+  "finished_at": "",
+  "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6392 --scale full --parts I3 --arms F-1stmt,F-multi",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "f1eccf8b062d2d70f3a5c7a4268e781487732427",
+  "short": "f1eccf8",
+  "dirty": false,
+  "dirty_files": [],
+  "branch": "rerun-l7i"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "f1eccf8",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6392,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "sqlite_version": "3.53.1",
+ "seed": 20261016,
+ "timeout_ms": 10000,
+ "scale": "full",
+ "parts": {
+  "I3": {
+   "kills_per_arm": 20,
+   "arms": {
+    "F-1stmt": {
+     "started": 1691,
+     "acknowledged": 1639,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 1639,
+      "partial": 0,
+      "absent": 52
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 52,
+     "inflight_complete": 0,
+     "inflight_partial": 0,
+     "inflight_absent": 52,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "server_bug_reports_arm_total": 0,
+     "arm": "F-1stmt",
+     "kills_requested": 20,
+     "kills_done": 20,
+     "writers": 4,
+     "server_failed_to_restart": 0,
+     "server_bug_reports": 0,
+     "server_extra_bounces": 0,
+     "restart_ready_s": {
+      "n": 20,
+      "p50": 2.33,
+      "p99": 4.7,
+      "max": 4.7,
+      "mean": 2.33
+     },
+     "restarts": [
+      {
+       "k": 0,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 0.57,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.11,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 0.55,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.91,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 0.9,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.97,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 3,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 1.04,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.78,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 1.24,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.18,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 5,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.16,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.06,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 6,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 1.66,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.9,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 7,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.03,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 8,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.35,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.82,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.32,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.4,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.33,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.73,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.9,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.34,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.39,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.72,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.34,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 2.95,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.14,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.21,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.76,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.2,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.19,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.61,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 18,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.7,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.09,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 19,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.76,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.42,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      }
+     ],
+     "tenant": "l7i_f1first_b98c1b",
+     "rule_of_three_95_upper_per_kill": 0.15,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.00183
+    },
+    "F-multi": {
+     "started": 895,
+     "acknowledged": 829,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 825,
+      "partial": 61,
+      "absent": 9
+     },
+     "partial": 61,
+     "lost_acknowledged": 4,
+     "partial_among_acknowledged": 4,
+     "inflight_at_kill": 66,
+     "inflight_complete": 0,
+     "inflight_partial": 57,
+     "inflight_absent": 9,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff_links": 61,
+      "handoff_carries": 61,
+      "handoff": 61,
+      "artifact_links": 47,
+      "artifact": 47,
+      "task_done": 33,
+      "decision": 21,
+      "decision_decided_for": 21,
+      "decision_based_on": 21,
+      "fact": 7,
+      "fact_asserted": 7,
+      "step_wrote": 7,
+      "fact_derived": 7
+     },
+     "partial_rate_per_acknowledged": 0.073583,
+     "server_bug_reports_arm_total": 0,
+     "arm": "F-multi",
+     "kills_requested": 20,
+     "kills_done": 20,
+     "writers": 4,
+     "server_failed_to_restart": 0,
+     "server_bug_reports": 0,
+     "server_extra_bounces": 0,
+     "restart_ready_s": {
+      "n": 20,
+      "p50": 5.56,
+      "p99": 8.77,
+      "max": 8.77,
+      "mean": 5.726
+     },
+     "restarts": [
+      {
+       "k": 0,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.88,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.12,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.68,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.15,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.01,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.64,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 3,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 3.98,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 4.78,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.14,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.59,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 5,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.24,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 5.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 6,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.68,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.96,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 7,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 4.75,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 1.41,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 8,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.56,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.94,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.12,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 6.48,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.56,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 4.14,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.45,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 7.86,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.88,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.69,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 5.58,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 4.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.24,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.83,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.81,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 8.32,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.1,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 6.8,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 2.83,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 18,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 8.77,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 5.29,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 19,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 8.07,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 3.37,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      }
+     ],
+     "tenant": "l7i_fmulti_111631"
+    }
+   }
+  }
+ },
+ "db_port": 6392,
+ "i4_busy_timeout_ms": 10000,
+ "server_bug_reports_at_start": 0
+}

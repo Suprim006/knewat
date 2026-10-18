@@ -1,6 +1,6 @@
 # Trials 1-4: pre-registration
 
-> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/KNEWAT_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
 
 Written 2026-10-17 before any scored run. Smoke runs used to debug the harness are excluded
 (`*_smoke`). Any changes after this point go in the amendments section at the bottom, with dates.
@@ -10,13 +10,13 @@ Written 2026-10-17 before any scored run. Smoke runs used to debug the harness a
 | Trial | Arm | Model | Shape |
 |---|---|---|---|
 | 1 | baseline | Haiku 5.5 | one continuous session, 100 prompts, no tools |
-| 2 | plexus | Haiku 5.5 | same + Plexus MCP (fresh tenant per run) + standing note to record/recall rules |
+| 2 | knewat | Haiku 5.5 | same + Knewat MCP (fresh tenant per run) + standing note to record/recall rules |
 | 3 | baseline | Sonnet 5.5 | 4 fresh sessions on one repo; decisions only in session 1's conversation |
 | 3b | claudemd | Sonnet 5.5 | same, told to keep lasting decisions in CLAUDE.md (Claude Code's native memory) |
-| 4 | plexus | Sonnet 5.5 | same, told to keep lasting decisions in Plexus and recall before changing code |
+| 4 | knewat | Sonnet 5.5 | same, told to keep lasting decisions in Knewat and recall before changing code |
 
-4 runs per arm. Plexus = branch `p12` build, `core` toolset (29 tools), FalkorDB 6.0.2.
-Arm 3b was added beyond the four you asked for: without it, a Plexus win over a baseline that was
+4 runs per arm. Knewat = branch `p12` build, `core` toolset (29 tools), FalkorDB 6.0.2.
+Arm 3b was added beyond the four you asked for: without it, a Knewat win over a baseline that was
 never told to write anything down would only show that writing things down helps.
 
 ## Scoring (deterministic, no LLM judge)
@@ -36,17 +36,17 @@ never told to write anything down would only show that writing things down helps
   most in a commit message). Expect >= 2/6 violations per run on average, mostly D1.
 - P2. D2 holds more often than D1 in baseline, because `add` already calls normalize_title
   (copyable pattern). `copy` is the hardest D2 case for every arm.
-- P3. claudemd and plexus tie on violations (both ~0-1/6). Plexus costs more per run than
+- P3. claudemd and knewat tie on violations (both ~0-1/6). Knewat costs more per run than
   claudemd. A tie here is the expected result, not a failure.
 
 **Trials 1/2**
 - P4. Both arms keep R3 (takeaway line) almost perfectly: the most recent messages model it.
-- P5. baseline drift (R1/R2/R4) rises after the first compaction; plexus stays flatter.
+- P5. baseline drift (R1/R2/R4) rises after the first compaction; knewat stays flatter.
   Claude Code's compaction summary may keep the rules, in which case P5 fails and we report a tie.
-- P6. Recall probe at 90: plexus 5/5 in all runs; baseline lower on at least one run.
-- P7. Prompt 47: both arms mostly follow the reviewer's Python note; plexus flags the conflict more
+- P6. Recall probe at 90: knewat 5/5 in all runs; baseline lower on at least one run.
+- P7. Prompt 47: both arms mostly follow the reviewer's Python note; knewat flags the conflict more
   often, because recall puts the Go rule back in front of it.
-- P8. plexus costs more per run (tool manifest ~16k tokens per call plus recall calls).
+- P8. knewat costs more per run (tool manifest ~16k tokens per call plus recall calls).
 
 ## Amendments
 - A1 (2026-10-17, during the first scored runs, before any were scored): measured Haiku cost is
@@ -68,11 +68,11 @@ never told to write anything down would only show that writing things down helps
   - P9. baseline + clone: violations rise in runs where session 1 used auto-memory (path-keyed and
     local, so it doesn't travel); runs that committed a CLAUDE.md stay at ~0.
   - P10. claudemd + clone ~0 if CLAUDE.md was committed; it's uncommitted -> violations.
-  - P11. plexus + clone ~0 (the tenant is independent of path); it ties claudemd unless claudemd
+  - P11. knewat + clone ~0 (the tenant is independent of path); it ties claudemd unless claudemd
     left CLAUDE.md uncommitted.
   Result (scored with the unchanged D1/D2 verdict logic): baseline+clone 16/24 violations (4 in
   every run: D1 12/12, D2 4/12, all of those on `copy`); claudemd+clone 0/24 (CLAUDE.md
-  committed in 4/4); plexus+clone 0/24. P9, P10 and P11 confirmed.
+  committed in 4/4); knewat+clone 0/24. P9, P10 and P11 confirmed.
 - A3 (2026-10-17, after reading trials 1/2 partial transcripts): the R2 regex had false positives
   ("for instance", protocol "instances", and the model quoting the banned word while correcting
   itself). R2 is now unquoted replica(s) + "instance(s)" used for a machine. The old count is kept
@@ -97,18 +97,18 @@ never told to write anything down would only show that writing things down helps
   Trials 3/4/5 are unaffected (one `claude -p` call per session, no resume).
 
 ## Verdicts, trials 1/2 (2026-10-17, all 4 runs at 100/100, scored with the unchanged scorer)
-- P4 **refuted.** plexus kept R3 on every turn (0 misses). baseline_r1 lost it after its 2nd compaction
+- P4 **refuted.** knewat kept R3 on every turn (0 misses). baseline_r1 lost it after its 2nd compaction
   (prompt 45) and missed it on 55 of 55 remaining turns; baseline_r2 kept it.
-- P5 **confirmed on direction, weak (n=2).** Violations: baseline 74 and 5, plexus 7 and 3. Per
-  decile, baseline jumps after the compactions (9-15 per decile from prompt 41), and plexus stays
+- P5 **confirmed on direction, weak (n=2).** Violations: baseline 74 and 5, knewat 7 and 3. Per
+  decile, baseline jumps after the compactions (9-15 per decile from prompt 41), and knewat stays
   at 0-2. The whole gap comes from baseline_r1, whose compaction summary dropped the rules.
   baseline_r2 compacted just as often and didn't drift.
-- P6 **confirmed.** Probe@90: plexus 5/5 in both runs; baseline 0/5 (r1: "I can't find any of those
+- P6 **confirmed.** Probe@90: knewat 5/5 in both runs; baseline 0/5 (r1: "I can't find any of those
   agreements") and 5/5 (r2).
-- P7 **refuted.** Both arms flagged the conflict 2/2 and wrote Python 1/2, so plexus did not flag
-  more often. The decision didn't track recall use (plexus_r1, recall on 47 turns, kept Go;
-  plexus_r2, recall on 9 turns, wrote Python).
-- P8 **confirmed, small.** Mean cost/run plexus $1.20 vs baseline $1.09 (+10%).
+- P7 **refuted.** Both arms flagged the conflict 2/2 and wrote Python 1/2, so knewat did not flag
+  more often. The decision didn't track recall use (knewat_r1, recall on 47 turns, kept Go;
+  knewat_r2, recall on 9 turns, wrote Python).
+- P8 **confirmed, small.** Mean cost/run knewat $1.20 vs baseline $1.09 (+10%).
 - Scorer note: prompt_100 `calls_python_note_a_conflict` is a false positive for baseline_r1 (the
   reply says it can't see the note). It's descriptive only and feeds no verdict.
 
@@ -132,14 +132,14 @@ results; nothing is re-run.
 in one memory sentence:
 - `baseline`: no memory instruction.
 - `claudemd`: "lasting decisions go in CLAUDE.md". This is the strongest native alternative found
-  in trial 5. It's told the same things as plexus (including "record where each decision came
-  from" in trial 8), so a Plexus win can't come from a better instruction.
-- `plexus`: "lasting decisions go in the team's Plexus memory; recall before you change code".
+  in trial 5. It's told the same things as knewat (including "record where each decision came
+  from" in trial 8), so a Knewat win can't come from a better instruction.
+- `knewat`: "lasting decisions go in the team's Knewat memory; recall before you change code".
 
 Scoring is deterministic: run the produced code on fixture data and check stored or exported
 output, with regexes only for "did it flag X". A scorer self-test on hand-built compliant and
 violating references must PASS before the first paid run. Per session we also log where memory
-went (auto-memory files, CLAUDE.md writes in any directory, Plexus calls), so a result is never
+went (auto-memory files, CLAUDE.md writes in any directory, Knewat calls), so a result is never
 credited to a memory the arm didn't use. Budget cap: $25 real cost for all of trials 6-8
 (projected ~$12).
 
@@ -159,9 +159,9 @@ break X1 and one to break X2: 6 per run. Session 1's agent may write into B (it'
 or not; we record what it did.
 - P12. baseline violates most opportunities (>= 4/6 per run on average). Auto-memory is keyed to
   A's path and B's code shows the opposite pattern.
-- P13. claudemd violates less than baseline but more than plexus: session 1 writes CLAUDE.md in A
+- P13. claudemd violates less than baseline but more than knewat: session 1 writes CLAUDE.md in A
   in most runs and into B in fewer than half.
-- P14. plexus ~0-1/6 per run, *if* sessions 2-4 call `recall`. If recall engagement is low, we
+- P14. knewat ~0-1/6 per run, *if* sessions 2-4 call `recall`. If recall engagement is low, we
   report P14 as untested, not as refuted.
 
 ### Trial 7: memory shared between different agents running in parallel
@@ -175,7 +175,7 @@ A commits on its branch, which is not merged ("still in review"). Then agent B (
 different agent id; model Haiku 5.5, so a different model too) works in worktree B on two
 features that each touch Y1, for 2 opportunities. Next, a non-LLM scripted tool ("ci-bot",
 plain Python, no LLM) records a second fact Y2 (e.g. "command `x` is deprecated, don't call it
-from new code"). In the plexus arm it writes to the tenant over MCP. In baseline/claudemd it
+from new code"). In the knewat arm it writes to the tenant over MCP. In baseline/claudemd it
 writes where a native team would: a line appended to the main checkout's `CI_NOTES.md`,
 uncommitted, which nothing auto-loads. Agent B's second session then has one Y2 opportunity:
 3 per run.
@@ -185,15 +185,15 @@ second model + a non-LLM tool, not a second agent product. That's a stated limit
 - P15. baseline and claudemd violate Y1 in most runs: A's CLAUDE.md sits on an unmerged branch,
   and auto-memory is keyed per worktree path. If Claude Code shares auto-memory across worktrees
   of one repo, P15 fails for baseline, and we report that as a finding about native memory.
-- P16. plexus ~0/3 per run, conditional on B calling `recall` (as in P14).
-- P17. Y2 is followed by plexus in most runs and by the other arms rarely (it lives only in a
+- P16. knewat ~0/3 per run, conditional on B calling `recall` (as in P14).
+- P17. Y2 is followed by knewat in most runs and by the other arms rarely (it lives only in a
   file nobody is told to read).
 
 ### Trial 8: provenance and contradiction tracking
 One repo (tinytasks), 3 sessions. Session 1's prompt pastes two documents (as if from email; they
 never exist as files): a "compliance memo, draft v0.3" with rules C1-C3, and a "product spec v2"
 with rules P1 and a restatement of C1. The agent implements all four rules in different
-commands. Both claudemd and plexus are told to record each rule and which document it came
+commands. Both claudemd and knewat are told to record each rule and which document it came
 from.
 - Session 2 (different agent id): a teammate asks for a change that contradicts C2 without
   saying so. Scored: did the agent flag the conflict with the recorded rule before or while acting
@@ -206,14 +206,14 @@ from.
 
 Same repo path, so baseline auto-memory can carry rules (as in trial 3). It just isn't asked to
 record sources.
-- P18. Retraction: plexus and claudemd tie (both record sources when asked; ~4/4 checks). Baseline
+- P18. Retraction: knewat and claudemd tie (both record sources when asked; ~4/4 checks). Baseline
   gets C1 wrong more often, removing it because it doesn't know the spec also requires it.
-- P19. Contradiction flag in session 2: claudemd and plexus tie. `assert_fact`'s 'contradicts'
+- P19. Contradiction flag in session 2: claudemd and knewat tie. `assert_fact`'s 'contradicts'
   fires only for the same subject+predicate from another agent, and agents pick their own
   wording, so we expect it rarely to fire. We count how often it does.
-- P20. plexus costs more per run than claudemd in all three trials (+20-40%).
+- P20. knewat costs more per run than claudemd in all three trials (+20-40%).
 
-Overall expectation, stated so it can fail: Plexus wins where no shared file reaches the next
+Overall expectation, stated so it can fail: Knewat wins where no shared file reaches the next
 agent (trials 6 and 7) and ties a well-instructed CLAUDE.md where one does (trial 8). If
 claudemd also wins trial 6 by writing into B, the cross-repo case is solved by a better habit,
 and we say so.
@@ -223,11 +223,11 @@ and we say so.
   the gate/bench). Full suite 1698 passed, 1 skipped. verify_readme 313/313. $0 recall bench: S07 5/5,
   S13 5/5, S20 1/1, canonical 1000/1000, replay 28/36 (p12: 29/36; one near-tie call). Details:
   `docs/research/TRIALS_INT_MERGE.md`. Served on :8767 (`--toolset core`, 29 tools) over a fresh
-  FalkorDB 6.0.2 container `plexus-db-73` (:6373). Smoke runs used the p12 server (:8766). Open review
+  FalkorDB 6.0.2 container `knewat-db-73` (:6373). Smoke runs used the p12 server (:8766). Open review
   item: p12's lexical fusion and D-013's entity/predicate cues may double-count query words.
 - **Harness deviations from A7 (frozen in `t678/t*/DESIGN.md`):**
   - claudemd's later-session sentence is non-empty in all three trials ("decisions are kept in
-    CLAUDE.md; check it before you change code"). It mirrors plexus's "recall before you change code";
+    CLAUDE.md; check it before you change code"). It mirrors knewat's "recall before you change code";
     trials 3/4 used an empty one.
   - t6 X2 scoring: `+00:00` and the text `UTC` are violations (the rule says `Z`); a space instead of
     `T` and minute-truncated times are accepted; date-only values aren't timestamps. MISSING, BROKEN and
@@ -243,7 +243,7 @@ and we say so.
     drop the Bash tool without it (seen in t6/t8 smoke1, which are void). Runs whose init lacks Bash
     are invalid.
 - **Seen in smoke runs (n=1-3 per arm, not scored, predictions unchanged):** t6 baseline and claudemd
-  6/6 violations, plexus 0/6. In t6, claudemd session 1 wrote CLAUDE.md only in A. t7: **Claude Code
+  6/6 violations, knewat 0/6. In t6, claudemd session 1 wrote CLAUDE.md only in A. t7: **Claude Code
   keys auto-memory by the main checkout, so it is shared across worktrees** (7/7 smoke runs). A
   baseline A that writes auto-memory carries Y1 to B, so P15 can fail for baseline. claudemd's B went
   looking for A's CLAUDE.md via `git show feat-a:` / `../wt_a` in 3/3 smoke runs (recorded as
@@ -258,50 +258,50 @@ logic changed.
 - P12 **confirmed.** baseline 6/6 violations in every run (24/24).
 - P13 **refuted.** claudemd violated exactly as much as baseline (24/24), not less. Session 1 wrote and
   committed CLAUDE.md in A in 4/4 runs and into B in 0/4. B sessions read only B's (absent) CLAUDE.md.
-- P14 **confirmed.** plexus 0/24. Every B session recalled (12/12), so the condition held.
+- P14 **confirmed.** knewat 0/24. Every B session recalled (12/12), so the condition held.
 - P15 **confirmed for baseline, refuted for claudemd.** baseline violated Y1 in 3/4 runs (6/8). The
   one clean run (r3) is the shared-auto-memory case: Claude Code keys auto-memory by the main checkout,
   shared across worktrees in 12/12 runs. claudemd violated Y1 in 2/4 runs (4/8), so not "most". Its B
   found A's branch CLAUDE.md in some runs (`peeked_at_A` 3/4 runs).
-- P16 **confirmed.** plexus 0/12 (B recalled in 8/8 sessions; recall surfaced Y1 and Y2 in 4/4 runs).
-- P17 **confirmed.** Y2 followed: plexus 4/4, baseline 1/4, claudemd 0/4. CI_NOTES.md read in 0/16 B
+- P16 **confirmed.** knewat 0/12 (B recalled in 8/8 sessions; recall surfaced Y1 and Y2 in 4/4 runs).
+- P17 **confirmed.** Y2 followed: knewat 4/4, baseline 1/4, claudemd 0/4. CI_NOTES.md read in 0/16 B
   sessions.
-- P18 **half confirmed.** plexus and claudemd tie on the final rule states (C1 and P1 kept 8/8, C3
+- P18 **half confirmed.** knewat and claudemd tie on the final rule states (C1 and P1 kept 8/8, C3
   removed 4/4 each; C2 is trivial in claudemd because session 2 removed it). The baseline-C1 prediction is refuted: no baseline run removed C1, because all 4 refused to
-  act without knowing the sources (0 changes). Plexus attribution was textual: the provenance graph
+  act without knowing the sources (0 changes). Knewat attribution was textual: the provenance graph
   linked C1 to the memo only (single `source_id` per fact), and no session used `quarantine_source` (2 runs called `why` in session 3, which showed only the memo; corrected 2026-10-18).
-- P19 **confirmed on flags; the mechanism was untested.** Flagged: claudemd 4/4, plexus 4/4 (baseline
+- P19 **confirmed on flags; the mechanism was untested.** Flagged: claudemd 4/4, knewat 4/4 (baseline
   3/4). `contradicts` fired 0/22, but not for the predicted reason: session 2 asserted nothing, and
   session 3 overrode with `supersede=true` (explicit, so by design not a contradiction).
-  Not predicted: plexus kept the rule (complied 0/4), while claudemd complied 4/4.
-- P20 **confirmed.** plexus vs claudemd cost/run: t6 +30%, t7 +22%, t8 +39%.
-- Overall expectation **confirmed:** Plexus won t6 and t7, and tied claudemd on t8.
+  Not predicted: knewat kept the rule (complied 0/4), while claudemd complied 4/4.
+- P20 **confirmed.** knewat vs claudemd cost/run: t6 +30%, t7 +22%, t8 +39%.
+- Overall expectation **confirmed:** Knewat won t6 and t7, and tied claudemd on t8.
 
 ## A9 (2026-10-18, after all scoring): two corrections
 - t1/2 scorer: prompt_100 `calls_python_note_a_conflict` is now false when the reply says it can't see
   the note or the rules (new field `says_note_or_rules_missing`). Descriptive only; no verdict uses it.
-  Result: baseline_r1 False (was a false positive), plexus_r1 False. plexus_r1 also says the prompt-47
+  Result: baseline_r1 False (was a false positive), knewat_r1 False. knewat_r1 also says the prompt-47
   note was in "a part of the transcript I can't see". Compaction dropped the note in that run too, while
-  Plexus still supplied the rules.
+  Knewat still supplied the rules.
 - P19's mechanism: see the corrected verdict above (supersede=true, no session-2 asserts).
 
 ## A10 (2026-10-18): build note
 Trials 6-8 ran on `trials-int` @ `76da7d7`, where p12's lexical recall fusion was ON (weight 0.5). The
 later recall-check (D-013 amendment 3, branch `integ`) made it OFF by default after measuring that it
 double-counts D-013's cues (L5b noise share up, one critical probe lost at N=15). The trial results stand
-as measured on the ON build. In every Plexus session of trials 6-8 the needed facts came back from
+as measured on the ON build. In every Knewat session of trials 6-8 the needed facts came back from
 `recall` (t6 12/12, t7 8/8 sessions), so the default change shouldn't move these results. Not re-run.
 
-## A11 (2026-10-18, before any run): trial 8 plexus arm re-run on the P13 build
+## A11 (2026-10-18, before any run): trial 8 knewat arm re-run on the P13 build
 - **Build:** `main` @ `7618d18` (P13 multi-source provenance, D-015: `assert_fact(source_ids=[...])`,
   corroboration on a duplicate assert, quarantine/forget_source keep facts another live source supports,
   tool descriptions say "a fact several documents support: pass all of them in source_ids" and when to use
   quarantine/forget). Lexical fusion off (D-013 amendment 3). `--toolset core`, fresh tenant per run,
-  FalkorDB 6.0.2 (`plexus-db-73`, :8767).
-- **What runs:** the plexus arm only, 4 runs (run ids `p13r1..p13r4`), with the same frozen prompts and harness
-  as the original runs. baseline and claudemd don't touch Plexus, so they aren't re-run. The 12 original runs
-  stay as published, and the re-run is reported as its own row `plexus-p13`.
-- **Scorer change (before the run):** Plexus attribution reads `source_id` and `source_ids` (union).
+  FalkorDB 6.0.2 (`knewat-db-73`, :8767).
+- **What runs:** the knewat arm only, 4 runs (run ids `p13r1..p13r4`), with the same frozen prompts and harness
+  as the original runs. baseline and claudemd don't touch Knewat, so they aren't re-run. The 12 original runs
+  stay as published, and the re-run is reported as its own row `knewat-p13`.
+- **Scorer change (before the run):** Knewat attribution reads `source_id` and `source_ids` (union).
   Re-scoring the original 12 runs gives identical tables. The self-test passes.
 - **Predictions:**
   - P21. Structural attribution: C1 is linked to BOTH documents in >= 3/4 runs (originally 0/4), through
@@ -309,14 +309,14 @@ as measured on the ON build. In every Plexus session of trials 6-8 the needed fa
   - P22. Retraction outcome unchanged: C1 and P1 kept, C3 removed, in 4/4 runs.
   - P23. Session 3 uses `quarantine_source` or `forget_source` in <= 2/4 runs (originally 0/4). The prompt
     says "remove the rules", and agents edit code, so we don't expect much uptake.
-  - P24. Cost per run is within +-25% of the original plexus arm ($0.25).
+  - P24. Cost per run is within +-25% of the original knewat arm ($0.25).
 
 ### A11 verdicts (4/4 runs complete, all sessions had Bash, scored with the A11 scorer)
 - P21 **confirmed (4/4).** In every run, session 1 asserted C1 with `source_ids=[memo, spec]` (originally 0/4
   structurally complete; the other three rules got one source each, which is correct).
 - P22 **confirmed.** C1 and P1 kept, C3 removed, 4/4. C2 removed 4/4 (in p13r3, session 2 had already
   removed it).
-- P23 **refuted, in Plexus's favour.** Session 3 retracted through the graph in **4/4** runs (2x
+- P23 **refuted, in Knewat's favour.** Session 3 retracted through the graph in **4/4** runs (2x
   `forget_source`, 2x `quarantine_source`; originally 0/4). Every call returned the exact ground truth: 2 facts
   hidden or forgotten (C2, C3), and C1 reported as `corroborated` / `unlinked` with the spec as its other source.
   The agents then removed the code for exactly those rules.
@@ -325,14 +325,14 @@ as measured on the ON build. In every Plexus session of trials 6-8 the needed fa
   flagging it in 4/4.
 
 ## A12 (2026-10-18): all earlier results flagged STALE
-At the owner's request, every trial result not measured on the current Plexus build (`main` @ `7618d18`, tag
+At the owner's request, every trial result not measured on the current Knewat build (`main` @ `7618d18`, tag
 `pre-cleanup`) is flagged STALE / not valid for the current build: trials 1-5 (p12 @ 3521a0c) and trials 6-8
-(trials-int @ 76da7d7). Only the trial 8 `plexus-p13` re-run (A11) is current. Nothing was deleted: verdicts
+(trials-int @ 76da7d7). Only the trial 8 `knewat-p13` re-run (A11) is current. Nothing was deleted: verdicts
 above stand for the builds they ran on. Banners are in FINDINGS.md, RESULTS.md (regenerating it with
 `scoring/aggregate.py` drops the banner) and RESULTS_T678.md.
 
 ## A13 (2026-10-18): status set back to current (owner's decision)
 The owner judged that the post-run changes (cleanup, removed off-by-default switches, lexical fusion off) don't
 affect what the trials measure, and asked that the STALE flag from A12 be replaced with "current". Nothing was
-re-run for this. FINDINGS.md lists the build each trial ran on. Only the trial 8 Plexus re-run (A11) ran on the
+re-run for this. FINDINGS.md lists the build each trial ran on. Only the trial 8 Knewat re-run (A11) ran on the
 final product code.

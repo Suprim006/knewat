@@ -1,5 +1,5 @@
 # Health check and keep-awake for the live Render service. Set the repository variable RENDER_URL
-# (Settings -> Secrets and variables -> Actions -> Variables), e.g. https://plexus-demo.onrender.com.
+# (Settings -> Secrets and variables -> Actions -> Variables), e.g. https://knewat-demo.onrender.com.
 # Runs every 10 minutes (Render Free sleeps after 15 idle minutes, so this also keeps it awake) and on demand.
 # A red run means the live site is broken. The workflow is skipped while RENDER_URL is unset.
 name: live-smoke

@@ -1,40 +1,40 @@
 # Demo: "Acme Notes API" (scenario, scripted agents, real Claude agents, recordings)
 
 A fictional team (planner, researcher, builder) specifies and builds the "Acme Notes API". Everything in the scenario is
-synthetic. The same scenario can be played three ways, and all of them write to the same Plexus graph through the same
+synthetic. The same scenario can be played three ways, and all of them write to the same Knewat graph through the same
 MCP tools (every call leaves a `ToolCall` and a Lineage `Step`):
 
 | Mode | Command | Who plays the agents | Costs |
 |---|---|---|---|
-| Scripted | `plexus demo live --scripted` | deterministic Python, in-memory MCP client | nothing; 8 s at full speed |
-| Real | `plexus demo live --claude` | three unmodified `claude -p` agents over stdio MCP | the owner's Claude subscription (about $0.70 notional for a Sonnet run) |
-| Replay | `plexus demo replay <run>` | nobody: restores a recorded graph | nothing |
+| Scripted | `knewat demo live --scripted` | deterministic Python, in-memory MCP client | nothing; 8 s at full speed |
+| Real | `knewat demo live --claude` | three unmodified `claude -p` agents over stdio MCP | the owner's Claude subscription (about $0.70 notional for a Sonnet run) |
+| Replay | `knewat demo replay <run>` | nobody: restores a recorded graph | nothing |
 
 The public demo uses scripted runs and replays of the recorded real run; real LLM runs only appear in the video
 (`CLAUDE.md` §5).
 
-Code: `plexus/src/plexus/demo/` (`scenario`, `engine`, `scripted`, `orchestrator`, `recorder`, `replay`, `inventory`) and
-`plexus/src/plexus/cli.py`. Data: `plexus/demo_data/acme/` (sources, `tasks.json`, `roles/*.md`) and
-`plexus/demo_data/recordings/<run>/`.
+Code: `knewat/src/knewat/demo/` (`scenario`, `engine`, `scripted`, `orchestrator`, `recorder`, `replay`, `inventory`) and
+`knewat/src/knewat/cli.py`. Data: `knewat/demo_data/acme/` (sources, `tasks.json`, `roles/*.md`) and
+`knewat/demo_data/recordings/<run>/`.
 
 ## Run it
 
 ```bash
-cd plexus && uv sync                         # once; adds the `plexus` command
+cd knewat && uv sync                         # once; adds the `knewat` command
 export FALKORDB_HOST=127.0.0.1 FALKORDB_PORT=6379   # whichever FalkorDB you started (see docs/mcp.md)
 
-uv run plexus demo seed --tenant demo                        # schema + the 5 starting documents as Source nodes
-uv run plexus demo live --scripted --tenant demo --reset     # play the whole scenario (--speed 0 = no pauses)
-uv run plexus demo inventory --tenant demo                   # node / edge counts per label / type
-uv run plexus demo list                                      # the recordings
-uv run plexus demo replay acme-claude-sonnet --tenant demo --reset   # restore a recording and verify its counts
-uv run plexus demo live --claude --model sonnet --tenant demo_claude --reset --run-name my-run   # spends subscription
-uv run plexus demo ablation --tenant demo                    # cut the edges in a copy and show what breaks (below)
-uv run plexus mcp-config --tenant demo                       # an MCP config for Claude Code for this checkout (docs/mcp.md)
+uv run knewat demo seed --tenant demo                        # schema + the 5 starting documents as Source nodes
+uv run knewat demo live --scripted --tenant demo --reset     # play the whole scenario (--speed 0 = no pauses)
+uv run knewat demo inventory --tenant demo                   # node / edge counts per label / type
+uv run knewat demo list                                      # the recordings
+uv run knewat demo replay acme-claude-sonnet --tenant demo --reset   # restore a recording and verify its counts
+uv run knewat demo live --claude --model sonnet --tenant demo_claude --reset --run-name my-run   # spends subscription
+uv run knewat demo ablation --tenant demo                    # cut the edges in a copy and show what breaks (below)
+uv run knewat mcp-config --tenant demo                       # an MCP config for Claude Code for this checkout (docs/mcp.md)
 ```
 
-`--tenant` is the graph `plexus_t_<tenant>` (`^[a-z0-9_]{1,48}$`). `live` refuses a tenant that already has data unless
-you pass `--reset`. With the View API on the same database (`uv run plexus-api`, then `plexus-view`) pick the tenant in the
+`--tenant` is the graph `knewat_t_<tenant>` (`^[a-z0-9_]{1,48}$`). `live` refuses a tenant that already has data unless
+you pass `--reset`. With the View API on the same database (`uv run knewat-api`, then `knewat-view`) pick the tenant in the
 UI and watch the run land; `--speed 1` (default) pauses 0.5 s per tool call, `--speed 4` pauses 0.125 s, `--speed 0` none.
 
 Other `live` flags: `--kill-at N`, `--v2-at N` (when the faults fire, default 15 and 20), `--no-faults`, `--lease-ms`
@@ -77,7 +77,7 @@ Other `live` flags: `--kill-at N`, `--v2-at N` (when the faults fire, default 15
 top one (the same order `claim_next_task` uses, so the agent's claim gets exactly that task), and gives the turn to the agent
 of that task's role. A turn is one task: start a session if needed, claim, recall, assert facts with sources, record
 decisions with `based_on`, complete, hand off. The harness only peeks at task state; agents act only through MCP tools.
-Every Plexus tool call increments one **global step counter**, and each call passes it as `step`, so "step N" means the same
+Every Knewat tool call increments one **global step counter**, and each call passes it as `step`, so "step N" means the same
 moment for every agent (scripted: by code; real: each prompt says which `step` number to start at, and the recorded run
 followed it on 83 of 83 calls).
 
@@ -122,7 +122,7 @@ builder killed at step 17 (claim at 16, recall at 17), v2 published at 24, 83 ca
 
 ## Aha queries
 
-Replace `<t>` by the tenant. Use the Explorer in `plexus-view`, FalkorDB Browser, or the MCP tools (`why`, `knew_at`, `who_knew`).
+Replace `<t>` by the tenant. Use the Explorer in `knewat-view`, FalkorDB Browser, or the MCP tools (`why`, `knew_at`, `who_knew`).
 
 **Why did the team move to v2?** `why(decision_id)` follows the decision's `BASED_ON` to the v2 fact, who asserted it, its source
 document, the step that wrote it, and the v1 fact it superseded:
@@ -167,16 +167,16 @@ RETURN a.value, x.id, b.value, y.id   // API key (planner) vs JWT (researcher)
 **What would quarantine have cost?** run with `--poison-at 40`, then read the `quarantine` event printed by the CLI
 (`blast_radius`: fact ids, readers, decision ids).
 
-## Ablation demo (`plexus demo ablation`)
+## Ablation demo (`knewat demo ablation`)
 
 "Does the product still work if you take the graph's edges away?" Run it on a tenant that holds a finished run
-(for example `uv run plexus demo replay acme-claude-sonnet --tenant demo` first):
+(for example `uv run knewat demo replay acme-claude-sonnet --tenant demo` first):
 
 ```bash
-uv run plexus demo ablation --tenant demo           # keeps the stripped copy as tenant 'demo_ablated'; add --drop to remove it, --json for machines
+uv run knewat demo ablation --tenant demo           # keeps the stripped copy as tenant 'demo_ablated'; add --drop to remove it, --json for machines
 ```
 
-It `GRAPH.COPY`s `plexus_t_demo` to `plexus_t_demo_ablated`, deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM` and `READ` there
+It `GRAPH.COPY`s `knewat_t_demo` to `knewat_t_demo_ablated`, deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM` and `READ` there
 (the bounded `crucible/strip_edges` query), and runs the same probes on both graphs. Read-only probes (`why`, `knew_at`,
 `who_knew`) run on the two graphs directly. Probes that write (claims, `forget_source`) run on throw-away copies of both, with the
 tasks put back to `open`, and those copies are dropped at the end. The original tenant is never written: node and edge counts are
@@ -198,11 +198,11 @@ supersession history        (control)     works: 1 SUPERSEDES edges             
 
 Open tenant `demo_ablated` in the View next to `demo` to see the same graph without the four edge types. This is the live
 counterpart of the Crucible ablation numbers (`docs/BASELINE.md`, `layers.ablation` in the Results page). Code:
-`plexus/src/plexus/demo/ablation.py`, queries `plexus/queries/demo/`, test `plexus/tests/demo/test_ablation.py`.
+`knewat/src/knewat/demo/ablation.py`, queries `knewat/queries/demo/`, test `knewat/tests/demo/test_ablation.py`.
 
 ## Recordings
 
-`plexus demo live ... --record RUN` and every `--claude` run write `demo_data/recordings/<RUN>/`:
+`knewat demo live ... --record RUN` and every `--claude` run write `demo_data/recordings/<RUN>/`:
 
 | File | Content |
 |---|---|
@@ -211,7 +211,7 @@ counterpart of the Crucible ablation numbers (`docs/BASELINE.md`, `layers.ablati
 | `calls.json` | every counted tool call `{step, agent, tool}` |
 | `transcripts/NN-<agent>-<turn>.jsonl` | the raw `stream-json` of each `claude -p` process (init event reduced to useful keys, local paths removed) |
 
-`plexus demo replay <run> --tenant T` `RESTORE`s the dump into `plexus_t_T` (`--reset` to overwrite) and checks that the node and
+`knewat demo replay <run> --tenant T` `RESTORE`s the dump into `knewat_t_T` (`--reset` to overwrite) and checks that the node and
 edge counts per label / type equal `meta.json` (exit code 1 if not). `DUMP`/`RESTORE` round-trips on FalkorDB 6.0.2 (tested for
 every committed recording, with a working query, vector and index check), but a dump only restores on the version that wrote it.
 
@@ -223,18 +223,18 @@ every committed recording, with a working query, vector and index check), but a 
 
 ## Real-agent safety rules (what `orchestrator.py` enforces)
 
-Each turn is `claude -p <assignment> --model M --max-turns 25 --mcp-config <run>/mcp.json --strict-mcp-config --allowedTools "mcp__plexus__*"
+Each turn is `claude -p <assignment> --model M --max-turns 25 --mcp-config <run>/mcp.json --strict-mcp-config --allowedTools "mcp__knewat__*"
 --tools "" --output-format stream-json --verbose --no-session-persistence --append-system-prompt <role prompt>` with
 `ANTHROPIC_API_KEY` removed from the environment (so usage goes to the signed-in subscription; no `--bare`). `--tools ""` removes
-every built-in tool, so the only things an agent can do are Plexus calls. The generated `mcp.json` starts the venv's `plexus-mcp`
+every built-in tool, so the only things an agent can do are Knewat calls. The generated `mcp.json` starts the venv's `knewat-mcp`
 (no `uv run`, which delays start-up) with `--tenant <run tenant>`. The orchestrator checks every `result` for `is_error`,
 `subtype != success` and non-empty `permission_denials` (a blocked tool still exits 0) and aborts the run on the first failure;
 a turn that ends without completing its task is tolerated once (the lease expires, the reclaimer takes over) and aborts the run
-the second time. Plexus contains no LLM code and no credentials.
+the second time. Knewat contains no LLM code and no credentials.
 
 ## Tests (no real Claude, no subscription)
 
-`PLEXUS_TEST_DB_PORT=<port> uv run pytest tests/demo -q`:
+`KNEWAT_TEST_DB_PORT=<port> uv run pytest tests/demo -q`:
 
 - `test_scripted.py`: the run on a throwaway tenant: 12 tasks done, a `ToolCall` and `Step` for every call, v1 superseded by v2, one
   `CONTRADICTS` between two agents, `reclaimed_from='builder'`, 4 decisions with `BASED_ON`, `knew_at` v1 then v2, two runs give the same

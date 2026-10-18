@@ -1,1 +1,1 @@
-"""Deploy-only wrapper around Plexus (one-container public deployment). Nothing here is imported by plexus/src."""
+"""Deploy-only wrapper around Knewat (one-container public deployment). Nothing here is imported by knewat/src."""

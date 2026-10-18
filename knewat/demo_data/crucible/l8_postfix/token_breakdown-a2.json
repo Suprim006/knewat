@@ -1,0 +1,1020 @@
+{
+ "P": {
+  "runs": [
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261017\\P",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261018\\P",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261019\\P",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261020\\P",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261021\\P"
+  ],
+  "processes": 110,
+  "api_calls": 702,
+  "total_tokens_measured": 30408351,
+  "total_tokens_result_events": 27393460,
+  "negative_deltas": 0,
+  "prefix_tokens_first_call": {
+   "min": 36104,
+   "max": 36947,
+   "mean": 36618
+  },
+  "table": [
+   {
+    "component": "(prefix: system + tool manifest + prompt)",
+    "tokens": 25698775,
+    "share": 0.8451,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 0,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "recall",
+    "tokens": 3629535,
+    "share": 0.1194,
+    "calls": 118,
+    "tokens_per_call": 30759,
+    "request_tokens": 22818,
+    "response_tokens": 3605576,
+    "output_tokens": 1141,
+    "response_size_tokens_avg": 7713,
+    "response_chars_avg": 14125
+   },
+   {
+    "component": "Read",
+    "tokens": 221492,
+    "share": 0.0073,
+    "calls": 174,
+    "tokens_per_call": 1273,
+    "request_tokens": 14003,
+    "response_tokens": 206274,
+    "output_tokens": 1215,
+    "response_size_tokens_avg": 419,
+    "response_chars_avg": 674
+   },
+   {
+    "component": "Grep",
+    "tokens": 161501,
+    "share": 0.0053,
+    "calls": 82,
+    "tokens_per_call": 1970,
+    "request_tokens": 25634,
+    "response_tokens": 134917,
+    "output_tokens": 950,
+    "response_size_tokens_avg": 472,
+    "response_chars_avg": 791
+   },
+   {
+    "component": "assert_fact",
+    "tokens": 145238,
+    "share": 0.0048,
+    "calls": 160,
+    "tokens_per_call": 908,
+    "request_tokens": 49902,
+    "response_tokens": 94547,
+    "output_tokens": 789,
+    "response_size_tokens_avg": 260,
+    "response_chars_avg": 314
+   },
+   {
+    "component": "start_session",
+    "tokens": 144098,
+    "share": 0.0047,
+    "calls": 110,
+    "tokens_per_call": 1310,
+    "request_tokens": 66508,
+    "response_tokens": 74962,
+    "output_tokens": 2627,
+    "response_size_tokens_avg": 127,
+    "response_chars_avg": 129
+   },
+   {
+    "component": "claim_next_task",
+    "tokens": 114089,
+    "share": 0.0038,
+    "calls": 95,
+    "tokens_per_call": 1201,
+    "request_tokens": 29897,
+    "response_tokens": 81577,
+    "output_tokens": 2615,
+    "response_size_tokens_avg": 180,
+    "response_chars_avg": 227
+   },
+   {
+    "component": "Write",
+    "tokens": 84344,
+    "share": 0.0028,
+    "calls": 87,
+    "tokens_per_call": 969,
+    "request_tokens": 62235,
+    "response_tokens": 21047,
+    "output_tokens": 1062,
+    "response_size_tokens_avg": 108,
+    "response_chars_avg": 137
+   },
+   {
+    "component": "add_source",
+    "tokens": 44711,
+    "share": 0.0015,
+    "calls": 36,
+    "tokens_per_call": 1242,
+    "request_tokens": 26866,
+    "response_tokens": 17401,
+    "output_tokens": 444,
+    "response_size_tokens_avg": 142,
+    "response_chars_avg": 188
+   },
+   {
+    "component": "complete_task",
+    "tokens": 41895,
+    "share": 0.0014,
+    "calls": 80,
+    "tokens_per_call": 524,
+    "request_tokens": 27074,
+    "response_tokens": 12759,
+    "output_tokens": 2062,
+    "response_size_tokens_avg": 127,
+    "response_chars_avg": 167
+   },
+   {
+    "component": "Glob",
+    "tokens": 29591,
+    "share": 0.001,
+    "calls": 11,
+    "tokens_per_call": 2690,
+    "request_tokens": 1045,
+    "response_tokens": 28467,
+    "output_tokens": 79,
+    "response_size_tokens_avg": 685,
+    "response_chars_avg": 1127
+   },
+   {
+    "component": "remember_episode",
+    "tokens": 29063,
+    "share": 0.001,
+    "calls": 33,
+    "tokens_per_call": 881,
+    "request_tokens": 18353,
+    "response_tokens": 10139,
+    "output_tokens": 571,
+    "response_size_tokens_avg": 104,
+    "response_chars_avg": 159
+   },
+   {
+    "component": "(assistant text)",
+    "tokens": 21588,
+    "share": 0.0007,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 14172,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "record_decision",
+    "tokens": 21028,
+    "share": 0.0007,
+    "calls": 30,
+    "tokens_per_call": 701,
+    "request_tokens": 16945,
+    "response_tokens": 3848,
+    "output_tokens": 235,
+    "response_size_tokens_avg": 71,
+    "response_chars_avg": 90
+   },
+   {
+    "component": "handoff",
+    "tokens": 9283,
+    "share": 0.0003,
+    "calls": 20,
+    "tokens_per_call": 464,
+    "request_tokens": 6967,
+    "response_tokens": 1774,
+    "output_tokens": 541,
+    "response_size_tokens_avg": 89,
+    "response_chars_avg": 107
+   },
+   {
+    "component": "create_tasks",
+    "tokens": 7775,
+    "share": 0.0003,
+    "calls": 10,
+    "tokens_per_call": 777,
+    "request_tokens": 6161,
+    "response_tokens": 1440,
+    "output_tokens": 174,
+    "response_size_tokens_avg": 144,
+    "response_chars_avg": 250
+   },
+   {
+    "component": "verify_artifact",
+    "tokens": 4193,
+    "share": 0.0001,
+    "calls": 10,
+    "tokens_per_call": 419,
+    "request_tokens": 1888,
+    "response_tokens": 2246,
+    "output_tokens": 59,
+    "response_size_tokens_avg": 73,
+    "response_chars_avg": 129
+   },
+   {
+    "component": "(thinking)",
+    "tokens": 154,
+    "share": 0.0,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 2,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   }
+  ],
+  "round_trip": [
+   {
+    "component": "start_session",
+    "tokens": 4039561,
+    "share": 0.1328,
+    "calls": 110,
+    "tokens_per_call": 36723
+   },
+   {
+    "component": "(process start)",
+    "tokens": 4030610,
+    "share": 0.1325,
+    "calls": 0,
+    "tokens_per_call": null
+   },
+   {
+    "component": "complete_task",
+    "tokens": 3870774,
+    "share": 0.1273,
+    "calls": 80,
+    "tokens_per_call": 48385
+   },
+   {
+    "component": "Read",
+    "tokens": 3190391,
+    "share": 0.1049,
+    "calls": 174,
+    "tokens_per_call": 18336
+   },
+   {
+    "component": "claim_next_task",
+    "tokens": 3054102,
+    "share": 0.1004,
+    "calls": 95,
+    "tokens_per_call": 32148
+   },
+   {
+    "component": "recall",
+    "tokens": 2730649,
+    "share": 0.0898,
+    "calls": 118,
+    "tokens_per_call": 23141
+   },
+   {
+    "component": "Write",
+    "tokens": 2345896,
+    "share": 0.0771,
+    "calls": 87,
+    "tokens_per_call": 26964
+   },
+   {
+    "component": "Grep",
+    "tokens": 2098644,
+    "share": 0.069,
+    "calls": 82,
+    "tokens_per_call": 25593
+   },
+   {
+    "component": "assert_fact",
+    "tokens": 1340542,
+    "share": 0.0441,
+    "calls": 160,
+    "tokens_per_call": 8378
+   },
+   {
+    "component": "handoff",
+    "tokens": 965948,
+    "share": 0.0318,
+    "calls": 20,
+    "tokens_per_call": 48297
+   },
+   {
+    "component": "add_source",
+    "tokens": 719289,
+    "share": 0.0237,
+    "calls": 36,
+    "tokens_per_call": 19980
+   },
+   {
+    "component": "remember_episode",
+    "tokens": 715142,
+    "share": 0.0235,
+    "calls": 33,
+    "tokens_per_call": 21671
+   },
+   {
+    "component": "record_decision",
+    "tokens": 675849,
+    "share": 0.0222,
+    "calls": 30,
+    "tokens_per_call": 22528
+   },
+   {
+    "component": "create_tasks",
+    "tokens": 306488,
+    "share": 0.0101,
+    "calls": 10,
+    "tokens_per_call": 30649
+   },
+   {
+    "component": "Glob",
+    "tokens": 205270,
+    "share": 0.0068,
+    "calls": 11,
+    "tokens_per_call": 18661
+   },
+   {
+    "component": "verify_artifact",
+    "tokens": 119197,
+    "share": 0.0039,
+    "calls": 10,
+    "tokens_per_call": 11920
+   }
+  ],
+  "recall_response_by_field": [
+   {
+    "field": "path",
+    "tokens": 1511529,
+    "share_of_recall_response": 0.4192
+   },
+   {
+    "field": "text",
+    "tokens": 269937,
+    "share_of_recall_response": 0.0749
+   },
+   {
+    "field": "fact_id",
+    "tokens": 232674,
+    "share_of_recall_response": 0.0645
+   },
+   {
+    "field": "entity",
+    "tokens": 143337,
+    "share_of_recall_response": 0.0398
+   },
+   {
+    "field": "valid_from",
+    "tokens": 128208,
+    "share_of_recall_response": 0.0356
+   },
+   {
+    "field": "predicate",
+    "tokens": 125894,
+    "share_of_recall_response": 0.0349
+   },
+   {
+    "field": "verify_state",
+    "tokens": 123460,
+    "share_of_recall_response": 0.0342
+   },
+   {
+    "field": "value",
+    "tokens": 119417,
+    "share_of_recall_response": 0.0331
+   },
+   {
+    "field": "valid_to",
+    "tokens": 118711,
+    "share_of_recall_response": 0.0329
+   },
+   {
+    "field": "maybe_duplicate_of",
+    "tokens": 113963,
+    "share_of_recall_response": 0.0316
+   },
+   {
+    "field": "suspect_reason",
+    "tokens": 104466,
+    "share_of_recall_response": 0.029
+   },
+   {
+    "field": "activation",
+    "tokens": 94185,
+    "share_of_recall_response": 0.0261
+   },
+   {
+    "field": "surprise",
+    "tokens": 87509,
+    "share_of_recall_response": 0.0243
+   },
+   {
+    "field": "status",
+    "tokens": 85472,
+    "share_of_recall_response": 0.0237
+   },
+   {
+    "field": "suspect_since",
+    "tokens": 85472,
+    "share_of_recall_response": 0.0237
+   },
+   {
+    "field": "protected",
+    "tokens": 82194,
+    "share_of_recall_response": 0.0228
+   },
+   {
+    "field": "score",
+    "tokens": 66045,
+    "share_of_recall_response": 0.0183
+   },
+   {
+    "field": "(envelope + other top-level keys)",
+    "tokens": 59896,
+    "share_of_recall_response": 0.0166
+   },
+   {
+    "field": "via",
+    "tokens": 53205,
+    "share_of_recall_response": 0.0148
+   }
+  ],
+  "recall_facts_per_response": {
+   "n": 113,
+   "mean": 19.5,
+   "mean_chars": 14750
+  }
+ },
+ "B1": {
+  "runs": [
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261017\\B1",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261018\\B1",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261019\\B1",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261020\\B1",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261021\\B1"
+  ],
+  "processes": 111,
+  "api_calls": 742,
+  "total_tokens_measured": 11701853,
+  "total_tokens_result_events": 10719548,
+  "negative_deltas": 0,
+  "prefix_tokens_first_call": {
+   "min": 12942,
+   "max": 13789,
+   "mean": 13455
+  },
+  "table": [
+   {
+    "component": "(prefix: system + tool manifest + prompt)",
+    "tokens": 9976365,
+    "share": 0.8525,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 0,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "recall",
+    "tokens": 655638,
+    "share": 0.056,
+    "calls": 179,
+    "tokens_per_call": 3663,
+    "request_tokens": 48145,
+    "response_tokens": 605942,
+    "output_tokens": 1551,
+    "response_size_tokens_avg": 864,
+    "response_chars_avg": 1502
+   },
+   {
+    "component": "Read",
+    "tokens": 260244,
+    "share": 0.0222,
+    "calls": 174,
+    "tokens_per_call": 1496,
+    "request_tokens": 16896,
+    "response_tokens": 242453,
+    "output_tokens": 895,
+    "response_size_tokens_avg": 427,
+    "response_chars_avg": 672
+   },
+   {
+    "component": "Grep",
+    "tokens": 196613,
+    "share": 0.0168,
+    "calls": 84,
+    "tokens_per_call": 2341,
+    "request_tokens": 30056,
+    "response_tokens": 165570,
+    "output_tokens": 988,
+    "response_size_tokens_avg": 464,
+    "response_chars_avg": 713
+   },
+   {
+    "component": "start_session",
+    "tokens": 116713,
+    "share": 0.01,
+    "calls": 111,
+    "tokens_per_call": 1051,
+    "request_tokens": 76964,
+    "response_tokens": 37138,
+    "output_tokens": 2612,
+    "response_size_tokens_avg": 59,
+    "response_chars_avg": 55
+   },
+   {
+    "component": "claim_next_task",
+    "tokens": 99298,
+    "share": 0.0085,
+    "calls": 96,
+    "tokens_per_call": 1034,
+    "request_tokens": 34507,
+    "response_tokens": 62170,
+    "output_tokens": 2621,
+    "response_size_tokens_avg": 126,
+    "response_chars_avg": 149
+   },
+   {
+    "component": "assert_fact",
+    "tokens": 97162,
+    "share": 0.0083,
+    "calls": 165,
+    "tokens_per_call": 589,
+    "request_tokens": 58932,
+    "response_tokens": 37561,
+    "output_tokens": 670,
+    "response_size_tokens_avg": 103,
+    "response_chars_avg": 107
+   },
+   {
+    "component": "Write",
+    "tokens": 95839,
+    "share": 0.0082,
+    "calls": 91,
+    "tokens_per_call": 1053,
+    "request_tokens": 72907,
+    "response_tokens": 21893,
+    "output_tokens": 1039,
+    "response_size_tokens_avg": 107,
+    "response_chars_avg": 136
+   },
+   {
+    "component": "add_source",
+    "tokens": 46460,
+    "share": 0.004,
+    "calls": 39,
+    "tokens_per_call": 1191,
+    "request_tokens": 31862,
+    "response_tokens": 14090,
+    "output_tokens": 508,
+    "response_size_tokens_avg": 104,
+    "response_chars_avg": 128
+   },
+   {
+    "component": "complete_task",
+    "tokens": 38590,
+    "share": 0.0033,
+    "calls": 80,
+    "tokens_per_call": 482,
+    "request_tokens": 27628,
+    "response_tokens": 8823,
+    "output_tokens": 2139,
+    "response_size_tokens_avg": 88,
+    "response_chars_avg": 113
+   },
+   {
+    "component": "Glob",
+    "tokens": 31858,
+    "share": 0.0027,
+    "calls": 12,
+    "tokens_per_call": 2655,
+    "request_tokens": 1380,
+    "response_tokens": 30394,
+    "output_tokens": 85,
+    "response_size_tokens_avg": 464,
+    "response_chars_avg": 668
+   },
+   {
+    "component": "remember_episode",
+    "tokens": 25226,
+    "share": 0.0022,
+    "calls": 34,
+    "tokens_per_call": 742,
+    "request_tokens": 18455,
+    "response_tokens": 6340,
+    "output_tokens": 432,
+    "response_size_tokens_avg": 62,
+    "response_chars_avg": 86
+   },
+   {
+    "component": "(assistant text)",
+    "tokens": 21742,
+    "share": 0.0019,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 13693,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "record_decision",
+    "tokens": 18019,
+    "share": 0.0015,
+    "calls": 30,
+    "tokens_per_call": 601,
+    "request_tokens": 15782,
+    "response_tokens": 1928,
+    "output_tokens": 309,
+    "response_size_tokens_avg": 36,
+    "response_chars_avg": 45
+   },
+   {
+    "component": "handoff",
+    "tokens": 9007,
+    "share": 0.0008,
+    "calls": 20,
+    "tokens_per_call": 450,
+    "request_tokens": 7610,
+    "response_tokens": 852,
+    "output_tokens": 546,
+    "response_size_tokens_avg": 43,
+    "response_chars_avg": 53
+   },
+   {
+    "component": "create_tasks",
+    "tokens": 7374,
+    "share": 0.0006,
+    "calls": 10,
+    "tokens_per_call": 737,
+    "request_tokens": 6083,
+    "response_tokens": 1045,
+    "output_tokens": 247,
+    "response_size_tokens_avg": 105,
+    "response_chars_avg": 196
+   },
+   {
+    "component": "verify_artifact",
+    "tokens": 5393,
+    "share": 0.0005,
+    "calls": 10,
+    "tokens_per_call": 539,
+    "request_tokens": 2924,
+    "response_tokens": 2392,
+    "output_tokens": 78,
+    "response_size_tokens_avg": 70,
+    "response_chars_avg": 98
+   },
+   {
+    "component": "(thinking)",
+    "tokens": 311,
+    "share": 0.0,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 3,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   }
+  ],
+  "round_trip": [
+   {
+    "component": "recall",
+    "tokens": 1537578,
+    "share": 0.1314,
+    "calls": 179,
+    "tokens_per_call": 8590
+   },
+   {
+    "component": "(process start)",
+    "tokens": 1496115,
+    "share": 0.1279,
+    "calls": 0,
+    "tokens_per_call": null
+   },
+   {
+    "component": "start_session",
+    "tokens": 1490988,
+    "share": 0.1274,
+    "calls": 111,
+    "tokens_per_call": 13432
+   },
+   {
+    "component": "complete_task",
+    "tokens": 1473334,
+    "share": 0.1259,
+    "calls": 80,
+    "tokens_per_call": 18417
+   },
+   {
+    "component": "claim_next_task",
+    "tokens": 1142560,
+    "share": 0.0976,
+    "calls": 96,
+    "tokens_per_call": 11902
+   },
+   {
+    "component": "Read",
+    "tokens": 1016125,
+    "share": 0.0868,
+    "calls": 174,
+    "tokens_per_call": 5840
+   },
+   {
+    "component": "Write",
+    "tokens": 888133,
+    "share": 0.0759,
+    "calls": 91,
+    "tokens_per_call": 9760
+   },
+   {
+    "component": "Grep",
+    "tokens": 712192,
+    "share": 0.0609,
+    "calls": 84,
+    "tokens_per_call": 8478
+   },
+   {
+    "component": "assert_fact",
+    "tokens": 508552,
+    "share": 0.0435,
+    "calls": 165,
+    "tokens_per_call": 3082
+   },
+   {
+    "component": "handoff",
+    "tokens": 359373,
+    "share": 0.0307,
+    "calls": 20,
+    "tokens_per_call": 17969
+   },
+   {
+    "component": "add_source",
+    "tokens": 322796,
+    "share": 0.0276,
+    "calls": 39,
+    "tokens_per_call": 8277
+   },
+   {
+    "component": "remember_episode",
+    "tokens": 269052,
+    "share": 0.023,
+    "calls": 34,
+    "tokens_per_call": 7913
+   },
+   {
+    "component": "record_decision",
+    "tokens": 242370,
+    "share": 0.0207,
+    "calls": 30,
+    "tokens_per_call": 8079
+   },
+   {
+    "component": "create_tasks",
+    "tokens": 118758,
+    "share": 0.0101,
+    "calls": 10,
+    "tokens_per_call": 11876
+   },
+   {
+    "component": "Glob",
+    "tokens": 79757,
+    "share": 0.0068,
+    "calls": 12,
+    "tokens_per_call": 6646
+   },
+   {
+    "component": "verify_artifact",
+    "tokens": 44169,
+    "share": 0.0038,
+    "calls": 10,
+    "tokens_per_call": 4417
+   }
+  ],
+  "recall_response_by_field": [
+   {
+    "field": "text",
+    "tokens": 143443,
+    "share_of_recall_response": 0.2367
+   },
+   {
+    "field": "fact_id",
+    "tokens": 134520,
+    "share_of_recall_response": 0.222
+   },
+   {
+    "field": "entity",
+    "tokens": 82359,
+    "share_of_recall_response": 0.1359
+   },
+   {
+    "field": "predicate",
+    "tokens": 72133,
+    "share_of_recall_response": 0.119
+   },
+   {
+    "field": "value",
+    "tokens": 57583,
+    "share_of_recall_response": 0.095
+   },
+   {
+    "field": "status",
+    "tokens": 49416,
+    "share_of_recall_response": 0.0816
+   },
+   {
+    "field": "score",
+    "tokens": 41385,
+    "share_of_recall_response": 0.0683
+   },
+   {
+    "field": "(envelope + other top-level keys)",
+    "tokens": 25103,
+    "share_of_recall_response": 0.0414
+   }
+  ],
+  "recall_facts_per_response": {
+   "n": 174,
+   "mean": 7.1,
+   "mean_chars": 1545
+  }
+ },
+ "B0p": {
+  "runs": [
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261017\\B0p",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261018\\B0p",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261019\\B0p",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261020\\B0p",
+   "knewat\\demo_data\\crucible\\l8_postfix\\runs\\20261021\\B0p"
+  ],
+  "processes": 110,
+  "api_calls": 479,
+  "total_tokens_measured": 5889938,
+  "total_tokens_result_events": 5370092,
+  "negative_deltas": 0,
+  "prefix_tokens_first_call": {
+   "min": 6978,
+   "max": 8044,
+   "mean": 7273
+  },
+  "table": [
+   {
+    "component": "(prefix: system + tool manifest + prompt)",
+    "tokens": 3482077,
+    "share": 0.5912,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 0,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "Read",
+    "tokens": 1342498,
+    "share": 0.2279,
+    "calls": 462,
+    "tokens_per_call": 2906,
+    "request_tokens": 33814,
+    "response_tokens": 1306654,
+    "output_tokens": 2029,
+    "response_size_tokens_avg": 973,
+    "response_chars_avg": 1843
+   },
+   {
+    "component": "Grep",
+    "tokens": 494434,
+    "share": 0.0839,
+    "calls": 105,
+    "tokens_per_call": 4709,
+    "request_tokens": 26369,
+    "response_tokens": 467195,
+    "output_tokens": 870,
+    "response_size_tokens_avg": 1287,
+    "response_chars_avg": 2373
+   },
+   {
+    "component": "Glob",
+    "tokens": 343824,
+    "share": 0.0584,
+    "calls": 146,
+    "tokens_per_call": 2355,
+    "request_tokens": 11749,
+    "response_tokens": 331055,
+    "output_tokens": 1020,
+    "response_size_tokens_avg": 626,
+    "response_chars_avg": 1003
+   },
+   {
+    "component": "Edit",
+    "tokens": 127858,
+    "share": 0.0217,
+    "calls": 253,
+    "tokens_per_call": 505,
+    "request_tokens": 96225,
+    "response_tokens": 30153,
+    "output_tokens": 1480,
+    "response_size_tokens_avg": 96,
+    "response_chars_avg": 132
+   },
+   {
+    "component": "Write",
+    "tokens": 80929,
+    "share": 0.0137,
+    "calls": 107,
+    "tokens_per_call": 756,
+    "request_tokens": 66432,
+    "response_tokens": 13916,
+    "output_tokens": 581,
+    "response_size_tokens_avg": 92,
+    "response_chars_avg": 131
+   },
+   {
+    "component": "(assistant text)",
+    "tokens": 17908,
+    "share": 0.003,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 13495,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   },
+   {
+    "component": "(thinking)",
+    "tokens": 410,
+    "share": 0.0001,
+    "calls": 0,
+    "tokens_per_call": null,
+    "request_tokens": 0,
+    "response_tokens": 0,
+    "output_tokens": 3,
+    "response_size_tokens_avg": null,
+    "response_chars_avg": null
+   }
+  ],
+  "round_trip": [
+   {
+    "component": "Read",
+    "tokens": 1661824,
+    "share": 0.2821,
+    "calls": 462,
+    "tokens_per_call": 3597
+   },
+   {
+    "component": "Edit",
+    "tokens": 1450751,
+    "share": 0.2463,
+    "calls": 253,
+    "tokens_per_call": 5734
+   },
+   {
+    "component": "Grep",
+    "tokens": 902807,
+    "share": 0.1533,
+    "calls": 105,
+    "tokens_per_call": 8598
+   },
+   {
+    "component": "(process start)",
+    "tokens": 801912,
+    "share": 0.1361,
+    "calls": 0,
+    "tokens_per_call": null
+   },
+   {
+    "component": "Glob",
+    "tokens": 660422,
+    "share": 0.1121,
+    "calls": 146,
+    "tokens_per_call": 4523
+   },
+   {
+    "component": "Write",
+    "tokens": 412222,
+    "share": 0.07,
+    "calls": 107,
+    "tokens_per_call": 3853
+   }
+  ],
+  "recall_response_by_field": [],
+  "recall_facts_per_response": {
+   "n": 0,
+   "mean": 0.0,
+   "mean_chars": 0
+  }
+ }
+}

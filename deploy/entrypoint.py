@@ -3,7 +3,7 @@
     1. start redis-server + the FalkorDB module on 127.0.0.1 (ephemeral: no AOF, no RDB; capped memory; noeviction)
     2. wait until ``loading:0``
     3. reseed: restore the recordings ``acme-claude-sonnet`` -> tenant ``demo`` and ``acme-scripted`` ->
-       ``demo_scripted`` (what ``plexus demo replay <run> --tenant <t> --reset`` does), failing the boot if a
+       ``demo_scripted`` (what ``knewat demo replay <run> --tenant <t> --reset`` does), failing the boot if a
        restored inventory does not match the recording's meta.json
     4. serve the combined ASGI app (View + read-only API + Cypher console) with uvicorn on 0.0.0.0:$PORT
        (Render sets PORT; default 10000). No MCP server runs here (D-016).
@@ -23,7 +23,7 @@ import threading
 import time
 from pathlib import Path
 
-log = logging.getLogger("plexus.deploy")
+log = logging.getLogger("knewat.deploy")
 
 REDIS_BIN = os.environ.get("REDIS_BIN", "redis-server")
 FALKORDB_SO = os.environ.get("FALKORDB_SO", "/opt/falkordb/falkordb.so")
@@ -34,7 +34,7 @@ FALKORDB_ARGS = os.environ.get(
     "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 100 RESULTSET_SIZE 100000 "
     "QUERY_MEM_CAPACITY 67108864 THREAD_COUNT 2",
 )
-REDIS_MAXMEMORY = os.environ.get("PLEXUS_REDIS_MAXMEMORY", "100mb")
+REDIS_MAXMEMORY = os.environ.get("KNEWAT_REDIS_MAXMEMORY", "100mb")
 SEED = (("acme-claude-sonnet", "demo"), ("acme-scripted", "demo_scripted"))  # (recording, tenant)
 
 
@@ -77,7 +77,7 @@ def wait_loaded(proc: subprocess.Popen, timeout_s: float = 90.0) -> None:
 
 
 def reseed(client) -> None:
-    from plexus.demo.replay import replay
+    from knewat.demo.replay import replay
 
     for run, tenant in SEED:
         t0 = time.monotonic()
@@ -116,7 +116,7 @@ def main() -> None:
 
         os.environ.setdefault("FALKORDB_HOST", "127.0.0.1")
         os.environ.setdefault("FALKORDB_PORT", str(REDIS_PORT))
-        from plexus.graph.client import GraphClient
+        from knewat.graph.client import GraphClient
 
         client = GraphClient()
         reseed(client)
@@ -137,7 +137,7 @@ def main() -> None:
             port=port,
             log_level="info",
             timeout_keep_alive=5,
-            limit_concurrency=int(os.environ.get("PLEXUS_MAX_CONCURRENCY", "64")),
+            limit_concurrency=int(os.environ.get("KNEWAT_MAX_CONCURRENCY", "64")),
         )
     finally:
         shutdown()

@@ -1,10 +1,10 @@
 """Deploy-only ASGI wrapper: one process serves the View (static) and the View API (including the Cypher console).
 
-    /healthz, /api/*, /docs   -> plexus.api.view_api (FastAPI), per-IP rate limited; POST (Cypher) has its own bucket
-    everything else           -> the built plexus-view (dist/), with a single-page-app fallback to index.html
+    /healthz, /api/*, /docs   -> knewat.api.view_api (FastAPI), per-IP rate limited; POST (Cypher) has its own bucket
+    everything else           -> the built knewat-view (dist/), with a single-page-app fallback to index.html
 
 The MCP server is deliberately not mounted: this deployment only shows the seeded demo data until MCP is stable
-(D-016). Nothing in ``plexus/src`` is modified; this module only composes its public pieces.
+(D-016). Nothing in ``knewat/src`` is modified; this module only composes its public pieces.
 """
 
 from __future__ import annotations
@@ -18,10 +18,10 @@ from starlette.responses import PlainTextResponse
 from starlette.staticfiles import StaticFiles
 
 from deploy.guard import ApiRateLimit, GuardConfig
-from plexus.api.view_api import create_app as create_view_api
-from plexus.graph.client import GraphClient
+from knewat.api.view_api import create_app as create_view_api
+from knewat.graph.client import GraphClient
 
-log = logging.getLogger("plexus.deploy")
+log = logging.getLogger("knewat.deploy")
 
 API_PATHS = ("/api/", "/docs", "/openapi.json")
 
@@ -88,10 +88,10 @@ def build_app(
 ) -> PublicApp:
     cfg = cfg or GuardConfig.from_env()
     client = client or GraphClient()
-    static_dir = Path(static_dir or os.environ.get("PLEXUS_STATIC_DIR", "/app/view"))
-    results = pick_results_file(results_dir or os.environ.get("PLEXUS_RESULTS_DIR"))
+    static_dir = Path(static_dir or os.environ.get("KNEWAT_STATIC_DIR", "/app/view"))
+    results = pick_results_file(results_dir or os.environ.get("KNEWAT_RESULTS_DIR"))
 
-    os.environ.setdefault("PLEXUS_CORS_ORIGINS", "")  # same origin: no cross-origin caller needs the API
+    os.environ.setdefault("KNEWAT_CORS_ORIGINS", "")  # same origin: no cross-origin caller needs the API
     api = ApiRateLimit(create_view_api(client=client, results_path=results), cfg)
     static = SpaStaticFiles(directory=str(static_dir), html=True, check_dir=static_dir.is_dir())
     return PublicApp(api, static)

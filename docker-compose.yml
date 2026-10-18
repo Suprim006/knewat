@@ -1,11 +1,11 @@
-# Plexus: local stack. Requires Docker. Copy .env.example to .env to override defaults.
+# Knewat: local stack. Requires Docker. Copy .env.example to .env to override defaults.
 #   docker compose up -d --wait --build   # FalkorDB + View API + MCP server + the View (http://localhost:5180)
-#   docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo    # load the recorded demo run
+#   docker compose run --rm knewat-cli demo replay acme-claude-sonnet --tenant demo    # load the recorded demo run
 # Every host port is configurable, so a second stack can sit next to another one (`-p` gives it its own containers and
 # volumes; the FalkorDB container has no fixed name for the same reason):
-#   FALKORDB_PORT=6377 FALKORDB_BROWSER_PORT=3077 PLEXUS_API_PORT=18080 PLEXUS_MCP_PORT=18765 PLEXUS_VIEW_PORT=15180 \
-#   PLEXUS_IMAGE=plexus-int:dev docker compose -p plexus-int up -d --wait
-name: plexus
+#   FALKORDB_PORT=6377 FALKORDB_BROWSER_PORT=3077 KNEWAT_API_PORT=18080 KNEWAT_MCP_PORT=18765 KNEWAT_VIEW_PORT=15180 \
+#   KNEWAT_IMAGE=knewat-int:dev docker compose -p knewat-int up -d --wait
+name: knewat
 
 x-falkordb-args: &falkordb_args "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456"
 
@@ -23,7 +23,7 @@ services:
       # The image default TIMEOUT 1000 / MAX_QUEUED_QUERIES 25 / RESULTSET_SIZE 10000 bites under load.
       FALKORDB_ARGS: *falkordb_args
     volumes:
-      - plexus_data:/var/lib/falkordb/data
+      - knewat_data:/var/lib/falkordb/data
     healthcheck:
       # PING answers while Redis is still replaying the AOF (-LOADING); healthy means loading has finished.
       # '^loading:0' and not 'loading:0': INFO also prints async_loading:0.
@@ -33,21 +33,21 @@ services:
       retries: 24
       start_period: 60s
 
-  # --- Plexus product services (P2-E) ---------------------------------------------------------------
-  plexus-mcp: # MCP server, streamable HTTP. Tenant bound per connection: http://127.0.0.1:8765/mcp/t/<tenant>
-    build: ./plexus
-    image: ${PLEXUS_IMAGE:-plexus:dev}
+  # --- Knewat product services (P2-E) ---------------------------------------------------------------
+  knewat-mcp: # MCP server, streamable HTTP. Tenant bound per connection: http://127.0.0.1:8765/mcp/t/<tenant>
+    build: ./knewat
+    image: ${KNEWAT_IMAGE:-knewat:dev}
     restart: unless-stopped
     depends_on:
       falkordb: { condition: service_healthy }
     environment:
       FALKORDB_HOST: falkordb
       FALKORDB_PORT: "6379"
-      PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
-      PLEXUS_DB_POOL: ${PLEXUS_DB_POOL:-256} # connections per process; callers beyond it wait (30 s), not fail
-    ports: ["127.0.0.1:${PLEXUS_MCP_PORT:-8765}:8765"]
+      KNEWAT_EMBEDDER: ${KNEWAT_EMBEDDER:-fastembed}
+      KNEWAT_DB_POOL: ${KNEWAT_DB_POOL:-256} # connections per process; callers beyond it wait (30 s), not fail
+    ports: ["127.0.0.1:${KNEWAT_MCP_PORT:-8765}:8765"]
     volumes:
-      - plexus_fastembed:/opt/fastembed # seeded from the model baked into the image
+      - knewat_fastembed:/opt/fastembed # seeded from the model baked into the image
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8765/healthz?deep=1', timeout=3)"]
       interval: 10s
@@ -55,25 +55,25 @@ services:
       retries: 6
       start_period: 15s
 
-  plexus-api: # read-only View API (FastAPI + SSE)
-    build: ./plexus
-    image: ${PLEXUS_IMAGE:-plexus:dev}
+  knewat-api: # read-only View API (FastAPI + SSE)
+    build: ./knewat
+    image: ${KNEWAT_IMAGE:-knewat:dev}
     restart: unless-stopped
-    command: ["plexus-api"]
+    command: ["knewat-api"]
     depends_on:
       falkordb: { condition: service_healthy }
     environment:
       FALKORDB_HOST: falkordb
       FALKORDB_PORT: "6379"
-      PLEXUS_API_HOST: 0.0.0.0
-      PLEXUS_API_PORT: "8080"
-      # The View is served from PLEXUS_VIEW_PORT; the browser calls this API from there, so it must be an allowed origin.
-      PLEXUS_CORS_ORIGINS: ${PLEXUS_CORS_ORIGINS:-http://localhost:${PLEXUS_VIEW_PORT:-5180},http://127.0.0.1:${PLEXUS_VIEW_PORT:-5180},http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173}
-      PLEXUS_RESULTS_PATH: /data/results.json # Crucible results for GET /api/results (the Results page)
-    ports: ["127.0.0.1:${PLEXUS_API_PORT:-8080}:8080"]
+      KNEWAT_API_HOST: 0.0.0.0
+      KNEWAT_API_PORT: "8080"
+      # The View is served from KNEWAT_VIEW_PORT; the browser calls this API from there, so it must be an allowed origin.
+      KNEWAT_CORS_ORIGINS: ${KNEWAT_CORS_ORIGINS:-http://localhost:${KNEWAT_VIEW_PORT:-5180},http://127.0.0.1:${KNEWAT_VIEW_PORT:-5180},http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173}
+      KNEWAT_RESULTS_PATH: /data/results.json # Crucible results for GET /api/results (the Results page)
+    ports: ["127.0.0.1:${KNEWAT_API_PORT:-8080}:8080"]
     volumes:
-      # L1 + L4 + ablation + L2 in one file (see plexus/src/plexus/crucible/README.md). Replace it with your own run's file.
-      - ./plexus/src/plexus/crucible/results/latest-all.json:/data/results.json:ro
+      # L1 + L4 + ablation + L2 in one file (see knewat/src/knewat/crucible/README.md). Replace it with your own run's file.
+      - ./knewat/src/knewat/crucible/results/latest-all.json:/data/results.json:ro
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8080/healthz?deep=1', timeout=3)"]
       interval: 10s
@@ -84,13 +84,13 @@ services:
   # --- Crucible benchmark (P4-H) ---------------------------------------------------------------------
   # Runs INSIDE the compose network, so the Windows/Docker Desktop port forward (~10 ms per round trip) does not
   # distort latency. Not started by `up`; only with the bench profile:
-  #   export FALKORDB_PORT=6389 FALKORDB_BROWSER_PORT=3089 PLEXUS_API_PORT=18089 PLEXUS_MCP_PORT=18789
-  #   docker compose -p plexus-bench --profile bench run --rm crucible all     # or: l1 | l4 | ablation, add --quick
-  # Results land in ./plexus/src/plexus/crucible/results/<timestamp>/{results.json,report.md} (+ latest.json).
+  #   export FALKORDB_PORT=6389 FALKORDB_BROWSER_PORT=3089 KNEWAT_API_PORT=18089 KNEWAT_MCP_PORT=18789
+  #   docker compose -p knewat-bench --profile bench run --rm crucible all     # or: l1 | l4 | ablation, add --quick
+  # Results land in ./knewat/src/knewat/crucible/results/<timestamp>/{results.json,report.md} (+ latest.json).
   crucible:
     profiles: [bench]
-    build: ./plexus
-    image: plexus-crucible:dev # own tag: building must not replace the plexus:dev image other stacks run
+    build: ./knewat
+    image: knewat-crucible:dev # own tag: building must not replace the knewat:dev image other stacks run
     entrypoint: ["crucible"]
     command: ["all"]
     depends_on:
@@ -102,23 +102,23 @@ services:
       CRUCIBLE_IN_DOCKER: "1"
       CRUCIBLE_GIT_COMMIT: ${CRUCIBLE_GIT_COMMIT:-} # export CRUCIBLE_GIT_COMMIT=$(git rev-parse --short HEAD) before running
       CRUCIBLE_RESULTS_DIR: /results
-      PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
+      KNEWAT_EMBEDDER: ${KNEWAT_EMBEDDER:-fastembed}
     volumes:
-      - plexus_fastembed:/opt/fastembed
-      - ./plexus/src/plexus/crucible/results:/results
+      - knewat_fastembed:/opt/fastembed
+      - ./knewat/src/knewat/crucible/results:/results
 
   # --- the View (React + Cytoscape, static build behind nginx) ------------------------------------------
-  plexus-view:
+  knewat-view:
     build:
-      context: ./plexus-view
+      context: ./knewat-view
       args:
         # Baked into the static bundle: the address the BROWSER uses for the View API (the host port, not the compose network).
-        VITE_PLEXUS_API: http://127.0.0.1:${PLEXUS_API_PORT:-8080}
-    image: ${PLEXUS_VIEW_IMAGE:-plexus-view:dev}
+        VITE_KNEWAT_API: http://127.0.0.1:${KNEWAT_API_PORT:-8080}
+    image: ${KNEWAT_VIEW_IMAGE:-knewat-view:dev}
     restart: unless-stopped
     depends_on:
-      plexus-api: { condition: service_healthy }
-    ports: ["127.0.0.1:${PLEXUS_VIEW_PORT:-5180}:80"]
+      knewat-api: { condition: service_healthy }
+    ports: ["127.0.0.1:${KNEWAT_VIEW_PORT:-5180}:80"]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
       interval: 10s
@@ -127,25 +127,25 @@ services:
       start_period: 5s
 
   # --- one-off CLI (profile `cli`; not started by `up`) --------------------------------------------------
-  # docker compose run --rm plexus-cli demo list
-  # docker compose run --rm plexus-cli demo replay acme-claude-sonnet --tenant demo
-  # docker compose run --rm plexus-cli demo ablation --tenant demo
+  # docker compose run --rm knewat-cli demo list
+  # docker compose run --rm knewat-cli demo replay acme-claude-sonnet --tenant demo
+  # docker compose run --rm knewat-cli demo ablation --tenant demo
   # The recordings are not in the image (they are ~MB of data), so the repo's copy is mounted read-only.
-  plexus-cli:
+  knewat-cli:
     profiles: [cli]
-    build: ./plexus
-    image: ${PLEXUS_IMAGE:-plexus:dev}
-    entrypoint: ["plexus"]
+    build: ./knewat
+    image: ${KNEWAT_IMAGE:-knewat:dev}
+    entrypoint: ["knewat"]
     command: ["demo", "list"]
     depends_on:
       falkordb: { condition: service_healthy }
     environment:
       FALKORDB_HOST: falkordb
       FALKORDB_PORT: "6379"
-      PLEXUS_EMBEDDER: ${PLEXUS_EMBEDDER:-fastembed}
+      KNEWAT_EMBEDDER: ${KNEWAT_EMBEDDER:-fastembed}
     volumes:
-      - ./plexus/demo_data:/app/demo_data:ro
+      - ./knewat/demo_data:/app/demo_data:ro
 
 volumes:
-  plexus_data:
-  plexus_fastembed:
+  knewat_data:
+  knewat_fastembed:

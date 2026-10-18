@@ -4,13 +4,13 @@ Moved out of the README so it stays a setup guide. The graph model is in [graph-
 
 ## What it does, by Track 02 focus area
 
-| Focus area | Plexus feature | Where to see it |
+| Focus area | Knewat feature | Where to see it |
 |---|---|---|
-| Episodic, semantic and procedural memory | `Episode` chains, scoped `Fact`s on `Entity`s with validity windows, `Procedure` → `Run` success rates | MCP: `remember_episode`, `assert_fact`, `recall`, `log_procedure_run`, `best_procedure` · queries `plexus/queries/engram/` · View: Explorer. *Procedures are implemented and tested but are not exercised in the recorded demo and have no View page.* |
+| Episodic, semantic and procedural memory | `Episode` chains, scoped `Fact`s on `Entity`s with validity windows, `Procedure` → `Run` success rates | MCP: `remember_episode`, `assert_fact`, `recall`, `log_procedure_run`, `best_procedure` · queries `knewat/queries/engram/` · View: Explorer. *Procedures are implemented and tested but are not exercised in the recorded demo and have no View page.* |
 | Persistent conversation history | `Agent` → `Session` → `Episode` chains. Every `claude -p` turn is a new process; the recording has 16 sessions and the agents still build on each other's facts | View: Inventory (16 `Session`, 5 `Episode`), Explorer · MCP: `start_session`, `remember_episode` |
-| Shared state and handoffs | Dependency-aware atomic claims with leases and heartbeats, dead-agent reclaim, `Handoff` nodes carrying artifacts and facts, `Decision`-`BASED_ON`→`Fact` | View: Flow (live `ToolCall` feed), Why · MCP: `claim_next_task`, `heartbeat`, `handoff`, `record_decision` · queries `plexus/queries/relay/` |
+| Shared state and handoffs | Dependency-aware atomic claims with leases and heartbeats, dead-agent reclaim, `Handoff` nodes carrying artifacts and facts, `Decision`-`BASED_ON`→`Fact` | View: Flow (live `ToolCall` feed), Why · MCP: `claim_next_task`, `heartbeat`, `handoff`, `record_decision` · queries `knewat/queries/relay/` |
 | High-concurrency reads and writes | One statement per operation; writes serialise per graph, so load spreads over tenant graphs. Crucible L1 races 10-200 workers; L4 measures the ceiling | View: Results (L1, L4) · [`docs/BASELINE.md`](BASELINE.md) |
-| Separate memory per user or tenant | One FalkorDB graph per tenant (`plexus_t_<tenant>`); the tenant is bound to the connection and is never a tool argument; `Scope` nodes (user, project, global) with `INHERITS`. Crucible C5 probes leak 0 rows | View: tenant selector in the header · [`docs/mcp.md`](mcp.md) · `plexus/queries/engram/create_scope.cypher` |
+| Separate memory per user or tenant | One FalkorDB graph per tenant (`knewat_t_<tenant>`); the tenant is bound to the connection and is never a tool argument; `Scope` nodes (user, project, global) with `INHERITS`. Crucible C5 probes leak 0 rows | View: tenant selector in the header · [`docs/mcp.md`](mcp.md) · `knewat/queries/engram/create_scope.cypher` |
 | Memory updates over time | Validity windows (`valid_from`/`valid_to`), `SUPERSEDES`, `CONTRADICTS` and duplicate detection at write time, "as of T" queries, forget-by-source and quarantine | View: Time Machine, Explorer · MCP: `assert_fact`, `as_of`, `fact_history`, `forget_source`, `quarantine_source` |
 | Explainability | `why(decision)` and `why_recalled` return graph paths (decision → facts → agent → step → source); `knew_at(agent, step)`; `who_knew(fact)` | View: Why, Time Machine · MCP: `why`, `why_recalled`, `who_knew`, `knew_at` |
 
@@ -24,13 +24,13 @@ flowchart LR
         A3["builder"]
         A4["your own agent"]
     end
-    subgraph plexus["plexus (Python, no LLM)"]
+    subgraph knewat["knewat (Python, no LLM)"]
         MCP["MCP server<br/>stdio or streamable HTTP<br/>tenant bound to the connection"]
         TOOLS["tool layer: 45 tools<br/>Engram, Relay, Lineage, staleness, forgetting<br/>one parameterised Cypher statement each"]
         API["View API<br/>read-only"]
     end
     DB[("FalkorDB 6.0.2<br/>one graph per tenant")]
-    VIEW["plexus-view<br/>React + Cytoscape"]
+    VIEW["knewat-view<br/>React + Cytoscape"]
     CRU["Crucible<br/>benchmark harness"]
     A1 & A2 & A3 & A4 -->|"MCP"| MCP
     MCP --> TOOLS
@@ -41,23 +41,23 @@ flowchart LR
 ```
 
 - **Engram** (memory), **Relay** (coordination) and **Lineage** (provenance) are three modules over one graph. They are
-  Python wrappers around named `.cypher` files in [`plexus/queries/`](../plexus/queries/); the loader rejects any parameter a
+  Python wrappers around named `.cypher` files in [`knewat/queries/`](../knewat/queries/); the loader rejects any parameter a
   header does not declare, and nothing is string-formatted into Cypher.
 - **Every tool call is audited in the graph.** The MCP runtime opens a Lineage `Step` per (agent, n) and writes a `ToolCall`
   with `IN_STEP` and `CREATED`/`UPDATED` edges to the nodes it touched. The Flow page and the Time Machine are traversals of
   these edges.
-- **The View never writes.** The API holds a read-only client (`GRAPH.RO_QUERY` only); `plexus-view` talks to it and nothing else.
-- **No LLM inside Plexus (D-002).** Semantic matching uses a local CPU embedding model (bge-small via fastembed). The agents are
+- **The View never writes.** The API holds a read-only client (`GRAPH.RO_QUERY` only); `knewat-view` talks to it and nothing else.
+- **No LLM inside Knewat (D-002).** Semantic matching uses a local CPU embedding model (bge-small via fastembed). The agents are
   unmodified Claude Code processes started with `claude -p ... --mcp-config`, signed in with the owner's own subscription;
-  Plexus never sees a Claude credential. Hermes is not used in any published run (D-003). The decisions and their reasoning
+  Knewat never sees a Claude credential. Hermes is not used in any published run (D-003). The decisions and their reasoning
   are in [`docs/DECISIONS.md`](DECISIONS.md).
-- **Crucible** swaps only the backend (files, SQLite, vector store, Plexus) behind an identical tool API; see
+- **Crucible** swaps only the backend (files, SQLite, vector store, Knewat) behind an identical tool API; see
   [Benchmark results](RESULTS.md#benchmark-results-crucible-honest).
 
 ## Memory that notices change
 
 Agent memory goes stale silently: a fact written when `payments.py` used eSewa is still "true" a month after someone
-rewrote it. Plexus ties facts to code and tells the agent which ones to re-check, instead of waiting for the agent to be wrong.
+rewrote it. Knewat ties facts to code and tells the agent which ones to re-check, instead of waiting for the agent to be wrong.
 
 - **A code change makes a fact *suspect*, never false.** A fact is `ANCHORED_TO` a `CodeAnchor` (a file, or a Python
   function / class found with `ast`; other languages are file level only). `mark_changed` hashes the code, creates a `Change`
@@ -79,10 +79,10 @@ Tools (7): `anchor_fact`, `describe_code`, `mark_changed`, `verify_fact`, `facts
 Wiring it to a repository (runs on the developer machine; the server never reads your files):
 
 ```bash
-plexus code baseline --repo ~/work/pv-core-api --tenant physio      # once: record today's hashes
-plexus code hook-git --repo ~/work/pv-core-api --tenant physio       # a post-commit hook (never fails a commit)
-plexus code hook-claude --tenant physio                              # prints a Claude Code PostToolUse hook for .claude/settings.json
-plexus code scan --repo ~/work/pv-core-api --tenant physio --paths app/services/payments.py   # a one-off scan
+knewat code baseline --repo ~/work/pv-core-api --tenant physio      # once: record today's hashes
+knewat code hook-git --repo ~/work/pv-core-api --tenant physio       # a post-commit hook (never fails a commit)
+knewat code hook-claude --tenant physio                              # prints a Claude Code PostToolUse hook for .claude/settings.json
+knewat code scan --repo ~/work/pv-core-api --tenant physio --paths app/services/payments.py   # a one-off scan
 ```
 
 Honest claims. **Measured** (Crucible L5a, 60 facts, 21 commits of a scripted repo, no LLM): symbol-level anchors flag exactly
@@ -99,7 +99,7 @@ agents verify well in general, or that facts nobody anchored are covered; `verif
 
 ## Forgetting
 
-Memory that only grows gets noisy. Plexus ranks facts by how much they are used, and **never deletes anything because of
+Memory that only grows gets noisy. Knewat ranks facts by how much they are used, and **never deletes anything because of
 age**. `A(f) = ln(sum of w * t^-0.5)` over a fact's events (created, re-asserted, a decision rests on it, a handoff carries it,
 used `weight 1`, merely recalled `0.3`, verified `2`; the newest 50 events; surprising facts start higher). Recall
 multiplies relevance by `floor + (1 - floor) * sigmoid(A - A0)` (default floor 0.9), so a fact nobody uses ranks lower and is
@@ -109,11 +109,11 @@ recalled.
 
 Tools (5): `pin_fact`, `unpin_fact`, `memory_strength` (why a fact ranks where it does, read-only), `memory_sweep` (dry run by
 default; moves faint unprotected non-suspect facts to `dormant`, hidden from recall unless `include_dormant`), `restore_fact`;
-`recall` gains `include_dormant` and `forgetting`. Settings: `PLEXUS_FORGETTING=on|off`, `PLEXUS_ACT_DECAY`, `PLEXUS_ACT_A0`,
-`PLEXUS_ACT_FLOOR`, `PLEXUS_ACT_EVENTS` ([`.env.example`](../.env.example), [`docs/forgetting.md`](forgetting.md)).
+`recall` gains `include_dormant` and `forgetting`. Settings: `KNEWAT_FORGETTING=on|off`, `KNEWAT_ACT_DECAY`, `KNEWAT_ACT_A0`,
+`KNEWAT_ACT_FLOOR`, `KNEWAT_ACT_EVENTS` ([`.env.example`](../.env.example), [`docs/forgetting.md`](forgetting.md)).
 
 Honest claims. **This is a ranking and a tidy-up, not an accuracy feature, and it has a cost.** Ranking-only forgetting at
-`PLEXUS_ACT_FLOOR=0.9` is the default; the sweep is optional, dry-run by default and reversible. Crucible L5b (20 near-identical
+`KNEWAT_ACT_FLOOR=0.9` is the default; the sweep is optional, dry-run by default and reversible. Crucible L5b (20 near-identical
 sprints, 140 real facts, 300 decaying noise facts, 90 simulated days of reads, no LLM, [`docs/BASELINE.md`](BASELINE.md)): our first
 default, floor 0.5, **failed** its pre-registered criterion (recall@5 98.6% -> 73-75%, 7-8 of 80 "read once, 90 days ago, a
 decision rests on it" probes outranked by popular near-twins from other sprints), so it was changed to 0.9 and re-tested as a new
@@ -127,7 +127,7 @@ lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days
 **D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey (working notes, not in this repo)
 traced the recall@1 loss to the combination rule, not the decay curve. `recall` now resolves the entities the query names (one
 bounded full-text read) and lifts their facts by an ACT-R context term over two cues, the entity and the predicate the query
-names (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
+names (`KNEWAT_RECALL_SEPARATION=on`, `KNEWAT_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
 always join the candidates; the exact-keyword bypass tests the whole fact text. Pre-registered L5b re-run (same seed, 0 LLM
 calls): recall@1 75.7% (78.6% on the current build) -> **85.7%** with forgetting off, recall@5 100%, every cross-entity displacer gone, the pre-registered
 0.90 target **not reached** — and a later run showed why: the 20 residual misses are the scenario's 20 contradicting

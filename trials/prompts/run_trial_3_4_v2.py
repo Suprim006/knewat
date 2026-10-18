@@ -7,11 +7,11 @@ Arms (same model, same task prompts; only the memory line differs):
               happens to write them into code, commit messages or a file on its own)
   claudemd  - Claude Code's native memory: told to keep lasting decisions in CLAUDE.md, which
               Claude Code auto-loads in every later session
-  plexus    - told to keep lasting decisions in Plexus (MCP), and to recall before changing code;
+  knewat    - told to keep lasting decisions in Knewat (MCP), and to recall before changing code;
               fresh, empty tenant per run
 
 Usage:
-  python run_trial_3_4_v2.py --arm plexus --run-id r1
+  python run_trial_3_4_v2.py --arm knewat --run-id r1
   python run_trial_3_4_v2.py --arm baseline --run-id r1 --sessions 1      # smoke: session 1 only
 Outputs: ../logs/t34/<arm>_<run-id>/{repo, snap_s1..s4, session_N.jsonl, summary.json}
 """
@@ -30,7 +30,7 @@ HERE = Path(__file__).resolve().parent
 SRC_REPO = HERE.parent / "repo" / "tinytasks"
 PROMPTS = json.loads((HERE.parent / "repo" / "session_prompts_v2.json").read_text(encoding="utf-8"))
 LOGS = HERE.parent / "logs" / "t34"
-PLEXUS_URL = "http://127.0.0.1:8766/mcp/t/{tenant}"
+KNEWAT_URL = "http://127.0.0.1:8766/mcp/t/{tenant}"
 MODEL = "sonnet"
 
 NOTES = {
@@ -40,12 +40,12 @@ NOTES = {
                  "CLAUDE.md at the repo root (Claude Code loads it automatically in future sessions).",
         "later": "",
     },
-    "plexus": {
+    "knewat": {
         "first": "\n\nTeam convention: lasting decisions and conventions for this repo are recorded in the "
-                 "team's Plexus memory (MCP server 'plexus'). Call start_session, then record each "
+                 "team's Knewat memory (MCP server 'knewat'). Call start_session, then record each "
                  "decision with assert_fact.",
         "later": "\n\nTeam convention: this repo's lasting decisions and conventions are kept in the team's "
-                 "Plexus memory (MCP server 'plexus'). Call start_session, then recall what's relevant "
+                 "Knewat memory (MCP server 'knewat'). Call start_session, then recall what's relevant "
                  "before you change code.",
     },
 }
@@ -110,10 +110,10 @@ def main():
     shutil.copytree(SRC_REPO, repo, ignore=shutil.ignore_patterns("__pycache__", ".pytest_cache", "data.json"))
 
     tenant = f"t34_{a.arm}_{a.run_id}_{uuid.uuid4().hex[:6]}"
-    mcp = ({"mcpServers": {"plexus": {"type": "http", "url": PLEXUS_URL.format(tenant=tenant)}}}
-           if a.arm == "plexus" else {"mcpServers": {}})
+    mcp = ({"mcpServers": {"knewat": {"type": "http", "url": KNEWAT_URL.format(tenant=tenant)}}}
+           if a.arm == "knewat" else {"mcpServers": {}})
 
-    summary = {"arm": a.arm, "run_id": a.run_id, "model": MODEL, "tenant": tenant if a.arm == "plexus" else None,
+    summary = {"arm": a.arm, "run_id": a.run_id, "model": MODEL, "tenant": tenant if a.arm == "knewat" else None,
                "handoff": a.handoff, "sessions": {}, "total_cost_usd": 0.0}
     work = repo
     for i, (label, key) in enumerate(SESSIONS[: a.sessions], start=1):

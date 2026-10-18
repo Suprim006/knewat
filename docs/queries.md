@@ -1,8 +1,8 @@
 # Query index
 
-Every Cypher statement the product depends on lives in `plexus/queries/<area>/<name>.cypher` with a header
+Every Cypher statement the product depends on lives in `knewat/queries/<area>/<name>.cypher` with a header
 (`name`, `purpose`, `params`, `returns`, `mode`, optional `split`) and is loaded by
-`plexus.graph.queries.QueryLibrary`. The loader rejects a missing or unexpected parameter, a `$param` that the
+`knewat.graph.queries.QueryLibrary`. The loader rejects a missing or unexpected parameter, a `$param` that the
 header does not declare, and a header `name` that differs from the file path. `GraphClient.ro()` refuses
 `mode: rw` queries and runs the rest through `GRAPH.RO_QUERY`.
 
@@ -20,13 +20,13 @@ index-backed lookup in the graph, an atomic graph write). Housekeeping queries s
 | `engram/remember_episode` | engram | rw | Append an Episode: `HAS_EPISODE` + `NEXT` from the session's current last episode, one statement | The chain tail is found by traversal (`NOT (last)-[:NEXT]->()`) and extended atomically, so concurrent appends cannot fork the chain. |
 | `engram/find_entity_exact` | engram | ro | Entity by normalised name | Index-backed lookup on `Entity.norm_name`. |
 | `engram/existing_origins` | engram | ro | Which ids name a Fact, Source or Episode (UNION of three id-seek branches) | P9-f: `Engram.assert_fact` checks its `derived_from` origins with it before it creates a subject Entity, so a bad origin writes nothing (not even the Entity). |
-| `engram/find_entity_fulltext` | engram | ro | Entity candidates by name tokens (caller passes `a|b|c`, OR) | Full-text index inside the graph; used by the legacy near-duplicate report (`plexus migrate entities`). |
+| `engram/find_entity_fulltext` | engram | ro | Entity candidates by name tokens (caller passes `a|b|c`, OR) | Full-text index inside the graph; used by the legacy near-duplicate report (`knewat migrate entities`). |
 | `engram/find_entity_vector` | engram | ro | Nearest entities by name embedding | Vector index inside the graph; used by the legacy near-duplicate report. |
 | `engram/resolve_entity` | engram | rw | One statement: exact `norm_name`, full-text candidates (OR of the name tokens, same kind and numeric tokens, token Jaccard >= 0.6 and one token set contained in the other), vector nearest (same kind and numeric tokens, distance <= 0.10), then `MERGE (e:Entity {norm_name}) ON CREATE` with `tok`, `num_key`, `embedding`; returns `id, name, kind, how` (`exact`/`fulltext`/`vector`/`new`). Each lookup is a `CALL { ... RETURN collect(node) }` so an empty lookup cannot drop the row. Ties go to the oldest `(created_at, id)`. Replaces `engram/upsert_entity` | The lookups and the create are one write, and FalkorDB serialises writes per graph, so a paraphrase cannot slip in between them: 50 racers on 2 spellings + a paraphrase create exactly one Entity (`tests/integration/test_entity_race.py`). `Engram.resolve_entity_ex` reads `find_entity_exact` first, so an existing entity never writes. |
-| `engram/entities_page` | engram | ro | One page of Entities in id order (keyset), with `tok`, `num_key`, `embedding` | Feeds `plexus migrate entities` (backfill and the near-duplicate report); 200 per read. |
+| `engram/entities_page` | engram | ro | One page of Entities in id order (keyset), with `tok`, `num_key`, `embedding` | Feeds `knewat migrate entities` (backfill and the near-duplicate report); 200 per read. |
 | `engram/entity_duplicate_names` | engram | ro | Normalised names held by more than one Entity | A duplicate leaves UNIQUE(`Entity.norm_name`) `FAILED`; the migration reports them (exit code 2). |
 | `engram/backfill_entity_keys` | engram | rw | `UNWIND $rows ... SET e.tok, e.num_key` | One batch of at most 200 rows per statement, idempotent; entities without the keys never match the new fuzzy lookups. |
-| `engram/backfill_search_text` | engram | rw | P12: sets `Fact.search_text` (entity name + predicate words) on up to `batch` facts written before P12; `plexus migrate` loops it until `n = 0` | Facts without `search_text` only match recall's keyword channel by value. |
+| `engram/backfill_search_text` | engram | rw | P12: sets `Fact.search_text` (entity name + predicate words) on up to `batch` facts written before P12; `knewat migrate` loops it until `n = 0` | Facts without `search_text` only match recall's keyword channel by value. |
 | `engram/count_missing_search_text` | engram | ro | P12: how many facts have no `search_text` yet (the migration's dry run) | One label scan, one-off migration only. |
 | `engram/create_scope` | engram | rw | MERGE Scope on (kind, name) + `INHERITS` edges; no write if a parent is missing (an empty id list is an index seek, not a scan: P3) | Scope hierarchy is graph structure that recall traverses. |
 | `engram/assert_fact` | engram | rw | One statement: find current facts on entity+predicate+scope, classify duplicate / supersede / contradiction, then write Fact with `ABOUT`, `IN_SCOPE`, `ASSERTED_BY {at}` (+`text` on a duplicate), `DERIVED_FROM`, `SUPERSEDES`, `CONTRADICTS`. The current-fact lookup is anchored at the Entity (`(e)<-[:ABOUT]-(f {predicate, status, valid_to})-[:IN_SCOPE]->(sc)`), so its cost follows the entity's facts, not the facts in the scope (P5 review Q2). A duplicate is equal `norm_value`, or (same discriminator key `Fact.dup_key` - numbers, unit-normalised quantities, number words, negation/antonym tokens - and not the same words in another order) value-embedding distance <= 0.08 (tier 1) or token Jaccard of `Fact.tok` >= 0.6 with distance <= 0.16 (tier 2). Facts with the same key that are close but not duplicates (distance <= 0.20 or Jaccard >= 0.5) get `(new)-[:DUPLICATES_MAYBE {score, cos, jaccard, at}]->(old)` (tier 3, advisory; the new fact is still created). A duplicate adds `ASSERTED_BY {at, text}` with the raw wording. A duplicate keeps ONE fact (no `DUPLICATES` edge) and adds a timestamped `ASSERTED_BY`; it also supersedes the asserting agent's own earlier different current facts (`(dup)-[:SUPERSEDES]->(old)`). Window times use `ts = max(now, valid_from of closing facts)`. An unknown scope/episode/source writes nothing (not even the Agent); `Engram.assert_fact` checks those ids before it creates a new subject Entity, so a rejected call leaves no orphan Entity either (P5 review Q8) | Conflict detection and validity-window closing are traversals plus an atomic multi-edge write; per-graph write serialisation makes it race-free. P9-f: `derived_ids` (Sources / Episodes / Facts) are linked `DERIVED_FROM` in the same statement - resolved by id seeks in a `CALL` subquery that imports every variable in scope (6.0.2) and returns one row, `''` placeholder for an empty list (0 records) - so a hard kill cannot lose the link (Crucible L6-F); an unknown origin writes nothing. P13 (D-015, trial 8): `Engram.assert_fact(source_ids=[...])` (max 20, all checked to be Sources) links every listed Source through `derived_ids` (one `MERGE` each, also onto a duplicate: corroboration); the statement returns `sources_added`, the Sources a duplicate did not have yet, read in its own `WITH` (`linked` = one pattern comprehension from the bound duplicate) before the writes. |
@@ -86,7 +86,7 @@ Other `//` comment lines in the header or body are free comments and are ignored
 
 ## Lineage queries (`queries/lineage/`)
 
-Python entry point: `plexus.lineage.Lineage(client, graph)`; the pure result-shaping helpers are in `plexus/lineage/explain.py`.
+Python entry point: `knewat.lineage.Lineage(client, graph)`; the pure result-shaping helpers are in `knewat/lineage/explain.py`.
 
 **Design decision: how writes and reads attach to Steps.** Lineage uses the *simpler alternative*: a separate
 `lineage/link_step` statement (`link_step` / `link_assert_result` in Python) that the tool layer calls right after
@@ -125,7 +125,7 @@ an Engram/Relay write, plus `record_recall` which attaches its own `READ` edges.
 claimed / completed / failed / reopened task otherwise). `claim_next_task` takes the optional Step match after its `ORDER BY ... LIMIT 1`,
 so nothing claimable still writes nothing. Task-state semantics are unchanged. For these tools (and `record_decision` / `handoff`) the
 runtime skips the early Step when the agent is not registered, so an unknown agent is rejected as before instead of being created by
-`lineage/record_step`. Kill test: `plexus.crucible.l6.crash_tasks` (41 of 1,287 task writes without WROTE before, 0 of 1,333 after).
+`lineage/record_step`. Kill test: `knewat.crucible.l6.crash_tasks` (41 of 1,287 task writes without WROTE before, 0 of 1,333 after).
 
 **P9-int update.** `engram/assert_fact`, `relay/record_decision` and `relay/handoff` now take a `step_id` parameter (`''` = none)
 and, when the Step exists, create `(Step)-[:WROTE]->(new node)` in the same statement (`OPTIONAL MATCH (stp:Step {id: $step_id})`,
@@ -173,7 +173,7 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 | `crucible/l5_real_facts` | ro | L5 forgetting harness: the active facts of the played history with subject, scope and the flagged state of each Decision that rests on them (the "critical" class) | Benchmark only. Which facts a decision depends on is a traversal. |
 | `crucible/l5_add_reads` | rw | L5 forgetting harness: creates the `Step`s and `(Step)-[:READ {via, at}]->(Fact)` edges of a simulated day of use (<= 1000 per call) | Benchmark only. The simulated reads are exactly the edges the MCP tools write. |
 
-## Demo queries (`queries/demo/`, `plexus demo ablation` only; not used by the product)
+## Demo queries (`queries/demo/`, `knewat demo ablation` only; not used by the product)
 
 | Name | Mode | Purpose | Why it's a graph query |
 |---|---|---|---|
@@ -184,7 +184,7 @@ Verified FalkorDB 6.0.2 quirks hit while writing these (kept in the query commen
 
 ## Staleness queries (`queries/staleness/`, P7-J; see `docs/staleness.md`)
 
-Python entry point: `plexus.staleness.Staleness(client, graph, engram=...)`. Code changes make facts *suspect*; an agent re-verifies them.
+Python entry point: `knewat.staleness.Staleness(client, graph, engram=...)`. Code changes make facts *suspect*; an agent re-verifies them.
 
 | Name | Mode | Purpose | Why it's a graph query |
 |---|---|---|---|
@@ -202,7 +202,7 @@ Python entry point: `plexus.staleness.Staleness(client, graph, engram=...)`. Cod
 | `staleness/facts_to_verify` | ro | Enrich suspect ids: subject / predicate / value, newest `SUSPECTED` Change (the reason), non-flagged `BASED_ON` decision count, anchors; optional scope filter through `INHERITS*0..3`; ordered by decisions then oldest suspicion | "Which memories do I re-check first": ordered by the decisions that rest on them (a traversal), activation is applied on top by the Python layer. |
 | `staleness/set_review_date` | rw | Set / clear `verify_after` on a fact that is not about code | Review dates cover facts no code change can invalidate (a deployed URL, an account). |
 | `staleness/docs_to_update` | ro | Doc `Source`s that `DESCRIBES` an anchor a `Change` `TOUCHED` after `since` and were not `TOUCHED` themselves afterwards, with the change commits / paths | doc -> code -> change is a three-hop traversal; a doc edited after the change drops off because its own `TOUCHED` edge is newer. |
-| `staleness/tracked_paths` | ro | Source uris and CodeAnchor paths (`UNION`) | `plexus code baseline` (client side, direct database read) hashes the files of a repository the graph already knows about. |
+| `staleness/tracked_paths` | ro | Source uris and CodeAnchor paths (`UNION`) | `knewat code baseline` (client side, direct database read) hashes the files of a repository the graph already knows about. |
 
 FalkorDB 6.0.2 quirks hit in `staleness/*` (kept in the query comments):
 - `staleness/mark_changed`: a `WHERE` attached to an `OPTIONAL MATCH` that follows aggregations evaluated as false for a node that exists (even `WHERE x.uri = x.uri`); the filter is a `CASE` in the next `WITH` instead.

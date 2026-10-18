@@ -32,7 +32,7 @@ def main():
     t34_dirs = sorted(p for p in (LOGS / "t34").glob("*") if (p / "summary.json").exists() and not p.name.endswith("_smoke"))
     t12_files = sorted(p / "transcript.json" for p in (LOGS / "t12").glob("*_r*") if (p / "transcript.json").exists())
     t34, t12 = scored("score_trial_3_4_v2.py", t34_dirs), scored("score_trial_1_2_v2.py", t12_files)
-    groups = [(arm, h) for h in ("none", "clone") for arm in ("baseline", "claudemd", "plexus")]
+    groups = [(arm, h) for h in ("none", "clone") for arm in ("baseline", "claudemd", "knewat")]
 
     def label(arm, h):
         return arm if h == "none" else f"{arm} + clone handoff"
@@ -69,14 +69,14 @@ def main():
             lines.append(f"- {label(arm, h)} / {r['run']}: auto-memory files {sum(len(v) for v in am.values())} "
                          f"({', '.join(f'{k}: {len(v)}' for k, v in am.items())}); CLAUDE.md "
                          f"{'committed' if ev['claude_md_after_s1']['committed'] else 'present, uncommitted' if ev['claude_md_after_s1']['exists'] else 'none'}; "
-                         f"plexus assert_fact {ev['session_1']['plexus_assert_fact_calls']}, recalls in s2-4 "
-                         f"{sum(ev[s]['plexus_recall_calls'] for s in ('session_2', 'session_3', 'session_4'))}; "
+                         f"knewat assert_fact {ev['session_1']['knewat_assert_fact_calls']}, recalls in s2-4 "
+                         f"{sum(ev[s]['knewat_recall_calls'] for s in ('session_2', 'session_3', 'session_4'))}; "
                          f"violations {r['violations']}")
 
     lines += ["", "## Trials 1/2 - one 100-prompt session, Haiku 5.5", "",
               "| Arm | Runs | Rule violations (mean) | per run | R1 non-Go (2-46) | R2 replica/instance | R3 no takeaway | R4 no Kestrel | Probe@90 (of 5) | Compactions/run | Peak ctx | Cost/run |",
               "|---|---|---|---|---|---|---|---|---|---|---|---|"]
-    for arm in ("baseline", "plexus"):
+    for arm in ("baseline", "knewat"):
         rs = [r for r in t12 if r["arm"] == arm]
         if not rs:
             continue
@@ -88,14 +88,14 @@ def main():
             f"{mean([r.get('prompt_90_score') for r in rs])} | {mean([len(r['compacted_at'] or []) for r in rs])} | "
             f"{mean([r['peak_context_tokens'] for r in rs])} | ${mean([r['cost_usd'] for r in rs])} |")
     lines += ["", "Violations per decile (prompts 1-10, 11-20, ...), summed over runs:", ""]
-    for arm in ("baseline", "plexus"):
+    for arm in ("baseline", "knewat"):
         rs = [r for r in t12 if r["arm"] == arm]
         if rs:
             dec = [sum(r["violations_per_decile"][d] for r in rs) for d in range(10)]
             comp = sorted({c for r in rs for c in (r["compacted_at"] or [])})
             lines.append(f"- {arm}: {dec}  (compactions at prompts: {comp or 'none'})")
     lines += ["", "Prompt 47 (reviewer asks for Python):", ""]
-    for arm in ("baseline", "plexus"):
+    for arm in ("baseline", "knewat"):
         rs = [r for r in t12 if r["arm"] == arm and "prompt_47" in r]
         if rs:
             lines.append(f"- {arm}: wrote Python {sum(r['prompt_47']['wrote_python'] for r in rs)}/{len(rs)}, "

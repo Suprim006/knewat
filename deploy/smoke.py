@@ -1,7 +1,7 @@
-"""HTTP smoke test of a running Plexus demo, stdlib only (CI image check, post-deploy check, keep-awake).
+"""HTTP smoke test of a running Knewat demo, stdlib only (CI image check, post-deploy check, keep-awake).
 
     python deploy/smoke.py http://127.0.0.1:10000                 # a local container
-    python deploy/smoke.py https://plexus-demo.onrender.com --wait 600   # a fresh Render deploy (waits for it to wake)
+    python deploy/smoke.py https://knewat-demo.onrender.com --wait 600   # a fresh Render deploy (waits for it to wake)
 
 Reads the seeded ``demo`` tenant and runs read-only Cypher against it; it writes nothing (a write attempt is sent on
 purpose and must be refused). Exit 1 if a check fails. ``run(base)`` returns ``[(name, ok, detail)]``.

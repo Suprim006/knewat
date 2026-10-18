@@ -1,0 +1,1132 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "conc",
+ "run": {
+  "id": "20261018T082408Z-conc",
+  "started_at": "2026-10-18T08:24:06Z",
+  "finished_at": "2026-10-18T08:32:24Z",
+  "command": "python -m knewat.crucible.l6.run conc --port 6386 --runs 10 --seconds 6",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "e80ee31d50d6d5f97e167caa3e21ff6766059975",
+  "short": "e80ee31",
+  "dirty": false,
+  "branch": "rerun-current"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "e80ee31",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6386,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "config": {
+  "runs": 10,
+  "seconds": 6.0,
+  "appenders": 4,
+  "quarantiner_every_s": 0.25,
+  "readers": 8,
+  "scale": 1.0
+ },
+ "families": {
+  "E": {
+   "P-1stmt": {
+    "runs": 10,
+    "totals": {
+     "v1": 0,
+     "v2": 0,
+     "v3": 0,
+     "reads": 12768,
+     "appends": 7550,
+     "quarantines": 198,
+     "errors": 0
+    },
+    "runs_with_violation": 0,
+    "per_run": [
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1288,
+      "appends": 765,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261016,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1350,
+      "appends": 785,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261017,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1287,
+      "appends": 751,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261018,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1004,
+      "appends": 594,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261019,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1318,
+      "appends": 772,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261020,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1155,
+      "appends": 682,
+      "quarantines": 18,
+      "errors": 0,
+      "seed": 20261021,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1308,
+      "appends": 771,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261022,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1371,
+      "appends": 813,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261023,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1357,
+      "appends": 808,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261024,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 1330,
+      "appends": 809,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261025,
+      "examples": []
+     }
+    ]
+   },
+   "P-levelwise": {
+    "runs": 10,
+    "totals": {
+     "v1": 880,
+     "v2": 22,
+     "v3": 1012,
+     "reads": 4191,
+     "appends": 17432,
+     "quarantines": 200,
+     "errors": 0
+    },
+    "runs_with_violation": 10,
+    "per_run": [
+     {
+      "v1": 82,
+      "v2": 4,
+      "v3": 93,
+      "reads": 407,
+      "appends": 1688,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261016,
+      "examples": [
+       "V1 asrc03 asrc03-dn000191",
+       "V3 asrc03 count=119 listed=120 prev=None",
+       "V1 asrc02 asrc02-dn000258",
+       "V3 asrc02 count=135 listed=138 prev=None",
+       "V1 asrc03 asrc03-dn000538"
+      ]
+     },
+     {
+      "v1": 103,
+      "v2": 2,
+      "v3": 105,
+      "reads": 507,
+      "appends": 2093,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261017,
+      "examples": [
+       "V1 asrc05 asrc05-dn000067",
+       "V3 asrc05 count=107 listed=110 prev=None",
+       "V1 asrc02 asrc02-dn000123",
+       "V3 asrc02 count=114 listed=115 prev=None",
+       "V1 asrc06 asrc06-dn000505"
+      ]
+     },
+     {
+      "v1": 90,
+      "v2": 1,
+      "v3": 114,
+      "reads": 396,
+      "appends": 1704,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261018,
+      "examples": [
+       "V3 asrc02 count=111 listed=113 prev=None",
+       "V3 asrc04 count=116 listed=119 prev=None",
+       "V1 asrc07 asrc07-dn000305",
+       "V3 asrc07 count=143 listed=145 prev=None",
+       "V1 asrc00 asrc00-dn000388"
+      ]
+     },
+     {
+      "v1": 76,
+      "v2": 1,
+      "v3": 89,
+      "reads": 376,
+      "appends": 1563,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261019,
+      "examples": [
+       "V1 asrc07 asrc07-dn000032",
+       "V3 asrc07 count=102 listed=103 prev=None",
+       "V1 asrc04 asrc04-dn000281",
+       "V3 asrc04 count=138 listed=143 prev=None",
+       "V3 asrc02 count=131 listed=134 prev=None"
+      ]
+     },
+     {
+      "v1": 96,
+      "v2": 2,
+      "v3": 114,
+      "reads": 465,
+      "appends": 1948,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261020,
+      "examples": [
+       "V3 asrc06 count=101 listed=103 prev=None",
+       "V1 asrc06 asrc06-dn000159",
+       "V3 asrc06 count=117 listed=118 prev=101",
+       "V1 asrc06 asrc06-dn000355",
+       "V3 asrc06 count=140 listed=141 prev=117"
+      ]
+     },
+     {
+      "v1": 86,
+      "v2": 1,
+      "v3": 103,
+      "reads": 417,
+      "appends": 1717,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261021,
+      "examples": [
+       "V3 asrc03 count=131 listed=132 prev=None",
+       "V1 asrc03 asrc03-dn000233",
+       "V3 asrc03 count=132 listed=134 prev=131",
+       "V1 asrc01 asrc01-dn000273",
+       "V1 asrc02 asrc02-dn000308"
+      ]
+     },
+     {
+      "v1": 80,
+      "v2": 5,
+      "v3": 93,
+      "reads": 402,
+      "appends": 1615,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261022,
+      "examples": [
+       "V1 asrc06 asrc06-dn000152",
+       "V3 asrc06 count=112 listed=116 prev=None",
+       "V1 asrc05 asrc05-dn000190",
+       "V3 asrc05 count=117 listed=118 prev=None",
+       "V1 asrc07 asrc07-dn000214"
+      ]
+     },
+     {
+      "v1": 89,
+      "v2": 2,
+      "v3": 104,
+      "reads": 413,
+      "appends": 1724,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261023,
+      "examples": [
+       "V1 asrc05 asrc05-dn000041",
+       "V3 asrc05 count=103 listed=106 prev=None",
+       "V1 asrc02 asrc02-dn000328",
+       "V3 asrc02 count=143 listed=144 prev=None",
+       "V3 asrc01 count=127 listed=128 prev=None"
+      ]
+     },
+     {
+      "v1": 90,
+      "v2": 3,
+      "v3": 104,
+      "reads": 377,
+      "appends": 1592,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261024,
+      "examples": [
+       "V3 asrc04 count=101 listed=106 prev=None",
+       "V1 asrc04 asrc04-dn000197",
+       "V3 asrc04 count=132 listed=135 prev=101",
+       "V1 asrc05 asrc05-dn000249",
+       "V3 asrc05 count=125 listed=129 prev=None"
+      ]
+     },
+     {
+      "v1": 88,
+      "v2": 1,
+      "v3": 93,
+      "reads": 431,
+      "appends": 1788,
+      "quarantines": 20,
+      "errors": 0,
+      "seed": 20261025,
+      "examples": [
+       "V1 asrc05 asrc05-dn000034",
+       "V3 asrc05 count=103 listed=107 prev=None",
+       "V1 asrc02 asrc02-dn000291",
+       "V3 asrc02 count=137 listed=141 prev=None",
+       "V1 asrc01 asrc01-dn000317"
+      ]
+     }
+    ]
+   },
+   "B1h-1stmt": {
+    "runs": 10,
+    "totals": {
+     "v1": 0,
+     "v2": 0,
+     "v3": 0,
+     "reads": 2988,
+     "appends": 21133,
+     "quarantines": 73,
+     "errors": 0
+    },
+    "runs_with_violation": 0,
+    "per_run": [
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 271,
+      "appends": 2284,
+      "quarantines": 9,
+      "errors": 0,
+      "seed": 20261016,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 495,
+      "appends": 1221,
+      "quarantines": 5,
+      "errors": 0,
+      "seed": 20261017,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 243,
+      "appends": 2308,
+      "quarantines": 12,
+      "errors": 0,
+      "seed": 20261018,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 232,
+      "appends": 2737,
+      "quarantines": 7,
+      "errors": 0,
+      "seed": 20261019,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 426,
+      "appends": 875,
+      "quarantines": 5,
+      "errors": 0,
+      "seed": 20261020,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 246,
+      "appends": 2367,
+      "quarantines": 10,
+      "errors": 0,
+      "seed": 20261021,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 249,
+      "appends": 2411,
+      "quarantines": 9,
+      "errors": 0,
+      "seed": 20261022,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 249,
+      "appends": 2990,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261023,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 225,
+      "appends": 2747,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261024,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 352,
+      "appends": 1193,
+      "quarantines": 4,
+      "errors": 0,
+      "seed": 20261025,
+      "examples": []
+     }
+    ]
+   },
+   "B1h-txn": {
+    "runs": 10,
+    "totals": {
+     "v1": 0,
+     "v2": 0,
+     "v3": 0,
+     "reads": 1054,
+     "appends": 23580,
+     "quarantines": 55,
+     "errors": 0
+    },
+    "runs_with_violation": 0,
+    "per_run": [
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 95,
+      "appends": 3055,
+      "quarantines": 3,
+      "errors": 0,
+      "seed": 20261016,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 160,
+      "appends": 1352,
+      "quarantines": 4,
+      "errors": 0,
+      "seed": 20261017,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 85,
+      "appends": 2666,
+      "quarantines": 7,
+      "errors": 0,
+      "seed": 20261018,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 88,
+      "appends": 2751,
+      "quarantines": 10,
+      "errors": 0,
+      "seed": 20261019,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 149,
+      "appends": 876,
+      "quarantines": 5,
+      "errors": 0,
+      "seed": 20261020,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 72,
+      "appends": 2968,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261021,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 94,
+      "appends": 3344,
+      "quarantines": 4,
+      "errors": 0,
+      "seed": 20261022,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 86,
+      "appends": 2783,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261023,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 84,
+      "appends": 2870,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261024,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 141,
+      "appends": 915,
+      "quarantines": 4,
+      "errors": 0,
+      "seed": 20261025,
+      "examples": []
+     }
+    ]
+   },
+   "B1h-levelwise": {
+    "runs": 10,
+    "totals": {
+     "v1": 255,
+     "v2": 0,
+     "v3": 268,
+     "reads": 1022,
+     "appends": 20412,
+     "quarantines": 58,
+     "errors": 0
+    },
+    "runs_with_violation": 10,
+    "per_run": [
+     {
+      "v1": 21,
+      "v2": 0,
+      "v3": 24,
+      "reads": 96,
+      "appends": 2876,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261016,
+      "examples": [
+       "V1 asrc03 asrc03-dn000723",
+       "V3 asrc03 count=181 listed=191 prev=None",
+       "V1 asrc02 asrc02-dn001271",
+       "V3 asrc02 count=243 listed=253 prev=None",
+       "V1 asrc05 asrc05-dn000460"
+      ]
+     },
+     {
+      "v1": 41,
+      "v2": 0,
+      "v3": 41,
+      "reads": 170,
+      "appends": 922,
+      "quarantines": 2,
+      "errors": 0,
+      "seed": 20261017,
+      "examples": [
+       "V1 asrc03 asrc03-dn000364",
+       "V3 asrc03 count=153 listed=159 prev=None",
+       "V1 asrc00 asrc00-dn000535",
+       "V3 asrc00 count=159 listed=160 prev=None",
+       "V1 asrc00 asrc00-dn000765"
+      ]
+     },
+     {
+      "v1": 13,
+      "v2": 0,
+      "v3": 13,
+      "reads": 58,
+      "appends": 2301,
+      "quarantines": 6,
+      "errors": 0,
+      "seed": 20261018,
+      "examples": [
+       "V1 asrc06 asrc06-dn000687",
+       "V3 asrc06 count=161 listed=175 prev=None",
+       "V1 asrc00 asrc00-dn001529",
+       "V3 asrc00 count=281 listed=287 prev=None",
+       "V1 asrc02 asrc02-dn000971"
+      ]
+     },
+     {
+      "v1": 21,
+      "v2": 0,
+      "v3": 21,
+      "reads": 69,
+      "appends": 2694,
+      "quarantines": 5,
+      "errors": 0,
+      "seed": 20261019,
+      "examples": [
+       "V1 asrc05 asrc05-dn000221",
+       "V3 asrc05 count=111 listed=129 prev=None",
+       "V1 asrc06 asrc06-dn000913",
+       "V3 asrc06 count=207 listed=243 prev=None",
+       "V1 asrc07 asrc07-dn001918"
+      ]
+     },
+     {
+      "v1": 38,
+      "v2": 0,
+      "v3": 40,
+      "reads": 153,
+      "appends": 895,
+      "quarantines": 2,
+      "errors": 0,
+      "seed": 20261020,
+      "examples": [
+       "V1 asrc01 asrc01-dn000087",
+       "V3 asrc01 count=110 listed=113 prev=None",
+       "V1 asrc04 asrc04-dn000399",
+       "V3 asrc04 count=148 listed=153 prev=None",
+       "V1 asrc03 asrc03-dn000544"
+      ]
+     },
+     {
+      "v1": 24,
+      "v2": 0,
+      "v3": 26,
+      "reads": 80,
+      "appends": 2134,
+      "quarantines": 12,
+      "errors": 0,
+      "seed": 20261021,
+      "examples": [
+       "V1 asrc02 asrc02-dn000713",
+       "V3 asrc02 count=172 listed=185 prev=None",
+       "V1 asrc00 asrc00-dn001196",
+       "V3 asrc00 count=240 listed=255 prev=None",
+       "V1 asrc03 asrc03-dn000400"
+      ]
+     },
+     {
+      "v1": 18,
+      "v2": 0,
+      "v3": 21,
+      "reads": 90,
+      "appends": 2879,
+      "quarantines": 4,
+      "errors": 0,
+      "seed": 20261022,
+      "examples": [
+       "V1 asrc06 asrc06-dn000212",
+       "V3 asrc06 count=118 listed=124 prev=None",
+       "V1 asrc06 asrc06-dn000977",
+       "V3 asrc06 count=190 listed=214 prev=118",
+       "V3 asrc07 count=131 listed=141 prev=None"
+      ]
+     },
+     {
+      "v1": 24,
+      "v2": 0,
+      "v3": 25,
+      "reads": 77,
+      "appends": 2190,
+      "quarantines": 9,
+      "errors": 0,
+      "seed": 20261023,
+      "examples": [
+       "V1 asrc07 asrc07-dn000340",
+       "V3 asrc07 count=132 listed=139 prev=None",
+       "V1 asrc03 asrc03-dn000644",
+       "V3 asrc03 count=155 listed=163 prev=None",
+       "V1 asrc02 asrc02-dn001581"
+      ]
+     },
+     {
+      "v1": 21,
+      "v2": 0,
+      "v3": 22,
+      "reads": 74,
+      "appends": 2708,
+      "quarantines": 5,
+      "errors": 0,
+      "seed": 20261024,
+      "examples": [
+       "V1 asrc04 asrc04-dn000081",
+       "V3 asrc04 count=101 listed=107 prev=None",
+       "V1 asrc04 asrc04-dn000920",
+       "V3 asrc04 count=188 listed=211 prev=101",
+       "V1 asrc05 asrc05-dn001556"
+      ]
+     },
+     {
+      "v1": 34,
+      "v2": 0,
+      "v3": 35,
+      "reads": 155,
+      "appends": 813,
+      "quarantines": 7,
+      "errors": 0,
+      "seed": 20261025,
+      "examples": [
+       "V3 asrc02 count=108 listed=114 prev=None",
+       "V1 asrc05 asrc05-dn000190",
+       "V3 asrc05 count=126 listed=127 prev=None",
+       "V1 asrc05 asrc05-dn000243",
+       "V3 asrc05 count=131 listed=132 prev=126"
+      ]
+     }
+    ]
+   },
+   "B0-naive": {
+    "runs": 10,
+    "totals": {
+     "v1": 59,
+     "v2": 0,
+     "v3": 0,
+     "reads": 3160,
+     "appends": 1655,
+     "quarantines": 27,
+     "errors": 81
+    },
+    "runs_with_violation": 10,
+    "per_run": [
+     {
+      "v1": 11,
+      "v2": 0,
+      "v3": 0,
+      "reads": 350,
+      "appends": 183,
+      "quarantines": 4,
+      "errors": 7,
+      "seed": 20261016,
+      "examples": [
+       "V1 asrc05 asrc05-dn000061",
+       "V1 asrc01 asrc01-dn000123",
+       "V1 asrc01 asrc01-dn000131",
+       "V1 asrc07 asrc07-dn000116",
+       "V1 asrc03 asrc03-dn000150"
+      ]
+     },
+     {
+      "v1": 3,
+      "v2": 0,
+      "v3": 0,
+      "reads": 383,
+      "appends": 170,
+      "quarantines": 2,
+      "errors": 10,
+      "seed": 20261017,
+      "examples": [
+       "V1 asrc00 asrc00-dn000146",
+       "V1 asrc00 asrc00-dn000095",
+       "V1 asrc00 asrc00-dn000144"
+      ]
+     },
+     {
+      "v1": 6,
+      "v2": 0,
+      "v3": 0,
+      "reads": 173,
+      "appends": 174,
+      "quarantines": 2,
+      "errors": 6,
+      "seed": 20261018,
+      "examples": [
+       "V1 asrc02 asrc02-dn000115",
+       "V1 asrc04 asrc04-dn000128",
+       "V1 asrc01 asrc01-dn000135",
+       "V1 asrc04 asrc04-dn000139",
+       "V1 asrc01 asrc01-dn000158"
+      ]
+     },
+     {
+      "v1": 7,
+      "v2": 0,
+      "v3": 0,
+      "reads": 304,
+      "appends": 151,
+      "quarantines": 4,
+      "errors": 7,
+      "seed": 20261019,
+      "examples": [
+       "V1 asrc04 asrc04-dn000068",
+       "V1 asrc04 asrc04-dn000081",
+       "V1 asrc00 asrc00-dn000113",
+       "V1 asrc03 asrc03-dn000145",
+       "V1 asrc02 asrc02-dn000055"
+      ]
+     },
+     {
+      "v1": 3,
+      "v2": 0,
+      "v3": 0,
+      "reads": 322,
+      "appends": 146,
+      "quarantines": 1,
+      "errors": 10,
+      "seed": 20261020,
+      "examples": [
+       "V1 asrc06 asrc06-dn000061",
+       "V1 asrc05 asrc05-dn000045",
+       "V1 asrc01 asrc01-dn000116"
+      ]
+     },
+     {
+      "v1": 6,
+      "v2": 0,
+      "v3": 0,
+      "reads": 308,
+      "appends": 136,
+      "quarantines": 4,
+      "errors": 7,
+      "seed": 20261021,
+      "examples": [
+       "V1 asrc00 asrc00-dn000121",
+       "V1 asrc05 asrc05-dn000069",
+       "V1 asrc03 asrc03-dn000114",
+       "V1 asrc03 asrc03-dn000111",
+       "V1 asrc02 asrc02-dn000119"
+      ]
+     },
+     {
+      "v1": 7,
+      "v2": 0,
+      "v3": 0,
+      "reads": 333,
+      "appends": 160,
+      "quarantines": 3,
+      "errors": 7,
+      "seed": 20261022,
+      "examples": [
+       "V1 asrc06 asrc06-dn000031",
+       "V1 asrc07 asrc07-dn000093",
+       "V1 asrc02 asrc02-dn000121",
+       "V1 asrc04 asrc04-dn000128",
+       "V1 asrc06 asrc06-dn000070"
+      ]
+     },
+     {
+      "v1": 5,
+      "v2": 0,
+      "v3": 0,
+      "reads": 353,
+      "appends": 166,
+      "quarantines": 0,
+      "errors": 11,
+      "seed": 20261023,
+      "examples": [
+       "V1 asrc00 asrc00-dn000079",
+       "V1 asrc04 asrc04-dn000099",
+       "V1 asrc04 asrc04-dn000111",
+       "V1 asrc01 asrc01-dn000038",
+       "V1 asrc07 asrc07-dn000092"
+      ]
+     },
+     {
+      "v1": 4,
+      "v2": 0,
+      "v3": 0,
+      "reads": 308,
+      "appends": 181,
+      "quarantines": 3,
+      "errors": 8,
+      "seed": 20261024,
+      "examples": [
+       "V1 asrc03 asrc03-dn000141",
+       "V1 asrc02 asrc02-dn000108",
+       "V1 asrc02 asrc02-dn000165",
+       "V1 asrc00 asrc00-dn000179"
+      ]
+     },
+     {
+      "v1": 7,
+      "v2": 0,
+      "v3": 0,
+      "reads": 326,
+      "appends": 188,
+      "quarantines": 4,
+      "errors": 8,
+      "seed": 20261025,
+      "examples": [
+       "V1 asrc05 asrc05-dn000088",
+       "V1 asrc04 asrc04-dn000038",
+       "V1 asrc01 asrc01-dn000021",
+       "V1 asrc00 asrc00-dn000105",
+       "V1 asrc02 asrc02-dn000132"
+      ]
+     }
+    ]
+   },
+   "B0-locked": {
+    "runs": 10,
+    "totals": {
+     "v1": 0,
+     "v2": 0,
+     "v3": 0,
+     "reads": 1829,
+     "appends": 1128,
+     "quarantines": 114,
+     "errors": 0
+    },
+    "runs_with_violation": 0,
+    "per_run": [
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 207,
+      "appends": 114,
+      "quarantines": 13,
+      "errors": 0,
+      "seed": 20261016,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 219,
+      "appends": 114,
+      "quarantines": 13,
+      "errors": 0,
+      "seed": 20261017,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 40,
+      "appends": 175,
+      "quarantines": 4,
+      "errors": 0,
+      "seed": 20261018,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 209,
+      "appends": 110,
+      "quarantines": 13,
+      "errors": 0,
+      "seed": 20261019,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 157,
+      "appends": 92,
+      "quarantines": 10,
+      "errors": 0,
+      "seed": 20261020,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 186,
+      "appends": 92,
+      "quarantines": 12,
+      "errors": 0,
+      "seed": 20261021,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 217,
+      "appends": 112,
+      "quarantines": 12,
+      "errors": 0,
+      "seed": 20261022,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 194,
+      "appends": 101,
+      "quarantines": 12,
+      "errors": 0,
+      "seed": 20261023,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 186,
+      "appends": 103,
+      "quarantines": 12,
+      "errors": 0,
+      "seed": 20261024,
+      "examples": []
+     },
+     {
+      "v1": 0,
+      "v2": 0,
+      "v3": 0,
+      "reads": 214,
+      "appends": 115,
+      "quarantines": 13,
+      "errors": 0,
+      "seed": 20261025,
+      "examples": []
+     }
+    ]
+   }
+  }
+ }
+}

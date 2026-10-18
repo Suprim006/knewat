@@ -9,7 +9,7 @@ dist/
 build/
 # Node
 node_modules/
-plexus-view/dist/
+knewat-view/dist/
 # Env & secrets
 .env
 .env.*
@@ -21,10 +21,10 @@ plexus-view/dist/
 # research ledgers
 docs/research/.ledger.json
 
-# Plexus (P0)
-plexus/.venv/
-plexus/.pytest_cache/
-plexus/.ruff_cache/
+# Knewat (P0)
+knewat/.venv/
+knewat/.pytest_cache/
+knewat/.ruff_cache/
 .venv-gate/
 mcp.local.json
 
@@ -32,7 +32,7 @@ mcp.local.json
 .claude/settings.local.json
 
 # scratch probes
-plexus/probe_*.db
+knewat/probe_*.db
 .worktrees/
 
 # Kept on the owner's disk, not published (raw run output, working notes, plans, drafts). The submission keeps the
@@ -44,8 +44,8 @@ trials/logs/
 trials/t678/
 trials/BLOG_SECTION.md
 trials/DEMO_BEAT.md
-plexus/demo_data/crucible/l8*/runs/
-plexus/demo_data/recordings/physio-stale-sonnet/
+knewat/demo_data/crucible/l8*/runs/
+knewat/demo_data/recordings/physio-stale-sonnet/
 docs/*
 !docs/AI_USAGE.md
 !docs/DECISIONS.md

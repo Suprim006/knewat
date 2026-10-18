@@ -1,6 +1,6 @@
 """Throughput of the L4 ``P-mcp`` recall row under audit modes ``full`` / ``light`` / ``off`` (P9-e note).
 
-Reuses the Crucible harness unchanged (``plexus.crucible.l4.recall_sweep`` on the ``P-mcp`` arm: every call goes
+Reuses the Crucible harness unchanged (``knewat.crucible.l4.recall_sweep`` on the ``P-mcp`` arm: every call goes
 through ``Runtime._run``) and only changes the audit mode ``recall`` runs in, by wrapping ``Runtime._run``:
 
 * ``full``  - today (Step + READ edges + Recall record + ToolCall: 3 write statements per recall)
@@ -9,7 +9,7 @@ through ``Runtime._run``) and only changes the audit mode ``recall`` runs in, by
 
 Seeding (``assert_fact``) always stays ``full``. Scripted, no LLM. One FalkorDB, one machine.
 
-    cd plexus && PLEXUS_EMBEDDER=fastembed uv run python ../deploy/bench_audit_modes.py --port 6365 --runs 3
+    cd knewat && KNEWAT_EMBEDDER=fastembed uv run python ../deploy/bench_audit_modes.py --port 6365 --runs 3
 """
 
 from __future__ import annotations
@@ -22,10 +22,10 @@ import sys
 import tempfile
 import time
 
-from plexus.crucible.config import L4Config
-from plexus.crucible.harness import Env
-from plexus.crucible.l4 import recall_sweep
-from plexus.mcp.runtime import Runtime
+from knewat.crucible.config import L4Config
+from knewat.crucible.harness import Env
+from knewat.crucible.l4 import recall_sweep
+from knewat.mcp.runtime import Runtime
 
 MODES = ("full", "light", "off")
 

@@ -1,10 +1,10 @@
 # Activation-based forgetting (P7-K, D-012)
 
-> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/KNEWAT_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
 
 > **Partly STALE (2026-10-18):** the numbers that [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md) lists as CURRENT were re-verified on `rerun-current` (the code of main 7cca016; $0 layers L1, L4, ablation, L2, L2-scale, B1h, C7 extended, L5a, L5b surviving arms, hub, L6). Every other number in this document was measured on an earlier build and is not valid for the current build until re-run.
 
-Plexus does **not delete memories because they are old**. It *ranks* them by how much they are used, and it can
+Knewat does **not delete memories because they are old**. It *ranks* them by how much they are used, and it can
 *park* faded ones (`dormant`) so they stop cluttering recall. Parking is optional, dry-run by default and fully
 reversible. The decision and its evidence are in `docs/DECISIONS.md` D-012 and `docs/research/forgetting-*.md`.
 
@@ -100,14 +100,14 @@ time the source is registered.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `PLEXUS_FORGETTING` | `on` | `off` = recall is exactly the earlier retrieval order. `recall(forgetting=…)` overrides it. |
-| `PLEXUS_ACT_DECAY` | `0.5` | `d` |
-| `PLEXUS_ACT_A0` | −5.68 (1 day) | neutral activation |
-| `PLEXUS_ACT_FLOOR` | `0.9` | lowest multiplier. At `0.5` popular near-twin facts outranked the relevant one (Crucible L5b); `0.9` is the confirmed default |
-| `PLEXUS_ACT_EVENTS` | `50` | `K`, newest events counted (1..200) |
-| `PLEXUS_RECALL_SEPARATION` | `on` | D-013 P1: entity resolution + fan-damped lift + damped sibling expansion + lures (below). `recall(separation=…)` overrides it |
-| `PLEXUS_ACT_CUE_S`, `PLEXUS_ACT_W_ENTITY`, `PLEXUS_ACT_W_PREDICATE` | `5`, `0.03`, `0.02` | ACT-R `S` (a cue with fan ≥ e^S ≈ 148 adds nothing) and the cue weights (CROSS_CHECK's 0.6 / 0.4 scaled by 1/20; see below) |
-| `PLEXUS_ACT_SMAX` | `ln 50` | `S_max`: the fan at which the sibling expansion of `engram/recall` is damped to nothing |
+| `KNEWAT_FORGETTING` | `on` | `off` = recall is exactly the earlier retrieval order. `recall(forgetting=…)` overrides it. |
+| `KNEWAT_ACT_DECAY` | `0.5` | `d` |
+| `KNEWAT_ACT_A0` | −5.68 (1 day) | neutral activation |
+| `KNEWAT_ACT_FLOOR` | `0.9` | lowest multiplier. At `0.5` popular near-twin facts outranked the relevant one (Crucible L5b); `0.9` is the confirmed default |
+| `KNEWAT_ACT_EVENTS` | `50` | `K`, newest events counted (1..200) |
+| `KNEWAT_RECALL_SEPARATION` | `on` | D-013 P1: entity resolution + fan-damped lift + damped sibling expansion + lures (below). `recall(separation=…)` overrides it |
+| `KNEWAT_ACT_CUE_S`, `KNEWAT_ACT_W_ENTITY`, `KNEWAT_ACT_W_PREDICATE` | `5`, `0.03`, `0.02` | ACT-R `S` (a cue with fan ≥ e^S ≈ 148 adds nothing) and the cue weights (CROSS_CHECK's 0.6 / 0.4 scaled by 1/20; see below) |
+| `KNEWAT_ACT_SMAX` | `ln 50` | `S_max`: the fan at which the sibling expansion of `engram/recall` is damped to nothing |
 
 Bad values fail loudly (`ValueError`), they are not silently defaulted.
 
@@ -130,7 +130,7 @@ hidden from `recall` unless `include_dormant=true`.
 
 Research: `docs/research/NEUROSCIENCE_MEMORY_SURVEY.md`, `MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md`, `neuro-memory/`.
 
-**Pattern separation at recall (P1, `PLEXUS_RECALL_SEPARATION=on`).** Before the vector read, `engram/recall_entities`
+**Pattern separation at recall (P1, `KNEWAT_RECALL_SEPARATION=on`).** Before the vector read, `engram/recall_entities`
 matches the query's words against `Entity.name` (full-text OR, ≤ 5 entities) and counts each entity's **fan**: its
 current facts in the searched scopes. An entity is *named* only when every word of its name is in the query, so
 "Acme Notes API S07 api_version" names `Acme Notes API S07` and not its `S08` twin. The named entities' own
@@ -182,18 +182,18 @@ confirmatory run (`sep+mult` at 0.03 / 0.02): recall@1 85.7%, recall@5 100%, noi
 loss 0, cross-entity displacers 0.
 P2 at its declared constants: **falsified** (70.0%); the additive term and the in-band salience lift together
 re-created the twin problem, and at the strength where they stop costing recall they also stop reducing noise. So
-the additive mode (`PLEXUS_ACT_MODE=add`) was never the default and has been removed (reproduce at tag
+the additive mode (`KNEWAT_ACT_MODE=add`) was never the default and has been removed (reproduce at tag
 `pre-cleanup`); `mult` + separation is the default (85.0% / 100% / noise 22.1%, vs D-012's 65.0% / 95.7% /
 14.9%). The noise share is higher than under D-012 alone because the entity lift also lifts noise *about the named
 entity* over real facts about other entities.
 
 ## Honest limits (what this does *not* claim)
 
-* **Ranking-only forgetting at floor 0.9 is the default. The sweep is lossy for cold real facts and stays optional, dry-run by default, and reversible.** Measured (Crucible L5b, `docs/BASELINE.md`): at the first default, floor 0.5, recall@5 fell from 98.6% to 73-75% on a 20-sprint history of near-identical facts and 7-8 of 80 critical probes were outranked by popular twins (so the default was changed). At floor 0.9 (confirmatory, pre-registered, one run): critical loss 0, recall@5 96.4% against 98.6% with forgetting off, recall@1 63.6% against 75.7% (the more used of two near-identical facts is first more often), noise share 24.0% -> 15.1%. After a real sweep recall@5 is 88.6% (cold facts that nobody used for 90 days are what a sweep hides: 14 cold real facts and 160 noise facts moved; 0 critical); read the dry run first, `restore_fact` undoes it, and `PLEXUS_FORGETTING=off` restores the earlier retrieval order exactly.
+* **Ranking-only forgetting at floor 0.9 is the default. The sweep is lossy for cold real facts and stays optional, dry-run by default, and reversible.** Measured (Crucible L5b, `docs/BASELINE.md`): at the first default, floor 0.5, recall@5 fell from 98.6% to 73-75% on a 20-sprint history of near-identical facts and 7-8 of 80 critical probes were outranked by popular twins (so the default was changed). At floor 0.9 (confirmatory, pre-registered, one run): critical loss 0, recall@5 96.4% against 98.6% with forgetting off, recall@1 63.6% against 75.7% (the more used of two near-identical facts is first more often), noise share 24.0% -> 15.1%. After a real sweep recall@5 is 88.6% (cold facts that nobody used for 90 days are what a sweep hides: 14 cold real facts and 160 noise facts moved; 0 critical); read the dry run first, `restore_fact` undoes it, and `KNEWAT_FORGETTING=off` restores the earlier retrieval order exactly.
 * **It is a ranking and a tidy-up, not an accuracy gain.** The research found decay changes accuracy by ~0–1 points
   and can hurt when an old fact is needed; the benefit is less noise and cost. The pre-registered Crucible L5 ran
   (`docs/BASELINE.md`): at floor 0.9 recall@5 is 2.2 points below forgetting off in the confirmatory run; no accuracy claim is made.
-* The weights, the 0.3 and `A₀ − 2` are defaults chosen from the literature, not tuned on Plexus data. The floor (0.9) was chosen after the first L5b run failed at 0.5 and then confirmed in a separate pre-registered run (`docs/BASELINE.md`); it is tuned on one synthetic scenario.
+* The weights, the 0.3 and `A₀ − 2` are defaults chosen from the literature, not tuned on Knewat data. The floor (0.9) was chosen after the first L5b run failed at 0.5 and then confirmed in a separate pre-registered run (`docs/BASELINE.md`); it is tuned on one synthetic scenario.
 * Activation is computed from the newest 50 events, so a very heavily used fact does not keep growing.
 * A fact that a sweep parked is still **current** for `assert_fact` (P7-02): a new value supersedes it (or, from another
   agent without `supersede`, contradicts it) like an active fact, and asserting the same value again wakes it

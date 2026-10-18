@@ -1,0 +1,1310 @@
+{
+ "schema": "crucible-l8/1",
+ "kind": "roundA",
+ "run": {
+  "id": "20261016T205954Z-roundA",
+  "started_at": "2026-10-16T20:59:52Z",
+  "finished_at": "2026-10-16T20:59:54Z",
+  "command": "python -m knewat.crucible.l8.report ",
+  "cost_usd": 21.3518
+ },
+ "git": {
+  "commit": "bbfdea789b1d38ae8bbc0046e73ff773e4a3f016",
+  "short": "bbfdea7",
+  "branch": "p12",
+  "dirty": true,
+  "dirty_files": [
+   "?? knewat/src/knewat/crucible/l8/compare_a2.py"
+  ],
+  "results_files_uncommitted": 221
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "bbfdea7",
+  "embedder": "hash",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6366,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    },
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "config": {
+  "prompt_version": "l8-v1",
+  "arms": [
+   "P",
+   "B1",
+   "B0p"
+  ],
+  "model": "sonnet",
+  "max_turns": 25,
+  "seeds": [
+   20261017,
+   20261018,
+   20261019,
+   20261020,
+   20261021
+  ]
+ },
+ "runs": [
+  {
+   "seed": 20261017,
+   "arm": "B0p",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b0p_20261017_201757",
+   "wall_s": 556.8,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "4d56266ec033189303d445ed10805d4ee5616cb0",
+    "short": "4d56266",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 4
+   },
+   "cost_usd": 1.26,
+   "processes": 22
+  },
+  {
+   "seed": 20261017,
+   "arm": "B1",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b1_20261017_201757",
+   "wall_s": 815.7,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "4d56266ec033189303d445ed10805d4ee5616cb0",
+    "short": "4d56266",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 4
+   },
+   "cost_usd": 1.1616,
+   "processes": 22
+  },
+  {
+   "seed": 20261017,
+   "arm": "P",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_p_20261017_020430",
+   "wall_s": 706.3,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "bbfdea789b1d38ae8bbc0046e73ff773e4a3f016",
+    "short": "bbfdea7",
+    "branch": "p12",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 2
+   },
+   "cost_usd": 2.0881,
+   "processes": 22
+  },
+  {
+   "seed": 20261018,
+   "arm": "B0p",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b0p_20261018_203409",
+   "wall_s": 558.6,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "c296f784483e0ab4316f371b36809f5e43979282",
+    "short": "c296f78",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 137
+   },
+   "cost_usd": 1.172,
+   "processes": 22
+  },
+  {
+   "seed": 20261018,
+   "arm": "B1",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b1_20261018_203409",
+   "wall_s": 794.7,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "c296f784483e0ab4316f371b36809f5e43979282",
+    "short": "c296f78",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 137
+   },
+   "cost_usd": 1.1161,
+   "processes": 22
+  },
+  {
+   "seed": 20261018,
+   "arm": "P",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_p_20261018_021712",
+   "wall_s": 711.0,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "bbfdea789b1d38ae8bbc0046e73ff773e4a3f016",
+    "short": "bbfdea7",
+    "branch": "p12",
+    "dirty": true,
+    "dirty_files": [
+     "?? knewat/src/knewat/crucible/l8/compare_a2.py"
+    ],
+    "results_files_uncommitted": 46
+   },
+   "cost_usd": 1.8486,
+   "processes": 22
+  },
+  {
+   "seed": 20261019,
+   "arm": "B0p",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b0p_20261019_204726",
+   "wall_s": 591.7,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "021e118f7b4888ea0a2214d532b08a669dc5453a",
+    "short": "021e118",
+    "branch": "p11",
+    "dirty": true,
+    "dirty_files": [
+     " M knewat/src/knewat/crucible/l8/score.py",
+     " M knewat/tests/crucible/l8/test_score.py"
+    ],
+    "results_files_uncommitted": 133
+   },
+   "cost_usd": 1.2647,
+   "processes": 22
+  },
+  {
+   "seed": 20261019,
+   "arm": "B1",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b1_20261019_204726",
+   "wall_s": 834.4,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "021e118f7b4888ea0a2214d532b08a669dc5453a",
+    "short": "021e118",
+    "branch": "p11",
+    "dirty": true,
+    "dirty_files": [
+     " M knewat/src/knewat/crucible/l8/score.py",
+     " M knewat/tests/crucible/l8/test_score.py"
+    ],
+    "results_files_uncommitted": 133
+   },
+   "cost_usd": 1.1074,
+   "processes": 22
+  },
+  {
+   "seed": 20261019,
+   "arm": "P",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_p_20261019_021733",
+   "wall_s": 714.9,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "bbfdea789b1d38ae8bbc0046e73ff773e4a3f016",
+    "short": "bbfdea7",
+    "branch": "p12",
+    "dirty": true,
+    "dirty_files": [
+     "?? knewat/src/knewat/crucible/l8/compare_a2.py"
+    ],
+    "results_files_uncommitted": 48
+   },
+   "cost_usd": 1.9086,
+   "processes": 22
+  },
+  {
+   "seed": 20261020,
+   "arm": "B0p",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b0p_20261020_210123",
+   "wall_s": 581.9,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "34800ed3ba052653860cf746d592ea4ff51c2a7c",
+    "short": "34800ed",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 268
+   },
+   "cost_usd": 1.2058,
+   "processes": 22
+  },
+  {
+   "seed": 20261020,
+   "arm": "B1",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b1_20261020_210123",
+   "wall_s": 846.4,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "34800ed3ba052653860cf746d592ea4ff51c2a7c",
+    "short": "34800ed",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 268
+   },
+   "cost_usd": 1.0599,
+   "processes": 22
+  },
+  {
+   "seed": 20261020,
+   "arm": "P",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_p_20261020_023100",
+   "wall_s": 708.7,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "bbfdea789b1d38ae8bbc0046e73ff773e4a3f016",
+    "short": "bbfdea7",
+    "branch": "p12",
+    "dirty": true,
+    "dirty_files": [
+     "?? knewat/src/knewat/crucible/l8/compare_a2.py"
+    ],
+    "results_files_uncommitted": 132
+   },
+   "cost_usd": 1.919,
+   "processes": 22
+  },
+  {
+   "seed": 20261021,
+   "arm": "B0p",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b0p_20261021_211532",
+   "wall_s": 562.9,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "34800ed3ba052653860cf746d592ea4ff51c2a7c",
+    "short": "34800ed",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 400
+   },
+   "cost_usd": 1.2189,
+   "processes": 22
+  },
+  {
+   "seed": 20261021,
+   "arm": "B1",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_b1_20261021_211532",
+   "wall_s": 912.1,
+   "kills_fired": {
+    "K1": 8,
+    "K2": 11,
+    "K3": 19
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "34800ed3ba052653860cf746d592ea4ff51c2a7c",
+    "short": "34800ed",
+    "branch": "p11",
+    "dirty": false,
+    "dirty_files": [],
+    "results_files_uncommitted": 400
+   },
+   "cost_usd": 1.1674,
+   "processes": 23
+  },
+  {
+   "seed": 20261021,
+   "arm": "P",
+   "status": "completed",
+   "error": "",
+   "tenant": "l8_p_20261021_023119",
+   "wall_s": 709.2,
+   "kills_fired": {
+    "K1": 8,
+    "K3": 17,
+    "K2": 20
+   },
+   "commits_not_landed": [],
+   "hook_failed_commits": [],
+   "git": {
+    "commit": "bbfdea789b1d38ae8bbc0046e73ff773e4a3f016",
+    "short": "bbfdea7",
+    "branch": "p12",
+    "dirty": true,
+    "dirty_files": [
+     "?? knewat/src/knewat/crucible/l8/compare_a2.py"
+    ],
+    "results_files_uncommitted": 134
+   },
+   "cost_usd": 1.8537,
+   "processes": 22
+  }
+ ],
+ "pooled": {
+  "arms": {
+   "B0p": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0242,
+     "stale": 6,
+     "n": 248,
+     "wilson95": [
+      0.0111,
+      0.0518
+     ],
+     "seed_rates": {
+      "values": [
+       0.0833,
+       0.0,
+       0.0,
+       0.0,
+       0.0392
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0833
+     },
+     "dependent_pooled": 0.0202,
+     "artifact_files_pooled": 0.0375,
+     "stale_facts_live_at_end": {
+      "values": [
+       6,
+       6,
+       4,
+       6,
+       1
+      ],
+      "min": 1,
+      "median": 6,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0,
+     "events": 0,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "missing_completion": {
+     "values": [
+      0,
+      0,
+      0,
+      0,
+      1
+     ],
+     "min": 0,
+     "median": 0,
+     "max": 1
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": "n/a",
+     "M3": "n/a",
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       2,
+       3.0,
+       1.5,
+       1.5,
+       5.5
+      ],
+      "min": 1.5,
+      "median": 2,
+      "max": 5.5
+     },
+     "level2_median": {
+      "values": [
+       3.5,
+       6,
+       3,
+       6,
+       7
+      ],
+      "min": 3,
+      "median": 6,
+      "max": 7
+     },
+     "level1_censored": 2,
+     "level2_censored": 9,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       1115449,
+       1090238,
+       1092843,
+       1001121,
+       1070441
+      ],
+      "min": 1001121,
+      "median": 1090238,
+      "max": 1115449
+     },
+     "per_correct_action": {
+      "values": [
+       25351,
+       21805,
+       21857,
+       20431,
+       21846
+      ],
+      "min": 20431,
+      "median": 21846,
+      "max": 25351
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       8345,
+       6925,
+       7325,
+       7049,
+       7190
+      ],
+      "min": 6925,
+      "median": 7190,
+      "max": 8345
+     },
+     "cost_usd": 6.1214,
+     "pooled_per_correct_action": 22190,
+     "pooled_weighted_per_correct_action": 7345
+    },
+    "tasks_done": {
+     "values": [
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      22,
+      22,
+      22,
+      22
+     ],
+     "min": 22,
+     "median": 22,
+     "max": 22
+    }
+   },
+   "B1": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0572,
+     "stale": 19,
+     "n": 332,
+     "wilson95": [
+      0.0369,
+      0.0876
+     ],
+     "seed_rates": {
+      "values": [
+       0.1045,
+       0.0152,
+       0.0462,
+       0.0462,
+       0.0725
+      ],
+      "min": 0.0152,
+      "median": 0.0462,
+      "max": 0.1045
+     },
+     "dependent_pooled": 0.0542,
+     "artifact_files_pooled": 0.0778,
+     "stale_facts_live_at_end": {
+      "values": [
+       6,
+       6,
+       4,
+       5,
+       2
+      ],
+      "min": 2,
+      "median": 5,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0,
+     "events": 0,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "missing_completion": {
+     "values": [
+      1,
+      0,
+      1,
+      1,
+      1
+     ],
+     "min": 0,
+     "median": 1,
+     "max": 1
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": 3,
+     "M3": 5,
+     "seed_rates": {
+      "values": [
+       0.0448,
+       0.0303,
+       0.0154,
+       0.0154,
+       0.0145
+      ],
+      "min": 0.0145,
+      "median": 0.0154,
+      "max": 0.0448
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       3,
+       3.0,
+       3.0,
+       3.0,
+       7.5
+      ],
+      "min": 3,
+      "median": 3.0,
+      "max": 7.5
+     },
+     "level2_median": {
+      "values": [
+       5.5,
+       6,
+       3,
+       6,
+       9
+      ],
+      "min": 3,
+      "median": 6,
+      "max": 9
+     },
+     "level1_censored": 4,
+     "level2_censored": 10,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       2184307,
+       2193120,
+       2049300,
+       2043097,
+       2249724
+      ],
+      "min": 2043097,
+      "median": 2184307,
+      "max": 2249724
+     },
+     "per_correct_action": {
+      "values": [
+       36405,
+       33740,
+       33053,
+       32953,
+       35152
+      ],
+      "min": 32953,
+      "median": 33740,
+      "max": 36405
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       6933,
+       6201,
+       6337,
+       6110,
+       6550
+      ],
+      "min": 6110,
+      "median": 6337,
+      "max": 6933
+     },
+     "cost_usd": 5.6124,
+     "pooled_per_correct_action": 34248,
+     "pooled_weighted_per_correct_action": 6421
+    },
+    "tasks_done": {
+     "values": [
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      22,
+      22,
+      22,
+      23
+     ],
+     "min": 22,
+     "median": 22,
+     "max": 23
+    }
+   },
+   "P": {
+    "seeds": [
+     20261017,
+     20261018,
+     20261019,
+     20261020,
+     20261021
+    ],
+    "stale_act": {
+     "pooled": 0.0408,
+     "stale": 13,
+     "n": 319,
+     "wilson95": [
+      0.024,
+      0.0685
+     ],
+     "seed_rates": {
+      "values": [
+       0.0484,
+       0.0455,
+       0.0154,
+       0.0159,
+       0.0794
+      ],
+      "min": 0.0154,
+      "median": 0.0455,
+      "max": 0.0794
+     },
+     "dependent_pooled": 0.0408,
+     "artifact_files_pooled": 0.046,
+     "stale_facts_live_at_end": {
+      "values": [
+       6,
+       6,
+       4,
+       5,
+       2
+      ],
+      "min": 2,
+      "median": 5,
+      "max": 6
+     }
+    },
+    "step_repetition": {
+     "pooled": 0.0,
+     "events": 0,
+     "seed_rates": {
+      "values": [
+       0.0,
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "min": 0.0,
+      "median": 0.0,
+      "max": 0.0
+     }
+    },
+    "missing_completion": {
+     "values": [
+      1,
+      1,
+      0,
+      0,
+      1
+     ],
+     "min": 0,
+     "median": 1,
+     "max": 1
+    },
+    "mismatch": {
+     "M1": 0,
+     "M2": 2,
+     "M3": 5,
+     "seed_rates": {
+      "values": [
+       0.0161,
+       0.0303,
+       0.0308,
+       0.0159,
+       0.0159
+      ],
+      "min": 0.0159,
+      "median": 0.0161,
+      "max": 0.0308
+     }
+    },
+    "time_to_notice": {
+     "level1_median": {
+      "values": [
+       3,
+       3.0,
+       3.0,
+       3.0,
+       5.5
+      ],
+      "min": 3,
+      "median": 3.0,
+      "max": 5.5
+     },
+     "level2_median": {
+      "values": [
+       6.0,
+       6,
+       3,
+       6,
+       7
+      ],
+      "min": 3,
+      "median": 6,
+      "max": 7
+     },
+     "level1_censored": 4,
+     "level2_censored": 10,
+     "cases": 41
+    },
+    "tokens": {
+     "total": {
+      "values": [
+       5610421,
+       5432959,
+       5426159,
+       5533212,
+       5390709
+      ],
+      "min": 5390709,
+      "median": 5432959,
+      "max": 5610421
+     },
+     "per_correct_action": {
+      "values": [
+       95092,
+       86237,
+       84784,
+       89245,
+       92943
+      ],
+      "min": 84784,
+      "median": 89245,
+      "max": 95092
+     },
+     "weighted_per_correct_action": {
+      "values": [
+       15859,
+       13537,
+       13595,
+       14202,
+       14681
+      ],
+      "min": 13537,
+      "median": 14202,
+      "max": 15859
+     },
+     "cost_usd": 9.618,
+     "pooled_per_correct_action": 89521,
+     "pooled_weighted_per_correct_action": 14348
+    },
+    "tasks_done": {
+     "values": [
+      16,
+      16,
+      16,
+      16,
+      16
+     ],
+     "min": 16,
+     "median": 16,
+     "max": 16
+    },
+    "turns": {
+     "values": [
+      22,
+      22,
+      22,
+      22,
+      22
+     ],
+     "min": 22,
+     "median": 22,
+     "max": 22
+    }
+   }
+  },
+  "tests": {
+   "P_vs_B1_stale_act": {
+    "P": [
+     0.0484,
+     0.0455,
+     0.0154,
+     0.0159,
+     0.0794
+    ],
+    "B1": [
+     0.1045,
+     0.0152,
+     0.0462,
+     0.0462,
+     0.0725
+    ],
+    "perm_p": 0.5238,
+    "ranges_overlap": true,
+    "P_lower": true,
+    "separated": false
+   },
+   "P_vs_B1_step_repetition": {
+    "P": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "B1": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "perm_p": 1.0,
+    "ranges_overlap": true,
+    "P_lower": false,
+    "separated": false
+   },
+   "P_vs_B0p_stale_act": {
+    "P": [
+     0.0484,
+     0.0455,
+     0.0154,
+     0.0159,
+     0.0794
+    ],
+    "B0p": [
+     0.0833,
+     0.0,
+     0.0,
+     0.0,
+     0.0392
+    ],
+    "perm_p": 0.4365,
+    "ranges_overlap": true,
+    "P_lower": false,
+    "separated": false
+   },
+   "P_vs_B0p_step_repetition": {
+    "P": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "B0p": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "perm_p": 1.0,
+    "ranges_overlap": true,
+    "P_lower": false,
+    "separated": false
+   }
+  }
+ },
+ "robustness_post_hoc": {
+  "B0p": {
+   "excl_x2_brief_write": {
+    "stale": 6,
+    "n": 248,
+    "rate": 0.0242,
+    "seed_rates": [
+     0.0833,
+     0.0,
+     0.0,
+     0.0,
+     0.0392
+    ]
+   },
+   "excl_deleted_only": {
+    "stale": 0,
+    "n": 242,
+    "rate": 0.0,
+    "seed_rates": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "excl_both": {
+    "stale": 0,
+    "n": 242,
+    "rate": 0.0,
+    "seed_rates": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   },
+   "common_tasks": {
+    "stale": 6,
+    "n": 248,
+    "rate": 0.0242,
+    "seed_rates": [
+     0.0833,
+     0.0,
+     0.0,
+     0.0,
+     0.0392
+    ]
+   }
+  },
+  "B1": {
+   "excl_x2_brief_write": {
+    "stale": 13,
+    "n": 326,
+    "rate": 0.0399,
+    "seed_rates": [
+     0.0909,
+     0.0,
+     0.0312,
+     0.0312,
+     0.0448
+    ]
+   },
+   "excl_deleted_only": {
+    "stale": 16,
+    "n": 329,
+    "rate": 0.0486,
+    "seed_rates": [
+     0.0625,
+     0.0152,
+     0.0462,
+     0.0462,
+     0.0725
+    ]
+   },
+   "excl_both": {
+    "stale": 10,
+    "n": 323,
+    "rate": 0.031,
+    "seed_rates": [
+     0.0476,
+     0.0,
+     0.0312,
+     0.0312,
+     0.0448
+    ]
+   },
+   "common_tasks": {
+    "stale": 19,
+    "n": 332,
+    "rate": 0.0572,
+    "seed_rates": [
+     0.1045,
+     0.0152,
+     0.0462,
+     0.0462,
+     0.0725
+    ]
+   }
+  },
+  "P": {
+   "excl_x2_brief_write": {
+    "stale": 8,
+    "n": 314,
+    "rate": 0.0255,
+    "seed_rates": [
+     0.0328,
+     0.0308,
+     0.0,
+     0.0,
+     0.0645
+    ]
+   },
+   "excl_deleted_only": {
+    "stale": 11,
+    "n": 317,
+    "rate": 0.0347,
+    "seed_rates": [
+     0.0484,
+     0.0455,
+     0.0154,
+     0.0159,
+     0.0492
+    ]
+   },
+   "excl_both": {
+    "stale": 6,
+    "n": 312,
+    "rate": 0.0192,
+    "seed_rates": [
+     0.0328,
+     0.0308,
+     0.0,
+     0.0,
+     0.0333
+    ]
+   },
+   "common_tasks": {
+    "stale": 13,
+    "n": 319,
+    "rate": 0.0408,
+    "seed_rates": [
+     0.0484,
+     0.0455,
+     0.0154,
+     0.0159,
+     0.0794
+    ]
+   }
+  }
+ },
+ "claim_latency_ms": {
+  "B1": {
+   "n": 96,
+   "median_ms": 15
+  },
+  "P": {
+   "n": 95,
+   "median_ms": 35
+  }
+ },
+ "audit": [],
+ "probe": null,
+ "headline": {
+  "sentences": [
+   "Knewat did not reduce stale actions versus SQLite (4.1% vs 5.7%, n = 5 seeds each; not separated by the pre-stated rule) and used 2.61\u00d7 the tokens per correct action (2.23\u00d7 billing-weighted); its remaining advantages are the ones L2/L6 established (deterministic, $0 provenance answers).",
+   "Versus unmodified Claude Code with its own memory files (B0\u2032): stale actions 4.1% (P) vs 2.4% (B0\u2032), not separated by the pre-stated rule (a tie).",
+   "Step repetition, missing completion and reasoning\u2013action mismatch were not changed by the memory backend (step repetition P 0.0%, B1 0.0%, B0\u2032 0.0%; no separation by the pre-stated rule).",
+   "Cost: P used 2.61\u00d7 B1's tokens per correct action (> 2\u00d7): published as a loss on cost (\u00a76.6 criterion)."
+  ],
+  "X_B1": 0.0572,
+  "X_B0p": 0.0242,
+  "Y_P": 0.0408,
+  "A_B1": 0.0,
+  "A_B0p": 0.0,
+  "B_P": 0.0,
+  "Z": 2.61,
+  "W": 2.23,
+  "separated": {
+   "stale_P_B1": false,
+   "stale_P_B0p": false,
+   "rep_P_B1": false,
+   "rep_P_B0p": false
+  }
+ },
+ "table": "| Metric | P (Knewat) | B1 (SQLite) | B0\u2032 (Claude Code files) |\n|---|---|---|---|\n| runs (seeds) | 5 | 5 | 5 |\n| tasks done / 16 (per seed) | 16, 16, 16, 16, 16 | 16, 16, 16, 16, 16 | 16, 16, 16, 16, 16 |\n| turns (per seed) | 22, 22, 22, 22, 22 | 22, 22, 22, 22, 23 | 22, 22, 22, 22, 22 |\n| **stale-act rate, pooled** [Wilson 95%] | **4.1%** (13/319) [0.024, 0.0685] | **5.7%** (19/332) [0.0369, 0.0876] | **2.4%** (6/248) [0.0111, 0.0518] |\n| stale-act rate per seed | 4.8%, 4.5%, 1.5%, 1.6%, 7.9% | 10.4%, 1.5%, 4.6%, 4.6%, 7.2% | 8.3%, 0.0%, 0.0%, 0.0%, 3.9% |\n| stale-act, dependent-only (pooled) | 4.1% | 5.4% | 2.0% |\n| stale-act, artifact files only (pooled) | 4.6% | 7.8% | 3.8% |\n| stale facts live in store at end (per seed) | 6, 6, 4, 5, 2 | 6, 6, 4, 5, 2 | 6, 6, 4, 6, 1 |\n| time-to-notice L1 median turns (per seed) | 3, 3.0, 3.0, 3.0, 5.5 | 3, 3.0, 3.0, 3.0, 7.5 | 2, 3.0, 1.5, 1.5, 5.5 |\n| time-to-notice L2 median turns (per seed) | 6.0, 6, 3, 6, 7 | 5.5, 6, 3, 6, 9 | 3.5, 6, 3, 6, 7 |\n| notice censored L1 / L2 (of cases) | 4 / 10 (of 41) | 4 / 10 (of 41) | 2 / 9 (of 41) |\n| **step repetition (R1+R2+R3), pooled** | **0.0%** (0) | **0.0%** (0) | **0.0%** (0) |\n| step repetition per seed | 0.0%, 0.0%, 0.0%, 0.0%, 0.0% | 0.0%, 0.0%, 0.0%, 0.0%, 0.0% | 0.0%, 0.0%, 0.0%, 0.0%, 0.0% |\n| missing completion C1+C2+C3 (per seed, of 16) | 1, 1, 0, 0, 1 | 1, 0, 1, 1, 1 | 0, 0, 0, 0, 1 |\n| mismatch M1 / M2 / M3 (sum) | 0 / 2 / 5 | 0 / 3 / 5 | 0 / n/a / n/a |\n| tokens per correct action, pooled (raw) | 89,521 | 34,248 | 22,190 |\n| tokens per correct action, pooled (billing-weighted) | 14,348 | 6,421 | 7,345 |\n| cost USD (all seeds) | $9.62 | $5.61 | $6.12 |\n\nPost-hoc robustness variants of the stale-act rate (amendments 2-3; descriptive, not the headline):\n\n| Variant | P (Knewat) | B1 (SQLite) | B0\u2032 (Claude Code files) |\n|---|---|---|---|\n| excluding the X2 brief-mandated store write | 2.5% (8/314) | 4.0% (13/326) | 2.4% (6/248) |\n| excluding actions whose only stale tokens are of deleted functions | 3.5% (11/317) | 4.9% (16/329) | 0.0% (0/242) |\n| excluding both | 1.9% (6/312) | 3.1% (10/323) | 0.0% (0/242) |\n| only tasks every arm of the seed reached | 4.1% (13/319) | 5.7% (19/332) | 2.4% (6/248) |",
+ "honesty": [
+  "Round A only (P, B1, B0\u2032); B0 and B3 (Postgres with the same tool design) were not run, so the design-vs-graph question of \u00a75.5 is open.",
+  "n = 5 seeds per arm (if fewer, the table says so); claude -p has no seed, the seeds fix the fault schedule only.",
+  "Synthetic sentinels, synthetic repo, one scenario family, one model (Sonnet via the owner's subscription; costs are notional), one machine.",
+  "MAST rows are three deterministic signatures per mode, not Cemri et al.'s annotated categories.",
+  "Implementation choices the plan left open are listed in amendment 1 of docs/research/L8_LONG_HORIZON_OUTCOMES.md."
+ ]
+}

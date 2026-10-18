@@ -1,4 +1,4 @@
-"""Generate ``plexus/queries/lineage/impact_source.cypher`` and ``impact_fact.cypher`` (never hand-edit 12 copies).
+"""Generate ``knewat/queries/lineage/impact_source.cypher`` and ``impact_fact.cypher`` (never hand-edit 12 copies).
 
 Run from the repo root: ``python scripts/gen_impact_queries.py``. Both files share the 12-hop level-wise expansion of
 ``lineage/quarantine`` and ``forget_source``, then four ``CALL`` subqueries read the collected fact list once each.
@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-QUERIES = Path(__file__).resolve().parent.parent / "plexus" / "queries" / "lineage"
+QUERIES = Path(__file__).resolve().parent.parent / "knewat" / "queries" / "lineage"
 MAX_DEPTH = 12
 
 HEADER = """// name: lineage/impact_{kind}

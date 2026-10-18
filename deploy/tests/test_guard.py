@@ -1,6 +1,6 @@
-"""Unit tests for deploy/guard.py: no database, no Plexus imports. Run with the plexus venv:
+"""Unit tests for deploy/guard.py: no database, no Knewat imports. Run with the knewat venv:
 
-cd plexus && uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini --rootdir ../deploy
+cd knewat && uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini --rootdir ../deploy
 """
 
 from __future__ import annotations
@@ -64,11 +64,11 @@ def test_tenant_of_matches_the_inner_middleware():
     assert tenant_of("/mcp/t/team_abcd", []) == "team_abcd"
     assert tenant_of("/mcp/t/demo/extra", []) == "demo"  # first segment, like TenantPathMiddleware
     assert tenant_of("/mcp/t/", []) is None
-    assert tenant_of("/mcp", [(b"X-Plexus-Tenant", b"team_abcd")]) == "team_abcd"
-    assert tenant_of("/mcp", [(b"x-plexus-tenant", b"\xff")]) is None
+    assert tenant_of("/mcp", [(b"X-Knewat-Tenant", b"team_abcd")]) == "team_abcd"
+    assert tenant_of("/mcp", [(b"x-knewat-tenant", b"\xff")]) is None
     assert tenant_of("/mcp", []) is None
     # the path wins over the header (the inner middleware 400s if they differ)
-    assert tenant_of("/mcp/t/demo", [(b"x-plexus-tenant", b"team_abcd")]) == "demo"
+    assert tenant_of("/mcp/t/demo", [(b"x-knewat-tenant", b"team_abcd")]) == "demo"
 
 
 def test_client_ip_sources():
@@ -114,7 +114,7 @@ def test_limiter_bounds_its_key_table():
 # ----------------------------------------------------------------------------------------------- directory / cap
 def test_directory_cap_counts_known_and_pending():
     clock = Clock()
-    graphs = ["plexus_t_demo", "plexus_t_team_aaaa", "rec_x", "other"]
+    graphs = ["knewat_t_demo", "knewat_t_team_aaaa", "rec_x", "other"]
     d = TenantDirectory(lambda: graphs, max_tenants=4, clock=clock)
     assert d.names() == {"demo", "team_aaaa"}  # non-tenant graphs are not counted
     assert d.admit("team_aaaa")  # existing: always
@@ -170,7 +170,7 @@ def call(app, path="/mcp/t/team_abcd", method="POST", body=b"", headers=None, cl
 def make_guard(cfg=None, graphs=None, **kw):
     cfg = cfg or GuardConfig()
     inner = Recorder()
-    graph_list = graphs if graphs is not None else ["plexus_t_demo", "plexus_t_demo_scripted"]
+    graph_list = graphs if graphs is not None else ["knewat_t_demo", "knewat_t_demo_scripted"]
     directory = TenantDirectory(lambda: graph_list, cfg.max_tenants)
     activity = ActivityLog()
     return PublicGuard(inner, cfg, directory, activity, **kw), inner, activity
@@ -195,7 +195,7 @@ def test_demo_tool_calls_are_refused_with_a_clear_tool_error():
     msg = json.loads(body)
     assert msg["id"] == 7 and msg["result"]["isError"] is True
     assert "read-only" in msg["result"]["content"][0]["text"] and "team_" in msg["result"]["content"][0]["text"]
-    assert inner.calls == []  # never reached Plexus
+    assert inner.calls == []  # never reached Knewat
 
 
 def test_refusal_is_a_valid_mcp_call_tool_result():
@@ -218,7 +218,7 @@ def test_demo_handshake_and_listing_still_work():
 
 def test_demo_refusal_also_applies_via_header_and_batch_is_rejected():
     g, inner, _ = make_guard()
-    status, _, body = call(g, path="/mcp", headers={"X-Plexus-Tenant": "demo"}, body=rpc("tools/call", name="x"))
+    status, _, body = call(g, path="/mcp", headers={"X-Knewat-Tenant": "demo"}, body=rpc("tools/call", name="x"))
     assert status == 200 and json.loads(body)["result"]["isError"] is True
     status, _, _ = call(g, path="/mcp/t/demo", body=b"[" + rpc("tools/call", name="x") + b"]")
     assert status == 400
@@ -234,7 +234,7 @@ def test_other_tenants_are_forbidden():
     assert inner.calls == []
 
 
-def test_missing_tenant_falls_through_to_the_plexus_error():
+def test_missing_tenant_falls_through_to_the_knewat_error():
     g, inner, _ = make_guard()
     assert call(g, path="/mcp", body=rpc("initialize"))[0] == 202  # inner middleware answers 400 itself
     assert len(inner.calls) == 1
@@ -242,7 +242,7 @@ def test_missing_tenant_falls_through_to_the_plexus_error():
 
 def test_graph_cap_blocks_new_tenants_only():
     cfg = GuardConfig(max_tenants=3)
-    g, inner, _ = make_guard(cfg, graphs=["plexus_t_demo", "plexus_t_demo_scripted", "plexus_t_team_aaaa"])
+    g, inner, _ = make_guard(cfg, graphs=["knewat_t_demo", "knewat_t_demo_scripted", "knewat_t_team_aaaa"])
     assert call(g, path="/mcp/t/team_aaaa", body=rpc("initialize"))[0] == 202  # existing tenant still works
     status, _, body = call(g, path="/mcp/t/team_bbbb", body=rpc("initialize"))
     assert status == 503 and "maximum of 3" in json.loads(body)["error"]
@@ -299,7 +299,7 @@ def test_cypher_body_cap_on_content_length_and_streamed():
 # ----------------------------------------------------------------------------------------------- idle sweep
 def test_idle_sweep_deletes_only_idle_team_graphs():
     clock = Clock()
-    graphs = ["plexus_t_demo", "plexus_t_demo_scripted", "plexus_t_team_old1", "plexus_t_team_new1", "plexus_t_acme"]
+    graphs = ["knewat_t_demo", "knewat_t_demo_scripted", "knewat_t_team_old1", "knewat_t_team_new1", "knewat_t_acme"]
     deleted = []
 
     def delete(name):
@@ -314,16 +314,16 @@ def test_idle_sweep_deletes_only_idle_team_graphs():
     assert sw.sweep_once() == []  # nothing is older than 24 h yet; the unseen `acme` stays (never swept)
     clock.t += 2 * 3600  # team_old1 idle 25 h, team_new1 idle 2 h
     assert sw.sweep_once() == ["team_old1"]
-    assert deleted == ["plexus_t_team_old1"]
+    assert deleted == ["knewat_t_team_old1"]
     assert "team_old1" not in act.last
     clock.t += 30 * 3600
     assert sw.sweep_once() == ["team_new1"]
-    assert sorted(graphs) == ["plexus_t_acme", "plexus_t_demo", "plexus_t_demo_scripted"]
+    assert sorted(graphs) == ["knewat_t_acme", "knewat_t_demo", "knewat_t_demo_scripted"]
 
 
 def test_sweep_starts_the_idle_clock_for_graphs_it_never_saw_active():
     clock = Clock()
-    graphs = ["plexus_t_team_zzzz"]
+    graphs = ["knewat_t_team_zzzz"]
     deleted = []
     act = ActivityLog(clock=clock)
     sw = IdleSweeper(act, lambda: list(graphs), deleted.append, idle_s=100, clock=clock)
@@ -348,7 +348,7 @@ def test_demo_read_tools_are_forwarded_and_each_tool_is_on_the_allowlist():
 
 def test_demo_forwarding_works_through_the_header_route_too():
     g, inner, _ = make_guard()
-    status, _, _ = call(g, path="/mcp", headers={"X-Plexus-Tenant": "demo_scripted"}, body=tool_call("recall"))
+    status, _, _ = call(g, path="/mcp", headers={"X-Knewat-Tenant": "demo_scripted"}, body=tool_call("recall"))
     assert status == 202 and len(inner.calls) == 1
 
 
@@ -385,13 +385,13 @@ def test_demo_tools_call_with_a_malformed_name_is_refused_not_crashed(params):
 
 
 def test_a_demo_tenant_without_a_graph_is_refused_so_a_request_cannot_create_one():
-    listed: list[str] = ["plexus_t_demo"]
+    listed: list[str] = ["knewat_t_demo"]
     g, inner, _ = make_guard(graphs=listed)
     status, _, body = call(g, path="/mcp/t/demo_new", body=tool_call("recall", agent_id="v", query="x"))
     msg = json.loads(body)
     assert status == 200 and msg["result"]["isError"] is True
     assert "does not exist" in msg["result"]["content"][0]["text"]
-    assert inner.calls == [] and listed == ["plexus_t_demo"]  # nothing forwarded, nothing created
+    assert inner.calls == [] and listed == ["knewat_t_demo"]  # nothing forwarded, nothing created
     # the handshake still works for any demo name (it touches no graph)
     assert call(g, path="/mcp/t/demo_new", body=rpc("initialize"))[0] == 202
 
@@ -429,10 +429,10 @@ def test_demo_batches_and_oversized_bodies_are_still_refused():
 
 def test_demo_audit_off_is_forced_into_the_runtime_environment():
     env: dict[str, str] = {}
-    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"] == "demo*=off"
-    env = {"PLEXUS_AUDIT_MODES": "team_*=light"}
-    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"] == "demo*=off,team_*=light"
+    assert ensure_demo_audit_off(env)["KNEWAT_AUDIT_MODES"] == "demo*=off"
+    env = {"KNEWAT_AUDIT_MODES": "team_*=light"}
+    assert ensure_demo_audit_off(env)["KNEWAT_AUDIT_MODES"] == "demo*=off,team_*=light"
     # an operator's own demo rule can not weaken it: ours is first and the first match wins
-    env = {"PLEXUS_AUDIT_MODES": "demo*=full,team_*=light"}
-    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"] == "demo*=off,demo*=full,team_*=light"
-    assert ensure_demo_audit_off(env)["PLEXUS_AUDIT_MODES"].count("demo*=off") == 1  # idempotent
+    env = {"KNEWAT_AUDIT_MODES": "demo*=full,team_*=light"}
+    assert ensure_demo_audit_off(env)["KNEWAT_AUDIT_MODES"] == "demo*=off,demo*=full,team_*=light"
+    assert ensure_demo_audit_off(env)["KNEWAT_AUDIT_MODES"].count("demo*=off") == 1  # idempotent

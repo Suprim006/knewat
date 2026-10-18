@@ -1,0 +1,153 @@
+{
+ "schema": "crucible-l7/1",
+ "kind": "i",
+ "run": {
+  "id": "20261016T111433Z-i",
+  "started_at": "2026-10-16T11:14:33Z",
+  "finished_at": "2026-10-16T11:15:06Z",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --parts I5 --out demo_data/crucible/l7",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "dc0bda35af6128e4afc15d4a87ca456d8eff9adc",
+  "short": "dc0bda3",
+  "dirty": false,
+  "dirty_files": [],
+  "branch": "p10"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "dc0bda3",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6368,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "sqlite_version": "3.53.1",
+ "seed": 20261016,
+ "timeout_ms": 10000,
+ "scale": "full",
+ "parts": {
+  "I5": {
+   "lines_statement_text": {
+    "F-1stmt": 14,
+    "S-txn": 12
+   },
+   "lines_python_glue_closeout_method": {
+    "F-1stmt": 12,
+    "S-txn": 27
+   },
+   "statements_per_closeout": {
+    "F-1stmt": 1,
+    "S-txn": 13
+   },
+   "n_per_writer": 400,
+   "F-1stmt": {
+    "writers_1": {
+     "latency_ms": {
+      "n": 400,
+      "p50": 3.44,
+      "p99": 5.895,
+      "max": 8.388,
+      "mean": 3.489
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 168.4,
+     "round_trips_per_closeout": 1
+    },
+    "writers_8": {
+     "latency_ms": {
+      "n": 3200,
+      "p50": 34.228,
+      "p99": 83.539,
+      "max": 98.573,
+      "mean": 37.195
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 114.2,
+     "round_trips_per_closeout": 1
+    }
+   },
+   "S-txn": {
+    "writers_1": {
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.194,
+      "p99": 5.074,
+      "max": 5.82,
+      "mean": 0.326
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 2495.1,
+     "round_trips_per_closeout": 13
+    },
+    "writers_8": {
+     "latency_ms": {
+      "n": 3200,
+      "p50": 0.218,
+      "p99": 6.284,
+      "max": 143.326,
+      "mean": 0.563
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 1983.0,
+     "round_trips_per_closeout": 13
+    }
+   },
+   "embedded_vs_server": "S-txn: embedded (in-process SQLite, no network); F-1stmt: server (Docker port-forward)"
+  }
+ },
+ "db_port": 6368,
+ "i4_busy_timeout_ms": 10000,
+ "server_bug_reports_at_start": 1,
+ "server_bug_reports_at_end": 1
+}

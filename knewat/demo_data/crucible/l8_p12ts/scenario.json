@@ -1,0 +1,540 @@
+{
+ "prompt_version": "l8-v1",
+ "subject": "Acme Notes API S21",
+ "tasks": [
+  {
+   "id": "t01-gather-requirements",
+   "title": "Gather requirements",
+   "priority": 50,
+   "depends_on": [],
+   "role": "researcher",
+   "needs": [
+    "api.base_path",
+    "api.page_size",
+    "api.max_body",
+    "api.cors_origin",
+    "api.error_format"
+   ],
+   "records": [
+    "api.base_path",
+    "api.page_size",
+    "api.max_body",
+    "api.cors_origin",
+    "api.error_format"
+   ],
+   "artifact": "artifacts/t01-gather-requirements/requirements.md",
+   "docs": [
+    "01_product_brief",
+    "02_api_style_guide_v1"
+   ],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Register the two documents below with add_source (title = the document's heading, uri = 'acme-docs/<file name>', text = the full document). Assert two facts about subject 'Acme Notes API S21', each with the source_id of its document: predicate 'purpose' (one short sentence, from the product brief) and predicate 'api_version' (the short version label the style guide prescribes, e.g. 'v1').\nRead the listed functions in the repository and store each value as a team fact: assert_fact with subject 'Acme Notes API S21', predicate '<module>.<function>' (e.g. 'api.base_path') and value = the token it returns. Settings to record: `api.base_path`, `api.page_size`, `api.max_body`, `api.cors_origin`, `api.error_format`.\nWrite the artifact file `artifacts/t01-gather-requirements/requirements.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.page_size`, `api.max_body`, `api.cors_origin`, `api.error_format`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t01-gather-requirements/requirements.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the two documents below. Record in `memory/facts.md` the product's purpose (one short sentence) and the api_version the style guide prescribes (e.g. 'v1'), each with the document it came from.\nRead the listed functions in the repository and store each value in team memory: one line `<module>.<function> = VALUE` per setting in `memory/facts.md`. Settings to record: `api.base_path`, `api.page_size`, `api.max_body`, `api.cors_origin`, `api.error_format`.\nWrite the artifact file `artifacts/t01-gather-requirements/requirements.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.page_size`, `api.max_body`, `api.cors_origin`, `api.error_format`.\nThen record in `memory/tasks.md` that task t01-gather-requirements is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t02-choose-api-version",
+   "title": "Choose the API version",
+   "priority": 45,
+   "depends_on": [
+    "t01-gather-requirements"
+   ],
+   "role": "planner",
+   "needs": [
+    "api.base_path",
+    "api.error_format"
+   ],
+   "records": [],
+   "artifact": "artifacts/t02-choose-api-version/decision.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version' and the api settings the team recorded. Record ONE decision (record_decision) saying which API version and base path the team builds against, with based_on_fact_ids = the fact ids you relied on.\nWrite the artifact file `artifacts/t02-choose-api-version/decision.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.error_format`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t02-choose-api-version/decision.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version and the api settings the team recorded. Record ONE decision in `memory/decisions.md` saying which API version and base path the team builds against, and which recorded facts it relies on.\nWrite the artifact file `artifacts/t02-choose-api-version/decision.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.error_format`.\nThen record in `memory/tasks.md` that task t02-choose-api-version is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t03-design-endpoints",
+   "title": "Design the endpoints",
+   "priority": 40,
+   "depends_on": [
+    "t02-choose-api-version"
+   ],
+   "role": "builder",
+   "needs": [
+    "api.base_path",
+    "api.page_size",
+    "api.max_body"
+   ],
+   "records": [],
+   "artifact": "artifacts/t03-design-endpoints/openapi-draft.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version'. Write a short episode (remember_episode) naming the endpoints you will draft (list/create/read/update/delete notes under the base path). After completing, hand off to 'planner' (handoff) with a short note, the artifact_id and the fact ids you relied on.\nWrite the artifact file `artifacts/t03-design-endpoints/openapi-draft.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.page_size`, `api.max_body`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t03-design-endpoints/openapi-draft.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version. Add a short note to `memory/log.md` naming the endpoints you will draft (list/create/read/update/delete notes under the base path). After that, leave a handoff note for 'planner' in `memory/handoffs.md` naming the artifact and the facts you relied on.\nWrite the artifact file `artifacts/t03-design-endpoints/openapi-draft.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.page_size`, `api.max_body`.\nThen record in `memory/tasks.md` that task t03-design-endpoints is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t04-survey-infra-security",
+   "title": "Survey infrastructure and security",
+   "priority": 35,
+   "depends_on": [
+    "t01-gather-requirements"
+   ],
+   "role": "researcher",
+   "needs": [
+    "db.engine",
+    "db.pool_size",
+    "db.schema_name",
+    "db.replica_count",
+    "db.backup_window",
+    "auth.token_ttl",
+    "auth.hash_rounds",
+    "auth.session_cookie",
+    "auth.mfa_window",
+    "auth.key_header"
+   ],
+   "records": [
+    "db.engine",
+    "db.pool_size",
+    "db.schema_name",
+    "db.replica_count",
+    "db.backup_window",
+    "auth.token_ttl",
+    "auth.hash_rounds",
+    "auth.session_cookie",
+    "auth.mfa_window",
+    "auth.key_header"
+   ],
+   "artifact": "artifacts/t04-survey-infra-security/constraints.md",
+   "docs": [
+    "03_infra_note",
+    "04_security_note"
+   ],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Register the two documents below with add_source (uri = 'acme-docs/<file name>'). Assert two facts about subject 'Acme Notes API S21', each with its source_id: predicate 'database' (the database product and version) and predicate 'auth_method' (the authentication scheme the security note requires).\nRead the listed functions in the repository and store each value as a team fact: assert_fact with subject 'Acme Notes API S21', predicate '<module>.<function>' (e.g. 'api.base_path') and value = the token it returns. Settings to record: `db.engine`, `db.pool_size`, `db.schema_name`, `db.replica_count`, `db.backup_window`, `auth.token_ttl`, `auth.hash_rounds`, `auth.session_cookie`, `auth.mfa_window`, `auth.key_header`.\nWrite the artifact file `artifacts/t04-survey-infra-security/constraints.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `db.engine`, `db.pool_size`, `db.schema_name`, `db.replica_count`, `db.backup_window`, `auth.token_ttl`, `auth.hash_rounds`, `auth.session_cookie`, `auth.mfa_window`, `auth.key_header`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t04-survey-infra-security/constraints.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the two documents below. Record in `memory/facts.md` the database (product and version) and the auth_method the security note requires, each with the document it came from.\nRead the listed functions in the repository and store each value in team memory: one line `<module>.<function> = VALUE` per setting in `memory/facts.md`. Settings to record: `db.engine`, `db.pool_size`, `db.schema_name`, `db.replica_count`, `db.backup_window`, `auth.token_ttl`, `auth.hash_rounds`, `auth.session_cookie`, `auth.mfa_window`, `auth.key_header`.\nWrite the artifact file `artifacts/t04-survey-infra-security/constraints.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `db.engine`, `db.pool_size`, `db.schema_name`, `db.replica_count`, `db.backup_window`, `auth.token_ttl`, `auth.hash_rounds`, `auth.session_cookie`, `auth.mfa_window`, `auth.key_header`.\nThen record in `memory/tasks.md` that task t04-survey-infra-security is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t05-choose-auth",
+   "title": "Choose the authentication scheme",
+   "priority": 30,
+   "depends_on": [
+    "t04-survey-infra-security"
+   ],
+   "role": "planner",
+   "needs": [
+    "auth.token_ttl",
+    "auth.key_header"
+   ],
+   "records": [],
+   "artifact": "artifacts/t05-choose-auth/auth-decision.md",
+   "docs": [
+    "05_customer_request"
+   ],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'authentication' to see what is already known. Register the customer request below with add_source (kind 'chat', uri 'acme-docs/<file name>'). The customer asks for something different from the security note: assert predicate 'auth_method' for subject 'Acme Notes API S21' with the customer's requested scheme and the customer request's source_id. The server will report a contradiction (contradicts) because another agent asserted a different value: do NOT pass supersede. Then record ONE decision resolving it (prefer the security team's scheme for user traffic and say what you do about the customer's request), with based_on_fact_ids = both auth_method fact ids.\nWrite the artifact file `artifacts/t05-choose-auth/auth-decision.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `auth.token_ttl`, `auth.key_header`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t05-choose-auth/auth-decision.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory about authentication. The customer request below asks for something different from the security note: record the customer's requested auth_method in `memory/facts.md` (keep the earlier value too, and note the conflict). Then record ONE decision in `memory/decisions.md` resolving it (prefer the security team's scheme for user traffic and say what you do about the customer's request), naming both facts.\nWrite the artifact file `artifacts/t05-choose-auth/auth-decision.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `auth.token_ttl`, `auth.key_header`.\nThen record in `memory/tasks.md` that task t05-choose-auth is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t06-write-db-schema",
+   "title": "Write the database schema",
+   "priority": 25,
+   "depends_on": [
+    "t02-choose-api-version",
+    "t04-survey-infra-security"
+   ],
+   "role": "builder",
+   "needs": [
+    "db.engine",
+    "db.pool_size",
+    "db.schema_name"
+   ],
+   "records": [],
+   "artifact": "artifacts/t06-write-db-schema/schema.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'database' to learn which database the team runs. Write an episode (remember_episode) summarising the tables you will create (notes, tags, note_tags).\nWrite the artifact file `artifacts/t06-write-db-schema/schema.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `db.engine`, `db.pool_size`, `db.schema_name`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t06-write-db-schema/schema.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory to learn which database the team runs. Add a note to `memory/log.md` summarising the tables you will create (notes, tags, note_tags).\nWrite the artifact file `artifacts/t06-write-db-schema/schema.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `db.engine`, `db.pool_size`, `db.schema_name`.\nThen record in `memory/tasks.md` that task t06-write-db-schema is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t07-implement-crud-spec",
+   "title": "Implement the CRUD spec",
+   "priority": 20,
+   "depends_on": [
+    "t03-design-endpoints",
+    "t05-choose-auth",
+    "t06-write-db-schema"
+   ],
+   "role": "builder",
+   "needs": [
+    "api.base_path",
+    "auth.token_ttl",
+    "auth.session_cookie",
+    "notes.max_length"
+   ],
+   "records": [],
+   "artifact": "artifacts/t07-implement-crud-spec/crud-spec.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version' and then recall 'authentication'. After completing, hand off to 'planner' (handoff) with a short note, the artifact_id and the fact ids you relied on.\nWrite the artifact file `artifacts/t07-implement-crud-spec/crud-spec.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `auth.token_ttl`, `auth.session_cookie`, `notes.max_length`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t07-implement-crud-spec/crud-spec.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version and the authentication decision. After that, leave a handoff note for 'planner' in `memory/handoffs.md` naming the artifact and the facts you relied on.\nWrite the artifact file `artifacts/t07-implement-crud-spec/crud-spec.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `auth.token_ttl`, `auth.session_cookie`, `notes.max_length`.\nThen record in `memory/tasks.md` that task t07-implement-crud-spec is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t08-write-test-plan",
+   "title": "Write the test plan",
+   "priority": 15,
+   "depends_on": [
+    "t03-design-endpoints"
+   ],
+   "role": "researcher",
+   "needs": [
+    "notes.max_length",
+    "notes.tag_limit",
+    "notes.archive_days",
+    "notes.share_mode",
+    "notes.title_max"
+   ],
+   "records": [
+    "notes.max_length",
+    "notes.tag_limit",
+    "notes.archive_days",
+    "notes.share_mode",
+    "notes.title_max"
+   ],
+   "artifact": "artifacts/t08-write-test-plan/test-plan.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version'. The test plan covers the CRUD endpoints and the notes limits.\nRead the listed functions in the repository and store each value as a team fact: assert_fact with subject 'Acme Notes API S21', predicate '<module>.<function>' (e.g. 'api.base_path') and value = the token it returns. Settings to record: `notes.max_length`, `notes.tag_limit`, `notes.archive_days`, `notes.share_mode`, `notes.title_max`.\nWrite the artifact file `artifacts/t08-write-test-plan/test-plan.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `notes.max_length`, `notes.tag_limit`, `notes.archive_days`, `notes.share_mode`, `notes.title_max`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t08-write-test-plan/test-plan.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version. The test plan covers the CRUD endpoints and the notes limits.\nRead the listed functions in the repository and store each value in team memory: one line `<module>.<function> = VALUE` per setting in `memory/facts.md`. Settings to record: `notes.max_length`, `notes.tag_limit`, `notes.archive_days`, `notes.share_mode`, `notes.title_max`.\nWrite the artifact file `artifacts/t08-write-test-plan/test-plan.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `notes.max_length`, `notes.tag_limit`, `notes.archive_days`, `notes.share_mode`, `notes.title_max`.\nThen record in `memory/tasks.md` that task t08-write-test-plan is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t09-review-spec",
+   "title": "Review the spec",
+   "priority": 12,
+   "depends_on": [
+    "t07-implement-crud-spec",
+    "t08-write-test-plan"
+   ],
+   "role": "planner",
+   "needs": [
+    "api.base_path",
+    "auth.token_ttl",
+    "db.engine"
+   ],
+   "records": [],
+   "artifact": "artifacts/t09-review-spec/review.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version' and 'authentication'. Verify the crud-spec artifact with verify_artifact (its artifact_id is listed under 'Ids from earlier work' as the artifact of t07-implement-crud-spec; if it is not listed, skip verification). Record ONE decision approving or rejecting the spec, with based_on_fact_ids = the fact ids you relied on.\nWrite the artifact file `artifacts/t09-review-spec/review.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `auth.token_ttl`, `db.engine`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t09-review-spec/review.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version and authentication, and read the crud-spec artifact of t07-implement-crud-spec. Record ONE decision in `memory/decisions.md` approving or rejecting the spec, naming the facts it relies on.\nWrite the artifact file `artifacts/t09-review-spec/review.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `auth.token_ttl`, `db.engine`.\nThen record in `memory/tasks.md` that task t09-review-spec is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t10-write-docs",
+   "title": "Write the API docs",
+   "priority": 10,
+   "depends_on": [
+    "t09-review-spec"
+   ],
+   "role": "researcher",
+   "needs": [
+    "api.page_size",
+    "api.error_format",
+    "notes.max_length",
+    "users.quota_mb"
+   ],
+   "records": [],
+   "artifact": "artifacts/t10-write-docs/docs.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version'. The docs describe the API for its users.\nWrite the artifact file `artifacts/t10-write-docs/docs.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.page_size`, `api.error_format`, `notes.max_length`, `users.quota_mb`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t10-write-docs/docs.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version. The docs describe the API for its users.\nWrite the artifact file `artifacts/t10-write-docs/docs.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.page_size`, `api.error_format`, `notes.max_length`, `users.quota_mb`.\nThen record in `memory/tasks.md` that task t10-write-docs is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t11-package-release",
+   "title": "Package the release",
+   "priority": 5,
+   "depends_on": [
+    "t10-write-docs"
+   ],
+   "role": "builder",
+   "needs": [
+    "release.channel",
+    "release.version_tag",
+    "release.rollout_pct",
+    "release.freeze_day",
+    "release.changelog_path"
+   ],
+   "records": [],
+   "artifact": "artifacts/t11-package-release/release.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "After completing, hand off to 'planner' (handoff) with a short release note and the artifact_id.\nWrite the artifact file `artifacts/t11-package-release/release.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `release.channel`, `release.version_tag`, `release.rollout_pct`, `release.freeze_day`, `release.changelog_path`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t11-package-release/release.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "After that, leave a short release note for 'planner' in `memory/handoffs.md`.\nWrite the artifact file `artifacts/t11-package-release/release.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `release.channel`, `release.version_tag`, `release.rollout_pct`, `release.freeze_day`, `release.changelog_path`.\nThen record in `memory/tasks.md` that task t11-package-release is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t12-update-endpoints-for-v2",
+   "title": "Update endpoint design for API v2",
+   "priority": 60,
+   "depends_on": [
+    "t03-design-endpoints"
+   ],
+   "role": "builder",
+   "needs": [
+    "api.base_path",
+    "api.cors_origin"
+   ],
+   "records": [],
+   "artifact": "artifacts/t12-update-endpoints-for-v2/openapi-v2.md",
+   "docs": [],
+   "mid_run": true,
+   "history_needs": {},
+   "brief_mcp": "Recall 'API version' (it has changed). Write an episode (remember_episode) listing what changes in the endpoint design. After completing, hand off to 'planner' (handoff) with a short note, the artifact_id and the new api_version fact id.\nWrite the artifact file `artifacts/t12-update-endpoints-for-v2/openapi-v2.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.cors_origin`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t12-update-endpoints-for-v2/openapi-v2.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read the team memory for the API version (it has changed). Add a note to `memory/log.md` listing what changes in the endpoint design. After that, leave a handoff note for 'planner' in `memory/handoffs.md` naming the artifact and the new api_version fact.\nWrite the artifact file `artifacts/t12-update-endpoints-for-v2/openapi-v2.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `api.cors_origin`.\nThen record in `memory/tasks.md` that task t12-update-endpoints-for-v2 is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t13-reuse-billing-cycle",
+   "title": "Reuse the billing cycle and key header from earlier sprints",
+   "priority": 28,
+   "depends_on": [
+    "t02-choose-api-version"
+   ],
+   "role": "planner",
+   "needs": [
+    "billing.cycle",
+    "billing.currency"
+   ],
+   "records": [],
+   "artifact": "artifacts/t13-reuse-billing-cycle/billing-plan.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {
+    "S07 billing cycle": [
+     "quarterly, invoiced on day 7"
+    ],
+    "S13 API-key header": [
+     "X-Core-Key"
+    ]
+   },
+   "brief_mcp": "Earlier sprints settled two things this sprint reuses: the billing cycle of the Bolt Billing API decided in sprint S07, and the API-key header decided in sprint S13. Find both in team memory (recall) and state them, exactly as recorded, in the artifact next to the code settings. Record ONE decision (record_decision) to reuse them, with based_on_fact_ids = the fact ids you found.\nWrite the artifact file `artifacts/t13-reuse-billing-cycle/billing-plan.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `billing.cycle`, `billing.currency`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t13-reuse-billing-cycle/billing-plan.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Earlier sprints settled two things this sprint reuses: the billing cycle of the Bolt Billing API decided in sprint S07, and the API-key header decided in sprint S13. Find both in the team's records (the `history/` folder holds sprints S01-S20) and state them, exactly as recorded, in the artifact next to the code settings. Record ONE decision in `memory/decisions.md` to reuse them, naming where you found them.\nWrite the artifact file `artifacts/t13-reuse-billing-cycle/billing-plan.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `billing.cycle`, `billing.currency`.\nThen record in `memory/tasks.md` that task t13-reuse-billing-cycle is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t14-ratelimit-spec",
+   "title": "Write the rate-limit spec",
+   "priority": 22,
+   "depends_on": [
+    "t04-survey-infra-security"
+   ],
+   "role": "researcher",
+   "needs": [
+    "ratelimit.window",
+    "ratelimit.burst",
+    "ratelimit.per_user",
+    "ratelimit.per_key",
+    "ratelimit.retry_after"
+   ],
+   "records": [
+    "ratelimit.burst",
+    "ratelimit.per_user",
+    "ratelimit.per_key",
+    "ratelimit.retry_after"
+   ],
+   "artifact": "artifacts/t14-ratelimit-spec/ratelimit-spec.md",
+   "docs": [
+    "s03_ratelimit_note"
+   ],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Register the S03 note below with add_source (uri 'acme-docs/s03/ratelimit_note.md') and assert predicate 'ratelimit.window' for subject 'Acme Notes API S21' with the window value the note states, with its source_id.\nRead the listed functions in the repository and store each value as a team fact: assert_fact with subject 'Acme Notes API S21', predicate '<module>.<function>' (e.g. 'api.base_path') and value = the token it returns. Settings to record: `ratelimit.burst`, `ratelimit.per_user`, `ratelimit.per_key`, `ratelimit.retry_after`.\nWrite the artifact file `artifacts/t14-ratelimit-spec/ratelimit-spec.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `ratelimit.window`, `ratelimit.burst`, `ratelimit.per_user`, `ratelimit.per_key`, `ratelimit.retry_after`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t14-ratelimit-spec/ratelimit-spec.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Record in `memory/facts.md` the rate-limit window the S03 note below states, as `ratelimit.window = VALUE` (source: the S03 note).\nRead the listed functions in the repository and store each value in team memory: one line `<module>.<function> = VALUE` per setting in `memory/facts.md`. Settings to record: `ratelimit.burst`, `ratelimit.per_user`, `ratelimit.per_key`, `ratelimit.retry_after`.\nWrite the artifact file `artifacts/t14-ratelimit-spec/ratelimit-spec.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `ratelimit.window`, `ratelimit.burst`, `ratelimit.per_user`, `ratelimit.per_key`, `ratelimit.retry_after`.\nThen record in `memory/tasks.md` that task t14-ratelimit-spec is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t15-config-matrix",
+   "title": "Write the configuration matrix",
+   "priority": 18,
+   "depends_on": [
+    "t06-write-db-schema",
+    "t14-ratelimit-spec"
+   ],
+   "role": "builder",
+   "needs": [
+    "config.region",
+    "config.secret_store",
+    "config.env_name",
+    "db.pool_size",
+    "db.replica_count",
+    "auth.hash_rounds",
+    "auth.mfa_window",
+    "ratelimit.window"
+   ],
+   "records": [],
+   "artifact": "artifacts/t15-config-matrix/config-matrix.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {},
+   "brief_mcp": "Read `repo/ratelimit.py` and assert predicate 'ratelimit.window' for subject 'Acme Notes API S21' with the value the code returns now (do NOT pass supersede).\nWrite the artifact file `artifacts/t15-config-matrix/config-matrix.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `config.region`, `config.secret_store`, `config.env_name`, `db.pool_size`, `db.replica_count`, `auth.hash_rounds`, `auth.mfa_window`, `ratelimit.window`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t15-config-matrix/config-matrix.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "Read `repo/ratelimit.py` and record in `memory/facts.md` the value `ratelimit.window` returns now.\nWrite the artifact file `artifacts/t15-config-matrix/config-matrix.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `config.region`, `config.secret_store`, `config.env_name`, `db.pool_size`, `db.replica_count`, `auth.hash_rounds`, `auth.mfa_window`, `ratelimit.window`.\nThen record in `memory/tasks.md` that task t15-config-matrix is done, with a one-line summary that names the values you wrote."
+  },
+  {
+   "id": "t16-release-notes",
+   "title": "Write the release notes",
+   "priority": 8,
+   "depends_on": [
+    "t09-review-spec",
+    "t13-reuse-billing-cycle",
+    "t15-config-matrix"
+   ],
+   "role": "researcher",
+   "needs": [
+    "api.base_path",
+    "auth.token_ttl",
+    "db.engine",
+    "billing.cycle",
+    "billing.currency",
+    "config.region",
+    "config.secret_store",
+    "config.env_name",
+    "db.pool_size",
+    "db.replica_count",
+    "auth.hash_rounds",
+    "auth.mfa_window",
+    "ratelimit.window"
+   ],
+   "records": [],
+   "artifact": "artifacts/t16-release-notes/release-notes.md",
+   "docs": [],
+   "mid_run": false,
+   "history_needs": {
+    "S20 release channel": [
+     "general availability"
+    ]
+   },
+   "brief_mcp": "The release notes summarise the settings the review, the billing plan and the configuration matrix relied on. Also state the release channel the team used in sprint S20 (find it in team memory).\nWrite the artifact file `artifacts/t16-release-notes/release-notes.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `auth.token_ttl`, `db.engine`, `billing.cycle`, `billing.currency`, `config.region`, `config.secret_store`, `config.env_name`, `db.pool_size`, `db.replica_count`, `auth.hash_rounds`, `auth.mfa_window`, `ratelimit.window`.\nThen complete the task (complete_task) with one artifact: kind 'file', uri 'artifacts/t16-release-notes/release-notes.md', and a one-line summary that names the values you wrote.",
+   "brief_files": "The release notes summarise the settings the review, the billing plan and the configuration matrix relied on. Also state the release channel the team used in sprint S20 (find it in the team's records).\nWrite the artifact file `artifacts/t16-release-notes/release-notes.md` (Markdown) with the Write tool. It must state the value of each of these code settings, one per line in the form `module.function: VALUE`: `api.base_path`, `auth.token_ttl`, `db.engine`, `billing.cycle`, `billing.currency`, `config.region`, `config.secret_store`, `config.env_name`, `db.pool_size`, `db.replica_count`, `auth.hash_rounds`, `auth.mfa_window`, `ratelimit.window`.\nThen record in `memory/tasks.md` that task t16-release-notes is done, with a one-line summary that names the values you wrote."
+  }
+ ],
+ "specials": {
+  "ingest-v2": {
+   "role": "researcher",
+   "docs": [
+    "06_api_style_guide_v2"
+   ],
+   "brief_mcp": "A new document was just published (below). Register it with add_source (uri 'acme-docs/<file name>'). It replaces the style guide you read earlier: assert predicate 'api_version' for subject 'Acme Notes API S21' with the version it prescribes and its source_id (you asserted the old value yourself, so the old fact is superseded automatically). Then write one episode (remember_episode) saying what changed.",
+   "brief_files": "A new document was just published (below). It replaces the style guide the team read earlier: update the api_version in `memory/facts.md` to the version it prescribes (note which value it replaces), and add one line to `memory/log.md` saying what changed."
+  },
+  "adopt-v2": {
+   "role": "planner",
+   "docs": [],
+   "brief_mcp": "The researcher just updated the 'api_version' fact. Recall 'API version' to get the new fact id. Record ONE decision (record_decision, task_id 't02-choose-api-version') to adopt the new version, with based_on_fact_ids = [the new api_version fact id]. Then create exactly one new task with create_tasks: id 't12-update-endpoints-for-v2', title 'Update endpoint design for API v2', priority 60, depends_on ['t03-design-endpoints'].",
+   "brief_files": "The researcher just updated the api_version in team memory. Read it, and record ONE decision in `memory/decisions.md` (for task t02-choose-api-version) to adopt the new version, naming the fact. Then add exactly one new task to `memory/tasks.md`: id 't12-update-endpoints-for-v2', title 'Update endpoint design for API v2', depends on t03-design-endpoints. (The lead will assign it.)"
+  }
+ },
+ "conflicts": {
+  "X1": {
+   "task": "t05-choose-auth",
+   "predicate": "auth_method",
+   "kind": "document",
+   "note": "planner (customer request) vs researcher (security note)"
+  },
+  "X2": {
+   "task": "t15-config-matrix",
+   "first_task": "t14-ratelimit-spec",
+   "predicate": "ratelimit.window",
+   "kind": "old document vs code",
+   "note": "researcher asserts the S03 note's token in t14; builder asserts the code's token in t15"
+  },
+  "X3": {
+   "predicate": "auth.token_ttl",
+   "kind": "post-commit",
+   "note": "a value commit changes auth.token_ttl while the old fact is live"
+  }
+ },
+ "nominal_order": [
+  [
+   1,
+   "init"
+  ],
+  [
+   2,
+   "t01-gather-requirements"
+  ],
+  [
+   3,
+   "t02-choose-api-version"
+  ],
+  [
+   4,
+   "t03-design-endpoints"
+  ],
+  [
+   5,
+   "t04-survey-infra-security"
+  ],
+  [
+   6,
+   "t05-choose-auth"
+  ],
+  [
+   7,
+   "t13-reuse-billing-cycle"
+  ],
+  [
+   8,
+   "t06-write-db-schema"
+  ],
+  [
+   9,
+   "t14-ratelimit-spec"
+  ],
+  [
+   10,
+   "t07-implement-crud-spec"
+  ],
+  [
+   11,
+   "t15-config-matrix"
+  ],
+  [
+   12,
+   "ingest-v2"
+  ],
+  [
+   13,
+   "adopt-v2"
+  ],
+  [
+   14,
+   "t12-update-endpoints-for-v2"
+  ],
+  [
+   15,
+   "t08-write-test-plan"
+  ],
+  [
+   16,
+   "t09-review-spec"
+  ],
+  [
+   17,
+   "t10-write-docs"
+  ],
+  [
+   18,
+   "t16-release-notes"
+  ],
+  [
+   19,
+   "t11-package-release"
+  ]
+ ],
+ "common_mcp": "You are one member of a three-agent software team (planner, researcher, builder) working on the \"Acme Notes API\",\na small notes REST service. All of the team's shared state lives in Knewat, a memory and coordination\nservice you reach through the `mcp__knewat__*` tools. You also have Read, Write, Edit, Glob and Grep (no shell, no web).\nEverything in this task is synthetic demo data.\n\nHow to work:\n1. Your agent_id is given below. Pass it as `agent_id` on EVERY Knewat tool call. Also pass `step` as your assignment tells you (the team's shared step counter).\n2. Call `start_session` first (agent_role = your role, harness = \"claude-code\").\n3. If your assignment names a task, claim it with `claim_next_task` ONCE (lease_ms as given). It returns the task and\n   its `version`; keep both. If the claim returns a different task than the one named, or no task, stop and say so.\n4. Recall before you decide: use `recall` to read what the team already knows instead of guessing. Use the exact\n   fact ids that `recall` or `assert_fact` return when you cite facts.\n5. Store durable knowledge with `assert_fact` (subject \"Acme Notes API S21\", one short predicate, a short value), with the\n   `source_id` of the document it came from (register documents with `add_source`). Do not invent facts.\n6. Record decisions with `record_decision`, with `based_on_fact_ids` listing the fact ids the decision relies on.\n7. Finish the task with `complete_task` (expected_version = the version from your claim). Attach the artifacts your\n   assignment asks for. Hand work over with `handoff` only when your assignment says so.\n8. Be efficient: make exactly the calls the assignment needs, in order, and do not repeat a call that succeeded.\n   When you are done, reply with ONE short sentence summarising what you did.\n9. You may read the repository under `repo/` and write artifacts under `artifacts/`; the code may change during the sprint.\n",
+ "claude_md": "# Team conventions (Acme Notes API, sprint S21)\n\nYou are one member of a three-agent software team (planner, researcher, builder) working on the \"Acme Notes API S21\",\na small notes REST service. Everything in this task is synthetic demo data. You have Read, Write, Edit, Glob and\nGrep (no shell, no web).\n\nHow to work:\n1. Your agent_id and role are given in your assignment. A lead assigns each of you one task per turn.\n2. Shared team memory lives in `memory/` (start with `memory/tasks.md`, `memory/facts.md`, `memory/decisions.md`,\n   `memory/handoffs.md`, `memory/log.md`; create a file if it does not exist yet). Read it before you act; write what\n   the team should remember. The team's records of earlier sprints (S01-S20) are in `history/` (read-only).\n3. Recall before you decide: read what the team already knows instead of guessing.\n4. Store durable knowledge as short facts (one setting or attribute per line) with where it came from. Do not invent\n   facts.\n5. Record decisions in `memory/decisions.md`, naming the facts each decision relies on.\n6. When your task is finished, record it as done in `memory/tasks.md`. Hand work over in `memory/handoffs.md` only\n   when your assignment says so.\n7. Be efficient: do what the assignment needs, in order, and do not redo work that is already done.\n   When you are done, reply with ONE short sentence summarising what you did.\n8. You may read the repository under `repo/` and write artifacts under `artifacts/`; the code may change during the sprint.\n"
+}

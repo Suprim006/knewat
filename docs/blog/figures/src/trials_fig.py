@@ -1,14 +1,14 @@
 """Figure 06: the everyday-workflow trials (6, 7, 8), one dot per run, 4 runs per arm.
 
 Numbers are typed here ONLY from these two files (nothing else is used):
-  trials/RESULTS_T678.md   trial 6 table, column "per run" (violations of 6 per run: baseline 6,6,6,6; claudemd 6,6,6,6; plexus 0,0,0,0)
-                           trial 7 table, column "per run" (violations of 3 per run: baseline 3,3,0,3; claudemd 1,1,3,3; plexus 0,0,0,0)
+  trials/RESULTS_T678.md   trial 6 table, column "per run" (violations of 6 per run: baseline 6,6,6,6; claudemd 6,6,6,6; knewat 0,0,0,0)
+                           trial 7 table, column "per run" (violations of 3 per run: baseline 3,3,0,3; claudemd 1,1,3,3; knewat 0,0,0,0)
                            trial 8 "Session-3 per-rule outcome" table (C1 kept / C3 removed / P1 kept, x/4 per arm)
   trials/FINDINGS.md s5    summary table: trial 6 violations of 24 = 24/24/0; trial 7 of 12 = 9/8/0;
                            trial 8 rules kept of 8 / memo-only C3 removed of 4 = 8/0, 8/4, 8/4
 The script re-checks that the per-run values sum to the FINDINGS totals before drawing.
 Canvas: 12 x 6.3 in at 200 dpi = 2400 x 1260 px (= 1200 x 630 at 2x). No bbox_inches='tight', so the size is exact.
-Colours come from tokens.css (written by figlib.py), same as 05: slate = plain Claude Code, amber = CLAUDE.md, emerald = Plexus.
+Colours come from tokens.css (written by figlib.py), same as 05: slate = plain Claude Code, amber = CLAUDE.md, emerald = Knewat.
 """
 import re
 from pathlib import Path
@@ -26,14 +26,14 @@ tok = dict(re.findall(r"--([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})", css))
 CARD, PANEL, INK, MUTED, DIM, GRIDC = tok["card"], tok["panel"], tok["ink"], tok["muted"], tok["dim"], tok["grid"]
 ARMS = [("baseline", "plain Claude Code", tok["node-step-stroke"]),
         ("claudemd", "committed CLAUDE.md", tok["node-toolcall-stroke"]),
-        ("plexus", "Plexus", tok["node-fact-stroke"])]
+        ("knewat", "Knewat", tok["node-fact-stroke"])]
 
 # ---- data, copied from the two source files (see docstring) ------------------------------------------------------------
-T6 = {"baseline": [6, 6, 6, 6], "claudemd": [6, 6, 6, 6], "plexus": [0, 0, 0, 0]}   # of 6 per run
-T7 = {"baseline": [3, 3, 0, 3], "claudemd": [1, 1, 3, 3], "plexus": [0, 0, 0, 0]}   # of 3 per run
-T6_TOT, T7_TOT = {"baseline": 24, "claudemd": 24, "plexus": 0}, {"baseline": 9, "claudemd": 8, "plexus": 0}  # FINDINGS s5
-T8_KEPT = {"baseline": 8, "claudemd": 8, "plexus": 8}      # C1 + P1 kept, of 8 (4 runs x 2 rules)
-T8_C3 = {"baseline": 0, "claudemd": 4, "plexus": 4}        # memo-only C3 removed, of 4 runs
+T6 = {"baseline": [6, 6, 6, 6], "claudemd": [6, 6, 6, 6], "knewat": [0, 0, 0, 0]}   # of 6 per run
+T7 = {"baseline": [3, 3, 0, 3], "claudemd": [1, 1, 3, 3], "knewat": [0, 0, 0, 0]}   # of 3 per run
+T6_TOT, T7_TOT = {"baseline": 24, "claudemd": 24, "knewat": 0}, {"baseline": 9, "claudemd": 8, "knewat": 0}  # FINDINGS s5
+T8_KEPT = {"baseline": 8, "claudemd": 8, "knewat": 8}      # C1 + P1 kept, of 8 (4 runs x 2 rules)
+T8_C3 = {"baseline": 0, "claudemd": 4, "knewat": 4}        # memo-only C3 removed, of 4 runs
 for a in T6:
     assert sum(T6[a]) == T6_TOT[a] and sum(T7[a]) == T7_TOT[a], a
     assert all(len(v) == 4 for v in (T6[a], T7[a]))
@@ -53,7 +53,7 @@ for a, lab, _ in ARMS:
 plt.rcParams.update({"font.family": ["Segoe UI", "DejaVu Sans"], "text.color": INK, "axes.labelcolor": MUTED,
                      "xtick.color": MUTED, "ytick.color": MUTED, "axes.edgecolor": "#334155", "font.size": 10})
 fig = plt.figure(figsize=(12, 6.3), dpi=200, facecolor=CARD)
-fig.text(0.037, 0.935, "Decided in one repo, followed in the next: Plexus carries team decisions where no file reaches the agent",
+fig.text(0.037, 0.935, "Decided in one repo, followed in the next: Knewat carries team decisions where no file reaches the agent",
          fontsize=15.5, fontweight="bold", color="#f8fafc", va="center")
 fig.text(0.037, 0.875, "Real Claude Code agents, separate sessions, scored by running their code. 4 runs per arm, "
          "small synthetic repos, designed after trials 1-5.", fontsize=11.5, color=MUTED, va="center")
@@ -81,7 +81,7 @@ def strip(ax, data, tot, of_run, of_tot, title, sub):
     ax.set_ylim(-0.5, of_run + 0.5)
     ax.set_yticks(range(0, of_run + 1))
     ax.set_xticks(range(3))
-    ax.set_xticklabels(["plain\nClaude Code", "committed\nCLAUDE.md", "Plexus"], fontsize=10, color=INK)
+    ax.set_xticklabels(["plain\nClaude Code", "committed\nCLAUDE.md", "Knewat"], fontsize=10, color=INK)
     ax.tick_params(axis="x", pad=3)
     ax.yaxis.grid(True, color=GRIDC, linewidth=0.8)
     ax.set_ylabel(f"violations per run (of {of_run})", fontsize=10)
@@ -124,7 +124,7 @@ fig.legend(handles=[Line2D([0], [0], marker="o", color="none", markerfacecolor=c
 fig.text(0.985, 0.088, "dashed line = mean of the 4 runs (a, b); dots left to right = run 1-4", fontsize=9, color=MUTED, ha="right", va="center")
 fig.text(0.037, 0.03, "trials 6-7: build trials-int 76da7d7; trial 8 re-run: main 7618d18 · trials/RESULTS_T678.md, trials/FINDINGS.md s5 · trials_fig.py",
          fontsize=9, color=DIM, va="center")
-fig.text(0.985, 0.035, "Plexus \u00b7 FalkorDB 6.0.2", fontsize=10, color=DIM, ha="right", va="center")
+fig.text(0.985, 0.035, "Knewat \u00b7 FalkorDB 6.0.2", fontsize=10, color=DIM, ha="right", va="center")
 
 out = OUT / "06_trials.png"
 fig.savefig(out, dpi=200, facecolor=CARD)

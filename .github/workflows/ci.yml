@@ -1,8 +1,8 @@
-# CI for the Plexus demo. Render deploys a commit only after every job here is green (render.yaml:
+# CI for the Knewat demo. Render deploys a commit only after every job here is green (render.yaml:
 # autoDeployTrigger: checksPass), so this workflow is the gate in front of production.
 #
 #   python  ruff + the View API / deploy tests against a throw-away FalkorDB 6.0.2
-#   view    plexus-view: lint, typecheck, vitest, production build
+#   view    knewat-view: lint, typecheck, vitest, production build
 #   image   builds deploy/Dockerfile (what Render builds) and runs deploy/smoke.py against it under Render's limits
 #
 # The full Python suite (about 1,800 tests, ~20 min, timing-sensitive) and the benchmarks run on the owner's machine
@@ -37,19 +37,19 @@ jobs:
           --health-timeout 3s
           --health-retries 12
     env:
-      PLEXUS_TEST_DB_PORT: "6379"
+      KNEWAT_TEST_DB_PORT: "6379"
     defaults:
       run:
-        working-directory: plexus
+        working-directory: knewat
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.12.5"
           enable-cache: true
-          cache-dependency-glob: plexus/uv.lock
+          cache-dependency-glob: knewat/uv.lock
       - run: uv sync --frozen
-      - name: ruff (plexus)
+      - name: ruff (knewat)
         run: uv run ruff check . && uv run ruff format --check .
       - name: ruff (deploy)
         run: uv run ruff check ../deploy --config ../deploy/ruff.toml && uv run ruff format --check ../deploy --config ../deploy/ruff.toml
@@ -63,14 +63,14 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: plexus-view
+        working-directory: knewat-view
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-          cache-dependency-path: plexus-view/package-lock.json
+          cache-dependency-path: knewat-view/package-lock.json
       - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm run typecheck
@@ -90,14 +90,14 @@ jobs:
           context: .
           file: deploy/Dockerfile
           load: true
-          tags: plexus-deploy:ci
+          tags: knewat-deploy:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Run it under Render's Free limits
         run: |
-          docker run -d --name plexus-deploy -m 512m --cpus 0.5 -e PORT=10000 -p 127.0.0.1:10000:10000 plexus-deploy:ci
+          docker run -d --name knewat-deploy -m 512m --cpus 0.5 -e PORT=10000 -p 127.0.0.1:10000:10000 knewat-deploy:ci
       - name: Smoke test (View, API pages, Cypher console and its refusals)
         run: python3 deploy/smoke.py http://127.0.0.1:10000 --wait 180
       - name: Container log
         if: always()
-        run: docker logs plexus-deploy 2>&1 | tail -60
+        run: docker logs knewat-deploy 2>&1 | tail -60

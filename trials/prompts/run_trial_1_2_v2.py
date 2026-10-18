@@ -4,12 +4,12 @@ Claude Code's own auto-compaction kicks in - which is the point.
 
 Arms:
   baseline  - plain Claude Code, no tools at all; the only memory is the conversation itself
-  plexus    - same, plus the Plexus MCP server (fresh empty tenant) and a standing system note
+  knewat    - same, plus the Knewat MCP server (fresh empty tenant) and a standing system note
               to record the rules with assert_fact and recall them before writing
 
 Usage:
   python run_trial_1_2_v2.py --arm baseline --run-id r1
-  python run_trial_1_2_v2.py --arm plexus --run-id r1 --limit 5      # smoke test
+  python run_trial_1_2_v2.py --arm knewat --run-id r1 --limit 5      # smoke test
 Outputs ../logs/t12/<arm>_<run-id>/{turns.jsonl, transcript.json}. Resumable: re-running with the
 same run-id continues from the last completed turn.
 """
@@ -24,11 +24,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 LOGS = HERE.parent / "logs" / "t12"
-PLEXUS_URL = "http://127.0.0.1:8766/mcp/t/{tenant}"
+KNEWAT_URL = "http://127.0.0.1:8766/mcp/t/{tenant}"
 MODEL = "haiku"
 
-PLEXUS_NOTE = (
-    "You have the team's Plexus memory available (MCP server 'plexus': start_session, assert_fact, "
+KNEWAT_NOTE = (
+    "You have the team's Knewat memory available (MCP server 'knewat': start_session, assert_fact, "
     "recall, ...). This is a very long session and early messages will scroll out of your context. "
     "Call start_session once. Record every standing rule or convention the user sets with assert_fact "
     "as soon as it's set, and call recall to check the standing rules before writing each section."
@@ -42,8 +42,8 @@ def call(prompt: str, state: dict, arm: str, first: bool, turn_log: Path) -> dic
            "--strict-mcp-config", "--mcp-config", json.dumps(state["mcp"]),
            "--setting-sources", "project"]
     cmd += ["--session-id", state["session_id"]] if first else ["--resume", state["session_id"]]
-    if arm == "plexus":
-        cmd += ["--append-system-prompt", PLEXUS_NOTE]
+    if arm == "knewat":
+        cmd += ["--append-system-prompt", KNEWAT_NOTE]
     env = dict(os.environ)
     env.pop("ANTHROPIC_API_KEY", None)
     t0 = time.time()
@@ -78,7 +78,7 @@ def call(prompt: str, state: dict, arm: str, first: bool, turn_log: Path) -> dic
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--arm", choices=["baseline", "plexus"], required=True)
+    ap.add_argument("--arm", choices=["baseline", "knewat"], required=True)
     ap.add_argument("--run-id", required=True)
     ap.add_argument("--limit", type=int, default=100)
     ap.add_argument("--max-cost", type=float, default=12.0)
@@ -108,9 +108,9 @@ def main():
         cwd = run_dir / "cwd"
         cwd.mkdir(exist_ok=True)
         state = {"session_id": str(uuid.uuid4()), "cwd": str(cwd), "done": 0, "cost": 0.0,
-                 "tenant": tenant if a.arm == "plexus" else None,
-                 "mcp": ({"mcpServers": {"plexus": {"type": "http", "url": PLEXUS_URL.format(tenant=tenant)}}}
-                         if a.arm == "plexus" else {"mcpServers": {}})}
+                 "tenant": tenant if a.arm == "knewat" else None,
+                 "mcp": ({"mcpServers": {"knewat": {"type": "http", "url": KNEWAT_URL.format(tenant=tenant)}}}
+                         if a.arm == "knewat" else {"mcpServers": {}})}
 
     while state["done"] < min(a.limit, len(prompts)):
         i = state["done"]
