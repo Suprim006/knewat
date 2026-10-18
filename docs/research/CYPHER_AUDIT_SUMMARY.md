@@ -1,5 +1,7 @@
 # Cypher audit summary: all 111 `.cypher` files in `plexus/queries/` (2,721 lines)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Branch `feature/neuro-memory-research` (HEAD e126875). This is a read-only review: no query, Python or test file was changed.
 
 Per-bucket reports (one section per file, every file covered):

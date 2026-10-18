@@ -1,5 +1,7 @@
 # Activation-based forgetting (P7-K, D-012)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+
 Plexus does **not delete memories because they are old**. It *ranks* them by how much they are used, and it can
 *park* faded ones (`dormant`) so they stop cluttering recall. Parking is optional, dry-run by default and fully
 reversible. The decision and its evidence are in `docs/DECISIONS.md` D-012 and `docs/research/forgetting-*.md`.

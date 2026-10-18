@@ -1,5 +1,7 @@
 # Shared brief for the neuro-memory research subagents
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../../NUMBERS_STATUS.md).
+
 You are one of six parallel research subagents. Each of you covers ONE memory mechanism and writes ONE file:
 `docs/research/neuro-memory/<topic-slug>.md` inside the worktree `C:/Change_folder_after_HDD/wt-neuro-memory`
 (branch `feature/neuro-memory-research`). Write nothing else in the repo. Do not touch other worktrees

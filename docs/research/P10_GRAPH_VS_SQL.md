@@ -1,5 +1,7 @@
 # P10 / Crucible L7: graph (FalkorDB) vs SQL (SQLite), strengths and weaknesses by scale
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Status: **pre-registration**. Written and committed before any L7 code, probe or measurement. Branch `p10`,
 base `main` f96df06. LLM calls planned: **0** (every L7 family is deterministic).
 

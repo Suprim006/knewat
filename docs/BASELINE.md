@@ -1,5 +1,7 @@
 # BASELINE.md: how we prove Plexus works (benchmark plan, "Crucible")
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+
 Status: plan, written before the event (design notes are allowed under rule R5). Implementation starts after kickoff.
 Related decisions: D-002 (Claude Code harness, no LLM in Plexus), D-003 (no Hermes in published runs), D-007 (change only the backend).
 

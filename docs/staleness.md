@@ -1,5 +1,7 @@
 # Staleness: code changes make memories suspect (P7-J, D-011)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+
 Plexus only knows what agents tell it. When Claude Code edits a file but not the fact or doc that describes it, nothing
 in the graph changes and recall keeps returning the old fact. Staleness closes that gap **without an LLM**: a client
 hashes the changed files, the server marks the facts that depend on them `suspect`, and an agent re-verifies them.

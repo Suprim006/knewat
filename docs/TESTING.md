@@ -1,5 +1,7 @@
 # Testing Plexus: Definition of Ready for Testing, and the owner's checklist
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+
 Everything below was run on the `p5-int` branch (Windows 11, Docker Desktop, FalkorDB 6.0.2). Commands are copy-pasteable
 from the repo root unless a `cd` says otherwise. "Evidence" is a command plus what it printed; numbers are from those runs.
 
