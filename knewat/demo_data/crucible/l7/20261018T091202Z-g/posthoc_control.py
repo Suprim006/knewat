@@ -29,7 +29,7 @@ def ping(n=1500):
     return round(t[len(t) // 2], 3)
 
 
-gk = sorted(k for k in keys if k.startswith("plexus_t_g"))
+gk = sorted(k for k in keys if k.startswith("knewat_t_g"))
 print(len(gk))
 print("N=200 q1 p50/p99", meas(gk), "ping", ping())
 print("N=1   q1 (only first key)", meas(gk[:1]), "(same server, 199 other tenants present)")

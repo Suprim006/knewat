@@ -5,7 +5,7 @@
   "id": "20261017T211111Z-postfix",
   "started_at": "2026-10-17T21:11:10Z",
   "finished_at": "2026-10-17T21:24:48Z",
-  "command": "python -m plexus.crucible.l6.run postfix --port 6374 --out demo_data/crucible/l6-integ --arms P-product-tool,P-product-service,P-product-tool-p9f --kills 200",
+  "command": "python -m knewat.crucible.l6.run postfix --port 6374 --out demo_data/crucible/l6-integ --arms P-product-tool,P-product-service,P-product-tool-p9f --kills 200",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

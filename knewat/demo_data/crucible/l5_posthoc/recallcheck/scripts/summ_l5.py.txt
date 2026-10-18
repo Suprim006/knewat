@@ -4,7 +4,7 @@ import glob
 import json
 import sys
 
-root = "C:/Change_folder_after_HDD/wt-recall/plexus/demo_data/crucible/l5"
+root = "C:/Change_folder_after_HDD/wt-recall/knewat/demo_data/crucible/l5"
 extra = sys.argv[1:]
 paths = []
 for pat in extra:

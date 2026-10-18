@@ -5,7 +5,7 @@
   "id": "20261017T212449Z-det",
   "started_at": "2026-10-17T21:24:49Z",
   "finished_at": "2026-10-17T21:24:57Z",
-  "command": "python -m plexus.crucible.l6.run det --port 6374 --out demo_data/crucible/l6-integ --families B",
+  "command": "python -m knewat.crucible.l6.run det --port 6374 --out demo_data/crucible/l6-integ --families B",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

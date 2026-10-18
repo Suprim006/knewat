@@ -5,7 +5,7 @@
   "id": "20261016T122247Z-j",
   "started_at": "2026-10-16T12:22:47Z",
   "finished_at": "2026-10-16T12:42:40Z",
-  "command": "python -m plexus.crucible.l7.j run --port 6369 --scale full --mixes J-trav --reps 1 --out demo_data/crucible/l7 --flushall",
+  "command": "python -m knewat.crucible.l7.j run --port 6369 --scale full --mixes J-trav --reps 1 --out demo_data/crucible/l7 --flushall",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -138,7 +138,7 @@
    "setup_s": 0.96,
    "ready_s": 1.51,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 84.1,
     "cpu_pct_max": 90.2,
@@ -524,7 +524,7 @@
    "setup_s": 0.72,
    "ready_s": 1.61,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 80.3,
     "cpu_pct_max": 82.9,
@@ -1282,7 +1282,7 @@
    "setup_s": 0.98,
    "ready_s": 1.51,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 86.6,
     "cpu_pct_max": 91.3,
@@ -1668,7 +1668,7 @@
    "setup_s": 0.72,
    "ready_s": 1.51,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 80.0,
     "cpu_pct_max": 82.6,
@@ -2426,7 +2426,7 @@
    "setup_s": 1.29,
    "ready_s": 3.72,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 232.9,
     "cpu_pct_max": 248.1,
@@ -2833,7 +2833,7 @@
    "setup_s": 0.94,
    "ready_s": 3.02,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 256.6,
     "cpu_pct_max": 286.5,
@@ -3662,7 +3662,7 @@
    "setup_s": 1.12,
    "ready_s": 2.62,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 139.6,
     "cpu_pct_max": 148.7,
@@ -4054,7 +4054,7 @@
    "setup_s": 0.83,
    "ready_s": 2.92,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 147.0,
     "cpu_pct_max": 158.4,
@@ -4824,7 +4824,7 @@
    "setup_s": 9.77,
    "ready_s": 7.85,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 309.1,
     "cpu_pct_max": 341.6,
@@ -5236,7 +5236,7 @@
    "setup_s": 7.05,
    "ready_s": 8.15,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 413.1,
     "cpu_pct_max": 436.1,
@@ -6077,7 +6077,7 @@
    "setup_s": 7.1,
    "ready_s": 3.02,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 131.2,
     "cpu_pct_max": 152.1,
@@ -6447,7 +6447,7 @@
    "setup_s": 6.51,
    "ready_s": 2.82,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 133.6,
     "cpu_pct_max": 137.0,
@@ -7217,7 +7217,7 @@
    "setup_s": 48.81,
    "ready_s": 27.17,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 9,
     "cpu_pct_mean": 245.4,
     "cpu_pct_max": 264.8,
@@ -7660,7 +7660,7 @@
    "setup_s": 36.14,
    "ready_s": 27.77,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 9,
     "cpu_pct_mean": 216.0,
     "cpu_pct_max": 250.8,
@@ -8476,7 +8476,7 @@
    "setup_s": 7.16,
    "ready_s": 3.62,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 115.6,
     "cpu_pct_max": 153.1,
@@ -8758,7 +8758,7 @@
    "setup_s": 6.48,
    "ready_s": 3.73,
    "falkordb_container": {
-    "name": "plexus-db-69",
+    "name": "knewat-db-69",
     "samples": 11,
     "cpu_pct_mean": 123.9,
     "cpu_pct_max": 145.2,

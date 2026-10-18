@@ -1,5 +1,5 @@
 schema: crucible-l2-questions/1
-generated_from: plexus.crucible.l2.scenario.play (the Acme Notes script); answers are derived, never typed
+generated_from: knewat.crucible.l2.scenario.play (the Acme Notes script); answers are derived, never typed
 scenario:
   subject: Acme Notes API
   agents:

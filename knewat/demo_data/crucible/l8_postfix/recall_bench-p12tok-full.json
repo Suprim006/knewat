@@ -11,12 +11,12 @@
   "branch": "p12",
   "dirty": true,
   "dirty_files": [
-   "M plexus/src/plexus/crucible/l8/recall_bench.py",
-   " M plexus/src/plexus/mcp/limits.py",
-   " M plexus/src/plexus/mcp/server.py",
-   " M plexus/src/plexus/mcp/toolkit.py",
-   " M plexus/src/plexus/mcp/tools_engram.py",
-   "?? plexus/src/plexus/crucible/l8/token_breakdown.py"
+   "M knewat/src/knewat/crucible/l8/recall_bench.py",
+   " M knewat/src/knewat/mcp/limits.py",
+   " M knewat/src/knewat/mcp/server.py",
+   " M knewat/src/knewat/mcp/toolkit.py",
+   " M knewat/src/knewat/mcp/tools_engram.py",
+   "?? knewat/src/knewat/crucible/l8/token_breakdown.py"
   ],
   "results_files_uncommitted": 2
  },

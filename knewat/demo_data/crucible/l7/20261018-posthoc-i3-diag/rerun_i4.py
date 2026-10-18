@@ -2,7 +2,7 @@ import shutil
 import tempfile
 import time
 
-from plexus.crucible.l7 import common, i, i_conc
+from knewat.crucible.l7 import common, i, i_conc
 
 port = 6393
 doc = common.envelope(

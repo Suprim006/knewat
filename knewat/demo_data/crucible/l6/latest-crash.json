@@ -5,7 +5,7 @@
   "id": "20261016T051146Z-crash",
   "started_at": "2026-10-16T05:11:46Z",
   "finished_at": "2026-10-16T05:35:31Z",
-  "command": "python -m plexus.crucible.l6.run crash --port 6361 --kills 200",
+  "command": "python -m knewat.crucible.l6.run crash --port 6361 --kills 200",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

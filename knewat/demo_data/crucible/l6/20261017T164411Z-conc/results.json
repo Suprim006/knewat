@@ -5,7 +5,7 @@
   "id": "20261017T164411Z-conc",
   "started_at": "2026-10-17T16:44:11Z",
   "finished_at": "2026-10-17T16:52:05Z",
-  "command": "python -m plexus.crucible.l6.run conc --port 6313",
+  "command": "python -m knewat.crucible.l6.run conc --port 6313",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

@@ -5,7 +5,7 @@
   "id": "20261016T100746Z-i",
   "started_at": "2026-10-16T10:07:46Z",
   "finished_at": "2026-10-16T10:45:43Z",
-  "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1,I2,I3,I4,I5 --arms F-product,F-multi,F-multiexec,F-1stmt",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/knewat/demo_data/crucible/l7 --parts I1,I2,I3,I4,I5 --arms F-product,F-multi,F-multiexec,F-1stmt",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

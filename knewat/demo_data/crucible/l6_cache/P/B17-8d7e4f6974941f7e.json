@@ -29,11 +29,11 @@
  "num_turns": 6,
  "model": "claude-sonnet-5-5",
  "tools_used": [
-  "mcp__plexus__why",
-  "mcp__plexus__why",
-  "mcp__plexus__why",
-  "mcp__plexus__why",
-  "mcp__plexus__why"
+  "mcp__knewat__why",
+  "mcp__knewat__why",
+  "mcp__knewat__why",
+  "mcp__knewat__why",
+  "mcp__knewat__why"
  ],
  "permission_denials": [],
  "key": "8d7e4f6974941f7efee9c9b21b152023e70e4bc43a2bfffe3cd1c9e26a7d52e9",

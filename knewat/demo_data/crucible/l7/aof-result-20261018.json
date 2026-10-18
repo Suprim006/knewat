@@ -1,6 +1,6 @@
 {
  "data_dir": "C:\\Change_folder_after_HDD\\wt-p10\\.p10\\aof-crash-evidence\\data",
- "container": "plexus-db-rerun-l7i-aofrepro",
+ "container": "knewat-db-rerun-l7i-aofrepro",
  "attempts": [
   {
    "crashed": true,

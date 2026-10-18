@@ -5,7 +5,7 @@
   "id": "20261017T223224Z-c-recallcheck-ctl-main",
   "started_at": "2026-10-17T22:32:23Z",
   "finished_at": "2026-10-17T22:39:24Z",
-  "command": "python -m plexus.crucible.l6.run_c --port 6375 --scale 1.0 --tag recallcheck-ctl-main --out C:/Users/ACER/AppData/Local/hermes/cache/scratch/ctl_out_l6",
+  "command": "python -m knewat.crucible.l6.run_c --port 6375 --scale 1.0 --tag recallcheck-ctl-main --out C:/Users/ACER/AppData/Local/hermes/cache/scratch/ctl_out_l6",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -139,7 +139,7 @@
    },
    "timing": {
     "sqlite_load_s": 0.42,
-    "plexus_load_s": 73.2
+    "knewat_load_s": 73.2
    },
    "embedder": "HashEmbedder",
    "arms": {

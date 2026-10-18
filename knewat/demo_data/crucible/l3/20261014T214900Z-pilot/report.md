@@ -27,6 +27,6 @@ Model `sonnet`, n=1 per arm.
 ## Honesty
 
 - L3 pilot: ONE run per arm (BASELINE §3 asks for >= 5 with fixed seeds); LLM runs are noisy, so nothing here is a ranking.
-- B0/B1 agents talk to a purpose-built stdio MCP server with the same tool names and argument names as the Plexus tools the scenario uses (crucible/l3/baseline_mcp.py); they have no lineage tools and `verify_artifact` is only acknowledged. P uses the real plexus-mcp.
+- B0/B1 agents talk to a purpose-built stdio MCP server with the same tool names and argument names as the Knewat tools the scenario uses (crucible/l3/baseline_mcp.py); they have no lineage tools and `verify_artifact` is only acknowledged. P uses the real knewat-mcp.
 - The scheduler, prompts, faults (builder killed at step 15, style guide v2 at step 20) and model are the P3 demo's and identical across arms. The poison fault is off.
 - Metrics come from the agents' stream-json transcripts and the final task states; 'stale artifacts' is a text heuristic (an artifact summary written after v2 was published that names v1 and not v2).

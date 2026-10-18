@@ -3,7 +3,7 @@
 // params: old_id:str, new_id:str, backdate:bool, change_at:int, agent_id:str, commit:str, evidence:str, now:int, reason:str, max_flag:int
 // returns: valid_to (the old fact's end now), change_at (the SUSPECTED Change time given, null when none), decision_ids (flagged, at most max_flag). Zero rows = old or new fact missing. Clears Fact.verify_degraded on the old fact.
 // mode: rw
-// Backdating only when $backdate (the new fact is brand new and the old one was its only predecessor): bt = $change_at, read BEFORE the supersede by staleness/backdate_point (-1 = none). Applied only if old.valid_from < bt < old.valid_to, so valid_to never moves before valid_from and the windows stay contiguous. recorded_at is untouched (the time Plexus learned the value).
+// Backdating only when $backdate (the new fact is brand new and the old one was its only predecessor): bt = $change_at, read BEFORE the supersede by staleness/backdate_point (-1 = none). Applied only if old.valid_from < bt < old.valid_to, so valid_to never moves before valid_from and the windows stay contiguous. recorded_at is untouched (the time Knewat learned the value).
 // Flagging follows forget_source: flagged=true and flag_reason; an already flagged decision keeps its first reason, except the provisional 'fact changed (verification unfinished): <id>' from staleness/mark_unfinished, which is replaced. The list is cut at max_flag.
 MATCH (old:Fact {id: $old_id}), (nw:Fact {id: $new_id})
 WITH old, nw,

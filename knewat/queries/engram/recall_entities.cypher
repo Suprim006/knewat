@@ -4,9 +4,9 @@
 // returns: entity_id, name, score (full-text relevance, higher = better), fan (facts ABOUT the entity with status in statuses, valid at t, in the scope or a scope it INHERITS <= 3 hops; 0 when none); best first, then id. No rows when the scope does not exist.
 // mode: ro
 // $all (P12, recall scope 'all'): count the facts of every scope instead of the scope walk; the walk still runs (an unknown scope id leaves sids empty).
-// The Python wrapper (plexus.engram.service.Engram._resolve_entities) keeps only the entities whose every name word appears in the query
+// The Python wrapper (knewat.engram.service.Engram._resolve_entities) keeps only the entities whose every name word appears in the query
 // (the OR query also returns entities that share one word, e.g. every "Acme Notes API Sxx" twin for "Acme Notes API S07 api_version";
-// a twin must not get the entity lift). plexus.activation.rank turns the fan into the lift gamma * max(0, 1 - ln(fan) / S_max).
+// a twin must not get the entity lift). knewat.activation.rank turns the fan into the lift gamma * max(0, 1 - ln(fan) / S_max).
 // Plan shape (tests/integration/test_p5_plans.py): full-text index scan on Entity, then the entity's ABOUT edges with the cheap
 // property filters, then the scope test with the fact bound (an entity-first OPTIONAL MATCH + CASE, as in engram/recall; written as
 // one pattern `(e)<-[:ABOUT]-(f)-[:IN_SCOPE]->(s) WHERE s.id IN sids` the 6.0.2 planner starts at the Scope). A WHERE on the second

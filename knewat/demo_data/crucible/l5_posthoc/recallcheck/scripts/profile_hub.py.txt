@@ -8,12 +8,12 @@ import sys
 import time
 import uuid
 
-sys.path.insert(0, "C:/Change_folder_after_HDD/wt-recall/plexus")
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.schema import apply_schema
+sys.path.insert(0, "C:/Change_folder_after_HDD/wt-recall/knewat")
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.schema import apply_schema
 
 PORT = 6375
 OPEN = 9_999_999_999_999

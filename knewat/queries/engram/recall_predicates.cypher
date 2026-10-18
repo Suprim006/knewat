@@ -4,9 +4,9 @@
 // returns: predicate, fan (facts with that predicate, status in statuses, valid at t, in the scope or a scope it INHERITS <= 3 hops; 0 when none); one row per DISTINCT input predicate, in no particular order (the caller builds a dict). A scope that does not exist gives every predicate with fan 0, not zero rows (the scope list is a key-less collect).
 // mode: ro
 // $all (P12, recall scope 'all'): count the facts of every scope instead of the scope walk; the walk still runs (an unknown scope id leaves sids empty).
-// The mirror of engram/recall_entities for the predicate cue: plexus.engram.service.Engram._resolve_predicates keeps the candidate
+// The mirror of engram/recall_entities for the predicate cue: knewat.engram.service.Engram._resolve_predicates keeps the candidate
 // predicates whose every word appears in the query (the same rule as the named-entity rule), and this read counts each one's fan;
-// plexus.activation.rank turns it into the cue w_predicate * max(0, S - ln fan).
+// knewat.activation.rank turns it into the cue w_predicate * max(0, S - ln fan).
 // Plan shape (tests/integration/test_p5_plans.py, test_audit_recall_predicates_plan.py): a range-index seek on Fact per input value
 // (`{predicate: p}`; `IN $list` would scan the whole index). On 6.0.2 the seek applies the indexed `status` and `valid_to` filters
 // together with `predicate`, so the superseded history and the expired facts of that predicate are NOT read (measured, audit B2:

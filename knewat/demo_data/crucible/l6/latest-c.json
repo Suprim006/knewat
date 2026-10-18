@@ -5,7 +5,7 @@
   "id": "20261018T090935Z-c",
   "started_at": "2026-10-18T09:09:33Z",
   "finished_at": "2026-10-18T09:21:26Z",
-  "command": "python -m plexus.crucible.l6.run_c --port 6386 --scale 1.0",
+  "command": "python -m knewat.crucible.l6.run_c --port 6386 --scale 1.0",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -139,7 +139,7 @@
    },
    "timing": {
     "sqlite_load_s": 0.42,
-    "plexus_load_s": 126.53
+    "knewat_load_s": 126.53
    },
    "embedder": "HashEmbedder",
    "arms": {

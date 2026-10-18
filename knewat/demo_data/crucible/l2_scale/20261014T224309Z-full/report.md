@@ -84,17 +84,17 @@ Whole-reply-JSON-only variant (stricter): B0 28/36, B1 26/36, B2 23/36, P 36/36
 - L2-scale: B0 + claude -p (sonnet) answered 30/36 (83.3%) exactly, 19646 tokens and $0.077 per question.
 - L2-scale: B1 + claude -p (sonnet) answered 32/36 (88.9%) exactly, 22010 tokens and $0.087 per question.
 - L2-scale: B2 + claude -p (sonnet) answered 23/36 (63.9%) exactly, 4424 tokens and $0.016 per question.
-- L2-scale: Plexus (deterministic Cypher) answered 36/36 (100.0%) exactly.
-- L2-scale: Plexus beats B0 by 16.7 points.
-- L2-scale: Plexus beats B1 by 11.1 points.
-- L2-scale: Plexus beats B2 by 36.1 points.
+- L2-scale: Knewat (deterministic Cypher) answered 36/36 (100.0%) exactly.
+- L2-scale: Knewat beats B0 by 16.7 points.
+- L2-scale: Knewat beats B1 by 11.1 points.
+- L2-scale: Knewat beats B2 by 36.1 points.
 
-## Plexus changes relative to the 43-question L2 answerer
+## Knewat changes relative to the 43-question L2 answerer
 
 - Operations whose arguments already name a unique thing (task id, fact label, decision name, subject, source uri) run the unchanged l2 operation with the unchanged statements: decision_facts, decision_fact_agents, decision_sources, handoff_artifacts, handoff_route, handoff_facts, as_of_values, as_of_facts, value_history, decisions_on_fact, superseder, fact_agent, fact_source, fact_scope, blocked_by_failure, direct_dependencies, ready_after, reclaimer, previous_claimer, current_value, scope_leak, episode_agent, remaining_from_source, forgotten_facts.
 - Nine operations ask about a whole class (all handoffs to X, all decisions on superseded facts, ...) and are restricted to the sprint named in the question by a Python filter over the rows of the same statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): handoffs_to, handoffs_with_superseded_facts, decisions_on_superseded, decisions_on_forgotten, active_conflicts, active_conflict_agents, reclaimed_tasks, completed_by, episode_count.
 - One operation needs one new read-only statement: visible_facts runs queries/l2scale/facts_visible_subject.cypher (l2/facts_visible plus a subject restriction), because the global scope now holds the facts of all 20 sprints.
-- No other query was changed; the original plexus_answerer.py and queries/l2/*.cypher are untouched.
+- No other query was changed; the original knewat_answerer.py and queries/l2/*.cypher are untouched.
 
 ## Notes
 
@@ -111,4 +111,4 @@ Whole-reply-JSON-only variant (stricter): B0 28/36, B1 26/36, B2 23/36, P 36/36
 - Baselines are the same unmodified `claude -p --model sonnet` with no tools at the same 32,000-character cap, shown BM25-ranked chunks/rows (B0, B1) or vector top-12 (B2) selected with the question text. The selectors were written once, before any paid call, and not tuned afterwards.
 - Arm P answers with hand-written Cypher per question family (the same operations as the 43-question L2 run, with the sprint scoping listed in the results); that engineering effort is part of what P costs and the baselines get no equivalent helper.
 - Reply rule for the baselines is the final L2 rule: prose may precede the reply, which must END with one {"answer": ...} object; the whole-reply-JSON variant is reported next to it.
-- B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.
+- B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Knewat's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.

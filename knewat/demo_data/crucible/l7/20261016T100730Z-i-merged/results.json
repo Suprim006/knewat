@@ -5,7 +5,7 @@
   "id": "20261016T100730Z-i-merged",
   "started_at": "2026-10-16T10:07:30Z",
   "finished_at": "2026-10-16T10:56:13Z",
-  "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/knewat/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -1189,7 +1189,7 @@
    },
    "aof_repro": {
     "data_dir": "C:\\Change_folder_after_HDD\\wt-p10\\.p10\\aof-crash-evidence\\data",
-    "container": "plexus-db-71-aofrepro",
+    "container": "knewat-db-71-aofrepro",
     "attempts": [
      {
       "crashed": true,
@@ -1327,7 +1327,7 @@
     "smallest_crashing_prefix_commands": 52735,
     "largest_clean_prefix_commands": 52734,
     "culprit_command_index": 52735,
-    "culprit_command_head": "*2 | $12 | GRAPH.DELETE | $26 | plexus_t_mcpt_5ad035fb0276 | ",
+    "culprit_command_head": "*2 | $12 | GRAPH.DELETE | $26 | knewat_t_mcpt_5ad035fb0276 | ",
     "confirm_prefix_without_culprit_crashed": true,
     "culprit_alone_crashed": false,
     "rate_full_file": {
@@ -1953,7 +1953,7 @@
  "merged_from": [
   {
    "run_id": "20261016T100730Z-i",
-   "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
+   "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/knewat/demo_data/crucible/l7 --parts I1 --arms S-txn,S-auto",
    "parts": [
     "I1"
    ],
@@ -1962,7 +1962,7 @@
   },
   {
    "run_id": "20261016T100746Z-i",
-   "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1,I2,I3,I4,I5 --arms F-product,F-multi,F-multiexec,F-1stmt",
+   "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/knewat/demo_data/crucible/l7 --parts I1,I2,I3,I4,I5 --arms F-product,F-multi,F-multiexec,F-1stmt",
    "parts": [
     "I1",
     "I2",
@@ -1975,7 +1975,7 @@
   },
   {
    "run_id": "20261016T104743Z-i",
-   "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I4C",
+   "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/knewat/demo_data/crucible/l7 --parts I4C",
    "parts": [
     "I4"
    ],

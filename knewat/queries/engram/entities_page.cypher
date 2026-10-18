@@ -1,5 +1,5 @@
 // name: engram/entities_page
-// purpose: One page of Entities in id order (keyset pagination) with the properties `plexus migrate entities` needs to backfill tok/num_key and to look for near-duplicates.
+// purpose: One page of Entities in id order (keyset pagination) with the properties `knewat migrate entities` needs to backfill tok/num_key and to look for near-duplicates.
 // params: after:str, limit:int
 // returns: id, name, norm_name, kind, created_at, tok (null before the backfill), num_key (null before the backfill), embedding
 // mode: ro

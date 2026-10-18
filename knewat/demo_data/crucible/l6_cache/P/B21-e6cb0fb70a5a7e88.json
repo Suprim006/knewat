@@ -33,10 +33,10 @@
  "num_turns": 5,
  "model": "claude-sonnet-5-5",
  "tools_used": [
-  "mcp__plexus__why",
-  "mcp__plexus__impact",
-  "mcp__plexus__why",
-  "mcp__plexus__why"
+  "mcp__knewat__why",
+  "mcp__knewat__impact",
+  "mcp__knewat__why",
+  "mcp__knewat__why"
  ],
  "permission_denials": [],
  "key": "e6cb0fb70a5a7e88343c016b4c9996c8df1e7bea1986701a713ff126c4b118d9",

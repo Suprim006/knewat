@@ -5,7 +5,7 @@
   "id": "20261016T125705Z-g",
   "started_at": "2026-10-16T12:57:05Z",
   "finished_at": "",
-  "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\g.py run --port 6365 --scale full --out demo_data/crucible/l7",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\g.py run --port 6365 --scale full --out demo_data/crucible/l7",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -73,7 +73,7 @@
  "timeout_ms": 10000,
  "scale": "full",
  "db_port": 6365,
- "container": "plexus-db-65",
+ "container": "knewat-db-65",
  "tenants": [
   1,
   2,

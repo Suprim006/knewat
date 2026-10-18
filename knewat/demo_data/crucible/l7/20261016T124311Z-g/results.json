@@ -5,7 +5,7 @@
   "id": "20261016T124311Z-g",
   "started_at": "2026-10-16T12:43:11Z",
   "finished_at": "2026-10-16T12:53:49Z",
-  "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\g.py run --port 6365 --scale full --out demo_data/crucible/l7",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\knewat\\src\\knewat\\crucible\\l7\\g.py run --port 6365 --scale full --out demo_data/crucible/l7",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -73,7 +73,7 @@
  "timeout_ms": 10000,
  "scale": "full",
  "db_port": 6365,
- "container": "plexus-db-65",
+ "container": "knewat-db-65",
  "tenants": [
   1,
   2,
@@ -2626,7 +2626,7 @@
    "tenant": 1088,
    "phase": "create/load",
    "error": "OutOfMemoryError: command not allowed when used memory > 'maxmemory'.",
-   "trace": "bda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-p10\\plexus\\.venv-p10\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-p10\\plexus\\.venv-p10\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-p10\\plexus\\.venv-p10\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.OutOfMemoryError: command not allowed when used memory > 'maxmemory'.\n"
+   "trace": "bda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-p10\\knewat\\.venv-p10\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-p10\\knewat\\.venv-p10\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-p10\\knewat\\.venv-p10\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.OutOfMemoryError: command not allowed when used memory > 'maxmemory'.\n"
   }
  ],
  "infeasible": {

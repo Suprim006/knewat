@@ -5,7 +5,7 @@
   "id": "20261016T072750Z-postfix",
   "started_at": "2026-10-16T07:27:50Z",
   "finished_at": "2026-10-16T07:38:09Z",
-  "command": "python -m plexus.crucible.l6.run postfix --port 6366 --kills 200",
+  "command": "python -m knewat.crucible.l6.run postfix --port 6366 --kills 200",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

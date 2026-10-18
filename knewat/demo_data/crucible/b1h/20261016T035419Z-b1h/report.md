@@ -44,6 +44,6 @@ Paired with the committed P rows: {"both_correct": 36, "b1h_only": 0, "p_only": 
 
 ## Honesty
 
-- B1h is the existing B1 SQLite store with one added table (claims, written in the claim's own transaction) because B1 never kept the claim history that the Recovery questions need and Plexus keeps as CLAIMED edges. No other schema or index change.
+- B1h is the existing B1 SQLite store with one added table (claims, written in the claim's own transaction) because B1 never kept the claim history that the Recovery questions need and Knewat keeps as CLAIMED edges. No other schema or index change.
 - The 17 SQL operations were written by the same author as the Cypher ones, with knowledge of the question set and the scenario: that is the point of a control (same effort, same spec), but it is not a blind SQL arm. Ground truth is the committed question files (derived from the script ledger), the ledger of the B1h replay equals the reference ledger.
-- A tie on correctness here says the L2/L2-scale gap between Plexus and the B1/B0 readers is reader-vs-query, not graph-vs-SQL. B1h is in-process SQLite (no network hop), Plexus crosses a container network: latency columns are not a like-for-like speed comparison.
+- A tie on correctness here says the L2/L2-scale gap between Knewat and the B1/B0 readers is reader-vs-query, not graph-vs-SQL. B1h is in-process SQLite (no network hop), Knewat crosses a container network: latency columns are not a like-for-like speed comparison.

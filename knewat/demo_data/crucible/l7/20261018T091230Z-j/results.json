@@ -5,7 +5,7 @@
   "id": "20261018T091230Z-j",
   "started_at": "2026-10-18T09:12:30Z",
   "finished_at": "2026-10-18T09:56:05Z",
-  "command": "python -m plexus.crucible.l7.j run --port 6391 --scale full --mixes J-real --reps 3 --flushall --workdir /tmp/l7j/work-real   [stopped after rep 0 by hand; see params.truncation_note]",
+  "command": "python -m knewat.crucible.l7.j run --port 6391 --scale full --mixes J-real --reps 3 --flushall --workdir /tmp/l7j/work-real   [stopped after rep 0 by hand; see params.truncation_note]",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -140,7 +140,7 @@
    "setup_s": 1.89,
    "ready_s": 6.4,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 10,
     "cpu_pct_mean": 81.8,
     "cpu_pct_max": 96.0,
@@ -482,7 +482,7 @@
    "setup_s": 1.02,
    "ready_s": 3.22,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 9,
     "cpu_pct_mean": 59.4,
     "cpu_pct_max": 83.1,
@@ -1152,7 +1152,7 @@
    "setup_s": 11.97,
    "ready_s": 23.82,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 8,
     "cpu_pct_mean": 34.8,
     "cpu_pct_max": 59.5,
@@ -1494,7 +1494,7 @@
    "setup_s": 6.64,
    "ready_s": 4.91,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 10,
     "cpu_pct_mean": 69.4,
     "cpu_pct_max": 76.5,
@@ -2164,7 +2164,7 @@
    "setup_s": 3.21,
    "ready_s": 6.14,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 10,
     "cpu_pct_mean": 197.3,
     "cpu_pct_max": 265.6,
@@ -2527,7 +2527,7 @@
    "setup_s": 1.57,
    "ready_s": 5.6,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 9,
     "cpu_pct_mean": 163.5,
     "cpu_pct_max": 211.8,
@@ -3268,7 +3268,7 @@
    "setup_s": 3.23,
    "ready_s": 10.91,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 10,
     "cpu_pct_mean": 115.7,
     "cpu_pct_max": 137.6,
@@ -3616,7 +3616,7 @@
    "setup_s": 3.93,
    "ready_s": 13.91,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 8,
     "cpu_pct_mean": 110.2,
     "cpu_pct_max": 137.9,
@@ -4298,7 +4298,7 @@
    "setup_s": 47.41,
    "ready_s": 36.76,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 6,
     "cpu_pct_mean": 241.7,
     "cpu_pct_max": 314.4,
@@ -4644,7 +4644,7 @@
    "setup_s": 28.47,
    "ready_s": 44.51,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 9,
     "cpu_pct_mean": 325.7,
     "cpu_pct_max": 498.6,
@@ -5397,7 +5397,7 @@
    "setup_s": 20.3,
    "ready_s": 20.02,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 6,
     "cpu_pct_mean": 112.4,
     "cpu_pct_max": 124.6,
@@ -5679,7 +5679,7 @@
    "failed": {
     "stage": "setup",
     "error": "ResponseError: Query timed out",
-    "trace": "7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 867, in execute_command\n    return self._execute_command(*args, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 889, in _execute_command\n    result = conn.retry.call_with_retry(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\retry.py\", line 120, in call_with_retry\n    return do()\n           ^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 890, in <lambda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.ResponseError: Query timed out\n"
+    "trace": "7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 867, in execute_command\n    return self._execute_command(*args, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 889, in _execute_command\n    result = conn.retry.call_with_retry(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\retry.py\", line 120, in call_with_retry\n    return do()\n           ^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 890, in <lambda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.ResponseError: Query timed out\n"
    },
    "teardown_s": 0.0,
    "wall_s": 26.91
@@ -6034,7 +6034,7 @@
    "setup_s": 237.68,
    "ready_s": 144.02,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 6,
     "cpu_pct_mean": 272.3,
     "cpu_pct_max": 341.6,
@@ -6420,7 +6420,7 @@
    "setup_s": 178.91,
    "ready_s": 146.65,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 6,
     "cpu_pct_mean": 319.1,
     "cpu_pct_max": 457.0,
@@ -7169,7 +7169,7 @@
    "setup_s": 24.45,
    "ready_s": 10.03,
    "falkordb_container": {
-    "name": "plexus-db-91",
+    "name": "knewat-db-91",
     "samples": 9,
     "cpu_pct_mean": 113.3,
     "cpu_pct_max": 126.7,
@@ -7363,7 +7363,7 @@
    "failed": {
     "stage": "setup",
     "error": "ResponseError: Query timed out",
-    "trace": "7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 867, in execute_command\n    return self._execute_command(*args, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 889, in _execute_command\n    result = conn.retry.call_with_retry(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\retry.py\", line 120, in call_with_retry\n    return do()\n           ^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 890, in <lambda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.ResponseError: Query timed out\n"
+    "trace": "7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 867, in execute_command\n    return self._execute_command(*args, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 889, in _execute_command\n    result = conn.retry.call_with_retry(\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\retry.py\", line 120, in call_with_retry\n    return do()\n           ^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 890, in <lambda>\n    lambda: self._send_command_parse_response(\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 819, in _send_command_parse_response\n    return self.parse_response(conn, command_name, **options)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\client.py\", line 935, in parse_response\n    response = connection.read_response()\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\.venv-rerun-l7j\\Lib\\site-packages\\redis\\connection.py\", line 1437, in read_response\n    raise response\nredis.exceptions.ResponseError: Query timed out\n"
    },
    "teardown_s": 0.0,
    "wall_s": 30.58
@@ -7385,8 +7385,8 @@
    "ready_s": 4.09,
    "failed": {
     "stage": "collect",
-    "error": "RuntimeError: driver 0 failed: Traceback (most recent call last):\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\src\\plexus\\crucible\\l7\\j_worker.py\", line 145, in _guarded\n    main(cfg_path)\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\src\\plexus\\crucible\\l7\\j_worker.py\", line 85, in main\n    go = json.loads(Path(cfg[\"go_path\"]).read_text(encoding=\"utf-8\"))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 356, in raw_decode\n    raise JSONDecodeError(\"Expecting value\", s, err.value) from None\njson.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)\n",
-    "trace": "Traceback (most recent call last):\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\src\\plexus\\crucible\\l7\\j.py\", line 294, in run_cell\n    raise RuntimeError(f\"driver {i} failed: {r['fatal']}\")\nRuntimeError: driver 0 failed: Traceback (most recent call last):\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\src\\plexus\\crucible\\l7\\j_worker.py\", line 145, in _guarded\n    main(cfg_path)\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\plexus\\src\\plexus\\crucible\\l7\\j_worker.py\", line 85, in main\n    go = json.loads(Path(cfg[\"go_path\"]).read_text(encoding=\"utf-8\"))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 356, in raw_decode\n    raise JSONDecodeError(\"Expecting value\", s, err.value) from None\njson.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)\n\n"
+    "error": "RuntimeError: driver 0 failed: Traceback (most recent call last):\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\src\\knewat\\crucible\\l7\\j_worker.py\", line 145, in _guarded\n    main(cfg_path)\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\src\\knewat\\crucible\\l7\\j_worker.py\", line 85, in main\n    go = json.loads(Path(cfg[\"go_path\"]).read_text(encoding=\"utf-8\"))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 356, in raw_decode\n    raise JSONDecodeError(\"Expecting value\", s, err.value) from None\njson.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)\n",
+    "trace": "Traceback (most recent call last):\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\src\\knewat\\crucible\\l7\\j.py\", line 294, in run_cell\n    raise RuntimeError(f\"driver {i} failed: {r['fatal']}\")\nRuntimeError: driver 0 failed: Traceback (most recent call last):\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\src\\knewat\\crucible\\l7\\j_worker.py\", line 145, in _guarded\n    main(cfg_path)\n  File \"C:\\Change_folder_after_HDD\\wt-rerun-l7j\\knewat\\src\\knewat\\crucible\\l7\\j_worker.py\", line 85, in main\n    go = json.loads(Path(cfg[\"go_path\"]).read_text(encoding=\"utf-8\"))\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\__init__.py\", line 346, in loads\n    return _default_decoder.decode(s)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 338, in decode\n    obj, end = self.raw_decode(s, idx=_w(s, 0).end())\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ACER\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\Lib\\json\\decoder.py\", line 356, in raw_decode\n    raise JSONDecodeError(\"Expecting value\", s, err.value) from None\njson.decoder.JSONDecodeError: Expecting value: line 1 column 1 (char 0)\n\n"
    },
    "teardown_s": 0.02,
    "wall_s": 40.72

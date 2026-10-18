@@ -5,7 +5,7 @@
   "id": "20261017T225138Z-c-recallcheck-final-default",
   "started_at": "2026-10-17T22:51:38Z",
   "finished_at": "2026-10-17T22:58:51Z",
-  "command": "python -m plexus.crucible.l6.run_c --port 6375 --scale 1.0 --tag recallcheck-final-default",
+  "command": "python -m knewat.crucible.l6.run_c --port 6375 --scale 1.0 --tag recallcheck-final-default",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -139,7 +139,7 @@
    },
    "timing": {
     "sqlite_load_s": 1.63,
-    "plexus_load_s": 67.76
+    "knewat_load_s": 67.76
    },
    "embedder": "HashEmbedder",
    "arms": {

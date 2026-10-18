@@ -26,20 +26,20 @@ Relevance gap between the first and second returned row (cosine distance), per m
 | off | 140 | 0.0045 | 0.0085 | 0.0192 | 0.0410 | 0.0682 |
 | sep+mult | 140 | 0.0043 | 0.0102 | 0.0201 | 0.0410 | 0.0668 |
 
-## L5b SQL arm (B1h-L5, plan §5.4): Plexus vs hand-written SQL on the exported graph
+## L5b SQL arm (B1h-L5, plan §5.4): Knewat vs hand-written SQL on the exported graph
 
 SQLite 3.53.1 + sqlite-vec; export 0.64 s, rows {'scopes': 41, 'entities': 40, 'facts': 480, 'fact_events': 3138, 'fact_decisions': 160, 'fact_links': 260, 'sources': 160}; SQL written for the arm: 92 non-blank non-comment lines (3 statements). Activation fidelity (SQL vs graph, every fact): 0 disagreements of 480 (worst |gap| 0.00e+00).
 
 | Mode | Arm | recall@1 | recall@3 | recall@5 | noise share | probe ms p50 | server/stmt ms p50 | statements / probe |
 |---|---|---|---|---|---|---|---|---|
-| off | Plexus | 78.6% | 98.6% | 99.3% | 29.4% | 52.33 | 19.75 | 2.00 |
+| off | Knewat | 78.6% | 98.6% | 99.3% | 29.4% | 52.33 | 19.75 | 2.00 |
 | off | B1h-L5 (SQL) | 75.7% | 97.1% | 98.6% | 23.4% | 12.86 | 6.49 | 1.00 |
-| sep+mult | Plexus | 85.7% | 100.0% | 100.0% | 33.3% | 168.25 | 49.90 | 6.00 |
+| sep+mult | Knewat | 85.7% | 100.0% | 100.0% | 33.3% | 168.25 | 49.90 | 6.00 |
 | sep+mult | B1h-L5 (SQL) | 84.3% | 100.0% | 100.0% | 22.0% | 19.10 | 11.22 | 3.00 |
 
 Paired per probe (same probes, same graph):
 
-| Mode | n | only Plexus @1 | only SQL @1 | only Plexus @5 | only SQL @5 | same top-1 | identical top-5 list |
+| Mode | n | only Knewat @1 | only SQL @1 | only Knewat @5 | only SQL @5 | same top-1 | identical top-5 list |
 |---|---|---|---|---|---|---|---|
 | off | 140 | 13 | 9 | 1 | 0 | 115 | 15 |
 | sep+mult | 140 | 7 | 5 | 0 | 0 | 128 | 10 |

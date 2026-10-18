@@ -11,7 +11,7 @@
 // Jaccard >= $jac AND one token set contained in the other (OR alone merged "Handbook 1 vacation rule 0" with "Handbook 0 expenses rule 1",
 // 4 of 6 tokens shared: the old AND had only accepted a candidate that contains every query token). Ranked by Jaccard / distance,
 // ties by (created_at, id) so the outcome is deterministic. Entities without tok/num_key (pre-migration) never match the fuzzy lookups; run
-// `plexus migrate entities` first. MERGE stays the create (not CREATE) so the UNIQUE(Entity.norm_name) constraint and MERGE agree.
+// `knewat migrate entities` first. MERGE stays the create (not CREATE) so the UNIQUE(Entity.norm_name) constraint and MERGE agree.
 CALL {
   CALL db.idx.fulltext.queryNodes('Entity', $q) YIELD node
   WHERE node.kind = $kind AND node.num_key = $num_key

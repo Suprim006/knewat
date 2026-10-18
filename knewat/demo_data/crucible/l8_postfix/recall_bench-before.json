@@ -7,10 +7,10 @@
   "branch": "p12",
   "dirty": true,
   "dirty_files": [
-   "M plexus/queries/engram/assert_fact.cypher",
-   " M plexus/queries/schema/fulltext.cypher",
-   "?? plexus/scratch_p12/ft.py",
-   "?? plexus/src/plexus/crucible/l8/recall_bench.py"
+   "M knewat/queries/engram/assert_fact.cypher",
+   " M knewat/queries/schema/fulltext.cypher",
+   "?? knewat/scratch_p12/ft.py",
+   "?? knewat/src/knewat/crucible/l8/recall_bench.py"
   ],
   "results_files_uncommitted": 0
  },

@@ -6,14 +6,14 @@
 
 // Scopes searched: the given scope plus everything it INHERITS (<=3 hops); with $all every scope of the tenant graph. Valid at t: valid_from <= t < valid_to.
 // $statuses is a parameter (['active']; + 'dormant' with include_dormant; + 'superseded' and 'dormant' for as_of). The activation re-ranking happens in Python
-// on these rows (plexus.activation.rank); the extra row fields are read with coalesce so facts written before them still return.
+// on these rows (knewat.activation.rank); the extra row fields are read with coalesce so facts written before them still return.
 // Seeds: the `over` nearest facts of the WHOLE graph plus the facts in kw_ids (full-text hits from engram/recall_keywords), then filtered. LIMITATION: FalkorDB's
 // vector procedure has no pre-filter, so scope/status/validity are applied AFTER the index returns `over` nodes; the Python wrapper re-runs with a larger `over`
 // (x4, up to 512) while fewer than k rows come back and `raw` == `over`.
 // Keyword seeds are never cut by the cosine LIMITs: both LIMITs order the keyword hits first and keep $lim = k + size($kw_ids) rows (LIMIT takes no expression).
 // The keyword seeds are id seeks (`{id: kid}`); `kx.id IN $kw_ids` planned a scan of the whole Fact id index. The '' placeholder keeps the row alive when there are none.
 // Expansion: the `sibs` nearest other facts on the seed's entity that pass the same filters, ranked by (own distance - boost), floor 0, reporting their own distance
-// as `score`. `rank` boosts siblings of every seed; the Python caller re-applies the boost to the best seeds only (sib_of; plexus.engram.service._sibling_boost).
+// as `score`. `rank` boosts siblings of every seed; the Python caller re-applies the boost to the best seeds only (sib_of; knewat.engram.service._sibling_boost).
 // Plan shape (P5 review Q1): the expansion is ENTITY-first, (e)<-[:ABOUT]-(g0:Fact) with the cheap property filters, then the scope test on the bound g0. One
 // pattern `(e)<-[:ABOUT]-(g)-[:IN_SCOPE]->(gs:Scope) WHERE gs.id IN sids` starts at the Scope and walks every fact in it per seed (tests/integration/test_p5_plans.py).
 // Fan damping (D-013): with damp = true the boost is scaled by max(0, 1 - ln(fan_e) / smax), fan_e = the seed entity's active facts; damp = false is the

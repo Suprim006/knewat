@@ -5,7 +5,7 @@
   "id": "20261016T042534Z-det",
   "started_at": "2026-10-16T04:25:33Z",
   "finished_at": "2026-10-16T04:34:46Z",
-  "command": "python -m plexus.crucible.l6.run det --port 6361",
+  "command": "python -m knewat.crucible.l6.run det --port 6361",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

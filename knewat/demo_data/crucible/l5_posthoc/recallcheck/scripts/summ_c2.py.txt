@@ -1,7 +1,7 @@
 import glob
 import json
 
-for p in sorted(glob.glob("C:/Change_folder_after_HDD/wt-recall/plexus/demo_data/crucible/l6/*-c*/results.json")):
+for p in sorted(glob.glob("C:/Change_folder_after_HDD/wt-recall/knewat/demo_data/crucible/l6/*-c*/results.json")):
     d = json.load(open(p))
     name = p.replace(chr(92), "/").split("/")[-2]
     if "C" not in d["families"]:

@@ -27,7 +27,7 @@ scale `full`; measured 30.0 s after 5.0 s warm-up; reps 1; seed 20261016; embedd
 | 1000 | J-one | J-real | F-mcp | 1/1 | 33.47 | 14567 | 56500.1 | 0/1094 | - | 113.3/126.7 | 182.6 | 750.94 | 0.21 | 656.3 |
 | 1000 | J-one | J-real | F-service | 0/1 | FAILED at setup: ResponseError: Query timed out | | | | | | | | | | |
 | 1000 | J-one | J-real | S-file | 0/1 | FAILED at collect: RuntimeError: driver 0 failed: Traceback (most recent call last):
-  File "C:\Change_folder_after_HDD\wt-rerun-l7j\plexus | | | | | | | | | | |
+  File "C:\Change_folder_after_HDD\wt-rerun-l7j\knewat | | | | | | | | | | |
 | 1000 | J-team | J-real | F-mcp | 1/1 | 175.5 | 2087.37 | 8558.3 | 34831/40765 | max_pending=34831 | 272.3/341.6 | 655.4 | 447.73 | 2.44 | 711 |
 | 1000 | J-team | J-real | F-service | 1/1 | 408 | 792.035 | 4891.45 | 34523/47443 | max_pending=34523 | 319.1/457 | 699.2 | 408.25 | 2.61 | 724.2 |
 | 1000 | J-team | J-real | S-file | 1/1 | 5040.37 | 2.229 | 5690.87 | 0/152211 | - | -/- | - | - | 4.55 | 968.5 |
@@ -190,9 +190,9 @@ scale `full`; measured 30.0 s after 5.0 s warm-up; reps 1; seed 20261016; embedd
 * F-service P=200 J-one J-real rep 0: setup: ResponseError: Query timed out
 * F-service P=1000 J-one J-real rep 0: setup: ResponseError: Query timed out
 * S-file P=1000 J-one J-real rep 0: collect: RuntimeError: driver 0 failed: Traceback (most recent call last):
-  File "C:\Change_folder_after_HDD\wt-rerun-l7j\plexus\src\plexus\crucible\l7\j_worker.py", line 145, in _guarded
+  File "C:\Change_folder_after_HDD\wt-rerun-l7j\knewat\src\knewat\crucible\l7\j_worker.py", line 145, in _guarded
     main(cfg_path)
-  File "C:\Change_folder_after_HDD\wt-rerun-l7j\plexus\src\plexus\crucible\l7\j_worker.py", line 85, in main
+  File "C:\Change_folder_after_HDD\wt-rerun-l7j\knewat\src\knewat\crucible\l7\j_worker.py", line 85, in main
     go = json.loads(Path(cfg["go_path"]).read_text(encoding="utf-8"))
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   File "C:\Users\ACER\AppData\Roaming\uv\python\cpython-3.12-windows-x86_64-none\Lib\json\__init__.py", line 346, in loads

@@ -7,7 +7,7 @@
     "finished_at": "2026-10-18T08:10:05Z",
     "duration_s": 46.8,
     "quick": false,
-    "command": "crucible l1 --tests C7X --arms P,P-mcp,B0,B1,B2 --reps 1 --port 6386 --out C:/Change_folder_after_HDD/wt-rerun-current/plexus/demo_data/crucible/c7x_rerun",
+    "command": "crucible l1 --tests C7X --arms P,P-mcp,B0,B1,B2 --reps 1 --port 6386 --out C:/Change_folder_after_HDD/wt-rerun-current/knewat/demo_data/crucible/c7x_rerun",
     "layers": [
       "L1"
     ]
@@ -153,7 +153,7 @@
     "B2": {
       "label": "Vector",
       "represents": "Retrieval-based memory (Mem0-style)",
-      "description": "Same local bge-small embeddings as Plexus, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
+      "description": "Same local bge-small embeddings as Knewat, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
       "isolation": "one SQLite database file (facts + vectors) per tenant; the tenant name is validated before it becomes a path",
       "capabilities": [
         "as_of",
@@ -164,10 +164,10 @@
       ]
     },
     "P": {
-      "label": "Plexus",
-      "represents": "Plexus: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
+      "label": "Knewat",
+      "represents": "Knewat: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
       "description": "Engram/Relay/Lineage service layer called directly (memory, decision and handoff calls also write Steps and READ/WROTE edges)",
-      "isolation": "one FalkorDB graph per tenant (plexus_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
+      "isolation": "one FalkorDB graph per tenant (knewat_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
       "capabilities": [
         "as_of",
         "contradictions",
@@ -2199,9 +2199,9 @@
       }
     },
     "headline": [
-      "B0 matches Plexus (0 violations on both) on C7X.",
-      "B1 matches Plexus (0 violations on both) on C7X.",
-      "B2 matches Plexus (0 violations on both) on C7X."
+      "B0 matches Knewat (0 violations on both) on C7X.",
+      "B1 matches Knewat (0 violations on both) on C7X.",
+      "B2 matches Knewat (0 violations on both) on C7X."
     ],
     "l1_violations_total": {
       "P": 0,
@@ -2214,11 +2214,11 @@
     "Synthetic workloads and data only; one scenario family, a single-node database, scripted (non-LLM) workers.",
     "L1 workers are threads sharing one backend object (each with its own DB connection / file descriptors); only C2's victims are separate OS processes killed with SIGKILL. Concurrency is real but not deterministic: seeds fix the workload (priorities, DAG shape, values, query times), not the interleaving.",
     "Violations are reported as exact counts summed over all runs, never averaged.",
-    "B0 and B1 are configured competently (locks / transactions). Where they match Plexus the table says so; Plexus's advantage is claimed only for what a graph does better: provenance, dependency traversal, time travel, contradictions at write time and cascading forget.",
+    "B0 and B1 are configured competently (locks / transactions). Where they match Knewat the table says so; Knewat's advantage is claimed only for what a graph does better: provenance, dependency traversal, time travel, contradictions at write time and cascading forget.",
     "L2 (provenance questions answered by an LLM for baselines) and L3 (end-to-end LLM agents) are out of scope of this run.",
-    "L4 client latency is measured by Python threads in one process: at high worker counts it includes GIL queuing. Server-side run_time_ms is shown next to it for the Plexus arms.",
-    "C5 probes each arm's tool API and, for Plexus, the MCP runtime's tenant binding (a header cannot rebind a connection). It does not probe the HTTP View API: that API is read-only, names the tenant in the URL and has no authentication in v1, so isolation there is by deployment. For B0/B1/B2 nothing stops a process with file access from opening another tenant's directory, and Plexus does not enforce per-graph access control inside FalkorDB either; a client with database access can query any graph.",
-    "BASELINE \u00a71 asks for one container per arm. B0/B1/B2 are embedded libraries with no server, so they run inside the crucible container; only FalkorDB (the Plexus arms) is a separate container.",
+    "L4 client latency is measured by Python threads in one process: at high worker counts it includes GIL queuing. Server-side run_time_ms is shown next to it for the Knewat arms.",
+    "C5 probes each arm's tool API and, for Knewat, the MCP runtime's tenant binding (a header cannot rebind a connection). It does not probe the HTTP View API: that API is read-only, names the tenant in the URL and has no authentication in v1, so isolation there is by deployment. For B0/B1/B2 nothing stops a process with file access from opening another tenant's directory, and Knewat does not enforce per-graph access control inside FalkorDB either; a client with database access can query any graph.",
+    "BASELINE \u00a71 asks for one container per arm. B0/B1/B2 are embedded libraries with no server, so they run inside the crucible container; only FalkorDB (the Knewat arms) is a separate container.",
     "Numbers from `--quick` runs, or from outside Docker (Windows port forward adds ~10 ms per round trip), are not the published figures."
   ]
 }

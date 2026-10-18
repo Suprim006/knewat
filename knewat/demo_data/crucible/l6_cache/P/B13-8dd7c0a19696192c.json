@@ -17,7 +17,7 @@
  "num_turns": 2,
  "model": "claude-sonnet-5-5",
  "tools_used": [
-  "mcp__plexus__why"
+  "mcp__knewat__why"
  ],
  "permission_denials": [],
  "key": "8dd7c0a19696192ccaa91aea1f4101093179e67ba275c1ea743b1d3fd62a58ca",

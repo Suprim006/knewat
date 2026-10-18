@@ -1197,8 +1197,8 @@
        "num_turns": 12,
        "tool_calls": 11,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -1233,8 +1233,8 @@
        "num_turns": 11,
        "tool_calls": 10,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -1293,8 +1293,8 @@
        "num_turns": 49,
        "tool_calls": 48,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -1353,8 +1353,8 @@
        "num_turns": 13,
        "tool_calls": 12,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -1406,8 +1406,8 @@
        "num_turns": 30,
        "tool_calls": 29,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -1466,8 +1466,8 @@
        "num_turns": 13,
        "tool_calls": 12,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -1526,8 +1526,8 @@
        "num_turns": 12,
        "tool_calls": 11,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -1562,8 +1562,8 @@
        "num_turns": 15,
        "tool_calls": 14,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -2504,7 +2504,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -2535,7 +2535,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -2566,7 +2566,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -2597,7 +2597,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -2628,7 +2628,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": true,
        "context_chars": 0,
@@ -2659,7 +2659,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -2690,7 +2690,7 @@
        "num_turns": 6,
        "tool_calls": 5,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -2721,8 +2721,8 @@
        "num_turns": 5,
        "tool_calls": 4,
        "tools": [
-        "mcp__plexus__impact",
-        "mcp__plexus__why"
+        "mcp__knewat__impact",
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,

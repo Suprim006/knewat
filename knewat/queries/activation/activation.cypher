@@ -1,10 +1,10 @@
 // name: activation/activation
-// purpose: Gather, for up to 200 facts, the access events and protection inputs that the Python activation model (plexus.activation) turns into A(f) (D-012). Nothing is computed or written here.
+// purpose: Gather, for up to 200 facts, the access events and protection inputs that the Python activation model (knewat.activation) turns into A(f) (D-012). Nothing is computed or written here.
 // params: fact_ids:list[str], now:int, events:int
 // returns: one row per existing fact id: id, status, created_at, entity (the ABOUT entity's name), predicate, value, surprise (0 when absent), pinned (false when absent), salience (the cached Fact.salience, -1 when absent), salience_at (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), reads [{k:'use'|'recall', t, s, ag}] (newest `events` READ edges with t <= now; s = READ.suspect: 1 doubted when read, 0 not, -1 unknown / written before P7-04; ag = the reading Step's agent_id), asserted_at [ms] (every ASSERTED_BY edge), decisions [{id, t, flagged, tasks_done, verified_artifacts}] (BASED_ON; tasks_done = the decision's FOR tasks with status 'done'; verified_artifacts = the ids of the Artifacts FOR those done tasks that have an independent VERIFIED_BY, one id per VERIFIED_BY path, so the Python wrapper counts them DISTINCT as the `artifacts_ok` salience input: audit C1 — the old `size(...)` counted every path over every task, so one artifact verified twice on an open task scored 2; D-013 salience inputs), handoffs [{id, t}] (CARRIES), verified_at [ms] (VERIFIED_BY), supersedes [ids] (outgoing SUPERSEDES, at most 3), contradicts [ids] (CONTRADICTS either way, at most 3), sources [{id, trust}] (Sources reached by DERIVED_FROM 1..3 hops)
 // mode: ro
 
-// Event sources (all edges Plexus already writes; docs/P7-contract.md gives the weights, which the model applies):
+// Event sources (all edges Knewat already writes; docs/P7-contract.md gives the weights, which the model applies):
 //   create f.created_at; re-assert = an ASSERTED_BY edge with at > created_at (another agent); decision = Decision.created_at; handoff = Handoff.created_at;
 //   use / recall = (Step)-[READ {via, at}]->(f), an absent via counts as 'recall' and an absent at falls back to the Step's at; verified = VERIFIED_BY.at (P7-J writes it;
 //   on 6.0.2 a pattern over a relationship type that does not exist yet simply matches nothing).

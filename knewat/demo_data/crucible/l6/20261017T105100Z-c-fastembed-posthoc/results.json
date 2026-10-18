@@ -5,7 +5,7 @@
   "id": "20261017T105100Z-c-fastembed-posthoc",
   "started_at": "2026-10-17T10:51:00Z",
   "finished_at": "2026-10-17T10:57:20Z",
-  "command": "python -m plexus.crucible.l6.run_c --host 127.0.0.1 --port 6313 --scale 1.0 --arms P-product,P-flat --embedder fastembed --tag fastembed-posthoc --out demo_data/crucible/l6",
+  "command": "python -m knewat.crucible.l6.run_c --host 127.0.0.1 --port 6313 --scale 1.0 --arms P-product,P-flat --embedder fastembed --tag fastembed-posthoc --out demo_data/crucible/l6",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
@@ -135,7 +135,7 @@
     }
    },
    "timing": {
-    "plexus_load_s": 355.07
+    "knewat_load_s": 355.07
    },
    "embedder": "FastEmbedder",
    "arms": {

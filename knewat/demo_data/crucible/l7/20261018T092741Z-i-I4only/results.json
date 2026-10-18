@@ -5,7 +5,7 @@
   "id": "20261018T092741Z-i",
   "started_at": "2026-10-18T09:27:41Z",
   "finished_at": "2026-10-18T09:41:56Z",
-  "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6390 --scale full --parts I4",
+  "command": "C:\\Change_folder_after_HDD\\wt-rerun-l7i\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6390 --scale full --parts I4",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

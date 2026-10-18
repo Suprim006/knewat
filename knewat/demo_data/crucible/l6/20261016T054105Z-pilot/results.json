@@ -377,7 +377,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,
@@ -411,7 +411,7 @@
        "num_turns": 2,
        "tool_calls": 1,
        "tools": [
-        "mcp__plexus__why"
+        "mcp__knewat__why"
        ],
        "cached": false,
        "context_chars": 0,

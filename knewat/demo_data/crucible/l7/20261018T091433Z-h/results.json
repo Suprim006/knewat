@@ -5,7 +5,7 @@
   "id": "20261018T091433Z-h",
   "started_at": "2026-10-18T09:14:33Z",
   "finished_at": "2026-10-18T09:23:46Z",
-  "command": "python -m plexus.crucible.l7.h run --port 6389 --scale full",
+  "command": "python -m knewat.crucible.l7.h run --port 6389 --scale full",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

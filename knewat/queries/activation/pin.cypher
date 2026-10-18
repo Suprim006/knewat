@@ -5,7 +5,7 @@
 // mode: rw
 
 // One fact, one statement. Any status can be pinned (pinning a dormant fact does not restore it: use restore_fact).
-// The salience formula (plexus.activation.service.salience_of) gives a pinned fact >= 0.95 on its own; the cache mirrors that so the
+// The salience formula (knewat.activation.service.salience_of) gives a pinned fact >= 0.95 on its own; the cache mirrors that so the
 // viewer and the sweep's protection see it without a recompute. FOREACH over a 0/1-element list is the 6.0.2-safe conditional write.
 MATCH (f:Fact {id: $fact_id})
 SET f.pinned = $pinned

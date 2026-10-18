@@ -5,7 +5,7 @@
   "id": "20261018T111539Z-i",
   "started_at": "2026-10-18T11:15:39Z",
   "finished_at": "2026-10-18T11:22:12Z",
-  "command": "C:\\Change_folder_after_HDD\\falkordb\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6396 --scale full --parts I3 --arms F-1stmt,F-multi --out C:/Users/ACER/AppData/Local/hermes/cache/scratch/i3quiet/play2",
+  "command": "C:\\Change_folder_after_HDD\\falkordb\\knewat\\src\\knewat\\crucible\\l7\\i.py run --port 6396 --scale full --parts I3 --arms F-1stmt,F-multi --out C:/Users/ACER/AppData/Local/hermes/cache/scratch/i3quiet/play2",
   "llm_calls": 0,
   "cost_usd": 0.0
  },

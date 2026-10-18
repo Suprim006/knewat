@@ -1,5 +1,5 @@
 // name: demo/ablation_targets
-// purpose: Pick the objects the `plexus demo ablation` probes run on, from the intact tenant: the Decision resting on the most facts (BASED_ON), the agent that READ the most facts, the Source whose forgetting reaches the most decisions, then the most facts (DERIVED_FROM*1..5 then BASED_ON, the reach of forget_source) and the root Task (no dependencies) with the most direct dependents.
+// purpose: Pick the objects the `knewat demo ablation` probes run on, from the intact tenant: the Decision resting on the most facts (BASED_ON), the agent that READ the most facts, the Source whose forgetting reaches the most decisions, then the most facts (DERIVED_FROM*1..5 then BASED_ON, the reach of forget_source) and the root Task (no dependencies) with the most direct dependents.
 // params: none
 // returns: kind ('decision' | 'reader' | 'source' | 'root_task'), id, n (the count that made it the pick; for 'source' the facts derived from it). A kind is missing when the tenant has none (e.g. no decisions).
 // mode: ro

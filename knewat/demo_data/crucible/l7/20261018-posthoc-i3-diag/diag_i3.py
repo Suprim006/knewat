@@ -1,6 +1,6 @@
 """POST-HOC diagnostic (not a registered run): I3 F-multi with per-kill read-back of acknowledged
 close-outs and
-INFO persistence before each kill. Same logic as l7.i.run_i3_arm; port 6392 / plexus-db-92 only."""
+INFO persistence before each kill. Same logic as l7.i.run_i3_arm; port 6392 / knewat-db-92 only."""
 
 import json
 import random
@@ -13,14 +13,14 @@ import uuid
 
 import redis
 
-from plexus.crucible.l7 import common, i
+from knewat.crucible.l7 import common, i
 
 PORT = 6392
 host = "127.0.0.1"
 arm_name = "F-multi"
 kills = int(sys.argv[1]) if len(sys.argv) > 1 else 20
 container = common.container_for_port(PORT)
-assert container == "plexus-db-92"
+assert container == "knewat-db-92"
 root = tempfile.mkdtemp(prefix="l7i-diag-")
 run = uuid.uuid4().hex[:6]
 arm = i.new_world(arm_name, host, PORT, root, run)
