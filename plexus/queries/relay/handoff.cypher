@@ -3,11 +3,9 @@
 // params: id:str, from_agent:str, to_agent:str, task:str, note:str, artifact_ids:list[str], fact_ids:list[str], step_id:str ('' = none), now:int
 // returns: id (zero rows = some agent/task/artifact/fact does not exist; nothing written)
 // mode: rw
-// step_id (P9-int): the Step opened before this call; the Handoff is linked (Step)-[:WROTE]->(Handoff) in the same statement (crash-consistency).
-// Every referenced node is matched first and the counts compared in the same statement, so a missing id
-// creates no Handoff and no partial CARRIES edges. Callers pass de-duplicated id lists.
-// An unknown NON-EMPTY step_id is best-effort: the Handoff is still created, without the WROTE edge.
-// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
+// step_id: the Step opened before this call; the Handoff is linked (Step)-[:WROTE]->(Handoff) in the same statement. An unknown NON-EMPTY step_id is best-effort: the Handoff is still created, without the WROTE edge.
+// Every referenced node is matched first and the counts compared in the same statement, so a missing id creates no Handoff and no partial CARRIES edges. Callers pass de-duplicated id lists.
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `WHERE x.id IN $l`: on 6.0.2 an empty `IN $l` scans the whole id index.
 MATCH (f:Agent {id: $from_agent}), (to:Agent {id: $to_agent}), (t:Task {id: $task})
 OPTIONAL MATCH (stp:Step {id: $step_id})
 UNWIND CASE WHEN size($artifact_ids) = 0 THEN [''] ELSE $artifact_ids END AS aid

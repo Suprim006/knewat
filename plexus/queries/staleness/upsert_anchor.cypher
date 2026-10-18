@@ -3,7 +3,7 @@
 // params: anchor_id:str, repo:str, path:str, symbol:str, kind:str, hash:str, fact_id:str, source_id:str, now:int
 // returns: anchor_id, hash (the hash now stored on the anchor), created (bool). Zero rows = fact_id / source_id was given but does not exist (nothing is written, not even the anchor).
 // mode: rw
-// fact_id / source_id are '' when absent. An anchor that already has a hash keeps it (mark_changed is the only writer afterwards, so a hash given here can never hide a pending change); an anchor without one takes $hash and its updated_at moves. Linking is idempotent (MERGE on the edge, the first `at` is kept).
+// fact_id / source_id are '' when absent. An anchor that already has a hash keeps it (mark_changed is the only writer afterwards, so a hash given here never hides a pending change); one without takes $hash. Linking is idempotent (MERGE on the edge, the first `at` is kept).
 OPTIONAL MATCH (f:Fact {id: $fact_id})
 OPTIONAL MATCH (s:Source {id: $source_id})
 WITH f, s
