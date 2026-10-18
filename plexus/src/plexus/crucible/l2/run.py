@@ -29,7 +29,7 @@ from plexus.crucible import results as H
 from plexus.crucible.api import BackendSpec
 from plexus.crucible.backends import open_backend
 from plexus.crucible.l2 import contexts as C
-from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner
+from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner, LlmCall
 from plexus.crucible.l2.plexus_answerer import PlexusAnswerer
 from plexus.crucible.l2.questions import (
     FAMILIES,
@@ -129,6 +129,29 @@ def _row(q: Question, ok: bool, got: Any, why: str, **extra: Any) -> dict[str, A
     }
 
 
+def empty_meta() -> dict[str, Any]:
+    """The per-question meta of an answerer that raised."""
+    return {"latency_ms": 0.0, "server_ms": 0.0, "statements": 0, "queries": []}
+
+
+def ask_with_retry(runner: ClaudeRunner, arm: str, q: Question, context: str) -> LlmCall:
+    """One ``claude -p`` call (cache first); a process-level failure that was not a cache hit is retried once, live."""
+    call = runner.ask(arm, q, context)
+    if call.error and not call.cached:
+        call = runner.ask(arm, q, context, use_cache=False)
+    return call
+
+
+def grade_call(q: Question, call: LlmCall) -> tuple[bool, str, Any]:
+    """``(correct, error text, parsed answer)`` for one baseline call."""
+    if call.error:
+        return False, f"call failed: {call.error}", None
+    if call.parse_error:
+        return False, call.parse_error, None
+    ok, why = score(q, call.answer)
+    return ok, why, call.answer
+
+
 def answer_plexus(
     p: Prepared, qs: list[Question], client: Any, log: Callable[[str], None]
 ) -> list[dict[str, Any]]:
@@ -139,12 +162,7 @@ def answer_plexus(
             got, meta = ans.answer(q)
             ok, why = score(q, got)
         except Exception as exc:  # noqa: BLE001 - reported per question, never hidden
-            got, meta, ok, why = (
-                None,
-                {"latency_ms": 0.0, "server_ms": 0.0, "statements": 0, "queries": []},
-                False,
-                f"{type(exc).__name__}: {exc}"[:200],
-            )
+            got, meta, ok, why = None, empty_meta(), False, f"{type(exc).__name__}: {exc}"[:200]
         rows.append(
             _row(q, ok, got, why, tokens=0, cost_usd=0.0, latency_ms=meta["latency_ms"], server_ms=meta["server_ms"],
                  statements=meta["statements"], cached=False, context_chars=0, truncated=False)
@@ -177,19 +195,11 @@ def answer_baseline(
     for q in qs:
         ctx = fixed if fixed is not None else index.context(q.text)  # type: ignore[union-attr]
         try:
-            call = runner.ask(p.arm, q, ctx.text)
-            if call.error and not call.cached:
-                call = runner.ask(p.arm, q, ctx.text, use_cache=False)  # one retry for process-level failures
+            call = ask_with_retry(runner, p.arm, q, ctx.text)
         except BudgetExceeded as exc:
             log(f"  {p.arm}: stopped at {q.id}: {exc}")
             return rows, False
-        if call.error:
-            ok, why, got = False, f"call failed: {call.error}", None
-        elif call.parse_error:
-            ok, why, got = False, call.parse_error, None
-        else:
-            got = call.answer
-            ok, why = score(q, got)
+        ok, why, got = grade_call(q, call)
         rows.append(
             _row(
                 q, ok, got, why,

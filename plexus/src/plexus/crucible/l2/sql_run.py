@@ -42,10 +42,6 @@ ANSWERER = (
 ARM = "B1h"
 
 
-def _empty_meta() -> dict[str, Any]:
-    return {"latency_ms": 0.0, "server_ms": 0.0, "statements": 0, "queries": []}
-
-
 def _rows(qs: list[Question], ans: SqlAnswerer, mk: Callable[..., dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
     for q in qs:
@@ -53,7 +49,7 @@ def _rows(qs: list[Question], ans: SqlAnswerer, mk: Callable[..., dict[str, Any]
             got, meta = ans.answer(q)
             ok, why = score(q, got)
         except Exception as exc:  # noqa: BLE001 - reported per question, never hidden
-            got, meta, ok, why = None, _empty_meta(), False, f"{type(exc).__name__}: {exc}"[:200]
+            got, meta, ok, why = None, L2R.empty_meta(), False, f"{type(exc).__name__}: {exc}"[:200]
         rows.append(
             mk(q, ok, got, why, tokens=0, cost_usd=0.0, latency_ms=meta["latency_ms"], server_ms=0.0,
                statements=meta["statements"], cached=False, context_chars=0, truncated=False)
