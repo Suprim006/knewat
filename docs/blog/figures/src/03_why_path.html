@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>why(decision) is a graph path, not a transcript search</title>
+<link rel="stylesheet" href="tokens.css">
+</head><body>
+<!--
+Figure 03: why(decision) is a graph path, not a transcript search.
+
+Data (recorded run acme-claude-sonnet):
+  decision d6cdfc22-7653-43dc-a025-31167e8ae048 "Adopt API v2", planner, step 31, based_on_fact_ids = [41b8a3e6-...]  (transcript 07-planner-adopt-v2)
+  v2 fact 41b8a3e6-11c5-4338-8ef2-613e74bda2b7 asserted by researcher (step 27), source acme-docs/06_api_style_guide_v2.md (b668c0e4)
+  v1 fact 666d2f62-d330-4ac4-9a3b-db0b76efa904 (step 8, source acme-docs/02_api_style_guide_v1.md), superseded by v2
+  decision "build against v1" 6fcb6a65 (step 13, based on v1)                       -> docs/VIDEO_SCRIPT.md "Recording ids"
+  counts 1 fact, 2 agents, 1 source, 2 steps                                       -> docs/VIDEO_SCRIPT.md beat 6
+  response field names                                                              -> plexus/src/plexus/lineage/service.py Lineage.why docstring
+                                                                                       and lineage/explain.py summarise() (the MCP tool `why` returns {"why": <that dict>})
+Not a captured response body: values are the recorded run's real ids, the dict is abridged ("..." = omitted fields).
+Layout (centres): col1 x=125 w170, col2 x=375 w180, col3 x=650 w170; rows y=225 (dimmed v1 chain), 335 (path), 445 (agents).
+Panel x 770..1156, y 120..474.
+
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<defs>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0 L0 0 0 40" fill="none" stroke="#1a2338" stroke-width="0.6"/></pattern>
+<marker id="m-based" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#60a5fa"/></marker>
+<marker id="m-derived" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#bfdbfe"/></marker>
+<marker id="m-read" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#e2e8f0"/></marker>
+<marker id="m-depends" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+<marker id="m-supersedes" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#fde68a"/></marker>
+<marker id="m-contradicts" viewBox="0 0 10 20" refX="5" refY="10" markerWidth="10" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto"><line x1="5" y1="1" x2="5" y2="19" stroke="#f87171" stroke-width="3" stroke-linecap="round"/></marker>
+<marker id="m-asserted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#22d3ee"/></marker>
+<marker id="m-ghost" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+</defs>
+<rect width="1200" height="630" fill="#0b1020"/>
+<rect width="1200" height="630" fill="url(#grid)"/>
+<rect x="1" y="1" width="1198" height="628" rx="14" fill="none" stroke="#1e293b" stroke-width="2"/>
+<text x="44" y="62" font-size="32" class="t-title">why(decision) is a graph path, not a transcript search</text>
+<text x="44" y="94" font-size="17" class="t-sub">Adopt API v2 → the fact it rests on → who asserted it → the file it came from; the traversed path is lit</text>
+<path d="M213,225 L281,225" class="e-based" marker-end="url(#m-based)" opacity="0.38"/>
+<path d="M468,225 L561,225" class="e-derived" marker-end="url(#m-derived)" opacity="0.38"/>
+<path d="M213,335 L281,335" class="e-based" marker-end="url(#m-based)" opacity="1.0"/>
+<path d="M468,335 L561,335" class="e-derived" marker-end="url(#m-derived)" opacity="1.0"/>
+<path d="M375,307 L375,252" class="e-supersedes" marker-end="url(#m-supersedes)" opacity="1.0"/>
+<path d="M375,363 L375,418" class="e-asserted" marker-end="url(#m-asserted)" opacity="1.0"/>
+<path d="M125,419 L125,364" class="e-asserted" marker-end="url(#m-asserted)" opacity="1.0"/>
+<g opacity="0.38"><rect x="40" y="202" width="170" height="46" rx="7" fill="#0f172a"/><rect class="n-decision" x="40" y="202" width="170" height="46" rx="7"/><text x="125" y="230" text-anchor="middle" font-size="14" font-weight="600">build against v1</text></g>
+<g opacity="0.55"><rect x="285" y="202" width="180" height="46" rx="7" fill="#0f172a"/><rect class="n-fact" x="285" y="202" width="180" height="46" rx="7" stroke-dasharray="5 4"/><text x="375" y="230" text-anchor="middle" font-size="14" font-weight="600">api_version v1</text><line x1="312.2" y1="225.8" x2="437.8" y2="225.8" stroke="#f87171" stroke-width="1.8" stroke-opacity="0.9"/></g>
+<g opacity="0.38"><rect x="565" y="202" width="170" height="46" rx="7" fill="#0f172a"/><rect class="n-source" x="565" y="202" width="170" height="46" rx="7"/><text x="650" y="230" text-anchor="middle" font-size="14" font-weight="600">style guide v1</text></g>
+<g opacity="1.0"><rect x="40" y="310" width="170" height="50" rx="7" fill="#0f172a"/><rect class="n-decision" x="40" y="310" width="170" height="50" rx="7"/><text x="125" y="340.4" text-anchor="middle" font-size="15" font-weight="600">Adopt API v2</text></g>
+<g opacity="1.0"><rect x="285" y="310" width="180" height="50" rx="7" fill="#0f172a"/><rect class="n-fact" x="285" y="310" width="180" height="50" rx="7"/><text x="375" y="340.4" text-anchor="middle" font-size="15" font-weight="600">api_version v2</text></g>
+<g opacity="1.0"><rect x="565" y="310" width="170" height="50" rx="7" fill="#0f172a"/><rect class="n-source" x="565" y="310" width="170" height="50" rx="7"/><text x="650" y="340.4" text-anchor="middle" font-size="15" font-weight="600">style guide v2</text></g>
+<g opacity="1.0"><rect x="40" y="422" width="170" height="46" rx="7" fill="#0f172a"/><rect class="n-agent" x="40" y="422" width="170" height="46" rx="7"/><text x="125" y="450" text-anchor="middle" font-size="14" font-weight="600">planner</text></g>
+<g opacity="1.0"><rect x="285" y="422" width="180" height="46" rx="7" fill="#0f172a"/><rect class="n-agent" x="285" y="422" width="180" height="46" rx="7"/><text x="375" y="450" text-anchor="middle" font-size="14" font-weight="600">researcher</text></g>
+<text x="247" y="215" text-anchor="middle" font-size="12" font-weight="600" style="fill:#60a5fa;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="0.38">BASED_ON</text>
+<text x="247" y="325" text-anchor="middle" font-size="12" font-weight="600" style="fill:#60a5fa;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">BASED_ON</text>
+<text x="514.5" y="325" text-anchor="middle" font-size="12" font-weight="600" style="fill:#bfdbfe;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">DERIVED_FROM</text>
+<text x="437" y="285" text-anchor="middle" font-size="12" font-weight="600" style="fill:#fde68a;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">SUPERSEDES</text>
+<text x="441" y="395" text-anchor="middle" font-size="12" font-weight="600" style="fill:#22d3ee;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">ASSERTED_BY</text>
+<text x="169" y="395" text-anchor="middle" font-size="12" font-weight="600" style="fill:#22d3ee;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">DECIDED</text>
+<text x="125" y="150" font-size="13" font-weight="700" text-anchor="middle" class="t-muted" opacity="1">DECISION</text>
+<text x="375" y="150" font-size="13" font-weight="700" text-anchor="middle" class="t-muted" opacity="1">FACTS  (BASED_ON)</text>
+<text x="650" y="150" font-size="13" font-weight="700" text-anchor="middle" class="t-muted" opacity="1">SOURCES  (DERIVED_FROM)</text>
+<rect x="44" y="500" width="81" height="30" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+<text x="84.6" y="520" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">1 fact</text>
+<rect x="137.2" y="500" width="100" height="30" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+<text x="187" y="520" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">2 agents</text>
+<rect x="248.79999999999998" y="500" width="100" height="30" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+<text x="298.6" y="520" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">1 source</text>
+<rect x="360.4" y="500" width="90" height="30" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.2"/>
+<text x="405.6" y="520" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">2 steps</text>
+<text x="466.8" y="520" font-size="13" font-weight="400" text-anchor="start" class="t-dim" opacity="1">as counted on the Why page</text>
+<rect x="770" y="120" width="386" height="354" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+<text x="788" y="148" font-size="13" font-weight="700" text-anchor="start" class="t-muted" opacity="1">MCP tool why(node_id, depth=6)</text>
+<line x1="771" y1="162" x2="1155" y2="162" stroke="#334155" stroke-width="1"/>
+<text x="788" y="190" font-size="13"><tspan style="fill:#e2e8f0" xml:space="preserve">{</tspan></text>
+<text x="788" y="210.5" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">  "root": </tspan><tspan style="fill:#60a5fa" xml:space="preserve">"d6cdfc22-7653-…"</tspan><tspan style="fill:#64748b" xml:space="preserve">,</tspan></text>
+<text x="788" y="231.0" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">  "kind": </tspan><tspan style="fill:#60a5fa" xml:space="preserve">"Decision"</tspan><tspan style="fill:#64748b" xml:space="preserve">,</tspan></text>
+<text x="788" y="251.5" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">  "facts": [{</tspan></text>
+<text x="788" y="272.0" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">    "id": </tspan><tspan style="fill:#60a5fa" xml:space="preserve">"41b8a3e6-11c5-…"</tspan><tspan style="fill:#64748b" xml:space="preserve">,</tspan></text>
+<text x="788" y="292.5" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">    "asserted_by": </tspan><tspan style="fill:#22d3ee" xml:space="preserve">["researcher"]</tspan><tspan style="fill:#64748b" xml:space="preserve">,</tspan></text>
+<text x="788" y="313.0" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">    "sources": </tspan><tspan style="fill:#bfdbfe" xml:space="preserve">["b668c0e4-0a23-…"]</tspan><tspan style="fill:#64748b" xml:space="preserve">,</tspan></text>
+<text x="788" y="333.5" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">    "supersedes": </tspan><tspan style="fill:#fde68a" xml:space="preserve">["666d2f62-d330-…"]</tspan><tspan style="fill:#64748b" xml:space="preserve">,</tspan></text>
+<text x="788" y="354.0" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">    "written_by_steps": […] }],</tspan></text>
+<text x="788" y="374.5" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">  "agents": […], "steps": […],</tspan></text>
+<text x="788" y="395.0" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">  "paths": [[{"from", "rel": "BASED_ON",</tspan></text>
+<text x="788" y="415.5" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">             "to"}, …]],</tspan></text>
+<text x="788" y="436.0" font-size="13"><tspan style="fill:#64748b" xml:space="preserve">  "nodes": […], "edges": […]</tspan></text>
+<text x="788" y="456.5" font-size="13"><tspan style="fill:#e2e8f0" xml:space="preserve">}</tspan></text>
+<text x="770" y="498" font-size="12" font-weight="400" text-anchor="start" class="t-dim" opacity="1">Abridged. Field names: Lineage.why(); ids and values:</text>
+<text x="770" y="515" font-size="12" font-weight="400" text-anchor="start" class="t-dim" opacity="1">the recorded run acme-claude-sonnet.</text>
+<rect x="44" y="558" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-decision" x="44" y="558" width="18" height="16" rx="4"/>
+<text x="70" y="570.5" font-size="13" class="t-muted">Decision</text>
+<rect x="157.2" y="558" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-fact" x="157.2" y="558" width="18" height="16" rx="4"/>
+<text x="183.2" y="570.5" font-size="13" class="t-muted">Fact</text>
+<rect x="238.8" y="558" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-source" x="238.8" y="558" width="18" height="16" rx="4"/>
+<text x="264.8" y="570.5" font-size="13" class="t-muted">Source</text>
+<rect x="336.2" y="558" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-agent" x="336.2" y="558" width="18" height="16" rx="4"/>
+<text x="362.2" y="570.5" font-size="13" class="t-muted">Agent</text>
+<path d="M44,590 L80,590" class="e-based" marker-end="url(#m-based)"/>
+<text x="92" y="594.5" font-size="13" class="t-muted">BASED_ON</text>
+<path d="M177.2,590 L213.2,590" class="e-derived" marker-end="url(#m-derived)"/>
+<text x="225.2" y="594.5" font-size="13" class="t-muted">DERIVED_FROM</text>
+<path d="M342,590 L378,590" class="e-asserted" marker-end="url(#m-asserted)"/>
+<text x="390" y="594.5" font-size="13" class="t-muted">ASSERTED_BY</text>
+<path d="M498.9,590 L534.9,590" class="e-supersedes" marker-end="url(#m-supersedes)"/>
+<text x="546.9" y="594.5" font-size="13" class="t-muted">SUPERSEDES</text>
+<text x="1156" y="608" font-size="13" text-anchor="end" class="t-dim">Plexus · FalkorDB 6.0.2</text>
+</svg>
+</body></html>

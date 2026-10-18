@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Remove the edges and the memory can no longer say why</title>
+<link rel="stylesheet" href="tokens.css">
+</head><body>
+<!--
+Figure 04: ablation. Remove the edges and the memory can no longer say why.
+
+ONE generator draws the same 14-node layout twice (draw_panel); the right panel only differs by `ablated=True`, which
+turns the four stripped edge types into faint ghost lines with a red cross and outlines the nodes that lost them.
+
+Graph = the Crucible ablation seed (plexus/src/plexus/crucible/ablation.py seed()): agent builder; tasks T1..T5 with
+T2->T1, T3->T2, T4->T3 (DEPENDS_ON); sources acme-spec, team-wiki; facts version v1 (f1), database (f2),
+digest (f3, derived from f1+f2), owner (f4), version v2 (f1b, SUPERSEDES f1); decision d1 BASED_ON f1+f2;
+DERIVED_FROM f1,f2 -> acme-spec, f4 -> team-wiki, f3 -> f1,f2. READ is drawn once (builder -> f1): the JSON counts 8 READ
+edges, the exact Step->Fact endpoints are not drawn.
+Numbers (nothing typed): plexus/src/plexus/crucible/results/latest-all.json
+  layers.ablation.summary.{capabilities_needing_edges, broken_by_ablation, controls, controls_unaffected}
+  layers.ablation.edges_before / edges_deleted               (DEPENDS_ON 3, BASED_ON 2, DERIVED_FROM 5, READ 8)
+  layers.ablation.l1_rerun.{P,P-abl}.C4.violations_total.started_before_deps_done   (0 vs 181)
+  layers.ablation.l1_rerun.{P,P-abl}.C8.violations_total.derived_facts_still_returned (0 vs 60)
+  (same figures quoted in docs/BASELINE.md lines 151-154)
+Layout (1400x600): panel A origin (56,148), panel B origin (736,148); local rows y: sources 20, facts 115, decision 210, tasks 292.
+
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="600" viewBox="0 0 1400 600">
+<defs>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0 L0 0 0 40" fill="none" stroke="#1a2338" stroke-width="0.6"/></pattern>
+<marker id="m-based" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#60a5fa"/></marker>
+<marker id="m-derived" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#bfdbfe"/></marker>
+<marker id="m-read" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#e2e8f0"/></marker>
+<marker id="m-depends" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+<marker id="m-supersedes" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#fde68a"/></marker>
+<marker id="m-contradicts" viewBox="0 0 10 20" refX="5" refY="10" markerWidth="10" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto"><line x1="5" y1="1" x2="5" y2="19" stroke="#f87171" stroke-width="3" stroke-linecap="round"/></marker>
+<marker id="m-asserted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#22d3ee"/></marker>
+<marker id="m-ghost" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+</defs>
+<rect width="1400" height="600" fill="#0b1020"/>
+<rect width="1400" height="600" fill="url(#grid)"/>
+<rect x="1" y="1" width="1398" height="598" rx="14" fill="none" stroke="#1e293b" stroke-width="2"/>
+<text x="44" y="60" font-size="32" class="t-title">Remove the edges and the memory can no longer say why</text>
+<text x="44" y="90" font-size="17" class="t-sub">Same graph, same nodes; the right copy has DEPENDS_ON, BASED_ON, DERIVED_FROM and READ deleted</text>
+<rect x="34" y="116" width="650" height="368" rx="12" fill="rgba(15,23,42,0.55)" stroke="#1e293b" stroke-width="1.6"/>
+<rect x="714" y="116" width="650" height="368" rx="12" fill="rgba(15,23,42,0.55)" stroke="#4c1d24" stroke-width="1.6"/>
+<path d="M187,460 L161,460" class="e-depends" marker-end="url(#m-depends)" opacity="1.0"/>
+<path d="M312,460 L286,460" class="e-depends" marker-end="url(#m-depends)" opacity="1.0"/>
+<path d="M437,460 L411,460" class="e-depends" marker-end="url(#m-depends)" opacity="1.0"/>
+<path d="M339.4,358 L254.2,304" class="e-based" marker-end="url(#m-based)" opacity="1.0"/>
+<path d="M400.5,358 L480.1,304" class="e-based" marker-end="url(#m-based)" opacity="1.0"/>
+<path d="M252.6,263 L337.8,209" class="e-derived" marker-end="url(#m-derived)" opacity="1.0"/>
+<path d="M481.5,263 L401.9,209" class="e-derived" marker-end="url(#m-derived)" opacity="1.0"/>
+<path d="M621,263 L621,209" class="e-derived" marker-end="url(#m-derived)" opacity="1.0"/>
+<path d="M322,283 L271,283" class="e-derived" marker-end="url(#m-derived)" opacity="1.0"/>
+<path d="M420,283 L461,283" class="e-derived" marker-end="url(#m-derived)" opacity="1.0"/>
+<path d="M132.3,210 L195.5,262" class="e-read" marker-end="url(#m-read)" opacity="1.0"/>
+<path d="M221,358 L221,304" class="e-supersedes" marker-end="url(#m-supersedes)" opacity="1.0"/>
+<path d="M867,460 L841,460" class="e-depends" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M992,460 L966,460" class="e-depends" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1117,460 L1091,460" class="e-depends" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1019.4,358 L934.2,304" class="e-based" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1080.5,358 L1160.1,304" class="e-based" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M932.6,263 L1017.8,209" class="e-derived" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1161.5,263 L1081.9,209" class="e-derived" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1301,263 L1301,209" class="e-derived" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1002,283 L951,283" class="e-derived" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M1100,283 L1141,283" class="e-derived" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M812.3,210 L875.5,262" class="e-read" style="stroke:#475569;stroke-width:1.6;stroke-dasharray:4 5" marker-end="url(#m-ghost)" opacity="1.0"/>
+<path d="M901,358 L901,304" class="e-supersedes" marker-end="url(#m-supersedes)" opacity="1.0"/>
+<g opacity="1.0"><rect x="62" y="173" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-agent" x="62" y="173" width="92" height="34" rx="7"/><text x="108" y="194.7" text-anchor="middle" font-size="13" font-weight="600">builder</text></g>
+<g opacity="1.0"><rect x="325" y="171" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-source" x="325" y="171" width="92" height="34" rx="7"/><text x="371" y="192.7" text-anchor="middle" font-size="13" font-weight="600">acme-spec</text></g>
+<g opacity="1.0"><rect x="575" y="171" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-source" x="575" y="171" width="92" height="34" rx="7"/><text x="621" y="192.7" text-anchor="middle" font-size="13" font-weight="600">team-wiki</text></g>
+<g opacity="1.0"><rect x="175" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="175" y="266" width="92" height="34" rx="7"/><text x="221" y="287.7" text-anchor="middle" font-size="13" font-weight="600">version v1</text></g>
+<g opacity="1.0"><rect x="325" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="325" y="266" width="92" height="34" rx="7"/><text x="371" y="287.7" text-anchor="middle" font-size="13" font-weight="600">digest</text></g>
+<g opacity="1.0"><rect x="465" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="465" y="266" width="92" height="34" rx="7"/><text x="511" y="287.7" text-anchor="middle" font-size="13" font-weight="600">database</text></g>
+<g opacity="1.0"><rect x="575" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="575" y="266" width="92" height="34" rx="7"/><text x="621" y="287.7" text-anchor="middle" font-size="13" font-weight="600">owner</text></g>
+<g opacity="1.0"><rect x="175" y="361" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="175" y="361" width="92" height="34" rx="7"/><text x="221" y="382.7" text-anchor="middle" font-size="13" font-weight="600">version v2</text></g>
+<g opacity="1.0"><rect x="325" y="361" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-decision" x="325" y="361" width="92" height="34" rx="7"/><text x="371" y="382.7" text-anchor="middle" font-size="13" font-weight="600">decision</text></g>
+<g opacity="1.0"><rect x="65" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="65" y="443" width="92" height="34" rx="7"/><text x="111" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T1 research</text></g>
+<g opacity="1.0"><rect x="190" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="190" y="443" width="92" height="34" rx="7"/><text x="236" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T2 design</text></g>
+<g opacity="1.0"><rect x="315" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="315" y="443" width="92" height="34" rx="7"/><text x="361" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T3 build</text></g>
+<g opacity="1.0"><rect x="440" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="440" y="443" width="92" height="34" rx="7"/><text x="486" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T4 test</text></g>
+<g opacity="1.0"><rect x="565" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="565" y="443" width="92" height="34" rx="7"/><text x="611" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T5 readme</text></g>
+<g opacity="1.0"><rect x="742" y="173" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-agent" x="742" y="173" width="92" height="34" rx="7"/><text x="788" y="194.7" text-anchor="middle" font-size="13" font-weight="600">builder</text></g>
+<g opacity="1.0"><rect x="1005" y="171" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-source" x="1005" y="171" width="92" height="34" rx="7"/><text x="1051" y="192.7" text-anchor="middle" font-size="13" font-weight="600">acme-spec</text></g>
+<g opacity="1.0"><rect x="1255" y="171" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-source" x="1255" y="171" width="92" height="34" rx="7"/><text x="1301" y="192.7" text-anchor="middle" font-size="13" font-weight="600">team-wiki</text></g>
+<g opacity="1.0"><rect x="855" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="855" y="266" width="92" height="34" rx="7"/><rect x="850" y="261" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="901" y="287.7" text-anchor="middle" font-size="13" font-weight="600">version v1</text></g>
+<g opacity="1.0"><rect x="1005" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="1005" y="266" width="92" height="34" rx="7"/><rect x="1000" y="261" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="1051" y="287.7" text-anchor="middle" font-size="13" font-weight="600">digest</text></g>
+<g opacity="1.0"><rect x="1145" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="1145" y="266" width="92" height="34" rx="7"/><rect x="1140" y="261" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="1191" y="287.7" text-anchor="middle" font-size="13" font-weight="600">database</text></g>
+<g opacity="1.0"><rect x="1255" y="266" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="1255" y="266" width="92" height="34" rx="7"/><rect x="1250" y="261" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="1301" y="287.7" text-anchor="middle" font-size="13" font-weight="600">owner</text></g>
+<g opacity="1.0"><rect x="855" y="361" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-fact" x="855" y="361" width="92" height="34" rx="7"/><text x="901" y="382.7" text-anchor="middle" font-size="13" font-weight="600">version v2</text></g>
+<g opacity="1.0"><rect x="1005" y="361" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-decision" x="1005" y="361" width="92" height="34" rx="7"/><rect x="1000" y="356" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="1051" y="382.7" text-anchor="middle" font-size="13" font-weight="600">decision</text></g>
+<g opacity="1.0"><rect x="745" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="745" y="443" width="92" height="34" rx="7"/><text x="791" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T1 research</text></g>
+<g opacity="1.0"><rect x="870" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="870" y="443" width="92" height="34" rx="7"/><rect x="865" y="438" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="916" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T2 design</text></g>
+<g opacity="1.0"><rect x="995" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="995" y="443" width="92" height="34" rx="7"/><rect x="990" y="438" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="1041" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T3 build</text></g>
+<g opacity="1.0"><rect x="1120" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="1120" y="443" width="92" height="34" rx="7"/><rect x="1115" y="438" width="102" height="44" rx="11" fill="none" stroke="#f87171" stroke-width="2.4" stroke-dasharray="3 3"/><text x="1166" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T4 test</text></g>
+<g opacity="1.0"><rect x="1245" y="443" width="92" height="34" rx="7" fill="#0f172a"/><rect class="n-task" x="1245" y="443" width="92" height="34" rx="7"/><text x="1291" y="464.7" text-anchor="middle" font-size="13" font-weight="600">T5 readme</text></g>
+<text x="198" y="234" text-anchor="middle" font-size="12" font-weight="600" style="fill:#e2e8f0;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">READ x8</text>
+<text x="251" y="338" text-anchor="middle" font-size="12" font-weight="600" style="fill:#fde68a;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">SUPERSEDES</text>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="848.5" y1="454.5" x2="859.5" y2="465.5"/><line x1="848.5" y1="465.5" x2="859.5" y2="454.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="973.5" y1="454.5" x2="984.5" y2="465.5"/><line x1="973.5" y1="465.5" x2="984.5" y2="454.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="1098.5" y1="454.5" x2="1109.5" y2="465.5"/><line x1="1098.5" y1="465.5" x2="1109.5" y2="454.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="971.3" y1="325.5" x2="982.3" y2="336.5"/><line x1="971.3" y1="336.5" x2="982.3" y2="325.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="1114.8" y1="325.5" x2="1125.8" y2="336.5"/><line x1="1114.8" y1="336.5" x2="1125.8" y2="325.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="969.7" y1="230.5" x2="980.7" y2="241.5"/><line x1="969.7" y1="241.5" x2="980.7" y2="230.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="1116.2" y1="230.5" x2="1127.2" y2="241.5"/><line x1="1116.2" y1="241.5" x2="1127.2" y2="230.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="1295.5" y1="230.5" x2="1306.5" y2="241.5"/><line x1="1295.5" y1="241.5" x2="1306.5" y2="230.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="971" y1="277.5" x2="982" y2="288.5"/><line x1="971" y1="288.5" x2="982" y2="277.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="1115" y1="277.5" x2="1126" y2="288.5"/><line x1="1115" y1="288.5" x2="1126" y2="277.5"/></g>
+<g stroke="#f87171" stroke-width="2.6" stroke-linecap="round"><line x1="838.4" y1="230.5" x2="849.4" y2="241.5"/><line x1="838.4" y1="241.5" x2="849.4" y2="230.5"/></g>
+<text x="931" y="338" text-anchor="middle" font-size="12" font-weight="600" style="fill:#fde68a;paint-order:stroke;stroke:#0b1020;stroke-width:5px;stroke-linejoin:round" opacity="1.0">SUPERSEDES</text>
+<text x="52" y="142" font-size="14" font-weight="700" text-anchor="start" class="" style="fill:#f8fafc" opacity="1">WITH EDGES</text>
+<text x="642" y="142" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">18 edges of the four types</text>
+<text x="732" y="142" font-size="14" font-weight="700" text-anchor="start" class="" style="fill:#fca5a5" opacity="1">EDGES CUT</text>
+<text x="1322" y="142" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">0 edges of the four types left</text>
+<text x="52" y="506" font-size="14" font-weight="600" text-anchor="start" class="" style="fill:#86efac" opacity="1">7 of 7 edge-dependent capabilities work</text>
+<text x="732" y="506" font-size="14" font-weight="600" text-anchor="start" class="" style="fill:#fca5a5" opacity="1">7 of 7 edge-dependent capabilities break</text>
+<text x="52" y="527" font-size="14" font-weight="400" text-anchor="start" class="" opacity="1">0 tasks start early</text>
+<text x="732" y="527" font-size="14" font-weight="400" text-anchor="start" class="" style="fill:#fca5a5" opacity="1">149 tasks start before their dependencies</text>
+<text x="52" y="548" font-size="14" font-weight="400" text-anchor="start" class="" opacity="1">0 forgotten facts still returned</text>
+<text x="732" y="548" font-size="14" font-weight="400" text-anchor="start" class="" style="fill:#fca5a5" opacity="1">60 forgotten facts still returned</text>
+<text x="1322" y="506" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">5 of 5 controls unaffected</text>
+<rect x="44" y="564" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-agent" x="44" y="564" width="18" height="16" rx="4"/>
+<text x="70" y="576.5" font-size="13" class="t-muted">Agent</text>
+<rect x="133.5" y="564" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-fact" x="133.5" y="564" width="18" height="16" rx="4"/>
+<text x="159.5" y="576.5" font-size="13" class="t-muted">Fact</text>
+<rect x="215.1" y="564" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-decision" x="215.1" y="564" width="18" height="16" rx="4"/>
+<text x="241.1" y="576.5" font-size="13" class="t-muted">Decision</text>
+<rect x="328.3" y="564" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-source" x="328.3" y="564" width="18" height="16" rx="4"/>
+<text x="354.3" y="576.5" font-size="13" class="t-muted">Source</text>
+<rect x="425.7" y="564" width="18" height="16" rx="4" fill="#0f172a"/>
+<rect class="n-task" x="425.7" y="564" width="18" height="16" rx="4"/>
+<text x="451.7" y="576.5" font-size="13" class="t-muted">Task</text>
+<rect x="507.30000000000007" y="564" width="18" height="16" rx="4" fill="none" stroke="#f87171" stroke-width="2.2" stroke-dasharray="3 3"/>
+<text x="533.3" y="577" font-size="13" font-weight="400" text-anchor="start" class="t-muted" opacity="1">lost its edges</text>
+<path d="M677.3,572 L713.3,572" class="e-depends" marker-end="url(#m-depends)"/>
+<text x="725.3" y="576.5" font-size="13" class="t-muted">DEPENDS_ON</text>
+<path d="M818.3,572 L854.3,572" class="e-based" marker-end="url(#m-based)"/>
+<text x="866.3" y="576.5" font-size="13" class="t-muted">BASED_ON</text>
+<path d="M943.5,572 L979.5,572" class="e-derived" marker-end="url(#m-derived)"/>
+<text x="991.5" y="576.5" font-size="13" class="t-muted">DERIVED_FROM</text>
+<path d="M1100.3,572 L1136.3,572" class="e-read" marker-end="url(#m-read)"/>
+<text x="1148.3" y="576.5" font-size="13" class="t-muted">READ</text>
+<path d="M1193.9,572 L1229.9,572" class="e-supersedes" marker-end="url(#m-supersedes)"/>
+<text x="1241.9" y="576.5" font-size="13" class="t-muted">SUPERSEDES</text>
+<text x="1356" y="594" font-size="13" text-anchor="end" class="t-dim">Plexus · FalkorDB 6.0.2</text>
+</svg>
+</body></html>

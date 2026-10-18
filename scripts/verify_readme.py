@@ -43,8 +43,21 @@ def check(ok: bool, what: str) -> None:
         print(f"FAIL  {what}")
 
 
+# Working files kept on the owner's disk and not published (see .gitignore). When one is absent, every check that
+# reads it is skipped with a note instead of failing, so the script passes on a fresh clone and still gates the
+# owner's local copies.
+OPTIONAL_DOCS = {"docs/VIDEO_SCRIPT.md", "docs/BLOG_DRAFT.md", "docs/TESTING.md", "docs/demo.md"}
+_noted: set[str] = set()
+
+
 def read(rel: str) -> str:
-    return (ROOT / rel).read_text(encoding="utf-8")
+    path = ROOT / rel
+    if rel in OPTIONAL_DOCS and not path.exists():
+        if rel not in _noted:
+            _noted.add(rel)
+            print(f"skip  {rel}: not in this checkout (owner's working file); its checks are skipped")
+        return ""
+    return path.read_text(encoding="utf-8")
 
 
 def strip_fences(text: str) -> str:
@@ -82,6 +95,8 @@ def check_links(doc: str) -> None:
         tok = m.group(1).strip()
         if any(c in tok for c in "<>*{}$ ") or not PATH_RE.match(tok):
             continue
+        if tok == "CLAUDE.md":
+            continue  # the agents' convention file named in the trials, not a repo path (the repo's own copy is unpublished)
         n_links += 1
         check((ROOT / tok).exists(), f"{doc}: backticked path missing: {tok}")
     print(f"ok    {doc}: {n_links} relative links/paths checked")
@@ -218,6 +233,8 @@ def numbers() -> None:
         ("blog 36 of 36", baseline, "P answered 36/36" if "P answered 36/36" in baseline else "Plexus answered 36/36", blog, "Plexus scored 36 of 36, SQLite 32, files 30"),
     ]
     for label, src, s, doc, d in triples:
+        if not src or not doc:
+            continue  # an optional document is absent from this checkout
         check(s in src, f"source lacks {label}: {s!r}")
         check(d in doc, f"doc lacks {label}: {d!r}")
 
@@ -229,7 +246,8 @@ def numbers() -> None:
     check((nodes, edges) == (247, 708), f"recording inventory is {nodes}/{edges}, not 247/708")
     calls = json.loads((RECORDING / "calls.json").read_text(encoding="utf-8"))
     check(len(calls) == 83, f"recording has {len(calls)} calls, not 83")
-    check("83 tool calls" in read("docs/VIDEO_SCRIPT.md") or "83 steps" in read("docs/VIDEO_SCRIPT.md"), "VIDEO_SCRIPT: 83 missing")
+    if read("docs/VIDEO_SCRIPT.md"):
+        check("83 tool calls" in read("docs/VIDEO_SCRIPT.md") or "83 steps" in read("docs/VIDEO_SCRIPT.md"), "VIDEO_SCRIPT: 83 missing")
 
     # (d) counts derived from the tree
     n_cypher = len(list((ROOT / "plexus/queries").rglob("*.cypher")))
@@ -316,6 +334,8 @@ STEP_CLAIMS = [
 
 def video() -> None:
     text = read("docs/VIDEO_SCRIPT.md")
+    if not text:
+        return
     rows = re.findall(r"^\|\s*(\d)\s*\|\s*(\d:\d\d)-(\d:\d\d)\s*\|(.*)\|\s*\"(.*)\"\s*\|\s*$", text, flags=re.M)
     check(len(rows) == 9, f"VIDEO_SCRIPT has {len(rows)} beats, want 9")
     prev_end = "0:00"
@@ -345,6 +365,9 @@ def video() -> None:
 
 def main() -> int:
     for doc in DOCS:
+        if doc in OPTIONAL_DOCS and not (ROOT / doc).exists():
+            read(doc)  # prints the skip note once
+            continue
         check((ROOT / doc).exists(), f"missing document {doc}")
         check_links(doc)
     readme = read("README.md")

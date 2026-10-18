@@ -1,10 +1,12 @@
 # Plexus
 
-**One shared graph brain for AI agent teams.** Claude Code, Hermes and other harnesses remember in text files and
-coordinate through task lists. Plexus gives a team of agents one FalkorDB graph instead: every memory, task, claim, handoff
-and decision is a node, every "because" is an edge. Agents connect over MCP. The team remembers across sessions, works
-without stepping on each other, and can answer *"why did we decide that?"* and *"what did the builder know at step 17?"*
-with a graph query, not a guess.
+**One shared memory for agent teams that work across several repos.** Plexus tracks the decisions a team makes ahead of the
+code, and who changed what and why. Claude Code, Hermes and other harnesses remember in text files and coordinate through task lists,
+which works until the next agent is not in the folder where the file lives. Plexus gives the team one FalkorDB graph instead: every
+memory, task, claim, handoff and decision is a node, every "because" is an edge, and agents connect over MCP. A rule decided in repo A
+is recalled in repo B, a dead agent's task is reclaimed with the evidence kept, and *"why did we decide that?"* and *"what did the
+builder know at step 17?"* are graph queries, not guesses. In the everyday-workflow trials below, real Claude Code agents followed a
+cross-repo rule 24 of 24 times with Plexus and 0 of 24 without it.
 
 **Track: Track 02, Agent Memory and Coordination** · Graph Hacks (WeMakeDevs × FalkorDB).
 
@@ -24,6 +26,32 @@ Plexus tool is a deterministic Cypher query. Only synthetic data is used (a fict
 > pilot, L7, L8, the floor 0.5 / 0.9 forgetting runs and the other removed L5b arms, deployment timings, the Testing counts, the recorded
 > runs' cost. Build per number: [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md). Counts of the tree itself are current: 45 tools,
 > 114 query files, the recording's 247 nodes / 708 edges.
+
+## Where it helps: decisions made ahead of the code, across repos
+
+The case for Plexus is the multi-repo team: a rule decided in a planning session in one repo, a bot's deprecation notice, a change
+on a branch nobody has merged. Nothing in the next repo shows any of it, and the next agent breaks it. With Plexus the decision, who made it,
+from which source and why is one graph every agent on the team reads before it writes code.
+
+![Three everyday workflows, 4 runs per arm: rule violations by plain Claude Code, Claude Code with CLAUDE.md, and Claude Code with Plexus](docs/blog/figures/06_trials.png)
+
+Real Claude Code agents doing ordinary feature work in small repos, in separate sessions that share no conversation.
+There are three arms: plain Claude Code, Claude Code told to keep decisions in `CLAUDE.md`, and Claude Code with Plexus.
+Scoring runs the code the agents wrote. 4 runs per arm, predictions pre-registered. Full records: [trials/](trials/FINDINGS.md).
+
+| Workflow | Plain | CLAUDE.md | Plexus |
+|---|---|---|---|
+| A team rule decided in repo A, later work in repo B (rule violations, of 24) | 24 | 24 | **0** |
+| Parallel agents on git worktrees: rule on an unmerged branch + a non-AI ci-bot's deprecation notice (of 12) | 9 | 8 | **0** |
+| Retract a void document: rules correctly kept (of 8) / void-only rule removed (of 4) | 8 / 0 | 8 / 4 | 8 / 4 |
+
+Plexus wins where no shared file reaches the next agent: another repo, an unmerged branch, a note from a tool that
+isn't an AI. It ties a well-kept `CLAUDE.md` where the file does reach the next agent. Within one repo on one machine,
+plain Claude Code's own auto-memory already ties both (trials 3/4).
+The trial 8 tie exposed a gap: a fact could name only one source. Facts now take several sources (D-015). On the final
+code the re-run linked the double-sourced rule to both documents and retracted the void one through
+`quarantine_source` / `forget_source`, both 4/4. Plexus costs $0.01-0.10 more per run. Caveats: small synthetic repos,
+n = 4 per arm, designed after trials 1-5; build per trial in [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md) (section H).
 
 ## What it does, by Track 02 focus area
 
@@ -306,26 +334,6 @@ and see what stops working.
 
 What the ablation does **not** show: that nothing else could store these relations. SQLite (B1) answers some of the same
 provenance questions with recursive CTEs, and the benchmark below reports where it ties.
-
-## Everyday workflows: where shared memory helps
-
-Real Claude Code agents doing ordinary feature work in small repos, in separate sessions that share no conversation.
-There are three arms: plain Claude Code, Claude Code told to keep decisions in `CLAUDE.md`, and Claude Code with Plexus.
-Scoring runs the code the agents wrote. 4 runs per arm, predictions pre-registered. Full records: [trials/](trials/FINDINGS.md).
-
-| Workflow | Plain | CLAUDE.md | Plexus |
-|---|---|---|---|
-| A team rule decided in repo A, later work in repo B (rule violations, of 24) | 24 | 24 | **0** |
-| Parallel agents on git worktrees: rule on an unmerged branch + a non-AI ci-bot's deprecation notice (of 12) | 9 | 8 | **0** |
-| Retract a void document: rules correctly kept (of 8) / void-only rule removed (of 4) | 8 / 0 | 8 / 4 | 8 / 4 |
-
-Plexus wins where no shared file reaches the next agent: another repo, an unmerged branch, a note from a tool that
-isn't an AI. It ties a well-kept `CLAUDE.md` where the file does reach the next agent. Within one repo on one machine,
-plain Claude Code's own auto-memory already ties both (trials 3/4).
-The trial 8 tie exposed a gap: a fact could name only one source. Facts now take several sources (D-015). On the final
-code the re-run linked the double-sourced rule to both documents and retracted the void one through
-`quarantine_source` / `forget_source`, both 4/4. Plexus costs $0.01-0.10 more per run. Caveats: small synthetic repos,
-n = 4 per arm, designed after trials 1-5; build per trial in [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md) (section H).
 
 ## Benchmark results (Crucible, honest)
 

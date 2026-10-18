@@ -60,3 +60,6 @@ docs/*
 !docs/TESTING.md
 !docs/demo.md
 !docs/view-api.schema.json
+
+# Published blog figures (the post and README embed them from the repo)
+!docs/blog/

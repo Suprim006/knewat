@@ -1,0 +1,54 @@
+/* Plexus blog figures: shared design tokens. Written by figlib.write_tokens(); edit there. */
+:root {
+  --card: #0b1020;
+  --grid: #1a2338;
+  --panel: #0f172a;
+  --ink: #e2e8f0;
+  --muted: #94a3b8;
+  --dim: #64748b;
+  --font-mono: 'JetBrains Mono','Cascadia Mono','Consolas','Courier New',monospace;
+  --font-ui: 'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif;
+  --node-agent-fill: rgba(8,51,68,0.55);  /* Agent */
+  --node-agent-stroke: #22d3ee;
+  --node-fact-fill: rgba(6,78,59,0.55);  /* Fact */
+  --node-fact-stroke: #34d399;
+  --node-decision-fill: rgba(131,24,67,0.50);  /* Decision */
+  --node-decision-stroke: #f472b6;
+  --node-source-fill: rgba(76,29,149,0.50);  /* Source */
+  --node-source-stroke: #a78bfa;
+  --node-task-fill: rgba(124,45,18,0.50);  /* Task */
+  --node-task-stroke: #fb923c;
+  --node-step-fill: rgba(30,41,59,0.70);  /* Step */
+  --node-step-stroke: #94a3b8;
+  --node-toolcall-fill: rgba(120,53,15,0.45);  /* ToolCall */
+  --node-toolcall-stroke: #fbbf24;
+  --edge-based: #60a5fa;  /* BASED_ON */
+  --edge-derived: #bfdbfe;  /* DERIVED_FROM */
+  --edge-read: #e2e8f0;  /* READ */
+  --edge-depends: #64748b;  /* DEPENDS_ON */
+  --edge-supersedes: #fde68a;  /* SUPERSEDES */
+  --edge-contradicts: #f87171;  /* CONTRADICTS */
+  --edge-asserted: #22d3ee;  /* ASSERTED_BY */
+}
+html,body{margin:0;padding:0;background:var(--card);overflow:hidden}
+svg{display:block}
+text{font-family:var(--font-mono);fill:var(--ink)}
+.t-title{font-family:var(--font-ui);font-weight:700;fill:#f8fafc}
+.t-sub{font-family:var(--font-ui);fill:var(--muted)}
+.t-node{font-weight:600}
+.t-muted{fill:var(--muted)}
+.t-dim{fill:var(--dim)}
+.n-agent{fill:var(--node-agent-fill);stroke:var(--node-agent-stroke);stroke-width:1.6}
+.n-fact{fill:var(--node-fact-fill);stroke:var(--node-fact-stroke);stroke-width:1.6}
+.n-decision{fill:var(--node-decision-fill);stroke:var(--node-decision-stroke);stroke-width:1.6}
+.n-source{fill:var(--node-source-fill);stroke:var(--node-source-stroke);stroke-width:1.6}
+.n-task{fill:var(--node-task-fill);stroke:var(--node-task-stroke);stroke-width:1.6}
+.n-step{fill:var(--node-step-fill);stroke:var(--node-step-stroke);stroke-width:1.6}
+.n-toolcall{fill:var(--node-toolcall-fill);stroke:var(--node-toolcall-stroke);stroke-width:1.6}
+.e-based{fill:none;stroke:var(--edge-based);stroke-width:2.6;stroke-linecap:round}
+.e-derived{fill:none;stroke:var(--edge-derived);stroke-width:1.8;stroke-linecap:round}
+.e-read{fill:none;stroke:var(--edge-read);stroke-width:2.0;stroke-dasharray:0.1 6;stroke-linecap:round}
+.e-depends{fill:none;stroke:var(--edge-depends);stroke-width:1.3;stroke-linecap:round}
+.e-supersedes{fill:none;stroke:var(--edge-supersedes);stroke-width:2.2;stroke-dasharray:8 5;stroke-linecap:butt}
+.e-contradicts{fill:none;stroke:var(--edge-contradicts);stroke-width:2.8;stroke-linecap:round}
+.e-asserted{fill:none;stroke:var(--edge-asserted);stroke-width:1.4;stroke-linecap:round}

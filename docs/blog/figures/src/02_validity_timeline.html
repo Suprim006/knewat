@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>A fact is never overwritten; it is closed and superseded</title>
+<link rel="stylesheet" href="tokens.css">
+</head><body>
+<!--
+Figure 02: validity timeline. A fact is never overwritten; it is closed and superseded.
+
+Data (all read from the recorded run, nothing typed from memory):
+  plexus/demo_data/recordings/acme-claude-sonnet/transcripts/*.jsonl : every assert_fact tool_use -> (step, agent, predicate, value)
+  fact id prefixes: docs/VIDEO_SCRIPT.md "Recording ids"; this script asserts each prefix occurs in the transcripts.
+  steps = recording meta.json "steps" (83). v1 asserted at step 8, v2 at step 27 (v1 valid_to = 27), jwt step 44, api key step 50.
+  cursors at step 17 / 38: VIDEO_SCRIPT beat 5 (what did the builder know at step 17 -> v1, at step 38 -> v2).
+Layout: x(step) = X0 + step * (X1 - X0) / STEPS, X0=170, X1=1100.  Lane 1 bars y 190-236, lane 2 jwt 290-326, api key 356-392, axis y 432.
+
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500">
+<defs>
+<pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M40 0 L0 0 0 40" fill="none" stroke="#1a2338" stroke-width="0.6"/></pattern>
+<marker id="m-based" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#60a5fa"/></marker>
+<marker id="m-derived" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#bfdbfe"/></marker>
+<marker id="m-read" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#e2e8f0"/></marker>
+<marker id="m-depends" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#64748b"/></marker>
+<marker id="m-supersedes" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#fde68a"/></marker>
+<marker id="m-contradicts" viewBox="0 0 10 20" refX="5" refY="10" markerWidth="10" markerHeight="20" markerUnits="userSpaceOnUse" orient="auto"><line x1="5" y1="1" x2="5" y2="19" stroke="#f87171" stroke-width="3" stroke-linecap="round"/></marker>
+<marker id="m-asserted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#22d3ee"/></marker>
+<marker id="m-ghost" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#475569"/></marker>
+</defs>
+<rect width="1200" height="500" fill="#0b1020"/>
+<rect width="1200" height="500" fill="url(#grid)"/>
+<rect x="1" y="1" width="1198" height="498" rx="14" fill="none" stroke="#1e293b" stroke-width="2"/>
+<text x="44" y="60" font-size="32" class="t-title">A fact is never overwritten; it is closed and superseded</text>
+<text x="44" y="90" font-size="17" class="t-sub">api_version v1 stays in the graph with valid_to set; as_of(T) reads whichever fact was valid at T</text>
+<path d="M494.5,186 Q461.1,138 427.7,182" class="e-supersedes" marker-end="url(#m-supersedes)"/>
+<rect x="730.2" y="278" width="391.8" height="126" rx="8" fill="rgba(248,113,111,0.10)" stroke="#f87171" stroke-width="1.2" stroke-dasharray="4 4"/>
+<line x1="170" y1="440" x2="1100" y2="440" stroke="#475569" stroke-width="1.5"/>
+<line x1="170.0" y1="440" x2="170.0" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="282.0" y1="440" x2="282.0" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="394.1" y1="440" x2="394.1" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="506.1" y1="440" x2="506.1" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="618.2" y1="440" x2="618.2" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="730.2" y1="440" x2="730.2" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="842.3" y1="440" x2="842.3" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="954.3" y1="440" x2="954.3" y2="446" stroke="#475569" stroke-width="1.5"/>
+<line x1="1100.0" y1="440" x2="1100.0" y2="446" stroke="#475569" stroke-width="1.5"/>
+<g opacity="0.85"><path d="M259.6385542168675,197 Q259.6385542168675,190 266.6385542168675,190 L472.5301204819277,190 L472.5301204819277,236 L266.6385542168675,236 Q259.6385542168675,236 259.6385542168675,229 Z" fill="#0f172a"/><path d="M259.6385542168675,197 Q259.6385542168675,190 266.6385542168675,190 L472.5301204819277,190 L472.5301204819277,236 L266.6385542168675,236 Q259.6385542168675,236 259.6385542168675,229 Z" fill="rgba(6,78,59,0.55)" stroke="#34d399" stroke-width="1.6" stroke-dasharray="5 4"/></g>
+<text x="460.5" y="211" font-size="14" font-weight="600" text-anchor="end" class="" opacity="1">v1  666d2f62</text>
+<text x="460.5" y="228" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">step 8 to 27</text>
+<g opacity="1.0"><path d="M472.5301204819277,197 Q472.5301204819277,190 479.5301204819277,190 L1100,190 L1122,213.0 L1100,236 L479.5301204819277,236 Q472.5301204819277,236 472.5301204819277,229 Z" fill="#0f172a"/><path d="M472.5301204819277,197 Q472.5301204819277,190 479.5301204819277,190 L1100,190 L1122,213.0 L1100,236 L479.5301204819277,236 Q472.5301204819277,236 472.5301204819277,229 Z" fill="rgba(6,78,59,0.55)" stroke="#34d399" stroke-width="1.6"/></g>
+<text x="786.3" y="211" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">v2  41b8a3e6</text>
+<text x="786.3" y="228" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">valid_from step 27, still active</text>
+<g opacity="1.0"><path d="M663.0120481927711,295 Q663.0120481927711,288 670.0120481927711,288 L1100,288 L1122,306.0 L1100,324 L670.0120481927711,324 Q663.0120481927711,324 663.0120481927711,317 Z" fill="#0f172a"/><path d="M663.0120481927711,295 Q663.0120481927711,288 670.0120481927711,288 L1100,288 L1122,306.0 L1100,324 L670.0120481927711,324 Q663.0120481927711,324 663.0120481927711,317 Z" fill="rgba(6,78,59,0.55)" stroke="#34d399" stroke-width="1.6"/></g>
+<text x="881.5" y="311" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">jwt  608a66f1</text>
+<g opacity="1.0"><path d="M730.2409638554217,365 Q730.2409638554217,358 737.2409638554217,358 L1100,358 L1122,376.0 L1100,394 L737.2409638554217,394 Q730.2409638554217,394 730.2409638554217,387 Z" fill="#0f172a"/><path d="M730.2409638554217,365 Q730.2409638554217,358 737.2409638554217,358 L1100,358 L1122,376.0 L1100,394 L737.2409638554217,394 Q730.2409638554217,394 730.2409638554217,387 Z" fill="rgba(6,78,59,0.55)" stroke="#34d399" stroke-width="1.6"/></g>
+<text x="915.1" y="381" font-size="14" font-weight="600" text-anchor="middle" class="" opacity="1">api key  27ed13ad</text>
+<line x1="472.5" y1="184" x2="472.5" y2="242" stroke="#fde68a" stroke-width="1.6" stroke-dasharray="3 3"/>
+<text x="461.1" y="150" font-size="13" font-weight="600" text-anchor="middle" class="" style="fill:#fde68a" opacity="1">SUPERSEDES</text>
+<line x1="360.5" y1="146" x2="360.5" y2="248" stroke="#60a5fa" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="360.5" cy="213.0" r="5.5" fill="#60a5fa" stroke="#0f172a" stroke-width="2"/>
+<rect x="157.0" y="114" width="218" height="26" rx="6" fill="#0f172a" stroke="#60a5fa" stroke-width="1.4"/>
+<text x="265.7" y="132" font-size="13" font-weight="600" text-anchor="middle" class="" opacity="1">as_of(step 17) returns v1</text>
+<line x1="360.5" y1="140" x2="360.5" y2="146" stroke="#60a5fa" stroke-width="2"/>
+<line x1="595.8" y1="146" x2="595.8" y2="248" stroke="#60a5fa" stroke-width="2" stroke-dasharray="6 4"/>
+<circle cx="595.8" cy="213.0" r="5.5" fill="#60a5fa" stroke="#0f172a" stroke-width="2"/>
+<rect x="581.8" y="114" width="218" height="26" rx="6" fill="#0f172a" stroke="#60a5fa" stroke-width="1.4"/>
+<text x="690.5" y="132" font-size="13" font-weight="600" text-anchor="middle" class="" opacity="1">as_of(step 38) returns v2</text>
+<line x1="595.8" y1="140" x2="595.8" y2="146" stroke="#60a5fa" stroke-width="2"/>
+<path d="M770.2,327 L770.2,355" class="e-contradicts" marker-start="url(#m-contradicts)" marker-end="url(#m-contradicts)"/>
+<text x="786.2" y="346" font-size="13" font-weight="600" text-anchor="start" class="" style="fill:#f87171" opacity="1">CONTRADICTS, flagged when written</text>
+<text x="44" y="218" font-size="16" font-weight="700" text-anchor="start" class="" opacity="1">api_version</text>
+<text x="44" y="238" font-size="13" font-weight="400" text-anchor="start" class="t-muted" opacity="1">researcher</text>
+<text x="472.5" y="262" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">valid_to(v1) = valid_from(v2) = step 27</text>
+<text x="44" y="330" font-size="16" font-weight="700" text-anchor="start" class="" opacity="1">auth_method</text>
+<text x="44" y="350" font-size="13" font-weight="400" text-anchor="start" class="t-muted" opacity="1">two agents</text>
+<text x="653" y="311" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">researcher, step 44</text>
+<text x="720.2" y="381" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">planner, step 50</text>
+<text x="716.2" y="346" font-size="13" font-weight="400" text-anchor="end" class="t-muted" opacity="1">both stay active until someone decides</text>
+<text x="170" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">0</text>
+<text x="282" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">10</text>
+<text x="394.1" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">20</text>
+<text x="506.1" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">30</text>
+<text x="618.2" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">40</text>
+<text x="730.2" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">50</text>
+<text x="842.3" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">60</text>
+<text x="954.3" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">70</text>
+<text x="1100" y="462" font-size="13" font-weight="400" text-anchor="middle" class="t-muted" opacity="1">83</text>
+<text x="44" y="445" font-size="13" font-weight="400" text-anchor="start" class="t-muted" opacity="1">global step</text>
+<text x="44" y="462" font-size="13" font-weight="400" text-anchor="start" class="t-dim" opacity="1">1 per call</text>
+<path d="M430,482 L466,482" class="e-supersedes" marker-end="url(#m-supersedes)"/>
+<text x="478" y="486.5" font-size="13" class="t-muted">SUPERSEDES</text>
+<path d="M583,482 L619,482" class="e-contradicts" marker-start="url(#m-contradicts)" marker-end="url(#m-contradicts)"/>
+<text x="627" y="486.5" font-size="13" class="t-muted">CONTRADICTS</text>
+<text x="1156" y="478" font-size="13" text-anchor="end" class="t-dim">Plexus · FalkorDB 6.0.2</text>
+</svg>
+</body></html>
