@@ -34,10 +34,14 @@ def old_library() -> QueryLibrary:
         ).stdout.strip()
         dest = Path(tempfile.mkdtemp(prefix="knewat_old_queries_"))
         archive = subprocess.run(
-            ["git", "archive", BASELINE, "knewat/queries"], cwd=repo, capture_output=True, check=True
+            # The product directory had its pre-rename name at BASELINE, so match it by glob.
+            ["git", "archive", BASELINE, ":(glob)*/queries/**"],
+            cwd=repo,
+            capture_output=True,
+            check=True,
         ).stdout
         subprocess.run(["tar", "-x", "-C", str(dest)], input=archive, check=True)
-        _old_root = dest / "knewat" / "queries"
+        (_old_root,) = dest.glob("*/queries")
     return QueryLibrary(_old_root)
 
 
