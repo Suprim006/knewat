@@ -1,5 +1,7 @@
 # Cypher review: `plexus/queries/view/` + `plexus/queries/activation/` (14 + 8 = 22 files, 551 lines)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../../NUMBERS_STATUS.md).
+
 Read-only audit on `feature/neuro-memory-research` (HEAD e126875), done by the orchestrator (delegation cap = 2
 subagents). Same method and live setup as `relay-staleness.md` (throw-away `audit_orch_*` graphs on plexus-db-13, all
 deleted). This branch changed `activation/activation.cypher`, `activation/pin.cypher` and added `activation/entity_fan.cypher`.

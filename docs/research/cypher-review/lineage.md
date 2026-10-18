@@ -1,5 +1,7 @@
 # Cypher review: `plexus/queries/lineage/` (19 files, 803 lines)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../../NUMBERS_STATUS.md).
+
 Read-only audit against FalkorDB 6.0.2 on branch `feature/neuro-memory-research` (HEAD e126875). Checked against the three
 FalkorDB skills, `docs/reference/FALKORDB_REFERENCE.md` §2, `CLAUDE.md` §6-7, `docs/PLEXUS_REPORT.md` §8.3/§9, and the callers in
 `plexus/src/plexus/lineage/service.py`. `git diff main -- plexus/queries/lineage` touches only `record_recall` and

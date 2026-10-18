@@ -1,5 +1,7 @@
 # Product fixes analysis: read-path audit, duplicate detection, entity resolution
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Scope: the three shortcomings listed in `docs/PLEXUS_REPORT.md` §8.3 (lines 689-697). Design only: nothing in the repo was
 changed except this file. Paths are relative to `plexus/` unless they start with `deploy/` or `docs/`.
 All behaviour claims about FalkorDB are for **6.0.2**. "Verified" means I ran it in a throwaway container

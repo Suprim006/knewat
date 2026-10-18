@@ -1,5 +1,7 @@
 # Cypher review: `plexus/queries/relay/` + `plexus/queries/staleness/` (17 + 14 = 31 files, 544 lines)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../../NUMBERS_STATUS.md).
+
 Read-only audit on `feature/neuro-memory-research` (HEAD e126875). This bucket was reviewed by the orchestrator itself
 (the run's delegation cap allowed only 2 subagents, used for `engram/` and `lineage/`). Method: every file read against
 the three FalkorDB 6.0.2 skills (silent-wrong-answers, big-write quirks, plan-shape), `FALKORDB_REFERENCE.md` §2 and

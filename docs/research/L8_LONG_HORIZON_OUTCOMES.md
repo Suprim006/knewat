@@ -1,5 +1,7 @@
 # P11 / Crucible L8: long-horizon memory under live change, scored on outcomes
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Status: **plan and pre-registration, not yet approved for execution.** Written on branch `p11` (base `main`
 f96df06) before any L8 code exists and before any L8 `claude -p` call. LLM calls made for L8 before this text: **0**.
 Nothing in this document has been measured. L7 is taken by the in-flight P10 branch (graph vs SQL by scale,

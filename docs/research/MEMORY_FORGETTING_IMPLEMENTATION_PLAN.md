@@ -1,5 +1,7 @@
 # Memory forgetting and retrieval upgrade: implementation plan (hand-off spec)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Branch `feature/neuro-memory-research`. Companion: `NEUROSCIENCE_MEMORY_SURVEY.md` (why) and
 `docs/research/neuro-memory/0N-*.md` (per-mechanism detail and sources). This document is the spec a coding
 subagent implements. **Read `neuro-memory/CROSS_CHECK.md` first**: an independent pass found one required fix

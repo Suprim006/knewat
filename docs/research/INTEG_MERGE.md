@@ -1,5 +1,7 @@
 # integ: p10 + p11 + p9f-b merged into trials-int
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Branch `integ` (worktree `wt-integ`) = `trials-int` (76da7d7 = `main` 1ddeb13 + p12) + p10 + p11 + the decided parts of p9f-b.
 `main` is untouched. Every commit was made with git hooks disabled (`-c core.hooksPath=NUL`), so nothing was scanned into `plexus_dev`.
 Decision record: `docs/DECISIONS.md` D-014. Measurement of the merged tree: `docs/BASELINE.md` "L6 on integ".
