@@ -1157,6 +1157,14 @@ table.data thead th {
   border-radius: 4px;
   font-size: 13px;
 }
+.provenance {
+  margin: 6px 0 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--warn, #d97706);
+  border-radius: 4px;
+  font-size: 13px;
+}
 .median-callout ul {
   margin: 4px 0 0;
   padding-left: 18px;
