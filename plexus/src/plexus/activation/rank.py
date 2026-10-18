@@ -163,9 +163,8 @@ def rerank(
             sal = 0.0
             sc = math.log(final) if final > 0 else float("-inf")
         else:
-            # ONE formula on the production path (BRANCH_REVIEW finding 2): score.score() is the D-013
-            # additive score; `act` / `sal` below are its reported components (the same helpers it calls),
-            # not a second computation of the score. Forgetting off = the bypass form (ln rel + sep).
+            # score.score() is the one formula; `act` / `sal` below are its reported components (the same
+            # helpers), not a second computation. Forgetting off = the bypass form (ln rel + sep).
             sc = S.score(
                 rel,
                 A=a,

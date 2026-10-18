@@ -40,9 +40,9 @@ RETRY_FACTOR = 4
 MAX_OVER = 512  # hard cap on the vector fetch size
 MAX_K = 50  # recall clamps k to this
 MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
-DEFAULT_K = 20  # P12: recall's default k (was 8: too few for a task that needs facts from many sprints)
-DEFAULT_BUDGET_CHARS = 6000  # P12: recall's default text budget (was 2,000: about 8 facts' text)
-POOL_FACTOR = 3  # P12: candidates ranked before the cut to k: max(POOL_FACTOR * k, MIN_POOL) <= MAX_POOL
+DEFAULT_K = 20  # recall's default k
+DEFAULT_BUDGET_CHARS = 6000  # recall's default text budget
+POOL_FACTOR = 3  # candidates ranked before the cut to k: max(POOL_FACTOR * k, MIN_POOL) <= MAX_POOL
 MIN_POOL = 60
 MAX_POOL = 150
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
@@ -108,9 +108,8 @@ _SHORT_STOP = frozenset(
 def _query_words(query: str) -> list[str]:
     """The query words the full-text side searches for, at most ``MAX_KEYWORDS``.
 
-    Words of >= 3 characters, plus (P12) shorter tokens that carry a digit (``v2``, ``p9``, ``s7``) or are
-    2-letter words that are not stopwords (``db``, ``ui``): before P12 everything under 3 characters was
-    dropped, so a query for ``v2`` had no keyword side at all.
+    Words of >= 3 characters, plus shorter tokens that carry a digit (``v2``, ``s7``) or are 2-letter words
+    that are not stopwords (``db``, ``ui``).
     """
     keep = (
         w
@@ -132,12 +131,10 @@ def _sibling_boost(rows: list[dict[str, Any]], seeds: int) -> None:
     (same ABOUT entity) of one of the ``seeds`` nearest candidates; ``via`` = that seed for a boosted row that
     is not itself one of them, else ``None``.
 
-    This is the 1-hop expansion of earlier versions (the seeds were the ``2*k`` / ``k`` nearest facts). With
-    P12's larger candidate pool almost every candidate is also a seed, so ``engram/recall``'s own boosted rank
-    would boost nearly everything; the rule is re-applied here to the same number of seeds as before. Facts
-    tied with the last seed's distance are all seeds, so the result does not depend on the order rows arrive
-    in, and a fact with no similarity at all (distance >= 1) is never a seed (before P12 such zero-similarity
-    facts could fill the seed list in index order and boost their siblings).
+    The candidate pool is large, so almost every candidate is a seed of ``engram/recall``'s own boosted
+    rank; the rule is re-applied here to the ``seeds`` nearest only. Facts tied with the last seed's distance
+    are all seeds (the result does not depend on the order rows arrive in), and a fact with no similarity at
+    all (distance >= 1) is never a seed.
     """
     ordered = sorted(float(r["score"]) for r in rows if float(r["score"]) < 1.0)  # no similarity: no seed
     cut = ordered[min(seeds, len(ordered)) - 1] if ordered and seeds > 0 else -1.0
@@ -249,7 +246,7 @@ class Engram:
 
         ``before_create`` runs before that statement, i.e. only when the exact read missed.
         :meth:`assert_fact` uses it to reject a bad scope / episode / source *before* an Entity is created
-        for a call that will be rejected (P5 review Q8).
+        for a call that will be rejected.
 
         Not transitive: A~B and B~C does not make A~C; the statement matches against what exists, so a third
         spelling joins whichever candidate ranks first. A UNIQUE(``Entity.norm_name``) constraint is the
@@ -376,7 +373,7 @@ class Engram:
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
-        ``source_ids`` (P13, trial 8; at most 20, unioned with ``source_id``): every listed Source gets its
+        ``source_ids`` (at most 20, unioned with ``source_id``): every listed Source gets its
         own ``(fact)-[:DERIVED_FROM]->(Source)`` edge, so a fact two documents support survives the quarantine
         of one. An id that is not a Source rejects the whole call (:class:`UnknownReference` ``'source'``,
         nothing written). Asserting an existing value again with sources it is not yet linked to corroborates
@@ -384,16 +381,15 @@ class Engram:
 
         ``step_id`` (an existing Step): a NEW fact is linked ``(Step)-[:WROTE]->(Fact)`` by that statement.
 
-        ``derived_from`` (Source / Episode / Fact ids, at most 100; P9-f, Crucible L6-F): linked
+        ``derived_from`` (Source / Episode / Fact ids, at most 100): linked
         ``(fact)-[:DERIVED_FROM]->(origin)`` in that same statement, so a hard kill cannot leave the fact
-        without the link (it used to be ``Lineage.derive_from``, a second statement). An unknown id raises
-        :class:`UnknownReference` ``'origin'`` and writes nothing.
+        without the link. An unknown id raises :class:`UnknownReference` ``'origin'`` and writes nothing.
 
         Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id, surprise}``. ``surprise`` is the
         value stored on the new fact (0.9 contradiction, 0.6 supersede, else novelty in 0..0.5; ``None`` for a
-        duplicate, which stores nothing). For a duplicate no fact is
-        created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
-        and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
+        duplicate, which stores nothing). For a duplicate no fact is created and ``fact_id == duplicate_of``
+        (the existing fact, which gains an ``ASSERTED_BY {at}`` edge and supersedes this agent's own earlier,
+        different current facts: ``superseded`` lists them).
 
         ``dup_threshold`` overrides the service's paraphrase threshold for this call (a negative value turns
         the paraphrase check off, so only an equal normalised value is a duplicate; ``verify_fact`` uses it,
@@ -405,7 +401,7 @@ class Engram:
 
         Raises :class:`UnknownReference` (a ``LookupError``) and writes nothing if the scope, or a given
         ``episode_id`` / ``source_id``, does not exist: a new subject Entity is only created after those ids
-        were checked, so a rejected call leaves no orphan Entity (P5 Q8).
+        were checked, so a rejected call leaves no orphan Entity.
         The classification and the writes happen in one Cypher statement (``engram/assert_fact``); the
         entity resolution before it is a separate (idempotent) step.
         """
@@ -619,11 +615,11 @@ class Engram:
         The second value is the recall's metadata: for ``why_recalled`` ``entities`` (the entities the query
         named, ``{id: {name, fan}}``), ``predicates`` (the predicates it named, ``{predicate: {fan}}``),
         ``entity_facts_added`` (candidates the named entities contributed, CROSS_CHECK §3.3), ``separation``
-        and ``forgetting`` (what was on), ``mode``; and the page note (P12) ``truncated``,
+        and ``forgetting`` (what was on), ``mode``; and the page note ``truncated``,
         ``omitted_by_budget``, ``more_available``, ``candidates``.
 
         **Scope.** ``scope_id`` and every scope it INHERITS (<= 3 hops); ``all_scopes=True`` (the MCP tool's
-        default scope ``all``, P12) searches every scope of the tenant graph, ``scope_id`` is then ignored
+        default scope ``all``) searches every scope of the tenant graph, ``scope_id`` is then ignored
         (the entity / predicate fans of pattern separation are counted over every scope as well).
 
         **Candidates.** Two channels: the vector index (cosine distance of the fact text to the query, with
@@ -707,7 +703,7 @@ class Engram:
         # Re-rank when use history counts or separation is on (a cue to apply, or candidates to merge).
         rerank_on = fg or sp
         # Seeds of the sibling expansion (and the named entities' per-entity cap): the nearest 2*k when
-        # re-ranking, k otherwise, as before P12's larger pool.
+        # re-ranking, k otherwise.
         seeds = min(2 * k, 2 * MAX_K) if rerank_on else k
         pool = min(max(POOL_FACTOR * k, MIN_POOL), MAX_POOL)
         q = self._embed_query(query)
@@ -925,7 +921,7 @@ class Engram:
 
         Starts with ``k * OVERFETCH`` nodes and, while fewer than ``k`` rows survive the scope / status /
         validity filters, retries with ``RETRY_FACTOR`` times more, up to ``MAX_OVER``. Every keyword hit in
-        ``kw_ids`` that passes the filters is returned on top of the ``k`` nearest (P12).
+        ``kw_ids`` that passes the filters is returned on top of the ``k`` nearest.
         """
         over = max(k * OVERFETCH, 1)
         while True:
