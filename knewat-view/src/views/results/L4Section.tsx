@@ -7,7 +7,7 @@ import { StringList } from './StringList';
 
 /**
  * Who is fastest on the median, computed from the file. Shown for every load level, including the ones where a
- * baseline beats Plexus: the page does not choose which comparison to print.
+ * baseline beats Knewat: the page does not choose which comparison to print.
  */
 function MedianCallout({ sweep, op }: { sweep: L4Sweep; op: string }) {
   const rows = medianComparison(sweep, op);
@@ -21,14 +21,14 @@ function MedianCallout({ sweep, op }: { sweep: L4Sweep; op: string }) {
         {rows.map((r) => (
           <li key={r.x} data-testid={`median-${sweep.key}-${r.x}`}>
             <b>{r.x}</b>: {r.fastest.arm} {fmtMs(r.fastest.p50)} (p99 {fmtMs(r.fastest.p99)})
-            {r.plexus && r.fastest.arm !== r.plexus.arm && (
+            {r.knewat && r.fastest.arm !== r.knewat.arm && (
               <>
                 {' '}
-                · Plexus {r.plexus.arm} {fmtMs(r.plexus.p50)} (p99 {fmtMs(r.plexus.p99)})
+                · Knewat {r.knewat.arm} {fmtMs(r.knewat.p50)} (p99 {fmtMs(r.knewat.p99)})
                 {r.ratio !== undefined && ` · ${fmt(r.ratio)}× the fastest median`}
               </>
             )}
-            {r.plexus && r.fastest.arm === r.plexus.arm && <> · Plexus is fastest</>}
+            {r.knewat && r.fastest.arm === r.knewat.arm && <> · Knewat is fastest</>}
           </li>
         ))}
       </ul>

@@ -25,7 +25,7 @@ export function Layout() {
       <header className="topbar">
         <div className="brand">
           <span className="brand-mark" aria-hidden="true" />
-          Plexus <span className="brand-sub">View</span>
+          Knewat <span className="brand-sub">View</span>
         </div>
         <nav aria-label="Main">
           {NAV.map((n) => (

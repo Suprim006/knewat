@@ -11,7 +11,7 @@ export function pFmt(p: number): string {
   return p < 0.001 ? '< 0.001' : p.toFixed(3);
 }
 
-/** LLM cost of an L2 arm: "-" when unknown, "$0 (no LLM)" for the Plexus answerer. */
+/** LLM cost of an L2 arm: "-" when unknown, "$0 (no LLM)" for the Knewat answerer. */
 export function costText(x: L2Row): string {
   if (x.costUsd === undefined) return '-';
   return x.costUsd === 0

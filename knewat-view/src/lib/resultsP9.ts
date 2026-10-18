@@ -14,8 +14,8 @@ export interface B1hRow {
   title: string;
   correct: number;
   total: number;
-  /** Plexus on the same questions (from layers.L2 / layers.L2_scale), if present. */
-  plexusCorrect?: number;
+  /** Knewat on the same questions (from layers.L2 / layers.L2_scale), if present. */
+  knewatCorrect?: number;
   bothCorrect?: number;
   b1hOnly?: number;
   pOnly?: number;
@@ -30,7 +30,7 @@ export interface B1hInfo {
   honesty: string[];
 }
 
-export function parseB1h(layer: unknown, plexus: Record<string, number | undefined>): B1hInfo | undefined {
+export function parseB1h(layer: unknown, knewat: Record<string, number | undefined>): B1hInfo | undefined {
   if (!isObj(layer) || !isObj(layer.layers)) return undefined;
   const rows: B1hRow[] = [];
   for (const [key, title] of [
@@ -48,7 +48,7 @@ export function parseB1h(layer: unknown, plexus: Record<string, number | undefin
       title,
       correct,
       total,
-      plexusCorrect: plexus[key],
+      knewatCorrect: knewat[key],
       bothCorrect: num(p.both_correct),
       b1hOnly: num(p.b1h_only),
       pOnly: num(p.p_only),
@@ -192,7 +192,7 @@ export interface L6Family {
   conc: L6Conc[];
   crash: L6Crash[];
   pilot: L6Pilot[];
-  /** D: median over the questions of (Plexus latency / SQL latency); undefined for other families */
+  /** D: median over the questions of (Knewat latency / SQL latency); undefined for other families */
   medianSlowdown?: number;
   /** the re-run after the P9-int fixes: A (the impact arms) and F (arm P only) */
   postfixA: (L6Arm & { max?: number })[];

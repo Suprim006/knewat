@@ -211,7 +211,7 @@
       "b2_top_k": 12,
       "budget_usd": 0.0,
       "question_set": {
-        "path": "plexus/demo_data/crucible/questions.yaml",
+        "path": "knewat/demo_data/crucible/questions.yaml",
         "sha256": "b62458338ab55cf2678d0653dbebbb1a578117d6057a30348b1835fa77136cb4",
         "total": 43,
         "asked": 43,
@@ -269,7 +269,7 @@
       "b2_top_k": 12,
       "budget_usd": 0.0,
       "question_set": {
-        "path": "plexus/demo_data/crucible/questions_scale.yaml",
+        "path": "knewat/demo_data/crucible/questions_scale.yaml",
         "sha256": "177d5a0bbbdfa7620b862c1b999e6c6ed006b0fa07d8a82ec7b22ee609c4394b",
         "total": 40,
         "asked": 36,
@@ -393,7 +393,7 @@
     "B2": {
       "label": "Vector",
       "represents": "Retrieval-based memory (Mem0-style)",
-      "description": "Same local bge-small embeddings as Plexus, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
+      "description": "Same local bge-small embeddings as Knewat, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
       "isolation": "one SQLite database file (facts + vectors) per tenant; the tenant name is validated before it becomes a path",
       "capabilities": [
         "as_of",
@@ -404,10 +404,10 @@
       ]
     },
     "P": {
-      "label": "Plexus",
-      "represents": "Plexus: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
+      "label": "Knewat",
+      "represents": "Knewat: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
       "description": "Engram/Relay/Lineage service layer called directly (memory, decision and handoff calls also write Steps and READ/WROTE edges)",
-      "isolation": "one FalkorDB graph per tenant (plexus_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
+      "isolation": "one FalkorDB graph per tenant (knewat_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
       "capabilities": [
         "as_of",
         "contradictions",
@@ -419,10 +419,10 @@
       ]
     },
     "P-mcp": {
-      "label": "Plexus (MCP path)",
-      "represents": "Plexus as the MCP server runs it",
+      "label": "Knewat (MCP path)",
+      "represents": "Knewat as the MCP server runs it",
       "description": "Same as P, but every call goes through Runtime._run: a Step and a ToolCall node are written per call (no JSON transport or network hop to the MCP server)",
-      "isolation": "one FalkorDB graph per tenant (plexus_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
+      "isolation": "one FalkorDB graph per tenant (knewat_t_<tenant>); the tenant is bound at construction, never taken from a tool argument, and validated against ^[a-z0-9_]{1,48}$",
       "capabilities": [
         "as_of",
         "contradictions",
@@ -13936,7 +13936,7 @@
         "claim = claim_next_task, heartbeat, complete are timed separately; each cycle is claim -> heartbeat -> complete.",
         "B2's claims are B1's SQLite claims (hybrid), so only its recall is measured separately.",
         "P-mcp adds a Step and a ToolCall write to every call, as the MCP server does.",
-        "B0/B1/B2 are embedded libraries running inside the crucible container (they have no server); the Plexus arms talk to the FalkorDB container over the compose network. B1/B2 use SQLite's built-in busy handler, which has no fairness queue, so tail latency under write contention is large; cross-process writers cannot be queued in-process.",
+        "B0/B1/B2 are embedded libraries running inside the crucible container (they have no server); the Knewat arms talk to the FalkorDB container over the compose network. B1/B2 use SQLite's built-in busy handler, which has no fairness queue, so tail latency under write contention is large; cross-process writers cannot be queued in-process.",
         "recall includes embedding the query with the local bge-small model (one model instance per process, calls serialised by its lock) for B2, P and P-mcp."
       ]
     },
@@ -14275,7 +14275,7 @@
       "b2_top_k": 12,
       "budget_usd": 0.0,
       "question_set": {
-        "path": "plexus/demo_data/crucible/questions.yaml",
+        "path": "knewat/demo_data/crucible/questions.yaml",
         "sha256": "b62458338ab55cf2678d0653dbebbb1a578117d6057a30348b1835fa77136cb4",
         "total": 43,
         "asked": 43,
@@ -20297,7 +20297,7 @@
       "notes": [
         "LLM cost of the answers reported here: $5.5342 over 129 claude -p calls (0 run in this invocation for $0.0000; 129 re-used from the on-disk cache demo_data/crucible/l2_cache, where each entry is the original call: tokens, cost and latency in the rows are those original measurements, so 'cached: true' on a row means re-scored, not free of cost).",
         "Each baseline question is one `claude -p` process (max-turns 3, no tools, context on stdin, ANTHROPIC_API_KEY removed); permission_denials and tool use are checked per call and fail the question.",
-        "Scoring rule for the baselines: the model may reason in prose first, but the reply must END with exactly one {\"answer\": ...} JSON object (no text after it); that object is compared by exact match. `accuracy_whole_reply_json` is the stricter variant where only replies that are nothing but the JSON object count. The first full run used the whole-reply rule and scored B0 36/43, B1 38/43, B2 39/43 (Plexus 43/43): 13 baseline replies had a sentence of reasoning before a correct JSON object and were counted as unparseable. The rule was changed to the one above after seeing that (a methodology fix made with the results in view, so treat it as such), and every number was recomputed from the cached replies without any new LLM call. Both variants are reported."
+        "Scoring rule for the baselines: the model may reason in prose first, but the reply must END with exactly one {\"answer\": ...} JSON object (no text after it); that object is compared by exact match. `accuracy_whole_reply_json` is the stricter variant where only replies that are nothing but the JSON object count. The first full run used the whole-reply rule and scored B0 36/43, B1 38/43, B2 39/43 (Knewat 43/43): 13 baseline replies had a sentence of reasoning before a correct JSON object and were counted as unparseable. The rule was changed to the one above after seeing that (a methodology fix made with the results in view, so treat it as such), and every number was recomputed from the cached replies without any new LLM call. Both variants are reported."
       ]
     },
     "L2_scale": {
@@ -20380,7 +20380,7 @@
         }
       },
       "question_set": {
-        "path": "plexus/demo_data/crucible/questions_scale.yaml",
+        "path": "knewat/demo_data/crucible/questions_scale.yaml",
         "sha256": "177d5a0bbbdfa7620b862c1b999e6c6ed006b0fa07d8a82ec7b22ee609c4394b",
         "total": 40,
         "asked": 36,
@@ -25952,11 +25952,11 @@
           "P": 8.4
         }
       },
-      "plexus_changes": [
+      "knewat_changes": [
         "Operations whose arguments already name a unique thing (task id, fact label, decision name, subject, source uri) run the unchanged l2 operation with the unchanged statements: decision_facts, decision_fact_agents, decision_sources, handoff_artifacts, handoff_route, handoff_facts, as_of_values, as_of_facts, value_history, decisions_on_fact, superseder, fact_agent, fact_source, fact_scope, blocked_by_failure, direct_dependencies, ready_after, reclaimer, previous_claimer, current_value, scope_leak, episode_agent, remaining_from_source, forgotten_facts.",
         "Nine operations ask about a whole class (all handoffs to X, all decisions on superseded facts, ...) and are restricted to the sprint named in the question by a Python filter over the rows of the same statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): handoffs_to, handoffs_with_superseded_facts, decisions_on_superseded, decisions_on_forgotten, active_conflicts, active_conflict_agents, reclaimed_tasks, completed_by, episode_count.",
         "One operation needs one new read-only statement: visible_facts runs queries/l2scale/facts_visible_subject.cypher (l2/facts_visible plus a subject restriction), because the global scope now holds the facts of all 20 sprints.",
-        "No other query was changed; the original plexus_answerer.py and queries/l2/*.cypher are untouched."
+        "No other query was changed; the original knewat_answerer.py and queries/l2/*.cypher are untouched."
       ],
       "notes": [
         "LLM cost of the answers reported here: $6.4872 over 108 claude -p calls (0 run in this invocation for $0.0000; 108 re-used from the on-disk cache demo_data/crucible/l2_scale_cache, where each entry is the original call: tokens, cost and latency in the rows are those original measurements, so 'cached: true' means re-scored, not free of cost).",
@@ -25970,7 +25970,7 @@
         "Baselines are the same unmodified `claude -p --model sonnet` with no tools at the same 32,000-character cap, shown BM25-ranked chunks/rows (B0, B1) or vector top-12 (B2) selected with the question text. The selectors were written once, before any paid call, and not tuned afterwards.",
         "Arm P answers with hand-written Cypher per question family (the same operations as the 43-question L2 run, with the sprint scoping listed in the results); that engineering effort is part of what P costs and the baselines get no equivalent helper.",
         "Reply rule for the baselines is the final L2 rule: prose may precede the reply, which must END with one {\"answer\": ...} object; the whole-reply-JSON variant is reported next to it.",
-        "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1."
+        "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Knewat's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1."
       ]
     },
     "B1h": {
@@ -25987,7 +25987,7 @@
         "cypher_answerer_lines": 174,
         "cypher_statement_lines": 82,
         "sql_answerer_lines": 379,
-        "note": "non-blank non-comment lines; the SQL answerer also holds the scale variant (about a quarter of it), the Cypher one keeps that in scale_plexus.py (not counted)"
+        "note": "non-blank non-comment lines; the SQL answerer also holds the scale variant (about a quarter of it), the Cypher one keeps that in scale_knewat.py (not counted)"
       },
       "layers": {
         "L2": {
@@ -27889,14 +27889,14 @@
         }
       },
       "honesty": [
-        "B1h is the existing B1 SQLite store with one added table (claims, written in the claim's own transaction) because B1 never kept the claim history that the Recovery questions need and Plexus keeps as CLAIMED edges. No other schema or index change.",
+        "B1h is the existing B1 SQLite store with one added table (claims, written in the claim's own transaction) because B1 never kept the claim history that the Recovery questions need and Knewat keeps as CLAIMED edges. No other schema or index change.",
         "The 17 SQL operations were written by the same author as the Cypher ones, with knowledge of the question set and the scenario: that is the point of a control (same effort, same spec), but it is not a blind SQL arm. Ground truth is the committed question files (derived from the script ledger), the ledger of the B1h replay equals the reference ledger.",
-        "A tie on correctness here says the L2/L2-scale gap between Plexus and the B1/B0 readers is reader-vs-query, not graph-vs-SQL. B1h is in-process SQLite (no network hop), Plexus crosses a container network: latency columns are not a like-for-like speed comparison."
+        "A tie on correctness here says the L2/L2-scale gap between Knewat and the B1/B0 readers is reader-vs-query, not graph-vs-SQL. B1h is in-process SQLite (no network hop), Knewat crosses a container network: latency columns are not a like-for-like speed comparison."
       ]
     },
     "C7x": {
       "title": "C7 extended: does the duplicate rule merge two different statements?",
-      "note": "C7X run with the real fastembed embedder (BAAI/bge-small-en-v1.5), sequential, one run per arm; see docs/BASELINE.md 'C7 extended results' and 'Re-verification on main (2026-10-18)'. Rebuilt by rerun_c7x.py (plexus.crucible.l1.run_test per arm) at 2026-10-18T08:11:38Z.",
+      "note": "C7X run with the real fastembed embedder (BAAI/bge-small-en-v1.5), sequential, one run per arm; see docs/BASELINE.md 'C7 extended results' and 'Re-verification on main (2026-10-18)'. Rebuilt by rerun_c7x.py (knewat.crucible.l1.run_test per arm) at 2026-10-18T08:11:38Z.",
       "arms": {
         "P": {
           "violations": {
@@ -34882,8 +34882,8 @@
                     "num_turns": 12,
                     "tool_calls": 11,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -34918,8 +34918,8 @@
                     "num_turns": 11,
                     "tool_calls": 10,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -34978,8 +34978,8 @@
                     "num_turns": 49,
                     "tool_calls": 48,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -35038,8 +35038,8 @@
                     "num_turns": 13,
                     "tool_calls": 12,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -35091,8 +35091,8 @@
                     "num_turns": 30,
                     "tool_calls": 29,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -35151,8 +35151,8 @@
                     "num_turns": 13,
                     "tool_calls": 12,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -35211,8 +35211,8 @@
                     "num_turns": 12,
                     "tool_calls": 11,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -35247,8 +35247,8 @@
                     "num_turns": 15,
                     "tool_calls": 14,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -39469,7 +39469,7 @@
                     "num_turns": 2,
                     "tool_calls": 1,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -39500,7 +39500,7 @@
                     "num_turns": 2,
                     "tool_calls": 1,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -39531,7 +39531,7 @@
                     "num_turns": 2,
                     "tool_calls": 1,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -39562,7 +39562,7 @@
                     "num_turns": 2,
                     "tool_calls": 1,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -39593,7 +39593,7 @@
                     "num_turns": 2,
                     "tool_calls": 1,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": true,
                     "context_chars": 0,
@@ -39624,7 +39624,7 @@
                     "num_turns": 2,
                     "tool_calls": 1,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -39655,7 +39655,7 @@
                     "num_turns": 6,
                     "tool_calls": 5,
                     "tools": [
-                      "mcp__plexus__why"
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -39686,8 +39686,8 @@
                     "num_turns": 5,
                     "tool_calls": 4,
                     "tools": [
-                      "mcp__plexus__impact",
-                      "mcp__plexus__why"
+                      "mcp__knewat__impact",
+                      "mcp__knewat__why"
                     ],
                     "cached": false,
                     "context_chars": 0,
@@ -45608,23 +45608,23 @@
       }
     },
     "headline": [
-      "B0 matches Plexus (0 violations on both) on C1, C2, C3, C4, C5, C6, C7, C8.",
-      "B1 matches Plexus (0 violations on both) on C1, C2, C3, C4, C5, C6, C7, C8.",
-      "B2 matches Plexus (0 violations on both) on C1, C2, C3, C4, C5, C6, C7, C8.",
+      "B0 matches Knewat (0 violations on both) on C1, C2, C3, C4, C5, C6, C7, C8.",
+      "B1 matches Knewat (0 violations on both) on C1, C2, C3, C4, C5, C6, C7, C8.",
+      "B2 matches Knewat (0 violations on both) on C1, C2, C3, C4, C5, C6, C7, C8.",
       "L2: B0 + claude -p (sonnet) answered 43/43 (100.0%) exactly, 15930 tokens and $0.062 per question.",
       "L2: B1 + claude -p (sonnet) answered 43/43 (100.0%) exactly, 13406 tokens and $0.052 per question.",
       "L2: B2 + claude -p (sonnet) answered 40/43 (93.0%) exactly, 4092 tokens and $0.015 per question.",
-      "L2: Plexus (deterministic Cypher) answered 43/43 (100.0%) exactly.",
-      "L2: Plexus ties B0 by 0.0 points.",
-      "L2: Plexus ties B1 by 0.0 points.",
-      "L2: Plexus beats B2 by 7.0 points.",
+      "L2: Knewat (deterministic Cypher) answered 43/43 (100.0%) exactly.",
+      "L2: Knewat ties B0 by 0.0 points.",
+      "L2: Knewat ties B1 by 0.0 points.",
+      "L2: Knewat beats B2 by 7.0 points.",
       "L2-scale: B0 + claude -p (sonnet) answered 30/36 (83.3%) exactly, 19646 tokens and $0.077 per question.",
       "L2-scale: B1 + claude -p (sonnet) answered 32/36 (88.9%) exactly, 22010 tokens and $0.087 per question.",
       "L2-scale: B2 + claude -p (sonnet) answered 23/36 (63.9%) exactly, 4424 tokens and $0.016 per question.",
-      "L2-scale: Plexus (deterministic Cypher) answered 36/36 (100.0%) exactly.",
-      "L2-scale: Plexus beats B0 by 16.7 points.",
-      "L2-scale: Plexus beats B1 by 11.1 points.",
-      "L2-scale: Plexus beats B2 by 36.1 points."
+      "L2-scale: Knewat (deterministic Cypher) answered 36/36 (100.0%) exactly.",
+      "L2-scale: Knewat beats B0 by 16.7 points.",
+      "L2-scale: Knewat beats B1 by 11.1 points.",
+      "L2-scale: Knewat beats B2 by 36.1 points."
     ],
     "l1_violations_total": {
       "B0": 0,
@@ -45649,18 +45649,18 @@
     "Synthetic workloads and data only; one scenario family, a single-node database, scripted (non-LLM) workers.",
     "L1 workers are threads sharing one backend object (each with its own DB connection / file descriptors); only C2's victims are separate OS processes killed with SIGKILL. Concurrency is real but not deterministic: seeds fix the workload (priorities, DAG shape, values, query times), not the interleaving.",
     "Violations are reported as exact counts summed over all runs, never averaged.",
-    "B0 and B1 are configured competently (locks / transactions). Where they match Plexus the table says so; Plexus's advantage is claimed only for what a graph does better: provenance, dependency traversal, time travel, contradictions at write time and cascading forget.",
-    "L4 client latency is measured by Python threads in one process: at high worker counts it includes GIL queuing. Server-side run_time_ms is shown next to it for the Plexus arms.",
-    "C5 probes each arm's tool API and, for Plexus, the MCP runtime's tenant binding (a header cannot rebind a connection). It does not probe the HTTP View API: that API is read-only, names the tenant in the URL and has no authentication in v1, so isolation there is by deployment. For B0/B1/B2 nothing stops a process with file access from opening another tenant's directory, and Plexus does not enforce per-graph access control inside FalkorDB either; a client with database access can query any graph.",
-    "BASELINE \u00a71 asks for one container per arm. B0/B1/B2 are embedded libraries with no server, so they run inside the crucible container; only FalkorDB (the Plexus arms) is a separate container.",
+    "B0 and B1 are configured competently (locks / transactions). Where they match Knewat the table says so; Knewat's advantage is claimed only for what a graph does better: provenance, dependency traversal, time travel, contradictions at write time and cascading forget.",
+    "L4 client latency is measured by Python threads in one process: at high worker counts it includes GIL queuing. Server-side run_time_ms is shown next to it for the Knewat arms.",
+    "C5 probes each arm's tool API and, for Knewat, the MCP runtime's tenant binding (a header cannot rebind a connection). It does not probe the HTTP View API: that API is read-only, names the tenant in the URL and has no authentication in v1, so isolation there is by deployment. For B0/B1/B2 nothing stops a process with file access from opening another tenant's directory, and Knewat does not enforce per-graph access control inside FalkorDB either; a client with database access can query any graph.",
+    "BASELINE \u00a71 asks for one container per arm. B0/B1/B2 are embedded libraries with no server, so they run inside the crucible container; only FalkorDB (the Knewat arms) is a separate container.",
     "Numbers from `--quick` runs, or from outside Docker (Windows port forward adds ~10 ms per round trip), are not the published figures.",
     "L2: exact-match accuracy over a script-derived question set (43 questions, 10 families), one scenario, one model, one run per question; no LLM judge anywhere. Ground truth is computed from the scenario script, not read back from any arm.",
     "Baselines are the same unmodified `claude -p` with no tools, shown their own artifacts at the same 32,000-character cap. At this scenario size the B0 and B1 artifacts fit in the cap without truncation, so the cap is not what limits them; B2 deliberately sees only its top-12 retrieved chunks.",
-    "Result in plain words: at this scenario size (12 tasks, 9 facts, 6 decisions) the whole B0 run is about 25k characters and the whole B1 dump about 18k, so Sonnet reads everything and answers every question; Plexus TIES them on accuracy. What Plexus does measurably better here is cost and determinism (no tokens, a few milliseconds, same answer every time versus 13-16k tokens and ~5 s per question). Whether accuracy diverges when the artifacts outgrow the context cap is NOT measured by this run.",
+    "Result in plain words: at this scenario size (12 tasks, 9 facts, 6 decisions) the whole B0 run is about 25k characters and the whole B1 dump about 18k, so Sonnet reads everything and answers every question; Knewat TIES them on accuracy. What Knewat does measurably better here is cost and determinism (no tokens, a few milliseconds, same answer every time versus 13-16k tokens and ~5 s per question). Whether accuracy diverges when the artifacts outgrow the context cap is NOT measured by this run.",
     "Arm P answers each question with a hand-written Cypher statement per question family. That is the point of the comparison (a graph can answer these with one query) but it is also engineering effort the baselines do not get: the baselines were given no hand-written SQL or grep helpers either.",
     "The Procedures family of BASELINE \u00a72 is not in this set: the backend protocol has no procedure tool, so the arms cannot be compared on it. Cross-session recall is reduced to episodes recorded by agents (the protocol has no sessions).",
     "The scenario is the P3 Acme script replayed on the backend protocol, plus three L2 additions (the forum-post poison fault, one extra builder decision, two project-scoped facts); see crucible/l2/scenario.py.",
-    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
+    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Knewat's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
     "L2-scale: exact-match accuracy over script-derived questions (40 generated, 10 families x 4; 36 asked after the pre-registered budget rule) about 20 independent sprints of one team history; one scenario family, one model (sonnet), one run per question; no LLM judge. Ground truth is computed from the per-sprint scenario ledgers, not read back from any arm. Pre-registered in docs/BASELINE.md before the first paid call.",
     "The history is 20 repetitions of the same synthetic story with varied ids and values. Real histories are messier; sprints here do not interact, which favours retrieval (a question names its sprint and a sprint's records share its tag).",
     "Every question names exactly one sprint, so competent keyword retrieval can find a sprint's records. Questions that aggregate across sprints (the strongest case for a graph) are NOT in this set.",

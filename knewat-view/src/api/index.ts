@@ -31,9 +31,9 @@ function lazyFixtureApi(): ViewApi {
   };
 }
 
-/** The API the app uses: fixtures when `VITE_FIXTURES=1`, else HTTP at `VITE_PLEXUS_API`. */
+/** The API the app uses: fixtures when `VITE_FIXTURES=1`, else HTTP at `VITE_KNEWAT_API`. */
 export function createApi(env: Env = import.meta.env): ViewApi {
   const base =
-    typeof env.VITE_PLEXUS_API === 'string' && env.VITE_PLEXUS_API ? env.VITE_PLEXUS_API : DEFAULT_API_BASE;
+    typeof env.VITE_KNEWAT_API === 'string' && env.VITE_KNEWAT_API ? env.VITE_KNEWAT_API : DEFAULT_API_BASE;
   return isFixtureMode(env) ? lazyFixtureApi() : createHttpApi(base);
 }

@@ -1,5 +1,5 @@
 /**
- * Ablation toggle (presentation only): hide the relationship types the Plexus features lean on and say
+ * Ablation toggle (presentation only): hide the relationship types the Knewat features lean on and say
  * which tools stop working without them. The real ablation (edges actually removed, features measured)
  * is a Crucible result; this view only simulates the *picture*, never touches data.
  */

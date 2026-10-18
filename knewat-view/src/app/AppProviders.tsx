@@ -5,7 +5,7 @@ import type { ViewApi } from '../api';
 import { useAsync } from '../lib/useAsync';
 import { ApiContext, TenantContext } from './context';
 
-const STORAGE_KEY = 'plexus.tenant';
+const STORAGE_KEY = 'knewat.tenant';
 
 function readStored(): string {
   try {

@@ -1,5 +1,5 @@
 /**
- * Snapshot of the real Cypher files under plexus/queries/{engram,relay} (taken at P1), so the
+ * Snapshot of the real Cypher files under knewat/queries/{engram,relay} (taken at P1), so the
  * "Cypher behind this event" panel has real text in fixture mode. Regenerate by re-copying; the live
  * API serves `GET /api/queries/{name}` instead.
  */

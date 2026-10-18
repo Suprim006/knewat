@@ -32,7 +32,7 @@ export function L2Section({
           {info.modelIds.length > 0 && ` (${info.modelIds.join(', ')})`}, no tools
           {info.contextBudgetChars !== undefined &&
             `, context capped at ${fmtInt(info.contextBudgetChars)} chars`}
-          . Plexus answers with one hand-written Cypher statement per question family and no LLM.
+          . Knewat answers with one hand-written Cypher statement per question family and no LLM.
         </p>
       )}
       <Bars

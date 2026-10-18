@@ -1,7 +1,7 @@
 import type { Results } from '../api/types';
 
 /**
- * A results file in the shape plexus/src/plexus/crucible/results.py documents, with made-up numbers.
+ * A results file in the shape knewat/src/knewat/crucible/results.py documents, with made-up numbers.
  * Only for tests; it is never served by the app (the fixture API answers /api/results with 404 so the
  * Results page shows its "no results yet" state, and the live API serves the real file).
  */
@@ -39,7 +39,7 @@ export const SAMPLE_RESULTS: Results = {
   arms: {
     B0: { label: 'Files', represents: 'Markdown memory + JSON task list with locks', isolation: 'directory' },
     B1: { label: 'SQLite', represents: 'Just use a relational database', isolation: 'database file' },
-    P: { label: 'Plexus', represents: 'FalkorDB, one graph per tenant', isolation: 'graph per tenant' },
+    P: { label: 'Knewat', represents: 'FalkorDB, one graph per tenant', isolation: 'graph per tenant' },
   },
   layers: {
     L1: {
@@ -125,7 +125,7 @@ export const SAMPLE_RESULTS: Results = {
     },
   },
   summary: {
-    headline: ['Plexus: 0 violations across C1-C8.', 'Ablation breaks 1 of 1 edge-dependent capabilities.'],
+    headline: ['Knewat: 0 violations across C1-C8.', 'Ablation breaks 1 of 1 edge-dependent capabilities.'],
   },
   honesty: ['SAMPLE data for UI tests, not measured.'],
 };

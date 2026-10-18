@@ -1,7 +1,7 @@
 /**
- * Types for the Plexus View API (docs/PLAN.md §4) and graph model v1 (docs/graph-model.md).
+ * Types for the Knewat View API (docs/PLAN.md §4) and graph model v1 (docs/graph-model.md).
  *
- * These mirror the real API: `plexus/src/plexus/api/models.py` (exported to docs/view-api.schema.json).
+ * These mirror the real API: `knewat/src/knewat/api/models.py` (exported to docs/view-api.schema.json).
  * Field names are final; times are epoch milliseconds. Everything funnels through `src/api/client.ts`.
  */
 
@@ -122,9 +122,9 @@ export interface Subgraph {
 
 /** `GET /api/tenants` */
 export interface TenantInfo {
-  /** Short tenant id (the part after `plexus_t_`). */
+  /** Short tenant id (the part after `knewat_t_`). */
   tenant: string;
-  /** Full graph name, `plexus_t_<id>`. */
+  /** Full graph name, `knewat_t_<id>`. */
   graph: string;
 }
 export interface TenantList {
@@ -357,7 +357,7 @@ export interface MemoryStrength {
   last_use?: number | null;
   last_recall?: number | null;
   explanation: string;
-  /** False when PLEXUS_FORGETTING=off: recall ignores activation. */
+  /** False when KNEWAT_FORGETTING=off: recall ignores activation. */
   forgetting: boolean;
 }
 

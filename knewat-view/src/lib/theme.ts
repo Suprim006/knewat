@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react';
 
 export type ThemeMode = 'auto' | 'light' | 'dark';
-const KEY = 'plexus.theme';
+const KEY = 'knewat.theme';
 
 function stored(): ThemeMode {
   try {

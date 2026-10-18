@@ -1,7 +1,7 @@
-# plexus-view
+# knewat-view
 
-Read-only web demonstrator for Plexus: shows what is stored in FalkorDB, how it flows in, and what the demo created.
-Vite + React + TypeScript, Cytoscape.js (+ `cytoscape-fcose`) for the graph. It talks to the Plexus View API only and never writes.
+Read-only web demonstrator for Knewat: shows what is stored in FalkorDB, how it flows in, and what the demo created.
+Vite + React + TypeScript, Cytoscape.js (+ `cytoscape-fcose`) for the graph. It talks to the Knewat View API only and never writes.
 
 | Page         | What it shows                                                                                                                                                                                                                                                             |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -17,10 +17,10 @@ Vite + React + TypeScript, Cytoscape.js (+ `cytoscape-fcose`) for the graph. It 
 ## Run
 
 ```bash
-cd plexus-view
+cd knewat-view
 npm ci
 VITE_FIXTURES=1 npm run dev        # fixture mode, http://localhost:5180
-npm run dev                        # live mode: View API at VITE_PLEXUS_API (default http://localhost:8080)
+npm run dev                        # live mode: View API at VITE_KNEWAT_API (default http://localhost:8080)
 ```
 
 PowerShell: `$env:VITE_FIXTURES=1; npm run dev`.
@@ -30,7 +30,7 @@ The View API must allow CORS for `http://localhost:5180`.
 
 | Variable          | Meaning                                                                                           |
 | ----------------- | ------------------------------------------------------------------------------------------------- |
-| `VITE_PLEXUS_API` | View API base URL. Default `http://localhost:8080`.                                               |
+| `VITE_KNEWAT_API` | View API base URL. Default `http://localhost:8080`.                                               |
 | `VITE_FIXTURES`   | `1` serves the built-in "Acme Notes API" dataset from `src/fixtures/` instead of calling the API. |
 
 ## Gate
@@ -45,7 +45,7 @@ npm ci && npm run lint && npm run typecheck && npm test -- --run && npm run buil
 
 ```
 src/
-  api/        types.ts (mirrors plexus/src/plexus/api/models.py), client.ts (HTTP client), sse.ts (SSE + reconnect), index.ts (createApi)
+  api/        types.ts (mirrors knewat/src/knewat/api/models.py), client.ts (HTTP client), sse.ts (SSE + reconnect), index.ts (createApi)
   fixtures/   acme.ts (scripted Acme Notes scenario), p7.ts (staleness / forgetting overlay), client.ts (fixture ViewApi), queries.ts (real .cypher text), results.ts (test-only results sample)
   lib/        graphController.ts (imperative Cytoscape wrapper), labels.ts, flow.ts, useFlowFeed.ts, eventGraph.ts, timeMachine.ts,
               whyLayout.ts, summary.ts, ablation.ts, results.ts, cypher.ts (highlighter), theme.ts, useAsync.ts, memory.ts (suspect / pinned / dormant / opacity rules), useNow.ts
@@ -80,7 +80,7 @@ at a time.) In fixture mode there is no stream; **Replay last events as live** f
 
 ### API contract
 
-All types in `src/api/types.ts` mirror `plexus/src/plexus/api/models.py` (also exported to `docs/view-api.schema.json`): `{tenants:[{tenant, graph}]}`,
+All types in `src/api/types.ts` mirror `knewat/src/knewat/api/models.py` (also exported to `docs/view-api.schema.json`): `{tenants:[{tenant, graph}]}`,
 `GraphEdge = {source, target, type}` (no edge id, so the client keys edges `source|type|target`), `ToolCallEvent` with `step_id`/`step_n`/`created`/`updated`,
 `StepResponse.agents[].read/wrote`, `WhyResponse.result.{root, kind, facts, agents, sources, episodes, steps, paths, nodes, edges}`, `QueryText`.
 The fixture client returns the same shapes. Step numbers are **per agent** (each agent has its own `Step` chain), so the Time Machine slider value `n` means
@@ -105,7 +105,7 @@ All of it is read-only and every field is optional (a tenant or server without P
 
 ### Results page
 
-`GET /api/results` is read defensively (`lib/results.ts`): it follows the schema documented in `plexus/src/plexus/crucible/results.py`
+`GET /api/results` is read defensively (`lib/results.ts`): it follows the schema documented in `knewat/src/knewat/crucible/results.py`
 (`layers.L1`, `layers.L4.{claim,recall,tenant}_sweep`, `layers.ablation`) and accepts L2 (`layers.L2`, accuracy per arm as `{arms:{B0:{accuracy}}}`,
 `{B0:{...}}` or `[{arm, accuracy}]`, ratios or percentages) because that layer's shape was not yet fixed. A 404 shows the "no results yet" placeholder;
 nothing is estimated. `src/fixtures/results.ts` is a made-up sample used only by tests.
@@ -118,11 +118,11 @@ A presentation-only switch in the Explorer: it hides `DEPENDS_ON`, `BASED_ON`, `
 ### Live smoke test
 
 ```bash
-docker run -d --name plexus-db-87 -p 127.0.0.1:6387:6379 falkordb/falkordb:6.0.2
-FALKORDB_PORT=6387 PLEXUS_API_PORT=18087 plexus/.venv/Scripts/plexus-api.exe &
-FALKORDB_PORT=6387 plexus/.venv/Scripts/python.exe plexus-view/scripts/seed_live.py live      # small seed through the MCP tools
-# or the scripted demo: FALKORDB_PORT=6387 plexus demo live --scripted --tenant demo --speed 1 --embedder hash
-VITE_PLEXUS_API=http://localhost:18087 npm run dev                                              # http://localhost:5180
+docker run -d --name knewat-db-87 -p 127.0.0.1:6387:6379 falkordb/falkordb:6.0.2
+FALKORDB_PORT=6387 KNEWAT_API_PORT=18087 knewat/.venv/Scripts/knewat-api.exe &
+FALKORDB_PORT=6387 knewat/.venv/Scripts/python.exe knewat-view/scripts/seed_live.py live      # small seed through the MCP tools
+# or the scripted demo: FALKORDB_PORT=6387 knewat demo live --scripted --tenant demo --speed 1 --embedder hash
+VITE_KNEWAT_API=http://localhost:18087 npm run dev                                              # http://localhost:5180
 ```
 
 ## Fixture data: "Acme Notes API"
@@ -138,4 +138,4 @@ It contains: 3 agents, 12 tasks with a dependency DAG (done / claimed / failed /
 - step 21: the builder asserts `auth = API key`, which `CONTRADICTS` the researcher's `auth = JWT`; the planner resolves it with a decision;
 - step 26: T9 (rate limiting) fails and the planner hands it back with a fallback.
 
-`GET /api/queries/{name}` in fixture mode returns the real `.cypher` text (with its header parsed into `mode`/`purpose`/`params`/`returns`) from the files from `plexus/queries/{engram,relay}` (snapshot in `queries.ts`).
+`GET /api/queries/{name}` in fixture mode returns the real `.cypher` text (with its header parsed into `mode`/`purpose`/`params`/`returns`) from the files from `knewat/queries/{engram,relay}` (snapshot in `queries.ts`).

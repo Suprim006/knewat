@@ -25,7 +25,7 @@ export const LABEL_COLORS: Record<string, string> = {
 const FALLBACK_COLOR = '#999999';
 export const labelColor = (label: string): string => LABEL_COLORS[label] ?? FALLBACK_COLOR;
 
-/** Which Plexus module owns a label (graph model v1). Used to group the legend. */
+/** Which Knewat module owns a label (graph model v1). Used to group the legend. */
 export const LABEL_MODULES: Record<string, string> = {
   Agent: 'Shared',
   Scope: 'Engram',

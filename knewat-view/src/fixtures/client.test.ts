@@ -8,7 +8,7 @@ const api = createFixtureApi(data);
 describe('fixture ViewApi', () => {
   it('lists tenants', async () => {
     const t = await api.tenants();
-    expect(t.tenants.map((x) => x.graph)).toEqual(['plexus_t_acme', 'plexus_t_scratch']);
+    expect(t.tenants.map((x) => x.graph)).toEqual(['knewat_t_acme', 'knewat_t_scratch']);
   });
 
   it('inventory counts match the dataset', async () => {

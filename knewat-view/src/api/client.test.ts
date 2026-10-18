@@ -141,8 +141,8 @@ describe('createApi', () => {
     expect(t.tenants.map((x) => x.tenant)).toContain('acme');
     expect(api.streamUrl('acme')).toBeNull();
   });
-  it('uses VITE_PLEXUS_API otherwise, defaulting to :8080', () => {
-    expect(createApi({ VITE_PLEXUS_API: 'http://x:9' }).streamUrl('t')).toBe('http://x:9/api/t/stream');
+  it('uses VITE_KNEWAT_API otherwise, defaulting to :8080', () => {
+    expect(createApi({ VITE_KNEWAT_API: 'http://x:9' }).streamUrl('t')).toBe('http://x:9/api/t/stream');
     expect(createApi({}).streamUrl('t')).toBe('http://localhost:8080/api/t/stream');
   });
 });

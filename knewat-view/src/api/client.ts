@@ -51,7 +51,7 @@ export function graphParams(q: GraphQuery = {}): Params {
   };
 }
 
-/** Typed client for the read-only Plexus View API (docs/PLAN.md §4). */
+/** Typed client for the read-only Knewat View API (docs/PLAN.md §4). */
 export function createHttpApi(
   base: string = DEFAULT_API_BASE,
   fetchImpl: typeof fetch = (...a) => fetch(...a),

@@ -186,7 +186,7 @@ export function L6Section({ l6 }: { l6: L6Info }) {
       <h2 id="l6-h">L6 · where a graph could beat SQL: five pre-registered families</h2>
       <p className="muted">
         Each family has a hand-written SQL control (B1h) and states its prediction before the run. A tie or a
-        Plexus loss is a valid outcome and is shown as such. Family C (multi-hop recall) was not run.{' '}
+        Knewat loss is a valid outcome and is shown as such. Family C (multi-hop recall) was not run.{' '}
         {l6.postfixRun && (
           <>
             A and F were re-run after the fixes the first run exposed (run <code>{l6.postfixRun}</code>, no
@@ -226,7 +226,7 @@ export function L6Section({ l6 }: { l6: L6Info }) {
           </div>
           <p className="muted">
             B1a = an agent with one SQL tool; B0g = an agent with files and a shell; B0r = a reader with a 32k
-            excerpt and no tools; P-mcp = an agent with the Plexus MCP tools (not asked family D: no tool
+            excerpt and no tools; P-mcp = an agent with the Knewat MCP tools (not asked family D: no tool
             exists for it). {l6.llmCalls} paid calls, {usd(l6.costUsd)} of the{' '}
             {l6.budgetCapUsd !== undefined ? usd(l6.budgetCapUsd) : '$20'} cap. Eight questions and one
             repetition cannot show a gap under three questions.

@@ -30,8 +30,8 @@ import type {
 /** Fixture tenant ids. `acme` holds the Acme Notes dataset, `scratch` is an empty graph. */
 export const FIXTURE_TENANTS: TenantList = {
   tenants: [
-    { tenant: 'acme', graph: 'plexus_t_acme' },
-    { tenant: 'scratch', graph: 'plexus_t_scratch' },
+    { tenant: 'acme', graph: 'knewat_t_acme' },
+    { tenant: 'scratch', graph: 'knewat_t_scratch' },
   ],
 };
 
@@ -375,7 +375,7 @@ export function createFixtureApi(
       throw new ApiError(
         400,
         'fixture:/cypher',
-        'Fixture mode only supports the example queries on the Cypher page; run against a live Plexus API for anything else.',
+        'Fixture mode only supports the example queries on the Cypher page; run against a live Knewat API for anything else.',
       );
     },
 

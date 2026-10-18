@@ -13,7 +13,7 @@ const REPO = 'acme-notes';
 const ROOT = 'C:/acme-notes';
 const HOUR = 3_600_000;
 
-/** Floor of the rank multiplier (PLEXUS_ACT_FLOOR); the multiplier is halfway to 1 at A0. */
+/** Floor of the rank multiplier (KNEWAT_ACT_FLOOR); the multiplier is halfway to 1 at A0. */
 const FLOOR = 0.5;
 const DECAY = 0.5;
 

@@ -85,7 +85,7 @@ export function Results() {
       <h1 id="res-h">Results</h1>
       {res.data && <ProvenanceBanner p={parseProvenance(res.data)} />}
       <p className="muted">
-        The Crucible benchmark: Files, SQLite, Vector and Plexus on the same tool interface. Read from{' '}
+        The Crucible benchmark: Files, SQLite, Vector and Knewat on the same tool interface. Read from{' '}
         <code>/api/results</code>.
       </p>
       {res.loading && <p className="muted">Loading results…</p>}
@@ -94,7 +94,7 @@ export function Results() {
           <h2>No Crucible results yet</h2>
           <p>
             The results file appears after a benchmark run (<code>uv run crucible all --quick</code>); point
-            the API at it with <code>PLEXUS_RESULTS_PATH</code>. Until then this page has nothing to show, and
+            the API at it with <code>KNEWAT_RESULTS_PATH</code>. Until then this page has nothing to show, and
             nothing here is estimated.
           </p>
         </div>

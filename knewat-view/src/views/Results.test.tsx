@@ -66,7 +66,7 @@ describe('Results page', () => {
 
     it('prints the headline and honesty notes, and flags a quick run', async () => {
       render();
-      expect(await screen.findByText('Plexus: 0 violations across C1-C8.')).toBeInTheDocument();
+      expect(await screen.findByText('Knewat: 0 violations across C1-C8.')).toBeInTheDocument();
       expect(screen.getByTestId('run-meta')).toHaveTextContent('quick run');
       expect(screen.getByText(/SAMPLE data for UI tests/)).toBeInTheDocument();
     });

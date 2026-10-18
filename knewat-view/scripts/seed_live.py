@@ -1,8 +1,8 @@
-"""Seed a small Acme-style tenant through the real MCP tools (in-process) for live smoke tests of plexus-view.
+"""Seed a small Acme-style tenant through the real MCP tools (in-process) for live smoke tests of knewat-view.
 
-Usage (from the repo root; needs the plexus venv and a FalkorDB, no LLM, hash embeddings only):
+Usage (from the repo root; needs the knewat venv and a FalkorDB, no LLM, hash embeddings only):
 
-    FALKORDB_PORT=6387 plexus/.venv/Scripts/python.exe plexus-view/scripts/seed_live.py smoke [--pause 0.4]
+    FALKORDB_PORT=6387 knewat/.venv/Scripts/python.exe knewat-view/scripts/seed_live.py smoke [--pause 0.4]
 
 With ``--pause`` the calls are spread out in time, so a View open on /flow shows them arriving over SSE.
 """
@@ -15,10 +15,10 @@ import json
 import sys
 
 from mcp import Client
-from plexus.embed import HashEmbedder
-from plexus.graph.client import GraphClient
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
+from knewat.embed import HashEmbedder
+from knewat.graph.client import GraphClient
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 
 
 async def main(tenant: str, pause: float) -> None:

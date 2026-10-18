@@ -29,13 +29,13 @@ function History({ h }: { h: NonNullable<L2Info['history']> }) {
 function Significance({ p, baselines, armLabel }: { p: L2Row; baselines: L2Row[]; armLabel: ArmLabel }) {
   return (
     <div data-testid="l2scale-significance">
-      <h3>Is Plexus’s lead real? Intervals and a paired sign test</h3>
+      <h3>Is Knewat’s lead real? Intervals and a paired sign test</h3>
       <div className="table-scroll">
         <table className="data">
           <thead>
             <tr>
-              <th>Plexus vs</th>
-              <th>Questions only Plexus got right</th>
+              <th>Knewat vs</th>
+              <th>Questions only Knewat got right</th>
               <th>Questions only the baseline got right</th>
               <th>Paired sign test p (exact, two-sided)</th>
               <th>Wilson intervals overlap?</th>
@@ -67,7 +67,7 @@ function Significance({ p, baselines, armLabel }: { p: L2Row; baselines: L2Row[]
         correction for that. Overlapping intervals and a p-value above 0.05 mean the gap is not
         distinguishable from sampling noise with this many questions; a gap with a small p-value is
         suggestive, not proof. The honesty notes below say which choices favour the baselines and which favour
-        Plexus.
+        Knewat.
       </p>
     </div>
   );
@@ -158,11 +158,11 @@ export function ScaleExtras({ rows, info, armLabel }: { rows: L2Row[]; info: L2I
       )}
       {rows.some((x) => x.byStratum) && <Strata rows={rows} armLabel={armLabel} />}
       {rows.some((x) => x.failure) && <Failures rows={rows} armLabel={armLabel} />}
-      {info.plexusChanges.length > 0 && (
+      {info.knewatChanges.length > 0 && (
         <details data-testid="l2scale-changes">
-          <summary>What was changed in the Plexus answerer for this run</summary>
+          <summary>What was changed in the Knewat answerer for this run</summary>
           <ul>
-            {info.plexusChanges.map((c) => (
+            {info.knewatChanges.map((c) => (
               <li key={c}>{c}</li>
             ))}
           </ul>

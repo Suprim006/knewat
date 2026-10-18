@@ -7,9 +7,9 @@ import { intervalsOverlap, medianComparison, parseResults, signTest } from '../l
 import { acme, renderApp } from '../test/render';
 
 /**
- * Pins the Results page to the REAL combined file (`plexus/src/plexus/crucible/results/latest-all.json`:
+ * Pins the Results page to the REAL combined file (`knewat/src/knewat/crucible/results/latest-all.json`:
  * L1 + L4 + ablation from the first compose run, merged with the full L2 run via
- * `python -m plexus.crucible.l2.run merge`). The copy next to this file is a snapshot of it; a Python test
+ * `python -m knewat.crucible.l2.run merge`). The copy next to this file is a snapshot of it; a Python test
  * (tests/crucible/test_results_file.py) checks the committed original has the keys read here.
  */
 const REAL = JSON.parse(
@@ -58,12 +58,12 @@ describe('parseResults on the real combined file', () => {
     expect(r.l2Info!.notes.length).toBeGreaterThan(0);
   });
 
-  it('computes who is fastest on the median claim: SQLite (B1) beats Plexus', () => {
+  it('computes who is fastest on the median claim: SQLite (B1) beats Knewat', () => {
     const claim = r.l4.find((s) => s.key === 'claim_sweep')!;
     const cmp = medianComparison(claim, 'claim');
     const top = cmp[cmp.length - 1]!;
     expect(top.fastest.arm).toBe('B1');
-    expect(top.plexus!.arm).toBe('P');
+    expect(top.knewat!.arm).toBe('P');
     expect(top.ratio!).toBeGreaterThan(1);
     // ... while the tail tells the other half: B1's p99 is worse than its p50 by orders of magnitude
     expect(top.fastest.p99).toBeGreaterThan(top.fastest.p50 * 100);
@@ -95,7 +95,7 @@ describe('Results page on the real combined file', () => {
     // honesty list: the full sentence, unchanged
     const honesty = (REAL.honesty as string[]).find((h) => h.startsWith('Result in plain words'))!;
     expect(screen.getByText(honesty)).toBeInTheDocument();
-    expect(screen.getByText(/Plexus TIES them on accuracy/)).toBeInTheDocument();
+    expect(screen.getByText(/Knewat TIES them on accuracy/)).toBeInTheDocument();
   });
 
   it('shows L4 with SQLite faster on the median claim, not hidden', async () => {
@@ -103,7 +103,7 @@ describe('Results page on the real combined file', () => {
     const med = await screen.findByTestId('median-claim_sweep');
     const top = within(med).getByTestId('median-claim_sweep-200');
     expect(top).toHaveTextContent('B1');
-    expect(top).toHaveTextContent('Plexus P');
+    expect(top).toHaveTextContent('Knewat P');
     expect(top).toHaveTextContent('× the fastest median');
     expect(screen.getByTestId('l4-notes')).toHaveTextContent('no fairness queue');
   });
@@ -132,7 +132,7 @@ describe('L2_scale in the real combined file', () => {
     expect(r.l2ScaleInfo).toMatchObject({ mode: 'full', asked: 36, total: 40 });
     expect(r.l2ScaleInfo!.history!.overBudget.B0).toBeCloseTo(16.65, 2);
     expect(r.l2ScaleInfo!.honesty.length).toBe(7);
-    expect(r.l2ScaleInfo!.plexusChanges.length).toBeGreaterThan(0);
+    expect(r.l2ScaleInfo!.knewatChanges.length).toBeGreaterThan(0);
   });
 
   it('computes the paired sign tests BASELINE.md reports (p = 0.031 for B0, 0.125 for B1)', () => {
@@ -209,7 +209,7 @@ describe('Results page: L2 at scale section', () => {
     expect(screen.getByTestId('l2scale-notes')).toHaveTextContent('re-used from the on-disk cache');
   });
 
-  it('lists the changes made to the Plexus answerer', async () => {
+  it('lists the changes made to the Knewat answerer', async () => {
     render();
     expect(await screen.findByTestId('l2scale-changes')).toHaveTextContent(
       'Nine operations ask about a whole class',
@@ -220,10 +220,10 @@ describe('Results page: L2 at scale section', () => {
 describe('P9 layers on the real combined file', () => {
   const r = parseResults(REAL);
 
-  it('B1h: hand-written SQL ties Plexus on L2 and L2-scale', () => {
+  it('B1h: hand-written SQL ties Knewat on L2 and L2-scale', () => {
     const rows = Object.fromEntries((r.b1h?.rows ?? []).map((x) => [x.layer, x]));
-    expect(rows.L2).toMatchObject({ correct: 43, total: 43, plexusCorrect: 43 });
-    expect(rows.L2_scale).toMatchObject({ correct: 36, total: 36, plexusCorrect: 36 });
+    expect(rows.L2).toMatchObject({ correct: 43, total: 43, knewatCorrect: 43 });
+    expect(rows.L2_scale).toMatchObject({ correct: 36, total: 36, knewatCorrect: 36 });
   });
 
   it('C7 extended: 0 false merges of 150, and the heavy-paraphrase target is reported as missed', () => {

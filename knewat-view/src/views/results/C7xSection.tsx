@@ -4,24 +4,24 @@ const pct = (v: number): string => `${v.toFixed(v % 1 === 0 ? 0 : 1)}%`;
 
 /** C7 extended: 226 labelled pairs; the gate is zero false merges in every category. */
 export function C7xSection({ c7x }: { c7x: C7xInfo }) {
-  const plexus = c7x.arms.find((a) => a.arm === 'P');
+  const knewat = c7x.arms.find((a) => a.arm === 'P');
   const missed = c7x.targets.filter((t) => t.missed);
   return (
     <section className="result-block" aria-labelledby="c7x-h" data-testid="c7x">
       <h2 id="c7x-h">C7 extended · does the duplicate rule merge two different statements?</h2>
-      {plexus && (
+      {knewat && (
         <p data-testid="c7x-headline">
           <b>
-            {plexus.falseMerges} false merges in {plexus.notMergePairs} pairs that must stay apart
+            {knewat.falseMerges} false merges in {knewat.notMergePairs} pairs that must stay apart
           </b>{' '}
           (negation, antonyms, units, number words, near-twins). 95% upper bound by the rule of three:{' '}
           {c7x.falseMergeUpper95 !== undefined
             ? pct(c7x.falseMergeUpper95 * 100)
-            : `< ${pct(300 / plexus.notMergePairs)}`}
-          ; it says nothing about phrasings the corpus does not contain. Of the {plexus.mergePairs} true
-          paraphrases, {plexus.autoMerged} are merged automatically (
-          {pct((100 * plexus.autoMerged) / plexus.mergePairs)}) and {plexus.surfaced} are merged or surfaced
-          for review ({pct((100 * plexus.surfaced) / plexus.mergePairs)}).
+            : `< ${pct(300 / knewat.notMergePairs)}`}
+          ; it says nothing about phrasings the corpus does not contain. Of the {knewat.mergePairs} true
+          paraphrases, {knewat.autoMerged} are merged automatically (
+          {pct((100 * knewat.autoMerged) / knewat.mergePairs)}) and {knewat.surfaced} are merged or surfaced
+          for review ({pct((100 * knewat.surfaced) / knewat.mergePairs)}).
         </p>
       )}
       {missed.length > 0 && (
@@ -67,7 +67,7 @@ export function C7xSection({ c7x }: { c7x: C7xInfo }) {
         </table>
       </div>
       <details>
-        <summary>Per category (Plexus service arm)</summary>
+        <summary>Per category (Knewat service arm)</summary>
         <div className="table-scroll">
           <table className="data">
             <thead>

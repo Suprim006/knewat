@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ABLATED_EDGES, ABLATION_RESULTS_PATH } from '../lib/ablation';
 
-/** Shown while the ablation switch is on: which Plexus features stop working without the hidden edges. */
+/** Shown while the ablation switch is on: which Knewat features stop working without the hidden edges. */
 export function AblationPanel({ counts }: { counts: Record<string, number> }) {
   return (
     <section

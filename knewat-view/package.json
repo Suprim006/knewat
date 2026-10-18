@@ -1,9 +1,9 @@
 {
-  "name": "plexus-view",
+  "name": "knewat-view",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Plexus View: read-only web demonstrator for the Plexus graph (Explorer, Flow, Time Machine, Why, Inventory, Results).",
+  "description": "Knewat View: read-only web demonstrator for the Knewat graph (Explorer, Flow, Time Machine, Why, Inventory, Results).",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

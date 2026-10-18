@@ -25,7 +25,7 @@ const EXAMPLES: { label: string; query: string }[] = [
   },
 ];
 
-const STORAGE_KEY = 'plexus-view.cypher.last';
+const STORAGE_KEY = 'knewat-view.cypher.last';
 
 function loadLast(): string {
   try {

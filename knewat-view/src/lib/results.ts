@@ -1,6 +1,6 @@
 /**
- * Read the Crucible results JSON (`GET /api/results`) defensively. Shape: plexus/src/plexus/crucible/results.py
- * (`schema_version` 1) plus `layers.L2` (plexus/src/plexus/crucible/l2/README.md). Anything missing or oddly
+ * Read the Crucible results JSON (`GET /api/results`) defensively. Shape: knewat/src/knewat/crucible/results.py
+ * (`schema_version` 1) plus `layers.L2` (knewat/src/knewat/crucible/l2/README.md). Anything missing or oddly
  * shaped is skipped, so a partial file still renders. Pinned by `src/fixtures/results.real.json`.
  */
 import { parseB1h, parseC7x, parseL6 } from './resultsP9';
@@ -95,8 +95,8 @@ export interface L2Info {
     strata: Record<string, number[]>;
     scenario: Record<string, number>;
   };
-  /** L2-scale only: the changes made to the Plexus answerer for it, verbatim. */
-  plexusChanges: string[];
+  /** L2-scale only: the changes made to the Knewat answerer for it, verbatim. */
+  knewatChanges: string[];
   /** L2-scale only: the run's honesty notes (also in the global list), verbatim. */
   honesty: string[];
   seed?: number;
@@ -341,7 +341,7 @@ function parseL2Info(layer: unknown): L2Info | undefined {
     families,
     notes: strs(layer.notes),
     history: historyOf(layer.history),
-    plexusChanges: strs(layer.plexus_changes),
+    knewatChanges: strs(layer.knewat_changes),
     honesty: strs(layer.honesty),
     seed: isObj(layer.question_set) ? num(layer.question_set.seed) : undefined,
   };
@@ -533,8 +533,8 @@ export function parseResults(raw: unknown): ParsedResults {
     }
   }
   out.ablation = parseAblation(layers.ablation);
-  const plexusCorrect = (rows?: L2Row[]) => rows?.find((x) => x.arm === 'P')?.correct;
-  out.b1h = parseB1h(layers.B1h, { L2: plexusCorrect(out.l2), L2_scale: plexusCorrect(out.l2Scale) });
+  const knewatCorrect = (rows?: L2Row[]) => rows?.find((x) => x.arm === 'P')?.correct;
+  out.b1h = parseB1h(layers.B1h, { L2: knewatCorrect(out.l2), L2_scale: knewatCorrect(out.l2Scale) });
   out.c7x = parseC7x(layers.C7x);
   out.l6 = parseL6(layers.L6);
   out.unknown = Object.keys(raw).filter((k) => !KNOWN_TOP.has(k));
@@ -554,30 +554,30 @@ export function peakPoints(sweep: L4Sweep): L4Point[] {
 export interface MedianComparison {
   x: number;
   fastest: { arm: string; p50: number; p99: number };
-  plexus?: { arm: string; p50: number; p99: number };
-  /** Plexus's median relative to the fastest arm's; > 1 means slower. */
+  knewat?: { arm: string; p50: number; p99: number };
+  /** Knewat's median relative to the fastest arm's; > 1 means slower. */
   ratio?: number;
 }
 
 /**
- * For one operation: at every load level, which arm has the lowest median, and how Plexus (arm `P`) compares on
+ * For one operation: at every load level, which arm has the lowest median, and how Knewat (arm `P`) compares on
  * both the median and the tail. Computed from the data, so the page states what the file says: if a baseline wins
  * on the median it is named (with its own tail next to it).
  */
-export function medianComparison(sweep: L4Sweep, op: string, plexusArm = 'P'): MedianComparison[] {
+export function medianComparison(sweep: L4Sweep, op: string, knewatArm = 'P'): MedianComparison[] {
   const xs = [...new Set(sweep.points.map((p) => p.x))].sort((a, b) => a - b);
   const out: MedianComparison[] = [];
   for (const x of xs) {
     const here = sweep.points.filter((p) => p.x === x && p.ops[op]);
     if (here.length === 0) continue;
     const best = here.reduce((a, b) => (b.ops[op]!.client.p50 < a.ops[op]!.client.p50 ? b : a));
-    const pl = here.find((p) => p.arm === plexusArm);
+    const pl = here.find((p) => p.arm === knewatArm);
     const cell = (p: L4Point) => ({ arm: p.arm, p50: p.ops[op]!.client.p50, p99: p.ops[op]!.client.p99 });
     const bestP50 = best.ops[op]!.client.p50;
     out.push({
       x,
       fastest: cell(best),
-      plexus: pl ? cell(pl) : undefined,
+      knewat: pl ? cell(pl) : undefined,
       ratio: pl && bestP50 > 0 ? pl.ops[op]!.client.p50 / bestP50 : undefined,
     });
   }

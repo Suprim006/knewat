@@ -1,6 +1,6 @@
 /**
  * Where the numbers on the Results page were measured: read from the results file's own envelope
- * (`GET /api/results`, shape in plexus/src/plexus/crucible/results.py). Nothing is hard-coded, because the
+ * (`GET /api/results`, shape in knewat/src/knewat/crucible/results.py). Nothing is hard-coded, because the
  * file is regenerated on newer builds.
  *
  *  - build: `environment.git_commit` (short commit id). Empty or missing -> 'unknown'.
