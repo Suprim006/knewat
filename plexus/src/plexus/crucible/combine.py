@@ -31,14 +31,18 @@ DEFAULT_L6 = DEMO_DATA / "l6"
 DEFAULT_C7X = DEMO_DATA / "c7x_results.json"
 
 
+def _mark_layer(doc: dict[str, Any], name: str) -> None:
+    run_layers = doc.setdefault("run", {}).setdefault("layers", [])
+    if name not in run_layers:
+        run_layers.append(name)
+
+
 def merge_l2_scale(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
     """``base`` with the L2-scale layer, its arm info, summary lines and honesty notes added."""
     out = copy.deepcopy(base)
     # the run's honesty notes travel with the layer too (verbatim), so the Results page can print them inside its section
     out.setdefault("layers", {})["L2_scale"] = {**doc["layers"]["L2_scale"], "honesty": list(doc["honesty"])}
-    run_layers = out.setdefault("run", {}).setdefault("layers", [])
-    if "L2_scale" not in run_layers:
-        run_layers.append("L2_scale")
+    _mark_layer(out, "L2_scale")
     out.setdefault("config", {})["l2_scale"] = doc["config"]["l2_scale"]
     for arm, info in doc["arms"].items():
         out.setdefault("arms", {}).setdefault(arm, info)
@@ -61,9 +65,7 @@ def merge_b1h(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
         "title": "B1h: hand-written SQL control for L2 and L2-scale",
         "run": doc["run"], "answerer": doc["answerer"], "code_size": doc["code_size"], "layers": doc["layers"], "honesty": doc["honesty"],
     }  # fmt: skip
-    run_layers = out.setdefault("run", {}).setdefault("layers", [])
-    if "B1h" not in run_layers:
-        run_layers.append("B1h")
+    _mark_layer(out, "B1h")
     return out
 
 
@@ -87,9 +89,7 @@ def merge_c7x(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
             "other_merge_categories_auto_pct": 100.0,
         },
     }
-    run_layers = out.setdefault("run", {}).setdefault("layers", [])
-    if "C7x" not in run_layers:
-        run_layers.append("C7x")
+    _mark_layer(out, "C7x")
     return out
 
 
@@ -97,9 +97,7 @@ def merge_l6(base: dict[str, Any], layer: dict[str, Any]) -> dict[str, Any]:
     """``base`` with the L6 beat-SQL layer (``plexus.crucible.l6.run.build_layer``) as ``layers["L6"]``."""
     out = copy.deepcopy(base)
     out.setdefault("layers", {})["L6"] = layer
-    run_layers = out.setdefault("run", {}).setdefault("layers", [])
-    if "L6" not in run_layers:
-        run_layers.append("L6")
+    _mark_layer(out, "L6")
     return out
 
 

@@ -34,8 +34,6 @@ def play_team(backend, **faults):
 
 
 def test_server_exposes_the_plexus_tool_names_and_arguments():
-    from plexus.mcp.runtime import Runtime  # noqa: F401  (the real surface lives in plexus.mcp.tools)
-
     async def names(backend):
         async with Client(build_baseline_server(backend)) as mcp:
             return {t.name: t for t in (await mcp.list_tools()).tools}

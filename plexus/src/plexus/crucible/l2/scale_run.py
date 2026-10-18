@@ -30,26 +30,23 @@ from plexus.crucible.backends import open_backend
 from plexus.crucible.l2 import contexts as C
 from plexus.crucible.l2 import scale_contexts as SC
 from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner
-from plexus.crucible.l2.questions import CONVENTIONS, FAMILIES, Question, parse_reply, score
-from plexus.crucible.l2.run import ANSWERERS, DEMO_DATA, _pct, arm_summary, context_summary, reply_format
+from plexus.crucible.l2.questions import CONVENTIONS, FAMILIES, Question, score
+from plexus.crucible.l2.run import DEMO_DATA, _pct, arm_summary, context_summary, reply_format
 from plexus.crucible.l2.scale_plexus import ScalePlexusAnswerer
 from plexus.crucible.l2.scale_questions import (
     CONVENTIONS_SCALE_EXTRA,
     SEED,
-    build_scale_questions,
     dump_scale_questions,
     generate_scale,
     load_scale_questions,
-    scale_summary,
 )
 from plexus.crucible.l2.scale_scenario import ScaleLedger, play_scale
-from plexus.crucible.util import fmt_ms, iso_utc, percentile, run_stamp
+from plexus.crucible.util import fmt_ms, iso_utc, run_stamp
 
 K_SPRINTS = 20
 QUESTIONS_PATH = DEMO_DATA / "questions_scale.yaml"
 CACHE_DIR = DEMO_DATA / "l2_scale_cache"
 OUT_DIR = DEMO_DATA / "l2_scale"
-BASELINES = ("B0", "B1", "B2")
 ARMS = ("B0", "B1", "B2", "P")
 PROMPT_VERSION = "l2-scale-v1"
 # pre-registered pilot: five families, all three strata (early / middle / late), fixed before any paid call
@@ -689,15 +686,6 @@ def main(argv: list[str] | None = None) -> int:
         print(hline)
     return 0
 
-
-_ = (
-    ANSWERERS,
-    BASELINES,
-    build_scale_questions,
-    parse_reply,
-    percentile,
-    scale_summary,
-)  # re-exported for tests
 
 if __name__ == "__main__":
     raise SystemExit(main())

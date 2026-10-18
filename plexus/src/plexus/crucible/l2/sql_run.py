@@ -23,7 +23,6 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.api import BackendSpec  # noqa: F401  (documented spec shape)
 from plexus.crucible.backends.sqlite_h import SqliteHistoryBackend
 from plexus.crucible.l2 import run as L2R
 from plexus.crucible.l2 import scale_run as SR
