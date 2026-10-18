@@ -1,0 +1,132 @@
+{
+  "criteria": [
+    {
+      "hard": false,
+      "id": "hub: sep recall@1 >= 0.90 (plan \u00a75.3)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": true,
+      "id": "hub: sep recall@1 >= 0.80 (falsification floor)",
+      "ok": true,
+      "value": [
+        1.0
+      ]
+    },
+    {
+      "hard": false,
+      "id": "hub: sep other hub fact above the target <= 10%",
+      "ok": true,
+      "value": [
+        0.0
+      ]
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "git_commit": "7f28f60",
+  "hub": {
+    "arms": {
+      "off": {
+        "entity_facts_added_mean": 0,
+        "hub_fact_above_target": 0.035,
+        "missed_rank": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          3
+        ],
+        "n": 200,
+        "other_hub_fact_in_top5": 1.0,
+        "probe_ms_p50": 46.75455000051443,
+        "recall@1": 0.965,
+        "recall@5": 1.0,
+        "statements_per_probe": 2
+      },
+      "sep": {
+        "entity_facts_added_mean": 0,
+        "hub_fact_above_target": 0.0,
+        "missed_rank": [],
+        "n": 200,
+        "other_hub_fact_in_top5": 1.0,
+        "probe_ms_p50": 68.0357000001095,
+        "recall@1": 1.0,
+        "recall@5": 1.0,
+        "statements_per_probe": 5
+      }
+    },
+    "config": {
+      "arms": [
+        "off",
+        "sep"
+      ],
+      "embedder": "FastEmbedder",
+      "facts_per_other": 5,
+      "hub": "Atlas Core Platform",
+      "hub_facts": 200,
+      "others": 40,
+      "seed": 20261016,
+      "settings": {
+        "off": {
+          "cue_s": 5.0,
+          "s_max": 3.912023005428146,
+          "separation": false,
+          "w_entity": 0.03,
+          "w_predicate": 0.02
+        },
+        "sep": {
+          "cue_s": 5.0,
+          "s_max": 3.912023005428146,
+          "separation": true,
+          "w_entity": 0.03,
+          "w_predicate": 0.02
+        }
+      }
+    },
+    "criteria": [
+      {
+        "hard": false,
+        "id": "hub: sep recall@1 >= 0.90 (plan \u00a75.3)",
+        "ok": true,
+        "value": [
+          1.0
+        ]
+      },
+      {
+        "hard": true,
+        "id": "hub: sep recall@1 >= 0.80 (falsification floor)",
+        "ok": true,
+        "value": [
+          1.0
+        ]
+      },
+      {
+        "hard": false,
+        "id": "hub: sep other hub fact above the target <= 10%",
+        "ok": true,
+        "value": [
+          0.0
+        ]
+      }
+    ],
+    "seconds": {
+      "build": 11.3,
+      "total": 37.1
+    },
+    "world": {
+      "facts": 400,
+      "hub_fan_resolved": 200,
+      "predicate_fan_max": 6,
+      "predicate_fan_mean": 2
+    }
+  },
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 37.1,
+  "started_at": "2026-10-18T08:07:09Z"
+}
