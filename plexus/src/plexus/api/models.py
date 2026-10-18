@@ -352,12 +352,29 @@ class QueryText(BaseModel):
     text: str = Field(description="The full .cypher file text, header included.")
 
 
+class CypherRequest(BaseModel):
+    query: str = Field(min_length=1, description="Read-only Cypher text (at most 4000 characters, else 413).")
+    params: dict[str, Any] | None = Field(default=None, description="Query parameters ($name).")
+
+
+class CypherResponse(BaseModel):
+    tenant: str
+    columns: list[str]
+    rows: list[list[Any]] = Field(
+        description="One list per row. Scalars as JSON; nodes, edges and paths are objects with a '_type' key."
+    )
+    row_count: int = Field(description="Rows returned (at most 500).")
+    truncated: bool = Field(description="True when the result had more rows than were returned.")
+    run_time_ms: float = Field(description="Server-side execution time reported by FalkorDB.")
+
+
 class ErrorBody(BaseModel):
     detail: str
 
 
 # Models exported to docs/view-api.schema.json (one schema per response).
 EXPORTED = (
+    CypherResponse,
     TenantsResponse,
     InventoryResponse,
     GraphResponse,

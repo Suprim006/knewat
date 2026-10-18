@@ -5,6 +5,8 @@ import { QUERY_TEXTS } from './queries';
 import { ApiError } from '../api/client';
 import { OPEN } from '../api/types';
 import type {
+  CypherResult,
+  CypherValue,
   FlowResponse,
   GraphEdge,
   GraphNode,
@@ -336,6 +338,45 @@ export function createFixtureApi(
       const s = memoryStrength(forTenant(tenant), factId);
       if (!s) throw new ApiError(404, `fixture:/memory-strength/${factId}`, `unknown fact id: ${factId}`);
       return s;
+    },
+
+    async cypher(tenant, query): Promise<CypherResult> {
+      const d = forTenant(tenant);
+      const q = query.replace(/\s+/g, ' ').trim().replace(/;$/, '');
+      const done = (columns: string[], rows: CypherValue[][]): CypherResult => ({
+        tenant,
+        columns,
+        rows,
+        row_count: rows.length,
+        truncated: false,
+        run_time_ms: 1,
+      });
+      if (/^MATCH \(n\) RETURN labels\(n\)\[0\] AS label, count\(\*\) AS n/i.test(q)) {
+        const counts = new Map<string, number>();
+        for (const n of d.nodes) counts.set(n.label, (counts.get(n.label) ?? 0) + 1);
+        return done(
+          ['label', 'n'],
+          [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([l, n]) => [l, n]),
+        );
+      }
+      if (/^CALL db\.labels\(\)/i.test(q)) {
+        return done(
+          ['label'],
+          [...new Set(d.nodes.map((n) => n.label))].sort().map((l) => [l]),
+        );
+      }
+      if (/^MATCH \(f:Fact\) RETURN f\.id, f\.predicate, f\.value/i.test(q)) {
+        const facts = d.nodes.filter((n) => n.label === 'Fact').slice(0, 25);
+        return done(
+          ['f.id', 'f.predicate', 'f.value'],
+          facts.map((f) => [f.id, String(f.props.predicate), String(f.props.value)]),
+        );
+      }
+      throw new ApiError(
+        400,
+        'fixture:/cypher',
+        'Fixture mode only supports the example queries on the Cypher page; run against a live Plexus API for anything else.',
+      );
     },
 
     async queryText(name): Promise<QueryText> {

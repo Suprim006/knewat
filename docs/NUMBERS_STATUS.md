@@ -9,7 +9,7 @@ near build (that goes in the last column as 'last reproduced on'). **STALE, buil
 A stale number is not necessarily wrong; it is unverified for this build. Several were reproduced on later builds (last column), and a few moved
 (the L5b noise share, the L6-C `hit_any`): those are called out.
 
-**Tally:** 68 rows: 8 CURRENT, 56 STALE, 4 STALE with unknown build. Section-level rows are used for the long BASELINE result sections.
+**Tally:** 69 rows: 9 CURRENT, 56 STALE, 4 STALE with unknown build (G9 added with the render-demo merge). Section-level rows are used for the long BASELINE result sections.
 
 Builds are short commit ids, all ancestors of `main`; `git show <id>` and `git checkout <id>` work in this repo. Branch names in parentheses are where
 the commit was made. 'Envelope' means the commit recorded in the result's own `results.json` / `run.json`.
@@ -155,7 +155,8 @@ the commit was made. 'Envelope' means the commit recorded in the result's own `r
 | G5 | L8 no-LLM recall bench (5 seeds, hash embedder, core toolset): replay calls that found their target; needed fact per task; canonical 1000/1000; mean response chars | 29/36 (`d6d30da`), 28/36 (`f5881c6`), 27/36 (`ae17aee`, `93c1b45`), 28/36 (`f966146`); needed facts 5/5, 5/5, 1/1; 5,333 / 5,766 chars | BASELINE 'Recall-check results' s2, TRIALS_INT_MERGE, L8_TOKEN_COST_P12 | builds as listed (branches `p12`, `trials-int`, `recall-check`) | STALE | `f966146` (28/36, needed facts unchanged); the replay count is documented as not stable (+-1) |
 | G6 | Cypher audit: 111 files / 2,721 lines; PROFILE counts (e.g. `quarantine` 1,200 facts 1.5 s, 2,500 facts timeout) | as listed | CYPHER_AUDIT_SUMMARY, cypher-review/*.md | `e126875` (`feature/neuro-memory-research` head) | STALE | findings fixed later; re-measured as F7 / F9 / E11 for some |
 | G7 | BEAT_SQL_ANALYSIS micro-probes marked [measured]; PRODUCT_FIXES_ANALYSIS probe timings | as listed | BEAT_SQL_ANALYSIS, PRODUCT_FIXES_ANALYSIS | 2026-10-16, before the P9 merges; no commit recorded | STALE, build unknown | - |
-| G8 | Deployment: boot 5-14 s, peak 332 MiB (322 MiB `docker stats`), 40/40 checks, 510 MB image, 55 guard tests, restart 5.2-12.1 s | as listed | README (Live demo), REPORT s6.8, deploy.md | image contents of `c9234d8` (P6-deploy, 2026-10-15) | STALE | - |
+| G8 | Deployment: boot 5-14 s, peak 332 MiB (322 MiB `docker stats`), 40/40 checks, 510 MB image, 55 guard tests, restart 5.2-12.1 s | as listed | README (Live demo), REPORT s6.8, deploy.md | image contents of `c9234d8` (P6-deploy, 2026-10-15) | STALE (describes the MCP-bearing image, no longer deployed; D-016; reproduce at `7cca016`) | - |
+| G9 | Render demo image without MCP: boot 3.8 s, peak 88 MiB cgroup (83 MiB `docker stats`), 36/36 `deploy/verify.py` checks, 447 MB image, restart 4.2 s, runaway Cypher query 408 after 3 s | as listed | README (Live demo), deploy.md | image built from the render-demo tree (base `7cca016`) on 2026-10-18 | CURRENT once merged | - |
 | G9 | Fresh-clone `docker compose up`: 4 services healthy | 216 s | README (Setup), TESTING s1 row 1 | branch `p5-int` (2026-10-15) | STALE | - |
 | G10 | Insert latency grows with the index set: 200 fact inserts 0.05 s on an empty graph, about 2 s at 8,000 facts (one probe) | as listed | REPORT s9.4 | a single probe, build not recorded | STALE, build unknown | - |
 | G11 | Forgetting latency: 2,000 / 10,000 facts x 50 reads, server median 11.1 / 10.8 ms | as listed | forgetting.md | P7-K branch (`ad6f85c`, 2026-10-16) | STALE | - |

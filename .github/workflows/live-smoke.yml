@@ -1,0 +1,23 @@
+# Health check and keep-awake for the live Render service. Set the repository variable RENDER_URL
+# (Settings -> Secrets and variables -> Actions -> Variables), e.g. https://plexus-demo.onrender.com.
+# Runs every 10 minutes (Render Free sleeps after 15 idle minutes, so this also keeps it awake) and on demand.
+# A red run means the live site is broken. The workflow is skipped while RENDER_URL is unset.
+name: live-smoke
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    if: vars.RENDER_URL != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Wake the service and run the smoke test
+        run: python3 deploy/smoke.py "${{ vars.RENDER_URL }}" --wait 900

@@ -1,7 +1,7 @@
 """Read-only View API. ``uv run plexus-api`` serves http://127.0.0.1:8080 (env PLEXUS_API_HOST / PLEXUS_API_PORT).
 
-Every database access goes through :class:`ReadOnlyClient`, which only exposes ``ro()`` (``GRAPH.RO_QUERY``) and the
-graph list; there is no write path in this package. The routes live in ``routes_*.py`` (one :class:`APIRouter`
+Every database access goes through :class:`ReadOnlyClient`, which only exposes ``ro()`` / ``cypher()`` (both
+``GRAPH.RO_QUERY``, so the server refuses writes) and the graph list; there is no write path in this package. The routes live in ``routes_*.py`` (one :class:`APIRouter`
 factory per group, all sharing one :class:`~plexus.api.context.ApiContext`); :func:`create_app` wires them up.
 """
 
@@ -13,7 +13,7 @@ import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from plexus.api import routes_core, routes_flow, routes_graph, routes_lineage, routes_staleness
+from plexus.api import routes_core, routes_cypher, routes_flow, routes_graph, routes_lineage, routes_staleness
 from plexus.api.context import MAX_STREAMS, ApiContext, ReadOnlyClient, StreamGate
 from plexus.api.routes_core import INVENTORY_EDGE_TYPES, INVENTORY_LABELS
 from plexus.common import OPEN
@@ -52,14 +52,14 @@ def create_app(
     app.add_middleware(
         CORSMiddleware,
         allow_origins=_cors_origins(),
-        allow_methods=["GET"],
+        allow_methods=["GET", "POST"],  # POST: /api/{tenant}/cypher only
         allow_headers=["*"],
     )
     app.state.ro = ro_client
     app.state.streams = gate
     app.state.flow_events = ctx.flow_events
     # The order is the order of the paths in the OpenAPI document.
-    for routes in (routes_core, routes_graph, routes_flow, routes_lineage, routes_staleness):
+    for routes in (routes_core, routes_cypher, routes_graph, routes_flow, routes_lineage, routes_staleness):
         app.include_router(routes.router(ctx))
     return app
 

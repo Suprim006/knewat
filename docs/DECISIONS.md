@@ -554,3 +554,35 @@ next to 1,500 unrelated facts (`tests/lineage/test_multisource_plans.py`). `line
 
 **Proof.** `tests/integration/test_multisource_assert.py`, `tests/lineage/test_multisource_lineage.py` (+ `_plans`), `tests/mcp/test_multisource_tools.py`,
 `tests/crucible/test_t8_replay.py`; the replay output is `plexus/demo_data/crucible/t8replay/` (`before_integ_1f9a8fa.*` is the same script on the old tree).
+
+---
+
+## D-016 — Public demo: the View with a read-only Cypher console; MCP is not deployed (render-demo)
+2026-10-18 · **accepted**
+
+**Context.** D-006 put one container on Render Free with the View, the View API *and* a public MCP endpoint (`team_*` tenants
+writable by anyone). The MCP surface is not stable yet, and a public write endpoint is the largest thing that can go wrong on a
+demo box. The owner wants visitors to browse the seeded data and run their own Cypher against it, nothing more.
+
+**Decision.**
+1. *The public image does not serve MCP.* `deploy/app.py` mounts only the View API and the static View; the entrypoint starts no
+   embedder and no idle sweeper; the Dockerfile no longer bakes the ~67 MB fastembed model (`PLEXUS_EMBEDDER=hash` in the image,
+   so nothing can try to download one). MCP stays in the product (`docker compose` still runs it). `deploy/guard.py` keeps its MCP
+   classes (`PublicGuard`, `TenantDirectory`, `IdleSweeper`) and their tests unused by the image, so re-enabling MCP later is a
+   mount in `app.py`, not a rewrite; remove them if MCP is not coming back to the deployment.
+2. *`POST /api/{tenant}/cypher` runs caller-supplied Cypher.* This is the one exception to "callers never pass Cypher text" in
+   `GraphClient` (the new `ro_text` is documented as console-only). Layers, outermost first: per-IP bucket (20/min, 120/min global)
+   and a 16 KiB body cap (`deploy/guard.py`); a text check (4,000 characters; no `LOAD`, because FalkorDB's `LOAD CSV` reads files
+   and URLs; `CALL` only to an allow-list of read procedures and `algo.*`; comments and string literals are skipped by a small
+   scanner so a keyword hidden in either is no bypass); `GRAPH.RO_QUERY`, so the server refuses every write regardless of the text;
+   a 3 s timeout (kept below the Redis client's 5 s socket timeout, which otherwise raced the server's reply and turned a timeout into a 503) and the server's `QUERY_MEM_CAPACITY`; at most 500 rows leave the process (the response says `truncated`).
+   Vector properties are replaced by `<vector, N dims>`.
+3. *Pipeline.* `.github/workflows/ci.yml` (ruff, View API and deploy tests against a throw-away FalkorDB, View lint/typecheck/tests/
+   build, then the Render image built and smoke-tested under `-m 512m --cpus 0.5`). `render.yaml` uses `autoDeployTrigger:
+   checksPass`, so Render deploys a commit only if that workflow is green, and a `buildFilter` so docs-only pushes do not rebuild.
+   `live-smoke.yml` runs `deploy/smoke.py` against the live URL every 10 minutes (health check and keep-awake).
+
+**Not covered.** An expensive-but-valid read (`algo.*` over a large graph, wide traversals) is bounded only by the 3 s timeout and
+the memory cap; a determined client can still keep one of the two query threads busy until its bucket runs out. The demo graphs are
+~250 nodes. The console works on every tenant the API lists; on the public deploy those are the two synthetic demo tenants, but on
+a local stack it also reads private tenants (`byo`) to whoever can reach port 8080, which is the machine's owner.

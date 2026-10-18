@@ -91,6 +91,45 @@ describe('createHttpApi', () => {
   });
 });
 
+describe('createHttpApi.cypher', () => {
+  it('POSTs the query as JSON to /api/{tenant}/cypher', async () => {
+    const out = {
+      tenant: 'a/b',
+      columns: ['n'],
+      rows: [[1]],
+      row_count: 1,
+      truncated: false,
+      run_time_ms: 2,
+    };
+    const f = fakeFetch(out);
+    const api = createHttpApi('http://api', f as unknown as typeof fetch);
+    expect(await api.cypher('a/b', 'RETURN 1 AS n', { x: 1 })).toEqual(out);
+    const [url, init] = f.mock.calls[0]!;
+    expect(url).toBe('http://api/api/a%2Fb/cypher');
+    expect(init?.method).toBe('POST');
+    expect(JSON.parse(String(init?.body))).toEqual({ query: 'RETURN 1 AS n', params: { x: 1 } });
+    await api.cypher('acme', 'RETURN 1');
+    expect(JSON.parse(String(f.mock.calls[1]![1]?.body))).toEqual({ query: 'RETURN 1' });
+  });
+
+  it('throws an ApiError carrying the server detail', async () => {
+    const api = createHttpApi(
+      'http://api',
+      fakeFetch({ detail: 'write rejected: read-only' }, 400) as unknown as typeof fetch,
+    );
+    await expect(api.cypher('acme', 'CREATE (n)')).rejects.toMatchObject({
+      status: 400,
+      message: 'write rejected: read-only',
+    });
+  });
+
+  it('falls back to the status message for a non-JSON error body', async () => {
+    const f = vi.fn(async () => new Response('oops', { status: 502 }));
+    const api = createHttpApi('http://api', f as unknown as typeof fetch);
+    await expect(api.cypher('acme', 'RETURN 1')).rejects.toMatchObject({ status: 502 });
+  });
+});
+
 describe('createApi', () => {
   it('detects fixture mode', () => {
     expect(isFixtureMode({ VITE_FIXTURES: '1' })).toBe(true);

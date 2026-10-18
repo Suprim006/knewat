@@ -3,15 +3,16 @@
 Read-only web demonstrator for Plexus: shows what is stored in FalkorDB, how it flows in, and what the demo created.
 Vite + React + TypeScript, Cytoscape.js (+ `cytoscape-fcose`) for the graph. It talks to the Plexus View API only and never writes.
 
-| Page         | What it shows                                                                                                                                                                                                                                                     |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/` Explorer | graph, legend, label/edge filters, search, side panel; colour by module, created-at time range, 2-hop focus, "Why?" action, ablation view, live adds                                                                                                              |
-| `/flow`      | live `ToolCall` timeline (backfill + SSE), replay with play/pause/speed; click an event for the Cypher that ran and a mini-graph of what it touched                                                                                                               |
-| `/time`      | Time Machine: per-agent step slider, what each agent knew and wrote, diff highlighting between steps                                                                                                                                                              |
-| `/why/:id`   | provenance of a Decision or Fact as a left-to-right layered graph (`/why/latest` = newest decision), path highlight                                                                                                                                               |
-| `/verify`    | read-only staleness page: the verify queue from `/verify-queue` (fact, state, reason, decisions at risk, activation; `?fact=<id>` highlights a row) and `/docs-to-update`                                                                                         |
-| `/inventory` | "what the demo created" summary cards, counts per label and edge type, sample nodes, index list                                                                                                                                                                   |
-| `/results`   | Crucible results from `/api/results`: L1 table, L2 and L2-at-scale (accuracy, Wilson intervals, tokens/cost/latency, paired sign test, notes verbatim), L4 latency percentiles with the fastest-median callout, ablation; placeholder until a results file exists |
+| Page         | What it shows                                                                                                                                                                                                                                                             |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/` Explorer | graph, legend, label/edge filters, search, side panel; colour by module, created-at time range, 2-hop focus, "Why?" action, ablation view, live adds                                                                                                                      |
+| `/flow`      | live `ToolCall` timeline (backfill + SSE), replay with play/pause/speed; click an event for the Cypher that ran and a mini-graph of what it touched                                                                                                                       |
+| `/time`      | Time Machine: per-agent step slider, what each agent knew and wrote, diff highlighting between steps                                                                                                                                                                      |
+| `/why/:id`   | provenance of a Decision or Fact as a left-to-right layered graph (`/why/latest` = newest decision), path highlight                                                                                                                                                       |
+| `/verify`    | read-only staleness page: the verify queue from `/verify-queue` (fact, state, reason, decisions at risk, activation; `?fact=<id>` highlights a row) and `/docs-to-update`                                                                                                 |
+| `/inventory` | "what the demo created" summary cards, counts per label and edge type, sample nodes, index list                                                                                                                                                                           |
+| `/cypher`    | read-only Cypher console: run a query against the selected tenant (`POST /api/{tenant}/cypher`, Ctrl/Cmd+Enter), example queries, result table with nodes/edges/paths shown compactly, row count and timing, 500-row truncation notice; writes are rejected by the server |
+| `/results`   | Crucible results from `/api/results`: L1 table, L2 and L2-at-scale (accuracy, Wilson intervals, tokens/cost/latency, paired sign test, notes verbatim), L4 latency percentiles with the fastest-median callout, ablation; placeholder until a results file exists         |
 
 ## Run
 
@@ -50,7 +51,7 @@ src/
               whyLayout.ts, summary.ts, ablation.ts, results.ts, cypher.ts (highlighter), theme.ts, useAsync.ts, memory.ts (suspect / pinned / dormant / opacity rules), useNow.ts
   app/        providers (API + tenant context), Layout (header, nav, tenant selector, theme)
   components/ GraphCanvas, MiniGraph, WhyGraph (SVG), CypherView, AblationPanel, FilterPanel, NodePanel, MemoryStrength, MemoryLegend
-  views/      Explorer, Flow, TimeMachine, Why, Verify, Inventory, Results
+  views/      Explorer, Flow, TimeMachine, Why, Verify, Inventory, CypherConsole, Results
 scripts/
   seed_live.py   seed a tenant through the real MCP tools (in-process) for a live smoke test
 docs/screenshots/   PNGs captured from the browser against the live View API

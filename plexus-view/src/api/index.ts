@@ -25,6 +25,7 @@ function lazyFixtureApi(): ViewApi {
     docsToUpdate: async (t, q) => (await load).docsToUpdate(t, q),
     memoryStrength: async (t, id) => (await load).memoryStrength(t, id),
     queryText: async (n) => (await load).queryText(n),
+    cypher: async (t, q, p) => (await load).cypher(t, q, p),
     results: async () => (await load).results(),
     streamUrl: () => null,
   };

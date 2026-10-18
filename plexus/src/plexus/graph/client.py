@@ -165,6 +165,19 @@ class GraphClient:
         _check_mode(rq, read_only=True)
         return self._run(graph, rq, rq.cypher, True, timeout_ms)
 
+    def ro_text(
+        self, graph: str, cypher: str, params: dict | None = None, timeout_ms: int | None = None
+    ) -> Rows:
+        """Read-only Cypher TEXT through ``GRAPH.RO_QUERY``: for the View API's Cypher console only.
+
+        Every other caller goes through :meth:`ro` and a named query. The server refuses writes.
+        """
+        return _to_rows(
+            _retry_loading(
+                lambda: self.graph(graph).ro_query(cypher, params or None, timeout_ms), self.loading_wait_s
+            )
+        )
+
     def rw_script(
         self,
         graph: str,

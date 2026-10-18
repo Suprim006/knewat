@@ -2,6 +2,7 @@ import type {
   DocsToUpdate,
   FlowResponse,
   GraphQuery,
+  CypherResult,
   Inventory,
   MemoryStrength,
   QueryText,
@@ -61,7 +62,32 @@ export function createHttpApi(
     if (!res.ok) throw new ApiError(res.status, url);
     return (await res.json()) as T;
   }
+  async function cypher(
+    tenant: string,
+    query: string,
+    params?: Record<string, unknown>,
+  ): Promise<CypherResult> {
+    const url = buildUrl(base, `/api/${seg(tenant)}/cypher`);
+    const res = await fetchImpl(url, {
+      method: 'POST',
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json' },
+      body: JSON.stringify(params ? { query, params } : { query }),
+    });
+    if (!res.ok) {
+      let detail: string | undefined;
+      try {
+        const body = (await res.json()) as { detail?: unknown };
+        if (typeof body.detail === 'string') detail = body.detail;
+        else if (body.detail !== undefined) detail = JSON.stringify(body.detail);
+      } catch {
+        // non-JSON error body: fall back to the status message
+      }
+      throw new ApiError(res.status, url, detail);
+    }
+    return (await res.json()) as CypherResult;
+  }
   return {
+    cypher,
     tenants: () => get<TenantList>('/api/tenants'),
     inventory: (t) => get<Inventory>(`/api/${seg(t)}/inventory`),
     graph: (t, q) => get<Subgraph>(`/api/${seg(t)}/graph`, graphParams(q)),
