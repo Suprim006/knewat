@@ -1,0 +1,312 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table tasks
+id,title,priority,seq,status,claimed_by,lease_until,version,created_at,done_at
+s01-t03-design-endpoints,Design endpoints (S01),40,2,done,researcher,1760000132500,3,1760000000004,1760000014501
+s02-t03-design-endpoints,Design endpoints (S02),40,14,done,researcher,1760000201000,3,1760000068501,1760000083001
+s03-t03-design-endpoints,Design endpoints (S03),40,26,done,researcher,1760000269500,3,1760000137001,1760000151501
+s04-t03-design-endpoints,Design endpoints (S04),40,38,done,researcher,1760000338000,3,1760000205501,1760000220001
+s05-t03-design-endpoints,Design endpoints (S05),40,50,done,researcher,1760000406500,3,1760000274001,1760000288501
+s06-t03-design-endpoints,Design endpoints (S06),40,62,done,researcher,1760000475000,3,1760000342501,1760000357001
+s07-t03-design-endpoints,Design endpoints (S07),40,74,done,researcher,1760000543500,3,1760000411001,1760000425501
+s08-t03-design-endpoints,Design endpoints (S08),40,86,done,researcher,1760000612000,3,1760000479501,1760000494001
+s09-t03-design-endpoints,Design endpoints (S09),40,98,done,researcher,1760000680500,3,1760000548001,1760000562501
+s10-t03-design-endpoints,Design endpoints (S10),40,110,done,researcher,1760000749000,3,1760000616501,1760000631001
+s11-t03-design-endpoints,Design endpoints (S11),40,122,done,researcher,1760000817500,3,1760000685001,1760000699501
+s12-t03-design-endpoints,Design endpoints (S12),40,134,done,researcher,1760000886000,3,1760000753501,1760000768001
+s13-t03-design-endpoints,Design endpoints (S13),40,146,done,researcher,1760000954500,3,1760000822001,1760000836501
+s14-t03-design-endpoints,Design endpoints (S14),40,158,done,researcher,1760001023000,3,1760000890501,1760000905001
+s15-t03-design-endpoints,Design endpoints (S15),40,170,done,researcher,1760001091500,3,1760000959001,1760000973501
+s16-t03-design-endpoints,Design endpoints (S16),40,182,done,researcher,1760001160000,3,1760001027501,1760001042001
+s17-t03-design-endpoints,Design endpoints (S17),40,194,done,researcher,1760001228500,3,1760001096001,1760001110501
+s18-t03-design-endpoints,Design endpoints (S18),40,206,done,researcher,1760001297000,3,1760001164501,1760001179001
+s19-t03-design-endpoints,Design endpoints (S19),40,218,done,researcher,1760001365500,3,1760001233001,1760001247501
+s19-t12-update-endpoints-for-v2,Update endpoint design for API v2 (S19),60,227,done,builder,1760001374500,2,1760001253501,1760001256501
+s20-t03-design-endpoints,Design endpoints (S20),40,230,done,researcher,1760001434000,3,1760001301501,1760001316001
+
+-- table deps
+task_id,dep_id
+s01-t03-design-endpoints,s01-t02-choose-api-version
+s01-t07-implement-crud-spec,s01-t03-design-endpoints
+s01-t08-write-test-plan,s01-t03-design-endpoints
+s01-t12-update-endpoints-for-v2,s01-t03-design-endpoints
+s02-t03-design-endpoints,s02-t02-choose-api-version
+s02-t07-implement-crud-spec,s02-t03-design-endpoints
+s02-t08-write-test-plan,s02-t03-design-endpoints
+s02-t12-update-endpoints-for-v2,s02-t03-design-endpoints
+s03-t03-design-endpoints,s03-t02-choose-api-version
+s03-t07-implement-crud-spec,s03-t03-design-endpoints
+s03-t08-write-test-plan,s03-t03-design-endpoints
+s03-t12-update-endpoints-for-v2,s03-t03-design-endpoints
+s04-t03-design-endpoints,s04-t02-choose-api-version
+s04-t07-implement-crud-spec,s04-t03-design-endpoints
+s04-t08-write-test-plan,s04-t03-design-endpoints
+s04-t12-update-endpoints-for-v2,s04-t03-design-endpoints
+s05-t03-design-endpoints,s05-t02-choose-api-version
+s05-t07-implement-crud-spec,s05-t03-design-endpoints
+s05-t08-write-test-plan,s05-t03-design-endpoints
+s05-t12-update-endpoints-for-v2,s05-t03-design-endpoints
+s06-t03-design-endpoints,s06-t02-choose-api-version
+s06-t07-implement-crud-spec,s06-t03-design-endpoints
+s06-t08-write-test-plan,s06-t03-design-endpoints
+s06-t12-update-endpoints-for-v2,s06-t03-design-endpoints
+s07-t03-design-endpoints,s07-t02-choose-api-version
+s07-t07-implement-crud-spec,s07-t03-design-endpoints
+s07-t08-write-test-plan,s07-t03-design-endpoints
+s07-t12-update-endpoints-for-v2,s07-t03-design-endpoints
+s08-t03-design-endpoints,s08-t02-choose-api-version
+s08-t07-implement-crud-spec,s08-t03-design-endpoints
+s08-t08-write-test-plan,s08-t03-design-endpoints
+s08-t12-update-endpoints-for-v2,s08-t03-design-endpoints
+s09-t03-design-endpoints,s09-t02-choose-api-version
+s09-t07-implement-crud-spec,s09-t03-design-endpoints
+s09-t08-write-test-plan,s09-t03-design-endpoints
+s09-t12-update-endpoints-for-v2,s09-t03-design-endpoints
+s10-t03-design-endpoints,s10-t02-choose-api-version
+s10-t07-implement-crud-spec,s10-t03-design-endpoints
+s10-t08-write-test-plan,s10-t03-design-endpoints
+s10-t12-update-endpoints-for-v2,s10-t03-design-endpoints
+s11-t03-design-endpoints,s11-t02-choose-api-version
+s11-t07-implement-crud-spec,s11-t03-design-endpoints
+s11-t08-write-test-plan,s11-t03-design-endpoints
+s11-t12-update-endpoints-for-v2,s11-t03-design-endpoints
+s12-t03-design-endpoints,s12-t02-choose-api-version
+s12-t07-implement-crud-spec,s12-t03-design-endpoints
+s12-t08-write-test-plan,s12-t03-design-endpoints
+s12-t12-update-endpoints-for-v2,s12-t03-design-endpoints
+s13-t03-design-endpoints,s13-t02-choose-api-version
+s13-t07-implement-crud-spec,s13-t03-design-endpoints
+s13-t08-write-test-plan,s13-t03-design-endpoints
+s13-t12-update-endpoints-for-v2,s13-t03-design-endpoints
+s14-t03-design-endpoints,s14-t02-choose-api-version
+s14-t07-implement-crud-spec,s14-t03-design-endpoints
+s14-t08-write-test-plan,s14-t03-design-endpoints
+s14-t12-update-endpoints-for-v2,s14-t03-design-endpoints
+s15-t03-design-endpoints,s15-t02-choose-api-version
+s15-t07-implement-crud-spec,s15-t03-design-endpoints
+s15-t08-write-test-plan,s15-t03-design-endpoints
+s15-t12-update-endpoints-for-v2,s15-t03-design-endpoints
+s16-t03-design-endpoints,s16-t02-choose-api-version
+s16-t07-implement-crud-spec,s16-t03-design-endpoints
+s16-t08-write-test-plan,s16-t03-design-endpoints
+s16-t12-update-endpoints-for-v2,s16-t03-design-endpoints
+s17-t03-design-endpoints,s17-t02-choose-api-version
+s17-t07-implement-crud-spec,s17-t03-design-endpoints
+s17-t08-write-test-plan,s17-t03-design-endpoints
+s17-t12-update-endpoints-for-v2,s17-t03-design-endpoints
+s18-t03-design-endpoints,s18-t02-choose-api-version
+s18-t07-implement-crud-spec,s18-t03-design-endpoints
+s18-t08-write-test-plan,s18-t03-design-endpoints
+s18-t12-update-endpoints-for-v2,s18-t03-design-endpoints
+s19-t02-choose-api-version,s19-t01-gather-requirements
+s19-t03-design-endpoints,s19-t02-choose-api-version
+s19-t04-survey-infra-security,s19-t01-gather-requirements
+s19-t05-choose-auth,s19-t04-survey-infra-security
+s19-t07-implement-crud-spec,s19-t03-design-endpoints
+s19-t07-implement-crud-spec,s19-t05-choose-auth
+s19-t08-write-test-plan,s19-t03-design-endpoints
+s19-t09-review-spec,s19-t07-implement-crud-spec
+s19-t09-review-spec,s19-t08-write-test-plan
+s19-t10-write-docs,s19-t09-review-spec
+s19-t11-package-release,s19-t10-write-docs
+s19-t12-update-endpoints-for-v2,s19-t03-design-endpoints
+s20-t03-design-endpoints,s20-t02-choose-api-version
+s20-t07-implement-crud-spec,s20-t03-design-endpoints
+s20-t08-write-test-plan,s20-t03-design-endpoints
+s20-t12-update-endpoints-for-v2,s20-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+a55918ce-ca61-5ed2-ab86-bb5337c03aca,s01-t03-design-endpoints,file,artifacts/s01/openapi-draft.yaml,,S01 endpoint draft for /v1/notes (CRUD),researcher,1760000014501
+37dce107-05b5-5c9f-8a28-bd687a3670f8,s01-t12-update-endpoints-for-v2,file,artifacts/s01/openapi-v2.yaml,,S01 endpoint design for /v2/notes,builder,1760000023501
+dd47afb7-64e9-5cc0-a482-da4b7fc9f423,s02-t03-design-endpoints,file,artifacts/s02/openapi-draft.yaml,,S02 endpoint draft for /v3/notes (CRUD),researcher,1760000083001
+e77b5744-3fd9-58d4-ba71-3abf0148b480,s02-t12-update-endpoints-for-v2,file,artifacts/s02/openapi-v2.yaml,,S02 endpoint design for /v4/notes,builder,1760000092001
+43c95bc7-09ef-520f-b7c4-f7dc844b4617,s03-t03-design-endpoints,file,artifacts/s03/openapi-draft.yaml,,S03 endpoint draft for /v5/notes (CRUD),researcher,1760000151501
+aca951fd-7570-5816-8b28-48c758f15282,s03-t12-update-endpoints-for-v2,file,artifacts/s03/openapi-v2.yaml,,S03 endpoint design for /v6/notes,builder,1760000160501
+ed487dea-c14a-5dfa-b10a-2800e5511bba,s04-t03-design-endpoints,file,artifacts/s04/openapi-draft.yaml,,S04 endpoint draft for /v7/notes (CRUD),researcher,1760000220001
+9a8f0d25-912c-54db-8b09-8446ce2954d5,s04-t12-update-endpoints-for-v2,file,artifacts/s04/openapi-v2.yaml,,S04 endpoint design for /v8/notes,builder,1760000229001
+fc3ba49c-61e2-505a-adce-6e24175c67fd,s05-t03-design-endpoints,file,artifacts/s05/openapi-draft.yaml,,S05 endpoint draft for /v9/notes (CRUD),researcher,1760000288501
+79974657-4a4a-5c35-849a-1731418875be,s05-t12-update-endpoints-for-v2,file,artifacts/s05/openapi-v2.yaml,,S05 endpoint design for /v10/notes,builder,1760000297501
+58e17d8f-917c-5493-b9c7-481e83844c3b,s06-t03-design-endpoints,file,artifacts/s06/openapi-draft.yaml,,S06 endpoint draft for /v11/notes (CRUD),researcher,1760000357001
+6aa07c46-b70f-5a79-87a2-2300fc191e20,s06-t12-update-endpoints-for-v2,file,artifacts/s06/openapi-v2.yaml,,S06 endpoint design for /v12/notes,builder,1760000366001
+09f557a1-f24a-515a-b6a5-1c451ea2963d,s07-t03-design-endpoints,file,artifacts/s07/openapi-draft.yaml,,S07 endpoint draft for /v13/notes (CRUD),researcher,1760000425501
+26ccd88e-4a22-5b06-b8fc-d53cde49e168,s07-t12-update-endpoints-for-v2,file,artifacts/s07/openapi-v2.yaml,,S07 endpoint design for /v14/notes,builder,1760000434501
+7e2dee80-d58a-5a18-9eb7-70ccfa65385b,s08-t03-design-endpoints,file,artifacts/s08/openapi-draft.yaml,,S08 endpoint draft for /v15/notes (CRUD),researcher,1760000494001
+7253b2be-e185-58e7-bcd2-1364d108d38f,s08-t12-update-endpoints-for-v2,file,artifacts/s08/openapi-v2.yaml,,S08 endpoint design for /v16/notes,builder,1760000503001
+e502a352-1cd2-5251-ad1a-68e2c5727589,s09-t03-design-endpoints,file,artifacts/s09/openapi-draft.yaml,,S09 endpoint draft for /v17/notes (CRUD),researcher,1760000562501
+6e9ca35f-8635-5e8b-b860-96be85496752,s09-t12-update-endpoints-for-v2,file,artifacts/s09/openapi-v2.yaml,,S09 endpoint design for /v18/notes,builder,1760000571501
+1e77ecb1-4669-5067-8796-9b76f37025fb,s10-t03-design-endpoints,file,artifacts/s10/openapi-draft.yaml,,S10 endpoint draft for /v19/notes (CRUD),researcher,1760000631001
+879e36e3-c268-595f-8906-ebbc3b1067e6,s10-t12-update-endpoints-for-v2,file,artifacts/s10/openapi-v2.yaml,,S10 endpoint design for /v20/notes,builder,1760000640001
+b63b6984-3cea-5eb8-b3b5-6c0969fe6a16,s11-t03-design-endpoints,file,artifacts/s11/openapi-draft.yaml,,S11 endpoint draft for /v21/notes (CRUD),researcher,1760000699501
+1487ccdd-3f31-51aa-bac8-2defe1803704,s11-t12-update-endpoints-for-v2,file,artifacts/s11/openapi-v2.yaml,,S11 endpoint design for /v22/notes,builder,1760000708501
+82dd8009-8df6-5c96-8144-20ae2149aca2,s12-t03-design-endpoints,file,artifacts/s12/openapi-draft.yaml,,S12 endpoint draft for /v23/notes (CRUD),researcher,1760000768001
+f9ff72e6-53c5-5a52-9d82-7855aa48dc88,s12-t12-update-endpoints-for-v2,file,artifacts/s12/openapi-v2.yaml,,S12 endpoint design for /v24/notes,builder,1760000777001
+f46d85c3-1e7b-5865-8e0f-a24d1eaef54d,s13-t03-design-endpoints,file,artifacts/s13/openapi-draft.yaml,,S13 endpoint draft for /v25/notes (CRUD),researcher,1760000836501
+9d7b2303-5861-5ea4-bb15-9d8ef467dcda,s13-t12-update-endpoints-for-v2,file,artifacts/s13/openapi-v2.yaml,,S13 endpoint design for /v26/notes,builder,1760000845501
+91986b62-e761-5eed-87dd-b4991cb6f95f,s14-t03-design-endpoints,file,artifacts/s14/openapi-draft.yaml,,S14 endpoint draft for /v27/notes (CRUD),researcher,1760000905001
+4c0d39c0-72a3-5432-ab84-9b9688d92da0,s14-t12-update-endpoints-for-v2,file,artifacts/s14/openapi-v2.yaml,,S14 endpoint design for /v28/notes,builder,1760000914001
+614024b9-b96b-5417-8716-c3f5379df053,s15-t03-design-endpoints,file,artifacts/s15/openapi-draft.yaml,,S15 endpoint draft for /v29/notes (CRUD),researcher,1760000973501
+df3d8849-54e7-5591-b48e-3701f4d28516,s15-t12-update-endpoints-for-v2,file,artifacts/s15/openapi-v2.yaml,,S15 endpoint design for /v30/notes,builder,1760000982501
+f74a1f42-6478-5364-b018-6b4f5c21383d,s16-t03-design-endpoints,file,artifacts/s16/openapi-draft.yaml,,S16 endpoint draft for /v31/notes (CRUD),researcher,1760001042001
+5006e7c2-97d0-5cb2-93d7-bf6a45c6a74d,s16-t12-update-endpoints-for-v2,file,artifacts/s16/openapi-v2.yaml,,S16 endpoint design for /v32/notes,builder,1760001051001
+22029c20-86ea-54fc-8b0a-97fcdba8117c,s17-t03-design-endpoints,file,artifacts/s17/openapi-draft.yaml,,S17 endpoint draft for /v33/notes (CRUD),researcher,1760001110501
+5bf93bc9-e4e7-56c0-971b-42d5603aea84,s17-t12-update-endpoints-for-v2,file,artifacts/s17/openapi-v2.yaml,,S17 endpoint design for /v34/notes,builder,1760001119501
+48334bd4-a893-5f41-829a-44db4d95ce44,s18-t03-design-endpoints,file,artifacts/s18/openapi-draft.yaml,,S18 endpoint draft for /v35/notes (CRUD),researcher,1760001179001
+7f6c9a50-5bb7-543c-9b15-e9bb663d03a7,s18-t12-update-endpoints-for-v2,file,artifacts/s18/openapi-v2.yaml,,S18 endpoint design for /v36/notes,builder,1760001188001
+23e75da2-6e16-5dae-8a44-c5372a9ceaa9,s19-t03-design-endpoints,file,artifacts/s19/openapi-draft.yaml,,S19 endpoint draft for /v37/notes (CRUD),researcher,1760001247501
+1c0d05f1-45ba-5830-810f-6b80d4da47f1,s19-t12-update-endpoints-for-v2,file,artifacts/s19/openapi-v2.yaml,,S19 endpoint design for /v38/notes,builder,1760001256501
+9b6a2886-d26b-5ef3-8dd0-f19646ab7283,s19-t08-write-test-plan,file,artifacts/s19/test-plan.md,,S19 test plan for the CRUD endpoints,researcher,1760001285501
+bf38bc39-6f3c-53a1-aff7-d3d529b5eddf,s19-t10-write-docs,file,artifacts/s19/docs.md,,S19 API documentation,researcher,1760001292501
+3f9ae36b-b458-5d18-87d7-5a7b3fad4658,s20-t03-design-endpoints,file,artifacts/s20/openapi-draft.yaml,,S20 endpoint draft for /v39/notes (CRUD),researcher,1760001316001
+08a3099d-1dc9-503e-aa10-f96efe7a360e,s20-t12-update-endpoints-for-v2,file,artifacts/s20/openapi-v2.yaml,,S20 endpoint design for /v40/notes,builder,1760001325001
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+d7599553-d578-5ca7-9422-4f7161446421,planner,s19-t09-review-spec,"S19: Spec approved: endpoints, schema and JWT auth are consistent.",1760001288501,0
+
+-- table decision_facts
+decision_id,fact_id
+d7599553-d578-5ca7-9422-4f7161446421,28a328cd-86a1-5480-9a95-d398ed40eb33
+d7599553-d578-5ca7-9422-4f7161446421,23fa06c9-0de6-5176-a4a8-778840fb69e2
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,researcher,builder,s01-t03-design-endpoints,S01: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000015501
+6d1c8827-5364-5087-b34b-8f5ab75fc134,researcher,builder,s02-t03-design-endpoints,S02: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000084001
+8c410f22-7191-553a-84e8-b4748682424d,researcher,builder,s03-t03-design-endpoints,S03: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000152501
+c9ae64b6-af8c-56ff-b547-2b7cad06361c,researcher,builder,s04-t03-design-endpoints,S04: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000221001
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,researcher,builder,s05-t03-design-endpoints,S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000289501
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,researcher,builder,s06-t03-design-endpoints,S06: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000358001
+0160c629-b5f5-5ea0-b2bd-661e3e27fe6e,researcher,builder,s07-t03-design-endpoints,S07: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000426501
+3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2,researcher,builder,s08-t03-design-endpoints,S08: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000495001
+055e0241-8283-5c4f-8491-576d5d73be55,researcher,builder,s09-t03-design-endpoints,S09: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000563501
+357e4c93-b791-52a8-a731-c6f51a269a8a,researcher,builder,s10-t03-design-endpoints,S10: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000632001
+a4e86dad-a233-58ab-8e66-ebfedc265fd1,researcher,builder,s11-t03-design-endpoints,S11: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000700501
+e56e47d7-f618-5c4f-8aa3-d373c94991fe,researcher,builder,s12-t03-design-endpoints,S12: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000769001
+543b5765-aa76-55ba-9c62-490eec17d1da,researcher,builder,s13-t03-design-endpoints,S13: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000837501
+8ebcca38-a83e-56a8-b7d4-340bd20009f5,researcher,builder,s14-t03-design-endpoints,S14: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000906001
+0a5bee96-8991-5ad5-a970-5e8f410b233f,researcher,builder,s15-t03-design-endpoints,S15: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000974501
+557e0af8-ad36-58d3-8116-66262ca0fb46,researcher,builder,s16-t03-design-endpoints,S16: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001043001
+fcb5aa76-3f00-5c66-8368-4d8a8f895556,researcher,builder,s17-t03-design-endpoints,S17: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001111501
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,researcher,builder,s18-t03-design-endpoints,S18: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001180001
+1030063b-dcfc-5c26-aff6-b500539933c9,researcher,builder,s19-t03-design-endpoints,S19: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001248501
+0c7205f8-6b55-57b7-b67c-87e64a40937d,builder,planner,s19-t12-update-endpoints-for-v2,S19: Updated for API v38.,1760001257501
+54235b76-539d-5a8b-8cb3-8f3bef999e97,researcher,builder,s20-t03-design-endpoints,S20: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760001317001
+
+-- table handoff_items
+handoff_id,kind,item_id
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,artifact,a55918ce-ca61-5ed2-ab86-bb5337c03aca
+8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,fact,2b927606-c02e-5d86-8c84-18c267e87215
+6d1c8827-5364-5087-b34b-8f5ab75fc134,artifact,dd47afb7-64e9-5cc0-a482-da4b7fc9f423
+6d1c8827-5364-5087-b34b-8f5ab75fc134,fact,271b3641-7f41-5602-9219-6f7236a6b215
+8c410f22-7191-553a-84e8-b4748682424d,artifact,43c95bc7-09ef-520f-b7c4-f7dc844b4617
+8c410f22-7191-553a-84e8-b4748682424d,fact,fc4e0924-6721-5efd-bd74-45c790960ce6
+c9ae64b6-af8c-56ff-b547-2b7cad06361c,artifact,ed487dea-c14a-5dfa-b10a-2800e5511bba
+c9ae64b6-af8c-56ff-b547-2b7cad06361c,fact,a3e6a516-fc31-5e62-ab92-e9f92abb72e9
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,artifact,fc3ba49c-61e2-505a-adce-6e24175c67fd
+94a75fce-e5ac-51e9-8804-7dddeb7f936e,fact,ca0ea7ab-cc37-5143-b241-878499db2bd5
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,artifact,58e17d8f-917c-5493-b9c7-481e83844c3b
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,fact,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+0160c629-b5f5-5ea0-b2bd-661e3e27fe6e,artifact,09f557a1-f24a-515a-b6a5-1c451ea2963d
+0160c629-b5f5-5ea0-b2bd-661e3e27fe6e,fact,9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d
+3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2,artifact,7e2dee80-d58a-5a18-9eb7-70ccfa65385b
+3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2,fact,2d18baf0-1ce3-5f5f-94b3-5d524493d2f9
+055e0241-8283-5c4f-8491-576d5d73be55,artifact,e502a352-1cd2-5251-ad1a-68e2c5727589
+055e0241-8283-5c4f-8491-576d5d73be55,fact,c591ebd4-30f6-5f5a-bdd3-03a2c78fb133
+357e4c93-b791-52a8-a731-c6f51a269a8a,artifact,1e77ecb1-4669-5067-8796-9b76f37025fb
+357e4c93-b791-52a8-a731-c6f51a269a8a,fact,ae28d59b-3427-5793-b33d-9abfe80363c8
+a4e86dad-a233-58ab-8e66-ebfedc265fd1,artifact,b63b6984-3cea-5eb8-b3b5-6c0969fe6a16
+a4e86dad-a233-58ab-8e66-ebfedc265fd1,fact,a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a
+e56e47d7-f618-5c4f-8aa3-d373c94991fe,artifact,82dd8009-8df6-5c96-8144-20ae2149aca2
+e56e47d7-f618-5c4f-8aa3-d373c94991fe,fact,9d31097e-bc44-5443-b9c6-6e15ee7fceba
+543b5765-aa76-55ba-9c62-490eec17d1da,artifact,f46d85c3-1e7b-5865-8e0f-a24d1eaef54d
+543b5765-aa76-55ba-9c62-490eec17d1da,fact,a8d569a8-4806-56a9-b86e-f497a45654d5
+8ebcca38-a83e-56a8-b7d4-340bd20009f5,artifact,91986b62-e761-5eed-87dd-b4991cb6f95f
+8ebcca38-a83e-56a8-b7d4-340bd20009f5,fact,dabba289-f252-508f-9c32-f03223137480
+0a5bee96-8991-5ad5-a970-5e8f410b233f,artifact,614024b9-b96b-5417-8716-c3f5379df053
+0a5bee96-8991-5ad5-a970-5e8f410b233f,fact,eeb91d3d-4345-5271-9659-12e1597fda54
+557e0af8-ad36-58d3-8116-66262ca0fb46,artifact,f74a1f42-6478-5364-b018-6b4f5c21383d
+557e0af8-ad36-58d3-8116-66262ca0fb46,fact,343721a0-acf1-5d8a-b8bb-a4eff45c56d5
+fcb5aa76-3f00-5c66-8368-4d8a8f895556,artifact,22029c20-86ea-54fc-8b0a-97fcdba8117c
+fcb5aa76-3f00-5c66-8368-4d8a8f895556,fact,767c0e30-7c17-5b0a-afca-43d877935410
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,artifact,48334bd4-a893-5f41-829a-44db4d95ce44
+d06b0a37-93a8-5507-8c08-f9bc09b78ad4,fact,37c89e1d-d386-5dd8-874f-7da4a9406202
+1030063b-dcfc-5c26-aff6-b500539933c9,artifact,23e75da2-6e16-5dae-8a44-c5372a9ceaa9
+1030063b-dcfc-5c26-aff6-b500539933c9,fact,21836852-1574-5d90-9068-b12642ab4ccd
+0c7205f8-6b55-57b7-b67c-87e64a40937d,artifact,1c0d05f1-45ba-5830-810f-6b80d4da47f1
+0c7205f8-6b55-57b7-b67c-87e64a40937d,fact,28a328cd-86a1-5480-9a95-d398ed40eb33
+1d677918-4f3d-5e40-a1c4-76f150894e20,artifact,3991bc77-3505-566d-95d9-9eccaf6a1884
+54235b76-539d-5a8b-8cb3-8f3bef999e97,artifact,3f9ae36b-b458-5d18-87d7-5a7b3fad4658
+54235b76-539d-5a8b-8cb3-8f3bef999e97,fact,314cea0e-655e-578d-b067-95bf5b16cb93
+
+-- table episodes
+id,agent_id,step,text,at
+2b2927c9-445d-5b91-9ed7-3cd8f8ca5f60,researcher,,S01: Took over s01-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000013501
+66343eeb-328f-543b-b800-5456b3b6aaf6,researcher,,S02: Took over s02-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000082001
+73d51714-8921-5c9c-a31b-0355a087932c,researcher,,S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000150501
+e4d2112e-1617-5cff-9baf-63d7df42b1ee,researcher,,S04: Took over s04-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000219001
+9732e8b0-96d2-5243-acaf-a3505d0fd7f6,researcher,,S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000287501
+37e849fd-d33a-5694-9b19-129c8b625c33,researcher,,S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000356001
+cecd5680-faf9-5359-85ef-98d8dd09161b,researcher,,S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000424501
+3deb2979-de41-59b3-a58b-2d82de004a8b,researcher,,S08: Took over s08-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000493001
+27529bf0-fa9e-554c-a8dc-44ccbb91e425,researcher,,S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000561501
+f8c93f28-c86b-514e-a5c2-63345dcff9a5,researcher,,S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000630001
+3605540b-9086-52cb-8dcd-94b93b0dfa43,researcher,,S11: Took over s11-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000698501
+2346e1e7-e4e6-5a86-902c-902b626bc08a,researcher,,S12: Took over s12-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000767001
+9baad9e1-5110-5af2-a8db-e0a0fa09d707,researcher,,S13: Took over s13-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000835501
+3b1e306e-be98-5346-884c-8870b40ae48a,researcher,,S14: Took over s14-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000904001
+41cccec9-4b18-579a-8599-ca2236a6c04a,researcher,,S15: Took over s15-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000972501
+6ae754c3-3860-5dca-80d5-86f47d276622,researcher,,S16: Took over s16-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001041001
+d5789121-beda-5571-8692-22e0d213796f,researcher,,S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001109501
+c4e45a75-4c61-50fe-9aa8-e6d76fca022c,researcher,,S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001178001
+01276057-5ad4-581c-a9a3-78c8a16cceaf,researcher,,S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001246501
+0f8a57f1-538a-5887-9086-98433a55e6b6,builder,,S19: Endpoint design moves from /v37/ to /v38/: page_token/page_size lists and problem+json errors.,1760001255501
+e0e4bed4-343d-5960-bbbc-5a2209706cc7,researcher,,S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001315001
+
+-- table step_wrote
+step_id,node_id,label,summary
+7,8f2acfd6-1c46-5526-bf28-0d4c3b0051f3,Handoff,S01: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+42,6d1c8827-5364-5087-b34b-8f5ab75fc134,Handoff,S02: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+77,8c410f22-7191-553a-84e8-b4748682424d,Handoff,S03: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+112,c9ae64b6-af8c-56ff-b547-2b7cad06361c,Handoff,S04: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+147,94a75fce-e5ac-51e9-8804-7dddeb7f936e,Handoff,S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+182,0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,Handoff,S06: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+217,0160c629-b5f5-5ea0-b2bd-661e3e27fe6e,Handoff,S07: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+252,3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2,Handoff,S08: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+287,055e0241-8283-5c4f-8491-576d5d73be55,Handoff,S09: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+322,357e4c93-b791-52a8-a731-c6f51a269a8a,Handoff,S10: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+357,a4e86dad-a233-58ab-8e66-ebfedc265fd1,Handoff,S11: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+392,e56e47d7-f618-5c4f-8aa3-d373c94991fe,Handoff,S12: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+427,543b5765-aa76-55ba-9c62-490eec17d1da,Handoff,S13: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+462,8ebcca38-a83e-56a8-b7d4-340bd20009f5,Handoff,S14: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+497,0a5bee96-8991-5ad5-a970-5e8f410b233f,Handoff,S15: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+532,557e0af8-ad36-58d3-8116-66262ca0fb46,Handoff,S16: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+567,fcb5aa76-3f00-5c66-8368-4d8a8f895556,Handoff,S17: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+602,d06b0a37-93a8-5507-8c08-f9bc09b78ad4,Handoff,S18: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+637,1030063b-dcfc-5c26-aff6-b500539933c9,Handoff,S19: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+644,0c7205f8-6b55-57b7-b67c-87e64a40937d,Handoff,S19: Updated for API v38.
+663,d7599553-d578-5ca7-9422-4f7161446421,Decision,"S19: Spec approved: endpoints, schema and JWT auth are consistent."
+672,54235b76-539d-5a8b-8cb3-8f3bef999e97,Handoff,S20: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+

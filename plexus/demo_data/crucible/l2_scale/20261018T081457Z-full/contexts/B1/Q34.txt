@@ -1,0 +1,317 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table deps
+task_id,dep_id
+s02-t02-choose-api-version,s02-t01-gather-requirements
+s02-t03-design-endpoints,s02-t02-choose-api-version
+s02-t04-survey-infra-security,s02-t01-gather-requirements
+s02-t05-choose-auth,s02-t04-survey-infra-security
+s02-t06-write-db-schema,s02-t02-choose-api-version
+s02-t06-write-db-schema,s02-t04-survey-infra-security
+s02-t07-implement-crud-spec,s02-t03-design-endpoints
+s02-t07-implement-crud-spec,s02-t05-choose-auth
+s02-t07-implement-crud-spec,s02-t06-write-db-schema
+s02-t08-write-test-plan,s02-t03-design-endpoints
+s02-t09-review-spec,s02-t07-implement-crud-spec
+s02-t09-review-spec,s02-t08-write-test-plan
+s02-t10-write-docs,s02-t09-review-spec
+s02-t11-package-release,s02-t10-write-docs
+s02-t12-update-endpoints-for-v2,s02-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+43cec782-0384-5541-a493-2583d47e2a3b,s01-t06-write-db-schema,file,artifacts/s01/schema.sql,,"S01 PostgreSQL 16 schema: notes, tags, note_tags",builder,1760000044501
+3247033d-262c-5b4e-b013-2b95ed2ab049,s02-t01-gather-requirements,file,artifacts/s02/requirements.md,,"S02 requirements: notes CRUD, tags, API version v3",researcher,1760000071502
+dd47afb7-64e9-5cc0-a482-da4b7fc9f423,s02-t03-design-endpoints,file,artifacts/s02/openapi-draft.yaml,,S02 endpoint draft for /v3/notes (CRUD),researcher,1760000083001
+e77b5744-3fd9-58d4-ba71-3abf0148b480,s02-t12-update-endpoints-for-v2,file,artifacts/s02/openapi-v2.yaml,,S02 endpoint design for /v4/notes,builder,1760000092001
+d86c7b4c-95ac-58d2-86e2-2f094cdbcf8e,s02-t04-survey-infra-security,file,artifacts/s02/constraints.md,,"S02 infra and security constraints: MySQL 8, JWT auth",researcher,1760000097002
+73dfc0f5-3bf1-564c-b658-64ed8db089e1,s02-t06-write-db-schema,file,artifacts/s02/schema.sql,,"S02 MySQL 8 schema: notes, tags, note_tags",builder,1760000113001
+0e6b7bc2-796b-5295-ad42-bfc0a62594ba,s02-t07-implement-crud-spec,file,artifacts/s02/crud-spec.md,,S02 CRUD spec for the current API version with JWT auth,builder,1760000117001
+24c873df-7438-50ff-a646-a601d4344d83,s02-t08-write-test-plan,file,artifacts/s02/test-plan.md,,S02 test plan for the CRUD endpoints,researcher,1760000121001
+462c5e85-fd9d-5c86-82f3-146ca5f39538,s02-t10-write-docs,file,artifacts/s02/docs.md,,S02 API documentation,researcher,1760000128001
+796ef38e-09aa-5ff9-ae3a-aa03d57053a3,s02-t11-package-release,file,artifacts/s02/release.tar,,S02 release bundle of the Acme Notes API,builder,1760000130001
+768fbd7b-ebb5-5f01-81b3-943058ed1def,s03-t06-write-db-schema,file,artifacts/s03/schema.sql,,"S03 MariaDB 11 schema: notes, tags, note_tags",builder,1760000181501
+643e2ec1-a862-5c38-b0fb-71e555cdeb29,s04-t06-write-db-schema,file,artifacts/s04/schema.sql,,"S04 CockroachDB 24 schema: notes, tags, note_tags",builder,1760000250001
+815e50b3-023d-580a-b065-f194aa8ff344,s05-t06-write-db-schema,file,artifacts/s05/schema.sql,,"S05 SQL Server 2022 schema: notes, tags, note_tags",builder,1760000318501
+70650a71-4b8d-5e52-af78-8234ba704928,s06-t06-write-db-schema,file,artifacts/s06/schema.sql,,"S06 Oracle 23 schema: notes, tags, note_tags",builder,1760000387001
+0740ef8a-7be7-5804-b96b-ac18b7d8ee18,s07-t06-write-db-schema,file,artifacts/s07/schema.sql,,"S07 PostgreSQL 15 schema: notes, tags, note_tags",builder,1760000455501
+2f66dd8c-72af-59cf-8aa8-dcd3023939b3,s08-t06-write-db-schema,file,artifacts/s08/schema.sql,,"S08 Db2 12 schema: notes, tags, note_tags",builder,1760000524001
+062b57ff-c565-5c2a-8542-72b27b8a8181,s09-t06-write-db-schema,file,artifacts/s09/schema.sql,,"S09 TiDB 8 schema: notes, tags, note_tags",builder,1760000592501
+5a0b1809-d53e-58c5-8017-50751c24005c,s10-t06-write-db-schema,file,artifacts/s10/schema.sql,,"S10 Aurora MySQL 3 schema: notes, tags, note_tags",builder,1760000661001
+21ee8eaf-c5dd-5f74-bc18-c683be8a1068,s11-t06-write-db-schema,file,artifacts/s11/schema.sql,,"S11 PostgreSQL 16 schema: notes, tags, note_tags",builder,1760000729501
+8252a72c-3da6-52b0-a24b-d4973805e680,s12-t06-write-db-schema,file,artifacts/s12/schema.sql,,"S12 MySQL 8 schema: notes, tags, note_tags",builder,1760000798001
+e2ba3059-b89a-510e-a4b7-653ea6abc936,s13-t06-write-db-schema,file,artifacts/s13/schema.sql,,"S13 MariaDB 11 schema: notes, tags, note_tags",builder,1760000866501
+6ef7f793-c43d-5dc1-abca-36b54c6e4ee0,s14-t06-write-db-schema,file,artifacts/s14/schema.sql,,"S14 CockroachDB 24 schema: notes, tags, note_tags",builder,1760000935001
+7c811ef9-5784-5619-8850-6146d186caf7,s15-t06-write-db-schema,file,artifacts/s15/schema.sql,,"S15 SQL Server 2022 schema: notes, tags, note_tags",builder,1760001003501
+83ab3a50-4f3b-57f7-8182-40ae8ee30eb0,s16-t06-write-db-schema,file,artifacts/s16/schema.sql,,"S16 Oracle 23 schema: notes, tags, note_tags",builder,1760001072001
+302da1a2-35e0-5fc6-89b6-8b31b2314529,s17-t06-write-db-schema,file,artifacts/s17/schema.sql,,"S17 PostgreSQL 15 schema: notes, tags, note_tags",builder,1760001140501
+bba4c2e3-cdd1-59e0-b438-2e556b2092d7,s18-t06-write-db-schema,file,artifacts/s18/schema.sql,,"S18 Db2 12 schema: notes, tags, note_tags",builder,1760001209001
+af85a034-6801-54bb-af83-9571c68acf37,s19-t06-write-db-schema,file,artifacts/s19/schema.sql,,"S19 TiDB 8 schema: notes, tags, note_tags",builder,1760001277501
+cbe059bf-0171-5937-84c0-07e67073f866,s20-t06-write-db-schema,file,artifacts/s20/schema.sql,,"S20 Aurora MySQL 3 schema: notes, tags, note_tags",builder,1760001346001
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+d6c1fd09-8fa8-5038-a694-6cecd2fb2334,Acme Notes API S02,purpose,"REST service to create, tag and search notes (S02)",global,active,1760000070500,9999999999999
+271b3641-7f41-5602-9219-6f7236a6b215,Acme Notes API S02,api_version,v3,global,superseded,1760000071500,1760000086000
+399e1e16-1b03-5184-b159-958079bedc70,Acme Notes API S02,api_version,v4,global,active,1760000086000,9999999999999
+2db29fe7-a2f9-5d63-936b-f07eaf671eb6,Acme Notes API S02,database,MySQL 8,global,active,1760000096000,9999999999999
+adce43a0-b0da-5936-b9e3-11456941bd65,Acme Notes API S02,auth_method,"JWT bearer tokens (ES256, key s02)",global,active,1760000097000,9999999999999
+829390c2-ab74-5246-8ede-795f0315774d,Acme Notes API S02,database,Cassandra 5,global,forgotten,1760000104000,1760000106001
+3a5f4992-3d29-52f0-8de7-0b5710925d3c,Bolt Billing API S02,billing_cycle,"weekly, invoiced on day 2",project:billing-s02,active,1760000108000,9999999999999
+f388cc5f-a42f-533d-881f-f3c0e3903e3e,Acme Notes API S02,release_channel,open beta,project:acme-s02,active,1760000109000,9999999999999
+
+-- table fact_agents
+fact_id,agent_id,at
+d6c1fd09-8fa8-5038-a694-6cecd2fb2334,researcher,1760000070500
+adce43a0-b0da-5936-b9e3-11456941bd65,researcher,1760000097000
+f388cc5f-a42f-533d-881f-f3c0e3903e3e,planner,1760000109000
+
+-- table fact_links
+src,dst,kind
+d6c1fd09-8fa8-5038-a694-6cecd2fb2334,6ac9410a-aedf-56e9-9448-fb8cf91b7651,derived_from
+271b3641-7f41-5602-9219-6f7236a6b215,b83ab153-22ee-50b3-8961-418c640369fd,derived_from
+399e1e16-1b03-5184-b159-958079bedc70,b942a2c4-3fa2-5dbe-9f13-476a31eb2453,derived_from
+399e1e16-1b03-5184-b159-958079bedc70,271b3641-7f41-5602-9219-6f7236a6b215,supersedes
+2db29fe7-a2f9-5d63-936b-f07eaf671eb6,f4de9588-0730-548b-83dc-6624572ec2e9,derived_from
+adce43a0-b0da-5936-b9e3-11456941bd65,39cb9ae0-2883-5516-aa68-a70780f00db6,derived_from
+8aa0e063-17d5-5061-922f-ecb6884e4eca,6594f109-e9dc-53da-a746-ad1e08f90b10,derived_from
+8aa0e063-17d5-5061-922f-ecb6884e4eca,adce43a0-b0da-5936-b9e3-11456941bd65,contradicts
+829390c2-ab74-5246-8ede-795f0315774d,5add491a-b5eb-5c41-8d2b-9a84ce6d8a4a,derived_from
+829390c2-ab74-5246-8ede-795f0315774d,2db29fe7-a2f9-5d63-936b-f07eaf671eb6,contradicts
+3a5f4992-3d29-52f0-8de7-0b5710925d3c,bece50ec-c6cd-5b1f-8f10-dbabe1ac4693,derived_from
+
+-- table sources
+id,uri,kind,trust,created_at
+f2cdeb01-8b98-5c8b-91c8-fa5084ebee10,acme-docs/s01/03_infra_note.md,doc,1.0,1760000026501
+9f419ca1-904b-51dc-aa42-be01587c6e46,acme-docs/s01/04_security_note.md,doc,1.0,1760000026502
+f4de9588-0730-548b-83dc-6624572ec2e9,acme-docs/s02/03_infra_note.md,doc,1.0,1760000095001
+39cb9ae0-2883-5516-aa68-a70780f00db6,acme-docs/s02/04_security_note.md,doc,1.0,1760000095002
+45d132f9-8197-5d56-9837-31a9a62d083a,acme-docs/s03/03_infra_note.md,doc,1.0,1760000163501
+06728c2f-ac38-5eff-bfe4-af34004ab853,acme-docs/s03/04_security_note.md,doc,1.0,1760000163502
+bc2bd91f-2e50-56fa-92eb-ff29aa467586,acme-docs/s04/03_infra_note.md,doc,1.0,1760000232001
+33596035-df90-506b-bebe-896d5f493856,acme-docs/s04/04_security_note.md,doc,1.0,1760000232002
+9adad08f-65e2-5a9e-978f-66d2a45f7767,acme-docs/s05/03_infra_note.md,doc,1.0,1760000300501
+6cb51554-80b7-5311-aa63-26842afbbf8c,acme-docs/s05/04_security_note.md,doc,1.0,1760000300502
+25c69ed9-6900-5a24-9220-b828122c457f,acme-docs/s06/03_infra_note.md,doc,1.0,1760000369001
+1e93d619-1697-50f6-9d74-98340c8d9645,acme-docs/s06/04_security_note.md,doc,1.0,1760000369002
+8fca5de6-eefb-5898-a627-a940668d993b,acme-docs/s07/03_infra_note.md,doc,1.0,1760000437501
+7a3ace3e-26f6-50bf-bee5-64b7c7483084,acme-docs/s07/04_security_note.md,doc,1.0,1760000437502
+abe9bff6-3960-59bd-bc4f-ccd91bb355d6,acme-docs/s08/03_infra_note.md,doc,1.0,1760000506001
+924612e4-2e2f-5e76-b4c5-b35350f7644c,acme-docs/s08/04_security_note.md,doc,1.0,1760000506002
+d74bf2e2-fdfe-5ed4-832c-1e71b2dc93f5,acme-docs/s09/03_infra_note.md,doc,1.0,1760000574501
+8ada797a-e3fc-5439-aac3-8b71257d35c0,acme-docs/s09/04_security_note.md,doc,1.0,1760000574502
+c2e7dc71-a10d-52c7-ac51-3fce70f0a0ff,acme-docs/s10/03_infra_note.md,doc,1.0,1760000643001
+4cdcd00a-4654-5805-9def-743b2dbec44a,acme-docs/s10/04_security_note.md,doc,1.0,1760000643002
+2ec25b2e-15fa-56c0-9a1a-4b5d4d0f9dd5,acme-docs/s11/03_infra_note.md,doc,1.0,1760000711501
+23f454f2-2cd6-57ee-a6b0-2bb9c20ca7b5,acme-docs/s11/04_security_note.md,doc,1.0,1760000711502
+f0b0a8a4-3708-5c76-94f1-b0a26acb63e5,acme-docs/s12/03_infra_note.md,doc,1.0,1760000780001
+6a64380c-34c4-5a97-99f4-e01c2af78b8f,acme-docs/s12/04_security_note.md,doc,1.0,1760000780002
+ab00d2a9-10f5-56eb-99ca-94af3ede14c2,acme-docs/s13/03_infra_note.md,doc,1.0,1760000848501
+86813e16-af98-5492-a687-6dbde64fd316,acme-docs/s13/04_security_note.md,doc,1.0,1760000848502
+bb74b1bc-c777-5356-b576-3c6355324084,acme-docs/s14/03_infra_note.md,doc,1.0,1760000917001
+6ace22dd-9fd8-517d-aa2f-cd1167e5a814,acme-docs/s14/04_security_note.md,doc,1.0,1760000917002
+598425c6-5edb-53db-8bcc-b3cc2ca273d2,acme-docs/s15/03_infra_note.md,doc,1.0,1760000985501
+cde4e28d-4b99-51ce-af8e-47f6be6af021,acme-docs/s15/04_security_note.md,doc,1.0,1760000985502
+7c00e46c-f53f-5bbe-89fb-21cd7c6143f4,acme-docs/s16/03_infra_note.md,doc,1.0,1760001054001
+8b03f1ce-ba6f-5881-9db3-54dc7695055d,acme-docs/s16/04_security_note.md,doc,1.0,1760001054002
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+8bcccfbc-4974-5fcc-b706-19b189499cfc,builder,s01-t06-write-db-schema,"S01: Use PostgreSQL 16 for the notes, tags and note_tags tables.",1760000043501,0
+ab2b1043-6cae-5861-8ded-9be524b1e29e,planner,s02-t02-choose-api-version,S02: Build the Acme Notes API against v3 of the style guide (routes under /v3/).,1760000073501,0
+6abda574-f2f9-5c24-ba12-5464654c58d8,planner,s02-t02-choose-api-version,S02: Adopt style guide v4: the API version is now v4 (routes under /v4/).,1760000088001,0
+aa9ce909-9647-5e6b-be6c-30c9f687d82a,planner,s02-t05-choose-auth,S02: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.,1760000101002,0
+c2768527-08b0-597d-a83d-6e5f577abdec,planner,s02-t06-write-db-schema,S02: Evaluate Cassandra 5 as the database (forum post).,1760000104002,1
+ddc43da5-6203-5b25-902e-0482f81a67ea,builder,s02-t06-write-db-schema,"S02: Use MySQL 8 for the notes, tags and note_tags tables.",1760000112001,0
+7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,planner,s02-t09-review-spec,"S02: Spec approved: endpoints, schema and JWT auth are consistent.",1760000124001,0
+4560e114-a6f8-5acc-ab83-764573b48137,builder,s03-t06-write-db-schema,"S03: Use MariaDB 11 for the notes, tags and note_tags tables.",1760000180501,0
+37c03fa7-0f97-58a6-b14c-2a1af9850b89,builder,s04-t06-write-db-schema,"S04: Use CockroachDB 24 for the notes, tags and note_tags tables.",1760000249001,0
+489d214c-73f7-5810-a8ba-987db261610a,builder,s05-t06-write-db-schema,"S05: Use SQL Server 2022 for the notes, tags and note_tags tables.",1760000317501,0
+3b90669c-44c3-5bf4-821c-07c5ec6eaf52,builder,s06-t06-write-db-schema,"S06: Use Oracle 23 for the notes, tags and note_tags tables.",1760000386001,0
+8b960688-9c9f-5562-90df-369275e34723,builder,s07-t06-write-db-schema,"S07: Use PostgreSQL 15 for the notes, tags and note_tags tables.",1760000454501,0
+9e994591-e1e5-5fff-82ca-b14c6eec2ad0,builder,s08-t06-write-db-schema,"S08: Use Db2 12 for the notes, tags and note_tags tables.",1760000523001,0
+1bb726c8-f724-569f-a3b8-cc8d8236ec2b,builder,s09-t06-write-db-schema,"S09: Use TiDB 8 for the notes, tags and note_tags tables.",1760000591501,0
+1ad4a497-61f6-53ea-9db1-794faafe4656,builder,s10-t06-write-db-schema,"S10: Use Aurora MySQL 3 for the notes, tags and note_tags tables.",1760000660001,0
+c075a860-4748-59fc-9326-b361bffa1ae2,builder,s11-t06-write-db-schema,"S11: Use PostgreSQL 16 for the notes, tags and note_tags tables.",1760000728501,0
+339b3717-f447-5c7d-9047-d6bd0e58fd46,builder,s12-t06-write-db-schema,"S12: Use MySQL 8 for the notes, tags and note_tags tables.",1760000797001,0
+1f02335a-3973-5b8f-b9e3-3e9572e1f563,builder,s13-t06-write-db-schema,"S13: Use MariaDB 11 for the notes, tags and note_tags tables.",1760000865501,0
+c2c9bb2f-ab5e-52d7-9bf0-9b63043168d4,builder,s14-t06-write-db-schema,"S14: Use CockroachDB 24 for the notes, tags and note_tags tables.",1760000934001,0
+02eb71bc-eb6d-540c-b0c3-4eb8034f8ecc,builder,s15-t06-write-db-schema,"S15: Use SQL Server 2022 for the notes, tags and note_tags tables.",1760001002501,0
+010224fb-29ba-56be-99c4-d33174f6f565,builder,s16-t06-write-db-schema,"S16: Use Oracle 23 for the notes, tags and note_tags tables.",1760001071001,0
+89b1fe4e-0f94-5412-a758-acb77ff9df0d,builder,s17-t06-write-db-schema,"S17: Use PostgreSQL 15 for the notes, tags and note_tags tables.",1760001139501,0
+77475b25-bd2b-5670-9864-28530180052d,builder,s18-t06-write-db-schema,"S18: Use Db2 12 for the notes, tags and note_tags tables.",1760001208001,0
+234a2e9d-22a3-5ecb-9c5e-14e8f5215c99,builder,s19-t06-write-db-schema,"S19: Use TiDB 8 for the notes, tags and note_tags tables.",1760001276501,0
+7a399c5d-8466-5a73-a025-d311f59d7a7c,builder,s20-t06-write-db-schema,"S20: Use Aurora MySQL 3 for the notes, tags and note_tags tables.",1760001345001,0
+
+-- table decision_facts
+decision_id,fact_id
+8bcccfbc-4974-5fcc-b706-19b189499cfc,64481d26-77ec-5176-b2be-13b1074c32ee
+ab2b1043-6cae-5861-8ded-9be524b1e29e,271b3641-7f41-5602-9219-6f7236a6b215
+6abda574-f2f9-5c24-ba12-5464654c58d8,399e1e16-1b03-5184-b159-958079bedc70
+aa9ce909-9647-5e6b-be6c-30c9f687d82a,adce43a0-b0da-5936-b9e3-11456941bd65
+aa9ce909-9647-5e6b-be6c-30c9f687d82a,8aa0e063-17d5-5061-922f-ecb6884e4eca
+c2768527-08b0-597d-a83d-6e5f577abdec,829390c2-ab74-5246-8ede-795f0315774d
+ddc43da5-6203-5b25-902e-0482f81a67ea,2db29fe7-a2f9-5d63-936b-f07eaf671eb6
+7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,399e1e16-1b03-5184-b159-958079bedc70
+7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,adce43a0-b0da-5936-b9e3-11456941bd65
+4560e114-a6f8-5acc-ab83-764573b48137,f68de5be-dd66-5ad8-bc70-58e5a90803ce
+37c03fa7-0f97-58a6-b14c-2a1af9850b89,b18ce498-ca5b-5425-b920-72c0df42f780
+489d214c-73f7-5810-a8ba-987db261610a,56aae829-cd18-53c7-b1f0-748deb332dfb
+3b90669c-44c3-5bf4-821c-07c5ec6eaf52,1654df3c-dbba-515b-85a1-fb158f3a95b0
+8b960688-9c9f-5562-90df-369275e34723,81a13776-eecc-5127-af30-f5e30618d336
+9e994591-e1e5-5fff-82ca-b14c6eec2ad0,e5ca0231-f709-5a9b-905f-27706b8cdc3e
+1bb726c8-f724-569f-a3b8-cc8d8236ec2b,213040a9-fd8c-54ce-88b8-18b5642c6258
+1ad4a497-61f6-53ea-9db1-794faafe4656,c171bdc8-2c65-5c84-b9d1-f56c58740be9
+c075a860-4748-59fc-9326-b361bffa1ae2,a409f3e8-d6af-55b5-ac10-76322be26bcc
+339b3717-f447-5c7d-9047-d6bd0e58fd46,10b8bab6-920b-56d7-8a22-210c07835836
+1f02335a-3973-5b8f-b9e3-3e9572e1f563,e186e943-f3c8-561f-892d-5b6711d9ebc8
+c2c9bb2f-ab5e-52d7-9bf0-9b63043168d4,ebf95c3e-be4e-5a31-ba0c-945f2ea4f373
+02eb71bc-eb6d-540c-b0c3-4eb8034f8ecc,83c9ac76-b3e6-5f7b-b728-9034960b4407
+010224fb-29ba-56be-99c4-d33174f6f565,661c6b9a-615a-575b-9022-2dc167b28eaf
+89b1fe4e-0f94-5412-a758-acb77ff9df0d,0a07e018-2944-50d3-afee-056128b01781
+77475b25-bd2b-5670-9864-28530180052d,605f027c-e18c-50b3-b33e-c5e54407570a
+234a2e9d-22a3-5ecb-9c5e-14e8f5215c99,6e0b3ad2-753f-5f6a-b06d-aa6393260428
+7a399c5d-8466-5a73-a025-d311f59d7a7c,7f1d8278-94f2-5c84-948a-e34170fedb65
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+6d1c8827-5364-5087-b34b-8f5ab75fc134,researcher,builder,s02-t03-design-endpoints,S02: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000084001
+0ca31f69-6cb8-5a25-ab92-bb5ce1e8b36f,builder,planner,s02-t12-update-endpoints-for-v2,S02: Updated for API v4.,1760000093001
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,builder,planner,s02-t07-implement-crud-spec,S02: CRUD spec ready for review.,1760000118001
+ef0ee3ab-9c04-5bda-b160-99921a49c854,builder,planner,s02-t11-package-release,S02: Release bundle is ready.,1760000131001
+
+-- table handoff_items
+handoff_id,kind,item_id
+6d1c8827-5364-5087-b34b-8f5ab75fc134,artifact,dd47afb7-64e9-5cc0-a482-da4b7fc9f423
+6d1c8827-5364-5087-b34b-8f5ab75fc134,fact,271b3641-7f41-5602-9219-6f7236a6b215
+0ca31f69-6cb8-5a25-ab92-bb5ce1e8b36f,artifact,e77b5744-3fd9-58d4-ba71-3abf0148b480
+0ca31f69-6cb8-5a25-ab92-bb5ce1e8b36f,fact,399e1e16-1b03-5184-b159-958079bedc70
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,artifact,0e6b7bc2-796b-5295-ad42-bfc0a62594ba
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,fact,399e1e16-1b03-5184-b159-958079bedc70
+d04e9737-19af-51e3-b2c3-69a2d16d23a9,fact,adce43a0-b0da-5936-b9e3-11456941bd65
+ef0ee3ab-9c04-5bda-b160-99921a49c854,artifact,796ef38e-09aa-5ff9-ae3a-aa03d57053a3
+ef0ee3ab-9c04-5bda-b160-99921a49c854,fact,399e1e16-1b03-5184-b159-958079bedc70
+
+-- table episodes
+id,agent_id,step,text,at
+2b2927c9-445d-5b91-9ed7-3cd8f8ca5f60,researcher,,S01: Took over s01-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000013501
+0d903881-4fe3-58c2-a177-5393fb771f2e,builder,,"S01: Schema: notes, tags and note_tags tables in PostgreSQL 16.",1760000042501
+66343eeb-328f-543b-b800-5456b3b6aaf6,researcher,,S02: Took over s02-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000082001
+9d273d9f-16f1-548f-b87f-2e2ad0c70645,builder,,"S02: Schema: notes, tags and note_tags tables in MySQL 8.",1760000111001
+73d51714-8921-5c9c-a31b-0355a087932c,researcher,,S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000150501
+454709ba-39d3-5934-8082-6d4dfbc1800f,builder,,"S03: Schema: notes, tags and note_tags tables in MariaDB 11.",1760000179501
+e4d2112e-1617-5cff-9baf-63d7df42b1ee,researcher,,S04: Took over s04-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000219001
+ec4e87db-d495-5517-aae9-1d7cbfdd6692,builder,,"S04: Schema: notes, tags and note_tags tables in CockroachDB 24.",1760000248001
+9732e8b0-96d2-5243-acaf-a3505d0fd7f6,researcher,,S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000287501
+0a1a32f9-575a-5d35-8727-aa94f68f7884,builder,,"S05: Schema: notes, tags and note_tags tables in SQL Server 2022.",1760000316501
+37e849fd-d33a-5694-9b19-129c8b625c33,researcher,,S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000356001
+9fba86d0-09f5-53f8-bc3a-e74f312a48f7,builder,,"S06: Schema: notes, tags and note_tags tables in Oracle 23.",1760000385001
+cecd5680-faf9-5359-85ef-98d8dd09161b,researcher,,S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000424501
+045519bf-0091-5568-ba98-0e302ea8621b,builder,,"S07: Schema: notes, tags and note_tags tables in PostgreSQL 15.",1760000453501
+3deb2979-de41-59b3-a58b-2d82de004a8b,researcher,,S08: Took over s08-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000493001
+c1553598-b4ee-5f2d-a193-61a19338cabc,builder,,"S08: Schema: notes, tags and note_tags tables in Db2 12.",1760000522001
+27529bf0-fa9e-554c-a8dc-44ccbb91e425,researcher,,S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000561501
+ded368d2-474a-5dc5-9f9c-4e39566cbc6c,builder,,"S09: Schema: notes, tags and note_tags tables in TiDB 8.",1760000590501
+f8c93f28-c86b-514e-a5c2-63345dcff9a5,researcher,,S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000630001
+524b47bf-3b8d-59ad-b4f8-f792199216c9,builder,,"S10: Schema: notes, tags and note_tags tables in Aurora MySQL 3.",1760000659001
+3605540b-9086-52cb-8dcd-94b93b0dfa43,researcher,,S11: Took over s11-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000698501
+db176b2d-3803-5b2d-9f25-768bb59ccdcc,builder,,"S11: Schema: notes, tags and note_tags tables in PostgreSQL 16.",1760000727501
+2346e1e7-e4e6-5a86-902c-902b626bc08a,researcher,,S12: Took over s12-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000767001
+3fccb73f-25d8-50be-9dd9-53a75518f607,builder,,"S12: Schema: notes, tags and note_tags tables in MySQL 8.",1760000796001
+9baad9e1-5110-5af2-a8db-e0a0fa09d707,researcher,,S13: Took over s13-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000835501
+0e073acc-bf06-579a-a7c1-0c2ea3fbfe00,builder,,"S13: Schema: notes, tags and note_tags tables in MariaDB 11.",1760000864501
+3b1e306e-be98-5346-884c-8870b40ae48a,researcher,,S14: Took over s14-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000904001
+bdd8e391-819c-5453-9a73-57c8ab0cb635,builder,,"S14: Schema: notes, tags and note_tags tables in CockroachDB 24.",1760000933001
+41cccec9-4b18-579a-8599-ca2236a6c04a,researcher,,S15: Took over s15-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000972501
+0c6288cf-6bea-5a92-8a32-b35e6042989e,builder,,"S15: Schema: notes, tags and note_tags tables in SQL Server 2022.",1760001001501
+6ae754c3-3860-5dca-80d5-86f47d276622,researcher,,S16: Took over s16-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001041001
+706ef7fc-4d13-554d-a0e5-c951384cd699,builder,,"S16: Schema: notes, tags and note_tags tables in Oracle 23.",1760001070001
+d5789121-beda-5571-8692-22e0d213796f,researcher,,S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001109501
+59079b78-4af7-53d7-90e5-9f27857ec476,builder,,"S17: Schema: notes, tags and note_tags tables in PostgreSQL 15.",1760001138501
+c4e45a75-4c61-50fe-9aa8-e6d76fca022c,researcher,,S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001178001
+e1d61bb0-1cd8-5a14-baaf-efd43aa89c93,builder,,"S18: Schema: notes, tags and note_tags tables in Db2 12.",1760001207001
+01276057-5ad4-581c-a9a3-78c8a16cceaf,researcher,,S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001246501
+905e58f0-4cf1-57c7-afd7-83b56456a1ea,builder,,"S19: Schema: notes, tags and note_tags tables in TiDB 8.",1760001275501
+e0e4bed4-343d-5960-bbbc-5a2209706cc7,researcher,,S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760001315001
+cfff2ab8-7aad-56f5-a1cc-61a7122d2512,builder,,"S20: Schema: notes, tags and note_tags tables in Aurora MySQL 3.",1760001344001
+
+-- table step_reads
+step_id,fact_id
+39,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+40,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+45,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+47,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+52,adce43a0-b0da-5936-b9e3-11456941bd65
+52,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+52,2db29fe7-a2f9-5d63-936b-f07eaf671eb6
+53,adce43a0-b0da-5936-b9e3-11456941bd65
+54,adce43a0-b0da-5936-b9e3-11456941bd65
+57,adce43a0-b0da-5936-b9e3-11456941bd65
+57,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+60,adce43a0-b0da-5936-b9e3-11456941bd65
+60,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+63,adce43a0-b0da-5936-b9e3-11456941bd65
+64,adce43a0-b0da-5936-b9e3-11456941bd65
+64,d6c1fd09-8fa8-5038-a694-6cecd2fb2334
+65,adce43a0-b0da-5936-b9e3-11456941bd65
+66,adce43a0-b0da-5936-b9e3-11456941bd65
+67,adce43a0-b0da-5936-b9e3-11456941bd65
+68,adce43a0-b0da-5936-b9e3-11456941bd65
+69,adce43a0-b0da-5936-b9e3-11456941bd65
+
+-- table step_wrote
+step_id,node_id,label,summary
+27,8bcccfbc-4974-5fcc-b706-19b189499cfc,Decision,"S01: Use PostgreSQL 16 for the notes, tags and note_tags tables."
+36,d6c1fd09-8fa8-5038-a694-6cecd2fb2334,Fact,"REST service to create, tag and search notes (S02)"
+38,ab2b1043-6cae-5861-8ded-9be524b1e29e,Decision,S02: Build the Acme Notes API against v3 of the style guide (routes under /v3/).
+42,6d1c8827-5364-5087-b34b-8f5ab75fc134,Handoff,S02: Endpoint draft is ready. Finished on the builder's behalf after it went down.
+46,6abda574-f2f9-5c24-ba12-5464654c58d8,Decision,S02: Adopt style guide v4: the API version is now v4 (routes under /v4/).
+49,0ca31f69-6cb8-5a25-ab92-bb5ce1e8b36f,Handoff,S02: Updated for API v4.
+51,adce43a0-b0da-5936-b9e3-11456941bd65,Fact,"JWT bearer tokens (ES256, key s02)"
+56,c2768527-08b0-597d-a83d-6e5f577abdec,Decision,S02: Evaluate Cassandra 5 as the database (forum post).
+59,f388cc5f-a42f-533d-881f-f3c0e3903e3e,Fact,open beta
+62,ddc43da5-6203-5b25-902e-0482f81a67ea,Decision,"S02: Use MySQL 8 for the notes, tags and note_tags tables."
+65,d04e9737-19af-51e3-b2c3-69a2d16d23a9,Handoff,S02: CRUD spec ready for review.
+68,7efc5fbb-61ae-5b3f-b965-6cefad5f77f0,Decision,"S02: Spec approved: endpoints, schema and JWT auth are consistent."
+70,ef0ee3ab-9c04-5bda-b160-99921a49c854,Handoff,S02: Release bundle is ready.
+97,4560e114-a6f8-5acc-ab83-764573b48137,Decision,"S03: Use MariaDB 11 for the notes, tags and note_tags tables."
+132,37c03fa7-0f97-58a6-b14c-2a1af9850b89,Decision,"S04: Use CockroachDB 24 for the notes, tags and note_tags tables."
+167,489d214c-73f7-5810-a8ba-987db261610a,Decision,"S05: Use SQL Server 2022 for the notes, tags and note_tags tables."
+202,3b90669c-44c3-5bf4-821c-07c5ec6eaf52,Decision,"S06: Use Oracle 23 for the notes, tags and note_tags tables."
+237,8b960688-9c9f-5562-90df-369275e34723,Decision,"S07: Use PostgreSQL 15 for the notes, tags and note_tags tables."
+272,9e994591-e1e5-5fff-82ca-b14c6eec2ad0,Decision,"S08: Use Db2 12 for the notes, tags and note_tags tables."
+307,1bb726c8-f724-569f-a3b8-cc8d8236ec2b,Decision,"S09: Use TiDB 8 for the notes, tags and note_tags tables."
+342,1ad4a497-61f6-53ea-9db1-794faafe4656,Decision,"S10: Use Aurora MySQL 3 for the notes, tags and note_tags tables."
+377,c075a860-4748-59fc-9326-b361bffa1ae2,Decision,"S11: Use PostgreSQL 16 for the notes, tags and note_tags tables."
+412,339b3717-f447-5c7d-9047-d6bd0e58fd46,Decision,"S12: Use MySQL 8 for the notes, tags and note_tags tables."
+447,1f02335a-3973-5b8f-b9e3-3e9572e1f563,Decision,"S13: Use MariaDB 11 for the notes, tags and note_tags tables."
+482,c2c9bb2f-ab5e-52d7-9bf0-9b63043168d4,Decision,"S14: Use CockroachDB 24 for the notes, tags and note_tags tables."
+517,02eb71bc-eb6d-540c-b0c3-4eb8034f8ecc,Decision,"S15: Use SQL Server 2022 for the notes, tags and note_tags tables."
+552,010224fb-29ba-56be-99c4-d33174f6f565,Decision,"S16: Use Oracle 23 for the notes, tags and note_tags tables."
+587,89b1fe4e-0f94-5412-a758-acb77ff9df0d,Decision,"S17: Use PostgreSQL 15 for the notes, tags and note_tags tables."
+622,77475b25-bd2b-5670-9864-28530180052d,Decision,"S18: Use Db2 12 for the notes, tags and note_tags tables."
+657,234a2e9d-22a3-5ecb-9c5e-14e8f5215c99,Decision,"S19: Use TiDB 8 for the notes, tags and note_tags tables."
+692,7a399c5d-8466-5a73-a025-d311f59d7a7c,Decision,"S20: Use Aurora MySQL 3 for the notes, tags and note_tags tables."
+

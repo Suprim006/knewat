@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Decision by planner for task s01-t06-write-db-schema: "S01: Evaluate MongoDB 4 as the database (forum post)." Based on facts: database=MongoDB 4. Flagged: a fact it relied on was forgotten.
+[2] Fact database=MongoDB 4 about 'Acme Notes API S01' (scope global; status forgotten; valid_from 1760000035500; valid_to 1760000037501); asserted by planner; source acme-docs/s01/07_forum_post_unverified.md; contradicts database=PostgreSQL 16.
+[3] Fact database=PostgreSQL 16 about 'Acme Notes API S01' (scope global; status active; valid_from 1760000027500; valid_to 9999999999999); asserted by researcher; source acme-docs/s01/03_infra_note.md; contradicts database=MongoDB 4.
+[4] Fact database=MongoDB 14 about 'Acme Notes API S11' (scope global; status forgotten; valid_from 1760000720500; valid_to 1760000722501); asserted by planner; source acme-docs/s11/07_forum_post_unverified.md; contradicts database=PostgreSQL 16.
+[5] Fact database=DynamoDB 7 about 'Acme Notes API S04' (scope global; status forgotten; valid_from 1760000241000; valid_to 1760000243001); asserted by planner; source acme-docs/s04/07_forum_post_unverified.md; contradicts database=CockroachDB 24.
+[6] Fact database=CockroachDB 24 about 'Acme Notes API S04' (scope global; status active; valid_from 1760000233000; valid_to 9999999999999); asserted by researcher; source acme-docs/s04/03_infra_note.md; contradicts database=DynamoDB 7.
+[7] Fact database=PostgreSQL 16 about 'Acme Notes API S11' (scope global; status active; valid_from 1760000712500; valid_to 9999999999999); asserted by researcher; source acme-docs/s11/03_infra_note.md; contradicts database=MongoDB 14.
+[8] Decision by planner for task s11-t06-write-db-schema: "S11: Evaluate MongoDB 14 as the database (forum post)." Based on facts: database=MongoDB 14. Flagged: a fact it relied on was forgotten.
+[9] Fact database=ScyllaDB 12 about 'Acme Notes API S09' (scope global; status forgotten; valid_from 1760000583500; valid_to 1760000585501); asserted by planner; source acme-docs/s09/07_forum_post_unverified.md; contradicts database=TiDB 8.
+[10] Fact database=DynamoDB 17 about 'Acme Notes API S14' (scope global; status forgotten; valid_from 1760000926000; valid_to 1760000928001); asserted by planner; source acme-docs/s14/07_forum_post_unverified.md; contradicts database=CockroachDB 24.
+[11] Fact database=ScyllaDB 22 about 'Acme Notes API S19' (scope global; status forgotten; valid_from 1760001268500; valid_to 1760001270501); asserted by planner; source acme-docs/s19/07_forum_post_unverified.md; contradicts database=TiDB 8.
+[12] Fact database=CockroachDB 24 about 'Acme Notes API S14' (scope global; status active; valid_from 1760000918000; valid_to 9999999999999); asserted by researcher; source acme-docs/s14/03_infra_note.md; contradicts database=DynamoDB 17.

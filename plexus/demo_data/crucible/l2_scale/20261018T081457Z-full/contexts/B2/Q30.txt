@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact purpose=REST service to create, tag and search notes (S15) about 'Acme Notes API S15' (scope global; status active; valid_from 1760000961000; valid_to 9999999999999); asserted by researcher; source acme-docs/s15/01_product_brief.md.
+[2] Fact api_version=v30 about 'Acme Notes API S15' (scope global; status active; valid_from 1760000976500; valid_to 9999999999999); asserted by researcher; source acme-docs/s15/06_api_style_guide_v2.md; supersedes api_version=v29.
+[3] Fact api_version=v29 about 'Acme Notes API S15' (scope global; status superseded; valid_from 1760000962000; valid_to 1760000976500); asserted by researcher; source acme-docs/s15/02_api_style_guide_v1.md; superseded by api_version=v30.
+[4] Fact api_version=v15 about 'Acme Notes API S08' (scope global; status superseded; valid_from 1760000482500; valid_to 1760000497000); asserted by researcher; source acme-docs/s08/02_api_style_guide_v1.md; superseded by api_version=v16.
+[5] Fact api_version=v16 about 'Acme Notes API S08' (scope global; status active; valid_from 1760000497000; valid_to 9999999999999); asserted by researcher; source acme-docs/s08/06_api_style_guide_v2.md; supersedes api_version=v15.
+[6] Fact release_channel=general availability about 'Acme Notes API S15' (scope project:acme-s15; status active; valid_from 1760000999500; valid_to 9999999999999); asserted by planner.
+[7] Fact api_version=v18 about 'Acme Notes API S09' (scope global; status active; valid_from 1760000565500; valid_to 9999999999999); asserted by researcher; source acme-docs/s09/06_api_style_guide_v2.md; supersedes api_version=v17.
+[8] Fact purpose=REST service to create, tag and search notes (S17) about 'Acme Notes API S17' (scope global; status active; valid_from 1760001098000; valid_to 9999999999999); asserted by researcher; source acme-docs/s17/01_product_brief.md.
+[9] Fact purpose=REST service to create, tag and search notes (S16) about 'Acme Notes API S16' (scope global; status active; valid_from 1760001029500; valid_to 9999999999999); asserted by researcher; source acme-docs/s16/01_product_brief.md.
+[10] Fact purpose=REST service to create, tag and search notes (S18) about 'Acme Notes API S18' (scope global; status active; valid_from 1760001166500; valid_to 9999999999999); asserted by researcher; source acme-docs/s18/01_product_brief.md.
+[11] Fact api_version=v14 about 'Acme Notes API S07' (scope global; status active; valid_from 1760000428500; valid_to 9999999999999); asserted by researcher; source acme-docs/s07/06_api_style_guide_v2.md; supersedes api_version=v13.
+[12] Fact release_channel=early access about 'Acme Notes API S09' (scope project:acme-s09; status active; valid_from 1760000588500; valid_to 9999999999999); asserted by planner.

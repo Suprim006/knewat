@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Episode recorded by builder: "S08: Schema: notes, tags and note_tags tables in Db2 12."
+[2] Episode recorded by builder: "S05: Schema: notes, tags and note_tags tables in SQL Server 2022."
+[3] Episode recorded by builder: "S18: Schema: notes, tags and note_tags tables in Db2 12."
+[4] Episode recorded by builder: "S09: Schema: notes, tags and note_tags tables in TiDB 8."
+[5] Episode recorded by builder: "S15: Schema: notes, tags and note_tags tables in SQL Server 2022."
+[6] Episode recorded by builder: "S19: Schema: notes, tags and note_tags tables in TiDB 8."
+[7] Episode recorded by builder: "S02: Schema: notes, tags and note_tags tables in MySQL 8."
+[8] Episode recorded by builder: "S20: Schema: notes, tags and note_tags tables in Aurora MySQL 3."
+[9] Episode recorded by builder: "S03: Schema: notes, tags and note_tags tables in MariaDB 11."
+[10] Episode recorded by builder: "S06: Schema: notes, tags and note_tags tables in Oracle 23."
+[11] Episode recorded by builder: "S04: Schema: notes, tags and note_tags tables in CockroachDB 24."
+[12] Episode recorded by builder: "S16: Schema: notes, tags and note_tags tables in Oracle 23."

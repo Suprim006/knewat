@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Decision by planner for task s02-t02-choose-api-version: "S02: Build the Acme Notes API against v3 of the style guide (routes under /v3/)." Based on facts: api_version=v3.
+[2] Decision by planner for task s09-t02-choose-api-version: "S09: Build the Acme Notes API against v17 of the style guide (routes under /v17/)." Based on facts: api_version=v17.
+[3] Decision by planner for task s20-t02-choose-api-version: "S20: Build the Acme Notes API against v39 of the style guide (routes under /v39/)." Based on facts: api_version=v39.
+[4] Decision by planner for task s05-t02-choose-api-version: "S05: Build the Acme Notes API against v9 of the style guide (routes under /v9/)." Based on facts: api_version=v9.
+[5] Decision by planner for task s06-t02-choose-api-version: "S06: Build the Acme Notes API against v11 of the style guide (routes under /v11/)." Based on facts: api_version=v11.
+[6] Decision by planner for task s18-t02-choose-api-version: "S18: Build the Acme Notes API against v35 of the style guide (routes under /v35/)." Based on facts: api_version=v35.
+[7] Decision by planner for task s17-t02-choose-api-version: "S17: Build the Acme Notes API against v33 of the style guide (routes under /v33/)." Based on facts: api_version=v33.
+[8] Decision by planner for task s08-t02-choose-api-version: "S08: Build the Acme Notes API against v15 of the style guide (routes under /v15/)." Based on facts: api_version=v15.
+[9] Decision by planner for task s01-t02-choose-api-version: "S01: Build the Acme Notes API against v1 of the style guide (routes under /v1/)." Based on facts: api_version=v1.
+[10] Decision by planner for task s16-t02-choose-api-version: "S16: Build the Acme Notes API against v31 of the style guide (routes under /v31/)." Based on facts: api_version=v31.
+[11] Decision by planner for task s12-t02-choose-api-version: "S12: Build the Acme Notes API against v23 of the style guide (routes under /v23/)." Based on facts: api_version=v23.
+[12] Decision by planner for task s03-t02-choose-api-version: "S03: Build the Acme Notes API against v5 of the style guide (routes under /v5/)." Based on facts: api_version=v5.
