@@ -164,14 +164,33 @@ def numbers() -> None:
         check(frag in head, f"latest-all.json headline lacks {frag!r}")
     check("13-16k tokens and $0.05-0.06" in readme, "README: L2 token/cost range missing")
     check("about 20-22k tokens and $0.08-0.09" in readme, "README: L2-scale token/cost range missing")
-    # L4 tenant sweep
+    # L4 and C7 / C4 figures: derived from latest-all.json (re-measured 2026-10-18 on `rerun-current`; the earlier
+    # run's 678 -> 1025 -> 1174 tenant sweep, 1.75 ms / 570.9 ms medians, 25% C7 miss and 181 C4 count moved)
     ts = {(r["arm"], r["tenants"]): r["throughput_ops_s"] for r in L["L4"]["tenant_sweep"]}
-    check([round(ts[("P", n)]) for n in (1, 4, 16)] == [678, 1025, 1174], f"L4 tenant sweep P != 678/1025/1174: {ts}")
-    check([round(ts[("B1", n)]) for n in (1, 4, 16)] == [1103, 1480, 500], f"L4 tenant sweep B1 != 1103/1480/500: {ts}")
-    check(round(100 * (1174 / 678 - 1)) == 73, "tenant sweep gain is not +73%")
-    check("678 → 1025 → 1174 ops/s" in readme and "(+73%)" in readme, "README: tenant sweep line missing")
-    check("1103 → 1480 → 500" in readme, "README: SQLite tenant sweep missing")
-    check("from 678 to 1,174" in blog and "+73%" in blog and "1,103 → 1,480 → 500" in blog, "BLOG: tenant sweep numbers missing")
+    p3 = [round(ts[("P", n)]) for n in (1, 4, 16)]
+    b3 = [round(ts[("B1", n)]) for n in (1, 4, 16)]
+    gain = round(100 * (ts[("P", 16)] / ts[("P", 1)] - 1))
+    check(f"{p3[0]} → {p3[1]} → {p3[2]} ops/s" in readme and f"(+{gain}%)" in readme, f"README: tenant sweep line differs from latest-all.json (P {p3}, +{gain}%)")
+    check(f"{b3[0]} → {b3[1]} → {b3[2]}" in readme, f"README: SQLite tenant sweep differs from latest-all.json ({b3})")
+    if "from 678 to 1,174" in blog:
+        print("note  docs/BLOG_DRAFT.md still quotes the superseded tenant sweep (678 → 1,174); not checked, owner's draft")
+    cs = {(r["arm"], r["workers"]): r["claim"] for r in L["L4"]["claim_sweep"]}
+
+    def ms(x: float) -> str:
+        return f"{x:.2f}" if x < 1 else f"{x:.1f}"
+
+    for w, label in ((1, "1 worker"), (200, "200")):
+        want = f"{ms(cs[('B1', w)]['p50_ms'])} vs {ms(cs[('P', w)]['p50_ms'])} ms at {label}"
+        check(want in readme, f"README: L4 median at {label} differs from latest-all.json: {want!r}")
+    want = f"p99 {cs[('B1', 200)]['p99_ms'] / 1000:.2f} s vs {cs[('P', 200)]['p99_ms'] / 1000:.2f} s"
+    check(want in readme, f"README: L4 p99 at 200 workers differs from latest-all.json: {want!r}")
+    c7 = {a: L["L1"]["arms"][a]["tests"]["C7"]["metrics"] for a in ("B2", "P")}
+    for a, name in (("B2", "B2"), ("P", "Plexus")):
+        miss, pairs = int(c7[a]["misses_sequential"]["sum"]), int(c7[a]["pairs"]["sum"])
+        want = f"{name} misses {round(100 * miss / pairs)}% ({miss} of {pairs} pairs"
+        check(want in readme, f"README: C7 miss rate differs from latest-all.json: {want!r}")
+    c4 = L["ablation"]["l1_rerun"]["P-abl"]["C4"]["violations_total"]["started_before_deps_done"]
+    check(f"{c4} tasks started before their dependencies" in readme, f"README: C4 stripped count differs from latest-all.json ({c4})")
 
     # (b) figures quoted from prose sources must appear verbatim in those sources and in the quoting doc
     baseline, testing, demo, deploy = read("docs/BASELINE.md"), read("docs/TESTING.md"), read("docs/demo.md"), read("docs/deploy.md")
@@ -180,12 +199,7 @@ def numbers() -> None:
         ("sign test P vs B0", testing, "p = 0.031", readme, "P vs B0 6-0, p = 0.031"),
         ("sign test P vs B1", testing, "p = 0.125", readme, "P vs B1 4-0, p = 0.125"),
         ("sign test P vs B2", testing, "p < 0.001", readme, "P vs B2 13-0, p < 0.001"),
-        ("L4 1 worker median", testing, "0.10 ms vs 1.75 ms at 1 worker", readme, "0.10 vs 1.75 ms at 1 worker"),
-        ("L4 200 worker median", testing, "0.82 ms vs 570.9 ms at 200", readme, "0.82 vs 570.9 ms at 200"),
-        ("L4 p99 at 200", testing, "p99 2.18 s vs 1.86 s", readme, "p99 2.18 s vs 1.86 s"),
-        ("C4 stripped", baseline, "181 tasks started before their dependencies finished", readme, "181 tasks started before their dependencies"),
         ("C8 stripped", baseline, "60 forgotten facts still returned", readme, "60 forgotten facts still returned"),
-        ("C7 miss rate", baseline, "25% overall miss, 30 of 120 pairs", readme, "miss 25% (30 of 120 pairs"),
         ("L2 latency", testing, "~2.5 ms vs ~5 s", readme, "~2.5 ms vs ~5 s"),
         ("L2-scale ratio", testing, "10.4-16.6", readme, "10.4-16.6"),
         ("live ablation 6/6 2/2", demo, "6 of 6 edge-dependent features break; 2 of 2 controls are unaffected", readme, "**6 of 6 features break, 2 of 2 controls are unaffected**"),

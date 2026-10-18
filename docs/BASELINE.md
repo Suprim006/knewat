@@ -1,6 +1,6 @@
 # BASELINE.md: how we prove Plexus works (benchmark plan, "Crucible")
 
-> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+> **Partly STALE (2026-10-18):** the last section, 'Re-verification on main (2026-10-18)', re-ran the $0 deterministic layers on `rerun-current` (the code of main 7cca016) and gives published vs re-run per number; rows [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md) lists as CURRENT are valid for the current build (some at a moved value, stated there). The older result sections keep the numbers of the build they were measured on. Still STALE: L3, the L6 LLM pilot, L7, L8 and the removed L5b arms.
 
 Status: plan, written before the event (design notes are allowed under rule R5). Implementation starts after kickoff.
 Related decisions: D-002 (Claude Code harness, no LLM in Plexus), D-003 (no Hermes in published runs), D-007 (change only the backend).
@@ -1583,3 +1583,57 @@ B8-B9 (query-tuning probes), B11 (live-ablation counts), G6-G11 (audits, deploym
 **What can go wrong, and how it is reported.** An L5b row whose ranking numbers move is reported at its new value with "moved from"; a falsified expectation is reported as
 falsified, not tuned away. If a layer fails to run (a crash, a timeout, the DB hanging after the I3 kills) it is retried once on a fresh slot; if it still fails the row stays STALE
 with the reason. The `latest-*.json` pointers move to a new run only where the layer reproduced or the new value is the honest current one; every old run directory stays.
+
+## Re-verification on main (2026-10-18): results (run after the pre-registration above; 0 LLM calls)
+
+Build: `rerun-current`, the code of main `7cca016` plus the harness-only commit `b9f01b8`; each result file records the commit it ran on and a clean tree (`git.dirty` false;
+the L1 / L4 / ablation envelope has no dirty flag, the tree was clean: `git status` empty before the run). DB: FalkorDB 6.0.2, slot 86 (`FALKORDB_ARGS` of the compose file).
+Result directories: `plexus/src/plexus/crucible/results/20261018T064343Z` (L1 + L4 + ablation, in a container sharing the DB's network, image built from this tree),
+`plexus/demo_data/crucible/{l5,b1h,c7x_rerun,l2,l2_scale,l6}/20261018T*`. Old run directories are kept; the `latest-*.json` pointers of L1/L4/ablation, B1h, L2, L2-scale and
+L6 det / conc / crash / C now point to the new runs, and `latest-all.json` was regenerated with `python -m plexus.crucible.combine`.
+
+**Scope change after the pre-registration.** The orchestrator took L7 (families G, H, I, J) and the L8 recall bench out of this run: other sessions run them on their own branches and
+DB slots. They were not run here; their rows stay STALE in NUMBERS_STATUS until the orchestrator merges those results. The L7 commit `b9f01b8` is what lets them run on other slots.
+
+**Wall time per layer (this machine, one layer at a time except where noted):** L1 + L4 + ablation 57.8 min; L5a 3.0 min; L5b 18.0 min for six plays (4.6 / 4.2 / 2.9 min with four modes, 1.8 / 3.0 / 1.6 min with the SQL arm); hub 0.7 min; B1h 2 s; C7 extended 54 s (five arms); L2 8 s and L2-scale 124 s (cache re-score); L6 `det` 6.0 min, `conc` 8.4 min, `crash` 37.1 min (200 kills x B1h, P, B0), L6-C 11.9 min (the 126 s graph load included). **L6-C overlapped with other sessions starting their benchmarks**, so its absolute latencies and the SQL-vs-graph ratio are inflated and noisy.
+
+### Verdicts
+
+| Row | Published | Re-run | Verdict |
+|---|---|---|---|
+| B1 L1 C1-C8, 10 runs x 4 arms | 0 violations in every cell; 200 workers 0 double claims / 0 lost updates | identical: all 32 cells 0 violations | **reproduced** |
+| B2 C7 paraphrase misses | B0 / B1 120 of 120, B2 30 of 120, P 30 of 120 | B0 / B1 120, B2 30, **P 60 of 120 (50%)**; false merges 0 | B0, B1, B2 reproduced; **P moved** (the P9-c rule is stricter than the rule measured on `84763aa`) |
+| B3 C2 slowest reclaim | 1.27-1.52 s, bar 2.0 s | 1.47-1.51 s | reproduced |
+| B4 C5 rows leaked | 0 | 0 in every arm | reproduced |
+| B5 L4 claim latency | SQLite lower median at every worker count; 0.10 vs 1.75 ms (1), 0.82 vs 570.9 ms (200); p99 2.18 vs 1.86 s; server 0.5 to 3.6 ms | SQLite lower at every count; 0.12 vs 4.9 ms (1), 0.80 vs 720.9 ms (200); p99 4.76 vs 1.46 s; server 0.68 to 3.3 ms | ordering and server time reproduced; client timings re-measured (P 2.8x slower at 1 worker, 4x at 10) |
+| B6 tenant sweep, 50 workers | P 678 / 1025 / 1174; SQLite 1103 / 1480 / 500 | P 112 / 202 / 459; SQLite 425 / 889 / 1771 | **moved**: P still rises with graphs (4.1x), but SQLite rises too: the 'more tenants did not help SQLite' contrast is not reproduced |
+| B7 recall throughput | P 36-60 ops/s (server 9.6 ms), B1 350-525, embedder 47/s | P 2.4-6.3 ops/s (server 77-110 ms), B1 205-382, embedder 60-80/s; P at 100 / 200 workers and P-mcp at 200 hit the 240 s point cap | **moved**: product `recall` is about 10x slower server-side than when L4 was run (activation, separation cues, keyword channel: 5-6 statements per recall) |
+| B10 ablation | 7 of 7 broken, 5 of 5 unaffected; C4 stripped 181; C8 60 (0 / 0 intact) | 7/7, 5/5, C8 60, intact 0 / 0; **C4 stripped 149** | reproduced; the C4 count is race-dependent (181 -> 149) |
+| C1 L2 accuracy | P 43, B0 43, B1 43, B2 40; whole-reply B0 36, B1 38, B2 39 | identical; 0 live calls, 129 of 129 cache hits | reproduced (cache) |
+| C2 / C4 L2 tokens / cost / latency | B0 15,930 tok $0.062 5.75 s ...; P 2.5 ms / L2-scale P 7.5 ms | B-arm usage identical (it is the cached call's); P 2.6 ms / 8.4 ms | reproduced by re-scoring (B-arm timings are not re-measured) |
+| C3 L2-scale | P 36, B1 32, B0 30, B2 23; sign tests; 10.4-16.6x | identical (108 of 108 cache hits) | reproduced (cache) |
+| C6 B1h | 43/43, 36/36, 34 operations | identical answers, 0 LLM calls | reproduced |
+| D1 C7 extended | 226 pairs, P / P-mcp 0 false merges, B2 68 of 150, auto 51/76, surfaced 70/76 | all 226 outcomes identical on all five arms | reproduced exactly |
+| E1 L5a | S 19 TP / 0 FP; F 19 TP / 106 FP; N 0% | identical | reproduced exactly |
+| E5 surviving arms (N = 5) | `sep` 85.7 / 100, displacers 13 -> 0; `kw-fix` 77.1; `sep+mult` 85.0 / 100 | `sep` 85.7 / 100, displacers `off` 5 -> `sep` 0; `kw-fix` 79.3; `sep+mult` 85.7 / 100 | recall reproduced; `off` baseline moved (displacers 13 -> 5, recall@1 75.7 -> 78.6); `on-mult`, `sep+add` removed |
+| E7 / E10 `sep+mult` | recall@1 85.7, recall@5 100, critical loss 0, noise 20.6-22.1% | recall@1 85.7 / 81.4 / 85.7 (N = 5 / 15 / burst; second play of N = 15: 85.7), recall@5 100, critical loss 0; **noise 33.3 / 41.4 / 33.4%** (second play 32.6 / 44.4 / 33.3) | recall reproduced; **noise share moved**, as pre-registered; N = 15 recall@1 varies 4 points between two plays of the same code |
+| E9 SQL arm | recall@1 identical on both arms (82.9 / 85.7 / 84.3), recall@5 100, activation identical, top-1 agreement 134 of 140, 92 SQL lines | Plexus 85.7 / 85.7 / 85.7 vs SQL 85.0 / 85.7 / 84.3, recall@5 100 both, activation identical (0 disagreements), top-1 agreement 129 / 132 / 128 of 140 (115 with forgetting off), 92 SQL lines | tie on quality holds (within one probe); **per-probe identity lost**: the SQL arm does not mirror today's recall |
+| hub world (E6 half) | `sep` 100%, relevance-only 97.5% | `sep` 100%, `off` 96.5% | reproduced (`sep-entity`, `sep-flat` removed) |
+| F1 / F3 / F7 / F9 L6 A, D | A: B1h 24/24; post-fix product tool 18/24, service 24/24, `p9f` 24/24; D 24/24 both, SQL 4.6x | identical counts; P-naive 24/24 (was 10/24, as on `f966146`); D SQL 3.6x; at 5,000 facts B1h 83-120 ms vs product 630-1,150 ms | counts reproduced; speeds re-measured, SQL still faster |
+| F2 L6 B | B1h 24/24, P-tuned 24/24, tool 16/24, `p9f` 20/24, service 24/24 | identical | reproduced exactly |
+| F4 L6 E | 0 violations for every single-statement arm; level-wise tears | P-1stmt 0 in 12,768 reads, B1h-1stmt / txn / B0-locked 0; P-levelwise 880 V1 / 22 V2 / 1,012 V3 | verdicts reproduced; tear counts are timing-dependent |
+| F5 / F9 L6 F | arm P 0 orphans after the fixes (94 of 1,240 before), 0 lost, `missing_derived_from` 0; B1h 0; B0 7 | P 0 of 1,122 records, 0 lost of 1,073 acknowledged, `missing_derived_from` 0, bound 0.27%; B1h 0 in 33,969 writes; B0 7 | reproduced |
+| F10 L6-C | 75/75 identical lists; strict 0/75; `hit_any` 23 / 9 / 0 (11 / 6 / 1 before); SQL 3.3x at depth 3 | 75/75 identical; strict 0/75; `hit_any` 23 / 9 / 0; SQL 6.2x at depth 3 (27.6 vs 170.8 ms) under contention | counts reproduced; ratio **moved** (noisy run) |
+| F6, C5, G2-G4 | paid | not run | stay STALE |
+| G1 L7, G5 recall bench | - | not run here (taken over by other sessions) | stay STALE until merged |
+| E2-E4, E6, E8 removed arms, E11 | - | not run | stay STALE ("arm removed; reproduce at `pre-cleanup`") |
+
+### What was surprising
+
+* **`recall` got about 10x more expensive on the server** (9.6 ms to 77-110 ms at 300 facts) since L4 was last run; nothing in the docs said so. Anyone quoting "P recall 36-60 ops/s" is quoting a build that no longer exists. The L4 recall cells at 100 / 200 workers did not finish inside the 240 s point cap.
+* **P's C7 paraphrase miss rate is 50%, not 25%.** Not a defect: the P9-c rule trades recall for zero false merges, and the original C7 predates it. The README now says so.
+* **The L5b noise share is 33-44% on main**, confirming the recall-check; the 20.6-22.1% figure belongs to the pre-merge lineage. `sep+mult` recall@1 at N = 15 varies 81.4-85.7% between plays.
+* **The hand-written SQL arm no longer mirrors the product's ranking** probe by probe (a 25-probe disagreement with forgetting off); the quality tie survives, the exact-agreement claim does not.
+* **L1 + L4 took 58 minutes in the container, not 24**; the machine / Docker state is slower for the Plexus client path (claim p50 at 1 worker 4.9 vs 1.8 ms) while server times are unchanged. Absolute L4 values do not transfer between plays; the ordering conclusions do.
+* One `lineage: after-hook failed ... UnknownStep` degrade-path trace appeared several times in the L4 P-mcp recall at 200 workers (the audit hook could not find ids it had just written; the harness continued). Not investigated.
+* `verify_readme.py` pinned the old tenant-sweep, L4 median, C7 and C4 numbers; it now derives them from `latest-all.json` (README updated together). `docs/BLOG_DRAFT.md` still quotes 678 → 1,174 and is flagged, not edited.

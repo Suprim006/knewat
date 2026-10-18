@@ -1,6 +1,6 @@
 # Testing Plexus: Definition of Ready for Testing, and the owner's checklist
 
-> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+> **Partly STALE (2026-10-18):** the numbers that [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md) lists as CURRENT were re-verified on `rerun-current` (the code of main 7cca016; $0 layers L1, L4, ablation, L2, L2-scale, B1h, C7 extended, L5a, L5b surviving arms, hub, L6). Every other number in this document was measured on an earlier build and is not valid for the current build until re-run.
 
 Everything below was run on the `p5-int` branch (Windows 11, Docker Desktop, FalkorDB 6.0.2). Commands are copy-pasteable
 from the repo root unless a `cd` says otherwise. "Evidence" is a command plus what it printed; numbers are from those runs.
