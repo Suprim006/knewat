@@ -1,5 +1,7 @@
 # Public deployment: one container on Render Free
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+
 One Docker image runs everything the live demo needs: FalkorDB 6.0.2, the read-only View API, the MCP server over
 streamable HTTP (for "bring your own agent") and the static `plexus-view`. It reseeds the demo tenants from the
 recordings on every boot, so it needs no disk and no external database. Decision record: `docs/DECISIONS.md` D-006.

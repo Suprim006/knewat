@@ -4,13 +4,11 @@ FalkorDB (the product model's labels and edge types). Both assert their counts a
 from __future__ import annotations
 
 import sqlite3
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
+from plexus.crucible.l7.common import chunks
 from plexus.crucible.l7.h_world import HWorld
-
-BATCH = 4000
 
 SQL_SCHEMA = """
 CREATE TABLE agents(id TEXT PRIMARY KEY);
@@ -46,11 +44,6 @@ CYPHER_INDEXES = tuple(
     f"CREATE INDEX FOR (n:{lb}) ON (n.id)"
     for lb in ("Agent", "Source", "Fact", "Step", "Decision", "Handoff")
 ) + ("CREATE INDEX FOR (n:Fact) ON (n.subject)", "CREATE INDEX FOR (n:Fact) ON (n.status)")
-
-
-def _chunks(rows: list[Any], n: int = BATCH) -> Iterator[list[Any]]:
-    for i in range(0, len(rows), n):
-        yield rows[i : i + n]
 
 
 def _check(world: HWorld, got: dict[str, int], arm: str) -> None:
@@ -121,7 +114,7 @@ def load_falkordb(world: HWorld, g: Any) -> dict[str, int]:
         g.query(ddl)
 
     def run(cypher: str, rows: list[Any]) -> None:
-        for ch in _chunks(rows):
+        for ch in chunks(rows):
             g.query(cypher, {"rows": ch})
 
     run("UNWIND $rows AS r CREATE (:Agent {id: r})", world.agents)

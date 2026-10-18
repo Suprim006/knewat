@@ -1,5 +1,7 @@
 # trials-int: merge of `p12` into main's tip
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Branch `trials-int` started at main's tip `1ddeb13` (D-013 pattern separation, the Cypher audit fixes C1-C5, P3 empty-list
 fixes, quarantine / forget_source CALL tails). `p12` forked at `f96df06` (20 commits: recall finds long-horizon facts, step
 `WROTE` folded into the task statements, `verify_fact` degraded marker, `apply_schema` retry, compact recall hits, compact

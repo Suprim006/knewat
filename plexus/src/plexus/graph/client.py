@@ -1,4 +1,4 @@
-"""FalkorDB clients (sync + asyncio) that only run named queries from the :class:`QueryLibrary`.
+"""FalkorDB client that only runs named queries from the :class:`QueryLibrary`.
 
 ``ro`` uses ``GRAPH.RO_QUERY`` and refuses ``mode: rw`` queries; ``rw`` uses ``GRAPH.QUERY``.
 Callers never pass Cypher text, only a query name and parameters.
@@ -6,16 +6,13 @@ Callers never pass Cypher text, only a query name and parameters.
 
 from __future__ import annotations
 
-import asyncio
 import os
 import time
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
 from falkordb import FalkorDB, Graph
-from falkordb.asyncio import FalkorDB as AsyncFalkorDB
-from redis import BlockingConnectionPool as SyncBlockingConnectionPool
-from redis.asyncio import BlockingConnectionPool
+from redis import BlockingConnectionPool
 from redis.exceptions import BusyLoadingError, ResponseError
 
 from plexus.graph.queries import QueryLibrary, ReadOnlyViolation, RenderedQuery
@@ -64,7 +61,7 @@ def _env_conn(host: str | None, port: int | None, password: str | None) -> tuple
     return host, port, password or None
 
 
-DEFAULT_POOL = 256  # sync pool size (env PLEXUS_DB_POOL); callers beyond it wait, they do not fail
+DEFAULT_POOL = 256  # pool size (env PLEXUS_DB_POOL); callers beyond it wait, they do not fail
 DEFAULT_POOL_TIMEOUT_S = 30.0  # how long a caller waits for a free connection (env PLEXUS_DB_POOL_TIMEOUT)
 DEFAULT_LOADING_WAIT_S = 60.0  # how long to retry while Redis loads the AOF (env PLEXUS_DB_LOADING_WAIT_S)
 _LOADING_POLL_S = 0.25
@@ -90,17 +87,6 @@ def _retry_loading(fn: Callable[[], Any], wait_s: float) -> Any:
             time.sleep(_LOADING_POLL_S)
 
 
-async def _aretry_loading(fn: Callable[[], Any], wait_s: float) -> Any:
-    deadline = time.monotonic() + wait_s
-    while True:
-        try:
-            return await fn()
-        except BusyLoadingError:
-            if time.monotonic() >= deadline:
-                raise
-            await asyncio.sleep(_LOADING_POLL_S)
-
-
 def _check_mode(rq: RenderedQuery, read_only: bool) -> None:
     if read_only and rq.mode != "ro":
         raise ReadOnlyViolation(f"query '{rq.name}' is mode 'rw'; ro() refuses it")
@@ -112,7 +98,7 @@ def _is_tolerated(exc: Exception, tolerate: Sequence[str]) -> bool:
 
 
 class GraphClient:
-    """Sync client. Connection: args, else ``FALKORDB_HOST/PORT/PASSWORD`` env, else localhost:6379.
+    """Connection: args, else ``FALKORDB_HOST/PORT/PASSWORD`` env, else localhost:6379.
 
     Backed by a ``BlockingConnectionPool`` of ``max_connections`` (env ``PLEXUS_DB_POOL``, default 256):
     a caller that finds every connection busy waits up to ``pool_timeout`` seconds instead of failing.
@@ -140,7 +126,7 @@ class GraphClient:
             if loading_wait_s is None
             else loading_wait_s
         )
-        self.pool = SyncBlockingConnectionPool(
+        self.pool = BlockingConnectionPool(
             host=self.host,
             port=self.port,
             password=password,
@@ -217,66 +203,3 @@ class GraphClient:
 
     def ping(self) -> bool:
         return bool(_retry_loading(self.db.connection.ping, self.loading_wait_s))
-
-
-class AsyncGraphClient:
-    """asyncio client backed by a ``BlockingConnectionPool`` (callers wait for a free connection)."""
-
-    def __init__(
-        self,
-        host: str | None = None,
-        port: int | None = None,
-        password: str | None = None,
-        library: QueryLibrary | None = None,
-        max_connections: int = 32,
-        loading_wait_s: float | None = None,
-    ):
-        self.host, self.port, password = _env_conn(host, port, password)
-        self.loading_wait_s = (
-            _env_float("PLEXUS_DB_LOADING_WAIT_S", DEFAULT_LOADING_WAIT_S)
-            if loading_wait_s is None
-            else loading_wait_s
-        )
-        self.pool = BlockingConnectionPool(
-            host=self.host,
-            port=self.port,
-            password=password,
-            max_connections=max_connections,
-            decode_responses=True,
-        )
-        self.db = AsyncFalkorDB(connection_pool=self.pool)
-        self.library = library or QueryLibrary()
-
-    def graph(self, name: str):
-        return self.db.select_graph(name)
-
-    async def rw(
-        self, graph: str, query_name: str, params: dict | None = None, timeout_ms: int | None = None
-    ) -> Rows:
-        rq = self.library.render(query_name, params)
-        g = self.graph(graph)
-        result = await _aretry_loading(
-            lambda: g.query(rq.cypher, rq.params or None, timeout_ms), self.loading_wait_s
-        )
-        return _to_rows(result)
-
-    async def ro(
-        self, graph: str, query_name: str, params: dict | None = None, timeout_ms: int | None = None
-    ) -> Rows:
-        rq = self.library.render(query_name, params)
-        _check_mode(rq, read_only=True)
-        g = self.graph(graph)
-        result = await _aretry_loading(
-            lambda: g.ro_query(rq.cypher, rq.params or None, timeout_ms), self.loading_wait_s
-        )
-        return _to_rows(result)
-
-    async def delete_graph(self, name: str) -> None:
-        try:
-            await self.graph(name).delete()
-        except ResponseError as exc:
-            if "empty key" not in str(exc).lower() and "not exist" not in str(exc).lower():
-                raise
-
-    async def aclose(self) -> None:
-        await self.pool.disconnect()

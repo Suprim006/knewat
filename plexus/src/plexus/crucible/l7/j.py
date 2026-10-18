@@ -344,13 +344,13 @@ def run_cell(
         for lf in logs:
             lf.close()
         t0 = time.time()
-        _teardown(adapters, is_f, root, client)
+        _teardown(adapters, root, client)
         cell["teardown_s"] = round(time.time() - t0, 2)
         cell["wall_s"] = round(time.time() - t_cell, 2)
     return cell
 
 
-def _teardown(adapters: list[Any], is_f: bool, root: Path, client: Any) -> None:
+def _teardown(adapters: list[Any], root: Path, client: Any) -> None:
     def drop(a: Any) -> None:
         try:
             a.drop()

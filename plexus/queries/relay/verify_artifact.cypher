@@ -1,6 +1,5 @@
 // name: relay/verify_artifact
-// purpose: Record that an agent verified an artifact ((Artifact)-[:VERIFIED_BY {at, independent}]->(Agent)); idempotent per pair.
-// The edge persists `independent` (false = the verifier produced the artifact), so self-verification stays distinguishable.
+// purpose: Record that an agent verified an artifact ((Artifact)-[:VERIFIED_BY {at, independent}]->(Agent)); idempotent per pair. `independent` = false when the verifier produced the artifact, so self-verification stays distinguishable.
 // params: agent:str, artifact:str, now:int
 // returns: artifact, agent, independent (true when the verifier is not the artifact's producer).
 //   Zero rows = unknown agent or artifact.

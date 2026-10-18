@@ -24,10 +24,9 @@ WROTE_LABELS = frozenset(
     {"Decision", "Handoff", "Task"}
 )  # nodes a Step can WROTE besides Facts (see link_step)
 HOOK_NODE_KEYS = {"recall_id": "Recall"}  # keys an Outcome.after hook may return -> label of the node it made
-# Tools whose write statement creates (Step)-[:WROTE]->(node) itself (P9-int, L6-F; the five task tools: P12 fix 2):
-# the Runtime opens their Step BEFORE the tool runs and hands it over as ``MeteredClient.step_id``. A crash can then
-# no longer leave the new fact / decision / handoff / task change without its WROTE edge. Every other tool is
-# still linked after its write.
+# Tools whose write statement creates (Step)-[:WROTE]->(node) itself: the Runtime opens their Step BEFORE the tool
+# runs (``MeteredClient.step_id``), so a crash cannot leave the write without its WROTE edge. Every other tool is
+# linked after its write.
 FOLDS_WROTE = frozenset(
     {
         "assert_fact",
@@ -60,15 +59,13 @@ def _degrade_on_error(degraded: list[str], kind: str, message: str, *args: Any) 
 def open_step(
     client: GraphClient, ts: TenantState, agent_id: str, step: int | None, at: int, degraded: list[str]
 ) -> str | None:
-    """The agent's Step for this call (get-or-create by (agent, n)); ``None`` without Lineage.
+    """The agent's Step for this call (get-or-create by (agent, n)); ``None`` if it could not be recorded.
 
     An explicit ``step`` is respected (the same ``n`` always maps to the same Step). Without one the next
     number is used (previous + 1), so every call is attributable. A ``step`` behind the agent's latest one
     cannot be recorded (the NEXT chain is append-only): the call then takes the next number instead.
     """
     lin = ts.lineage(MeteredClient(client))
-    if lin is None:
-        return None
     with _degrade_on_error(degraded, "step", "lineage: could not record a Step for %s", agent_id):
         try:
             return lin.record_step(agent_id, step, at)
@@ -100,9 +97,7 @@ def discard_step(client: GraphClient, ts: TenantState, step_id: str | None) -> N
     if step_id is None:
         return
     try:
-        lin = ts.lineage(MeteredClient(client))
-        if lin is not None:
-            lin.discard_step(step_id)
+        ts.lineage(MeteredClient(client)).discard_step(step_id)
     except Exception:
         log.exception("lineage: could not discard the empty step %s", step_id)
 
@@ -115,8 +110,6 @@ def attach(
     if step_id is None:
         return extra
     lin = ts.lineage(MeteredClient(client))
-    if lin is None:
-        return extra
     done = set(out.linked)  # WROTE edges the write statement itself already created
     wrote = _ids(i for label, i in (*out.created, *out.updated) if label in WROTE_LABELS and i not in done)
     read = _ids(out.read_ids)

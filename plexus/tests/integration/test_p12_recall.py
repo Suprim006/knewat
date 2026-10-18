@@ -44,21 +44,6 @@ def _row(fid, ent, pred, val, dist):
     return {"fact_id": fid, "entity_name": ent, "predicate": pred, "value": val, "score": dist, "rank": dist}
 
 
-def test_fuse_scores_weights_rare_words_over_common_ones():
-    rows = [
-        _row(f"s{n:02d}", f"Bolt Billing API S{n:02d}", "billing_cycle", f"day {n}", 0.66)
-        for n in range(1, 21)
-    ]
-    rows.append(_row("acme7", "Acme Notes API S07", "api_version", "v14", 0.30))
-    target = rows[6]  # S07, the same distance as its 19 siblings
-    svc.fuse_scores(rows, svc._query_words("billing cycle decided in sprint S07"))
-    best = max(rows, key=lambda r: r["fused"])
-    assert best is target and target["lexical"] == pytest.approx(1.0)
-    # weight 0 = the vector order of earlier versions: the nearest (Acme) fact wins
-    svc.fuse_scores(rows, svc._query_words("billing cycle decided in sprint S07"), 0.0)
-    assert max(rows, key=lambda r: r["fused"])["fact_id"] == "acme7"
-
-
 def test_sibling_boost_only_for_the_best_seeds_and_never_from_zero_similarity():
     rows = [
         {**_row("a", "A", "p", "x", 0.2), "sib_of": ["b"]},
@@ -134,11 +119,11 @@ def test_short_token_query_reaches_the_keyword_side(eng, glob):
 def test_page_says_what_was_left_out(eng, glob):
     for i in range(6):
         eng.assert_fact(f"Svc{i}", "owner", f"team {i} owner of service {i}", glob, "a")
-    rows, page = eng.recall_page("owner", glob, k=2)
+    rows, page = eng.recall_with_meta("owner", glob, k=2)
     assert len(rows) == 2 and page["more_available"] and page["truncated"] and page["omitted_by_budget"] == 0
-    rows, page = eng.recall_page("owner", glob, k=6, budget_chars=60)
+    rows, page = eng.recall_with_meta("owner", glob, k=6, budget_chars=60)
     assert len(rows) < 6 and page["omitted_by_budget"] == 6 - len(rows) and page["truncated"]
-    rows, page = eng.recall_page("owner", glob, k=50)
+    rows, page = eng.recall_with_meta("owner", glob, k=50)
     assert len(rows) == 6 and not page["truncated"]
 
 

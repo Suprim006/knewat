@@ -72,14 +72,12 @@ class Staleness:
         engram: Engram | None = None,
         clock: Callable[[], int] = now_ms,
         rank: Callable[[list[dict[str, Any]]], list[dict[str, Any]]] | None = None,
-        forgetting: bool | None = None,
     ):
         self.client = client
         self.graph = graph
         self._engram = engram
         self._clock = clock
         self._rank = rank  # replaces the default ordering when given
-        self._forgetting = forgetting  # None = PLEXUS_FORGETTING (default on)
 
     def _t(self, now: int | None) -> int:
         return self._clock() if now is None else int(now)
@@ -155,7 +153,7 @@ class Staleness:
         if out is None:
             raise LookupError(f"no fact with id '{fact_id}'")
         res: dict[str, Any] = {"fact_id": fact_id, **out}
-        if hash and out["hash"] and out["hash"] != hash:  # P7-13: verified against code that is not current
+        if hash and out["hash"] and out["hash"] != hash:  # verified against code that is not current
             t = self._t(now)
             cid = _anchor_change_id(fact_id, out["anchor_id"], hash, out["hash"])
             rows = self.client.rw(
@@ -310,28 +308,24 @@ class Staleness:
         'confirmed'}``; fine on a fact that is not suspect, it refreshes ``verified_at``). A review date
         (``verify_after``) that has passed is consumed.
 
-        Not true any more: ``new_value`` is required (``ValueError`` otherwise, nothing written).
-        The backdate point is READ first (``staleness/backdate_point``: a failing read writes
-        nothing); then the existing supersede path creates the new fact (``Engram.assert_fact(...,
-        supersede=True)``); then ONE statement (``staleness/backdate``) puts the old fact's
-        ``valid_to`` and the new fact's ``valid_from`` at the time of the newest ``Change`` that
-        suspected the old fact and is newer than its last confirmation (event time; ``recorded_at``
-        stays the time Plexus learned the value), marks the old fact verified, adds ``VERIFIED_BY
-        {outcome:'changed'}`` and flags the Decisions ``BASED_ON`` the old fact (``flag_reason =
-        'fact changed: <id>'``).
+        Not true any more: ``new_value`` is required (``ValueError`` otherwise, nothing written). The
+        backdate point is READ first (a failing read writes nothing); the supersede then creates the new
+        fact (``Engram.assert_fact(..., supersede=True)``); ONE statement (``staleness/backdate``) then
+        puts the old fact's ``valid_to`` and the new fact's ``valid_from`` at the time of the newest
+        ``Change`` that suspected the old fact and is newer than its last confirmation (event time;
+        ``recorded_at`` stays the time Plexus learned the value), marks the old fact verified, adds
+        ``VERIFIED_BY {outcome:'changed'}`` and flags the Decisions ``BASED_ON`` the old fact
+        (``flag_reason = 'fact changed: <id>'``).
 
-        Atomicity contract (FalkorDB has no multi-statement transaction, and the supersede is Engram's own
-        write, so supersede and backdate stay two statements): ``staleness/mark_unfinished`` runs first and
-        sets ``verify_degraded = true`` on the old fact, makes it suspect and flags the Decisions
-        ``BASED_ON`` it (``flag_reason = 'fact changed (verification unfinished): <id>'``). A process killed
-        at ANY point after that leaves a detectable state, never a silent one: killed before the
-        supersede, the old fact is still active and marked, and ``verify_fact`` (changed with any value, or
-        ``still_true=true``) finishes or clears it; killed between the supersede and the backdate, the
-        old fact is superseded, marked and has a successor, and calling ``verify_fact`` again with the same
-        ``new_value`` finishes the job. ``staleness/backdate`` clears the marker and sets the final flags;
-        ``facts_to_verify`` lists marked facts even once superseded. A failed backdate is retried once; if
-        that fails too the new value is still recorded and the result carries ``verify_degraded: True``
-        (``valid_to`` then is the supersede time). A kill before the marker writes nothing.
+        Atomicity contract (no multi-statement transactions, so supersede and backdate stay two statements):
+        ``staleness/mark_unfinished`` runs first and sets ``verify_degraded = true`` on the old fact, makes it
+        suspect and flags its Decisions. A process killed at ANY point after that leaves a detectable state:
+        before the supersede, the old fact is still active and marked, and ``verify_fact`` finishes or clears
+        it; between supersede and backdate, the old fact is superseded, marked and has a successor, and
+        calling ``verify_fact`` again with the same ``new_value`` finishes the job. ``facts_to_verify`` lists
+        marked facts even once superseded. A failed backdate is retried once; if that fails too the new value
+        is still recorded and the result carries ``verify_degraded: True`` (``valid_to`` is then the supersede
+        time). A kill before the marker writes nothing.
 
         ``evidence`` that is an absolute path or URL becomes (or reuses) a ``Source`` the new fact
         is ``DERIVED_FROM``; any other text is kept on the edge. A new value equal to the old one
@@ -424,14 +418,12 @@ class Staleness:
     ) -> dict[str, Any]:
         """Supersede ``old`` with ``new_value`` (Engram), then backdate and flag in one statement.
 
-        Ordered so that a failure or a kill leaves a state that can be found and finished: the backdate point
-        is READ first (a failing read writes nothing), then ``staleness/mark_unfinished`` (``verify_degraded``
-        + provisional decision flags, one statement), then the supersede, then the backdate (retried once; it
+        Order: backdate point (a read), ``staleness/mark_unfinished``, supersede, backdate (retried once; it
         clears the marker). If both backdate attempts fail the marker stays and the result says so.
         """
         source_id = self._evidence_source(note, t)
         change_at = self._change_point(fact_id, t)
-        # Written BEFORE the supersede: a kill from here on leaves a marker (and flagged decisions).
+        # BEFORE the supersede: a kill from here on leaves a marker (and flagged decisions).
         self.client.rw(
             self.graph,
             "staleness/mark_unfinished",
@@ -626,14 +618,9 @@ class Staleness:
             )
         if self._rank is not None:
             out = self._rank(out)
-        elif self._use_activation():
+        elif Settings.from_env().forgetting:
             out = self._order_by_activation(out, t)
         return out[:limit]
-
-    def _use_activation(self) -> bool:
-        if self._forgetting is not None:
-            return self._forgetting
-        return Settings.from_env().forgetting
 
     def _order_by_activation(self, rows: list[dict[str, Any]], now: int) -> list[dict[str, Any]]:
         """Add ``activation`` / ``protected`` to the rows and order them (decisions, activation, age)."""

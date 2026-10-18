@@ -14,16 +14,13 @@ from typing import Any
 from plexus.activation import model
 from plexus.activation import score as score_mod
 from plexus.activation.model import Event
-from plexus.activation.settings import Settings
+from plexus.activation.settings import SWEEP_MARGIN, Settings
 from plexus.common import check_between, now_ms, unique
 from plexus.graph.client import GraphClient
 
 MAX_IDS = 200  # fact ids per activation query
 MAX_SWEEP_SCAN = 5000  # active facts of a scope that one sweep looks at (oldest first)
-SWEEP_MARGIN = 2.0  # default threshold under the D-012 model = A0 - 2 (Settings.sweep_margin is mode-aware)
-# D-013, add mode only: salience >= SALIENCE_PROTECT protects from sweeps (the boolean rules stay the floor)
-SALIENCE_PROTECT = 0.5
-SALIENCE_PIN = 0.95  # pin_fact raises the cached salience to at least this
+SALIENCE_PROTECT = 0.5  # D-013: salience at or above this earns `memory_strength` a suggested review date
 
 _WEIGHTS = {
     "create": model.W_CREATE,
@@ -60,8 +57,7 @@ def salience_of(r: Mapping[str, Any], now: int) -> tuple[float, dict[str, int]]:
     inputs = {
         "decisions": sum(1 for d in decisions if not d["flagged"]),
         "verified": sum(1 for t in r["verified_at"] if t <= now),
-        # distinct independently verified artifacts of the decision's DONE tasks (audit C1: the query returns
-        # one id per VERIFIED_BY path; an artifact verified by two agents is one artifact)
+        # distinct verified artifacts of the decision's DONE tasks (one id per VERIFIED_BY path in the query)
         "artifacts_ok": sum(
             len(set(d.get("verified_artifacts") or ())) for d in decisions if not d["flagged"]
         ),
@@ -98,7 +94,6 @@ class FactActivation:
     value: str = ""
     salience: float = 0.0  # D-013 graded salience in [0, 1), from the graph (docs/forgetting.md)
     salience_inputs: dict[str, int] = field(default_factory=dict)
-    decays: list[float] = field(default_factory=list)  # per counted event (oldest first), add mode only
 
 
 class Activation:
@@ -140,7 +135,7 @@ class Activation:
     def _doubted(read: Mapping[str, Any], r: Mapping[str, Any]) -> bool:
         """Was the fact suspect (contract rule) when this recall READ happened?
 
-        ``READ.suspect`` records it at write time (edges since P7-04). The fact's current state also counts,
+        ``READ.suspect`` records it at write time. The fact's current state also counts,
         so a back-dated doubt (``mark_changed`` at a commit time earlier than the recall) and edges written
         before the flag existed are covered: suspect since before the read, or a review date at or before it.
         """
@@ -174,33 +169,14 @@ class Activation:
         reasons += [f"supersedes:{x}" for x in r["supersedes"]][:1]
         reasons += [f"contradicts:{x}" for x in r["contradicts"]][:1]
         reasons += [f"trusted_source:{s['id']}" for s in r["sources"] if s["trust"] == "high"][:1]
-        # D-013 P2 rule, gated on the mode: `mult` is D-012 + the bypass fix + separation and nothing else
-        # (BRANCH_REVIEW finding 1; D-013 amendment). Salience is still computed and reported in both modes.
-        if st.additive and sal >= SALIENCE_PROTECT and not reasons:
-            reasons.append(f"salience:{sal:.2f}")
-        decays: list[float] = []
-        if st.additive:
-            act, decays = model.activation_spaced(
-                events,
-                now=now,
-                created_at=created,
-                surprise=float(r["surprise"]),
-                c=st.c,
-                a=st.a,
-                d_max=st.d_max,
-                kappa_s=st.kappa * sal,
-                a0=st.neutral,
-                max_events=st.events,
-            )
-        else:
-            act = model.activation(
-                events,
-                now=now,
-                created_at=created,
-                surprise=float(r["surprise"]),
-                decay=st.decay,
-                max_events=st.events,
-            )
+        act = model.activation(
+            events,
+            now=now,
+            created_at=created,
+            surprise=float(r["surprise"]),
+            decay=st.decay,
+            max_events=st.events,
+        )
         return FactActivation(
             fact_id=r["id"],
             status=r["status"],
@@ -219,7 +195,6 @@ class Activation:
             value=r["value"] or "",
             salience=sal,
             salience_inputs=sal_in,
-            decays=decays,
         )
 
     # -- pin ---------------------------------------------------------------------------------------------
@@ -245,12 +220,7 @@ class Activation:
         fan = self._fan(fact_id)
         st = self.settings
         a0 = st.neutral
-        if st.additive:
-            act_term = score_mod.act_term(fa.activation, a0, beta=st.beta, s_noise=st.s_noise)
-            mult = math.exp(act_term)
-        else:
-            act_term = None
-            mult = model.multiplier(fa.activation, a0, st.floor, protected=fa.protected)
+        mult = model.multiplier(fa.activation, a0, st.floor, protected=fa.protected)
         counts = {k: 0 for k in _WEIGHTS}
         last: dict[str, int] = {}
         for e in fa.events:  # newest first
@@ -277,19 +247,13 @@ class Activation:
             "last_use": last.get("use"),
             "last_recall": last.get("recall"),
             # D-013
-            "mode": st.act_mode,
-            "act_term": act_term,
             "salience": fa.salience,
             "salience_inputs": fa.salience_inputs,
-            "decays": [round(d, 3) for d in fa.decays],
             "fan": fan,
             "entity_lift": (
                 score_mod.context_term(
                     True,
                     fan,
-                    cues=st.cues,
-                    gamma=st.gamma,
-                    s_max=st.s_max,
                     w_entity=st.w_entity,
                     w_predicate=st.w_predicate,
                     s=st.cue_s,
@@ -309,19 +273,6 @@ class Activation:
 
     def _activation_at(self, fa: FactActivation, t: int) -> float:
         st = self.settings
-        if st.additive:
-            return model.activation_spaced(
-                fa.events,
-                now=t,
-                created_at=fa.created_at,
-                surprise=fa.surprise,
-                c=st.c,
-                a=st.a,
-                d_max=st.d_max,
-                kappa_s=st.kappa * fa.salience,
-                a0=st.neutral,
-                max_events=st.events,
-            )[0]
         return model.activation(
             fa.events,
             now=t,
@@ -338,7 +289,7 @@ class Activation:
         written.
         ``None`` when the fact stays above the threshold for a year; ``now`` when it is already below.
         """
-        thr = self.settings.neutral - self.settings.sweep_margin
+        thr = self.settings.neutral - SWEEP_MARGIN
         if fa.activation < thr:
             return now
         lo, hi = now, now + 365 * model.DAY_MS
@@ -372,7 +323,7 @@ class Activation:
         check_between("limit", limit, MAX_IDS)
         check_between("scan", scan, MAX_SWEEP_SCAN)
         t = self._clock() if now is None else now
-        thr = self.settings.neutral - self.settings.sweep_margin if threshold is None else float(threshold)
+        thr = self.settings.neutral - SWEEP_MARGIN if threshold is None else float(threshold)
         ids = [
             r["id"]
             for r in self.client.ro(

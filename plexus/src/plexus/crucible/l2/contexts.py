@@ -22,7 +22,6 @@ import re
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 
@@ -241,12 +240,3 @@ class B2Index:
             len(t) + 1 for _, t in self.chunks
         )  # the whole store, for the report
         return ctx
-
-
-def context_meta(ctx: Context) -> dict[str, Any]:
-    return {
-        "chars": ctx.chars,
-        "artifact_chars": ctx.artifact_chars,
-        "truncated": ctx.truncated,
-        "sha256": ctx.sha256,
-    }

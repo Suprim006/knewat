@@ -23,7 +23,6 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.api import BackendSpec  # noqa: F401  (documented spec shape)
 from plexus.crucible.backends.sqlite_h import SqliteHistoryBackend
 from plexus.crucible.l2 import run as L2R
 from plexus.crucible.l2 import scale_run as SR
@@ -42,15 +41,6 @@ ANSWERER = (
 )
 ARM = "B1h"
 
-SENTENCE = (
-    "A hand-written-SQL arm on the same SQLite store ties Plexus on correctness (and is faster per call in process): the "
-    "L2/L2-scale gap is reader-vs-query, not graph-vs-SQL."
-)  # the sentence BEAT_SQL §6.3 suggests, filled with the measured outcome by `render_report`
-
-
-def _empty_meta() -> dict[str, Any]:
-    return {"latency_ms": 0.0, "server_ms": 0.0, "statements": 0, "queries": []}
-
 
 def _rows(qs: list[Question], ans: SqlAnswerer, mk: Callable[..., dict[str, Any]]) -> list[dict[str, Any]]:
     rows = []
@@ -59,7 +49,7 @@ def _rows(qs: list[Question], ans: SqlAnswerer, mk: Callable[..., dict[str, Any]
             got, meta = ans.answer(q)
             ok, why = score(q, got)
         except Exception as exc:  # noqa: BLE001 - reported per question, never hidden
-            got, meta, ok, why = None, _empty_meta(), False, f"{type(exc).__name__}: {exc}"[:200]
+            got, meta, ok, why = None, L2R.empty_meta(), False, f"{type(exc).__name__}: {exc}"[:200]
         rows.append(
             mk(q, ok, got, why, tokens=0, cost_usd=0.0, latency_ms=meta["latency_ms"], server_ms=0.0,
                statements=meta["statements"], cached=False, context_chars=0, truncated=False)

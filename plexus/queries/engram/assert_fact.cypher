@@ -4,13 +4,13 @@
 //   source_id:str, episode_id:str, derived_ids:list[str], step_id:str ('' = none), confidence:float, supersede:bool, now:int, open_to:int,
 //   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float, jac2:float, cos2:float, maybe_cos:float, maybe_jac:float, maybe_cap:int,
 //   novelty:float, surprise_supersede:float, surprise_contradict:float, search_text:str
-// search_text (P12): entity name + predicate words; the full-text channel of recall indexes it next to Fact.value. Written on the new fact only.
-// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), sources_added (P13: on the duplicate path the ids of the Sources named by this call that the existing fact was NOT yet linked to, i.e. the corroboration this call added; [] for a new fact), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, a given episode/source or a derived_ids origin does not exist (nothing is written, not even the Agent)
+// search_text: entity name + predicate words; the full-text channel of recall indexes it next to Fact.value. Written on the new fact only.
+// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), sources_added (on the duplicate path the ids of the Sources named by this call that the existing fact was NOT yet linked to, i.e. the corroboration this call added; [] for a new fact), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, a given episode/source or a derived_ids origin does not exist (nothing is written, not even the Agent)
 // mode: rw
 
-// Rules, evaluated on facts with status 'active' or 'dormant' and valid_to=open_to in the same scope (P7-02: a fact a sweep moved to
-// 'dormant' is still the current value of its entity+predicate, so a new value closes or contradicts it like any other; a duplicate
-// of a dormant fact wakes it instead of creating a twin: status = prior_status, prior_status / dormant_at removed):
+// Rules, evaluated on facts with status 'active' or 'dormant' and valid_to=open_to in the same scope (a fact a sweep moved to 'dormant' is still the
+// current value of its entity+predicate, so a new value closes or contradicts it like any other; a duplicate of a dormant fact wakes it instead of
+// creating a twin: status = prior_status, prior_status / dormant_at removed):
 //   dup        = first current fact (tiers in this order) with
 //                  0. the same norm_value; else, among facts with the SAME dup_key (the discriminator multiset of dedup.py: numbers,
 //                  unit-normalised quantities, number words, negation / antonym tokens; 'v1.2.3' != 'v1.2.4', 'enabled' != 'not enabled',
@@ -34,32 +34,27 @@
 //                of windows stays contiguous and non-negative. ASSERTED_BY.at / recorded_at keep the caller's `now`.
 //   otherwise  -> clashing  = the remaining current facts (other agents' view)
 //                 new Fact (valid_from=ts); closing get valid_to=ts,status='superseded' + (new)-[:SUPERSEDES]->(old); clashing get (new)-[:CONTRADICTS]->(old) and stay active
-// step_id (P9-int): the Step the runtime opened before this call ('' = none). A NEW fact is linked (Step)-[:WROTE]->(fact) in this same
-// statement, so a crash cannot leave a fact without its WROTE edge (L6-F). A duplicate writes no fact and no WROTE.
-// Plan shape (P5 review Q2): the current-fact lookup is anchored at the Entity (its ABOUT edges, then the predicate / status / valid_to
-// filters, then the scope test via Expand Into). With `Fact {subject_id: ...}-[:IN_SCOPE]->(sc)` the planner started at the bound Scope
-// and enumerated every fact of it, so the write-serialised assert path cost O(facts in the scope). subject_id always equals the ABOUT
-// entity's id (this query is the only writer of Facts), so the edge is equivalent.
+// step_id ('' = none): a NEW fact is linked (Step)-[:WROTE]->(fact) in this same statement, so a crash cannot leave a fact without its WROTE edge. A duplicate writes none.
+// Plan shape: the current-fact lookup is anchored at the Entity (its ABOUT edges, then the predicate / status / valid_to filters, then the scope test via Expand Into).
+// With `Fact {subject_id: ...}-[:IN_SCOPE]->(sc)` the planner started at the bound Scope and enumerated every fact of it, so the write-serialised assert path cost
+// O(facts in the scope). subject_id always equals the ABOUT entity's id (this query is the only writer of Facts), so the edge is equivalent.
 // FalkorDB 6.0.2 gotcha: two CASE-wrapped list comprehensions with a nested pattern comprehension in ONE WITH return wrong (empty/duplicated) lists,
 // so closing and clashing are projected in separate WITH clauses.
 // Surprise (D-012), stored once on the new Fact: contradicting another agent's current fact = $surprise_contradict (0.9); closing (superseding) a current
-// fact = $surprise_supersede (0.6); otherwise $novelty (the caller's single vector read, activation/novelty: min(0.5, max(0, 1 - max cosine)), 0.5 for the
-// first fact of a scope). It is decided here because only this statement knows whether the write supersedes or contradicts.
-// P13 multi-source (trial 8): a fact several documents support carries one (fact)-[:DERIVED_FROM]->(Source) edge per source. The caller (Engram.assert_fact)
-//   passes `source_id` (kept) and puts the rest of its `source_ids` (<= 20, all checked to be Sources) into `derived_ids`, so the one MERGE of the
-//   duplicate path below IS the corroboration: a duplicate assert from a new document links that document to the existing fact. `added` is read in its own
-//   WITH BEFORE the FOREACH writes (`linked`, one pattern comprehension from the bound `dup`; no scan), so it lists only the sources this call newly linked.
+// fact = $surprise_supersede (0.6); otherwise $novelty (the caller's single vector read, activation/novelty). Decided here because only this statement
+// knows whether the write supersedes or contradicts.
+// Several sources (D-015): the caller passes `source_id` (kept) and puts the rest of its `source_ids` (<= 20, all checked to be Sources) into `derived_ids`, so
+// the one MERGE of the duplicate path IS the corroboration: a duplicate assert from a new document links that document to the existing fact. `added` is read in
+// its own WITH BEFORE the FOREACH writes (`linked`, one pattern comprehension from the bound `dup`), so it lists only the sources this call newly linked.
 // source_id / episode_id are '' when absent. A given id that does not resolve yields no row (the guard sits before the Agent MERGE).
-// derived_ids (P9-f, ported onto the audited statement): Sources / Episodes / Facts the fact is derived from, linked (new)-[:DERIVED_FROM]->(origin) in
-//   THIS statement (MERGEd onto a duplicate, never onto itself or twice to source_id / episode_id). Before, Lineage.derive_from was a second statement and a
-//   hard kill between the two lost the link for good (Crucible L6-F: 9 of 1,240 records). Resolved by id seeks inside a CALL subquery (one row out, so the
-//   statement never loses its row; the subquery must import EVERY variable in scope: on 6.0.2 `WITH e` alone, or no import, fails with 'Variable o1 not found'); the placeholder '' makes an empty list a seek that reads 0 records (P3), not a scan of the whole id index. An origin that
-//   does not exist makes `size(origins) <> size($derived_ids)` and the statement writes nothing.
-// Nearest-first (audit C3): the current facts are collected into `cur` ORDERED BY their value-embedding cosine distance to the new value
-//   (one `WITH ... ORDER BY` before the collect; collect keeps the row order on 6.0.2, as relay/task_status relies on), so every list derived
-//   from `cur` (`keyed`, `soft`) is nearest-first and the `[0..$maybe_cap]` cut keeps the nearest candidates. The cut and the
-//   DUPLICATES_MAYBE writes happen in this one statement, so the caller cannot sort first; sorting in the row domain after `keyed` would
-//   need the zero-row guard, while ordering the OPTIONAL MATCH rows changes no row count.
+// derived_ids: Sources / Episodes / Facts the fact is derived from, linked (new)-[:DERIVED_FROM]->(origin) in THIS statement (MERGEd onto a duplicate, never
+//   onto itself or twice to source_id / episode_id), so a hard kill cannot lose the link. Resolved by id seeks inside a CALL subquery (one row out, so the
+//   statement never loses its row; the subquery must import EVERY variable in scope: on 6.0.2 `WITH e` alone, or no import, fails with 'Variable o1 not found');
+//   the placeholder '' makes an empty list a seek that reads 0 records, not a scan of the whole id index. An origin that does not exist makes
+//   `size(origins) <> size($derived_ids)` and the statement writes nothing.
+// Nearest-first: the current facts are collected into `cur` ORDERED BY their value-embedding cosine distance to the new value (one `WITH ... ORDER BY` before
+//   the collect; collect keeps the row order on 6.0.2), so every list derived from `cur` (`keyed`, `soft`) is nearest-first and the `[0..$maybe_cap]` cut keeps
+//   the nearest candidates. Ordering the OPTIONAL MATCH rows changes no row count; sorting after `keyed` would need the zero-row guard.
 MATCH (e:Entity {id: $entity_id}), (sc:Scope {id: $scope_id})
 OPTIONAL MATCH (ep:Episode {id: $episode_id})
 OPTIONAL MATCH (src:Source {id: $source_id})

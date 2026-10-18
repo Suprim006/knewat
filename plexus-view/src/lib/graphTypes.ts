@@ -33,7 +33,6 @@ export interface GraphController {
   readonly cy: Core;
   /** Replace all elements and run the one-off fcose layout (draft). */
   load(nodes: GraphNode[], edges: GraphEdge[]): void;
-  clear(): void;
   /** Add nodes/edges without relayout; new nodes are seeded next to a neighbour. Returns the ids of nodes actually added. */
   addLive(nodes: GraphNode[], edges: GraphEdge[]): string[];
   /** Refresh the properties (and label text) of nodes already on the canvas. Returns how many changed. */
@@ -56,7 +55,6 @@ export interface GraphController {
   /** Show only `id` and everything within `hops` hops (over visible labels/edge types); returns the node count. */
   focusNeighborhood(id: string, hops?: number): number;
   clearFocus(): void;
-  focusedOn(): string | null;
   setSearch(q: string): string[];
   select(id: string | null): void;
   focus(id: string): void;
@@ -66,8 +64,6 @@ export interface GraphController {
   edgeTypeCounts(): Record<string, number>;
   /** Flow view: ring what one tool call created (green) and updated (amber); the rest recedes. */
   markEvent(created: string[], updated: string[]): void;
-  highlightPath(nodeIds: string[]): void;
-  clearHighlight(): void;
   relayout(): void;
   fit(): void;
   setTheme(theme: Theme): void;

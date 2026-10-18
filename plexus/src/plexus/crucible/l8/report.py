@@ -92,7 +92,7 @@ def headline(pooled: dict[str, Any]) -> dict[str, Any]:
             "separated": {"stale_P_B1": sep_b1, "stale_P_B0p": sep_b0, "rep_P_B1": rep_b1, "rep_P_B0p": rep_b0}}  # fmt: skip
 
 
-def table(pooled: dict[str, Any], runs: list[dict[str, Any]], audits: dict[str, Any]) -> str:
+def table(pooled: dict[str, Any], audits: dict[str, Any]) -> str:
     a = pooled["arms"]
     arms = [x for x in ("P", "B1", "B0p") if x in a]
     w = ["| Metric | " + " | ".join(ARM_NAME[x] for x in arms) + " |", "|---|" + "---|" * len(arms)]
@@ -374,7 +374,7 @@ def assemble(
         "audit": audit_rows, "probe": probe,
     }  # fmt: skip
     doc["headline"] = headline(doc["pooled"])
-    doc["table"] = table(doc["pooled"], runs, audits) + "\n" + robust_table(robust)
+    doc["table"] = table(doc["pooled"], audits) + "\n" + robust_table(robust)
     doc["honesty"] = HONESTY
     d = out / doc["run"]["id"]
     d.mkdir(parents=True, exist_ok=True)

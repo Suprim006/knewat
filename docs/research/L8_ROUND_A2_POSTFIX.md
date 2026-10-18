@@ -1,5 +1,7 @@
 # L8 Round A2: the P arm re-run after the P12 fixes
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Branch `p12` (base `main` f96df06). Written in two parts: **Part 1 (plan, pre-registration and the no-LLM recall
 measurement) was written and committed before the first paid `claude -p` call of this round**; Part 2 (results) is
 appended after the runs and does not edit Part 1. Source documents: `docs/research/L8_LONG_HORIZON_OUTCOMES.md`

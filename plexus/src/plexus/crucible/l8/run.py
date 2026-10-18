@@ -2,7 +2,6 @@
 
     python -m plexus.crucible.l8.run prepare --out DIR                      # schedule/sentinels for the 5 seeds ($0)
     python -m plexus.crucible.l8.run arm --seed 20261017 --arm P --out DIR  # one paid run
-    python -m plexus.crucible.l8.run campaign --seeds 1 --arms P,B1,B0p --out DIR --budget-usd 25
 
 Reused machinery (§2): ``ClaudeDriver`` (process handling, stream-json, kill, transcript sanitising) from
 ``plexus.demo.orchestrator``; the baseline MCP server (``crucible/l3/baseline_mcp.py``) for B1; ``play_scale`` (L2-scale)
@@ -61,7 +60,7 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 
 # ------------------------------------------------------------------------------------------------ envelope
 def git_state() -> dict[str, Any]:
-    """HEAD and whether the WHOLE repository differs from it (the l7 fix 05632f9, widened to the repo root).
+    """HEAD and whether the WHOLE repository differs from it.
 
     Paths under the L8 output directory are listed separately: results written by earlier runs of the same
     campaign are expected there and do not make the *code* dirty."""
@@ -78,7 +77,7 @@ def git_state() -> dict[str, Any]:
         "plexus/demo_data/crucible/l8_p12tok/",
         "plexus/demo_data/crucible/l8_p12ts/",
         "plexus/demo_data/crucible/l8_trialsint/",
-    )  # P12: + the re-runs
+    )
     code = [x for x in lines if not any(r in x for r in out_rels)]
     return {
         "commit": g("rev-parse", "HEAD"),
@@ -295,7 +294,6 @@ class L8State:
         default_factory=dict
     )  # agent -> task (MCP: after claim result; B0': assignment)
     calls_since_claim: dict[str, int] = field(default_factory=dict)
-    k2_wrote: bool = False
 
     def event(self, name: str, **info: Any) -> dict[str, Any]:
         ev = {"event": name, "turn": self.turn_no, "step": self.step, "t_ms": int(time.time() * 1000), **info}
@@ -326,7 +324,7 @@ def _role_files(role: str) -> str:
 class L8Driver(ClaudeDriver):
     """``ClaudeDriver`` with the L8 tool surface, prompts and kill points."""
 
-    def __init__(self, cfg: ClaudeConfig, st: L8State, sentinels: dict[str, Any], on_event: Any = None):
+    def __init__(self, cfg: ClaudeConfig, st: L8State, on_event: Any = None):
         super().__init__(cfg, on_event)
         self.st = st
         self.mcp = st.arm != "B0p"
@@ -425,8 +423,6 @@ class L8Driver(ClaudeDriver):
         rep = TurnReport(st.turn_no, t.agent, t.name, t.kind)
         self.reports.append(rep)
         self.cur = t
-        self.wrote_this_turn = False
-        self.calls_this_turn = 0
         st.holds.pop(t.agent, None)
         st.calls_since_claim.pop(t.agent, None)
         if t.kind == "task" and not self.mcp:
@@ -461,7 +457,6 @@ class L8Driver(ClaudeDriver):
                     continue
                 name = block.get("name", "")
                 pending[block["id"]] = (name, block.get("input") or {})
-                self.calls_this_turn += 1
                 if name.startswith(MCP_PREFIX):
                     st.step += 1
                     rep.plexus_calls += 1
@@ -576,9 +571,9 @@ async def run_schedule(st: L8State, driver: L8Driver, workdir: Path, on_commit: 
         nxt = st.turn_no + 1
         for e in commits:
             if e.turn <= nxt and not any(x["k"] == e.k for x in st.landed):
-                before = on_commit("before")
+                before = on_commit()
                 sha = land(workdir / "repo", mods, e)
-                after = on_commit("after")
+                after = on_commit()
                 rec = {"k": e.k, "kind": e.kind, "funcs": e.funcs, "sched_turn": e.turn, "landed_before_turn": nxt,
                        "sha": sha, "t_ms": int(time.time() * 1000), "hook": {"changes_before": before, "changes_after": after}}  # fmt: skip
                 st.landed.append(rec)
@@ -794,14 +789,14 @@ def run_arm(
             "baseline": (base.stdout + base.stderr).strip()[-400:],
         }
 
-    def on_commit(phase: str) -> int | None:
+    def on_commit() -> int | None:
         return store.count_changes() if isinstance(store, PlexusStore) else None
 
     st = L8State(arm, sched, store)
     cfg = ClaudeConfig(
         workdir=workdir, mcp_config=cfgfile, model=model, max_turns=max_turns, launcher=launcher
     )
-    driver = L8Driver(cfg, st, sentinels, on_event=log)
+    driver = L8Driver(cfg, st, on_event=log)
     status, error = "completed", ""
     try:
         status = asyncio.run(run_schedule(st, driver, workdir, on_commit, log))

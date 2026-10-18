@@ -13,7 +13,6 @@ import json
 import random
 import shutil
 import sqlite3
-import subprocess
 import sys
 import tempfile
 import time
@@ -64,10 +63,6 @@ def _rc(host: str, port: int, **kw: Any) -> redis.Redis:
     return redis.Redis(host=host, port=port, decode_responses=True, socket_timeout=60, **kw)
 
 
-def _dock(*args: str) -> str:
-    return subprocess.run(["docker", *args], capture_output=True, text=True, timeout=120).stdout
-
-
 # ------------------------------------------------------------------------------------------------ server footprint
 def used_memory(r: redis.Redis) -> int:
     return int(r.info("memory")["used_memory"])
@@ -89,7 +84,7 @@ def rdb_size(r: redis.Redis) -> int | None:
         if int(r.info("persistence")["rdb_bgsave_in_progress"]) == 0:
             break
         time.sleep(0.2)
-    out = _dock("exec", CONTAINER, "ls", "-l", "/var/lib/falkordb/data")
+    out = common.docker("exec", CONTAINER, "ls", "-l", "/var/lib/falkordb/data").stdout
     for ln in out.splitlines():
         parts = ln.split()
         if parts and parts[-1] == "dump.rdb":

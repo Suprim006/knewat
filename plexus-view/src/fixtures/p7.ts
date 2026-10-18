@@ -1,11 +1,7 @@
 /*
- * P7 overlay for the Acme Notes fixture: staleness (suspect facts, code changes, anchors, docs) and activation
- * forgetting (pinned, dormant, surprising and fading facts), in the exact shapes the View API sends
- * (docs/view-api.schema.json). `applyP7` returns a NEW dataset; `buildAcme()` itself stays as it was, so the
- * v1 tests keep their counts. The query helpers below back the fixture client's `verifyQueue`,
- * `docsToUpdate`, `memoryStrength` and the inventory's memory counts.
- *
- * Synthetic data only.
+ * Staleness and forgetting overlay for the Acme Notes fixture, in the shapes the View API sends
+ * (docs/view-api.schema.json). `applyP7` returns a NEW dataset, so `buildAcme()` keeps its counts. The query
+ * helpers back the fixture client's `verifyQueue`, `docsToUpdate`, `memoryStrength` and memory counts.
  */
 import { OPEN } from '../api/types';
 import type { DocRow, GraphEdge, GraphNode, MemoryStrength, Props, VerifyRow } from '../api/types';

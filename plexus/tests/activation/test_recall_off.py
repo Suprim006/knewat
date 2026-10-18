@@ -1,7 +1,5 @@
 """Forgetting + separation off (or as_of) is byte-identical to the retrieval order before P7-K.
 
-P12 fuses a lexical score into the relevance, so the identity also needs ``lexical_weight = 0``.
-
 D-013 added ``PLEXUS_RECALL_SEPARATION`` (on by default): with it on, the sibling expansion is fan-damped and
 a query that names an entity is re-ranked, so the identity holds with BOTH switches off (the documented
 contract).
@@ -93,9 +91,7 @@ def world(eng, scope):
 
 
 def test_forgetting_off_reproduces_the_pre_change_order(world):
-    # P12 fuses a lexical score into the relevance; with weight 0 the order is the pre-P7-K vector order
     eng, scope = world
-    eng.lexical_weight = 0.0
     assert _cut_ties(golden_fixture.orders(eng, scope, forgetting=False, separation=False)) == _cut_ties(
         GOLDEN
     )
@@ -103,25 +99,9 @@ def test_forgetting_off_reproduces_the_pre_change_order(world):
 
 def test_the_environment_switch_does_the_same(world, monkeypatch):
     eng, scope = world
-    eng.lexical_weight = 0.0
     monkeypatch.setenv("PLEXUS_FORGETTING", "off")
     monkeypatch.setenv("PLEXUS_RECALL_SEPARATION", "off")
     assert _cut_ties(golden_fixture.orders(eng, scope)) == _cut_ties(GOLDEN)
-
-
-def test_p12_lexical_weight_env_and_default(world, monkeypatch):
-    """Recall-check (D-013 amendment 3): the shipped default is no lexical term (main's relevance); P12's
-    fusion (``FUSION_WEIGHT`` 0.5) is opt-in through ``PLEXUS_RECALL_LEXICAL_WEIGHT``."""
-    from plexus.engram.service import FUSION_WEIGHT, LEXICAL_WEIGHT, Engram
-
-    eng, scope = world
-    assert eng.lexical_weight == LEXICAL_WEIGHT == 0.0
-    assert FUSION_WEIGHT == 0.5
-    monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "0.5")
-    assert Engram(eng.client, eng.graph, eng.embedder).lexical_weight == FUSION_WEIGHT
-    monkeypatch.setenv("PLEXUS_RECALL_LEXICAL_WEIGHT", "2")
-    with pytest.raises(ValueError):
-        Engram(eng.client, eng.graph, eng.embedder)
 
 
 def test_an_explicit_argument_beats_the_environment(world, monkeypatch):

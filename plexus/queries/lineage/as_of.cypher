@@ -1,10 +1,9 @@
 // name: lineage/as_of
-// purpose: Validity-window time travel: the fact(s) for (subject, predicate) that were valid at time t in a scope (or one it INHERITS, nearest first), ignoring forgotten / quarantined facts.
+// purpose: Validity-window time travel: the fact(s) for (subject, predicate) valid at time t in a scope (or one it INHERITS, nearest first), ignoring forgotten / quarantined facts.
 // params: norm_subject:str, predicate:str, t:int, scope_id:str, limit:int
 // returns: fact_id, value, status, valid_from, valid_to, confidence, scope_id, scope_hops (0 = the scope itself), asserted_by [agent ids], supersedes [ids], contradicts [ids]; best match first (nearest scope, then latest valid_from). No rows when the subject is unknown or nothing was valid at t.
 // mode: ro
-// P7-K (D-012): a 'dormant' fact (parked by memory_sweep, reversible) still answers: forgetting changes rank and default recall, never history (tests/activation/test_history_unchanged.py).
-// A fact is valid at t when valid_from <= t < valid_to. status 'superseded' facts still answer for the times before their successor started.
+// Valid at t means valid_from <= t < valid_to; 'superseded' facts still answer for the times before their successor started. A 'dormant' fact (parked by memory_sweep) still answers: forgetting changes rank, never history (D-012).
 MATCH p = (:Scope {id: $scope_id})-[:INHERITS*0..3]->(sc:Scope)
 WITH sc.id AS sid, min(length(p)) AS hops
 WITH collect({id: sid, hops: hops}) AS scopes

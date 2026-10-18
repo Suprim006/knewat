@@ -4,12 +4,9 @@
 // params: id:str, tool:str, agent_id:str, step_id:str, step:int, query_name:str, run_time_ms:float, wrote:bool, links:list[map], now:int
 // returns: id, links (number of CREATED/UPDATED edges written)
 // mode: rw
-// DELIBERATE DEVIATION from PLAN section 3 ("inside the same statement"): run_time_ms is only known after the
-// tool's own statement finished, so this runs as the immediately-following single statement.
-// $links items: {id, label, rel} with rel 'C' (CREATED) or 'U' (UPDATED); label is one of the whitelisted node
-// labels below (the Python wrapper drops anything else and caps the list at 200). Every lookup is a label+id
-// index hit; an id that matches nothing simply gets no edge. An empty list is replaced by one inert row.
-// $step_id '' means "no Step"; a Step id that does not exist (Lineage absent) just gets no IN_STEP edge.
+// Runs as the statement right after the tool's own one (deviation from PLAN section 3), because run_time_ms is only known once that statement finished.
+// $links items: {id, label, rel} with rel 'C' (CREATED) or 'U' (UPDATED); label is one of the whitelisted labels below (the Python wrapper drops anything else and caps the list at 200). Every lookup is a label+id index hit; an id that matches nothing gets no edge. An empty list is replaced by one inert row.
+// $step_id '' means "no Step"; a Step id that does not exist just gets no IN_STEP edge.
 CREATE (tc:ToolCall {
   id: $id, tool: $tool, at: $now, created_at: $now, agent_id: $agent_id, step: $step,
   query_name: $query_name, run_time_ms: $run_time_ms, wrote: $wrote

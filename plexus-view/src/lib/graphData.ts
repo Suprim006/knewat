@@ -3,7 +3,7 @@ import type { GraphEdge, GraphNode, Props } from '../api/types';
 import { displayName, nodeColor } from './labels';
 import type { ColorMode } from './labels';
 
-export const NODE_SIZE: Record<string, number> = {
+const NODE_SIZE: Record<string, number> = {
   Change: 16,
   CodeAnchor: 16,
   Agent: 34,

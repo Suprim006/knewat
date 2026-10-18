@@ -20,12 +20,6 @@ ROUND_A = ROOT / "l8"
 POSTFIX = ROOT / "l8_postfix"
 SEEDS = (20261017, 20261018, 20261019, 20261020, 20261021)
 COLUMNS = (("P2", POSTFIX, "P"), ("P", ROUND_A, "P"), ("B1", POSTFIX, "B1"), ("B0p", POSTFIX, "B0p"))
-NAMES = {
-    "P2": "P after fixes (A2)",
-    "P": "P Round A",
-    "B1": "B1 SQLite (Round A)",
-    "B0p": "B0′ files (Round A)",
-}
 
 
 def load(base: Path, arm: str) -> list[dict[str, Any]]:

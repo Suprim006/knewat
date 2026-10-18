@@ -3,7 +3,7 @@
 // params: now:int, cap:int
 // returns: id (distinct, at most 3 x cap rows before de-duplication)
 // mode: ro
-// Three index-backed branches instead of one OR: Fact(verify_state) equality, Fact(verify_after) range, Fact(verify_degraded) equality (P12-F3: an interrupted verify_fact(changed); the old fact may already be 'superseded', so that branch has no status filter). Facts written before P7 have neither property and are never returned (absent = verified, no review date).
+// Three index-backed branches instead of one OR: Fact(verify_state) equality, Fact(verify_after) range, Fact(verify_degraded) equality (no status filter: the old fact of an interrupted verify_fact(changed) may be 'superseded'). Facts without these properties are never returned (absent = verified, no review date).
 MATCH (f:Fact {verify_state: 'suspect', status: 'active'})
 RETURN f.id AS id LIMIT $cap
 UNION

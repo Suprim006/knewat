@@ -125,12 +125,9 @@ def impact(
         )
     if depth > MAX_DEPTH:
         raise ToolError(f"impact: depth must be between 1 and {MAX_DEPTH} for a {kind}")
-    lin = ts.lineage(m)
-    if lin is None:
-        raise ToolError("impact: lineage is not available")
     return Outcome(
         {
-            "impact": lin.impact(
+            "impact": ts.lineage(m).impact(
                 kind, id, depth=depth, max_detail=max_items, order=order, offset=offset, probe_ids=probe_ids
             )
         }

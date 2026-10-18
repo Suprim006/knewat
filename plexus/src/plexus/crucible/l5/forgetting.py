@@ -11,7 +11,6 @@ No LLM; the clock of the engine is replaced by a virtual ``now`` that is 90 days
 from __future__ import annotations
 
 import dataclasses
-import os
 import random
 import sqlite3
 import statistics
@@ -57,25 +56,14 @@ MODE_TABLE: dict[str, tuple[Settings, bool, bool | None]] = {
     "off": (Settings(), False, False),
     "on": (Settings(), True, None),
     "on+sweep": (Settings(), True, None),
-    "on-mult": (Settings(act_mode="mult", kw_bypass="value"), True, False),
-    "kw-fix": (Settings(act_mode="mult", kw_bypass="fact"), True, False),
-    "sep": (Settings(act_mode="mult"), False, True),  # the context term as shipped (entity + predicate cues)
-    "sep-entity": (
-        Settings(act_mode="mult", cues="entity"),
-        False,
-        True,
-    ),  # P1 as first shipped: entity cue only
-    "sep+add": (Settings(act_mode="add"), True, True),
-    "sep+mult": (
-        Settings(act_mode="mult"),
-        True,
-        True,
-    ),  # the shipped default after D-013 (mult + separation)
+    "kw-fix": (Settings(), True, False),
+    "sep": (Settings(), False, True),  # the context term as shipped (entity + predicate cues)
+    "sep+mult": (Settings(), True, True),  # the shipped default after D-013 (mult + separation)
 }
 
 
 def resolve_mode(name: str) -> tuple[Settings, bool, bool | None]:
-    """A mode name, optionally with setting overrides for post-hoc sensitivity runs: ``sep+add[beta=0.01;delta=0]`` (semicolon-separated, the CLI splits modes on commas).
+    """A mode name, optionally with setting overrides for post-hoc sensitivity runs: ``sep+mult[floor=0.8;decay=0.4]`` (semicolon-separated, the CLI splits modes on commas).
 
     The bracket form is for exploratory runs only (``demo_data/crucible/l5_posthoc``); the pre-registered modes are
     the bare names of ``MODE_TABLE``.
@@ -86,9 +74,7 @@ def resolve_mode(name: str) -> tuple[Settings, bool, bool | None]:
     settings, fg, sep = MODE_TABLE[base]
     if over:
         kv = dict(item.split("=", 1) for item in over.rstrip("]").split(";") if item)
-        settings = dataclasses.replace(
-            settings, **{k: (float(v) if k not in ("act_mode", "kw_bypass") else v) for k, v in kv.items()}
-        )
+        settings = dataclasses.replace(settings, **{k: float(v) for k, v in kv.items()})
     return settings, fg, sep
 
 
@@ -178,22 +164,6 @@ def simulate_reads(
     for i in range(0, len(reads), 1000):
         client.rw(graph, "crucible/l5_add_reads", {"reads": reads[i : i + 1000], "agent_id": "l5-reader"})
     return {"read_edges": len(reads), "critical_reads": len(critical), "hot_facts": len(hot)}
-
-
-def harness_lexical_weight() -> float:
-    """The lexical weight (P12 ``fuse_scores``) the L5b / hub harness runs ``Engram.recall`` with.
-
-    Default ``0.0``: the pre-registered D-013 / SQL-arm comparison mirrors the cosine relevance. The recall-check
-    (BASELINE.md) sets ``PLEXUS_L5_LEXICAL_WEIGHT`` to ``0.5`` to measure the shipped fusion; the value used is
-    written into the results' ``config``. Not read by the product.
-    """
-    raw = os.environ.get("PLEXUS_L5_LEXICAL_WEIGHT", "").strip()
-    if not raw:
-        return 0.0
-    w = float(raw)
-    if not 0.0 <= w <= 1.0:
-        raise ValueError(f"PLEXUS_L5_LEXICAL_WEIGHT must be within 0..1, got {raw}")
-    return w
 
 
 class _Recording:
@@ -408,10 +378,6 @@ def run_forgetting(
         window = (min(r["created_at"] for r in real), max(r["created_at"] for r in real))
         recorder = _Recording(client)
         eng = Engram(recorder, graph, embedder)  # type: ignore[arg-type]
-        # P12's lexical fusion is not part of the pre-registered D-013 / SQL-arm comparison (the SQL arm mirrors the
-        # cosine relevance); trials-int pins it off here so this harness measures what BASELINE registered.
-        # PLEXUS_L5_LEXICAL_WEIGHT overrides the pin for the recall-check ON/OFF comparison (BASELINE "Recall-check").
-        eng.lexical_weight = harness_lexical_weight()
         noise_ids = add_noise(eng, client, real, noise_mult, rng, window)
         noise = set(noise_ids)
         t_noise = time.time()
@@ -440,7 +406,7 @@ def run_forgetting(
             sql_meta = {"path": path, "export_seconds": round(time.perf_counter() - t_exp, 2), "rows": counts,
                         "sql_lines": sql_arm.sql_lines(), "sqlite_version": sqlite3.sqlite_version}  # fmt: skip
             sqlr = sql_arm.SqlRecall(path, embedder)
-            graph_acts = Activation(client, graph, Settings(act_mode="mult"), clock=lambda: now).compute(
+            graph_acts = Activation(client, graph, Settings(), clock=lambda: now).compute(
                 [r[0] for r in client.graph(graph).ro_query("MATCH (f:Fact) RETURN f.id").result_set], now
             )
             sql_meta["activation_fidelity"] = sql_arm.activation_fidelity(sqlr, graph_acts, now)
@@ -501,7 +467,6 @@ def run_forgetting(
                 "ks": list(KS),
                 "modes": list(order),
                 "burst": burst,
-                "lexical_weight": eng.lexical_weight,
             },
             "history": {**ledger.summary(), "real_active_facts": len(real)},
             "classes": {"critical": len(crit), "hot": len(hot), "cold": len(real) - len(crit) - len(hot)},

@@ -11,11 +11,9 @@ import uuid
 from collections.abc import Callable, Iterator, Sequence
 from typing import Any
 
-from plexus.crucible.api import OPEN
-from plexus.engram.service import fact_text, normalize, numeric_tokens, token_key  # same text rules as Plexus
+from plexus.engram.service import fact_text, normalize, token_key  # same text rules as Plexus
 
 __all__ = [
-    "OPEN",
     "FileLock",
     "classify",
     "fact_text",
@@ -25,7 +23,6 @@ __all__ = [
     "new_id",
     "normalize",
     "now_ms",
-    "numeric_tokens",
     "percentile",
     "run_stamp",
     "scope_chain",

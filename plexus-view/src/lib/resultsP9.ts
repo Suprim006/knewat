@@ -1,7 +1,6 @@
 /**
- * P9 layers of the combined results file, read defensively like lib/results.ts: `layers.B1h` (hand-written SQL on the
- * L2 and L2-scale questions), `layers.C7x` (the extended duplicate corpus) and `layers.L6` (the pre-registered beat-SQL
- * families, with their LLM pilot and the post-fix re-run). Anything missing is skipped.
+ * P9 layers of the results file, read defensively like lib/results.ts: `layers.B1h` (hand-written SQL),
+ * `layers.C7x` (extended duplicate corpus) and `layers.L6` (beat-SQL families, LLM pilot, post-fix re-run).
  */
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);

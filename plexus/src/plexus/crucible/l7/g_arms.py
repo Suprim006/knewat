@@ -19,13 +19,7 @@ from plexus.graph.client import GraphClient
 from plexus.graph.schema import apply_schema
 from plexus.graph.tenancy import graph_name
 
-BATCH = 4000
 DEC = 5  # decimals kept of each embedding component (bulk-load parameter size)
-
-
-def _chunks(rows: list[Any], n: int = BATCH):
-    for i in range(0, len(rows), n):
-        yield rows[i : i + n]
 
 
 # ================================================================================================ F: graph per tenant
@@ -67,7 +61,7 @@ class FArm:
         g = self.g(k)
 
         def run(cy: str, rows: list[Any]) -> None:
-            for ch in _chunks(rows):
+            for ch in common.chunks(rows):
                 g.query(cy, {"rows": ch}, common.TIMEOUT_MS)
 
         run(

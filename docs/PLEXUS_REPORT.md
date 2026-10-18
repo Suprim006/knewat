@@ -1,5 +1,7 @@
 # Plexus: the full report
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md).
+
 **One shared graph brain for AI agent teams.** Graph Hacks (WeMakeDevs × FalkorDB), **Track 02: Agent Memory and
 Coordination**.
 

@@ -12,7 +12,6 @@ import {
   countLabels,
   createdAtBounds,
   describeNode,
-  highlightPath,
   markEvent,
   neighborhoodIds,
   searchNodes,
@@ -26,40 +25,16 @@ import { EMPTY_MEMORY_COUNTS, medianActivation, memoryNodeData } from './memory'
 import type { MemoryCounts } from './memory';
 
 /*
- * Thin imperative wrapper around Cytoscape.js (docs/spikes/S3-view-lib.md).
- *
- * Rules from the spike, enforced here:
+ * Imperative wrapper around Cytoscape.js (docs/spikes/S3-view-lib.md). Rules from the spike:
  *  - fcose runs once, with quality "draft" (default quality freezes the tab for ~26 s at 2k nodes);
- *  - live nodes are seeded next to a neighbour and never trigger a relayout (existing nodes don't move);
+ *  - live nodes are seeded next to a neighbour and never trigger a relayout;
  *  - graph elements live in Cytoscape, not in React state; React only holds selection and filters.
- *
- * This file holds the controller (state + mutations). The rest lives next to it and is re-exported here, so
- * importers keep using `lib/graphController`:
- *  - graphStyle.ts     themes and the Cytoscape stylesheet
- *  - graphLayout.ts    fcose options, the mini-graph options and the seeding of new nodes
- *  - graphData.ts      API node/edge -> Cytoscape element mapping
- *  - graphSelection.ts search, selection / path highlighting, descriptions and counts
- *  - graphTypes.ts     the controller's interfaces
+ * Helpers: graphStyle (themes, stylesheet), graphLayout, graphData, graphSelection, graphTypes.
  */
 
-export {
-  DARK_THEME,
-  HAYSTACK_EDGE_THRESHOLD,
-  LABEL_MAX_WIDTH,
-  LIGHT_THEME,
-  SUSPECT_COLOR,
-  buildStyle,
-} from './graphStyle';
-export type { Theme } from './graphStyle';
-export { LAYOUT_OPTIONS, MINI_CONTROLLER_OPTIONS } from './graphLayout';
-export type {
-  ControllerOptions,
-  Counts,
-  FilterState,
-  GraphController,
-  NeighborInfo,
-  NodeDescription,
-} from './graphTypes';
+export { DARK_THEME, LIGHT_THEME } from './graphStyle';
+export { MINI_CONTROLLER_OPTIONS } from './graphLayout';
+export type { ControllerOptions, Counts, GraphController, NeighborInfo, NodeDescription } from './graphTypes';
 
 let registered = false;
 function register() {
@@ -81,7 +56,6 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
   let colorMode: ColorMode = 'label';
   let timeRange: [number, number] | null = null;
   let focus: Set<string> | null = null;
-  let focusId: string | null = null;
   const timers = new Set<ReturnType<typeof setTimeout>>();
   const now = opts.now ?? Date.now;
   let givenA0: number | null = null;
@@ -200,7 +174,6 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       pending.clear();
       timeRange = null;
       focus = null;
-      focusId = null;
       const known = new Set(nodes.map((n) => n.id));
       cy.batch(() => {
         cy.add(nodes.map((n) => toNodeDef(n, colorMode)));
@@ -229,11 +202,6 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
         );
         cy.fit(undefined, 30);
       }
-    },
-
-    clear() {
-      cy.elements().remove();
-      pending.clear();
     },
 
     addLive(nodes, edges) {
@@ -343,7 +311,6 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
       if (start.empty()) return 0;
       const seen = neighborhoodIds(start as NodeSingular, hops, filters);
       focus = seen;
-      focusId = id;
       applyFilters();
       cy.fit(cy.nodes().not('.hide-label'), 40);
       return seen.size;
@@ -351,12 +318,7 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     clearFocus() {
       focus = null;
-      focusId = null;
       applyFilters();
-    },
-
-    focusedOn() {
-      return focusId;
     },
 
     setSearch(q) {
@@ -392,14 +354,6 @@ export function createGraphController(opts: ControllerOptions = {}): GraphContro
 
     markEvent(created, updated) {
       markEvent(cy, created, updated);
-    },
-
-    highlightPath(ids) {
-      highlightPath(cy, ids);
-    },
-
-    clearHighlight() {
-      cy.elements().removeClass('faded path');
     },
 
     relayout() {

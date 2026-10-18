@@ -65,7 +65,7 @@ def test_compact_schema_drops_boilerplate_only():
     }
 
 
-async def test_published_schemas_are_compact_and_validation_still_holds(server, monkeypatch):
+async def test_published_schemas_are_compact_and_validation_still_holds(server):
     async with Client(server) as c:
         tools = (await c.list_tools()).tools
         dumped = json.dumps([t.input_schema for t in tools])
@@ -91,8 +91,3 @@ async def test_published_schemas_are_compact_and_validation_still_holds(server, 
         assert res.is_error and "agent_id" in res.content[0].text
         res = await c.call_tool("recall", {"agent_id": "a", "query": "q", "k": 51})
         assert res.is_error and "k" in res.content[0].text
-    monkeypatch.setenv("PLEXUS_MCP_SCHEMA", "full")
-    async with Client(server) as c:
-        full = (await c.list_tools()).tools
-    assert "maxLength" in json.dumps([t.input_schema for t in full])
-    assert len(json.dumps([t.input_schema for t in full])) > 1.3 * len(dumped)

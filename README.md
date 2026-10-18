@@ -18,6 +18,11 @@ with a graph query, not a guess.
 Plexus itself contains **no LLM and no LLM credentials**. The agents in the demo are the unmodified `claude` binary; every
 Plexus tool is a deterministic Cypher query. Only synthetic data is used (a fictional "Acme Notes API" team).
 
+> **STALE (2026-10-18): measured numbers below are not valid for the current build (main @ `7618d18`).** Every figure that was *measured* (benchmark,
+> staleness and forgetting results, deployment timings, the Testing counts) comes from an earlier build and has not been re-run on this one; each is
+> marked where it appears. Build per number, and what was reproduced later: [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md). Counts of the tree itself are current: 45 tools,
+> 114 query files, the recording's 247 nodes / 708 edges.
+
 ## What it does, by Track 02 focus area
 
 | Focus area | Plexus feature | Where to see it |
@@ -71,6 +76,8 @@ corrected clause of a long fact was swallowed as a paraphrase duplicate), now fi
 agents verify well in general, or that facts nobody anchored are covered; `verify_fact` is two statements and is not atomic
 (a failure between them is documented and pinned by a test).
 
+> *(stale: the L5a figures were measured on `75bd122`; the real run was recorded on `p7-int`. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
+
 ## Forgetting
 
 Memory that only grows gets noisy. Plexus ranks facts by how much they are used, and **never deletes anything because of
@@ -96,19 +103,23 @@ noise share of what recall returns 24.0% -> 15.1%, nothing deleted (fact count e
 lowers recall@5 to 88.6% because it hides the cold facts nobody used for 90 days (14 real ones in the run); read the dry run first,
 `restore_fact` undoes it. One synthetic scenario, one confirmatory run: a hypothesis for your data, not a promise.
 
+> *(stale: the floor 0.5 runs were measured on `75bd122`, the floor 0.9 confirmatory run on `92c9bd7`. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
+
 **D-013 (pattern separation, branch `feature/neuro-memory-research`).** A neuroscience survey ([`docs/research/`](docs/research/))
 traced the recall@1 loss to the combination rule, not the decay curve. `recall` now resolves the entities the query names (one
 bounded full-text read) and lifts their facts by an ACT-R context term over two cues, the entity and the predicate the query
-names (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_CUES`, `PLEXUS_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
+names (`PLEXUS_RECALL_SEPARATION=on`, `PLEXUS_ACT_W_ENTITY` / `_W_PREDICATE`); the named entity's own facts
 always join the candidates; the exact-keyword bypass tests the whole fact text. Pre-registered L5b re-run (same seed, 0 LLM
 calls): recall@1 75.7% -> **85.7%** with forgetting off, recall@5 100%, every cross-entity displacer gone, the pre-registered
 0.90 target **not reached** — and a later run showed why: the 20 residual misses are the scenario's 20 contradicting
 `auth_method` pairs (same entity, same predicate, both active), so 85.7% is the ceiling for any value-blind scorer; the predicate
 cue, pre-registered as the fix, changed no L5b rank (`docs/BASELINE.md` "Predicate cue results"). The additive forgetting mode built alongside it
-(`PLEXUS_ACT_MODE=add`, Pavlik-Anderson decay, graded salience) **failed** its pre-registered test (70.0%) and is opt-in; the
-shipped default (`mult` + the two-cue separation, weights confirmed in a registered run) measures recall@1 85.7%, recall@5 100%,
+(Pavlik-Anderson decay, graded salience) **failed** its pre-registered test (70.0%) and has been removed (reproduce at tag
+`pre-cleanup`); the shipped default (`mult` + the two-cue separation, weights confirmed in a registered run) measures recall@1 85.7%, recall@5 100%,
 noise share 20.6-20.9% (D-013 as first shipped: 85.0% / 100% / 22.1%; D-012 alone: 65.0% / 95.7% / 14.9%).
 [`docs/DECISIONS.md`](docs/DECISIONS.md) D-013, [`docs/BASELINE.md`](docs/BASELINE.md) "L5b-D013" and "Predicate cue results".
+
+> *(stale: measured on `3017ad7` (the 85.7% / 100% runs), `468601e` and `2d0ec96` (the 20.6-20.9% noise share), 2026-10-17. On the merged build (`ae17aee`, branch `recall-check`) recall@1 and recall@5 reproduced but the noise share was 32-42%, so the noise-share figures here do not describe main. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
 
 ## Architecture
 
@@ -270,6 +281,8 @@ traversal of the audit edges.
 The test of that claim is an **ablation**: delete four relationship types (`DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM`, `READ`)
 and see what stops working.
 
+> *(stale: the Crucible ablation figures below were measured on `84763aa`, 2026-10-15. The live ablation's 6 of 6 / 2 of 2 is asserted by the current test suite (current); the counts quoted from the Sonnet recording's output were measured on the P3 demo build (stale). See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
+
 - **Crucible ablation** ([`docs/BASELINE.md`](docs/BASELINE.md)): **7 of 7** capabilities that use those edges break
   (dependency-aware claims, `blocked_by_failure`, `why` for decisions and for facts, `knew_at`, `who_knew`, cascading forget);
   **5 of 5** controls are unaffected (as-of, recall, contradiction flags, supersession, exclusive claims). Re-running the
@@ -298,6 +311,8 @@ Crucible swaps only the backend behind an identical tool API: **B0** files (floc
 (transactions), **B2** vector store (same local embedder), **P** Plexus. Everything else is fixed (same agents' prompts,
 model, scenario, budgets, seeds). Exact-match scoring, no LLM judge. Full methodology, pre-registration and failure analysis:
 [`docs/BASELINE.md`](docs/BASELINE.md); the same numbers are in the View's Results page.
+
+> **STALE (2026-10-18): none of the numbers in this section were measured on the current build (main @ `7618d18`).** Builds: L1, L4, ablation `84763aa`; L2 `4ac62a8`; L2 at scale `31b15df`; B1h `5c3073a`; C7 extended `aee7ee8`; L6 `ae9d208`..`5871d30` (pilot), post-fix `a58b783` (A, B, F re-run on `integ` `47dd26a` and `recall-check` `f966146` with the same verdicts); L6-C `65fbc40` (its `hit_any` moved on later builds). Reproduce a number by checking out its build (or tag `pre-cleanup` for the build just before the dead-code cleanup) and re-running the layer. Per-number table: [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).
 
 | Layer | What we found | How to read it |
 |---|---|---|
@@ -346,14 +361,14 @@ HTTP and the static View. How to deploy it yourself (with the keep-awake pinger)
   tenant). Put nothing private in it. Idle `team_` graphs are deleted after 24 h, and a restart drops them all.
 - Rate limit: 60 MCP requests per minute per IP. Request bodies are capped at 512 KiB; at most 50 tenant graphs exist.
 - Verified locally under `-m 512m --cpus 0.5`: boot in 5 to 14 s, peak 332 MiB (cgroup; 322 MiB by `docker stats`), 40/40
-  checks of `deploy/verify.py`. The deployment on Render itself has not been verified yet.
+  checks of `deploy/verify.py` (stale: measured on `c9234d8`). The deployment on Render itself has not been verified yet.
 - The first request after 15 idle minutes wakes the service (about a minute plus the reseed) unless an uptime pinger is set up.
 
 ## Setup
 
 You need **Docker with Compose v2** and nothing else (no Python, no Node). The first `up` builds two images (about 4 minutes,
 about 1 GB of images including FalkorDB). This exact path was run from a fresh clone (4 services healthy after 216 s, then the
-replay; evidence in [`docs/TESTING.md`](docs/TESTING.md)).
+replay; evidence in [`docs/TESTING.md`](docs/TESTING.md); the 216 s is stale, measured on `p5-int`).
 
 ```bash
 git clone <this repo> plexus && cd plexus
@@ -470,6 +485,8 @@ checklist. At the last full run, 1512 Python tests and 229 View tests passed (pl
 are listed there too: for example, a real Claude Code run has driven only 14 of the 45 tools (11 in the Acme run, 3 more in the P7 physio run; all 45 have an MCP contract
 test), and the L1/L4 benchmark and the LLM arms are separate commands. `python scripts/verify_readme.py` checks that every
 link in this README, the video script and the blog draft resolves and that the quoted numbers still match the results files.
+
+> *(stale: the 1512 / 229 / 55 counts were measured on `p9int` (2026-10-16). The current main passes 1825 Python tests with 2 skipped (full suite on the `integ` tree, identical to `7618d18`); the View and deploy-guard counts have not been re-run. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
 
 ## Docs
 

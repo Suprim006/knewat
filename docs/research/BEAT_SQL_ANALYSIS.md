@@ -1,5 +1,7 @@
 # Can Plexus beat SQL and files? Design analysis for a pre-registered Crucible L6
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Written 2026-10-16 (Graph Hacks, Track 02). Status: analysis, no repo code changed. Sources: our code and results (file:line cited), two
 micro-probes I ran today (§2, queries in Appendix A), and a few external references (ledger: `docs/research/.ledger-beat-sql.json`).
 Labels: **[measured]** = I ran it today, **[repo]** = from our committed results, **[inf]** = my inference, a hypothesis to test.

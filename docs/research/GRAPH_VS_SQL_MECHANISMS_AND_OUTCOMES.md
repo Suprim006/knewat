@@ -1,5 +1,7 @@
 # Graph vs SQL for agent memory: mechanisms and outcomes
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Written 2026-10-16/17 (FalkorDB Graph Hacks, Track 02). Status: two completed, pre-registered experimental
 rounds, reported here together. Sources: `docs/research/P10_GRAPH_VS_SQL.md` (branch `p10`, head `f708fd6`) and
 `docs/research/L8_LONG_HORIZON_OUTCOMES.md` (branch `p11`, head `c83488e`), both unmerged at time of writing.

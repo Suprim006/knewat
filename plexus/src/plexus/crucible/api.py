@@ -46,7 +46,6 @@ TOOLS = (
     "knew_at",
     "as_of",
 )
-LINEAGE_TOOLS = ("why", "knew_at")
 
 
 class CrucibleError(Exception):
@@ -103,7 +102,7 @@ class CoordinationBackend(Protocol):
 
     name: str  # arm id
     label: str  # human name, e.g. "SQLite"
-    capabilities: frozenset[str]  # subset of CAPABILITIES
+    capabilities: frozenset[str]  # e.g. why, knew_at, as_of, semantic_dedupe, contradictions
 
     # -- agents ------------------------------------------------------------------------------------------
     def register_agent(self, agent_id: str, role: str = "") -> None: ...
@@ -207,17 +206,6 @@ class CoordinationBackend(Protocol):
         ...
 
     def close(self) -> None: ...
-
-
-CAPABILITIES = (
-    "why",
-    "knew_at",
-    "as_of",
-    "semantic_dedupe",
-    "contradictions",
-    "forget_cascade",
-    "dependencies",
-)
 
 
 def valid_tenant(tenant: str) -> str:

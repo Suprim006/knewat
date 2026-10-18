@@ -21,12 +21,12 @@ DEFAULT_DETAIL = 500  # forget / quarantine report: readers, decision ids and ha
 MAX_DETAIL = 5000
 MAX_SOURCE_TEXT = 2000
 MAX_WHY_ELEMENTS = explain.MAX_WHY_ELEMENTS
-MAX_DEPTH = 12  # DERIVED_FROM hops a cascade / why may follow (P9-b: was 5 / 3, hard-coded)
+MAX_DEPTH = 12  # DERIVED_FROM hops a cascade / why may follow
 DEFAULT_CASCADE_DEPTH = 8  # forget_source / quarantine / release_quarantine
 DEFAULT_WHY_DEPTH = 6
 DEFAULT_IMPACT_DETAIL = 50  # impact: ids listed per category
 IMPACT_EARLIEST = 5  # impact: the earliest affected facts, with their times
-IMPACT_ORDERS = ("id", "valid_from", "created_at")  # impact: how facts.ids / facts.records are sorted (P9-f)
+IMPACT_ORDERS = ("id", "valid_from", "created_at")  # impact: how facts.ids / facts.records are sorted
 
 
 TRUSTS = ("normal", "high")
@@ -45,7 +45,7 @@ def normalize_trust(trust: str | float | None) -> str:
 
 
 def _others(rows: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
-    """``[{fact_id, other_sources}]`` of a quarantine / forget statement, ordered by fact id (P13)."""
+    """``[{fact_id, other_sources}]`` of a quarantine / forget statement, ordered by fact id (D-015)."""
     return sorted(
         ({"fact_id": x["fact_id"], "other_sources": sorted(x["other_sources"])} for x in rows),
         key=lambda x: x["fact_id"],
@@ -205,9 +205,8 @@ class Lineage:
 
         ``results`` is ``[{fact_id, rank?, score, sep?}]``; the output of ``Engram.recall`` can be passed as
         is (``rank`` defaults to the 1-based position; ``sep`` is the D-013 entity lift, 0 when absent).
-        ``entities`` are the entity ids the query named and ``separation`` whether pattern separation was on
-        (``Recall`` properties; D-013). Creates ``Recall`` + ``BY`` + ``IN_STEP`` + ``RETURNED {rank, score,
-        sep}`` and
+        ``entities`` / ``separation``: the entity ids the query named and whether pattern separation was on
+        (D-013). Creates ``Recall`` + ``BY`` + ``IN_STEP`` + ``RETURNED {rank, score, sep}`` and
         ``(Step)-[:READ]->(Fact)`` for every returned fact, in one statement. All-or-nothing: raises
         :class:`UnknownStep` if ``step_id`` or a fact id does not exist.
         """
@@ -281,10 +280,10 @@ class Lineage:
         """Forget everything derived from a source, in one bounded statement.
 
         Every fact that reaches the source through up to ``depth`` (1..12, default 8) ``DERIVED_FROM``
-        hops becomes ``status='forgotten'`` unless another Source still supports it (P13, D-015: it has
-        a direct ``DERIVED_FROM`` edge to a different Source): that fact only loses its edge to this
-        source and is listed in ``unlinked`` (``[{fact_id, other_sources}]``, ``unlinked_total``); if
-        all its remaining sources are quarantined it becomes ``quarantined``. A forgotten fact gets
+        hops becomes ``status='forgotten'`` unless another Source still supports it (D-015: a direct
+        ``DERIVED_FROM`` edge to a different Source): that fact only loses its edge to this source and is
+        listed in ``unlinked`` (``[{fact_id, other_sources}]``, ``unlinked_total``); if all its remaining
+        sources are quarantined it becomes ``quarantined``. A forgotten fact gets
         ``valid_to = min(valid_to, now)``, so ``Engram.recall`` and :meth:`as_of` stop returning it.
         Decisions ``BASED_ON`` the forgotten facts are flagged (``flagged = true``), never deleted.
         Handoffs that ``CARRIES`` them are reported. Idempotent; at most ``limit`` (<= 5000) facts per
@@ -292,10 +291,7 @@ class Lineage:
         decisions_total, handoff_ids, handoffs_total, unlinked, unlinked_total, detail_truncated,
         truncated}``: ``decision_ids`` / ``handoff_ids`` list at most ``max_detail`` (1..5000, default
         500) ids, the ``*_total`` counts are exact (every decision is flagged regardless).
-        ``mode='quarantine'`` delegates to :meth:`quarantine`. The cascade expands level by level
-        over distinct facts, so a diamond-shaped lineage costs its edges, not its paths. Raises
-        :class:`UnknownNode`
-        (unknown source).
+        ``mode='quarantine'`` delegates to :meth:`quarantine`. Raises :class:`UnknownNode` (unknown source).
         """
         if mode == "quarantine":
             return self.quarantine(source_id, now=now, limit=limit, max_detail=max_detail, depth=depth)
@@ -348,7 +344,7 @@ class Lineage:
         Same traversal as :meth:`forget_source` (up to ``depth`` ``DERIVED_FROM`` hops, 1..12, default
         8) but the facts become ``status='quarantined'`` (hidden from recall and :meth:`as_of`,
         ``valid_to`` untouched, old status kept so :meth:`release_quarantine` can restore it). Nothing
-        else is modified, except that the Source is marked (``Source.quarantined_at``). P13 (D-015): a
+        else is modified, except that the Source is marked (``Source.quarantined_at``). D-015: a
         fact is hidden only when no OTHER live Source supports it; the others stay visible and are
         listed in ``corroborated`` (``[{fact_id, other_sources}]``, ``corroborated_total``), and
         ``fact_ids`` lists the hidden ones. Returns ``{source_id, mode, fact_ids, readers: [{agent_id,
@@ -417,7 +413,7 @@ class Lineage:
 
         ``depth`` (1..12, default 8) should be at least the depth the quarantine used. The Source is live
         again, so a fact that was hidden because all its sources were quarantined is back as soon as one of
-        them is released (P13, D-015).
+        them is released (D-015).
         """
         check_between("limit", limit, MAX_FORGET_FACTS)
         check_between("depth", depth, MAX_DEPTH)
@@ -460,13 +456,13 @@ class Lineage:
         over the WHOLE set (epoch ms: ``valid_from``, step / decision / handoff ``at``; ``None`` when empty),
         and ``facts.earliest`` is the 5 earliest affected facts ``[{id, at}]``.
 
-        P9-f (Crucible L6-A): ``facts.records`` = ``[{id, status, valid_from, created_at}]``, the same facts
-        as ``facts.ids`` in the same order; ``order`` (``'id'``, ``'valid_from'`` or ``'created_at'``) sorts
-        them (ties by id, a fact without the time last). A cut list is never silent: every list carries an
-        ``ids_truncated`` / ``agents_truncated`` flag, and the fact list pages: ``offset`` skips that many
-        facts in ``order``, ``next_offset`` is the offset of the next page (``None`` on the last).
+        ``facts.records`` = ``[{id, status, valid_from, created_at}]``, the same facts as ``facts.ids`` in the
+        same order; ``order`` (``'id'``, ``'valid_from'`` or ``'created_at'``) sorts them (ties by id, a fact
+        without the time last). A cut list is never silent: every list carries an ``ids_truncated`` /
+        ``agents_truncated`` flag, and the fact list pages: ``offset`` skips that many facts in ``order``,
+        ``next_offset`` is the offset of the next page (``None`` on the last).
         For a source, ``facts.corroborated`` = ``{total, ids, ids_truncated}`` lists the affected facts that
-        another Source that is not quarantined still supports: ``quarantine`` would keep them visible (P13).
+        another Source that is not quarantined still supports: ``quarantine`` would keep them visible (D-015).
         ``probe_ids`` (at most 200) asks "is this fact affected?" against the whole set, not the listed page:
         ``facts.probes = {id: bool}``. Raises :class:`UnknownNode`.
         """
@@ -534,9 +530,7 @@ class Lineage:
         affected = set(r["fact_ids"])
         if probes:
             facts["probes"] = {i: i in affected for i in probes}
-        if (
-            kind == "source"
-        ):  # P13: the listed facts that another live Source still supports (quarantine keeps them)
+        if kind == "source":  # D-015: the listed facts that another live Source still supports
             corr = sorted(i for i in r["corroborated_ids"] if i in affected)
             facts["corroborated"] = {
                 "total": len(corr),
@@ -594,8 +588,7 @@ class Lineage:
         if max_elements < 2:
             raise ValueError("max_elements must be at least 2")
         check_between("depth", depth, MAX_DEPTH)
-        # ONE statement (P9-f): edges, DERIVED_FROM ancestry and every node's display props, one snapshot.
-        # The level-wise loop it replaces (a statement per hop, then node_info) tore under concurrent writes.
+        # ONE statement (D-014): edges, DERIVED_FROM ancestry and every node's display props, one snapshot.
         rows = self.client.ro(
             self.graph,
             "lineage/why_edges",

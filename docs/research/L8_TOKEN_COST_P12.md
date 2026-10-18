@@ -1,5 +1,7 @@
 # L8 token cost: where the P arm's tokens went, and two fixes (P12)
 
+> **STALE (2026-10-18):** the numbers in this document were measured on builds before the current main (7618d18) and are not valid for it until re-run. Build per number: [docs/NUMBERS_STATUS.md](../NUMBERS_STATUS.md).
+
 Branch `p12`, after `docs/research/L8_ROUND_A2_POSTFIX.md`. Question from the A2 results: Plexus used 89,521 tokens per
 correct action against 22,190 for plain Claude Code with its own files (B0′), 4×. What drives it, and can it be cut
 without losing the recall fix (15/15 history facts) or the write-atomicity fixes?

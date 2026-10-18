@@ -11,7 +11,7 @@ export const PIN_GLYPH = '📌';
 /** A fact with an open soft-duplicate link (DUPLICATES_MAYBE): the id of the older fact it may repeat. */
 export const DUPLICATE_GLYPH = '⧉';
 /** Opacity range of a Fact node: 0.35 (long forgotten) .. 1 (hot). */
-export const MIN_OPACITY = 0.35;
+const MIN_OPACITY = 0.35;
 
 export const sigmoid = (x: number): number => 1 / (1 + Math.exp(-x));
 

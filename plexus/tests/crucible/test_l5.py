@@ -92,7 +92,7 @@ def test_forgetting_toy_run(l5_client, emb):
 def test_forgetting_d013_modes_toy(l5_client, emb):
     from plexus.crucible.l5.forgetting import run_forgetting
 
-    names = ("off", "on-mult", "kw-fix", "sep", "sep+add", "sep-entity")
+    names = ("off", "kw-fix", "sep", "sep+mult")
     res = run_forgetting(l5_client, emb, k_sprints=2, noise_mult=2, modes=names, burst=True)
     assert set(res["modes"]) == set(names)
     assert res["config"]["burst"] is True and list(res["config"]["modes"]) == list(names)
@@ -100,15 +100,13 @@ def test_forgetting_d013_modes_toy(l5_client, emb):
         for k in (1, 3, 5):
             assert 0 <= m["recall"]["all"][f"recall@{k}"] <= 1
         assert m["above_same_entity"] + m["above_other_entity"] == sum(m["ranked_above_target"].values())
-        assert isinstance(m["entity_read_ms"], float) == (name in ("sep", "sep+add", "sep-entity"))
+        assert isinstance(m["entity_read_ms"], float) == (name in ("sep", "sep+mult"))
         assert {"p10", "p25", "p50", "p75", "p90", "n"} <= set(m["gap12"])
     assert res["modes"]["off"]["gap12"]["n"] >= 1
     crit = R.criteria({"forgetting": res})
     assert any(k["id"].startswith("L5b-D013 sep recall@1") for k in crit)
     assert "L5b-D013 kw-fix recall@1 (report only)" in {k["id"] for k in crit}
-    assert "PC sep recall@1 >= 0.95" in {k["id"] for k in crit}, (
-        "the predicate-cue criteria need sep + sep-entity"
-    )
+    assert "PC sep recall@1 >= 0.95" in {k["id"] for k in crit}
 
 
 def test_hub_variant_toy(l5_client, emb, tmp_path):
@@ -128,7 +126,7 @@ def test_hub_variant_toy(l5_client, emb, tmp_path):
     res["criteria"] = H.hub_criteria(res)
     assert {k["id"] for k in res["criteria"]} >= {"hub: sep recall@1 >= 0.90 (plan §5.3)"}
     text = H.render_hub(res)
-    assert "| sep |" in text and "| sep-flat |" in text
+    assert "| sep |" in text and "| off |" in text
 
 
 def test_forgetting_sql_arm_toy(l5_client, emb, tmp_path):
@@ -174,17 +172,3 @@ def test_run_all_writes_results_and_report(tmp_path, l5_client):
     text = (out / "report.md").read_text(encoding="utf-8")
     assert "## L5a: staleness" in text and "## L5b: forgetting" in text and "PASS" in text
     assert DB_HOST and DB_PORT
-
-
-def test_harness_lexical_weight_is_pinned_off_unless_the_recall_check_asks(monkeypatch):
-    """The L5b / hub harness runs with P12's lexical fusion off (the SQL arm mirrors the cosine relevance);
-    ``PLEXUS_L5_LEXICAL_WEIGHT`` is the recall-check's switch and is validated like the product's."""
-    from plexus.crucible.l5.forgetting import harness_lexical_weight
-
-    monkeypatch.delenv("PLEXUS_L5_LEXICAL_WEIGHT", raising=False)
-    assert harness_lexical_weight() == 0.0
-    monkeypatch.setenv("PLEXUS_L5_LEXICAL_WEIGHT", "0.5")
-    assert harness_lexical_weight() == 0.5
-    monkeypatch.setenv("PLEXUS_L5_LEXICAL_WEIGHT", "1.5")
-    with pytest.raises(ValueError):
-        harness_lexical_weight()

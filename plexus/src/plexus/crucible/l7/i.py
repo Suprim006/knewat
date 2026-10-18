@@ -262,10 +262,6 @@ def run_i2_arm(arm_name: str, n: int, host: str, port: int, root: str, seed: int
 
 
 # ------------------------------------------------------------------------------------------------ I3
-def _docker(*args: str, timeout: int = 120) -> subprocess.CompletedProcess:
-    return subprocess.run(["docker", *args], capture_output=True, text=True, timeout=timeout)
-
-
 def wait_ready(host: str, port: int, timeout_s: float = 240.0) -> float:
     """Block until PING answers PONG (not LOADING). Returns seconds waited; raises if the server never comes back."""
     import redis
@@ -285,7 +281,7 @@ def wait_ready(host: str, port: int, timeout_s: float = 240.0) -> float:
 
 def bug_reports(container: str) -> int:
     """Number of Redis crash reports ("REDIS BUG REPORT START") in the container's log so far."""
-    r = _docker("logs", container)
+    r = common.docker("logs", container)
     return (r.stdout + r.stderr).count("REDIS BUG REPORT START")
 
 
@@ -310,9 +306,9 @@ def recover(host: str, port: int, container: str, graph: str, max_bounces: int =
             bounces += 1
             if bounces > max_bounces:
                 return {"ready_after_s": round(time.time() - t0, 2), "extra_bounces": bounces, "up": False}
-            _docker("kill", "-s", "KILL", container)
+            common.docker("kill", "-s", "KILL", container)
             time.sleep(1)
-            _docker("start", container)
+            common.docker("start", container)
 
 
 def run_i3_arm(
@@ -375,16 +371,18 @@ def run_i3_arm(
         ready.wait(120)
         time.sleep(rng.uniform(0.4, 1.6))
         t_kill = time.time()
-        kr = _docker("kill", "-s", "KILL", container)
+        kr = common.docker("kill", "-s", "KILL", container)
         stop.set()
         for t in ths:
             t.join(90)
         t_start = time.time()
-        sr = _docker("start", container)
+        sr = common.docker("start", container)
         rec = recover(host, port, container, arm.gname)
         wait_s, up = rec["ready_after_s"], rec["up"]
         bugs_now = bug_reports(container)
-        st = _docker("inspect", "-f", "{{.State.Running}} {{.State.ExitCode}}", container).stdout.strip()
+        st = common.docker(
+            "inspect", "-f", "{{.State.Running}} {{.State.ExitCode}}", container
+        ).stdout.strip()
         restarts.append({
             "k": k, "kill_rc": kr.returncode, "start_rc": sr.returncode, "ready_after_s": round(wait_s, 2),
             "up": up, "state": st, "writer_errors": sorted(set(errs)), "kill_to_start_s": round(t_start - t_kill, 2),
@@ -405,9 +403,9 @@ def run_i3_arm(
             break
         except Exception as exc:  # noqa: BLE001
             log(f"I3 {arm_name}: verification read failed ({type(exc).__name__}); recovering the server")
-            _docker("kill", "-s", "KILL", container)
+            common.docker("kill", "-s", "KILL", container)
             time.sleep(1)
-            _docker("start", container)
+            common.docker("start", container)
             recover(host, port, container, arm.gname)
     assert res is not None, "could not read the store back after 3 recoveries"
     res["server_bug_reports_arm_total"] = bug_reports(container) - bugs_start
