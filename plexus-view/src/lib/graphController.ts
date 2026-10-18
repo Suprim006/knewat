@@ -42,20 +42,11 @@ import type { MemoryCounts } from './memory';
  *  - graphTypes.ts     the controller's interfaces
  */
 
-export {
-  DARK_THEME,
-  HAYSTACK_EDGE_THRESHOLD,
-  LABEL_MAX_WIDTH,
-  LIGHT_THEME,
-  SUSPECT_COLOR,
-  buildStyle,
-} from './graphStyle';
-export type { Theme } from './graphStyle';
-export { LAYOUT_OPTIONS, MINI_CONTROLLER_OPTIONS } from './graphLayout';
+export { DARK_THEME, LIGHT_THEME } from './graphStyle';
+export { MINI_CONTROLLER_OPTIONS } from './graphLayout';
 export type {
   ControllerOptions,
   Counts,
-  FilterState,
   GraphController,
   NeighborInfo,
   NodeDescription,

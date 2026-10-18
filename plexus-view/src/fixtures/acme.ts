@@ -19,15 +19,15 @@ import { NODE_LABELS, OPEN } from '../api/types';
 import type { FlowEvent, GraphEdge, GraphNode, NodeLabel, NodeRef, Props, PropValue } from '../api/types';
 
 export const T0 = 1_792_060_800_000; // 2026-10-15T00:00:00Z-ish
-export const STEP_MS = 45_000;
+const STEP_MS = 45_000;
 export const stepTime = (n: number): number => T0 + n * STEP_MS;
 
 /* ---------- script DSL ---------- */
 
 /** Tokens substituted while expanding: the op's timestamp, a 2-minute lease, and the step number. */
-export const NOW = -1;
-export const LEASE = -2;
-export const STEP = -3;
+const NOW = -1;
+const LEASE = -2;
+const STEP = -3;
 
 type AgentName = 'planner' | 'researcher' | 'builder';
 type NodeSpec = [label: NodeLabel, key: string, props: Props];

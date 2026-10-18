@@ -4,8 +4,8 @@ import type { Props } from '../api/types';
 
 export const NODE_W = 196;
 export const NODE_H = 46;
-export const COL_GAP = 96;
-export const ROW_GAP = 14;
+const COL_GAP = 96;
+const ROW_GAP = 14;
 const PAD = 16;
 
 export interface PlacedNode {
@@ -33,14 +33,14 @@ export interface WhyLayout {
   columns: { depth: number; x: number; heading: string }[];
 }
 
-export const edgeKey = (from: string, rel: string, to: string): string => `${from}|${rel}|${to}`;
+const edgeKey = (from: string, rel: string, to: string): string => `${from}|${rel}|${to}`;
 
 /** The stored edge a hop walked along (a reverse hop walked it backwards). */
-export const hopEdgeKey = (h: WhyHop): string =>
+const hopEdgeKey = (h: WhyHop): string =>
   h.reverse ? edgeKey(h.to, h.rel, h.from) : edgeKey(h.from, h.rel, h.to);
 
 /** Short text for a lineage node (Step also shows its agent). */
-export function nodeTitle(n: LineageNode): string {
+function nodeTitle(n: LineageNode): string {
   const p = n.props as Props;
   if (n.label === 'Step') return `${String(p.agent_id ?? '')} step ${String(p.n ?? '?')}`.trim();
   if (n.label === 'Source') return String(p.title ?? '') || displayName(n.label, p);
