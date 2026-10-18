@@ -462,6 +462,8 @@ hub contributing 60 rows rescanned its `ABOUT` edges 60 times: 61,295 records in
 They now run once per distinct entity in a `CALL` subquery (1,060 and 5,060 records, 19.6 and 34.2 ms); rows, ranks, `damp` and `sib_of` are unchanged (576 old-vs-new
 parameter sets, 0 differences) and `tests/integration/test_recall_hub_plan.py` pins the record counts at both sizes.
 
+**Amendment 2026-10-18 (4) — the recall candidate pool's latency cost is accepted (`docs/BASELINE.md`, re-verification surprises).** P12 fix 1 (`0628671`) made the candidate pool `max(3k, 60)` (cap 150) plus up to `pool` keyword ids, so long-horizon facts reach the ranking. Nobody measured its latency when it landed. The 2026-10-18 bisect did: server time per recall went from about 7 ms to 36-42 ms at 300 facts (k = 8), linear in candidate rows, flat in fact count. **Decision:** keep the pool for the submission. An agent turn takes seconds, so 40 ms is not the bottleneck, and the L5b/L8 numbers were measured with this pool. **Later options, each needing a pre-registered L5b + L8 re-run:** cut to the top `pool` before the per-row tail and pass only the top `~2k` to activation; lower `MIN_POOL`; cap the keyword channel near `k`.
+
 ## D-014 — Integration of p9f-b: one statement per answer, and a write's provenance (integ, P9-f)
 
 **Context.** Branch `p9f-b` fixed what Crucible L6 found (impact timeout and truncation, `why` / `blocked_by_failure` read
