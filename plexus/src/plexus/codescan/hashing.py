@@ -12,7 +12,6 @@ from __future__ import annotations
 import ast
 import hashlib
 from dataclasses import dataclass
-from pathlib import Path
 
 
 def normalize_bytes(data: bytes) -> bytes:
@@ -22,11 +21,6 @@ def normalize_bytes(data: bytes) -> bytes:
 
 def hash_bytes(data: bytes) -> str:
     return hashlib.sha256(normalize_bytes(data)).hexdigest()
-
-
-def hash_file(path: str | Path) -> str:
-    """sha256 of the file's bytes with CRLF normalised to LF."""
-    return hash_bytes(Path(path).read_bytes())
 
 
 @dataclass(frozen=True)

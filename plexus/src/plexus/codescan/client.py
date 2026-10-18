@@ -32,10 +32,6 @@ def tenant_path(base: str, tenant: str) -> str:
     return f"{base.rstrip('/')}/mcp/t/{tenant}"
 
 
-def endpoint(url: str, tenant: str) -> str:
-    return tenant_path(url, tenant)
-
-
 def tool_arguments(agent_id: str, args: dict[str, Any]) -> dict[str, Any]:
     """The arguments of a tool call: the caller's own, with ``agent_id`` filled in unless they set it."""
     return {"agent_id": agent_id, **args}
@@ -73,7 +69,7 @@ def run_session[T](
     from mcp import Client  # imported here: it costs seconds, and the hooks never need it
 
     async def go() -> T:
-        async with Client(endpoint(url, tenant)) as c:
+        async with Client(tenant_path(url, tenant)) as c:
             return await fn(Session(c, agent_id))
 
     async def bounded() -> T:
