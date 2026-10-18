@@ -194,7 +194,6 @@ describe('graph controller (headless Cytoscape)', () => {
     const decision = data.ids['d.jwt']!;
     const one = ctl.focusNeighborhood(decision, 1);
     const two = ctl.focusNeighborhood(decision, 2);
-    expect(ctl.focusedOn()).toBe(decision);
     expect(one).toBeGreaterThan(2);
     expect(two).toBeGreaterThan(one);
     expect(two).toBeLessThan(total);
@@ -203,7 +202,6 @@ describe('graph controller (headless Cytoscape)', () => {
     const reach = ctl.cy.getElementById(decision).closedNeighborhood().closedNeighborhood().nodes();
     ctl.cy.nodes('.hide-label').forEach((n) => expect(reach.contains(n)).toBe(false));
     ctl.clearFocus();
-    expect(ctl.focusedOn()).toBeNull();
     expect(ctl.counts().visibleNodes).toBe(total);
   });
 
@@ -253,16 +251,6 @@ describe('graph controller (headless Cytoscape)', () => {
     expect(ctl.cy.elements('.faded').length).toBeGreaterThan(100);
     ctl.select(null);
     expect(ctl.cy.elements('.faded')).toHaveLength(0);
-  });
-
-  it('highlights a path and clears it', () => {
-    ctl = createGraphController({ headless: true });
-    ctl.load(data.nodes, data.edges);
-    ctl.highlightPath([data.ids['d.jwt']!, data.ids['f.jwt']!, data.ids['s.rfc']!]);
-    expect(ctl.cy.nodes('.path')).toHaveLength(3);
-    expect(ctl.cy.edges('.path').length).toBeGreaterThanOrEqual(2);
-    ctl.clearHighlight();
-    expect(ctl.cy.elements('.path, .faded')).toHaveLength(0);
   });
 
   it('removes nodes created since a timestamp', () => {

@@ -128,17 +128,5 @@ export function buildStyle(
     { selector: 'node.ctx, edge.ctx', style: { opacity: 0.45 } },
     { selector: 'node.ev-created', style: { 'border-width': 5, 'border-color': '#22c55e', opacity: 1 } },
     { selector: 'node.ev-updated', style: { 'border-width': 5, 'border-color': '#f59e0b', opacity: 1 } },
-    { selector: 'node.path', style: { 'border-width': 4, 'border-color': theme.highlight, opacity: 1 } },
-    {
-      selector: 'edge.path',
-      style: {
-        width: 4,
-        'line-color': theme.highlight,
-        'target-arrow-color': theme.highlight,
-        'curve-style': 'bezier' as const,
-        opacity: 1,
-        'z-index': 99,
-      },
-    },
   ] as StylesheetJson;
 }
