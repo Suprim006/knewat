@@ -21,17 +21,13 @@ interface LiveDeps {
 }
 
 /**
- * A flow event arrived (SSE, or the fixture replay). The API cannot fetch nodes by id, and a
- * `since`/`until` window on created_at would drop the edges that join new nodes to older ones, so we
- * re-read the (bounded) subgraph and let `addLive` add only what is new: no relayout, new nodes seeded
- * next to a neighbour.
+ * A flow event arrived (SSE, or the fixture replay). The API cannot fetch nodes by id and a `since`/`until`
+ * window would drop edges joining new nodes to older ones, so re-read the (bounded) subgraph and let
+ * `addLive` add only what is new (no relayout).
  *
- * Live events are coalesced: at most one read is in flight; events that arrive meanwhile only set a
- * `dirty` flag, and one trailing read picks up everything they changed. A burst of N calls therefore
- * costs two reads, not N. A failed read is shown (not swallowed) and the next event retries.
- *
- * The replay passes `until` (caps the read at the event's time so nodes appear one event at a time);
- * those reads are deliberately one per event, in order.
+ * Live events are coalesced: one read in flight, events meanwhile only set `dirty`, and one trailing read
+ * picks them up (a burst of N calls costs two reads). A failed read is shown and the next event retries.
+ * The replay passes `until` (caps the read at the event's time) and reads once per event, in order.
  */
 export function useLiveIngest({ ctl, api, tenant, refresh, lastAtRef, setFeed }: LiveDeps) {
   const ingestQueue = useRef<Promise<void>>(Promise.resolve());

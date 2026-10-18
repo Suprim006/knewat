@@ -1,19 +1,13 @@
 /**
- * Hand-authored "Acme Notes API" software-team scenario, expressed as graph model v1.
+ * Hand-authored "Acme Notes API" scenario (planner, researcher and builder build a notes REST service) as
+ * graph model v1. The script is a list of steps; `buildAcme()` expands it into the shapes the View API
+ * returns, so fixture mode and live mode are interchangeable. Ids are deterministic. Synthetic data only.
  *
- * Three agents (planner, researcher, builder) build a small notes REST service. The script below is the
- * *only* hand-written part: a list of steps, each with the tool calls an agent made and the nodes/edges
- * each call created or updated. `buildAcme()` expands it into the same shapes the View API returns
- * (nodes, edges, ToolCall flow events) so fixture mode and live mode are interchangeable.
- *
- * Scenario beats (they mirror the fault script of the real demo):
+ * Beats (they mirror the fault script of the real demo):
  *  - step 14-17: the builder claims T7 and goes silent; its lease expires and it re-claims after restart;
  *  - step 20:    the researcher supersedes `API version = v1` with `v2`;
- *  - step 21:    the builder asserts `auth = API key`, contradicting the researcher's `auth = JWT`;
- *  - step 22:    the planner resolves the contradiction with a decision;
- *  - step 26:    the researcher fails T9 (rate-limit library incompatible), the planner re-plans.
- *
- * Synthetic data only. Ids are deterministic UUID-shaped strings so tests and screenshots are stable.
+ *  - step 21-22: the builder's `auth = API key` contradicts `auth = JWT`; the planner decides;
+ *  - step 26:    the researcher fails T9, the planner re-plans.
  */
 import { NODE_LABELS, OPEN } from '../api/types';
 import type { FlowEvent, GraphEdge, GraphNode, NodeLabel, NodeRef, Props, PropValue } from '../api/types';
