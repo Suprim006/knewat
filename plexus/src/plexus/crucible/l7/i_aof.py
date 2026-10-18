@@ -10,6 +10,7 @@ crashing command-prefix is searched for (assumes "any prefix that contains the c
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import tempfile
@@ -20,7 +21,8 @@ from typing import Any
 
 from plexus.crucible.l7.common import docker
 
-NAME = "plexus-db-71-aofrepro"
+NAME = os.environ.get("PLEXUS_AOF_NAME", "plexus-db-71-aofrepro")
+HOST_PORT = os.environ.get("PLEXUS_AOF_PORT", "6371")
 IMAGE = "falkordb/falkordb:6.0.2"
 ENV = [
     "REDIS_ARGS=--appendonly yes --maxmemory-policy noeviction",
@@ -38,7 +40,7 @@ def remove() -> None:
 def attempt(data: Path, wait_s: float = 90.0) -> dict[str, Any]:
     """Load a copy of ``data`` into a fresh container; returns {crashed, ready, signature, seconds}."""
     remove()
-    args = ["create", "--name", NAME, "-p", "127.0.0.1:6371:6379"]
+    args = ["create", "--name", NAME, "-p", f"127.0.0.1:{HOST_PORT}:6379"]
     for e in ENV:
         args += ["-e", e]
     cr = _d(*args, IMAGE)
