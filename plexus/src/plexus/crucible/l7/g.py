@@ -43,6 +43,14 @@ SCALES = {
         "empty": (1, 2, 20, 200),
         "mem_sample": 200,
     },
+    "full-n200": {  # the registered full run's reachable levels (N = 2,000 was not reached under its memory cap)
+        "ns": (1, 2, 20, 200),
+        "ops": 2000,
+        "pairs": 200,
+        "pairs_raw": 50,
+        "empty": (1, 2, 20, 200),
+        "mem_sample": 200,
+    },
     "full": {
         "ns": (1, 2, 20, 200, 2000),
         "ops": 2000,
@@ -743,9 +751,11 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     global SKIP_RDB
     SKIP_RDB = bool(a.skip_rdb)
-    if a.port != 6365:
-        print("family G uses port 6365 only", file=sys.stderr)
+    global CONTAINER
+    if not 6310 <= a.port <= 6399:
+        print("family G needs an agent DB port 63NN (container plexus-db-NN)", file=sys.stderr)
         return 2
+    CONTAINER = f"plexus-db-{a.port % 100}"  # the slot's own container (default slot 65)
     doc = run(a)
     d = common.write(doc, Path(a.out), report_md(doc))
     log(f"wrote {d}")

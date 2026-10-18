@@ -315,7 +315,7 @@ def run_i3_arm(
     arm_name: str, kills: int, host: str, port: int, root: str, seed: int, writers: int = 4
 ) -> dict[str, Any]:
     container = common.container_for_port(port)
-    assert container == "plexus-db-68", "I3 may only kill plexus-db-68"
+    assert container == f"plexus-db-{port % 100}" and 6310 <= port <= 6399, "I3 may only kill the slot's own plexus-db-NN"
     run = uuid.uuid4().hex[:6]
     arm = new_world(arm_name, host, port, root, run)
     rng = random.Random(seed)
@@ -739,8 +739,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if a.cmd == "merge":
         return cmd_merge(a)
-    if a.port != 6368:
-        print("family I uses port 6368 only", file=sys.stderr)
+    if not 6310 <= a.port <= 6399:
+        print("family I needs an agent DB port 63NN (container plexus-db-NN)", file=sys.stderr)
         return 2
     return cmd_run(a)
 
