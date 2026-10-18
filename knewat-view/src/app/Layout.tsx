@@ -11,7 +11,7 @@ const NAV: { to: string; label: string; end?: boolean }[] = [
   { to: '/verify', label: 'Verify' },
   { to: '/inventory', label: 'Inventory' },
   { to: '/cypher', label: 'Cypher' },
-  { to: '/results', label: 'Results' },
+  // { to: '/results', label: 'Results' }, // hidden from the nav until the results are re-run on the current build; /results still routes
 ];
 
 const THEME_LABEL = { auto: 'Auto', light: 'Light', dark: 'Dark' } as const;

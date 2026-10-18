@@ -60,7 +60,7 @@ docker compose run --rm knewat-cli demo replay acme-claude-sonnet --tenant demo 
 
 | Open | What |
 |---|---|
-| http://localhost:5180 | **The View.** Pick tenant `demo` in the header: Explorer, Flow, Time Machine, Why, Inventory and **Results** (the Crucible benchmark: L1, L2, L2 at scale, L4, ablation) |
+| http://localhost:5180 | **The View.** Pick tenant `demo` in the header: Explorer, Flow, Time Machine, Why, Verify, Inventory, Cypher. The Results page (Crucible benchmark) is at `/results` but not in the nav until it is re-run on the current build |
 | http://localhost:3000 | FalkorDB Browser (the raw graph: graph `knewat_t_demo`) |
 | http://localhost:8080/api/tenants | the read-only View API (`/api/demo/inventory`, `/api/demo/graph`, `/api/results`, ...) |
 | http://localhost:8765/mcp/t/demo | the MCP server (streamable HTTP, tenant `demo` pinned by the path). It is an MCP endpoint, not a web page: a plain browser GET answers `Bad Request: Missing session ID`, which is normal. Connect an MCP client (see [Bring your own agent](#bring-your-own-agent)) |
