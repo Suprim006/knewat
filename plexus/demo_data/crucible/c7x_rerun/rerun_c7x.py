@@ -1,8 +1,8 @@
 """Rebuild demo_data/crucible/c7x_results.json for the five C7X arms (P, P-mcp, B0, B1, B2).
 
 `crucible l1 --arms` only accepts the L1 arms (B0, B1, B2, P); P-mcp is not selectable there, so this calls
-`plexus.crucible.l1.run_test` (the same function the CLI uses) for each arm and writes the c7x_results.json shape
-(per arm: violations, metrics, details, seconds). One sequential run per arm, fastembed, seed 1000.
+`plexus.crucible.l1.run_test` (the same function the CLI uses) for each arm and writes the c7x_results.json
+shape (per arm: violations, metrics, details, seconds). One sequential run per arm, fastembed, seed 1000.
 
     PLEXUS_EMBEDDER=fastembed python rerun_c7x.py <db port> <out dir>
 """
@@ -33,13 +33,12 @@ for arm in ("P", "P-mcp", "B0", "B1", "B2"):
         "details": d["details"],
         "seconds": round(time.time() - t0, 1),
     }
-doc = {
-    "note": "C7X run with the real fastembed embedder (BAAI/bge-small-en-v1.5), sequential, one run per arm; see docs/BASELINE.md "
-    "'C7 extended results' and 'Re-verification on main (2026-10-18)'. Rebuilt by rerun_c7x.py (plexus.crucible.l1.run_test per arm) at "
-    + iso_utc()
-    + ".",
-    "arms": arms,
-}
+NOTE = (
+    "C7X run with the real fastembed embedder (BAAI/bge-small-en-v1.5), sequential, one run per arm; "
+    "see docs/BASELINE.md 'C7 extended results' and 'Re-verification on main (2026-10-18)'. "
+    "Rebuilt by rerun_c7x.py (plexus.crucible.l1.run_test per arm) at "
+)
+doc = {"note": NOTE + iso_utc() + ".", "arms": arms}
 out.mkdir(parents=True, exist_ok=True)
 (out / "c7x_results.json").write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8", newline="\n")
 print("wrote", out / "c7x_results.json")
