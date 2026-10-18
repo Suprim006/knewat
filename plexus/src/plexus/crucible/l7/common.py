@@ -90,6 +90,10 @@ def write(doc: dict[str, Any], out: Path | None = None, report: str | None = Non
     return d
 
 
+def docker(*args: str, timeout: int = 120) -> subprocess.CompletedProcess:
+    return subprocess.run(["docker", *args], capture_output=True, text=True, timeout=timeout)
+
+
 def chunks(rows: list[Any], n: int = BATCH) -> Iterator[list[Any]]:
     for i in range(0, len(rows), n):
         yield rows[i : i + n]

@@ -172,6 +172,9 @@ class TunedC(A.CypherArm):
         found.sort(key=lambda t: (round(t[0], 9), t[1], t[2], t[3]))
         return _answer([t[3] for t in found[:5]]), A.meta(t0, self.server_ms, self.statements)
 
+    def profile_hop(self, frontier: list[str]) -> Any:
+        return self.g.profile(HOP_CYPHER, {"frontier": frontier})
+
 
 # ------------------------------------------------------------------------------------------------ P-product / P-flat
 class RecordingClient:
