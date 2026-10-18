@@ -1,7 +1,8 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { buildAcme } from '../fixtures/acme';
 import { eventSubgraph } from './eventGraph';
-import { createGraphController, LAYOUT_OPTIONS, MINI_CONTROLLER_OPTIONS } from './graphController';
+import { createGraphController, MINI_CONTROLLER_OPTIONS } from './graphController';
+import { LAYOUT_OPTIONS } from './graphLayout';
 import type { GraphController } from './graphController';
 
 const data = buildAcme();

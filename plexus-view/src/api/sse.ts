@@ -1,7 +1,7 @@
 import type { FlowEvent } from './types';
 
 /** The SSE event name the View API uses for a ToolCall frame (`event: toolcall`). */
-export const TOOLCALL_EVENT = 'toolcall';
+const TOOLCALL_EVENT = 'toolcall';
 
 /** Minimal slice of EventSource we depend on (lets tests inject a fake). */
 export interface EventSourceLike {

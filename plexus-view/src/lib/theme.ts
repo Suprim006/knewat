@@ -12,7 +12,7 @@ function stored(): ThemeMode {
   }
 }
 
-export function applyTheme(mode: ThemeMode): void {
+function applyTheme(mode: ThemeMode): void {
   const el = document.documentElement;
   if (mode === 'auto') delete el.dataset.theme;
   else el.dataset.theme = mode;

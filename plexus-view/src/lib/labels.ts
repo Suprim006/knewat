@@ -22,7 +22,7 @@ export const LABEL_COLORS: Record<string, string> = {
   Change: '#e0672b',
   CodeAnchor: '#6b8e23',
 };
-export const FALLBACK_COLOR = '#999999';
+const FALLBACK_COLOR = '#999999';
 export const labelColor = (label: string): string => LABEL_COLORS[label] ?? FALLBACK_COLOR;
 
 /** Which Plexus module owns a label (graph model v1). Used to group the legend. */
@@ -58,8 +58,8 @@ export const MODULE_COLORS: Record<string, string> = {
   Audit: '#9aa3b2',
 };
 export type ColorMode = 'label' | 'module';
-export const moduleOf = (label: string): string => LABEL_MODULES[label] ?? 'Other';
-export const moduleColor = (label: string): string => MODULE_COLORS[moduleOf(label)] ?? FALLBACK_COLOR;
+const moduleOf = (label: string): string => LABEL_MODULES[label] ?? 'Other';
+const moduleColor = (label: string): string => MODULE_COLORS[moduleOf(label)] ?? FALLBACK_COLOR;
 export const nodeColor = (label: string, mode: ColorMode): string =>
   mode === 'module' ? moduleColor(label) : labelColor(label);
 

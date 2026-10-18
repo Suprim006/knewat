@@ -4,7 +4,7 @@ import { createdAt, nodeName } from './graphData';
 import type { Counts, FilterState, NeighborInfo, NodeDescription } from './graphTypes';
 
 /*
- * Read-mostly helpers over a Cytoscape instance: search, selection and path highlighting, event rings,
+ * Read-mostly helpers over a Cytoscape instance: search, selection, event rings,
  * node descriptions and the counts shown in the UI. Pure functions of `cy` (plus the filters where one is
  * needed); the controller owns all the state and calls these.
  */
@@ -61,19 +61,6 @@ export function markEvent(cy: Core, created: string[], updated: string[]): void 
     const changed = hit(updated, 'ev-updated');
     c.merge(made).merge(changed);
     cy.elements().difference(c.union(c.connectedEdges())).addClass('ctx');
-  });
-}
-
-/** Emphasise the nodes of `ids` and the edges between consecutive ones; everything else fades. */
-export function highlightPath(cy: Core, ids: string[]): void {
-  cy.batch(() => {
-    cy.elements().removeClass('path').addClass('faded');
-    let path = cy.collection();
-    for (const id of ids) path = path.union(cy.getElementById(id));
-    for (let i = 0; i < ids.length - 1; i++) {
-      path = path.union(cy.getElementById(ids[i]!).edgesWith(cy.getElementById(ids[i + 1]!)));
-    }
-    path.removeClass('faded').addClass('path');
   });
 }
 

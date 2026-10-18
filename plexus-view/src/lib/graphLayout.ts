@@ -2,10 +2,8 @@ import type { Core, NodeSingular } from 'cytoscape';
 import type { ControllerOptions } from './graphTypes';
 
 /**
- * The Flow page's "What it touched" mini-graph: a handful of nodes in a 320 px box. Quality `default`
- * is cheap at this size and spreads nodes properly; a much stronger repulsion keep
- * each node's label clear of its neighbours (draft layout on the default options put about 10 label/label or
- * label/node overlaps in the busiest events, see miniLayout.test.ts); names are cut sooner and shown in full on hover.
+ * The Flow page's "What it touched" mini-graph: a few nodes in a 320 px box. Quality `default` is cheap at this
+ * size and a strong repulsion keeps labels clear of neighbours (see miniLayout.test.ts); names are cut sooner.
  */
 export const MINI_CONTROLLER_OPTIONS = {
   labelMaxWidth: 84,

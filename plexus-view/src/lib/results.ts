@@ -1,11 +1,7 @@
 /**
- * Read the Crucible results JSON (`GET /api/results`) defensively.
- *
- * The documented shape lives in plexus/src/plexus/crucible/results.py (`schema_version` 1): layers L1, L4 and
- * ablation; and `layers.L2` as documented in plexus/src/plexus/crucible/l2/README.md (merged in with
- * `python -m plexus.crucible.l2.run merge`). Anything missing or oddly shaped is skipped rather than thrown,
- * so a newer or partial file still renders what it can. Pinned against a copy of the real combined file by
- * `src/fixtures/results.real.json` (see results.real.test.ts).
+ * Read the Crucible results JSON (`GET /api/results`) defensively. Shape: plexus/src/plexus/crucible/results.py
+ * (`schema_version` 1) plus `layers.L2` (plexus/src/plexus/crucible/l2/README.md). Anything missing or oddly
+ * shaped is skipped, so a partial file still renders. Pinned by `src/fixtures/results.real.json`.
  */
 import { parseB1h, parseC7x, parseL6 } from './resultsP9';
 import type { B1hInfo, C7xInfo, L6Info } from './resultsP9';
