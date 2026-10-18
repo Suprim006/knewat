@@ -49,7 +49,6 @@ DEMO_DATA = PKG.parents[4] / "demo_data" / "crucible"
 QUESTIONS_PATH = DEMO_DATA / "questions.yaml"
 CACHE_DIR = DEMO_DATA / "l2_cache"
 OUT_DIR = DEMO_DATA / "l2"
-BASELINES = ("B0", "B1", "B2")
 ARMS = ("B0", "B1", "B2", "P")
 # the pilot: one question from each of five different families, across question kinds (set, ordered, value)
 PILOT_IDS = ("Q05", "Q15", "Q17", "Q29", "Q43")

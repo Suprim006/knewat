@@ -22,7 +22,6 @@ from typing import Any
 from plexus.crucible.api import (
     OPEN,
     UnknownReference,
-    Unsupported,
     valid_tenant,
 )
 from plexus.crucible.backends.base import (
@@ -746,7 +745,3 @@ class SqliteBackend:
                 for w in wrote
             ]
         return out
-
-
-def unsupported(what: str) -> Unsupported:
-    return Unsupported(f"{what}: this arm keeps no provenance; Layer 2 answers it by LLM over its artifacts")

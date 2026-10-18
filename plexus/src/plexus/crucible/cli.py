@@ -108,16 +108,9 @@ def _config(args: argparse.Namespace) -> tuple[L1Config, L4Config]:
 
 
 def _needs_db(layer: str, l1: L1Config, l4: L4Config) -> bool:
-    if layer in ("ablation", "rerun"):
+    if layer in ("ablation", "rerun", "all"):
         return True
-    arms = set()
-    if layer in ("l1", "all"):
-        arms |= set(l1.arms)
-    if layer in ("l4", "all"):
-        arms |= set(l4.arms)
-    if layer == "all":
-        return True
-    return bool({a for a in arms if a.startswith("P")})
+    return any(a.startswith("P") for a in (l1.arms if layer == "l1" else l4.arms))
 
 
 DB_WAIT_S = float(os.environ.get("CRUCIBLE_DB_WAIT_S", "120"))
