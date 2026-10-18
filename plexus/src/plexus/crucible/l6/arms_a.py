@@ -313,16 +313,15 @@ class TunedArm(CypherArm):
 class ProductImpactA:
     """P-product: ``Lineage.impact('source', ...)``, the service behind the read-only ``impact`` MCP tool (amendment 2).
 
-    ``max_detail`` is the largest list the MCP tool lets an agent ask for ("tool": 200 when this arm was first run, 2,000
-    after P9-int) or what the service allows ("service": 5,000). Counts are the exact totals; a probe is affected iff its id
-    is in the returned fact list. Before P9-int the product returned no timestamps, so ``earliest5`` was left empty
-    (strict 0/24 by construction); ``facts.earliest`` (the 5 earliest affected facts) now supplies it.
+    ``max_detail`` is the largest list the MCP tool lets an agent ask for ("tool": 2,000) or what the service allows
+    ("service": 5,000). Counts are the exact totals; a probe is affected iff its id is in the returned fact list;
+    ``earliest5`` comes from ``facts.earliest``.
     """
 
     def __init__(self, lineage: Any, max_detail: int, *, p9f: bool = False):
         self.lineage = lineage
         self.max_detail = max_detail
-        self.p9f = p9f  # P9-f arm (added after the L6 run): order='valid_from' and probe_ids, as the fixed tool offers
+        self.p9f = p9f  # P9-f arm: order='valid_from' and probe_ids, as the fixed tool offers
 
     def blast(self, q: QuestionA) -> tuple[dict[str, Any], dict[str, Any]]:
         t0 = time.perf_counter()

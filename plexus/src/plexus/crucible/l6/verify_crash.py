@@ -15,13 +15,11 @@ from __future__ import annotations
 import argparse
 import json
 import os
-import random
-import subprocess
 import sys
-import threading
-import time
 import uuid
 from typing import Any
+
+from plexus.crucible.l6.crash import kill_rounds
 
 AGENT = "w1"
 TASK = "t0"
@@ -104,33 +102,19 @@ def inspect(host: str, port: int, graph: str) -> dict[str, Any]:
 
 def kill_loop(kills: int, host: str, port: int, graph: str, seed: int, log: Any = print) -> dict[str, Any]:
     scope = setup(host, port, graph)
-    rng = random.Random(seed)
     env = {**os.environ, "PLEXUS_TEST_VERIFY_GAP_MS": GAP_MS}
-    for k in range(kills):
-        cmd = [
+
+    def cmd_for(k: int) -> list[str]:
+        return [
             sys.executable, "-m", "plexus.crucible.l6.verify_crash", "writer", "--host", host,
             "--port", str(port), "--graph", graph, "--scope", scope, "--tag", f"{seed}k{k}",
         ]  # fmt: skip
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, env=env)
-        ready = threading.Event()
 
-        def pump(proc: subprocess.Popen = p, ev: threading.Event = ready) -> None:
-            assert proc.stdout is not None
-            for ln in proc.stdout:
-                if ln.strip() == "ready":
-                    ev.set()
-
-        t = threading.Thread(target=pump, daemon=True)
-        t.start()
-        if not ready.wait(60):
-            p.kill()
-            raise RuntimeError(f"writer {k} never became ready")
-        time.sleep(rng.uniform(0.0, 0.4))
-        p.kill()
-        p.wait()
-        t.join(5)
+    def progress(k: int, _acked: list[dict[str, Any]]) -> None:
         if (k + 1) % 20 == 0:
             log(f"{k + 1}/{kills} kills")
+
+    kill_rounds(cmd_for, kills, seed, env=env, progress=progress)
     res = inspect(host, port, graph)
     res["kills"] = kills
     return res

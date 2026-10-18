@@ -37,7 +37,6 @@ CACHE = Path(__file__).resolve().parents[4] / "demo_data" / "crucible" / "l8" / 
 MODEL = "sonnet"
 READER_BUDGET = 32_000
 V1 = "02_api_style_guide_v1"
-V2 = "06_api_style_guide_v2"
 
 Q_TEXT = {
     "Q1": "Which decisions, across all 21 sprints (S01-S21), relied directly on a fact that came from the API style "

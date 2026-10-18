@@ -160,16 +160,16 @@ def det_a(
     t = time.time()
     w, qs = W.gen_a(scale)
     log(f"A: world {w.counts()} generated in {time.time() - t:.1f}s")
-    p_tuned, c1 = S.build_sqlite(w, tmp, "a_tuned", tuned=True)
-    p_untuned, c2 = S.build_sqlite(w, tmp, "a_untuned", tuned=False)
-    name, c3 = S.load_plexus(w, client, "l6_a")
+    p_tuned, _ = S.build_sqlite(w, tmp, "a_tuned", tuned=True)
+    p_untuned, _ = S.build_sqlite(w, tmp, "a_untuned", tuned=False)
+    name, _ = S.load_plexus(w, client, "l6_a")
     g = client.graph(name)
     arms: dict[str, Callable[[Any], tuple[Any, dict[str, Any]]]] = {
         "B1h": A.SqlArm(p_tuned).blast, "B1h-untuned": A.SqlArm(p_untuned, tuned=False).blast,
         "P-tuned": A.TunedArm(g).blast, "P-anchored": A.AnchoredArm(g).blast, "P-naive": A.NaiveArm(g).blast,
-        "P-product-tool": A.ProductImpactA(Lineage(client, name), 2000).blast,  # the MCP tool cap: 200 until P9-int
+        "P-product-tool": A.ProductImpactA(Lineage(client, name), 2000).blast,  # the MCP tool cap
         "P-product-service": A.ProductImpactA(Lineage(client, name), 5000).blast,
-        # P9-f (added after the run): the fixed tool's order='valid_from' + probe_ids, 200-id page as the MCP tool
+        # P9-f: the fixed tool's order='valid_from' + probe_ids, 200-id page as the MCP tool
         "P-product-tool-p9f": A.ProductImpactA(Lineage(client, name), 200, p9f=True).blast,
     }  # fmt: skip
     out = {nm: measure(nm, "A", qs, fn) for nm, fn in arms.items() if only is None or nm in only}
@@ -273,7 +273,7 @@ def det_b(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
         "B1h": B.SqlB(path).answer, "P-tuned": B.TunedB(g).answer, "P-naive": B.NaiveB(g).answer,
         "P-product-tool": B.ProductWhyB(Lineage(client, name)).answer,
         "P-product-service": B.ProductWhyB(Lineage(client, name), depth=12, max_elements=5000).answer,
-        # P9-f (added after the run): the why tool now takes depth (max 12); max_elements left at the tool default 200
+        # P9-f: the why tool takes depth (max 12); max_elements stays at the tool default 200
         "P-product-tool-p9f": B.ProductWhyB(Lineage(client, name), depth=12).answer,
     }  # fmt: skip
     out = {nm: measure(nm, "B", qs, fn) for nm, fn in arms.items()}
@@ -374,9 +374,7 @@ def main(argv: list[str] | None = None) -> int:
                 res["D"] = det_d(client, tmp, log, a.scale)
             doc["families"] = res
         elif a.cmd == "postfix":
-            # P9-int: the two families whose product defects were fixed, re-run deterministically ($0): A with the
-            # `impact` arms (after the CALL-subquery rewrite) and F for arm P only (the WROTE edge folded into the
-            # write statement). Same worlds, seeds and questions as the pre-registered runs.
+            # P9-int: A (the `impact` arms) and F (arm P only) re-run after the product fixes; same worlds, seeds, questions.
             doc = envelope("postfix", a.host, a.port, started, cmd)
             doc["config"] = {
                 "A_arms": a.arms.split(","),

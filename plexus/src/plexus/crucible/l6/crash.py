@@ -27,6 +27,7 @@ import tempfile
 import threading
 import time
 import uuid
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
@@ -88,19 +89,22 @@ def writer(arm: str, tenant: str, root: str, host: str, port: int, source_id: st
 
 
 # ------------------------------------------------------------------------------------------------ the parent
-def kill_loop(
-    arm: str, kills: int, root: str, tenant: str, host: str, port: int, seed: int, log: Any = print
-) -> dict[str, Any]:
-    sid = setup(arm, tenant, root, host, port)
+def kill_rounds(
+    cmd_for: Callable[[int], list[str]],
+    kills: int,
+    seed: int,
+    *,
+    env: dict[str, str] | None = None,
+    progress: Callable[[int, list[dict[str, Any]]], None] | None = None,
+) -> list[dict[str, Any]]:
+    """One writer process per round: wait for its ``ready`` line, kill it hard after a random 0-400 ms, and return the
+    JSON lines it printed (its acknowledged calls). Shared by the F families (``crash``, ``crash_tasks``, ``verify_crash``)."""
     rng = random.Random(seed)
     acked: list[dict[str, Any]] = []
-    started_ops = 0
     for k in range(kills):
-        cmd = [
-            sys.executable, "-m", "plexus.crucible.l6.crash", "writer", "--arm", arm, "--tenant", tenant, "--root", root,
-            "--host", host, "--port", str(port), "--source", sid, "--tag", f"{seed}k{k}",
-        ]  # fmt: skip
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+        p = subprocess.Popen(
+            cmd_for(k), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, env=env
+        )
         lines: list[str] = []
         ready = threading.Event()
 
@@ -126,12 +130,30 @@ def kill_loop(
                 acked.append(json.loads(ln))
             except json.JSONDecodeError:
                 pass  # the last line may be cut by the kill: it was not acknowledged
+        if progress:
+            progress(k, acked)
+    return acked
+
+
+def kill_loop(
+    arm: str, kills: int, root: str, tenant: str, host: str, port: int, seed: int, log: Any = print
+) -> dict[str, Any]:
+    sid = setup(arm, tenant, root, host, port)
+
+    def cmd_for(k: int) -> list[str]:
+        return [
+            sys.executable, "-m", "plexus.crucible.l6.crash", "writer", "--arm", arm, "--tenant", tenant, "--root", root,
+            "--host", host, "--port", str(port), "--source", sid, "--tag", f"{seed}k{k}",
+        ]  # fmt: skip
+
+    def progress(k: int, acked: list[dict[str, Any]]) -> None:
         if (k + 1) % 20 == 0:
             log(f"F {arm}: {k + 1}/{kills} kills, {len(acked)} acknowledged writes so far")
-    started_ops = len(acked)
+
+    acked = kill_rounds(cmd_for, kills, seed, progress=progress)
     res = verify(arm, tenant, root, host, port, acked)
     res["kills"] = kills
-    res["acknowledged_writes"] = started_ops
+    res["acknowledged_writes"] = len(acked)
     return res
 
 
@@ -140,12 +162,11 @@ def verify(
     arm: str, tenant: str, root: str, host: str, port: int, acked: list[dict[str, Any]]
 ) -> dict[str, Any]:
     ids = {k: [a["id"] for a in acked if a["kind"] == k] for k in ("fact", "decision", "handoff")}
-    derived_ids = [a["id"] for a in acked if a["kind"] == "fact" and a.get("derived")]
     if arm == "P":
         return _verify_plexus(tenant, host, port, ids)
     if arm == "B1h":
         return _verify_sqlite(Path(root) / "B1" / tenant / "crucible.db", ids)
-    return _verify_files(Path(root) / "B0" / tenant, ids, derived_ids)
+    return _verify_files(Path(root) / "B0" / tenant, ids)
 
 
 def _shape(
@@ -252,7 +273,7 @@ def _verify_sqlite(path: Path, ids: dict[str, list[str]]) -> dict[str, Any]:
     return _shape(totals, orphans, missing, lost)
 
 
-def _verify_files(d: Path, ids: dict[str, list[str]], derived_ids: list[str]) -> dict[str, Any]:
+def _verify_files(d: Path, ids: dict[str, list[str]]) -> dict[str, Any]:
     facts: dict[str, dict[str, Any]] = {}
     for line in (d / "MEMORY.md").read_text(encoding="utf-8").splitlines():
         if " <!--" in line:

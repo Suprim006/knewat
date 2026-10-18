@@ -125,7 +125,7 @@ def a_spec(i: int) -> tuple[int, int]:
     return b, min(BLAST_DEPTHS[(i // 4) % 4], b)
 
 
-def _levels(rng: random.Random, total: int, depth: int) -> list[int]:
+def _levels(total: int, depth: int) -> list[int]:
     base = [max(1, total // depth)] * depth
     base[-1] = max(1, total - sum(base[:-1]))
     return base
@@ -147,7 +147,7 @@ def gen_a(scale: float = 1.0, seed: int = SEED, n_questions: int = 24) -> tuple[
     def build_tree(source_key: str, total: int, depth: int, tree: str) -> list[str]:
         out: list[str] = []
         prev: list[str] = []
-        for lvl, width in enumerate(_levels(rng, total, depth), start=1):
+        for lvl, width in enumerate(_levels(total, depth), start=1):
             cur = []
             for _ in range(width):
                 key = f"k{len(raw)}"
@@ -467,7 +467,6 @@ def _path_to(w: World, start: str, root: str) -> list[str]:
 
 
 # ------------------------------------------------------------------------------------------------ family D
-D_VARIANTS = ("all sprints", "sprints S001-S100", "sprints S101-S200", "sprints S041-S160")
 D_RANGES = ((1, 200), (1, 100), (101, 200), (41, 160))
 D_TEMPLATES = (
     "superseded_decisions",

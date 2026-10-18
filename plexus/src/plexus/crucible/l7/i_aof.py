@@ -12,11 +12,13 @@ from __future__ import annotations
 
 import re
 import shutil
-import subprocess
 import tempfile
 import time
+from functools import partial
 from pathlib import Path
 from typing import Any
+
+from plexus.crucible.l7.common import docker
 
 NAME = "plexus-db-71-aofrepro"
 IMAGE = "falkordb/falkordb:6.0.2"
@@ -26,8 +28,7 @@ ENV = [
 ]
 
 
-def _d(*args: str, timeout: int = 300) -> subprocess.CompletedProcess:
-    return subprocess.run(["docker", *args], capture_output=True, text=True, timeout=timeout)
+_d = partial(docker, timeout=300)
 
 
 def remove() -> None:

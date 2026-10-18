@@ -49,8 +49,6 @@ ITEMS = (
     "task_done",
 )  # fmt: skip
 ARMS = ("S-txn", "S-auto", "F-product", "F-multi", "F-multiexec", "F-1stmt")
-# extra / variant arms used by I2 and I5
-VARIANTS = ("F-1stmt-first", "F-1stmt-last", "F-multiexec-err", "F-multi-cas-first")
 SLUG = {
     "S-txn": "stxn", "S-auto": "sauto", "F-product": "fprod", "F-multi": "fmulti", "F-multiexec": "fmexec",
     "F-1stmt": "f1first", "F-1stmt-first": "f1first", "F-1stmt-last": "f1last", "F-multiexec-err": "fmexecerr",
@@ -342,7 +340,7 @@ class FalkorArm(Arm):
         g = self.c.graph(self.gname)
         out: dict[str, set[str]] = {}
 
-        def add(item: str, cy: str, strip: int, prop: str = "x") -> None:
+        def add(item: str, cy: str, strip: int) -> None:
             r = g.ro_query(cy, {"p": prefix}, 10_000)
             for (x,) in r.result_set:
                 out.setdefault(x[strip:], set()).add(item)

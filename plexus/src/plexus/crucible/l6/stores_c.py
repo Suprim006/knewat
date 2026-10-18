@@ -14,12 +14,12 @@ from __future__ import annotations
 
 import sqlite3
 import time
-from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
 from redis.exceptions import TimeoutError as RedisTimeoutError
 
+from plexus.crucible.l6.stores import BATCH, chunks
 from plexus.crucible.l6.world_c import T0, WorldC
 from plexus.embed import Embedder
 from plexus.embed.hash_embedder import HashEmbedder
@@ -29,13 +29,7 @@ from plexus.graph.schema import apply_schema
 from plexus.graph.tenancy import graph_name
 
 OPEN = 9_999_999_999_999
-BATCH = 4000  # rows per statement without vectors
 EMB_BATCH = 500  # rows per statement that carry a 384-d vector
-
-
-def _chunks(rows: list[Any], n: int) -> Iterator[list[Any]]:
-    for i in range(0, len(rows), n):
-        yield rows[i : i + n]
 
 
 def check_counts(world: WorldC, got: dict[str, int], arm: str) -> None:
@@ -143,7 +137,7 @@ def load_plexus_c(
         {"id": e["id"], "name": e["name"], "norm": e["name"].lower(), "emb": v}
         for e, v in zip(world.entities, emb.embed([e["name"] for e in world.entities]), strict=True)
     ]
-    for ch in _chunks(ents, EMB_BATCH):
+    for ch in chunks(ents, EMB_BATCH):
         g.query(
             "UNWIND $rows AS r CREATE (:Entity {id: r.id, name: r.name, norm_name: r.norm, kind: 'thing', "
             "created_at: $t, embedding: vecf32(r.emb)})",
@@ -155,7 +149,7 @@ def load_plexus_c(
         {"id": f["id"], "e": f["entity_id"], "p": f["predicate"], "v": f["value"], "emb": v}
         for f, v in zip(world.facts, fvec, strict=True)
     ]
-    for ch in _chunks(frows, EMB_BATCH):
+    for ch in chunks(frows, EMB_BATCH):
         g.query(
             "UNWIND $rows AS r MATCH (e:Entity {id: r.e}) MATCH (s:Scope {id: $sid}) "
             "CREATE (f:Fact {id: r.id, predicate: r.p, value: r.v, status: 'active', confidence: 1.0, "
@@ -163,7 +157,7 @@ def load_plexus_c(
             "CREATE (f)-[:ABOUT]->(e) CREATE (f)-[:IN_SCOPE]->(s)",
             {"rows": ch, "sid": sid, "t": T0, "open": OPEN},
         )
-    for ch in _chunks([{"a": r["src"], "b": r["dst"], "k": r["kind"]} for r in world.relates], BATCH):
+    for ch in chunks([{"a": r["src"], "b": r["dst"], "k": r["kind"]} for r in world.relates], BATCH):
         g.query(
             "UNWIND $rows AS r MATCH (a:Entity {id: r.a}) MATCH (b:Entity {id: r.b}) "
             "CREATE (a)-[:RELATES {kind: r.k, scope_id: $sid, at: $t}]->(b)",
