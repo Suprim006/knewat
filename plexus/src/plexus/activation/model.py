@@ -108,13 +108,11 @@ def activation_spaced(
     Each event ``i`` decays with its own exponent ``d_i = min(d_max, c * exp(m_{i-1}) + a)`` where ``m_{i-1}``
     is the activation just before it (``a`` for the first event): reads of an already-active fact decay fast,
     so a burst of massed reads is worth little more than one read while spaced reads keep their value.
-    ``kappa_s`` (``kappa * salience``) slows every exponent: ``d_i * (1 - kappa_s)``. Testing-effect rule
-    (note 03 §3.1): a
-    ``recall`` event later than the fact's last ``use`` is a restudy and weighs ``w_restudy * (1 -
-    sigmoid(m_prev
-    - A0))`` (an easy re-exposure is worth ~0, a re-exposure of a faded fact up to ``w_restudy``); it needs
-    ``a0``, so pass the neutral activation (``None`` = the plain weight). Only the newest ``max_events``
-    count.
+    ``kappa_s`` (``kappa * salience``) slows every exponent: ``d_i * (1 - kappa_s)``. Testing-effect rule: a
+    ``recall`` event later than the fact's last ``use`` is a restudy and weighs
+    ``w_restudy * (1 - sigmoid(m_prev - A0))`` (an easy re-exposure is worth ~0, a re-exposure of a faded fact
+    up to ``w_restudy``); it needs ``a0``, so pass the neutral activation (``None`` = the plain weight). Only
+    the newest ``max_events`` count.
 
     Returns ``(A, [d_i per counted event, oldest first])``; ``A`` is ``-inf`` with no events and no surprise.
     """
@@ -160,11 +158,6 @@ def multiplier(a: float, a0: float, floor: float, *, protected: bool = False, by
     if eff == float("-inf"):
         return floor
     return floor + (1.0 - floor) * sigmoid(eff - a0)
-
-
-def final_score(relevance: float, mult: float) -> float:
-    """``relevance`` (clamped to 0..1) times the activation multiplier."""
-    return min(1.0, max(0.0, relevance)) * mult
 
 
 def counts(events: Sequence[Event]) -> dict[str, int]:

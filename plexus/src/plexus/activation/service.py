@@ -20,10 +20,8 @@ from plexus.graph.client import GraphClient
 
 MAX_IDS = 200  # fact ids per activation query
 MAX_SWEEP_SCAN = 5000  # active facts of a scope that one sweep looks at (oldest first)
-SWEEP_MARGIN = 2.0  # default threshold under the D-012 model = A0 - 2 (Settings.sweep_margin is mode-aware)
 # D-013, add mode only: salience >= SALIENCE_PROTECT protects from sweeps (the boolean rules stay the floor)
 SALIENCE_PROTECT = 0.5
-SALIENCE_PIN = 0.95  # pin_fact raises the cached salience to at least this
 
 _WEIGHTS = {
     "create": model.W_CREATE,
@@ -60,8 +58,7 @@ def salience_of(r: Mapping[str, Any], now: int) -> tuple[float, dict[str, int]]:
     inputs = {
         "decisions": sum(1 for d in decisions if not d["flagged"]),
         "verified": sum(1 for t in r["verified_at"] if t <= now),
-        # distinct independently verified artifacts of the decision's DONE tasks (audit C1: the query returns
-        # one id per VERIFIED_BY path; an artifact verified by two agents is one artifact)
+        # distinct verified artifacts of the decision's DONE tasks (one id per VERIFIED_BY path in the query)
         "artifacts_ok": sum(
             len(set(d.get("verified_artifacts") or ())) for d in decisions if not d["flagged"]
         ),
@@ -140,7 +137,7 @@ class Activation:
     def _doubted(read: Mapping[str, Any], r: Mapping[str, Any]) -> bool:
         """Was the fact suspect (contract rule) when this recall READ happened?
 
-        ``READ.suspect`` records it at write time (edges since P7-04). The fact's current state also counts,
+        ``READ.suspect`` records it at write time. The fact's current state also counts,
         so a back-dated doubt (``mark_changed`` at a commit time earlier than the recall) and edges written
         before the flag existed are covered: suspect since before the read, or a review date at or before it.
         """
@@ -174,8 +171,7 @@ class Activation:
         reasons += [f"supersedes:{x}" for x in r["supersedes"]][:1]
         reasons += [f"contradicts:{x}" for x in r["contradicts"]][:1]
         reasons += [f"trusted_source:{s['id']}" for s in r["sources"] if s["trust"] == "high"][:1]
-        # D-013 P2 rule, gated on the mode: `mult` is D-012 + the bypass fix + separation and nothing else
-        # (BRANCH_REVIEW finding 1; D-013 amendment). Salience is still computed and reported in both modes.
+        # salience protection is an `add`-mode rule (D-013); salience itself is reported in both modes
         if st.additive and sal >= SALIENCE_PROTECT and not reasons:
             reasons.append(f"salience:{sal:.2f}")
         decays: list[float] = []

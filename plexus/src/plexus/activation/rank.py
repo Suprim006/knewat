@@ -102,9 +102,7 @@ def rerank(
 ) -> list[Ranked]:
     """Score the candidates and keep the best ``k``.
 
-    ``relevance`` = the row's ``fused`` score when it has one (P12: hybrid of the vector and keyword channels,
-    ``plexus.engram.service.fuse_scores``), else ``1 - rank`` (``rank`` is the cosine distance after the
-    sibling boost); clamped to [0, 1].
+    ``relevance`` = ``1 - rank`` (``rank`` is the cosine distance after the sibling boost), clamped to [0, 1].
     ``entities`` maps the ids of the entities the query names to their fan (current facts about them);
     ``predicates`` maps the predicates the query names to their fan (current facts with that predicate in
     the searched scopes). Both are cues of the context term (:func:`plexus.activation.score.context_term`).
@@ -119,10 +117,7 @@ def rerank(
     ents = entities or {}
     preds = predicates or {}
     a0 = settings.neutral
-    rels = [
-        min(1.0, max(0.0, float(r["fused"] if r.get("fused") is not None else 1.0 - float(r["rank"]))))
-        for r in rows
-    ]
+    rels = [min(1.0, max(0.0, 1.0 - float(r["rank"]))) for r in rows]
     lures = lures_of(rows, rels) if sp else [()] * len(rows)
     rel_top = max(rels, default=0.0)
     bands = [rel >= rel_top - settings.band for rel in rels]
@@ -168,9 +163,8 @@ def rerank(
             sal = 0.0
             sc = math.log(final) if final > 0 else float("-inf")
         else:
-            # ONE formula on the production path (BRANCH_REVIEW finding 2): score.score() is the D-013
-            # additive score; `act` / `sal` below are its reported components (the same helpers it calls),
-            # not a second computation of the score. Forgetting off = the bypass form (ln rel + sep).
+            # score.score() is the one formula; `act` / `sal` below are its reported components (the same
+            # helpers), not a second computation. Forgetting off = the bypass form (ln rel + sep).
             sc = S.score(
                 rel,
                 A=a,

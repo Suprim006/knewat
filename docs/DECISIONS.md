@@ -410,7 +410,7 @@ text stands and the code follows it: the salience rule is gated on `add` mode (`
 arm mirrors it with an `:additive` parameter, so the fidelity check stays a like-for-like comparison). Salience is still computed,
 cached and reported in both modes (`memory_strength`, `pin_fact`); only the *protection* is add-only. Second, `rank.rerank`'s `add`
 branch now calls `score.score()` (the documented formula) instead of re-typing `ln rel + act + sep + sal`; `Ranked.act`/`sal` are
-the reported components from the same helpers, so a future P3 `rel_term` wired into `score()` reaches production. Third, C1:
+the reported components from the same helpers, so a future P3 `rel_term` wired into `score()` reaches production. (The unwired `rho` / `reliability` arguments of `score()` and `RELIABILITY_PRIOR` were removed in the cleanup (2026-10-18); `rho` defaulted to 0 and nothing passed it, so ranking is unchanged; reproduce at tag `pre-cleanup`.) Third, C1:
 `activation/activation` now returns `verified_artifacts` (the ids of the independently verified artifacts FOR the decision's
 *done* tasks, one per VERIFIED_BY path) and `salience_of` counts them DISTINCT as `artifacts_ok`; the old `size(...)` counted every
 path over every task (one artifact verified twice on an open task scored 2). **Effect on the published numbers:** none expected —
@@ -437,10 +437,10 @@ metrics that were reported but not criteria, OFF is also ahead (L6-C `P-product`
 level (the two clean L8 runs found the same facts in every replay call). The fusion's clear gains are on flat retrieval: the hub world's no-scoring arms (100 % instead
 of 96.5 %) and L5b `off` recall@1 (85.0 % instead of 79.3 %); D-013's cues already give the same in the arms that ship (`sep` 100 % / 85.7 % in both settings). **Decision: `PLEXUS_RECALL_LEXICAL_WEIGHT` defaults to 0** (main's
 relevance, `1 - rank`); `FUSION_WEIGHT = 0.5` is what the fusion was designed with and is available as an opt-in (`PLEXUS_RECALL_LEXICAL_WEIGHT=0.5`).
-The fusion code, its tests and its env switch stay. Honest limits of the decision: it is a count of two failures against three, one of them the replay
+The fusion code, its tests and its env switch stayed in the tree then. Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup` (`fuse_scores`, `PLEXUS_RECALL_LEXICAL_WEIGHT`, harness `PLEXUS_L5_LEXICAL_WEIGHT`). Honest limits of the decision: it is a count of two failures against three, one of them the replay
 number, which moves by +-1 between plays of identical code (27, 28 and 29 were all measured: new ids decide the near-ties of the twenty
 `billing_cycle` facts); without that criterion the counts are 1 and 2 and the decision is the same. The L5b / hub harness keeps its pin
-(`PLEXUS_L5_LEXICAL_WEIGHT`, default 0): it now equals the product default, and the variable stays for the ON/OFF comparison.
+(`PLEXUS_L5_LEXICAL_WEIGHT`, default 0) was removed with the switch: it equalled the product default.
 
 *2. Published numbers on the merged build.* Recall@1 (85.7 %, the ceiling), recall@5 (100 %), critical loss (0), cross-entity displacers (0) and the hub
 result (100 %) reproduce with the fusion off. **The noise share does not, in either setting, and is reported as a moved number:** `sep+mult` 32.3 % (N = 5),

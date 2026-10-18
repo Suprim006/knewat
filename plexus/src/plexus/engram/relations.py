@@ -11,7 +11,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from plexus.common import normalize
+from plexus.common import normalize, now_ms
 from plexus.engram.errors import UnknownReference
 
 if TYPE_CHECKING:
@@ -61,7 +61,7 @@ def assert_relation(
     rows = eng.client.rw(
         eng.graph,
         "engram/assert_relation",
-        {"a_id": a["id"], "b_id": b["id"], "kind": rel, "scope_id": scope_id, "now": now or _now()},
+        {"a_id": a["id"], "b_id": b["id"], "kind": rel, "scope_id": scope_id, "now": now or now_ms()},
     )
     if not rows:
         raise UnknownReference("scope", [scope_id])
@@ -72,12 +72,6 @@ def assert_relation(
         "kind": rel,
         "scope_id": scope_id,
     }
-
-
-def _now() -> int:
-    from plexus.common import now_ms
-
-    return now_ms()
 
 
 def expand_hops(

@@ -1,40 +1,25 @@
 // name: engram/recall
 // purpose: Hybrid recall in ONE read: vector (+ keyword) seeds over Fact.embedding, scope-inheritance + validity-window + status filter, 1-hop ABOUT-entity expansion to sibling facts (boosted, capped), nearest first, with provenance for the why-path.
 // params: q:list[float], scope_id:str, all:bool, over:int, lim:int, t:int, statuses:list[str], boost:float, sibs:int, kw_ids:list[str], damp:bool, smax:float
-// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), maybe_dup [ids of the facts this one is a possible duplicate of: (n)-[:DUPLICATES_MAYBE]->(o), P9-c], kw (1 when the fact is one of $kw_ids, else 0), sib_of [ids of the seeds this fact is a sibling of (same ABOUT entity)], damp (the D-013 fan damping factor of the fact's entity in [0, 1]; 1 when $damp is false; the caller scales the sibling boost by it)
+// returns: fact_id, entity_id, entity_name, predicate, value, status, confidence, valid_from, valid_to, scope_id, score (cosine distance to the query, lower = nearer), rank (score after the sibling boost; what the order is by), via (seed fact id when reached by expansion, else null), raw (how many nodes the vector index returned before filtering; < over means the index is exhausted), derived_from [{id,label}], asserted_by [agent ids], surprise (0 when absent), verify_state ('verified' when absent), suspect_since (0 when absent), verify_after (9999999999999 = OPEN when absent), maybe_dup [ids of the facts this one is a possible duplicate of: (n)-[:DUPLICATES_MAYBE]->(o)], kw (1 when the fact is one of $kw_ids, else 0), sib_of [ids of the seeds this fact is a sibling of (same ABOUT entity)], damp (the D-013 fan damping factor of the fact's entity in [0, 1]; 1 when $damp is false; the caller scales the sibling boost by it)
 // mode: ro
 
-// P7 (D-012): the statuses list is a parameter: ['active'] by default, + 'dormant' with include_dormant, + 'superseded' and 'dormant' for as_of. The extra row fields are plain
-// properties of the matched fact (read with coalesce, absent on facts written before P7); the activation re-ranking happens in Python on these rows (plexus.activation.rank).
-// Scopes searched: the given scope plus everything it INHERITS (<=3 hops); with $all (P12, recall's scope 'all') every scope of the tenant graph.
-// Facts are valid at t when valid_from <= t < valid_to.
-// Keyword seeds are never cut by the cosine LIMITs (P12): both LIMITs order the keyword hits first and keep $lim = k + size($kw_ids) rows (LIMIT takes no expression), so
-// every in-scope valid keyword hit reaches the caller, which fuses the vector and keyword scores and cuts to k. With a pool this large
-// nearly every candidate is also a seed, so the caller re-applies the sibling boost itself, only to siblings of the best seeds
-// (sib_of; plexus.engram.service._sibling_boost), as before P12; `rank` here boosts siblings of every seed.
-// Trials-int merge: the D-013 fan damping (`damp`, scales $boost per seed entity) is computed after the $lim cut, on the rows that survive it, and is
-// returned per row (a sibling shares its seed's entity, so one factor per fact) because the Python caller re-applies the sibling boost (P12) and must scale it the same way.
-// Recall-check (hub entities): the per-entity reads (the fan `fan_e` and the sibling scan of the entity's ABOUT facts) run ONCE PER DISTINCT ENTITY of the surviving rows, in a
-// CALL subquery that returns one map per entity ({eid, damp, pool: the nearest sibs + 1 facts}); each row then takes its own siblings from that pool (all but itself, first
-// $sibs). Written per row they rescanned the entity for every row it contributed: a 1,000-fact hub with 60 rows in the pool produced 61,295 records in one operator, a 5,000-fact
-// hub 305,295 (1.9 s); now they are about the entity's fan (1,060 / 5,060 records), whatever the number of rows. The rows and ranks are unchanged (tests/integration/test_recall_hub_plan.py).
-// Seeds: the top `over` nearest facts of the WHOLE graph plus the facts in kw_ids (full-text hits from engram/recall_keywords),
-// then filtered. LIMITATION: FalkorDB's vector procedure has no pre-filter, so scope/status/validity are applied AFTER the
-// index returns `over` nodes; nearer out-of-scope or superseded facts can crowd the target out. The Python wrapper therefore
-// re-runs with a larger `over` (x4, up to 512) while fewer than k rows come back and `raw` == `over`.
-// Expansion: the `sibs` nearest other facts on the seed's entity that pass the same filters; they are ranked by
-// (own distance - boost), floor 0, but report their own distance as `score`. A fact reached both ways counts as a seed (via null)
-// and keeps its best rank.
-// Plan shape (P5 review Q1): the sibling expansion is ENTITY-first: (e)<-[:ABOUT]-(g0:Fact) with the cheap property filters, then
-// the scope test with g0 already bound (separate OPTIONAL MATCH after a WITH). Written as one pattern
-// `(e)<-[:ABOUT]-(g)-[:IN_SCOPE]->(gs:Scope) WHERE gs.id IN sids` the planner starts at the Scope and walks every fact IN_SCOPE of it for
-// every seed, so recall latency grew with the facts in the scope instead of the entity's fan-out (tests/integration/test_p5_plans.py).
-// Fan-damped expansion (D-013 P1, §2.3): with damp = true the sibling boost is scaled by max(0, 1 - ln(fan_e) / smax) where fan_e is the
-// seed entity's number of active facts (ACT-R fan): completing the pattern around a small, specific entity stays strong, expansion from a
-// hub entity (fan >= e^smax, 50 by default) is damped to nothing. damp = false (PLEXUS_RECALL_SEPARATION=off) is the pre-D-013 rank exactly.
-// fan_e is bound by one pattern comprehension in its own WITH, before the collect (an aggregate next to a comprehension misbehaves on 6.0.2).
-// The keyword seeds are looked up one id at a time (`{id: kid}` is an index seek); `kx.id IN $kw_ids` planned a scan of the whole Fact
-// id index even for an empty list. The '' placeholder keeps the row alive when there are no keyword hits (no Fact has the id '').
+// Scopes searched: the given scope plus everything it INHERITS (<=3 hops); with $all every scope of the tenant graph. Valid at t: valid_from <= t < valid_to.
+// $statuses is a parameter (['active']; + 'dormant' with include_dormant; + 'superseded' and 'dormant' for as_of). The activation re-ranking happens in Python
+// on these rows (plexus.activation.rank); the extra row fields are read with coalesce so facts written before them still return.
+// Seeds: the `over` nearest facts of the WHOLE graph plus the facts in kw_ids (full-text hits from engram/recall_keywords), then filtered. LIMITATION: FalkorDB's
+// vector procedure has no pre-filter, so scope/status/validity are applied AFTER the index returns `over` nodes; the Python wrapper re-runs with a larger `over`
+// (x4, up to 512) while fewer than k rows come back and `raw` == `over`.
+// Keyword seeds are never cut by the cosine LIMITs: both LIMITs order the keyword hits first and keep $lim = k + size($kw_ids) rows (LIMIT takes no expression).
+// The keyword seeds are id seeks (`{id: kid}`); `kx.id IN $kw_ids` planned a scan of the whole Fact id index. The '' placeholder keeps the row alive when there are none.
+// Expansion: the `sibs` nearest other facts on the seed's entity that pass the same filters, ranked by (own distance - boost), floor 0, reporting their own distance
+// as `score`. `rank` boosts siblings of every seed; the Python caller re-applies the boost to the best seeds only (sib_of; plexus.engram.service._sibling_boost).
+// Plan shape (P5 review Q1): the expansion is ENTITY-first, (e)<-[:ABOUT]-(g0:Fact) with the cheap property filters, then the scope test on the bound g0. One
+// pattern `(e)<-[:ABOUT]-(g)-[:IN_SCOPE]->(gs:Scope) WHERE gs.id IN sids` starts at the Scope and walks every fact in it per seed (tests/integration/test_p5_plans.py).
+// Fan damping (D-013): with damp = true the boost is scaled by max(0, 1 - ln(fan_e) / smax), fan_e = the seed entity's active facts; damp = false is the
+// pre-D-013 rank. The factor is returned per row. fan_e is bound by one pattern comprehension in its own WITH (an aggregate next to a comprehension misbehaves on 6.0.2).
+// The fan and the sibling scan run ONCE PER DISTINCT ENTITY in a CALL subquery returning one map per entity {eid, damp, pool}; each row takes its siblings from that
+// pool (tests/integration/test_recall_hub_plan.py). Per row they rescanned a hub entity for every row (1,000-fact hub: 61,295 records; now 1,060).
 MATCH (:Scope {id: $scope_id})-[:INHERITS*0..3]->(a:Scope)
 WITH collect(DISTINCT a.id) AS sids
 CALL db.idx.vector.queryNodes('Fact', 'embedding', $over, vecf32($q)) YIELD node, score

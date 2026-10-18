@@ -8,8 +8,6 @@ from __future__ import annotations
 
 import json
 import logging
-import math
-import os
 import re
 from collections.abc import Callable, Iterable
 from typing import Any
@@ -42,16 +40,11 @@ RETRY_FACTOR = 4
 MAX_OVER = 512  # hard cap on the vector fetch size
 MAX_K = 50  # recall clamps k to this
 MAX_BUDGET_CHARS = 20_000  # recall clamps budget_chars to this
-DEFAULT_K = 20  # P12: recall's default k (was 8: too few for a task that needs facts from many sprints)
-DEFAULT_BUDGET_CHARS = 6000  # P12: recall's default text budget (was 2,000: about 8 facts' text)
-POOL_FACTOR = 3  # P12: candidates ranked before the cut to k: max(POOL_FACTOR * k, MIN_POOL) <= MAX_POOL
+DEFAULT_K = 20  # recall's default k
+DEFAULT_BUDGET_CHARS = 6000  # recall's default text budget
+POOL_FACTOR = 3  # candidates ranked before the cut to k: max(POOL_FACTOR * k, MIN_POOL) <= MAX_POOL
 MIN_POOL = 60
 MAX_POOL = 150
-# Lexical term of recall's relevance (P12 fuse_scores). The shipped default is none (recall-check, D-013
-# amendment 3); FUSION_WEIGHT is the weight P12 designed and measured it with, opt-in via
-# PLEXUS_RECALL_LEXICAL_WEIGHT=0.5.
-LEXICAL_WEIGHT = 0.0
-FUSION_WEIGHT = 0.5
 SIBLINGS_PER_ENTITY = 5  # 1-hop expansion keeps the nearest 5 sibling facts per seed
 MAX_KEYWORDS = 12  # distinct query words sent to the Fact full-text index (value + search_text)
 RECALL_ENTITIES = 5  # entities the pattern-separation read resolves per recall (D-013 P1)
@@ -62,7 +55,6 @@ NO_TOKEN = "plexusnomatchtoken"  # full-text query for a name without any word c
 DEFAULT_HISTORY = 200  # fact_history default
 MAX_HISTORY = 10_000  # fact_history ceiling: versions of ONE entity+predicate in one scope
 
-PAGE_KEYS = ("truncated", "omitted_by_budget", "more_available", "candidates")  # recall_page note (P12)
 
 log = logging.getLogger("plexus.engram")
 
@@ -116,9 +108,8 @@ _SHORT_STOP = frozenset(
 def _query_words(query: str) -> list[str]:
     """The query words the full-text side searches for, at most ``MAX_KEYWORDS``.
 
-    Words of >= 3 characters, plus (P12) shorter tokens that carry a digit (``v2``, ``p9``, ``s7``) or are
-    2-letter words that are not stopwords (``db``, ``ui``): before P12 everything under 3 characters was
-    dropped, so a query for ``v2`` had no keyword side at all.
+    Words of >= 3 characters, plus shorter tokens that carry a digit (``v2``, ``s7``) or are 2-letter words
+    that are not stopwords (``db``, ``ui``).
     """
     keep = (
         w
@@ -128,18 +119,6 @@ def _query_words(query: str) -> list[str]:
     return list(dict.fromkeys(keep))[:MAX_KEYWORDS]
 
 
-def _lexical_weight() -> float:
-    """``PLEXUS_RECALL_LEXICAL_WEIGHT`` (0..1, default ``LEXICAL_WEIGHT`` = 0: the vector-only relevance of
-    main); ``FUSION_WEIGHT`` (0.5) is P12's fusion, opt-in since the recall-check."""
-    raw = os.environ.get("PLEXUS_RECALL_LEXICAL_WEIGHT", "").strip()
-    if not raw:
-        return LEXICAL_WEIGHT
-    w = float(raw)
-    if not 0.0 <= w <= 1.0:
-        raise ValueError(f"PLEXUS_RECALL_LEXICAL_WEIGHT must be within 0..1, got {raw}")
-    return w
-
-
 def search_text(entity_name: str, predicate: str) -> str:
     """``Fact.search_text``: the entity name and the predicate split into words (``billing_cycle`` ->
     ``billing cycle``), indexed by the Fact full-text index next to ``Fact.value`` (the full-text tokenizer
@@ -147,57 +126,15 @@ def search_text(entity_name: str, predicate: str) -> str:
     return " ".join([entity_name, *re.split(r"[\W_]+", predicate)]).strip()
 
 
-def fuse_scores(rows: list[dict[str, Any]], words: list[str], weight: float = FUSION_WEIGHT) -> None:
-    """Hybrid relevance of every candidate, written into each row as ``fused`` in [0, 1] (P12).
-
-    ``fused = (1 - weight) * vector + weight * lexical`` (``weight`` = ``Engram.lexical_weight``, from
-    ``PLEXUS_RECALL_LEXICAL_WEIGHT``: 0 by default = the vector order of earlier versions; ``FUSION_WEIGHT``
-    0.5 = P12's fusion, opt-in since the recall-check, and this function's own default):
-
-    * ``vector = 1 - rank`` (``rank`` = cosine distance after the sibling boost; the only relevance before
-      P12), clamped to [0, 1];
-    * ``lexical`` = the share of the query's word weight the fact's text (entity name, predicate words, value)
-      contains, each query word weighted by its rarity in the candidate pool, ``ln(1 + N / df)`` (``N`` rows,
-      ``df`` = rows containing the word; words no candidate contains are left out). A fact that names every
-      discriminating query word scores 1; ``S07`` or ``Bolt`` count for far more than ``API``, which every
-      candidate contains.
-
-    Before P12 keyword hits were only unioned into the candidates and then ranked by cosine distance alone. A
-    score fusion is used rather than reciprocal rank fusion: on the L8 store (``crucible/l8/recall_bench``) an
-    RRF variant still ranked ``Bolt Billing API S07 billing_cycle`` 7th-12th for "billing cycle decided in
-    sprint S07" among twenty near-identical sprint facts, because the activation multiplier (0.9..1) outweighs
-    RRF's flat rank curve and the keyword ranks of near-identical facts are mostly ties; this fusion ranks it
-    first.
-    """
-    texts = [
-        set(_tokens(f"{r.get('entity_name', '')} {r.get('predicate', '')} {r.get('value', '')}"))
-        for r in rows
-    ]
-    n = len(rows)
-    weights = {}
-    for w in words:
-        df = sum(1 for tx in texts if w in tx)
-        if df:
-            weights[w] = math.log(1.0 + n / df)
-    total = sum(weights.values())
-    for r, tx in zip(rows, texts, strict=True):
-        vec = min(1.0, max(0.0, 1.0 - float(r["rank"])))
-        lex = sum(v for w, v in weights.items() if w in tx) / total if total else 0.0
-        r["lexical"] = lex
-        r["fused"] = (1.0 - weight) * vec + weight * lex
-
-
 def _sibling_boost(rows: list[dict[str, Any]], seeds: int) -> None:
     """Set each row's ``rank``: its own cosine distance, minus ``EXPAND_BOOST`` (floor 0) when it is a sibling
     (same ABOUT entity) of one of the ``seeds`` nearest candidates; ``via`` = that seed for a boosted row that
     is not itself one of them, else ``None``.
 
-    This is the 1-hop expansion of earlier versions (the seeds were the ``2*k`` / ``k`` nearest facts). With
-    P12's larger candidate pool almost every candidate is also a seed, so ``engram/recall``'s own boosted rank
-    would boost nearly everything; the rule is re-applied here to the same number of seeds as before. Facts
-    tied with the last seed's distance are all seeds, so the result does not depend on the order rows arrive
-    in, and a fact with no similarity at all (distance >= 1) is never a seed (before P12 such zero-similarity
-    facts could fill the seed list in index order and boost their siblings).
+    The candidate pool is large, so almost every candidate is a seed of ``engram/recall``'s own boosted
+    rank; the rule is re-applied here to the ``seeds`` nearest only. Facts tied with the last seed's distance
+    are all seeds (the result does not depend on the order rows arrive in), and a fact with no similarity at
+    all (distance >= 1) is never a seed.
     """
     ordered = sorted(float(r["score"]) for r in rows if float(r["score"]) < 1.0)  # no similarity: no seed
     cut = ordered[min(seeds, len(ordered)) - 1] if ordered and seeds > 0 else -1.0
@@ -239,7 +176,6 @@ class Engram:
         self.entity_threshold = entity_threshold
         self.dup_threshold = dup_threshold
         self.dedup = dedup or DedupSettings.from_env()
-        self.lexical_weight = _lexical_weight()
 
     def _embed(self, texts: list[str]) -> list[list[float]]:
         """Embed ``texts`` and refuse a vector that is not 384 floats (FalkorDB would store it silently)."""
@@ -310,7 +246,7 @@ class Engram:
 
         ``before_create`` runs before that statement, i.e. only when the exact read missed.
         :meth:`assert_fact` uses it to reject a bad scope / episode / source *before* an Entity is created
-        for a call that will be rejected (P5 review Q8).
+        for a call that will be rejected.
 
         Not transitive: A~B and B~C does not make A~C; the statement matches against what exists, so a third
         spelling joins whichever candidate ranks first. A UNIQUE(``Entity.norm_name``) constraint is the
@@ -437,7 +373,7 @@ class Engram:
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
 
-        ``source_ids`` (P13, trial 8; at most 20, unioned with ``source_id``): every listed Source gets its
+        ``source_ids`` (at most 20, unioned with ``source_id``): every listed Source gets its
         own ``(fact)-[:DERIVED_FROM]->(Source)`` edge, so a fact two documents support survives the quarantine
         of one. An id that is not a Source rejects the whole call (:class:`UnknownReference` ``'source'``,
         nothing written). Asserting an existing value again with sources it is not yet linked to corroborates
@@ -445,16 +381,15 @@ class Engram:
 
         ``step_id`` (an existing Step): a NEW fact is linked ``(Step)-[:WROTE]->(Fact)`` by that statement.
 
-        ``derived_from`` (Source / Episode / Fact ids, at most 100; P9-f, Crucible L6-F): linked
+        ``derived_from`` (Source / Episode / Fact ids, at most 100): linked
         ``(fact)-[:DERIVED_FROM]->(origin)`` in that same statement, so a hard kill cannot leave the fact
-        without the link (it used to be ``Lineage.derive_from``, a second statement). An unknown id raises
-        :class:`UnknownReference` ``'origin'`` and writes nothing.
+        without the link. An unknown id raises :class:`UnknownReference` ``'origin'`` and writes nothing.
 
         Returns ``{fact_id, superseded, duplicate_of, contradicts, entity_id, surprise}``. ``surprise`` is the
         value stored on the new fact (0.9 contradiction, 0.6 supersede, else novelty in 0..0.5; ``None`` for a
-        duplicate, which stores nothing). For a duplicate no fact is
-        created and ``fact_id == duplicate_of`` (the existing fact, which gains an ``ASSERTED_BY {at}`` edge
-        and supersedes this agent's own earlier, different current facts: ``superseded`` lists them).
+        duplicate, which stores nothing). For a duplicate no fact is created and ``fact_id == duplicate_of``
+        (the existing fact, which gains an ``ASSERTED_BY {at}`` edge and supersedes this agent's own earlier,
+        different current facts: ``superseded`` lists them).
 
         ``dup_threshold`` overrides the service's paraphrase threshold for this call (a negative value turns
         the paraphrase check off, so only an equal normalised value is a duplicate; ``verify_fact`` uses it,
@@ -466,7 +401,7 @@ class Engram:
 
         Raises :class:`UnknownReference` (a ``LookupError``) and writes nothing if the scope, or a given
         ``episode_id`` / ``source_id``, does not exist: a new subject Entity is only created after those ids
-        were checked, so a rejected call leaves no orphan Entity (P5 Q8).
+        were checked, so a rejected call leaves no orphan Entity.
         The classification and the writes happen in one Cypher statement (``engram/assert_fact``); the
         entity resolution before it is a separate (idempotent) step.
         """
@@ -660,43 +595,6 @@ class Engram:
             all_scopes=all_scopes,
         )[0]
 
-    def recall_page(
-        self,
-        query: str,
-        scope_id: str,
-        k: int = DEFAULT_K,
-        as_of: int | None = None,
-        budget_chars: int = DEFAULT_BUDGET_CHARS,
-        *,
-        include_dormant: bool = False,
-        forgetting: bool | None = None,
-        hops: int = 0,
-        separation: bool | None = None,
-        settings: Settings | None = None,
-        all_scopes: bool = False,
-    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-        """``(rows, page)`` with ``page = {truncated, omitted_by_budget, more_available, candidates}`` (P12).
-
-        ``omitted_by_budget`` ranked rows were cut by ``budget_chars``, ``more_available`` = more candidates
-        matched than were returned (ask again with a larger ``k`` / ``budget_chars`` or a narrower query),
-        ``truncated`` = either. Nothing is cut silently. The same four keys are in the metadata of
-        :meth:`recall_with_meta`; this is that call with the page keys split out.
-        """
-        rows, meta = self.recall_with_meta(
-            query,
-            scope_id,
-            k,
-            as_of,
-            budget_chars,
-            include_dormant=include_dormant,
-            forgetting=forgetting,
-            hops=hops,
-            separation=separation,
-            settings=settings,
-            all_scopes=all_scopes,
-        )
-        return rows, {key: meta[key] for key in PAGE_KEYS}
-
     def recall_with_meta(
         self,
         query: str,
@@ -717,23 +615,20 @@ class Engram:
         The second value is the recall's metadata: for ``why_recalled`` ``entities`` (the entities the query
         named, ``{id: {name, fan}}``), ``predicates`` (the predicates it named, ``{predicate: {fan}}``),
         ``entity_facts_added`` (candidates the named entities contributed, CROSS_CHECK §3.3), ``separation``
-        and ``forgetting`` (what was on), ``mode``; and the page note (P12) ``truncated``,
+        and ``forgetting`` (what was on), ``mode``; and the page note ``truncated``,
         ``omitted_by_budget``, ``more_available``, ``candidates``.
 
         **Scope.** ``scope_id`` and every scope it INHERITS (<= 3 hops); ``all_scopes=True`` (the MCP tool's
-        default scope ``all``, P12) searches every scope of the tenant graph, ``scope_id`` is then ignored
+        default scope ``all``) searches every scope of the tenant graph, ``scope_id`` is then ignored
         (the entity / predicate fans of pattern separation are counted over every scope as well).
 
-        **Candidates (P12).** Two channels: the vector index (cosine distance of the fact text to the query,
-        with the 1-hop sibling expansion) and the full-text index over ``Fact.value`` and ``Fact.search_text``
-        (the entity name and predicate words). A pool of ``max(POOL_FACTOR * k, MIN_POOL)`` (<=
-        ``MAX_POOL``) candidates is fetched from each; every in-scope keyword hit survives into the pool, and
-        the two rankings are fused (:func:`fuse_scores`: cosine relevance and an IDF-weighted query-word
-        coverage) into ``relevance`` when ``PLEXUS_RECALL_LEXICAL_WEIGHT`` > 0; the default 0 keeps the cosine
-        relevance (the fusion cost noise share and a critical probe on L5b and gained nothing on L6-C / L8,
-        BASELINE "Recall-check"). Before P12 the pool was ``2*k`` and keyword hits competed on cosine
-        distance only. The sibling boost is re-applied in Python to the siblings of the ``2*k`` (``k`` without
-        re-ranking) nearest seeds (:func:`_sibling_boost`), scaled by the entity-fan damping below.
+        **Candidates.** Two channels: the vector index (cosine distance of the fact text to the query, with
+        the 1-hop sibling expansion) and the full-text index over ``Fact.value`` and ``Fact.search_text``
+        (the entity name and predicate words). A pool of ``max(POOL_FACTOR * k, MIN_POOL)`` (<= ``MAX_POOL``)
+        candidates is fetched from the vector side and every in-scope keyword hit joins it; relevance is the
+        cosine score (``1 - rank``). The sibling boost is re-applied in Python to the siblings of the ``2*k``
+        (``k`` without re-ranking) nearest seeds (:func:`_sibling_boost`), scaled by the entity-fan damping
+        below.
 
         **Pattern separation (D-013 P1, CROSS_CHECK §3.2-3.3).** With ``separation`` on (``True``, or ``None``
         and ``PLEXUS_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
@@ -752,9 +647,9 @@ class Engram:
 
         **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
         not ``off``) and no ``as_of``, the pool is re-ranked by ``relevance x (floor + (1 - floor) x sigmoid(A
-        - A0))`` (``plexus.activation.rank``; ``relevance`` is the fused score), then cut to ``k``; the rows
+        - A0))`` (``plexus.activation.rank``), then cut to ``k``; the rows
         gain ``activation`` and ``protected``. With forgetting and separation both off, or with ``as_of``,
-        the order is the fused relevance and those two fields are ``None``. Rows always carry ``surprise``,
+        the order is the relevance and those two fields are ``None``. Rows always carry ``surprise``,
         ``verify_state`` (``suspect`` when marked so or when the review date has passed), ``suspect_since``
         and ``suspect_reason``. ``include_dormant`` adds facts a sweep moved to ``dormant``; ``as_of``
         always includes them (forgetting never changes history).
@@ -808,7 +703,7 @@ class Engram:
         # Re-rank when use history counts or separation is on (a cue to apply, or candidates to merge).
         rerank_on = fg or sp
         # Seeds of the sibling expansion (and the named entities' per-entity cap): the nearest 2*k when
-        # re-ranking, k otherwise, as before P12's larger pool.
+        # re-ranking, k otherwise.
         seeds = min(2 * k, 2 * MAX_K) if rerank_on else k
         pool = min(max(POOL_FACTOR * k, MIN_POOL), MAX_POOL)
         q = self._embed_query(query)
@@ -828,7 +723,6 @@ class Engram:
             have = {r["fact_id"] for r in rows}
             added = [r for r in named_rows if r["fact_id"] not in have]
             rows, meta["entity_facts_added"] = rows + added, len(added)
-        fuse_scores(rows, _query_words(query), self.lexical_weight)
         if sp:
             meta["predicates"] = self._resolve_predicates(query, rows, scope_id, t, statuses, all_scopes)
         acts: dict[str, Any] = {}
@@ -851,7 +745,7 @@ class Engram:
             top = [x.row for x in best]
             ranked = {x.row["fact_id"]: x for x in best}
         else:
-            top = sorted(rows, key=lambda r: (-r["fused"], r["rank"], r["fact_id"]))[:k]
+            top = sorted(rows, key=lambda r: (r["rank"], r["fact_id"]))[:k]
         more = len(rows) > len(top)
         hmeta: dict[str, Any] = {}
         if hops:
@@ -1027,7 +921,7 @@ class Engram:
 
         Starts with ``k * OVERFETCH`` nodes and, while fewer than ``k`` rows survive the scope / status /
         validity filters, retries with ``RETRY_FACTOR`` times more, up to ``MAX_OVER``. Every keyword hit in
-        ``kw_ids`` that passes the filters is returned on top of the ``k`` nearest (P12).
+        ``kw_ids`` that passes the filters is returned on top of the ``k`` nearest.
         """
         over = max(k * OVERFETCH, 1)
         while True:

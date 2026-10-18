@@ -8,7 +8,6 @@ import pytest
 
 from plexus.engram.dedup import (
     DedupSettings,
-    auto_merge_blocked,
     features,
     jaccard,
     sequence_blocks,
@@ -168,11 +167,11 @@ def test_substitution_guard_blocks_a_one_word_change_but_not_a_paraphrase():
         ),
     ]:
         fa, fb = features(a), features(b)
-        assert substitution_blocks(fa, fb) and auto_merge_blocked(fa, fb), (a, b)
+        assert substitution_blocks(fa, fb), (a, b)
     for a, b in [
         ("Owns it.", "Owns it"),
         ("deploys need two reviewers", "two reviewers must approve every production deploy"),
         ("PostgreSQL 16", "Postgres version 16"),
     ]:
         fa, fb = features(a), features(b)
-        assert not auto_merge_blocked(fa, fb), (a, b)
+        assert not (sequence_blocks(fa, fb) or substitution_blocks(fa, fb)), (a, b)
