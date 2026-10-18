@@ -11,8 +11,6 @@ import pytest
 
 from mcp import Client
 from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 
 async def call(c: Client, name: str, **args) -> dict:
@@ -260,22 +258,6 @@ async def test_reopen_task_tool(server):
         assert "t9" in err
         err = await call_err(c, "reopen_task", agent_id="w", task_id="ghost")
         assert "ghost" in err
-
-
-async def test_runtime_without_lineage_still_works(monkeypatch, client, tenant):
-    import sys
-
-    from plexus.embed import HashEmbedder
-
-    monkeypatch.setitem(sys.modules, "plexus.lineage", None)  # `import plexus.lineage` now fails
-    rt = Runtime(client=client, embedder=HashEmbedder(), stdio_tenant=tenant)
-    async with Client(build_server(rt)) as c:
-        names = {t.name for t in (await c.list_tools()).tools}
-        assert "add_source" not in names and "recall" in names
-        await call(c, "assert_fact", agent_id="solo", subject="A", predicate="p", value="v")
-        r = await call(c, "recall", agent_id="solo", query="A p")
-        assert r["count"] == 1 and "recall_id" not in r
-    assert rows(client, tenant, "MATCH (s:Step) RETURN count(s)") == [[0]]
 
 
 @pytest.mark.parametrize("tool", ["add_source", "quarantine_source", "release_quarantine", "reopen_task"])

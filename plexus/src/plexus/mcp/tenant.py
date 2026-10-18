@@ -2,33 +2,23 @@
 
 from __future__ import annotations
 
-import importlib
 import re
 import threading
 import time
 from dataclasses import dataclass, field
-from typing import Any
 
 from mcp.server.mcpserver.exceptions import ToolError
 
 from plexus.embed import Embedder
 from plexus.engram import Engram
 from plexus.graph.client import GraphClient
+from plexus.lineage import Lineage
 from plexus.mcp.limits import MAX_NAME
 from plexus.mcp.metering import MeteredClient
 from plexus.relay import Relay
 from plexus.staleness import Staleness  # P7-J
 
 _UUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
-
-
-def lineage_class() -> Any:
-    """``plexus.lineage.Lineage`` if it is importable and can record steps, else ``None``."""
-    try:
-        cls = getattr(importlib.import_module("plexus.lineage"), "Lineage", None)
-    except ImportError:
-        return None
-    return cls if cls is not None and hasattr(cls, "record_step") else None
 
 
 @dataclass
@@ -50,10 +40,8 @@ class TenantState:
     def relay(self, m: MeteredClient) -> Relay:
         return Relay(m, self.graph)  # type: ignore[arg-type]
 
-    def lineage(self, m: MeteredClient) -> Any:
-        """A ``Lineage`` for this tenant, or ``None`` when ``plexus.lineage`` is not installed."""
-        cls = lineage_class()
-        return None if cls is None else cls(m, self.graph)
+    def lineage(self, m: MeteredClient) -> Lineage:
+        return Lineage(m, self.graph)  # type: ignore[arg-type]
 
     # -- P7-J staleness wiring (kept apart from the services above) --------------------------------------
     def staleness(self, m: MeteredClient) -> Staleness:

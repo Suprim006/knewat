@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 import json
 import re
-import sys
 from pathlib import Path
 
 import pytest
@@ -160,13 +159,6 @@ def test_unknown_and_invalid_tenant_404(api):
     for path in ("inventory", "graph", "flow", "stream"):
         assert api.get(f"/api/does_not_exist_zz/{path}", params={"max_events": 1}).status_code == 404
         assert api.get(f"/api/Bad Tenant/{path}").status_code == 404
-
-
-def test_step_and_why_are_501_without_lineage(api, seeded, monkeypatch):
-    monkeypatch.setitem(sys.modules, "plexus.lineage", None)  # makes `import plexus.lineage` fail
-    t = seeded["tenant"]
-    assert api.get(f"/api/{t}/step/1").status_code == 501
-    assert api.get(f"/api/{t}/why/{seeded['decision']}").status_code == 501
 
 
 def test_query_text_endpoint(api):

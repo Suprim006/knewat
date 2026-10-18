@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import importlib
 import json
 from typing import Any
 
@@ -13,6 +12,7 @@ from redis.exceptions import RedisError, ResponseError
 from plexus.api import models as M
 from plexus.api.context import ApiContext, activation_props, is_missing_graph, log
 from plexus.common import OPEN
+from plexus.lineage import Lineage
 
 MAX_ID = 128
 
@@ -20,25 +20,13 @@ MAX_ID = 128
 def router(ctx: ApiContext) -> APIRouter:
     r = APIRouter()
 
-    def lineage_module():
-        try:
-            return importlib.import_module("plexus.lineage")
-        except ImportError:
-            raise HTTPException(501, "Lineage is not installed in this deployment") from None
-
-    def lineage(tenant: str):
+    def lineage(tenant: str) -> Lineage:
         """A ``Lineage`` bound to the tenant graph over the read-only client (it cannot write)."""
-        cls = getattr(lineage_module(), "Lineage", None)
-        if cls is None:
-            raise HTTPException(501, "this Lineage build has no Lineage class")
-        return cls(ctx.ro, ctx.graph_of(tenant))
+        return Lineage(ctx.ro, ctx.graph_of(tenant))
 
     def explain(tenant: str, method: str, arg: Any, model: Any, ident: str):
-        lin = lineage(tenant)
-        if not hasattr(lin, method):
-            raise HTTPException(501, f"this Lineage build has no {method}()")
         try:
-            result = getattr(lin, method)(arg)
+            result = getattr(lineage(tenant), method)(arg)
         except (LookupError, ValueError) as exc:
             raise HTTPException(404, str(exc)) from None
         except ResponseError as exc:

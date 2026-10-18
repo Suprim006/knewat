@@ -37,7 +37,7 @@ from plexus.mcp.audit_policy import AuditMode, AuditPolicy, ToolKind
 from plexus.mcp.embedding import CheckedEmbedder, make_embedder
 from plexus.mcp.lineage_hook import HOOK_NODE_KEYS, LINK_CHUNK, WROTE_LABELS
 from plexus.mcp.metering import AUXILIARY_PREFIX, MeteredClient, Outcome
-from plexus.mcp.tenant import TenantState, lineage_class
+from plexus.mcp.tenant import TenantState
 from plexus.relay import RelayError
 
 __all__ = [
@@ -51,7 +51,6 @@ __all__ = [
     "Outcome",
     "Runtime",
     "TenantState",
-    "lineage_class",
 ]
 
 log = logging.getLogger("plexus.mcp")  # stderr only: stdout is the stdio protocol channel
@@ -321,7 +320,7 @@ class Runtime:
     def _open_step(
         self, ts: TenantState, agent_id: str, step: int | None, at: int, degraded: list[str]
     ) -> str | None:
-        """The agent's Step for this call (get-or-create by (agent, n)); ``None`` without Lineage."""
+        """The agent's Step for this call (get-or-create by (agent, n))."""
         return lineage_hook.open_step(self.client, ts, agent_id, step, at, degraded)
 
     def _attach(

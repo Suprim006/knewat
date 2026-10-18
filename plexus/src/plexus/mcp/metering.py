@@ -90,7 +90,7 @@ class Outcome:
     created: Sequence[Ref] = ()
     updated: Sequence[Ref] = ()
     step_id: str | None = None  # ignored: the runtime sets it from Lineage.record_step
-    # Lineage attachment (ignored when plexus.lineage is not installed):
+    # Lineage attachment:
     read_ids: Sequence[str] = ()  # Facts the call looked at -> (Step)-[:READ]->(Fact)
     assert_result: dict[str, Any] | None = None  # Engram.assert_fact result -> Lineage.link_assert_result
     linked: Sequence[
