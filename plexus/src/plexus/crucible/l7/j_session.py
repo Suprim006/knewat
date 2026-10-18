@@ -123,10 +123,6 @@ class TenantPool:
 
 
 # ------------------------------------------------------------------------------------------------ call classes
-class Domain(Exception):
-    """A domain outcome that is not an error (claim conflict)."""
-
-
 def classify_error(exc: BaseException) -> str:
     """Error class of a failed call (pre-registered classes + ``connection`` / ``unknown_ref`` split out of 'other')."""
     s = f"{type(exc).__name__}: {exc}".lower()

@@ -56,8 +56,8 @@ class SqlC:
 
     The fan of an entered entity is counted inside the statement (a correlated ``count(*)`` over ``facts(entity_id)``, the
     index the tuned file has), the same work the Cypher arm does when it counts ``ABOUT`` edges live; the stored
-    ``entities.fan`` column is not read. (A first draft materialised ``GROUP BY entity_id`` over every fact per question;
-    the per-entity count is what a SQL author tuning for latency writes, and it was chosen before the registered run.)"""
+    ``entities.fan`` column is not read (this per-entity count is what a latency-tuning SQL author writes; chosen before
+    the registered run)."""
 
     def __init__(self, path: str):
         self.conn = sqlite3.connect(
@@ -171,12 +171,6 @@ class TunedC(A.CypherArm):
             return _answer([]), A.meta(t0, self.server_ms, self.statements, "timeout")
         found.sort(key=lambda t: (round(t[0], 9), t[1], t[2], t[3]))
         return _answer([t[3] for t in found[:5]]), A.meta(t0, self.server_ms, self.statements)
-
-    def explain_hop(self, frontier: list[str]) -> Any:
-        return self.g.explain(HOP_CYPHER, {"frontier": frontier})
-
-    def profile_hop(self, frontier: list[str]) -> Any:
-        return self.g.profile(HOP_CYPHER, {"frontier": frontier})
 
 
 # ------------------------------------------------------------------------------------------------ P-product / P-flat

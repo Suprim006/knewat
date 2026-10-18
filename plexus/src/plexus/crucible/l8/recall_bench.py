@@ -319,16 +319,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument("--embedder", default="hash", help="hash (as L8) or fastembed (BGE, the product default)")
     ap.add_argument("--detail", default=None, choices=("compact", "full"), help="force recall's detail (P12)")
-    ap.add_argument(
-        "--resummarise", type=Path, default=None, help="recompute the summary of an existing file"
-    )
     a = ap.parse_args(argv)
-    if a.resummarise:
-        rec = json.loads(a.resummarise.read_text(encoding="utf-8"))
-        rec["summary"] = summarise(rec["seeds"])
-        a.resummarise.write_text(json.dumps(rec, indent=1) + "\n", encoding="utf-8", newline="\n")
-        print(json.dumps(rec["summary"], indent=1))
-        return 0
     if not a.label:
         ap.error("--label is required")
     canonical = canonical_targets()

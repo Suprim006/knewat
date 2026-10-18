@@ -527,12 +527,11 @@ def score_run(run_dir: Path, seed_dir: Path) -> dict[str, Any]:
     prov = provenance(uses, dump, killed_turns, arm, turn_info)
 
     # ---- §6.8 recovery
-    recov = recovery(run, uses, T, file_tokens_at=_file_state_fn(uses), mcp=mcp, dump=dump, completed=completed,
-                     run_dir=run_dir)  # fmt: skip
+    recov = recovery(run, uses, T, file_tokens_at=_file_state_fn(uses), mcp=mcp, run_dir=run_dir)
 
     # ---- completion & history recall
     final_art = {t.id: (run_dir / t.artifact_path) for t in S.TASKS}
-    tasks_done = _tasks_done(run, dump, run_dir, mcp)
+    tasks_done = _tasks_done(dump, run_dir, mcp)
     hist = {}
     for tid, needs in S.HISTORY_NEEDS.items():
         p = final_art[tid]
@@ -657,7 +656,7 @@ def _file_state_fn(uses: list[Ev]):  # noqa: ANN202
     return at
 
 
-def _tasks_done(run: dict[str, Any], dump: dict[str, Any], run_dir: Path, mcp: bool) -> int:
+def _tasks_done(dump: dict[str, Any], run_dir: Path, mcp: bool) -> int:
     if mcp:
         st = {t["id"]: t["status"] for t in dump.get("tasks", [])}
         return sum(1 for t in S.TASKS if st.get(t.id) == "done")
@@ -823,8 +822,9 @@ def provenance(uses: list[Ev], dump: dict[str, Any], killed_turns: set[int], arm
             "without_record": lost[:50]}  # fmt: skip
 
 
-def recovery(run: dict[str, Any], uses: list[Ev], T: Truth, *, file_tokens_at: Any, mcp: bool, dump: dict[str, Any],
-             completed: dict[str, int], run_dir: Path) -> list[dict[str, Any]]:  # fmt: skip
+def recovery(
+    run: dict[str, Any], uses: list[Ev], T: Truth, *, file_tokens_at: Any, mcp: bool, run_dir: Path
+) -> list[dict[str, Any]]:
     out = []
     kills = [e for e in run["events"] if e["event"] == "kill"]
     for k in kills:
