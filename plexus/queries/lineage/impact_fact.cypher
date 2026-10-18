@@ -1,9 +1,9 @@
 // name: lineage/impact_fact
-// purpose: READ-ONLY blast radius of a Fact: the Fact itself and every Fact derived from it through up to $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and the Tasks those decisions are FOR) and the Handoffs that CARRY them. Nothing is written.
+// purpose: READ-ONLY blast radius of a Fact: the Fact itself and every Fact derived from it within $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and their Tasks) and the Handoffs that CARRY them. Nothing is written.
 // params: id:str, depth:int, limit:int
-// returns: fact_ids, statuses, fact_ats, fact_created (parallel lists; at most `limit` facts, any status; fact_ats = valid_from, fact_created = created_at: P9-f), truncated (true when `limit` facts were hit), steps_total, agent_ids (every agent that read one; never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such Fact.
+// returns: fact_ids, statuses, fact_ats (valid_from), fact_created (created_at) (parallel lists; at most `limit` facts, any status), truncated (true when `limit` facts were hit), steps_total, agent_ids (never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such Fact.
 // mode: ro
-// Same level-wise expansion as lineage/forget_source (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. The joins are four CALL subqueries, each reading the collected fact list ONCE as one Unwind -> Conditional Traverse from the bound fact (P9-int: the old form carried the 5,000-element list as a grouping key through three UNWINDs, which hashed it once per row and never finished). One statement = one snapshot.
+// Same level-wise expansion as lineage/forget_source (D-014: a diamond lineage costs its edges, not its paths). The joins are four CALL subqueries that each read the collected fact list once, so the list is never a grouping key (it was hashed once per row and never finished).
 MATCH (src:Fact {id: $id})
 OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(src)
 WITH src, collect(DISTINCT n1) AS l1

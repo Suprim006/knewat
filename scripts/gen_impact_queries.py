@@ -1,8 +1,7 @@
 """Generate ``plexus/queries/lineage/impact_source.cypher`` and ``impact_fact.cypher`` (never hand-edit 12 copies).
 
-Run from the repo root: ``python scripts/gen_impact_queries.py``. Both files share the same 12-hop level-wise
-expansion as ``lineage/quarantine`` and ``forget_source``; the joins to readers / decisions / handoffs / tasks are four
-``CALL`` subqueries that each read the collected fact list once (P9-int).
+Run from the repo root: ``python scripts/gen_impact_queries.py``. Both files share the 12-hop level-wise expansion of
+``lineage/quarantine`` and ``forget_source``, then four ``CALL`` subqueries read the collected fact list once each.
 """
 
 from __future__ import annotations
@@ -13,21 +12,18 @@ QUERIES = Path(__file__).resolve().parent.parent / "plexus" / "queries" / "linea
 MAX_DEPTH = 12
 
 HEADER = """// name: lineage/impact_{kind}
-// purpose: READ-ONLY blast radius of a {Kind}: {what} through up to $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and the Tasks those decisions are FOR) and the Handoffs that CARRY them. Nothing is written.
+// purpose: READ-ONLY blast radius of a {Kind}: {what} within $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and their Tasks) and the Handoffs that CARRY them. Nothing is written.
 // params: id:str, depth:int, limit:int
-// returns: {corroborated}fact_ids, statuses, fact_ats, fact_created (parallel lists; at most `limit` facts, any status; fact_ats = valid_from, fact_created = created_at: P9-f), truncated (true when `limit` facts were hit), steps_total, agent_ids (every agent that read one; never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such {Kind}.
+// returns: {corroborated}fact_ids, statuses, fact_ats (valid_from), fact_created (created_at) (parallel lists; at most `limit` facts, any status), truncated (true when `limit` facts were hit), steps_total, agent_ids (never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such {Kind}.
 // mode: ro
-// Same level-wise expansion as lineage/{twin} (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. The joins are four CALL subqueries, each reading the collected fact list ONCE as one Unwind -> Conditional Traverse from the bound fact (P9-int: the old form carried the 5,000-element list as a grouping key through three UNWINDs, which hashed it once per row and never finished). One statement = one snapshot.{note}
+// Same level-wise expansion as lineage/{twin} (D-014: a diamond lineage costs its edges, not its paths). The joins are four CALL subqueries that each read the collected fact list once, so the list is never a grouping key (it was hashed once per row and never finished).{note}
 """
 
 CORROBORATED_COL = (
-    "corroborated_ids (P13, source only: the reached facts that have a direct DERIVED_FROM edge to ANOTHER Source that is not quarantined, "
-    "i.e. the ones lineage/quarantine would keep visible; a subset of fact_ids, uncut: the caller slices), "
+    "corroborated_ids (source only: reached facts with a direct DERIVED_FROM edge to ANOTHER Source that is not quarantined, "
+    "i.e. the ones lineage/quarantine keeps visible; a subset of fact_ids, uncut), "
 )
-CORROBORATED_NOTE = (
-    " P13 (D-015): corroborated_ids is one more CALL subquery in the same shape (UNWIND the collected list, one pattern comprehension of "
-    "the fact's Source edges, one aggregate row out), so it reads the cascade's own Source edges once and nothing else."
-)
+CORROBORATED_NOTE = " corroborated_ids is one more CALL subquery of the same shape (D-015)."
 
 
 def build(kind: str) -> str:

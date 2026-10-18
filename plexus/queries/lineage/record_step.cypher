@@ -1,10 +1,10 @@
 // name: lineage/record_step
 // purpose: ONE atomic statement: create the agent's next Step (BY the agent, NEXT from its previous Step). Idempotent per (agent, n).
 // params: agent_id:str, step_id:str, n:int, at:int
-// returns: step_id (null if refused), n (the step number used), created (bool), previous_id (id of the preceding Step when a Step was created, else null: an idempotent repeat or a refused call has no predecessor to report).
-//   created=false with step_id set = a Step with that n already existed (returned unchanged); step_id null = out of order (a later n exists).
+// returns: step_id (null if refused), n (the step number used), created (bool), previous_id (the preceding Step when one was created, else null).
+//   created=false with step_id set = a Step with that n already existed; step_id null = out of order (a later n exists).
 // mode: rw
-// n < 0 means "auto": previous n + 1 (1 for the first step). Steps must be recorded in increasing n: the NEXT chain is append-only.
+// n < 0 means "auto": previous n + 1 (1 for the first step). Steps are recorded in increasing n: the NEXT chain is append-only.
 MERGE (a:Agent {id: $agent_id})
   ON CREATE SET a.name = $agent_id, a.created_at = $at
 WITH a

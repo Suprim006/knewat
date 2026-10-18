@@ -1,16 +1,10 @@
 // name: lineage/release_quarantine
-// purpose: ONE atomic statement (stretch): undo lineage/quarantine for a Source: quarantined facts that reach it through DERIVED_FROM*1..$depth (1..12; use the depth the quarantine used, default 8) get their prior status back.
+// purpose: ONE atomic statement (stretch): undo lineage/quarantine for a Source. Quarantined facts reaching it through DERIVED_FROM within $depth hops (1..12; use the depth the quarantine used) get their prior status back.
 // params: source_id:str, limit:int, depth:int
 // returns: fact_ids (facts restored), truncated. Zero rows = no such Source.
 // mode: rw
-// P13 (D-015): also clears Source.quarantined_at, so the Source counts as live again for the facts it shares with other (still quarantined) Sources: a fact hidden because ALL its sources were quarantined is restored as soon as ONE of them
-// is released (it reaches the released Source, so it is in the cascade). Corroborated facts were never touched by quarantine, so there is nothing to undo for them.
-// Facts quarantined through ANOTHER source are restored too if they also reach this one; release the sources you trust again, in the order you like.
-// Plan shape (P5 review Q3, P9-b): the cascade is expanded level by level FROM the Source (up to 12 fixed one-hop OPTIONAL MATCHes, each driven by the
-// DISTINCT facts found at the previous level and skipped once $depth is reached), so the work follows DERIVED_FROM edges and a diamond lineage
-// (fan-in 3, depth 12 = ~500k paths, 60 facts) costs its edges, not its paths. `(f:Fact)-[:DERIVED_FROM*1..N]->(src)` would be planned from the
-// Fact side (a scan of EVERY fact) and enumerates paths. A fact that is only a stepping stone (status not selected) still links the facts behind it
-// to the source.
+// Also clears Source.quarantined_at (D-015): a fact hidden because ALL its sources were quarantined is restored as soon as ONE is released. Facts quarantined through another source are restored too if they also reach this one. Corroborated facts were never touched.
+// Cascade: same level-wise expansion as lineage/quarantine (D-014).
 MATCH (src:Source {id: $source_id})
 OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(src)
 WITH src, collect(DISTINCT n1) AS l1

@@ -1,16 +1,13 @@
 // name: lineage/record_recall
-// purpose: ONE atomic statement: store a Recall (BY the agent, IN_STEP) with RETURNED{rank,score} edges to every returned Fact, and (Step)-[:READ]->(Fact) for each. All-or-nothing.
+// purpose: ONE atomic statement: store a Recall (BY the agent, IN_STEP) with RETURNED{rank,score,sep} edges to every returned Fact, and (Step)-[:READ]->(Fact) for each. All-or-nothing.
 // params: recall_id:str, agent_id:str, step_id:str, query:str, scope_id:str, k:int, now:int,
 //   fact_ids:list[str], results:list[map], entities:list[str], separation:bool
 // returns: id, returned (number of facts linked). Zero rows = step_id is non-empty but unknown, or some fact id does not exist; nothing written.
 // mode: rw
-// READ provenance (D-012): the READ edge is created with via='recall' (surfaced, not acted on; weight 0.3 in the activation) and at=$now. One READ per (step, fact):
-// on a re-MERGE a 'use' stays a 'use' and `at` moves forward. P7-04/10: READ.suspect = whether the fact was doubted AT that time by the contract rule (verify_state = 'suspect' OR verify_after <= $now); it moves with `at`. The activation model never counts a recall READ with suspect = true, however the fact is judged later. Edges written before P7 have no via/at and count as 'recall' at the Step's time.
-// step_id is '' when the caller has no Step (then no IN_STEP / READ edges). results = [{fact_id, rank, score, sep}], fact_ids = their de-duplicated ids (<= 200).
-// D-013: Recall.entities = the entity ids the query named (pattern separation), Recall.separation = whether it was on; RETURNED.sep = the entity lift of that row (0 when none).
-// The facts are matched first and their count compared with size($fact_ids) so a bad id writes nothing (same pattern as relay/handoff);
-// the Agent MERGE comes after that guard, so a rejected call does not leave a new Agent behind (P5 review Q8).
-// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `OPTIONAL MATCH (x:L) WHERE x.id IN $l`: on FalkorDB 6.0.2 an empty `IN $l` scans the whole id index of L (the '' placeholder seeks and matches nothing: no id is '').
+// READ provenance (D-012): created with via='recall' (surfaced, not acted on) and at=$now; a 'use' stays a 'use' on re-MERGE and `at` moves forward. READ.suspect = whether the fact was doubted AT that time (verify_state = 'suspect' OR verify_after <= $now); the activation model never counts a recall READ with suspect = true.
+// step_id '' = no Step (no IN_STEP / READ edges). results = [{fact_id, rank, score, sep}], fact_ids = their de-duplicated ids (<= 200). Recall.entities / Recall.separation record the pattern-separation cue (D-013).
+// The facts are matched first and their count compared with size($fact_ids), so a bad id writes nothing; the Agent MERGE comes after that guard, so a rejected call leaves no new Agent.
+// Empty-list form: `UNWIND CASE WHEN size($l) = 0 THEN [''] ELSE $l END AS k OPTIONAL MATCH (x:L {id: k})` instead of `WHERE x.id IN $l`: on 6.0.2 an empty `IN $l` scans the whole id index.
 OPTIONAL MATCH (st:Step {id: $step_id})
 WITH st
 WHERE $step_id = '' OR st IS NOT NULL

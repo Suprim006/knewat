@@ -1,21 +1,12 @@
 // name: lineage/forget_source
-// purpose: ONE atomic statement: forget everything derived from a Source: every Fact reaching it through (f)-[:DERIVED_FROM*1..depth]->(src) (depth = $depth, 1..12, callers default to 8) gets status 'forgotten' and valid_to = min(valid_to, now) - unless another Source still supports it (P13, D-015): then only its edge to this Source is deleted. Decisions BASED_ON the forgotten facts are flagged (not deleted).
+// purpose: ONE atomic statement: forget everything derived from a Source. Every Fact reaching it through DERIVED_FROM within $depth hops (1..12) gets status 'forgotten' and valid_to = min(valid_to, now), unless another Source still supports it (D-015): then only its edge to this Source is deleted. Decisions BASED_ON the forgotten facts are flagged, not deleted.
 // params: source_id:str, now:int, limit:int, depth:int, reason:str, max_detail:int
-// returns: fact_ids (facts FORGOTTEN by this call), unlinked [{fact_id, other_sources}] (reached facts that keep another Source: their edge to this Source is deleted, the fact is not forgotten; at most max_detail listed), unlinked_total (exact), decision_ids (decisions flagged; at most max_detail listed), decisions_total, handoff_ids (handoffs that CARRY a forgotten fact, reported only; at most max_detail listed), handoffs_total, truncated (true when `limit` facts were hit: call again to continue). Zero rows = no such Source.
+// returns: fact_ids (forgotten by this call), unlinked [{fact_id, other_sources}] (reached facts that keep another Source: edge to this Source deleted, fact kept; at most max_detail listed), unlinked_total (exact), decision_ids (flagged; at most max_detail listed), decisions_total, handoff_ids (handoffs that CARRY a forgotten fact, reported only; at most max_detail listed), handoffs_total, truncated (true when `limit` facts were hit: call again). Zero rows = no such Source.
 // mode: rw
-// A 'dormant' fact (moved by memory_sweep) is forgotten too, so restore_fact cannot bring it back (P7-int).
-// Idempotent: facts that are already 'forgotten' are skipped, so a second call changes nothing. The write is bounded by $limit (callers use <= 5000) because LIMIT does not stop eager writes: it is applied BEFORE the SET.
-// Multi-source (P13, D-015; was: 'a fact derived from several sources is forgotten as soon as ANY of them is forgotten'): a reached fact with a direct edge to some OTHER Source is UNLINKED - the
-// (fact)-[:DERIVED_FROM]->(this Source) edge is deleted (inside a CALL, the only write there), the fact keeps its status; if every remaining Source is quarantined the fact becomes 'quarantined' (prior_status kept) because nothing live supports it any more.
-// A fact whose only Source is this one (or a derived fact without a direct Source) is forgotten as before. Forgetting the second Source later forgets the fact: its remaining edge is the last one. Same direct-edge limitation as lineage/quarantine.
-// The decision / handoff lists in the response are cut at max_detail (the totals are exact); every affected decision is still flagged.
-// decisions / handoffs describe only the facts this call forgot (already-forgotten facts are skipped, unlinked facts are not forgotten).
-// Tail (audit B1): decisions and handoffs are CALL { WITH fs ... } subqueries returning key-less aggregates, so the fact list is never a grouping key (it was hashed once per row: quadratic).
-// Plan shape (P5 review Q3, P9-b): the cascade is expanded level by level FROM the Source (up to 12 fixed one-hop OPTIONAL MATCHes, each driven by the
-// DISTINCT facts found at the previous level and skipped once $depth is reached), so the work follows DERIVED_FROM edges and a diamond lineage
-// (fan-in 3, depth 12 = ~500k paths, 60 facts) costs its edges, not its paths. `(f:Fact)-[:DERIVED_FROM*1..N]->(src)` would be planned from the
-// Fact side (a scan of EVERY fact) and enumerates paths. A fact that is only a stepping stone (status not selected) still links the facts behind it
-// to the source.
+// Idempotent (already 'forgotten' facts are skipped). A 'dormant' fact is forgotten too. $limit bounds the write because LIMIT does not stop eager writes: it is applied BEFORE the SET.
+// Multi-source (D-015): a reached fact with a direct edge to some OTHER Source is unlinked (the edge delete is the only write inside a CALL); if every remaining Source is quarantined it becomes 'quarantined' (prior_status kept). Direct Source edges only, as in lineage/quarantine.
+// decisions / handoffs describe only the facts this call forgot. They are CALL { WITH fs ... } subqueries returning key-less aggregates, so the fact list is never a grouping key (D-014).
+// Cascade (D-014): expanded level by level FROM the Source (12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached), so a diamond lineage costs its edges, not its paths; `(f:Fact)-[:DERIVED_FROM*1..N]->(src)` is planned from the Fact side (scans every fact) and enumerates paths.
 MATCH (src:Source {id: $source_id})
 OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(src)
 WITH src, collect(DISTINCT n1) AS l1
