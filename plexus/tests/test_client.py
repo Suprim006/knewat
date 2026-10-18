@@ -1,9 +1,7 @@
-import asyncio
-
 import pytest
 from redis.exceptions import BusyLoadingError, RedisError, ResponseError
 
-from plexus.graph.client import AsyncGraphClient, GraphClient, Rows
+from plexus.graph.client import GraphClient, Rows
 from plexus.graph.queries import QueryLibrary, ReadOnlyViolation
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
@@ -98,33 +96,6 @@ def test_env_defaults(monkeypatch):
 
 def test_delete_graph_missing_is_ok(client):
     client.delete_graph("test_does_not_exist_ever")
-
-
-@pytest.fixture
-async def aclient(tmp_path):
-    c = AsyncGraphClient(
-        host=TEST_DB_HOST,
-        port=TEST_DB_PORT,
-        password="",
-        library=_lib(tmp_path, LIB_FILES),
-        max_connections=8,
-    )
-    yield c
-    await c.aclose()
-
-
-async def test_async_client_rw_ro_and_concurrency(aclient, empty_graph):
-    first = await aclient.rw(empty_graph, "t/put", {"id": "a", "n": 1})
-    assert first == [{"id": "a", "n": 1}] and first.run_time_ms >= 0
-    with pytest.raises(ReadOnlyViolation):
-        await aclient.ro(empty_graph, "t/put", {"id": "b", "n": 2})
-
-    # 40 concurrent reads over a pool of 8: the blocking pool queues instead of failing.
-    rows = await asyncio.gather(*(aclient.ro(empty_graph, "t/get", {"id": "a"}) for _ in range(40)))
-    assert all(r == [{"id": "a", "n": 1}] for r in rows)
-    assert aclient.pool.max_connections == 8
-
-    await aclient.delete_graph("test_does_not_exist_ever")
 
 
 # ---------------------------------------------------------------- sync pool: waits instead of failing

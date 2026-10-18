@@ -16,9 +16,9 @@ SCHEMA_QUERIES = ("schema/indexes", "schema/fulltext", "schema/vector")
 # Labels whose `id` is UNIQUE (graph model v1 §2). Each needs its exact-match index first (schema/indexes).
 UNIQUE_LABELS = ("Task", "Fact", "Agent", "Decision", "Handoff")
 
-# P9-d: Entity.norm_name is UNIQUE too, as the backstop behind `engram/resolve_entity` (the MERGE key). A
-# graph that already holds two entities with one norm_name leaves this constraint FAILED: that is reported
-# (warning, `plexus migrate entities`), never raised, so a legacy tenant keeps starting.
+# Entity.norm_name is UNIQUE too, the backstop behind `engram/resolve_entity`. A graph that already holds
+# two entities with one norm_name leaves this constraint FAILED: reported as a warning
+# (`plexus migrate entities`), never raised, so a legacy tenant keeps starting.
 ENTITY_KEY = ("Entity", "norm_name")
 
 # FalkorDB 6.0.2 messages when the object is already there (verified live):
@@ -26,8 +26,7 @@ ENTITY_KEY = ("Entity", "norm_name")
 #   GRAPH.CONSTRAINT CREATE ... -> "Constraint already exists"
 ALREADY_EXISTS = ("already indexed", "constraint already exists")
 # A schema command that meets another process's in-flight index/constraint build on the same graph fails
-# with this (FalkorDB 6.0.2); it is transient, so apply_schema retries it until timeout_s (P12: two processes
-# applying the schema at once, e.g. the L1 C2 victim and its parent, hit it once the Fact index grew).
+# with this (6.0.2); it is transient, so apply_schema retries it until timeout_s.
 BUSY = "another write is in progress"
 
 

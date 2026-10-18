@@ -1,6 +1,6 @@
 """Graph layer: client, tenancy, query library, schema."""
 
-from plexus.graph.client import AsyncGraphClient, GraphClient, Rows
+from plexus.graph.client import GraphClient, Rows
 from plexus.graph.queries import (
     MissingParam,
     QueryLibrary,
@@ -12,7 +12,6 @@ from plexus.graph.schema import apply_schema
 from plexus.graph.tenancy import graph_name, test_graph_name
 
 __all__ = [
-    "AsyncGraphClient",
     "GraphClient",
     "MissingParam",
     "QueryLibrary",

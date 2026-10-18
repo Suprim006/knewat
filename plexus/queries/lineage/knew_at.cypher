@@ -1,9 +1,9 @@
 // name: lineage/knew_at
-// purpose: Time machine, "what did agent X know at step N": the facts it had READ at or before step N that were still valid at that step's time (valid_from <= at < valid_to), plus everything its Steps WROTE up to N.
+// purpose: Time machine, "what did agent X know at step N": the facts it had READ at or before step N that were still valid at that step's time, plus everything its Steps WROTE up to N.
 // params: agent_id:str, n:int, limit:int
-// returns: kind ('read' | 'wrote'), id, label, entity, predicate, value, status, valid_from, valid_to, summary, step_n (first step that read / the step that wrote it), at_step (the step used as the cut: highest step with n <= N), at_time (that step's time). No rows when the agent has no step <= N.
+// returns: kind ('read' | 'wrote'), id, label, entity, predicate, value, status, valid_from, valid_to, summary, step_n (first step that read / the step that wrote it), at_step (the cut step), at_time (its time). No rows when the agent has no step <= N.
 // mode: ro
-// The cut step is the agent's latest step with n <= $n, so asking for step 10 when the agent stopped at 7 answers for step 7.
+// The cut step is the agent's latest step with n <= $n, so asking for step 10 when the agent stopped at 7 answers for step 7. Valid means valid_from <= at < valid_to.
 MATCH (cut:Step {agent_id: $agent_id}) WHERE cut.n <= $n
 WITH cut ORDER BY cut.n DESC LIMIT 1
 MATCH (s:Step {agent_id: $agent_id})-[:READ]->(f:Fact)

@@ -18,9 +18,7 @@ MAX_TASKS_PER_CALL = 500
 MAX_EDGES_PER_CALL = 5000
 MAX_ARTIFACTS_PER_CALL = 100
 MAX_REFS_PER_CALL = 100
-MAX_BLOCKED_DEPTH = (
-    50  # blocked_by_failure: BFS levels (was 10: a 24-layer DAG lost 84 of 144 tasks silently)
-)
+MAX_BLOCKED_DEPTH = 50  # blocked_by_failure: BFS levels
 MAX_BLOCKED_NODES = 5000  # blocked_by_failure: distinct tasks returned
 MAX_LEASE_MS = 24 * 3600 * 1000  # longest lease a claim / heartbeat may ask for (24 h)
 
@@ -412,11 +410,9 @@ class Relay:
     def blocked_by_failure(self, task_id: str, depth: int = MAX_BLOCKED_DEPTH) -> list[str]:
         """Not-done tasks that depend (transitively, up to ``depth`` hops, 1..50) on ``task_id``.
 
-        Nearest first, then by id. Level-wise expansion over distinct tasks (linear in the edges touched,
-        unlike path enumeration, which is exponential on layered DAGs) inside ONE read statement,
-        ``relay/dependents_closure`` (P9-f): the answer is one snapshot even while tasks are being added; the
-        old loop (one ``relay/dependents_of`` statement per level) could mix levels from different moments.
-        At most 5,000 tasks are returned. Done tasks are walked through but not reported.
+        Nearest first, then by id. Level-wise expansion over distinct tasks (linear in the edges touched)
+        inside ONE read statement, ``relay/dependents_closure`` (D-014): one snapshot even while tasks are
+        being added. At most 5,000 tasks are returned. Done tasks are walked through but not reported.
         """
         check_between("depth", depth, MAX_BLOCKED_DEPTH)
         rows = self.client.ro(

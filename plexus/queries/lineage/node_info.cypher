@@ -1,9 +1,9 @@
 // name: lineage/node_info
 // purpose: Display properties (no embeddings) of the nodes named by id, for the View and for explanations, one row per node.
 // params: ids:list[str]
-// returns: id, label, props (map of the key properties of that label; Fact props include the P7 verify_state, suspect_since, surprise, pinned with their defaults)
+// returns: id, label, props (map of the key properties of that label; Fact props include verify_state, suspect_since, surprise, pinned with their defaults)
 // mode: ro
-// Each label branch uses that label's id index, so cost is proportional to the number of ids, not the graph size. Episode text is cut to 200 chars.
+// Each label branch uses that label's id index, so cost follows the number of ids, not the graph size. Episode text is cut to 200 chars.
 MATCH (n:Fact) WHERE n.id IN $ids
 RETURN n.id AS id, 'Fact' AS label, {predicate: n.predicate, value: n.value, status: n.status, valid_from: n.valid_from,
   valid_to: n.valid_to, recorded_at: n.recorded_at, confidence: n.confidence, subject_id: n.subject_id,

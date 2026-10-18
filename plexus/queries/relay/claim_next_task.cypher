@@ -4,12 +4,9 @@
 // returns: id, title, priority, version, lease_until, claimed_by, reclaimed_from ('' unless an expired lease was
 //   taken over; then the previous claimer). Zero rows = nothing claimable (or unknown agent).
 // mode: rw
-// step_id (P12 fix 2): the Step opened before this call ('' = none); the claimed task is linked (Step)-[:WROTE]->(Task) in the same statement (crash-consistency).
-// Candidates: status 'open', or status 'claimed' whose lease expired (lease_until < now). A candidate is ready
-// only when it has no DEPENDS_ON target whose status is not 'done' (a failed dependency blocks it forever).
-// Writes are serialised per graph and this is a single statement, so two agents can never win the same task.
-// The ORDER BY ... LIMIT 1 happens BEFORE any write (LIMIT does not stop eager writes). The dependency check
-// uses OPTIONAL MATCH + count(), not a pattern-comprehension size([...]) (reference section 2, item 13).
+// step_id: the Step opened before this call; the claimed task is linked (Step)-[:WROTE]->(Task) in the same statement.
+// Candidates: status 'open', or 'claimed' with an expired lease (lease_until < now). Ready = no DEPENDS_ON target whose status is not 'done' (a failed dependency blocks it forever).
+// Writes are serialised per graph and this is one statement, so two agents never win the same task. ORDER BY ... LIMIT 1 happens BEFORE any write (LIMIT does not stop eager writes). The dependency check uses OPTIONAL MATCH + count(), not size([...]) (reference section 2, item 13).
 MATCH (a:Agent {id: $agent})
 MATCH (t:Task)
 WHERE t.status IN ['open', 'claimed'] AND (t.status = 'open' OR t.lease_until < $now)

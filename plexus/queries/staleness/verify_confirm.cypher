@@ -3,8 +3,8 @@
 // params: fact_id:str, agent_id:str, commit:str, evidence:str, now:int, open_to:int, unfinished_reason:str
 // returns: fact_id. Zero rows = no such fact (nothing is written, not even the Agent).
 // mode: rw
-// Also clears Fact.verify_degraded (an interrupted verify_fact(changed) that never reached the supersede, P12-F3) and lifts the provisional decision flags staleness/mark_unfinished wrote (flag_reason = $unfinished_reason); decisions flagged for any other reason stay flagged.
-// A review date (verify_after) that has already passed is consumed: it is reset to open_to, otherwise the fact would stay suspect by the date rule. A future review date is kept. SUSPECTED edges are never touched (they are the history).
+// Also clears Fact.verify_degraded and lifts the provisional decision flags staleness/mark_unfinished wrote (flag_reason = $unfinished_reason); decisions flagged for another reason stay flagged.
+// A review date (verify_after) that has passed is consumed (reset to open_to), otherwise the fact would stay suspect by the date rule; a future one is kept. SUSPECTED edges are never touched (they are the history).
 MATCH (f:Fact {id: $fact_id})
 OPTIONAL MATCH (d:Decision {flag_reason: $unfinished_reason})-[:BASED_ON]->(f)
 WITH f, collect(DISTINCT d) AS ds

@@ -1,20 +1,11 @@
 // name: schema/indexes
-// purpose: Range (exact-match / range) indexes from graph model v1: id on every label, plus the hot filter properties.
+// purpose: Range indexes, each on a single property (no composite indexes): id on every label, created_at on every label (serves view/subgraph: a range seek per label instead of an All Node Scan), plus the hot filter properties.
 // params: none
 // returns: nothing (one CREATE INDEX per statement; re-running errors with "already indexed", which apply_schema tolerates)
 // mode: rw
 // split: ;
-// Why: id lookups are the entry point of every query and the UNIQUE constraints need these; Fact(subject_id,
-// predicate, valid_to, status) serve current-fact and as-of lookups; Task(status) serves ready-task scans;
-// Step(n) and ToolCall(at) serve time-travel and the flow feed. Each property is its own single-property index (there are no
-// composite indexes). Step(agent_id) serves record_step / knew_at; Source(uri), Scope(name) and Procedure(task_type) serve
-// the MERGE keys of create_source / create_scope / log_procedure_run and the best_procedure filter (P5 review Q4).
-// P7-J staleness (graph model v1.1): CodeAnchor(id, path) serve the anchor MERGE and the file-level symbol lookup, Change(id, at) the
-// change feed (docs_to_update), Fact(verify_state, verify_after) the suspect scan (facts_to_verify: equality branch and review-date range branch). Range indexes only; apply_schema stays idempotent.
-// P12-F3: Fact(verify_degraded) serves the unfinished-verification branch of staleness/suspect_ids.
-// P7-int: created_at on CodeAnchor / Change (so view/subgraph can seek them too) and Fact(pinned) (view/inventory_memory's pinned count).
-// created_at on all 18 labels serves view/subgraph (the Explorer's label / time-window filter): one index range seek per label
-// instead of an All Node Scan of the graph (P5-int Q5).
+// Why: id lookups open every query and the UNIQUE constraints need them; Fact(subject_id, predicate, valid_to, status) serve current-fact and as-of lookups; Task(status) ready-task scans; Step(n, agent_id) and ToolCall(at) time travel and the flow feed; Source(uri), Scope(name), Procedure(task_type) the MERGE keys of create_source / create_scope / log_procedure_run.
+// Staleness: CodeAnchor(id, path), Change(id, at), Fact(verify_state, verify_after, verify_degraded, pinned) serve the anchor MERGE, the change feed and the suspect scan (staleness/suspect_ids, view/inventory_memory).
 CREATE INDEX FOR (n:Agent) ON (n.id);
 CREATE INDEX FOR (n:Scope) ON (n.id);
 CREATE INDEX FOR (n:Session) ON (n.id);

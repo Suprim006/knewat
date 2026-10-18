@@ -1,20 +1,10 @@
 // name: lineage/why_edges
-// purpose: The whole provenance subgraph behind a Decision or a Fact in ONE read statement (one snapshot): a flat edge list with the display properties of both ends.
+// purpose: The whole provenance subgraph behind a Decision or a Fact in ONE read statement (one snapshot, D-014): a flat edge list with the display properties of both ends.
 // params: id:str, limit:int, depth:int, derived_limit:int
-// returns: s, sl, rel, t, tl, prio, lv, sp, tp. One row per distinct edge: stored direction s -[rel]-> t with the node ids, labels and display properties (sp / tp, the maps lineage/node_info returns); prio orders the rows for truncation (1 = closest to the root) and lv is the DERIVED_FROM level of an ancestry row (0 otherwise). A row with rel = 'SELF' carries the root itself (s = t = $id). No row = the id is not a Decision or a Fact.
+// returns: s, sl, rel, t, tl, prio, lv, sp, tp. One row per distinct edge: stored direction s -[rel]-> t with node ids, labels and display properties (sp / tp, the maps lineage/node_info returns); prio orders rows for truncation (1 = closest to the root); lv is the DERIVED_FROM level of an ancestry row (0 otherwise). rel = 'SELF' carries the root itself (s = t = $id). No row = the id is not a Decision or a Fact.
 // mode: ro
-// P9-f (Crucible L6-E): Lineage.why used to run this query, then lineage/why_derived_level once per DERIVED_FROM level, then lineage/node_info: up to
-// 14 statements, each its own snapshot. Under concurrent writes such a read tore (L6-E P-levelwise: 917 V1 violations in 4,470 reads; one statement: 0).
-// Everything now comes from the UNION below, which FalkorDB runs as one statement against one snapshot:
-// * root branches: the root's own props (rel 'SELF');
-// * decision branches: DECIDED, FOR (Task), BASED_ON, (Step)-[:WROTE]->, and the writing Step's agent;
-// * per base fact (the decision's BASED_ON facts, or the fact itself): ASSERTED_BY, ABOUT, IN_SCOPE, SUPERSEDES / CONTRADICTS / DUPLICATES both ways,
-// the Steps that WROTE it with their agent, the Changes that SUSPECTED it and the agents it is VERIFIED_BY;
-// * the DERIVED_FROM ancestry: expanded level by level over DISTINCT facts inside the statement (up to 12 fixed one-hop steps, each skipped once
-// $depth is reached; a level's carried lists are aggregated with head(collect(...)) instead of being grouping keys), then one row per edge out of
-// every expanded fact, plus the asserting agent of a derived Fact and the Session (and its agent: the last branch) behind a derived Episode.
-// `(f)-[:DERIVED_FROM*1..N]->(x)` would enumerate PATHS, which explode on a diamond lineage. Ancestry rows are cut at $derived_limit, nearest level first.
-// Every other branch is capped by $limit rows, and a base fact's neighbourhood is fixed, so the result is bounded.
+// One UNION, so one snapshot (a statement per hop tore under concurrent writes). Branches: the root's own props (SELF); decision (DECIDED, FOR, BASED_ON, WROTE and the writing Step's agent); per base fact (ASSERTED_BY, ABOUT, IN_SCOPE, SUPERSEDES / CONTRADICTS / DUPLICATES both ways, WROTE Steps, suspecting Changes, VERIFIED_BY agents); the DERIVED_FROM ancestry.
+// Ancestry: expanded level by level over DISTINCT facts (12 fixed one-hop steps, each skipped once $depth is reached; carried lists are aggregated with head(collect(...)), never grouping keys), cut at $derived_limit, nearest level first. `*1..N` would enumerate paths. Every other branch is capped by $limit rows.
 MATCH (rf:Fact {id: $id})
 RETURN rf.id AS s, 'Fact' AS sl, 'SELF' AS rel, rf.id AS t, 'Fact' AS tl, 0 AS prio, 0 AS lv,
        {predicate: rf.predicate, value: rf.value, status: rf.status, valid_from: rf.valid_from, valid_to: rf.valid_to, recorded_at: rf.recorded_at, confidence: rf.confidence, subject_id: rf.subject_id, verify_state: coalesce(rf.verify_state, 'verified'), suspect_since: coalesce(rf.suspect_since, 0), surprise: coalesce(rf.surprise, 0.0), pinned: coalesce(rf.pinned, false)} AS sp,

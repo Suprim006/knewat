@@ -1,14 +1,9 @@
 // name: relay/dependents_closure
-// purpose: ONE read statement (one snapshot): every task that depends on $id directly or transitively, up to $depth DEPENDS_ON hops, with its hop distance.
+// purpose: ONE read statement (one snapshot, D-014): every task that depends on $id directly or transitively, up to $depth DEPENDS_ON hops, with its hop distance.
 // params: id:str, depth:int, limit:int
 // returns: id, status, lv (one row per distinct dependent at its nearest hop distance lv; nearest first, then id; done tasks are walked through but not returned; at most $limit rows). Zero rows = no such task, or nothing depends on it.
 // mode: ro
-// P9-f (Crucible L6-E): Relay.blocked_by_failure used to run relay/dependents_of once per BFS level from Python (up to 50 statements, each its own
-// snapshot), the reader shape that tore under concurrent writes (L6-E P-levelwise). This is the same level-wise expansion inside ONE statement:
-// 50 fixed one-hop steps, each skipped once $depth is reached or the frontier is empty. A level is the DISTINCT dependents of the previous level
-// (no path enumeration: `(x)-[:DEPENDS_ON*1..N]->(t)` is exponential on a layered DAG). The frontier is not pruned by the tasks already seen, so a
-// task reached at several distances is expanded again at each (bounded by $depth x the edges); min(lv) keeps its nearest distance. A level's carried
-// list is aggregated with head(collect(...)) rather than used as a grouping key.
+// Level-wise expansion: 50 fixed one-hop steps, each skipped once $depth is reached or the frontier is empty; a level is the DISTINCT dependents of the previous one (`DEPENDS_ON*1..N` is exponential on a layered DAG). The frontier is not pruned by tasks already seen, so a task reached at several distances is expanded at each (bounded by $depth x edges); min(lv) keeps the nearest. Carried lists are aggregated with head(collect(...)), not used as grouping keys.
 MATCH (root:Task {id: $id})
 OPTIONAL MATCH (root)<-[:DEPENDS_ON]-(x1:Task)
 WITH collect(DISTINCT x1) AS fr
