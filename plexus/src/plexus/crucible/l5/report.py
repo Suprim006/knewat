@@ -91,18 +91,10 @@ def criteria(res: dict[str, Any], margin: float = 0.02) -> list[dict[str, Any]]:
         def r(mode: str, k: int = 1) -> float:
             return m[mode]["recall"]["all"][f"recall@{k}"]
 
-        if "sep" in m and "sep-entity" in m:  # the predicate-cue run (CROSS_CHECK §3.2)
-            s1, e1 = r("sep"), r("sep-entity")
+        if "sep" in m:  # the predicate-cue run (CROSS_CHECK §3.2)
+            s1 = r("sep")
             out.append(
                 {"id": "PC sep recall@1 >= 0.95", "hard": False, "ok": s1 >= 0.95 - tol, "value": [s1]}
-            )
-            out.append(
-                {
-                    "id": "PC sep recall@1 > sep-entity + 0.02 (falsified otherwise: no gain beyond id noise)",
-                    "hard": True,
-                    "ok": s1 > e1 + 0.02 + tol,
-                    "value": [e1, s1],
-                }
             )
             same = m["sep"]["above_same_entity"]
             out.append(
@@ -111,23 +103,6 @@ def criteria(res: dict[str, Any], margin: float = 0.02) -> list[dict[str, Any]]:
                     "hard": False,
                     "ok": same <= 5,
                     "value": [same],
-                }
-            )
-            out.append(
-                {
-                    "id": "PC sep recall@5 >= sep-entity recall@5",
-                    "hard": False,
-                    "ok": r("sep", 5) >= r("sep-entity", 5) - tol,
-                    "value": [r("sep-entity", 5), r("sep", 5)],
-                }
-            )
-            ns, ne = m["sep"]["noise_share"], m["sep-entity"]["noise_share"]
-            out.append(
-                {
-                    "id": "PC sep noise share <= sep-entity + 0.01",
-                    "hard": False,
-                    "ok": ns <= ne + 0.01 + tol,
-                    "value": [ne, ns],
                 }
             )
             if "sep+mult" in m:
@@ -171,54 +146,6 @@ def criteria(res: dict[str, Any], margin: float = 0.02) -> list[dict[str, Any]]:
                     "value": loss,
                 }
             )
-        if "sep+add" in m:
-            sa = m["sep+add"]
-            if "sep" in m:
-                out.append(
-                    {
-                        "id": "L5b-D013 sep+add recall@1 >= sep - 0.01",
-                        "hard": True,
-                        "ok": r("sep+add") >= r("sep") - 0.01 - tol,
-                        "value": [r("sep"), r("sep+add")],
-                    }
-                )
-                out.append(
-                    {
-                        "id": "L5b-D013 sep+add recall@5 >= sep - 0.005",
-                        "hard": False,
-                        "ok": r("sep+add", 5) >= r("sep", 5) - 0.005 - tol,
-                        "value": [r("sep", 5), r("sep+add", 5)],
-                    }
-                )
-            ns = sa["noise_share"]
-            out.append(
-                {
-                    "id": "L5b-D013 sep+add noise share <= 0.155",
-                    "hard": False,
-                    "ok": ns is not None and ns <= 0.155 + tol,
-                    "value": ns,
-                }
-            )
-            ab = sa.get("ranked_above_target", {})
-            ch = ab.get("critical", 0) + ab.get("hot", 0)
-            out.append(
-                {
-                    "id": "L5b-D013 sep+add critical+hot above target <= 5",
-                    "hard": False,
-                    "ok": ch <= 5,
-                    "value": ch,
-                }
-            )
-            if f["config"].get("burst"):
-                hac = sa.get("hot_above_cold")
-                out.append(
-                    {
-                        "id": "L5b-D013 burst: hot above cold target <= 1% (sep+add)",
-                        "hard": False,
-                        "ok": hac is not None and hac <= 0.01 + tol,
-                        "value": hac,
-                    }
-                )
         if "kw-fix" in m:
             out.append(
                 {

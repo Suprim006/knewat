@@ -180,7 +180,7 @@ sal AS (
 SELECT s.fact_id, s.salience,
   ln(coalesce(b.s, 0.0) + CASE WHEN s.surprise <= 0 THEN 0 ELSE 1 + floor(4 * min(s.surprise, 1.0) + 0.5) END
      * power(max(:now - s.created_at, 60000) / 1000.0, -0.5)) AS activation,
-  (s.pinned OR s.dec_any > 0 OR s.hand_any > 0 OR s.linked OR s.trusted OR (:additive AND s.salience >= 0.5)) AS protected
+  (s.pinned OR s.dec_any > 0 OR s.hand_any > 0 OR s.linked OR s.trusted) AS protected
 FROM sal s LEFT JOIN base b ON b.fact_id = s.fact_id
 """
 
@@ -384,15 +384,12 @@ class SqlRecall:
                 return rows
             over *= RETRY_FACTOR
 
-    def _activation(
-        self, fact_ids: list[str], now: int, *, additive: bool = False
-    ) -> dict[str, FactActivation]:
-        """``additive`` mirrors ``plexus.activation.service``: the salience >= 0.5 protection is an add-mode rule."""
+    def _activation(self, fact_ids: list[str], now: int) -> dict[str, FactActivation]:
         if not fact_ids:
             return {}
         sql = ACTIVATION_SQL.replace("{ids}", ",".join(f"(:i{n})" for n in range(len(fact_ids))))
         out: dict[str, FactActivation] = {}
-        params = {"now": now, "additive": int(additive), **{f"i{n}": fid for n, fid in enumerate(fact_ids)}}
+        params = {"now": now, **{f"i{n}": fid for n, fid in enumerate(fact_ids)}}
         for r in self._run(sql, params):
             a = float("-inf") if r["activation"] is None else float(r["activation"])
             out[r["fact_id"]] = FactActivation(
@@ -402,12 +399,12 @@ class SqlRecall:
             )  # fmt: skip
         return out
 
-    def activation_all(self, now: int, *, additive: bool = False) -> dict[str, FactActivation]:
+    def activation_all(self, now: int) -> dict[str, FactActivation]:
         """Every fact's A(f) / salience / protected (the fidelity check against ``Activation.compute``)."""
         ids = [r[0] for r in self.conn.execute("SELECT id FROM facts ORDER BY id").fetchall()]
         out: dict[str, FactActivation] = {}
         for i in range(0, len(ids), 200):
-            out.update(self._activation(ids[i : i + 200], now, additive=additive))
+            out.update(self._activation(ids[i : i + 200], now))
         return out
 
     def recall(
@@ -437,7 +434,7 @@ class SqlRecall:
         acts: dict[str, FactActivation] = {}
         if rerank_on:
             if fg:
-                acts = self._activation([r["fact_id"] for r in rows], t, additive=settings.additive)
+                acts = self._activation([r["fact_id"] for r in rows], t)
             top = rerank(
                 rows, acts, settings=settings, k=k, kw_ids={r["fact_id"] for r in rows if r["kw"]},
                 words=_query_words(query), entities={eid: e["fan"] for eid, e in entities.items()},
