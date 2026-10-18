@@ -1,0 +1,724 @@
+{
+  "criteria": [
+    {
+      "hard": true,
+      "id": "L5a unflagged = 0 (S)",
+      "ok": true,
+      "value": 0
+    },
+    {
+      "hard": true,
+      "id": "L5a unflagged = 0 (F)",
+      "ok": true,
+      "value": 0
+    }
+  ],
+  "embedder": "FastEmbedder",
+  "git_commit": "7f28f60",
+  "layer": "L5",
+  "llm_calls": 0,
+  "seconds": 136.5,
+  "staleness": {
+    "arms": {
+      "F": {
+        "arm": "F",
+        "flagged_by_kind": {
+          "add": 10,
+          "delete": 10,
+          "docstring": 20,
+          "module-comment": 15,
+          "reorder": 10,
+          "sibling": 10,
+          "value": 45,
+          "whitespace": 5
+        },
+        "fn": 0,
+        "fp": 106,
+        "per_commit": [
+          {
+            "commit": "71c383240a",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "7db165965b",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "add",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "f191bc528f",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "e6b0b66de4",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "cc2b18ee22",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "value",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "ed5c515081",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "add",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "cfc970503f",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b4cc3f9c31",
+            "flagged": 15,
+            "fn": 0,
+            "fp": 12,
+            "kind": "value",
+            "tp": 3,
+            "truth": 3,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "652911fe22",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "whitespace",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b9e5ba8079",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "eb8d0fef02",
+            "flagged": 10,
+            "fn": 0,
+            "fp": 8,
+            "kind": "value",
+            "tp": 2,
+            "truth": 2,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "0fbfdfe1c8",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 3,
+            "kind": "sibling",
+            "tp": 2,
+            "truth": 2,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "930db9ed87",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "delete",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b1c15e234a",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "reorder",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "9f21fe6f1b",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "reorder",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "7b016f0e2e",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "bb92981505",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 3,
+            "kind": "sibling",
+            "tp": 2,
+            "truth": 2,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "ecbf2db114",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 4,
+            "kind": "delete",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "d9862f12ca",
+            "flagged": 5,
+            "fn": 0,
+            "fp": 5,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "681377f44c",
+            "flagged": 15,
+            "fn": 0,
+            "fp": 12,
+            "kind": "value",
+            "tp": 3,
+            "truth": 3,
+            "unflagged_returned": 0
+          }
+        ],
+        "precision": 0.152,
+        "recall": 1.0,
+        "stale_not_returned_in_top3": 0,
+        "stale_returned_unflagged": 0,
+        "tp": 19,
+        "truth_facts_total": 19
+      },
+      "N": {
+        "arm": "N",
+        "flagged_by_kind": {
+          "add": 0,
+          "delete": 0,
+          "docstring": 0,
+          "module-comment": 0,
+          "reorder": 0,
+          "sibling": 0,
+          "value": 0,
+          "whitespace": 0
+        },
+        "fn": 19,
+        "fp": 0,
+        "per_commit": [
+          {
+            "commit": "71c383240a",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "7db165965b",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "add",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "f191bc528f",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "e6b0b66de4",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "cc2b18ee22",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "value",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "ed5c515081",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "add",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "cfc970503f",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b4cc3f9c31",
+            "flagged": 0,
+            "fn": 3,
+            "fp": 0,
+            "kind": "value",
+            "tp": 0,
+            "truth": 3,
+            "unflagged_returned": 3
+          },
+          {
+            "commit": "652911fe22",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "whitespace",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b9e5ba8079",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "eb8d0fef02",
+            "flagged": 0,
+            "fn": 2,
+            "fp": 0,
+            "kind": "value",
+            "tp": 0,
+            "truth": 2,
+            "unflagged_returned": 2
+          },
+          {
+            "commit": "0fbfdfe1c8",
+            "flagged": 0,
+            "fn": 2,
+            "fp": 0,
+            "kind": "sibling",
+            "tp": 0,
+            "truth": 2,
+            "unflagged_returned": 2
+          },
+          {
+            "commit": "930db9ed87",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "delete",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "b1c15e234a",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "reorder",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "9f21fe6f1b",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "reorder",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "7b016f0e2e",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "bb92981505",
+            "flagged": 0,
+            "fn": 2,
+            "fp": 0,
+            "kind": "sibling",
+            "tp": 0,
+            "truth": 2,
+            "unflagged_returned": 2
+          },
+          {
+            "commit": "ecbf2db114",
+            "flagged": 0,
+            "fn": 1,
+            "fp": 0,
+            "kind": "delete",
+            "tp": 0,
+            "truth": 1,
+            "unflagged_returned": 1
+          },
+          {
+            "commit": "d9862f12ca",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "681377f44c",
+            "flagged": 0,
+            "fn": 3,
+            "fp": 0,
+            "kind": "value",
+            "tp": 0,
+            "truth": 3,
+            "unflagged_returned": 3
+          }
+        ],
+        "precision": null,
+        "recall": 0.0,
+        "stale_not_returned_in_top3": 0,
+        "stale_returned_unflagged": 19,
+        "tp": 0,
+        "truth_facts_total": 19
+      },
+      "S": {
+        "arm": "S",
+        "flagged_by_kind": {
+          "add": 0,
+          "delete": 2,
+          "docstring": 4,
+          "module-comment": 0,
+          "reorder": 0,
+          "sibling": 4,
+          "value": 9,
+          "whitespace": 0
+        },
+        "fn": 0,
+        "fp": 0,
+        "per_commit": [
+          {
+            "commit": "71c383240a",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "7db165965b",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "add",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "f191bc528f",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "e6b0b66de4",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "cc2b18ee22",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "value",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "ed5c515081",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "add",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "cfc970503f",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b4cc3f9c31",
+            "flagged": 3,
+            "fn": 0,
+            "fp": 0,
+            "kind": "value",
+            "tp": 3,
+            "truth": 3,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "652911fe22",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "whitespace",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b9e5ba8079",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "eb8d0fef02",
+            "flagged": 2,
+            "fn": 0,
+            "fp": 0,
+            "kind": "value",
+            "tp": 2,
+            "truth": 2,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "0fbfdfe1c8",
+            "flagged": 2,
+            "fn": 0,
+            "fp": 0,
+            "kind": "sibling",
+            "tp": 2,
+            "truth": 2,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "930db9ed87",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "delete",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "b1c15e234a",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "reorder",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "9f21fe6f1b",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "reorder",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "7b016f0e2e",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "docstring",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "bb92981505",
+            "flagged": 2,
+            "fn": 0,
+            "fp": 0,
+            "kind": "sibling",
+            "tp": 2,
+            "truth": 2,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "ecbf2db114",
+            "flagged": 1,
+            "fn": 0,
+            "fp": 0,
+            "kind": "delete",
+            "tp": 1,
+            "truth": 1,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "d9862f12ca",
+            "flagged": 0,
+            "fn": 0,
+            "fp": 0,
+            "kind": "module-comment",
+            "tp": 0,
+            "truth": 0,
+            "unflagged_returned": 0
+          },
+          {
+            "commit": "681377f44c",
+            "flagged": 3,
+            "fn": 0,
+            "fp": 0,
+            "kind": "value",
+            "tp": 3,
+            "truth": 3,
+            "unflagged_returned": 0
+          }
+        ],
+        "precision": 1.0,
+        "recall": 1.0,
+        "stale_not_returned_in_top3": 0,
+        "stale_returned_unflagged": 0,
+        "tp": 19,
+        "truth_facts_total": 19
+      }
+    },
+    "repo": {
+      "change_commits": 20,
+      "functions": 60,
+      "kinds": [
+        "docstring",
+        "add",
+        "docstring",
+        "docstring",
+        "value",
+        "add",
+        "module-comment",
+        "value",
+        "whitespace",
+        "module-comment",
+        "value",
+        "sibling",
+        "delete",
+        "reorder",
+        "reorder",
+        "docstring",
+        "sibling",
+        "delete",
+        "module-comment",
+        "value"
+      ],
+      "modules": 12,
+      "seed": 20261016,
+      "truth_facts_total": 19
+    }
+  },
+  "started_at": "2026-10-18T07:46:46Z"
+}

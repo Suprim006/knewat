@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Source acme-docs/s07/04_security_note.md (kind doc, trust 1.0).
+[2] Episode recorded by researcher: "S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[3] Episode recorded by builder: "S20: Endpoint design moves from /v39/ to /v40/: page_token/page_size lists and problem+json errors."
+[4] Handoff for task s07-t12-update-endpoints-for-v2 from builder to planner: "S07: Updated for API v14." Artifacts: artifacts/s07/openapi-v2.yaml. Facts: api_version=v14.
+[5] Episode recorded by researcher: "S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[6] Episode recorded by researcher: "S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[7] Source acme-docs/s09/04_security_note.md (kind doc, trust 1.0).
+[8] Episode recorded by researcher: "S07: Style guide v14 was published: API version v13 is withdrawn, routes move to /v14/."
+[9] Episode recorded by builder: "S09: Endpoint design moves from /v17/ to /v18/: page_token/page_size lists and problem+json errors."
+[10] Episode recorded by researcher: "S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[11] Decision by planner for task s04-t02-choose-api-version: "S04: Build the Acme Notes API against v7 of the style guide (routes under /v7/)." Based on facts: api_version=v7.
+[12] Source acme-docs/s17/04_security_note.md (kind doc, trust 1.0).

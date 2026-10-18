@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact api_version=v37 about 'Acme Notes API S19' (scope global; status superseded; valid_from 1760001236000; valid_to 1760001250500); asserted by researcher; source acme-docs/s19/02_api_style_guide_v1.md; superseded by api_version=v38.
+[2] Fact api_version=v38 about 'Acme Notes API S19' (scope global; status active; valid_from 1760001250500; valid_to 9999999999999); asserted by researcher; source acme-docs/s19/06_api_style_guide_v2.md; supersedes api_version=v37.
+[3] Fact api_version=v19 about 'Acme Notes API S10' (scope global; status superseded; valid_from 1760000619500; valid_to 1760000634000); asserted by researcher; source acme-docs/s10/02_api_style_guide_v1.md; superseded by api_version=v20.
+[4] Fact api_version=v18 about 'Acme Notes API S09' (scope global; status active; valid_from 1760000565500; valid_to 9999999999999); asserted by researcher; source acme-docs/s09/06_api_style_guide_v2.md; supersedes api_version=v17.
+[5] Fact api_version=v36 about 'Acme Notes API S18' (scope global; status active; valid_from 1760001182000; valid_to 9999999999999); asserted by researcher; source acme-docs/s18/06_api_style_guide_v2.md; supersedes api_version=v35.
+[6] Fact api_version=v40 about 'Acme Notes API S20' (scope global; status active; valid_from 1760001319000; valid_to 9999999999999); asserted by researcher; source acme-docs/s20/06_api_style_guide_v2.md; supersedes api_version=v39.
+[7] Fact api_version=v39 about 'Acme Notes API S20' (scope global; status superseded; valid_from 1760001304500; valid_to 1760001319000); asserted by researcher; source acme-docs/s20/02_api_style_guide_v1.md; superseded by api_version=v40.
+[8] Fact api_version=v20 about 'Acme Notes API S10' (scope global; status active; valid_from 1760000634000; valid_to 9999999999999); asserted by researcher; source acme-docs/s10/06_api_style_guide_v2.md; supersedes api_version=v19.
+[9] Fact api_version=v16 about 'Acme Notes API S08' (scope global; status active; valid_from 1760000497000; valid_to 9999999999999); asserted by researcher; source acme-docs/s08/06_api_style_guide_v2.md; supersedes api_version=v15.
+[10] Fact api_version=v35 about 'Acme Notes API S18' (scope global; status superseded; valid_from 1760001167500; valid_to 1760001182000); asserted by researcher; source acme-docs/s18/02_api_style_guide_v1.md; superseded by api_version=v36.
+[11] Fact api_version=v31 about 'Acme Notes API S16' (scope global; status superseded; valid_from 1760001030500; valid_to 1760001045000); asserted by researcher; source acme-docs/s16/02_api_style_guide_v1.md; superseded by api_version=v32.
+[12] Fact api_version=v17 about 'Acme Notes API S09' (scope global; status superseded; valid_from 1760000551000; valid_to 1760000565500); asserted by researcher; source acme-docs/s09/02_api_style_guide_v1.md; superseded by api_version=v18.

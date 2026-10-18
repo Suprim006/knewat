@@ -1,0 +1,229 @@
+The team's shared files (the complete memory directory of the team's whole history). Excerpts most relevant to the question, grouped by file:
+
+=== file: tasks.json ===
+{"next_seq":240}
+[...]
+{"s01-t03-design-endpoints":{"id":"s01-t03-design-endpoints","title":"Design endpoints (S01)","priority":40,"seq":2,"status":"done","claimed_by":"researcher","lease_until":1760000132500,"version":3,"created_at":1760000000004,"done_at":1760000014501,"deps":["s01-t02-choose-api-version"],"artifacts":[{"id":"a55918ce-ca61-5ed2-ab86-bb5337c03aca","kind":"file","uri":"artifacts/s01/openapi-draft.yaml","hash":"","summary":"S01 endpoint draft for /v1/notes (CRUD)","agent_id":"researcher","created_at":1760000014501}]}}
+[...]
+{"s02-t03-design-endpoints":{"id":"s02-t03-design-endpoints","title":"Design endpoints (S02)","priority":40,"seq":14,"status":"done","claimed_by":"researcher","lease_until":1760000201000,"version":3,"created_at":1760000068501,"done_at":1760000083001,"deps":["s02-t02-choose-api-version"],"artifacts":[{"id":"dd47afb7-64e9-5cc0-a482-da4b7fc9f423","kind":"file","uri":"artifacts/s02/openapi-draft.yaml","hash":"","summary":"S02 endpoint draft for /v3/notes (CRUD)","agent_id":"researcher","created_at":1760000083001}]}}
+[...]
+{"s03-t03-design-endpoints":{"id":"s03-t03-design-endpoints","title":"Design endpoints (S03)","priority":40,"seq":26,"status":"done","claimed_by":"researcher","lease_until":1760000269500,"version":3,"created_at":1760000137001,"done_at":1760000151501,"deps":["s03-t02-choose-api-version"],"artifacts":[{"id":"43c95bc7-09ef-520f-b7c4-f7dc844b4617","kind":"file","uri":"artifacts/s03/openapi-draft.yaml","hash":"","summary":"S03 endpoint draft for /v5/notes (CRUD)","agent_id":"researcher","created_at":1760000151501}]}}
+[...]
+{"s04-t03-design-endpoints":{"id":"s04-t03-design-endpoints","title":"Design endpoints (S04)","priority":40,"seq":38,"status":"done","claimed_by":"researcher","lease_until":1760000338000,"version":3,"created_at":1760000205501,"done_at":1760000220001,"deps":["s04-t02-choose-api-version"],"artifacts":[{"id":"ed487dea-c14a-5dfa-b10a-2800e5511bba","kind":"file","uri":"artifacts/s04/openapi-draft.yaml","hash":"","summary":"S04 endpoint draft for /v7/notes (CRUD)","agent_id":"researcher","created_at":1760000220001}]}}
+[...]
+{"s05-t03-design-endpoints":{"id":"s05-t03-design-endpoints","title":"Design endpoints (S05)","priority":40,"seq":50,"status":"done","claimed_by":"researcher","lease_until":1760000406500,"version":3,"created_at":1760000274001,"done_at":1760000288501,"deps":["s05-t02-choose-api-version"],"artifacts":[{"id":"fc3ba49c-61e2-505a-adce-6e24175c67fd","kind":"file","uri":"artifacts/s05/openapi-draft.yaml","hash":"","summary":"S05 endpoint draft for /v9/notes (CRUD)","agent_id":"researcher","created_at":1760000288501}]}}
+[...]
+{"s06-t03-design-endpoints":{"id":"s06-t03-design-endpoints","title":"Design endpoints (S06)","priority":40,"seq":62,"status":"done","claimed_by":"researcher","lease_until":1760000475000,"version":3,"created_at":1760000342501,"done_at":1760000357001,"deps":["s06-t02-choose-api-version"],"artifacts":[{"id":"58e17d8f-917c-5493-b9c7-481e83844c3b","kind":"file","uri":"artifacts/s06/openapi-draft.yaml","hash":"","summary":"S06 endpoint draft for /v11/notes (CRUD)","agent_id":"researcher","created_at":1760000357001}]}}
+[...]
+{"s07-t03-design-endpoints":{"id":"s07-t03-design-endpoints","title":"Design endpoints (S07)","priority":40,"seq":74,"status":"done","claimed_by":"researcher","lease_until":1760000543500,"version":3,"created_at":1760000411001,"done_at":1760000425501,"deps":["s07-t02-choose-api-version"],"artifacts":[{"id":"09f557a1-f24a-515a-b6a5-1c451ea2963d","kind":"file","uri":"artifacts/s07/openapi-draft.yaml","hash":"","summary":"S07 endpoint draft for /v13/notes (CRUD)","agent_id":"researcher","created_at":1760000425501}]}}
+[...]
+{"s08-t03-design-endpoints":{"id":"s08-t03-design-endpoints","title":"Design endpoints (S08)","priority":40,"seq":86,"status":"done","claimed_by":"researcher","lease_until":1760000612000,"version":3,"created_at":1760000479501,"done_at":1760000494001,"deps":["s08-t02-choose-api-version"],"artifacts":[{"id":"7e2dee80-d58a-5a18-9eb7-70ccfa65385b","kind":"file","uri":"artifacts/s08/openapi-draft.yaml","hash":"","summary":"S08 endpoint draft for /v15/notes (CRUD)","agent_id":"researcher","created_at":1760000494001}]}}
+[...]
+{"s09-t03-design-endpoints":{"id":"s09-t03-design-endpoints","title":"Design endpoints (S09)","priority":40,"seq":98,"status":"done","claimed_by":"researcher","lease_until":1760000680500,"version":3,"created_at":1760000548001,"done_at":1760000562501,"deps":["s09-t02-choose-api-version"],"artifacts":[{"id":"e502a352-1cd2-5251-ad1a-68e2c5727589","kind":"file","uri":"artifacts/s09/openapi-draft.yaml","hash":"","summary":"S09 endpoint draft for /v17/notes (CRUD)","agent_id":"researcher","created_at":1760000562501}]}}
+[...]
+{"s09-t07-implement-crud-spec":{"id":"s09-t07-implement-crud-spec","title":"Implement CRUD spec (S09)","priority":20,"seq":102,"status":"done","claimed_by":"builder","lease_until":1760000714500,"version":2,"created_at":1760000548001,"done_at":1760000596501,"deps":["s09-t03-design-endpoints","s09-t05-choose-auth","s09-t06-write-db-schema"],"artifacts":[{"id":"c15b251d-c799-5fb6-99ca-e6b78a41b088","kind":"file","uri":"artifacts/s09/crud-spec.md","hash":"","summary":"S09 CRUD spec for the current API version with JWT auth","agent_id":"builder","created_at":1760000596501}]}}
+{"s09-t08-write-test-plan":{"id":"s09-t08-write-test-plan","title":"Write test plan (S09)","priority":15,"seq":103,"status":"done","claimed_by":"researcher","lease_until":1760000719500,"version":2,"created_at":1760000548001,"done_at":1760000600501,"deps":["s09-t03-design-endpoints"],"artifacts":[{"id":"b89e2812-3559-5ed5-a5ce-96bb0fe608f7","kind":"file","uri":"artifacts/s09/test-plan.md","hash":"","summary":"S09 test plan for the CRUD endpoints","agent_id":"researcher","created_at":1760000600501}]}}
+[...]
+{"s09-t12-update-endpoints-for-v2":{"id":"s09-t12-update-endpoints-for-v2","title":"Update endpoint design for API v2 (S09)","priority":60,"seq":107,"status":"done","claimed_by":"builder","lease_until":1760000689500,"version":2,"created_at":1760000568501,"done_at":1760000571501,"deps":["s09-t03-design-endpoints"],"artifacts":[{"id":"6e9ca35f-8635-5e8b-b860-96be85496752","kind":"file","uri":"artifacts/s09/openapi-v2.yaml","hash":"","summary":"S09 endpoint design for /v18/notes","agent_id":"builder","created_at":1760000571501}]}}
+[...]
+{"s10-t03-design-endpoints":{"id":"s10-t03-design-endpoints","title":"Design endpoints (S10)","priority":40,"seq":110,"status":"done","claimed_by":"researcher","lease_until":1760000749000,"version":3,"created_at":1760000616501,"done_at":1760000631001,"deps":["s10-t02-choose-api-version"],"artifacts":[{"id":"1e77ecb1-4669-5067-8796-9b76f37025fb","kind":"file","uri":"artifacts/s10/openapi-draft.yaml","hash":"","summary":"S10 endpoint draft for /v19/notes (CRUD)","agent_id":"researcher","created_at":1760000631001}]}}
+[...]
+{"s11-t03-design-endpoints":{"id":"s11-t03-design-endpoints","title":"Design endpoints (S11)","priority":40,"seq":122,"status":"done","claimed_by":"researcher","lease_until":1760000817500,"version":3,"created_at":1760000685001,"done_at":1760000699501,"deps":["s11-t02-choose-api-version"],"artifacts":[{"id":"b63b6984-3cea-5eb8-b3b5-6c0969fe6a16","kind":"file","uri":"artifacts/s11/openapi-draft.yaml","hash":"","summary":"S11 endpoint draft for /v21/notes (CRUD)","agent_id":"researcher","created_at":1760000699501}]}}
+[...]
+{"s12-t03-design-endpoints":{"id":"s12-t03-design-endpoints","title":"Design endpoints (S12)","priority":40,"seq":134,"status":"done","claimed_by":"researcher","lease_until":1760000886000,"version":3,"created_at":1760000753501,"done_at":1760000768001,"deps":["s12-t02-choose-api-version"],"artifacts":[{"id":"82dd8009-8df6-5c96-8144-20ae2149aca2","kind":"file","uri":"artifacts/s12/openapi-draft.yaml","hash":"","summary":"S12 endpoint draft for /v23/notes (CRUD)","agent_id":"researcher","created_at":1760000768001}]}}
+[...]
+{"s13-t03-design-endpoints":{"id":"s13-t03-design-endpoints","title":"Design endpoints (S13)","priority":40,"seq":146,"status":"done","claimed_by":"researcher","lease_until":1760000954500,"version":3,"created_at":1760000822001,"done_at":1760000836501,"deps":["s13-t02-choose-api-version"],"artifacts":[{"id":"f46d85c3-1e7b-5865-8e0f-a24d1eaef54d","kind":"file","uri":"artifacts/s13/openapi-draft.yaml","hash":"","summary":"S13 endpoint draft for /v25/notes (CRUD)","agent_id":"researcher","created_at":1760000836501}]}}
+
+=== file: handoffs.jsonl ===
+{"id":"8f2acfd6-1c46-5526-bf28-0d4c3b0051f3","from":"researcher","to":"builder","task":"s01-t03-design-endpoints","note":"S01: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["a55918ce-ca61-5ed2-ab86-bb5337c03aca"],"facts":["2b927606-c02e-5d86-8c84-18c267e87215"],"at":1760000015501}
+[...]
+{"id":"6d1c8827-5364-5087-b34b-8f5ab75fc134","from":"researcher","to":"builder","task":"s02-t03-design-endpoints","note":"S02: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["dd47afb7-64e9-5cc0-a482-da4b7fc9f423"],"facts":["271b3641-7f41-5602-9219-6f7236a6b215"],"at":1760000084001}
+[...]
+{"id":"8c410f22-7191-553a-84e8-b4748682424d","from":"researcher","to":"builder","task":"s03-t03-design-endpoints","note":"S03: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["43c95bc7-09ef-520f-b7c4-f7dc844b4617"],"facts":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"at":1760000152501}
+[...]
+{"id":"c9ae64b6-af8c-56ff-b547-2b7cad06361c","from":"researcher","to":"builder","task":"s04-t03-design-endpoints","note":"S04: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["ed487dea-c14a-5dfa-b10a-2800e5511bba"],"facts":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"at":1760000221001}
+[...]
+{"id":"94a75fce-e5ac-51e9-8804-7dddeb7f936e","from":"researcher","to":"builder","task":"s05-t03-design-endpoints","note":"S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["fc3ba49c-61e2-505a-adce-6e24175c67fd"],"facts":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"at":1760000289501}
+[...]
+{"id":"0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0","from":"researcher","to":"builder","task":"s06-t03-design-endpoints","note":"S06: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["58e17d8f-917c-5493-b9c7-481e83844c3b"],"facts":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"at":1760000358001}
+[...]
+{"id":"0160c629-b5f5-5ea0-b2bd-661e3e27fe6e","from":"researcher","to":"builder","task":"s07-t03-design-endpoints","note":"S07: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["09f557a1-f24a-515a-b6a5-1c451ea2963d"],"facts":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"at":1760000426501}
+[...]
+{"id":"3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2","from":"researcher","to":"builder","task":"s08-t03-design-endpoints","note":"S08: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["7e2dee80-d58a-5a18-9eb7-70ccfa65385b"],"facts":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"at":1760000495001}
+[...]
+{"id":"055e0241-8283-5c4f-8491-576d5d73be55","from":"researcher","to":"builder","task":"s09-t03-design-endpoints","note":"S09: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["e502a352-1cd2-5251-ad1a-68e2c5727589"],"facts":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"at":1760000563501}
+{"id":"b19435e3-2f21-5ade-b5f7-e937e833ca29","from":"builder","to":"planner","task":"s09-t12-update-endpoints-for-v2","note":"S09: Updated for API v18.","artifacts":["6e9ca35f-8635-5e8b-b860-96be85496752"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c"],"at":1760000572501}
+[...]
+{"id":"357e4c93-b791-52a8-a731-c6f51a269a8a","from":"researcher","to":"builder","task":"s10-t03-design-endpoints","note":"S10: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["1e77ecb1-4669-5067-8796-9b76f37025fb"],"facts":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"at":1760000632001}
+[...]
+{"id":"a4e86dad-a233-58ab-8e66-ebfedc265fd1","from":"researcher","to":"builder","task":"s11-t03-design-endpoints","note":"S11: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["b63b6984-3cea-5eb8-b3b5-6c0969fe6a16"],"facts":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"at":1760000700501}
+[...]
+{"id":"e56e47d7-f618-5c4f-8aa3-d373c94991fe","from":"researcher","to":"builder","task":"s12-t03-design-endpoints","note":"S12: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["82dd8009-8df6-5c96-8144-20ae2149aca2"],"facts":["9d31097e-bc44-5443-b9c6-6e15ee7fceba"],"at":1760000769001}
+[...]
+{"id":"543b5765-aa76-55ba-9c62-490eec17d1da","from":"researcher","to":"builder","task":"s13-t03-design-endpoints","note":"S13: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["f46d85c3-1e7b-5865-8e0f-a24d1eaef54d"],"facts":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"at":1760000837501}
+[...]
+{"id":"8ebcca38-a83e-56a8-b7d4-340bd20009f5","from":"researcher","to":"builder","task":"s14-t03-design-endpoints","note":"S14: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["91986b62-e761-5eed-87dd-b4991cb6f95f"],"facts":["dabba289-f252-508f-9c32-f03223137480"],"at":1760000906001}
+[...]
+{"id":"0a5bee96-8991-5ad5-a970-5e8f410b233f","from":"researcher","to":"builder","task":"s15-t03-design-endpoints","note":"S15: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["614024b9-b96b-5417-8716-c3f5379df053"],"facts":["eeb91d3d-4345-5271-9659-12e1597fda54"],"at":1760000974501}
+[...]
+{"id":"557e0af8-ad36-58d3-8116-66262ca0fb46","from":"researcher","to":"builder","task":"s16-t03-design-endpoints","note":"S16: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["f74a1f42-6478-5364-b018-6b4f5c21383d"],"facts":["343721a0-acf1-5d8a-b8bb-a4eff45c56d5"],"at":1760001043001}
+[...]
+{"id":"fcb5aa76-3f00-5c66-8368-4d8a8f895556","from":"researcher","to":"builder","task":"s17-t03-design-endpoints","note":"S17: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["22029c20-86ea-54fc-8b0a-97fcdba8117c"],"facts":["767c0e30-7c17-5b0a-afca-43d877935410"],"at":1760001111501}
+[...]
+{"id":"d06b0a37-93a8-5507-8c08-f9bc09b78ad4","from":"researcher","to":"builder","task":"s18-t03-design-endpoints","note":"S18: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["48334bd4-a893-5f41-829a-44db4d95ce44"],"facts":["37c89e1d-d386-5dd8-874f-7da4a9406202"],"at":1760001180001}
+[...]
+{"id":"1030063b-dcfc-5c26-aff6-b500539933c9","from":"researcher","to":"builder","task":"s19-t03-design-endpoints","note":"S19: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["23e75da2-6e16-5dae-8a44-c5372a9ceaa9"],"facts":["21836852-1574-5d90-9068-b12642ab4ccd"],"at":1760001248501}
+[...]
+{"id":"54235b76-539d-5a8b-8cb3-8f3bef999e97","from":"researcher","to":"builder","task":"s20-t03-design-endpoints","note":"S20: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["3f9ae36b-b458-5d18-87d7-5a7b3fad4658"],"facts":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001317001}
+
+=== file: logs/builder.jsonl ===
+{"ts":1760000008001,"tool":"claim_next_task","task":"s01-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000024502,"tool":"handoff","id":"6bc546bd-8bc8-5700-9233-6c6718ab2bc3","to":"planner","task":"s01-t12-update-endpoints-for-v2","note":"S01: Updated for API v2.","artifacts":["37dce107-05b5-5c9f-8a28-bd687a3670f8"],"facts":["e3d70963-c74e-5c24-9814-4c48b55c84bc"],"at":1760000024501}
+[...]
+{"ts":1760000076501,"tool":"claim_next_task","task":"s02-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000145001,"tool":"claim_next_task","task":"s03-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000213501,"tool":"claim_next_task","task":"s04-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000282001,"tool":"claim_next_task","task":"s05-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000350501,"tool":"claim_next_task","task":"s06-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000419001,"tool":"claim_next_task","task":"s07-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000487501,"tool":"claim_next_task","task":"s08-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000556001,"tool":"claim_next_task","task":"s09-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000571502,"tool":"complete_task","task":"s09-t12-update-endpoints-for-v2","artifacts":["6e9ca35f-8635-5e8b-b860-96be85496752"]}
+{"ts":1760000572502,"tool":"handoff","id":"b19435e3-2f21-5ade-b5f7-e937e833ca29","to":"planner","task":"s09-t12-update-endpoints-for-v2","note":"S09: Updated for API v18.","artifacts":["6e9ca35f-8635-5e8b-b860-96be85496752"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c"],"at":1760000572501}
+[...]
+{"ts":1760000597502,"tool":"handoff","id":"a133d97a-e731-5223-a8ff-0925912bf303","to":"planner","task":"s09-t07-implement-crud-spec","note":"S09: CRUD spec ready for review.","artifacts":["c15b251d-c799-5fb6-99ca-e6b78a41b088"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c","3a1468b7-0a5c-5b70-9e35-98f20baacab6"],"at":1760000597501}
+[...]
+{"ts":1760000610502,"tool":"handoff","id":"54b240fc-2f84-57bb-96b2-7d99a74d6ed2","to":"planner","task":"s09-t11-package-release","note":"S09: Release bundle is ready.","artifacts":["9a938ff3-58b7-5541-8bf1-ca604afc6437"],"facts":["1addbe80-48b1-5bfc-9ed2-234d9c49ea8c"],"at":1760000610501}
+{"ts":1760000624501,"tool":"claim_next_task","task":"s10-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000693001,"tool":"claim_next_task","task":"s11-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000761501,"tool":"claim_next_task","task":"s12-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000830001,"tool":"claim_next_task","task":"s13-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000898501,"tool":"claim_next_task","task":"s14-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760000967001,"tool":"claim_next_task","task":"s15-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001035501,"tool":"claim_next_task","task":"s16-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001104001,"tool":"claim_next_task","task":"s17-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001172501,"tool":"claim_next_task","task":"s18-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001241001,"tool":"claim_next_task","task":"s19-t03-design-endpoints","version":1,"reclaimed_from":""}
+[...]
+{"ts":1760001309501,"tool":"claim_next_task","task":"s20-t03-design-endpoints","version":1,"reclaimed_from":""}
+
+=== file: logs/researcher.jsonl ===
+{"ts":1760000012501,"tool":"claim_next_task","task":"s01-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000014502,"tool":"complete_task","task":"s01-t03-design-endpoints","artifacts":["a55918ce-ca61-5ed2-ab86-bb5337c03aca"]}
+{"ts":1760000015502,"tool":"handoff","id":"8f2acfd6-1c46-5526-bf28-0d4c3b0051f3","to":"builder","task":"s01-t03-design-endpoints","note":"S01: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["a55918ce-ca61-5ed2-ab86-bb5337c03aca"],"facts":["2b927606-c02e-5d86-8c84-18c267e87215"],"at":1760000015501}
+[...]
+{"ts":1760000081001,"tool":"claim_next_task","task":"s02-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000083002,"tool":"complete_task","task":"s02-t03-design-endpoints","artifacts":["dd47afb7-64e9-5cc0-a482-da4b7fc9f423"]}
+{"ts":1760000084002,"tool":"handoff","id":"6d1c8827-5364-5087-b34b-8f5ab75fc134","to":"builder","task":"s02-t03-design-endpoints","note":"S02: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["dd47afb7-64e9-5cc0-a482-da4b7fc9f423"],"facts":["271b3641-7f41-5602-9219-6f7236a6b215"],"at":1760000084001}
+[...]
+{"ts":1760000149501,"tool":"claim_next_task","task":"s03-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000151502,"tool":"complete_task","task":"s03-t03-design-endpoints","artifacts":["43c95bc7-09ef-520f-b7c4-f7dc844b4617"]}
+{"ts":1760000152502,"tool":"handoff","id":"8c410f22-7191-553a-84e8-b4748682424d","to":"builder","task":"s03-t03-design-endpoints","note":"S03: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["43c95bc7-09ef-520f-b7c4-f7dc844b4617"],"facts":["fc4e0924-6721-5efd-bd74-45c790960ce6"],"at":1760000152501}
+[...]
+{"ts":1760000218001,"tool":"claim_next_task","task":"s04-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000220002,"tool":"complete_task","task":"s04-t03-design-endpoints","artifacts":["ed487dea-c14a-5dfa-b10a-2800e5511bba"]}
+{"ts":1760000221002,"tool":"handoff","id":"c9ae64b6-af8c-56ff-b547-2b7cad06361c","to":"builder","task":"s04-t03-design-endpoints","note":"S04: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["ed487dea-c14a-5dfa-b10a-2800e5511bba"],"facts":["a3e6a516-fc31-5e62-ab92-e9f92abb72e9"],"at":1760000221001}
+[...]
+{"ts":1760000286501,"tool":"claim_next_task","task":"s05-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000288502,"tool":"complete_task","task":"s05-t03-design-endpoints","artifacts":["fc3ba49c-61e2-505a-adce-6e24175c67fd"]}
+{"ts":1760000289502,"tool":"handoff","id":"94a75fce-e5ac-51e9-8804-7dddeb7f936e","to":"builder","task":"s05-t03-design-endpoints","note":"S05: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["fc3ba49c-61e2-505a-adce-6e24175c67fd"],"facts":["ca0ea7ab-cc37-5143-b241-878499db2bd5"],"at":1760000289501}
+[...]
+{"ts":1760000355001,"tool":"claim_next_task","task":"s06-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000357002,"tool":"complete_task","task":"s06-t03-design-endpoints","artifacts":["58e17d8f-917c-5493-b9c7-481e83844c3b"]}
+{"ts":1760000358002,"tool":"handoff","id":"0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0","to":"builder","task":"s06-t03-design-endpoints","note":"S06: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["58e17d8f-917c-5493-b9c7-481e83844c3b"],"facts":["f91cd115-13a9-5c16-bb96-f8a9c4b990eb"],"at":1760000358001}
+[...]
+{"ts":1760000423501,"tool":"claim_next_task","task":"s07-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000425502,"tool":"complete_task","task":"s07-t03-design-endpoints","artifacts":["09f557a1-f24a-515a-b6a5-1c451ea2963d"]}
+{"ts":1760000426502,"tool":"handoff","id":"0160c629-b5f5-5ea0-b2bd-661e3e27fe6e","to":"builder","task":"s07-t03-design-endpoints","note":"S07: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["09f557a1-f24a-515a-b6a5-1c451ea2963d"],"facts":["9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d"],"at":1760000426501}
+[...]
+{"ts":1760000492001,"tool":"claim_next_task","task":"s08-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000494002,"tool":"complete_task","task":"s08-t03-design-endpoints","artifacts":["7e2dee80-d58a-5a18-9eb7-70ccfa65385b"]}
+{"ts":1760000495002,"tool":"handoff","id":"3ec6ff20-779f-5a68-9f4f-40c3b9d8a2c2","to":"builder","task":"s08-t03-design-endpoints","note":"S08: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["7e2dee80-d58a-5a18-9eb7-70ccfa65385b"],"facts":["2d18baf0-1ce3-5f5f-94b3-5d524493d2f9"],"at":1760000495001}
+[...]
+{"ts":1760000560501,"tool":"claim_next_task","task":"s09-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000561501,"tool":"episode","id":"27529bf0-fa9e-554c-a8dc-44ccbb91e425","step":null,"text":"S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."}
+{"ts":1760000562502,"tool":"complete_task","task":"s09-t03-design-endpoints","artifacts":["e502a352-1cd2-5251-ad1a-68e2c5727589"]}
+{"ts":1760000563502,"tool":"handoff","id":"055e0241-8283-5c4f-8491-576d5d73be55","to":"builder","task":"s09-t03-design-endpoints","note":"S09: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["e502a352-1cd2-5251-ad1a-68e2c5727589"],"facts":["c591ebd4-30f6-5f5a-bdd3-03a2c78fb133"],"at":1760000563501}
+[...]
+{"ts":1760000629001,"tool":"claim_next_task","task":"s10-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000631002,"tool":"complete_task","task":"s10-t03-design-endpoints","artifacts":["1e77ecb1-4669-5067-8796-9b76f37025fb"]}
+{"ts":1760000632002,"tool":"handoff","id":"357e4c93-b791-52a8-a731-c6f51a269a8a","to":"builder","task":"s10-t03-design-endpoints","note":"S10: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["1e77ecb1-4669-5067-8796-9b76f37025fb"],"facts":["ae28d59b-3427-5793-b33d-9abfe80363c8"],"at":1760000632001}
+[...]
+{"ts":1760000697501,"tool":"claim_next_task","task":"s11-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000699502,"tool":"complete_task","task":"s11-t03-design-endpoints","artifacts":["b63b6984-3cea-5eb8-b3b5-6c0969fe6a16"]}
+{"ts":1760000700502,"tool":"handoff","id":"a4e86dad-a233-58ab-8e66-ebfedc265fd1","to":"builder","task":"s11-t03-design-endpoints","note":"S11: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["b63b6984-3cea-5eb8-b3b5-6c0969fe6a16"],"facts":["a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a"],"at":1760000700501}
+[...]
+{"ts":1760000766001,"tool":"claim_next_task","task":"s12-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000768002,"tool":"complete_task","task":"s12-t03-design-endpoints","artifacts":["82dd8009-8df6-5c96-8144-20ae2149aca2"]}
+{"ts":1760000769002,"tool":"handoff","id":"e56e47d7-f618-5c4f-8aa3-d373c94991fe","to":"builder","task":"s12-t03-design-endpoints","note":"S12: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["82dd8009-8df6-5c96-8144-20ae2149aca2"],"facts":["9d31097e-bc44-5443-b9c6-6e15ee7fceba"],"at":1760000769001}
+[...]
+{"ts":1760000834501,"tool":"claim_next_task","task":"s13-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000836502,"tool":"complete_task","task":"s13-t03-design-endpoints","artifacts":["f46d85c3-1e7b-5865-8e0f-a24d1eaef54d"]}
+{"ts":1760000837502,"tool":"handoff","id":"543b5765-aa76-55ba-9c62-490eec17d1da","to":"builder","task":"s13-t03-design-endpoints","note":"S13: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["f46d85c3-1e7b-5865-8e0f-a24d1eaef54d"],"facts":["a8d569a8-4806-56a9-b86e-f497a45654d5"],"at":1760000837501}
+[...]
+{"ts":1760000903001,"tool":"claim_next_task","task":"s14-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000905002,"tool":"complete_task","task":"s14-t03-design-endpoints","artifacts":["91986b62-e761-5eed-87dd-b4991cb6f95f"]}
+{"ts":1760000906002,"tool":"handoff","id":"8ebcca38-a83e-56a8-b7d4-340bd20009f5","to":"builder","task":"s14-t03-design-endpoints","note":"S14: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["91986b62-e761-5eed-87dd-b4991cb6f95f"],"facts":["dabba289-f252-508f-9c32-f03223137480"],"at":1760000906001}
+[...]
+{"ts":1760000971501,"tool":"claim_next_task","task":"s15-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760000973502,"tool":"complete_task","task":"s15-t03-design-endpoints","artifacts":["614024b9-b96b-5417-8716-c3f5379df053"]}
+{"ts":1760000974502,"tool":"handoff","id":"0a5bee96-8991-5ad5-a970-5e8f410b233f","to":"builder","task":"s15-t03-design-endpoints","note":"S15: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["614024b9-b96b-5417-8716-c3f5379df053"],"facts":["eeb91d3d-4345-5271-9659-12e1597fda54"],"at":1760000974501}
+[...]
+{"ts":1760001040001,"tool":"claim_next_task","task":"s16-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760001042002,"tool":"complete_task","task":"s16-t03-design-endpoints","artifacts":["f74a1f42-6478-5364-b018-6b4f5c21383d"]}
+{"ts":1760001043002,"tool":"handoff","id":"557e0af8-ad36-58d3-8116-66262ca0fb46","to":"builder","task":"s16-t03-design-endpoints","note":"S16: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["f74a1f42-6478-5364-b018-6b4f5c21383d"],"facts":["343721a0-acf1-5d8a-b8bb-a4eff45c56d5"],"at":1760001043001}
+[...]
+{"ts":1760001108501,"tool":"claim_next_task","task":"s17-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760001110502,"tool":"complete_task","task":"s17-t03-design-endpoints","artifacts":["22029c20-86ea-54fc-8b0a-97fcdba8117c"]}
+{"ts":1760001111502,"tool":"handoff","id":"fcb5aa76-3f00-5c66-8368-4d8a8f895556","to":"builder","task":"s17-t03-design-endpoints","note":"S17: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["22029c20-86ea-54fc-8b0a-97fcdba8117c"],"facts":["767c0e30-7c17-5b0a-afca-43d877935410"],"at":1760001111501}
+[...]
+{"ts":1760001177001,"tool":"claim_next_task","task":"s18-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760001179002,"tool":"complete_task","task":"s18-t03-design-endpoints","artifacts":["48334bd4-a893-5f41-829a-44db4d95ce44"]}
+{"ts":1760001180002,"tool":"handoff","id":"d06b0a37-93a8-5507-8c08-f9bc09b78ad4","to":"builder","task":"s18-t03-design-endpoints","note":"S18: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["48334bd4-a893-5f41-829a-44db4d95ce44"],"facts":["37c89e1d-d386-5dd8-874f-7da4a9406202"],"at":1760001180001}
+[...]
+{"ts":1760001245501,"tool":"claim_next_task","task":"s19-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760001247502,"tool":"complete_task","task":"s19-t03-design-endpoints","artifacts":["23e75da2-6e16-5dae-8a44-c5372a9ceaa9"]}
+{"ts":1760001248502,"tool":"handoff","id":"1030063b-dcfc-5c26-aff6-b500539933c9","to":"builder","task":"s19-t03-design-endpoints","note":"S19: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["23e75da2-6e16-5dae-8a44-c5372a9ceaa9"],"facts":["21836852-1574-5d90-9068-b12642ab4ccd"],"at":1760001248501}
+[...]
+{"ts":1760001314001,"tool":"claim_next_task","task":"s20-t03-design-endpoints","version":2,"reclaimed_from":"builder"}
+[...]
+{"ts":1760001316002,"tool":"complete_task","task":"s20-t03-design-endpoints","artifacts":["3f9ae36b-b458-5d18-87d7-5a7b3fad4658"]}
+{"ts":1760001317002,"tool":"handoff","id":"54235b76-539d-5a8b-8cb3-8f3bef999e97","to":"builder","task":"s20-t03-design-endpoints","note":"S20: Endpoint draft is ready. Finished on the builder's behalf after it went down.","artifacts":["3f9ae36b-b458-5d18-87d7-5a7b3fad4658"],"facts":["314cea0e-655e-578d-b067-95bf5b16cb93"],"at":1760001317001}
+

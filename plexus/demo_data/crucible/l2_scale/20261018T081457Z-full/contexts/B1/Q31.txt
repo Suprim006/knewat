@@ -1,0 +1,396 @@
+A SQLite database holding the team's whole history. The CREATE statements of every table come first, then the rows
+most relevant to the question as CSV per table (not all rows are shown).
+decision_facts links a decision to the facts it was based on; fact_links (kind derived_from / supersedes /
+contradicts) links facts to sources and other facts; fact_agents says which agents asserted a fact;
+handoff_items lists the artifacts and facts a handoff carries.
+
+-- schema
+CREATE TABLE tasks(id TEXT PRIMARY KEY, title TEXT NOT NULL, priority INTEGER NOT NULL, seq INTEGER NOT NULL, status TEXT NOT NULL, claimed_by TEXT NOT NULL DEFAULT '', lease_until INTEGER NOT NULL DEFAULT 0, version INTEGER NOT NULL DEFAULT 0, created_at INTEGER NOT NULL, done_at INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE deps(task_id TEXT NOT NULL, dep_id TEXT NOT NULL, PRIMARY KEY(task_id, dep_id));
+CREATE TABLE artifacts(id TEXT PRIMARY KEY, task_id TEXT NOT NULL, kind TEXT, uri TEXT, hash TEXT, summary TEXT, agent_id TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE facts(id TEXT PRIMARY KEY, entity TEXT NOT NULL, entity_name TEXT NOT NULL, predicate TEXT NOT NULL, value TEXT NOT NULL, norm_value TEXT NOT NULL, tokens TEXT NOT NULL, scope TEXT NOT NULL, status TEXT NOT NULL, valid_from INTEGER NOT NULL, valid_to INTEGER NOT NULL, recorded_at INTEGER NOT NULL, confidence REAL NOT NULL);
+CREATE TABLE fact_agents(fact_id TEXT NOT NULL, agent_id TEXT NOT NULL, at INTEGER NOT NULL, PRIMARY KEY(fact_id, agent_id));
+CREATE TABLE fact_links(src TEXT NOT NULL, dst TEXT NOT NULL, kind TEXT NOT NULL, PRIMARY KEY(src, dst, kind));
+CREATE TABLE sources(id TEXT PRIMARY KEY, uri TEXT NOT NULL UNIQUE, kind TEXT, trust REAL, created_at INTEGER NOT NULL);
+CREATE TABLE decisions(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, task_id TEXT NOT NULL, text TEXT NOT NULL, at INTEGER NOT NULL, flagged INTEGER NOT NULL DEFAULT 0);
+CREATE TABLE decision_facts(decision_id TEXT NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE handoffs(id TEXT PRIMARY KEY, from_agent TEXT NOT NULL, to_agent TEXT NOT NULL, task_id TEXT NOT NULL, note TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE handoff_items(handoff_id TEXT NOT NULL, kind TEXT NOT NULL, item_id TEXT NOT NULL);
+CREATE TABLE episodes(id TEXT PRIMARY KEY, agent_id TEXT NOT NULL, step INTEGER, text TEXT NOT NULL, at INTEGER NOT NULL);
+CREATE TABLE agents(id TEXT PRIMARY KEY, role TEXT NOT NULL, created_at INTEGER NOT NULL);
+CREATE TABLE steps(id INTEGER PRIMARY KEY AUTOINCREMENT, agent_id TEXT NOT NULL, n INTEGER NOT NULL, at INTEGER NOT NULL, UNIQUE(agent_id, n));
+CREATE TABLE step_reads(step_id INTEGER NOT NULL, fact_id TEXT NOT NULL);
+CREATE TABLE step_wrote(step_id INTEGER NOT NULL, node_id TEXT NOT NULL, label TEXT NOT NULL, summary TEXT NOT NULL);
+
+-- table deps
+task_id,dep_id
+s06-t02-choose-api-version,s06-t01-gather-requirements
+s06-t03-design-endpoints,s06-t02-choose-api-version
+s06-t04-survey-infra-security,s06-t01-gather-requirements
+s06-t05-choose-auth,s06-t04-survey-infra-security
+s06-t06-write-db-schema,s06-t02-choose-api-version
+s06-t06-write-db-schema,s06-t04-survey-infra-security
+s06-t07-implement-crud-spec,s06-t03-design-endpoints
+s06-t07-implement-crud-spec,s06-t05-choose-auth
+s06-t07-implement-crud-spec,s06-t06-write-db-schema
+s06-t08-write-test-plan,s06-t03-design-endpoints
+s06-t09-review-spec,s06-t07-implement-crud-spec
+s06-t09-review-spec,s06-t08-write-test-plan
+s06-t10-write-docs,s06-t09-review-spec
+s06-t11-package-release,s06-t10-write-docs
+s06-t12-update-endpoints-for-v2,s06-t03-design-endpoints
+
+-- table artifacts
+id,task_id,kind,uri,hash,summary,agent_id,created_at
+33218999-f022-57c6-a73e-27a2ba222951,s06-t01-gather-requirements,file,artifacts/s06/requirements.md,,"S06 requirements: notes CRUD, tags, API version v11",researcher,1760000345502
+58e17d8f-917c-5493-b9c7-481e83844c3b,s06-t03-design-endpoints,file,artifacts/s06/openapi-draft.yaml,,S06 endpoint draft for /v11/notes (CRUD),researcher,1760000357001
+6aa07c46-b70f-5a79-87a2-2300fc191e20,s06-t12-update-endpoints-for-v2,file,artifacts/s06/openapi-v2.yaml,,S06 endpoint design for /v12/notes,builder,1760000366001
+3891bc56-dd5f-535a-990c-0e22f196f87d,s06-t04-survey-infra-security,file,artifacts/s06/constraints.md,,"S06 infra and security constraints: Oracle 23, JWT auth",researcher,1760000371002
+70650a71-4b8d-5e52-af78-8234ba704928,s06-t06-write-db-schema,file,artifacts/s06/schema.sql,,"S06 Oracle 23 schema: notes, tags, note_tags",builder,1760000387001
+19715af8-0853-577c-a079-771cecf2f34a,s06-t07-implement-crud-spec,file,artifacts/s06/crud-spec.md,,S06 CRUD spec for the current API version with JWT auth,builder,1760000391001
+81f8c124-4380-5e2e-98c1-550c6cc7e837,s06-t08-write-test-plan,file,artifacts/s06/test-plan.md,,S06 test plan for the CRUD endpoints,researcher,1760000395001
+22f0a0c0-bc6a-55a0-9a35-8ca31c01eac1,s06-t10-write-docs,file,artifacts/s06/docs.md,,S06 API documentation,researcher,1760000402001
+f03e6bcf-516d-5bb0-87c2-9774bbe34f4e,s06-t11-package-release,file,artifacts/s06/release.tar,,S06 release bundle of the Acme Notes API,builder,1760000404001
+
+-- table facts
+id,entity_name,predicate,value,scope,status,valid_from,valid_to
+2b927606-c02e-5d86-8c84-18c267e87215,Acme Notes API S01,api_version,v1,global,superseded,1760000003000,1760000017500
+e3d70963-c74e-5c24-9814-4c48b55c84bc,Acme Notes API S01,api_version,v2,global,active,1760000017500,9999999999999
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,Bolt Billing API S01,billing_cycle,"monthly, invoiced on day 1",project:billing-s01,active,1760000039500,9999999999999
+eaf77560-4cef-5eca-b904-e65479ecb272,Acme Notes API S01,release_channel,closed beta,project:acme-s01,active,1760000040500,9999999999999
+271b3641-7f41-5602-9219-6f7236a6b215,Acme Notes API S02,api_version,v3,global,superseded,1760000071500,1760000086000
+399e1e16-1b03-5184-b159-958079bedc70,Acme Notes API S02,api_version,v4,global,active,1760000086000,9999999999999
+3a5f4992-3d29-52f0-8de7-0b5710925d3c,Bolt Billing API S02,billing_cycle,"weekly, invoiced on day 2",project:billing-s02,active,1760000108000,9999999999999
+f388cc5f-a42f-533d-881f-f3c0e3903e3e,Acme Notes API S02,release_channel,open beta,project:acme-s02,active,1760000109000,9999999999999
+fc4e0924-6721-5efd-bd74-45c790960ce6,Acme Notes API S03,api_version,v5,global,superseded,1760000140000,1760000154500
+1b64fc8e-7eeb-5f2c-ab3b-35aa90c02efd,Acme Notes API S03,api_version,v6,global,active,1760000154500,9999999999999
+d91d92d8-9f70-5951-a9f4-0b75f833ff07,Bolt Billing API S03,billing_cycle,"quarterly, invoiced on day 3",project:billing-s03,active,1760000176500,9999999999999
+7b2ccab8-fe0b-5973-8419-ec7d9ed33a44,Acme Notes API S03,release_channel,private preview,project:acme-s03,active,1760000177500,9999999999999
+a3e6a516-fc31-5e62-ab92-e9f92abb72e9,Acme Notes API S04,api_version,v7,global,superseded,1760000208500,1760000223000
+c73b692e-9cd9-58f6-a146-aa387e5d2e33,Acme Notes API S04,api_version,v8,global,active,1760000223000,9999999999999
+693d6da9-fee9-58ca-8816-10fecff2b269,Bolt Billing API S04,billing_cycle,"biweekly, invoiced on day 4",project:billing-s04,active,1760000245000,9999999999999
+2debeff6-b858-539e-8c70-f73c0a1ca8c5,Acme Notes API S04,release_channel,early access,project:acme-s04,active,1760000246000,9999999999999
+ca0ea7ab-cc37-5143-b241-878499db2bd5,Acme Notes API S05,api_version,v9,global,superseded,1760000277000,1760000291500
+cbde9957-b402-503b-bef3-f0a0733a8c27,Acme Notes API S05,api_version,v10,global,active,1760000291500,9999999999999
+830e0e56-2b7b-50ec-be73-451989cb507e,Bolt Billing API S05,billing_cycle,"monthly, invoiced on day 5",project:billing-s05,active,1760000313500,9999999999999
+b5f311d2-6ea7-5e99-90d8-db978bca5428,Acme Notes API S05,release_channel,general availability,project:acme-s05,active,1760000314500,9999999999999
+ce8520b9-c5e5-58eb-ad66-4494e9f418ca,Acme Notes API S06,purpose,"REST service to create, tag and search notes (S06)",global,active,1760000344500,9999999999999
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,Acme Notes API S06,api_version,v11,global,superseded,1760000345500,1760000360000
+8d2b5d80-fe43-5534-8e8a-955905c4975b,Acme Notes API S06,api_version,v12,global,active,1760000360000,9999999999999
+1654df3c-dbba-515b-85a1-fb158f3a95b0,Acme Notes API S06,database,Oracle 23,global,active,1760000370000,9999999999999
+a7d999dc-22d8-5a8f-9859-1e0bf1c06070,Acme Notes API S06,auth_method,"JWT bearer tokens (RS256, key s06)",global,active,1760000371000,9999999999999
+df087bdd-00a4-582c-8b35-5ab24374ba4a,Acme Notes API S06,auth_method,API key in X-Access-Key header,global,active,1760000375000,9999999999999
+a358e2a2-9b4c-5143-97ec-721836d2a9de,Acme Notes API S06,database,CouchDB 9,global,forgotten,1760000378000,1760000380001
+7b476e2f-dae4-5ff3-acb4-24ef0025b065,Bolt Billing API S06,billing_cycle,"weekly, invoiced on day 6",project:billing-s06,active,1760000382000,9999999999999
+f290faec-6971-59de-8164-6ba6aab35ab3,Acme Notes API S06,release_channel,closed beta,project:acme-s06,active,1760000383000,9999999999999
+9a0a5f0a-ada4-5cbf-8f0d-5f3c15da452d,Acme Notes API S07,api_version,v13,global,superseded,1760000414000,1760000428500
+a708b29f-1316-57c9-9cd2-e1d93d1fd605,Acme Notes API S07,api_version,v14,global,active,1760000428500,9999999999999
+74f296cb-6df6-5f59-86f6-3dc971410666,Bolt Billing API S07,billing_cycle,"quarterly, invoiced on day 7",project:billing-s07,active,1760000450500,9999999999999
+70905c5f-9ab9-5580-8a79-8aad4b1a6633,Acme Notes API S07,release_channel,open beta,project:acme-s07,active,1760000451500,9999999999999
+2d18baf0-1ce3-5f5f-94b3-5d524493d2f9,Acme Notes API S08,api_version,v15,global,superseded,1760000482500,1760000497000
+f4918c86-ef7f-50df-94d1-abc537082890,Acme Notes API S08,api_version,v16,global,active,1760000497000,9999999999999
+89e9ab1b-d617-5098-adb0-a7aa78a5e724,Bolt Billing API S08,billing_cycle,"biweekly, invoiced on day 8",project:billing-s08,active,1760000519000,9999999999999
+87d2ead0-f00f-5204-8292-58c486e0b01d,Acme Notes API S08,release_channel,private preview,project:acme-s08,active,1760000520000,9999999999999
+c591ebd4-30f6-5f5a-bdd3-03a2c78fb133,Acme Notes API S09,api_version,v17,global,superseded,1760000551000,1760000565500
+1addbe80-48b1-5bfc-9ed2-234d9c49ea8c,Acme Notes API S09,api_version,v18,global,active,1760000565500,9999999999999
+6fb8103d-ab8e-5b4f-b696-0a95900ccc04,Bolt Billing API S09,billing_cycle,"monthly, invoiced on day 9",project:billing-s09,active,1760000587500,9999999999999
+58fc3de5-8126-591d-9708-96b7ec12f196,Acme Notes API S09,release_channel,early access,project:acme-s09,active,1760000588500,9999999999999
+ae28d59b-3427-5793-b33d-9abfe80363c8,Acme Notes API S10,api_version,v19,global,superseded,1760000619500,1760000634000
+9d834c69-70bf-51a2-a771-d04e1f6a0a07,Acme Notes API S10,api_version,v20,global,active,1760000634000,9999999999999
+5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed,Bolt Billing API S10,billing_cycle,"weekly, invoiced on day 10",project:billing-s10,active,1760000656000,9999999999999
+9cb66ebf-fe08-5a0d-bb90-075f85ab1605,Acme Notes API S10,release_channel,general availability,project:acme-s10,active,1760000657000,9999999999999
+a8a3e01c-f8d9-548e-ba0b-cbe8904bc00a,Acme Notes API S11,api_version,v21,global,superseded,1760000688000,1760000702500
+6e976d44-c6ad-52c2-918c-f396900cc85e,Acme Notes API S11,api_version,v22,global,active,1760000702500,9999999999999
+912de14c-085a-5b4b-817b-8e01357babce,Bolt Billing API S11,billing_cycle,"quarterly, invoiced on day 11",project:billing-s11,active,1760000724500,9999999999999
+8e111424-9735-5695-a76b-90410f7a4818,Acme Notes API S11,release_channel,closed beta,project:acme-s11,active,1760000725500,9999999999999
+9d31097e-bc44-5443-b9c6-6e15ee7fceba,Acme Notes API S12,api_version,v23,global,superseded,1760000756500,1760000771000
+9c6f3395-6466-5261-87f5-70fa6df0101e,Acme Notes API S12,api_version,v24,global,active,1760000771000,9999999999999
+2a2f20a8-61ae-50c5-abeb-3aad5b02779e,Bolt Billing API S12,billing_cycle,"biweekly, invoiced on day 12",project:billing-s12,active,1760000793000,9999999999999
+140e176c-68fd-5743-bc59-eb7d8b0cbd4a,Acme Notes API S12,release_channel,open beta,project:acme-s12,active,1760000794000,9999999999999
+a8d569a8-4806-56a9-b86e-f497a45654d5,Acme Notes API S13,api_version,v25,global,superseded,1760000825000,1760000839500
+fac5fc92-c1d1-5fc1-b074-8bede03f1284,Bolt Billing API S13,billing_cycle,"monthly, invoiced on day 13",project:billing-s13,active,1760000861500,9999999999999
+49f52e35-8611-555b-99e0-c7accb9cc5e3,Acme Notes API S13,release_channel,private preview,project:acme-s13,active,1760000862500,9999999999999
+4363b17f-3322-56a0-8d2b-1b5a1e28f43a,Bolt Billing API S14,billing_cycle,"weekly, invoiced on day 14",project:billing-s14,active,1760000930000,9999999999999
+240fbc02-c650-5b0b-964d-411a8ef0771e,Acme Notes API S14,release_channel,early access,project:acme-s14,active,1760000931000,9999999999999
+0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,Bolt Billing API S15,billing_cycle,"quarterly, invoiced on day 15",project:billing-s15,active,1760000998500,9999999999999
+dddf3933-ecf8-5793-8e2f-b7467db404ac,Acme Notes API S15,release_channel,general availability,project:acme-s15,active,1760000999500,9999999999999
+c7e8b034-4761-5a82-8fad-ebc65571848c,Bolt Billing API S16,billing_cycle,"biweekly, invoiced on day 16",project:billing-s16,active,1760001067000,9999999999999
+caff852d-6e06-52c3-9e24-d6119f0977ed,Acme Notes API S16,release_channel,closed beta,project:acme-s16,active,1760001068000,9999999999999
+4490b294-47f7-5bdc-922a-93c3e89025fb,Bolt Billing API S17,billing_cycle,"monthly, invoiced on day 17",project:billing-s17,active,1760001135500,9999999999999
+a493bc4a-c3ab-5c84-a8cc-546bd4ec70ff,Acme Notes API S17,release_channel,open beta,project:acme-s17,active,1760001136500,9999999999999
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,Bolt Billing API S18,billing_cycle,"weekly, invoiced on day 18",project:billing-s18,active,1760001204000,9999999999999
+f646a829-19e3-57ce-8aaa-920070d468cd,Acme Notes API S18,release_channel,private preview,project:acme-s18,active,1760001205000,9999999999999
+1329b454-6349-510a-bc35-8fcc8867f611,Bolt Billing API S19,billing_cycle,"quarterly, invoiced on day 19",project:billing-s19,active,1760001272500,9999999999999
+01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,Acme Notes API S19,release_channel,early access,project:acme-s19,active,1760001273500,9999999999999
+368a3f28-d754-5731-b810-e2d4d01debbc,Bolt Billing API S20,billing_cycle,"biweekly, invoiced on day 20",project:billing-s20,active,1760001341000,9999999999999
+e507c7cc-74bf-53e4-b40b-40037024086b,Acme Notes API S20,release_channel,general availability,project:acme-s20,active,1760001342000,9999999999999
+
+-- table fact_agents
+fact_id,agent_id,at
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,researcher,1760000039500
+eaf77560-4cef-5eca-b904-e65479ecb272,planner,1760000040500
+3a5f4992-3d29-52f0-8de7-0b5710925d3c,researcher,1760000108000
+f388cc5f-a42f-533d-881f-f3c0e3903e3e,planner,1760000109000
+d91d92d8-9f70-5951-a9f4-0b75f833ff07,researcher,1760000176500
+7b2ccab8-fe0b-5973-8419-ec7d9ed33a44,planner,1760000177500
+693d6da9-fee9-58ca-8816-10fecff2b269,researcher,1760000245000
+2debeff6-b858-539e-8c70-f73c0a1ca8c5,planner,1760000246000
+830e0e56-2b7b-50ec-be73-451989cb507e,researcher,1760000313500
+b5f311d2-6ea7-5e99-90d8-db978bca5428,planner,1760000314500
+ce8520b9-c5e5-58eb-ad66-4494e9f418ca,researcher,1760000344500
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,researcher,1760000345500
+8d2b5d80-fe43-5534-8e8a-955905c4975b,researcher,1760000360000
+1654df3c-dbba-515b-85a1-fb158f3a95b0,researcher,1760000370000
+a7d999dc-22d8-5a8f-9859-1e0bf1c06070,researcher,1760000371000
+df087bdd-00a4-582c-8b35-5ab24374ba4a,planner,1760000375000
+a358e2a2-9b4c-5143-97ec-721836d2a9de,planner,1760000378000
+7b476e2f-dae4-5ff3-acb4-24ef0025b065,researcher,1760000382000
+f290faec-6971-59de-8164-6ba6aab35ab3,planner,1760000383000
+74f296cb-6df6-5f59-86f6-3dc971410666,researcher,1760000450500
+70905c5f-9ab9-5580-8a79-8aad4b1a6633,planner,1760000451500
+89e9ab1b-d617-5098-adb0-a7aa78a5e724,researcher,1760000519000
+87d2ead0-f00f-5204-8292-58c486e0b01d,planner,1760000520000
+6fb8103d-ab8e-5b4f-b696-0a95900ccc04,researcher,1760000587500
+58fc3de5-8126-591d-9708-96b7ec12f196,planner,1760000588500
+5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed,researcher,1760000656000
+9cb66ebf-fe08-5a0d-bb90-075f85ab1605,planner,1760000657000
+912de14c-085a-5b4b-817b-8e01357babce,researcher,1760000724500
+8e111424-9735-5695-a76b-90410f7a4818,planner,1760000725500
+2a2f20a8-61ae-50c5-abeb-3aad5b02779e,researcher,1760000793000
+140e176c-68fd-5743-bc59-eb7d8b0cbd4a,planner,1760000794000
+fac5fc92-c1d1-5fc1-b074-8bede03f1284,researcher,1760000861500
+49f52e35-8611-555b-99e0-c7accb9cc5e3,planner,1760000862500
+4363b17f-3322-56a0-8d2b-1b5a1e28f43a,researcher,1760000930000
+240fbc02-c650-5b0b-964d-411a8ef0771e,planner,1760000931000
+0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,researcher,1760000998500
+dddf3933-ecf8-5793-8e2f-b7467db404ac,planner,1760000999500
+c7e8b034-4761-5a82-8fad-ebc65571848c,researcher,1760001067000
+caff852d-6e06-52c3-9e24-d6119f0977ed,planner,1760001068000
+4490b294-47f7-5bdc-922a-93c3e89025fb,researcher,1760001135500
+a493bc4a-c3ab-5c84-a8cc-546bd4ec70ff,planner,1760001136500
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,researcher,1760001204000
+f646a829-19e3-57ce-8aaa-920070d468cd,planner,1760001205000
+1329b454-6349-510a-bc35-8fcc8867f611,researcher,1760001272500
+01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,planner,1760001273500
+368a3f28-d754-5731-b810-e2d4d01debbc,researcher,1760001341000
+e507c7cc-74bf-53e4-b40b-40037024086b,planner,1760001342000
+
+-- table fact_links
+src,dst,kind
+1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,c9391172-98a0-5227-a802-2562f4b47eaa,derived_from
+3a5f4992-3d29-52f0-8de7-0b5710925d3c,bece50ec-c6cd-5b1f-8f10-dbabe1ac4693,derived_from
+d91d92d8-9f70-5951-a9f4-0b75f833ff07,a6bbed10-44c3-51f2-8046-e46b23517f91,derived_from
+693d6da9-fee9-58ca-8816-10fecff2b269,8c0d029a-205a-50ac-8733-3e2980b13f51,derived_from
+830e0e56-2b7b-50ec-be73-451989cb507e,8bb8e9cd-7f5e-518e-8179-b16b22406edb,derived_from
+ce8520b9-c5e5-58eb-ad66-4494e9f418ca,9fb044a0-ddc3-570b-8cc6-d13485ca6b65,derived_from
+f91cd115-13a9-5c16-bb96-f8a9c4b990eb,fa6709cb-2c39-53ac-b0be-247d40d19369,derived_from
+8d2b5d80-fe43-5534-8e8a-955905c4975b,c15bc998-60b5-5fbd-83de-0068f1d0a6ea,derived_from
+8d2b5d80-fe43-5534-8e8a-955905c4975b,f91cd115-13a9-5c16-bb96-f8a9c4b990eb,supersedes
+1654df3c-dbba-515b-85a1-fb158f3a95b0,25c69ed9-6900-5a24-9220-b828122c457f,derived_from
+a7d999dc-22d8-5a8f-9859-1e0bf1c06070,1e93d619-1697-50f6-9d74-98340c8d9645,derived_from
+df087bdd-00a4-582c-8b35-5ab24374ba4a,120b450b-4ed5-5a55-9940-adc6d7047fc4,derived_from
+df087bdd-00a4-582c-8b35-5ab24374ba4a,a7d999dc-22d8-5a8f-9859-1e0bf1c06070,contradicts
+a358e2a2-9b4c-5143-97ec-721836d2a9de,c477da62-2474-573b-851d-1e136de0257a,derived_from
+a358e2a2-9b4c-5143-97ec-721836d2a9de,1654df3c-dbba-515b-85a1-fb158f3a95b0,contradicts
+7b476e2f-dae4-5ff3-acb4-24ef0025b065,d024116b-844c-58fb-95f9-74cf7c0d7d8d,derived_from
+74f296cb-6df6-5f59-86f6-3dc971410666,561c65eb-d020-5de2-ad93-13e866c81828,derived_from
+89e9ab1b-d617-5098-adb0-a7aa78a5e724,8a376dd6-3f68-53af-9c01-c09b0ee2d1aa,derived_from
+6fb8103d-ab8e-5b4f-b696-0a95900ccc04,497f8ed2-fa73-5f05-af5c-569b841c1a13,derived_from
+5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed,ab2c87f0-bf51-58cf-b5a3-0672f747535c,derived_from
+912de14c-085a-5b4b-817b-8e01357babce,2a2784cb-da43-517e-9201-6ebce385ece8,derived_from
+2a2f20a8-61ae-50c5-abeb-3aad5b02779e,da298250-a0d7-52fd-ac5d-3a6472265ed7,derived_from
+fac5fc92-c1d1-5fc1-b074-8bede03f1284,da895333-a26b-5b31-932f-73268bcef106,derived_from
+4363b17f-3322-56a0-8d2b-1b5a1e28f43a,3f81fce8-d250-5efe-bc52-13013e1a28df,derived_from
+0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,a2d55b14-79ae-50e9-af07-06389712ed28,derived_from
+c7e8b034-4761-5a82-8fad-ebc65571848c,9300b701-b80d-564f-83f2-e24e7217b008,derived_from
+4490b294-47f7-5bdc-922a-93c3e89025fb,57a5a080-8ec9-5339-8699-00484b342b6f,derived_from
+5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,944d2579-e081-58b4-a307-92e33bcbabf5,derived_from
+1329b454-6349-510a-bc35-8fcc8867f611,68b7e181-14a3-5707-a5a4-8c6ace961663,derived_from
+368a3f28-d754-5731-b810-e2d4d01debbc,0a028c65-53b7-58a8-8306-5fcfe2d64a7c,derived_from
+
+-- table sources
+id,uri,kind,trust,created_at
+c9391172-98a0-5227-a802-2562f4b47eaa,billing-docs/s01/01_overview.md,doc,1.0,1760000038501
+bece50ec-c6cd-5b1f-8f10-dbabe1ac4693,billing-docs/s02/01_overview.md,doc,1.0,1760000107001
+a6bbed10-44c3-51f2-8046-e46b23517f91,billing-docs/s03/01_overview.md,doc,1.0,1760000175501
+8c0d029a-205a-50ac-8733-3e2980b13f51,billing-docs/s04/01_overview.md,doc,1.0,1760000244001
+8bb8e9cd-7f5e-518e-8179-b16b22406edb,billing-docs/s05/01_overview.md,doc,1.0,1760000312501
+fa6709cb-2c39-53ac-b0be-247d40d19369,acme-docs/s06/02_api_style_guide_v1.md,doc,1.0,1760000343502
+c15bc998-60b5-5fbd-83de-0068f1d0a6ea,acme-docs/s06/06_api_style_guide_v2.md,doc,1.0,1760000359001
+d024116b-844c-58fb-95f9-74cf7c0d7d8d,billing-docs/s06/01_overview.md,doc,1.0,1760000381001
+561c65eb-d020-5de2-ad93-13e866c81828,billing-docs/s07/01_overview.md,doc,1.0,1760000449501
+8a376dd6-3f68-53af-9c01-c09b0ee2d1aa,billing-docs/s08/01_overview.md,doc,1.0,1760000518001
+497f8ed2-fa73-5f05-af5c-569b841c1a13,billing-docs/s09/01_overview.md,doc,1.0,1760000586501
+ab2c87f0-bf51-58cf-b5a3-0672f747535c,billing-docs/s10/01_overview.md,doc,1.0,1760000655001
+2a2784cb-da43-517e-9201-6ebce385ece8,billing-docs/s11/01_overview.md,doc,1.0,1760000723501
+da298250-a0d7-52fd-ac5d-3a6472265ed7,billing-docs/s12/01_overview.md,doc,1.0,1760000792001
+da895333-a26b-5b31-932f-73268bcef106,billing-docs/s13/01_overview.md,doc,1.0,1760000860501
+3f81fce8-d250-5efe-bc52-13013e1a28df,billing-docs/s14/01_overview.md,doc,1.0,1760000929001
+a2d55b14-79ae-50e9-af07-06389712ed28,billing-docs/s15/01_overview.md,doc,1.0,1760000997501
+9300b701-b80d-564f-83f2-e24e7217b008,billing-docs/s16/01_overview.md,doc,1.0,1760001066001
+57a5a080-8ec9-5339-8699-00484b342b6f,billing-docs/s17/01_overview.md,doc,1.0,1760001134501
+944d2579-e081-58b4-a307-92e33bcbabf5,billing-docs/s18/01_overview.md,doc,1.0,1760001203001
+68b7e181-14a3-5707-a5a4-8c6ace961663,billing-docs/s19/01_overview.md,doc,1.0,1760001271501
+0a028c65-53b7-58a8-8306-5fcfe2d64a7c,billing-docs/s20/01_overview.md,doc,1.0,1760001340001
+
+-- table decisions
+id,agent_id,task_id,text,at,flagged
+e2639309-acaa-51ac-a150-710fbcf08ebd,planner,s06-t02-choose-api-version,S06: Build the Acme Notes API against v11 of the style guide (routes under /v11/).,1760000347501,0
+ae9e1fff-9b6b-5ddf-9fff-282fe921961c,planner,s06-t02-choose-api-version,S06: Adopt style guide v12: the API version is now v12 (routes under /v12/).,1760000362001,0
+1e35ca91-55b3-57a8-bc76-48963a1353d8,planner,s06-t05-choose-auth,S06: Use JWT bearer tokens for user traffic (security requirement); offer API keys only later for service accounts.,1760000375002,0
+b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9,planner,s06-t06-write-db-schema,S06: Evaluate CouchDB 9 as the database (forum post).,1760000378002,1
+3b90669c-44c3-5bf4-821c-07c5ec6eaf52,builder,s06-t06-write-db-schema,"S06: Use Oracle 23 for the notes, tags and note_tags tables.",1760000386001,0
+3bc6e6b9-213b-5a05-8e74-175df8e45057,planner,s06-t09-review-spec,"S06: Spec approved: endpoints, schema and JWT auth are consistent.",1760000398001,0
+
+-- table decision_facts
+decision_id,fact_id
+e2639309-acaa-51ac-a150-710fbcf08ebd,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+ae9e1fff-9b6b-5ddf-9fff-282fe921961c,8d2b5d80-fe43-5534-8e8a-955905c4975b
+1e35ca91-55b3-57a8-bc76-48963a1353d8,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+1e35ca91-55b3-57a8-bc76-48963a1353d8,df087bdd-00a4-582c-8b35-5ab24374ba4a
+b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9,a358e2a2-9b4c-5143-97ec-721836d2a9de
+3b90669c-44c3-5bf4-821c-07c5ec6eaf52,1654df3c-dbba-515b-85a1-fb158f3a95b0
+3bc6e6b9-213b-5a05-8e74-175df8e45057,8d2b5d80-fe43-5534-8e8a-955905c4975b
+3bc6e6b9-213b-5a05-8e74-175df8e45057,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+
+-- table handoffs
+id,from_agent,to_agent,task_id,note,at
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,researcher,builder,s06-t03-design-endpoints,S06: Endpoint draft is ready. Finished on the builder's behalf after it went down.,1760000358001
+9d7cebfd-874c-5e0d-89da-27e66f64a5ea,builder,planner,s06-t12-update-endpoints-for-v2,S06: Updated for API v12.,1760000367001
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,builder,planner,s06-t07-implement-crud-spec,S06: CRUD spec ready for review.,1760000392001
+16c140ee-b857-5484-8171-56ca555ba268,builder,planner,s06-t11-package-release,S06: Release bundle is ready.,1760000405001
+
+-- table handoff_items
+handoff_id,kind,item_id
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,artifact,58e17d8f-917c-5493-b9c7-481e83844c3b
+0a115fb4-a1fa-5e2e-bc94-ee01d2df9fc0,fact,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+9d7cebfd-874c-5e0d-89da-27e66f64a5ea,artifact,6aa07c46-b70f-5a79-87a2-2300fc191e20
+9d7cebfd-874c-5e0d-89da-27e66f64a5ea,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,artifact,19715af8-0853-577c-a079-771cecf2f34a
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+0aff62b2-52de-5019-aeb4-ea6f9488fb44,fact,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+16c140ee-b857-5484-8171-56ca555ba268,artifact,f03e6bcf-516d-5bb0-87c2-9774bbe34f4e
+16c140ee-b857-5484-8171-56ca555ba268,fact,8d2b5d80-fe43-5534-8e8a-955905c4975b
+
+-- table episodes
+id,agent_id,step,text,at
+37e849fd-d33a-5694-9b19-129c8b625c33,researcher,,S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version.,1760000356001
+
+-- table step_reads
+step_id,fact_id
+178,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+179,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+179,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+180,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+180,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+182,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+183,f91cd115-13a9-5c16-bb96-f8a9c4b990eb
+185,8d2b5d80-fe43-5534-8e8a-955905c4975b
+185,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+186,8d2b5d80-fe43-5534-8e8a-955905c4975b
+187,8d2b5d80-fe43-5534-8e8a-955905c4975b
+187,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+189,8d2b5d80-fe43-5534-8e8a-955905c4975b
+192,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+192,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+192,1654df3c-dbba-515b-85a1-fb158f3a95b0
+192,8d2b5d80-fe43-5534-8e8a-955905c4975b
+193,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+194,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+195,1654df3c-dbba-515b-85a1-fb158f3a95b0
+197,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+197,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+197,8d2b5d80-fe43-5534-8e8a-955905c4975b
+200,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+200,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+200,8d2b5d80-fe43-5534-8e8a-955905c4975b
+203,8d2b5d80-fe43-5534-8e8a-955905c4975b
+203,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+203,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+204,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+204,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+204,8d2b5d80-fe43-5534-8e8a-955905c4975b
+205,8d2b5d80-fe43-5534-8e8a-955905c4975b
+205,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+206,8d2b5d80-fe43-5534-8e8a-955905c4975b
+206,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+206,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+207,8d2b5d80-fe43-5534-8e8a-955905c4975b
+207,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+207,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+208,8d2b5d80-fe43-5534-8e8a-955905c4975b
+208,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+209,8d2b5d80-fe43-5534-8e8a-955905c4975b
+209,a7d999dc-22d8-5a8f-9859-1e0bf1c06070
+209,ce8520b9-c5e5-58eb-ad66-4494e9f418ca
+210,8d2b5d80-fe43-5534-8e8a-955905c4975b
+214,8d2b5d80-fe43-5534-8e8a-955905c4975b
+215,8d2b5d80-fe43-5534-8e8a-955905c4975b
+220,8d2b5d80-fe43-5534-8e8a-955905c4975b
+222,8d2b5d80-fe43-5534-8e8a-955905c4975b
+249,8d2b5d80-fe43-5534-8e8a-955905c4975b
+250,8d2b5d80-fe43-5534-8e8a-955905c4975b
+255,8d2b5d80-fe43-5534-8e8a-955905c4975b
+257,8d2b5d80-fe43-5534-8e8a-955905c4975b
+284,8d2b5d80-fe43-5534-8e8a-955905c4975b
+285,8d2b5d80-fe43-5534-8e8a-955905c4975b
+290,8d2b5d80-fe43-5534-8e8a-955905c4975b
+292,8d2b5d80-fe43-5534-8e8a-955905c4975b
+
+-- table step_wrote
+step_id,node_id,label,summary
+23,1cc2d0de-b9b9-581f-8962-8d583b8c0fdb,Fact,"monthly, invoiced on day 1"
+24,eaf77560-4cef-5eca-b904-e65479ecb272,Fact,closed beta
+58,3a5f4992-3d29-52f0-8de7-0b5710925d3c,Fact,"weekly, invoiced on day 2"
+59,f388cc5f-a42f-533d-881f-f3c0e3903e3e,Fact,open beta
+93,d91d92d8-9f70-5951-a9f4-0b75f833ff07,Fact,"quarterly, invoiced on day 3"
+94,7b2ccab8-fe0b-5973-8419-ec7d9ed33a44,Fact,private preview
+128,693d6da9-fee9-58ca-8816-10fecff2b269,Fact,"biweekly, invoiced on day 4"
+129,2debeff6-b858-539e-8c70-f73c0a1ca8c5,Fact,early access
+163,830e0e56-2b7b-50ec-be73-451989cb507e,Fact,"monthly, invoiced on day 5"
+164,b5f311d2-6ea7-5e99-90d8-db978bca5428,Fact,general availability
+176,ce8520b9-c5e5-58eb-ad66-4494e9f418ca,Fact,"REST service to create, tag and search notes (S06)"
+177,f91cd115-13a9-5c16-bb96-f8a9c4b990eb,Fact,v11
+178,e2639309-acaa-51ac-a150-710fbcf08ebd,Decision,S06: Build the Acme Notes API against v11 of the style guide (routes under /v11/).
+183,8d2b5d80-fe43-5534-8e8a-955905c4975b,Fact,v12
+186,ae9e1fff-9b6b-5ddf-9fff-282fe921961c,Decision,S06: Adopt style guide v12: the API version is now v12 (routes under /v12/).
+189,9d7cebfd-874c-5e0d-89da-27e66f64a5ea,Handoff,S06: Updated for API v12.
+190,1654df3c-dbba-515b-85a1-fb158f3a95b0,Fact,Oracle 23
+191,a7d999dc-22d8-5a8f-9859-1e0bf1c06070,Fact,"JWT bearer tokens (RS256, key s06)"
+193,df087bdd-00a4-582c-8b35-5ab24374ba4a,Fact,API key in X-Access-Key header
+195,a358e2a2-9b4c-5143-97ec-721836d2a9de,Fact,CouchDB 9
+196,b4e984f6-ddcf-548d-b40d-cfab3b2cfdc9,Decision,S06: Evaluate CouchDB 9 as the database (forum post).
+198,7b476e2f-dae4-5ff3-acb4-24ef0025b065,Fact,"weekly, invoiced on day 6"
+199,f290faec-6971-59de-8164-6ba6aab35ab3,Fact,closed beta
+205,0aff62b2-52de-5019-aeb4-ea6f9488fb44,Handoff,S06: CRUD spec ready for review.
+208,3bc6e6b9-213b-5a05-8e74-175df8e45057,Decision,"S06: Spec approved: endpoints, schema and JWT auth are consistent."
+210,16c140ee-b857-5484-8171-56ca555ba268,Handoff,S06: Release bundle is ready.
+233,74f296cb-6df6-5f59-86f6-3dc971410666,Fact,"quarterly, invoiced on day 7"
+234,70905c5f-9ab9-5580-8a79-8aad4b1a6633,Fact,open beta
+268,89e9ab1b-d617-5098-adb0-a7aa78a5e724,Fact,"biweekly, invoiced on day 8"
+269,87d2ead0-f00f-5204-8292-58c486e0b01d,Fact,private preview
+303,6fb8103d-ab8e-5b4f-b696-0a95900ccc04,Fact,"monthly, invoiced on day 9"
+304,58fc3de5-8126-591d-9708-96b7ec12f196,Fact,early access
+338,5c7aa95c-b70e-5917-beda-ba0b2e6fd4ed,Fact,"weekly, invoiced on day 10"
+339,9cb66ebf-fe08-5a0d-bb90-075f85ab1605,Fact,general availability
+373,912de14c-085a-5b4b-817b-8e01357babce,Fact,"quarterly, invoiced on day 11"
+374,8e111424-9735-5695-a76b-90410f7a4818,Fact,closed beta
+408,2a2f20a8-61ae-50c5-abeb-3aad5b02779e,Fact,"biweekly, invoiced on day 12"
+409,140e176c-68fd-5743-bc59-eb7d8b0cbd4a,Fact,open beta
+443,fac5fc92-c1d1-5fc1-b074-8bede03f1284,Fact,"monthly, invoiced on day 13"
+444,49f52e35-8611-555b-99e0-c7accb9cc5e3,Fact,private preview
+478,4363b17f-3322-56a0-8d2b-1b5a1e28f43a,Fact,"weekly, invoiced on day 14"
+479,240fbc02-c650-5b0b-964d-411a8ef0771e,Fact,early access
+513,0d12b9f9-5c40-51a6-ac3d-fd07d669faf3,Fact,"quarterly, invoiced on day 15"
+514,dddf3933-ecf8-5793-8e2f-b7467db404ac,Fact,general availability
+548,c7e8b034-4761-5a82-8fad-ebc65571848c,Fact,"biweekly, invoiced on day 16"
+549,caff852d-6e06-52c3-9e24-d6119f0977ed,Fact,closed beta
+583,4490b294-47f7-5bdc-922a-93c3e89025fb,Fact,"monthly, invoiced on day 17"
+584,a493bc4a-c3ab-5c84-a8cc-546bd4ec70ff,Fact,open beta
+618,5ff3ed3c-af3c-500f-93d6-5f4c2cde373f,Fact,"weekly, invoiced on day 18"
+619,f646a829-19e3-57ce-8aaa-920070d468cd,Fact,private preview
+653,1329b454-6349-510a-bc35-8fcc8867f611,Fact,"quarterly, invoiced on day 19"
+654,01b610e4-fd96-5f8a-9f03-4ff7a8df81b7,Fact,early access
+688,368a3f28-d754-5731-b810-e2d4d01debbc,Fact,"biweekly, invoiced on day 20"
+689,e507c7cc-74bf-53e4-b40b-40037024086b,Fact,general availability
+

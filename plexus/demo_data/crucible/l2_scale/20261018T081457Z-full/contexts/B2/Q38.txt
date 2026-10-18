@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Fact database=ScyllaDB 12 about 'Acme Notes API S09' (scope global; status forgotten; valid_from 1760000583500; valid_to 1760000585501); asserted by planner; source acme-docs/s09/07_forum_post_unverified.md; contradicts database=TiDB 8.
+[2] Fact database=ScyllaDB 22 about 'Acme Notes API S19' (scope global; status forgotten; valid_from 1760001268500; valid_to 1760001270501); asserted by planner; source acme-docs/s19/07_forum_post_unverified.md; contradicts database=TiDB 8.
+[3] Fact database=Neo4j 11 about 'Acme Notes API S08' (scope global; status forgotten; valid_from 1760000515000; valid_to 1760000517001); asserted by planner; source acme-docs/s08/07_forum_post_unverified.md; contradicts database=Db2 12.
+[4] Source acme-docs/s08/07_forum_post_unverified.md (kind web, trust 0.2).
+[5] Source acme-docs/s09/07_forum_post_unverified.md (kind web, trust 0.2).
+[6] Fact database=Redis 8 about 'Acme Notes API S05' (scope global; status forgotten; valid_from 1760000309500; valid_to 1760000311501); asserted by planner; source acme-docs/s05/07_forum_post_unverified.md; contradicts database=SQL Server 2022.
+[7] Source acme-docs/s05/07_forum_post_unverified.md (kind web, trust 0.2).
+[8] Source acme-docs/s07/07_forum_post_unverified.md (kind web, trust 0.2).
+[9] Fact database=DynamoDB 17 about 'Acme Notes API S14' (scope global; status forgotten; valid_from 1760000926000; valid_to 1760000928001); asserted by planner; source acme-docs/s14/07_forum_post_unverified.md; contradicts database=CockroachDB 24.
+[10] Source acme-docs/s03/07_forum_post_unverified.md (kind web, trust 0.2).
+[11] Fact database=DynamoDB 7 about 'Acme Notes API S04' (scope global; status forgotten; valid_from 1760000241000; valid_to 1760000243001); asserted by planner; source acme-docs/s04/07_forum_post_unverified.md; contradicts database=CockroachDB 24.
+[12] Source acme-docs/s02/07_forum_post_unverified.md (kind web, trust 0.2).

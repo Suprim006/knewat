@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Episode recorded by researcher: "S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[2] Task s20-t05-choose-auth ('Choose authentication (S20)', priority 30) status done, claimed by planner; depends on s20-t04-survey-infra-security; artifacts none.
+[3] Decision by planner for task s20-t06-write-db-schema: "S20: Evaluate Riak 23 as the database (forum post)." Based on facts: database=Riak 23. Flagged: a fact it relied on was forgotten.
+[4] Fact purpose=REST service to create, tag and search notes (S20) about 'Acme Notes API S20' (scope global; status active; valid_from 1760001303500; valid_to 9999999999999); asserted by researcher; source acme-docs/s20/01_product_brief.md.
+[5] Episode recorded by researcher: "S10: Took over s10-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[6] Task s18-t05-choose-auth ('Choose authentication (S18)', priority 30) status done, claimed by planner; depends on s18-t04-survey-infra-security; artifacts none.
+[7] Episode recorded by researcher: "S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[8] Task s01-t05-choose-auth ('Choose authentication (S01)', priority 30) status done, claimed by planner; depends on s01-t04-survey-infra-security; artifacts none.
+[9] Episode recorded by researcher: "S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[10] Episode recorded by researcher: "S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[11] Episode recorded by researcher: "S18: Took over s18-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[12] Task s19-t05-choose-auth ('Choose authentication (S19)', priority 30) status done, claimed by planner; depends on s19-t04-survey-infra-security; artifacts none.

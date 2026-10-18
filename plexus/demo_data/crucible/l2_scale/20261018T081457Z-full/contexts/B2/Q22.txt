@@ -1,0 +1,14 @@
+The 12 memory chunks most similar to the question, best first (retrieved from a vector store):
+
+[1] Episode recorded by researcher: "S20: Took over s20-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[2] Episode recorded by researcher: "S01: Took over s01-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[3] Episode recorded by researcher: "S12: Took over s12-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[4] Episode recorded by researcher: "S09: Took over s09-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[5] Episode recorded by researcher: "S11: Took over s11-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[6] Episode recorded by researcher: "S17: Took over s17-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[7] Episode recorded by researcher: "S05: Took over s05-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[8] Episode recorded by researcher: "S03: Took over s03-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[9] Episode recorded by researcher: "S07: Took over s07-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[10] Episode recorded by researcher: "S04: Took over s04-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[11] Episode recorded by researcher: "S06: Took over s06-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
+[12] Episode recorded by researcher: "S19: Took over s19-t03-design-endpoints from builder: its lease expired before it finished. Restarting the endpoint design from the recorded API version."
