@@ -12,7 +12,7 @@ cross-repo rule 24 of 24 times with Plexus and 0 of 24 without it.
 
 | | |
 |---|---|
-| Live demo | `<RENDER_URL>` (one container on Render Free: the View, the read-only API and a read-only Cypher console; no MCP endpoint, see [Live demo](#live-demo)) |
+| Live demo | <https://plexus-demo-sj3i.onrender.com> (one container on Render Free: the View, the read-only API and a read-only Cypher console; no MCP endpoint, see [Live demo](#live-demo)) |
 | Demo video (≤ 3 min) | `<VIDEO_URL>` |
 | Blog post | `<BLOG_URL>` |
 | Run it yourself | `docker compose up -d --wait --build`, see [Setup](#setup) (Docker is the only requirement) |
@@ -377,7 +377,7 @@ byte-reproducible; `python -m plexus.crucible.combine` merges everything into `l
 
 ## Live demo
 
-`<RENDER_URL>`: one Docker container on Render Free runs FalkorDB 6.0.2, the read-only View API and the static View. The MCP
+<https://plexus-demo-sj3i.onrender.com>: one Docker container on Render Free runs FalkorDB 6.0.2, the read-only View API and the static View. The MCP
 server is **not** deployed until it is stable ([D-016](docs/DECISIONS.md)). How to deploy it yourself (the CI gate, the
 keep-awake check) and the safety controls: [`docs/deploy.md`](docs/deploy.md).
 
