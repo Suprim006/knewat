@@ -1,4 +1,4 @@
-"""Helpers shared by the file, SQLite and Plexus arms: argument checks and result shaping that are identical.
+"""Helpers shared by the file, SQLite and Knewat arms: argument checks and result shaping that are identical.
 
 Only logic that is the same in every arm lives here; anything storage-specific stays in the backend. These helpers
 never read the clock or mint ids themselves: callers pass ``now_ms`` / ``new_id`` in. That matters because the L2
@@ -12,8 +12,8 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from plexus.crucible.api import ClaimConflict, UnknownReference
-from plexus.crucible.util import normalize, scope_chain, words
+from knewat.crucible.api import ClaimConflict, UnknownReference
+from knewat.crucible.util import normalize, scope_chain, words
 
 MAX_BASED_ON = 100  # a decision may reference at most this many facts
 MAX_RECALL_K = 50

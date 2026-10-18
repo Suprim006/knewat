@@ -7,7 +7,7 @@ import time
 import pytest
 from redis.exceptions import ResponseError
 
-from plexus.graph.schema import _retry_busy
+from knewat.graph.schema import _retry_busy
 
 
 def test_busy_is_retried_until_it_succeeds():

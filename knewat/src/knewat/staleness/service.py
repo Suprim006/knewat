@@ -18,12 +18,12 @@ from typing import Any
 
 from redis.exceptions import RedisError
 
-from plexus.activation import Activation, Settings
-from plexus.codescan.paths import anchor_id, canonical_path
-from plexus.common import OPEN, check_between, normalize, now_ms
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
-from plexus.lineage import Lineage
+from knewat.activation import Activation, Settings
+from knewat.codescan.paths import anchor_id, canonical_path
+from knewat.common import OPEN, check_between, normalize, now_ms
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
+from knewat.lineage import Lineage
 
 KINDS = ("file", "function", "class")
 MAX_CHANGES = 200  # entries per mark_changed call (bounds the UNWIND of the write)
@@ -43,8 +43,8 @@ _CODE_EXT = frozenset(
 
 
 def _supersede_gap() -> None:
-    """Test-only: ``PLEXUS_TEST_VERIFY_GAP_MS`` sleeps between supersede and backdate (kill window)."""
-    ms = os.environ.get("PLEXUS_TEST_VERIFY_GAP_MS")
+    """Test-only: ``KNEWAT_TEST_VERIFY_GAP_MS`` sleeps between supersede and backdate (kill window)."""
+    ms = os.environ.get("KNEWAT_TEST_VERIFY_GAP_MS")
     if ms:
         time.sleep(int(ms) / 1000)
 
@@ -302,7 +302,7 @@ class Staleness:
         *,
         now: int | None = None,
     ) -> dict[str, Any]:
-        """An agent re-checked a (suspect) fact; Plexus records the outcome.
+        """An agent re-checked a (suspect) fact; Knewat records the outcome.
 
         ``still_true``: the fact becomes ``verified`` (``verified_at`` = now, ``VERIFIED_BY {outcome:
         'confirmed'}``; fine on a fact that is not suspect, it refreshes ``verified_at``). A review date
@@ -313,7 +313,7 @@ class Staleness:
         fact (``Engram.assert_fact(..., supersede=True)``); ONE statement (``staleness/backdate``) then
         puts the old fact's ``valid_to`` and the new fact's ``valid_from`` at the time of the newest
         ``Change`` that suspected the old fact and is newer than its last confirmation (event time;
-        ``recorded_at`` stays the time Plexus learned the value), marks the old fact verified, adds
+        ``recorded_at`` stays the time Knewat learned the value), marks the old fact verified, adds
         ``VERIFIED_BY {outcome:'changed'}`` and flags the Decisions ``BASED_ON`` the old fact
         (``flag_reason = 'fact changed: <id>'``).
 

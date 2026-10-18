@@ -15,11 +15,11 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible import results as R
-from plexus.crucible.config import L1Config, L4Config
-from plexus.crucible.harness import Env
-from plexus.crucible.util import iso_utc
+from knewat.crucible import environment
+from knewat.crucible import results as R
+from knewat.crucible.config import L1Config, L4Config
+from knewat.crucible.harness import Env
+from knewat.crucible.util import iso_utc
 
 
 def _tuples(d: dict[str, Any]) -> dict[str, Any]:
@@ -29,8 +29,8 @@ def _tuples(d: dict[str, Any]) -> dict[str, Any]:
 def rerun(
     base: Path, cells: list[str], reason: str, env: Env, log: Callable[[str], None] = print
 ) -> tuple[Path, dict[str, Any]]:
-    from plexus.crucible.l1 import run_test
-    from plexus.crucible.l4 import claim_point, embedder_probe
+    from knewat.crucible.l1 import run_test
+    from knewat.crucible.l4 import claim_point, embedder_probe
 
     path = base / "results.json" if base.is_dir() else base
     res = json.loads(path.read_text(encoding="utf-8"))
@@ -82,7 +82,7 @@ def rerun(
             "superseded": superseded,
         }
     )
-    from plexus.crucible.report import render
+    from knewat.crucible.report import render
 
     path.write_text(json.dumps(res, indent=2) + "\n", encoding="utf-8", newline="\n")
     (out_dir / "report.md").write_text(render(res), encoding="utf-8", newline="\n")

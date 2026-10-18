@@ -15,9 +15,9 @@ from typing import Any
 
 import pytest
 
-from plexus.embed import FastEmbedder
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
+from knewat.embed import FastEmbedder
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
 
 pytestmark = pytest.mark.slow
 

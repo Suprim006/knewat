@@ -17,7 +17,7 @@ from __future__ import annotations
 import threading
 import time
 
-from plexus.lineage import Lineage
+from knewat.lineage import Lineage
 
 FAR = 9_999_999_999_999
 CHAIN = 8  # c0 (BASED_ON by D) -> c1 -> ... -> c7 -> R

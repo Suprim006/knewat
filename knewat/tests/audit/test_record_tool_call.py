@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from plexus.audit import MAX_LINKS, record_tool_call
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
+from knewat.audit import MAX_LINKS, record_tool_call
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
 
 
 def _edges(client, graph, tc_id):

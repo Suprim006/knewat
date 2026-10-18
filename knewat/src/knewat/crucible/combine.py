@@ -1,12 +1,12 @@
 """Build the combined results file the View's Results page reads: L1 + L4 + ablation, plus L2, L2_scale, B1h, C7 extended and L6.
 
-    python -m plexus.crucible.combine                 # -> crucible/results/latest-all.json (every layer below)
-    python -m plexus.crucible.combine --b1h none --c7x none --l6 none   # the pre-P9 file (L1, L4, ablation, L2, L2-scale)
-    python -m plexus.crucible.combine --check         # exit 1 if the committed latest-all.json is not what this would write
+    python -m knewat.crucible.combine                 # -> crucible/results/latest-all.json (every layer below)
+    python -m knewat.crucible.combine --b1h none --c7x none --l6 none   # the pre-P9 file (L1, L4, ablation, L2, L2-scale)
+    python -m knewat.crucible.combine --check         # exit 1 if the committed latest-all.json is not what this would write
 
 ``crucible all`` writes (and overwrites) ``results/latest.json`` with L1, L4 and the ablation; the L2 and L2-scale runs write
 their own ``results.json`` under ``demo_data/crucible/``. This module adds ``layers["L2"]`` (via
-``plexus.crucible.l2.run.merge_into``) and ``layers["L2_scale"]`` to a copy of the first, never touching the inputs.
+``knewat.crucible.l2.run.merge_into``) and ``layers["L2_scale"]`` to a copy of the first, never touching the inputs.
 The result is deterministic, so ``--check`` (and a test) can prove the committed file is exactly the merge of its parts.
 """
 
@@ -19,7 +19,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.run import DEMO_DATA, merge_into
+from knewat.crucible.l2.run import DEMO_DATA, merge_into
 
 RESULTS_DIR = Path(__file__).resolve().parent / "results"
 DEFAULT_BASE = RESULTS_DIR / "latest.json"
@@ -71,7 +71,7 @@ def merge_b1h(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
 
 def merge_c7x(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
     """``base`` with the extended duplicate corpus (C7x, P9-c) as ``layers["C7x"]``: per arm the headline metrics, and the
-    per-category outcomes of the Plexus service arm (not the per-pair rows: those stay in ``c7x_results.json``)."""
+    per-category outcomes of the Knewat service arm (not the per-pair rows: those stay in ``c7x_results.json``)."""
     out = copy.deepcopy(base)
     arms = {}
     for name, a in doc["arms"].items():
@@ -94,7 +94,7 @@ def merge_c7x(base: dict[str, Any], doc: dict[str, Any]) -> dict[str, Any]:
 
 
 def merge_l6(base: dict[str, Any], layer: dict[str, Any]) -> dict[str, Any]:
-    """``base`` with the L6 beat-SQL layer (``plexus.crucible.l6.run.build_layer``) as ``layers["L6"]``."""
+    """``base`` with the L6 beat-SQL layer (``knewat.crucible.l6.run.build_layer``) as ``layers["L6"]``."""
     out = copy.deepcopy(base)
     out.setdefault("layers", {})["L6"] = layer
     _mark_layer(out, "L6")
@@ -120,7 +120,7 @@ def combine(
     if c7x is not None:
         doc = merge_c7x(doc, json.loads(c7x.read_text(encoding="utf-8")))
     if l6 is not None:
-        from plexus.crucible.l6.run import build_layer
+        from knewat.crucible.l6.run import build_layer
 
         doc = merge_l6(doc, build_layer(l6))
     return doc
@@ -131,7 +131,7 @@ def render(doc: dict[str, Any]) -> str:
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="python -m plexus.crucible.combine", description=__doc__.split("\n")[0])
+    ap = argparse.ArgumentParser(prog="python -m knewat.crucible.combine", description=__doc__.split("\n")[0])
     ap.add_argument("--base", type=Path, default=DEFAULT_BASE, help="L1 + L4 + ablation file (crucible all)")
     ap.add_argument("--l2", type=Path, default=DEFAULT_L2, help="L2 results.json ('none' to skip)")
     ap.add_argument(

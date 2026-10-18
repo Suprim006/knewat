@@ -1,8 +1,8 @@
 """Play the P3 "Acme Notes API" scenario through any :class:`CoordinationBackend` and keep a ground-truth ledger.
 
-The turn order, the facts, decisions, handoffs, artifacts and episodes are the ones of ``plexus.demo.scripted`` (the
+The turn order, the facts, decisions, handoffs, artifacts and episodes are the ones of ``knewat.demo.scripted`` (the
 P3 scripted agents), replayed one level below MCP: straight on the backend protocol, so B0 (files), B1 (SQLite),
-B2 (vector) and P (Plexus) all end up holding the same story. ``tests/crucible/l2/test_scenario.py`` pins the turn
+B2 (vector) and P (Knewat) all end up holding the same story. ``tests/crucible/l2/test_scenario.py`` pins the turn
 order against the recording ``demo_data/recordings/acme-scripted/meta.json`` and the texts against ``scripted.py``.
 
 Three things differ from the recorded P3 run, all deliberate and all listed in ``docs``/the results notes:
@@ -28,8 +28,8 @@ from collections.abc import Iterator
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
-from plexus.crucible.api import CoordinationBackend
-from plexus.demo.scenario import OPEN_LEASE_MS, Scenario, load_scenario
+from knewat.crucible.api import CoordinationBackend
+from knewat.demo.scenario import OPEN_LEASE_MS, Scenario, load_scenario
 
 T0 = 1_760_000_000_000  # 2025-10-09T08:53:20Z; far in the past so real-clock writes (forget) are always later
 TICK = 1000
@@ -62,10 +62,10 @@ class Clock:
 
 
 _PATCHED_MODULES = (
-    "plexus.crucible.util",
-    "plexus.crucible.backends.files",
-    "plexus.crucible.backends.sqlite",
-    "plexus.crucible.backends.vector",
+    "knewat.crucible.util",
+    "knewat.crucible.backends.files",
+    "knewat.crucible.backends.sqlite",
+    "knewat.crucible.backends.vector",
 )
 
 
@@ -77,13 +77,13 @@ def deterministic(clock: Clock) -> Iterator[None]:
     would give different bytes and an LLM answer cache keyed on the context could never hit. Inside this block
     ``new_id`` yields a fixed sequence of UUIDs and ``now_ms`` follows the script clock (``clock.t`` plus a counter
     that restarts at every tick), so the same script always writes the same artifacts. The patch is local to the
-    backend modules' names; no backend file is edited. The Plexus arm keeps its own ids (nothing LLM-facing reads it).
+    backend modules' names; no backend file is edited. The Knewat arm keeps its own ids (nothing LLM-facing reads it).
     """
     counter = {"id": 0, "ms": 0, "last": None}
 
     def new_id() -> str:
         counter["id"] += 1
-        return str(uuid.uuid5(uuid.NAMESPACE_URL, f"plexus-crucible-l2/{counter['id']}"))
+        return str(uuid.uuid5(uuid.NAMESPACE_URL, f"knewat-crucible-l2/{counter['id']}"))
 
     def now_ms() -> int:
         if counter["last"] != clock.t:

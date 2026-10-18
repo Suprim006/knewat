@@ -37,9 +37,9 @@ from typing import Any
 
 from redis.exceptions import ResponseError
 
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
 
 QDIR = Path(__file__).resolve().parent / "i_queries"
 AGENT, TO, SRC = "a1", "a2", "s0"
@@ -163,7 +163,7 @@ class SqliteArm(Arm):
         return tid, 1
 
     def closeout(self, co: str, task: str, v: int, expected: int) -> bool:
-        from plexus.crucible.util import now_ms
+        from knewat.crucible.util import now_ms
 
         c = self.conn
         assert c is not None
@@ -426,7 +426,7 @@ class FMulti(FalkorArm):
     order = ("step", "fact", "decision", "task", "artifact", "handoff")
 
     def closeout(self, co: str, task: str, v: int, expected: int) -> bool:
-        from plexus.crucible.util import now_ms
+        from knewat.crucible.util import now_ms
 
         p = _params(co, expected, now_ms())
         p["task"] = task
@@ -449,7 +449,7 @@ class FMultiExec(FalkorArm):
     err_variant = False
 
     def closeout(self, co: str, task: str, v: int, expected: int) -> bool:
-        from plexus.crucible.util import now_ms
+        from knewat.crucible.util import now_ms
 
         assert self.c is not None
         p = _params(co, expected, now_ms())
@@ -486,7 +486,7 @@ class FOneStatement(FalkorArm):
     which = "1stmt_first"
 
     def closeout(self, co: str, task: str, v: int, expected: int) -> bool:
-        from plexus.crucible.util import now_ms
+        from knewat.crucible.util import now_ms
 
         p = _params(co, expected, now_ms())
         p["task"] = task
@@ -515,9 +515,9 @@ class FProduct(FalkorArm):
         self.queries = 0
 
     def _backend(self) -> Any:
-        from plexus.crucible.backends.plexus import PlexusBackend
+        from knewat.crucible.backends.knewat import KnewatBackend
 
-        return PlexusBackend(self.tenant, host=self.host, port=self.port, embedder="hash", mode="mcp")
+        return KnewatBackend(self.tenant, host=self.host, port=self.port, embedder="hash", mode="mcp")
 
     def setup_world(self) -> None:
         c = self._client()
@@ -557,7 +557,7 @@ class FProduct(FalkorArm):
         return t["id"], int(t["version"])
 
     def closeout(self, co: str, task: str, v: int, expected: int) -> bool:
-        from plexus.crucible.api import ClaimConflict
+        from knewat.crucible.api import ClaimConflict
 
         d = ids(co)
         b = self.b

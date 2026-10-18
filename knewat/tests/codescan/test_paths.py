@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from plexus.codescan.paths import absolute_canonical, anchor_id, canonical_path
+from knewat.codescan.paths import absolute_canonical, anchor_id, canonical_path
 
 
 @pytest.mark.parametrize(
@@ -96,8 +96,8 @@ def test_absolute_canonical_resolves_a_symlinked_or_junctioned_directory(tmp_pat
 
 
 def test_the_hook_path_and_the_git_scan_path_agree_under_a_linked_repo(tmp_path):
-    from plexus.codescan import gitutil
-    from plexus.codescan.workflow import relpath
+    from knewat.codescan import gitutil
+    from knewat.codescan.workflow import relpath
 
     real = tmp_path / "real_repo"
     real.mkdir()

@@ -6,8 +6,8 @@ import math
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.engram.service import fact_text, normalize
+from knewat.embed import HashEmbedder
+from knewat.engram.service import fact_text, normalize
 
 from .conftest import cypher
 

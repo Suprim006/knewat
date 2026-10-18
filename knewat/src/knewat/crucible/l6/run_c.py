@@ -1,6 +1,6 @@
 """L6-C runner: multi-hop recall through ``RELATES`` (BASELINE.md §5.4 pre-registration, Part 2). No LLM.
 
-    python -m plexus.crucible.l6.run_c --host 127.0.0.1 --port 6313 --scale 1.0 --out plexus/demo_data/crucible/l6
+    python -m knewat.crucible.l6.run_c --host 127.0.0.1 --port 6313 --scale 1.0 --out knewat/demo_data/crucible/l6
 
 Writes ``<out>/<stamp>-c/results.json`` and ``<out>/latest-c.json`` (the envelope of the other L6 runs).
 """
@@ -17,15 +17,15 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l6 import arms_a as A
-from plexus.crucible.l6 import arms_c as C
-from plexus.crucible.l6 import run as R
-from plexus.crucible.l6 import stores_c as S
-from plexus.crucible.l6 import world_c as W
-from plexus.crucible.util import percentile
-from plexus.embed import get_embedder
-from plexus.engram.service import Engram
-from plexus.graph.client import GraphClient
+from knewat.crucible.l6 import arms_a as A
+from knewat.crucible.l6 import arms_c as C
+from knewat.crucible.l6 import run as R
+from knewat.crucible.l6 import stores_c as S
+from knewat.crucible.l6 import world_c as W
+from knewat.crucible.util import percentile
+from knewat.embed import get_embedder
+from knewat.engram.service import Engram
+from knewat.graph.client import GraphClient
 
 ARMS = ("B1h", "B1h-untuned", "P-tuned", "P-product", "P-flat")
 REPS = R.REPS
@@ -109,9 +109,9 @@ def det_c(
     try:
         if arms & {"P-tuned", "P-product", "P-flat"}:
             t = time.time()
-            name, counts = S.load_plexus_c(world, client, "l6c_run", embedder)
-            timing["plexus_load_s"] = round(time.time() - t, 2)
-            log(f"C: Plexus graph loaded in {timing['plexus_load_s']}s: {counts}")
+            name, counts = S.load_knewat_c(world, client, "l6c_run", embedder)
+            timing["knewat_load_s"] = round(time.time() - t, 2)
+            log(f"C: Knewat graph loaded in {timing['knewat_load_s']}s: {counts}")
             if "P-tuned" in arms:
                 fns["P-tuned"] = C.TunedC(client.graph(name)).answer
             for nm, hops in (("P-product", None), ("P-flat", 0)):
@@ -165,7 +165,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     log: Callable[[str], None] = lambda s: print(s, flush=True)  # noqa: E731
     started = time.time()
-    cmd = "python -m plexus.crucible.l6.run_c " + " ".join(argv if argv is not None else sys.argv[1:])
+    cmd = "python -m knewat.crucible.l6.run_c " + " ".join(argv if argv is not None else sys.argv[1:])
     wanted = set(a.arms.split(","))
     if wanted - set(ARMS):
         ap.error(f"unknown arms {sorted(wanted - set(ARMS))}; choose from {list(ARMS)}")

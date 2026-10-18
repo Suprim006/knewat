@@ -1,11 +1,11 @@
-"""L6-C loaders: one :class:`WorldC` into SQLite (B1h, tuned and untuned) and into a Plexus tenant graph (P arms).
+"""L6-C loaders: one :class:`WorldC` into SQLite (B1h, tuned and untuned) and into a Knewat tenant graph (P arms).
 
 SQLite: ``entities(id, name, fan)``, ``facts(id, entity_id, predicate, value)``, ``relates(src, dst, kind)``. ``fan`` is
 stored as a column (what a SQL author could maintain), but the registered ``B1h`` arm does **not** read it: it computes the
 fan inside its statement with a ``GROUP BY`` subquery, which is the same work as the Cypher arm's live count of ``ABOUT``
 edges. ``tuned`` adds ``relates(src)``, ``relates(dst)``, ``facts(entity_id, predicate)`` and runs ``ANALYZE``.
 
-Plexus: the model-v1 nodes and edges the product's ``recall`` reads. Range indexes first, bulk load in batches, then the
+Knewat: the model-v1 nodes and edges the product's ``recall`` reads. Range indexes first, bulk load in batches, then the
 product schema (``apply_schema``: full-text, vector, the remaining range indexes and the UNIQUE constraints), then wait
 until every index is ``OPERATIONAL``.
 """
@@ -19,14 +19,14 @@ from typing import Any
 
 from redis.exceptions import TimeoutError as RedisTimeoutError
 
-from plexus.crucible.l6.stores import BATCH, chunks
-from plexus.crucible.l6.world_c import T0, WorldC
-from plexus.embed import Embedder
-from plexus.embed.hash_embedder import HashEmbedder
-from plexus.engram.service import fact_text
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l6.stores import BATCH, chunks
+from knewat.crucible.l6.world_c import T0, WorldC
+from knewat.embed import Embedder
+from knewat.embed.hash_embedder import HashEmbedder
+from knewat.engram.service import fact_text
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
 
 OPEN = 9_999_999_999_999
 EMB_BATCH = 500  # rows per statement that carry a 384-d vector
@@ -103,7 +103,7 @@ def _wait_indexes(
         time.sleep(0.25)
 
 
-def plexus_counts_c(g: Any) -> dict[str, int]:
+def knewat_counts_c(g: Any) -> dict[str, int]:
     def n(q: str) -> int:
         return int(g.ro_query(q).result_set[0][0])
 
@@ -116,10 +116,10 @@ def plexus_counts_c(g: Any) -> dict[str, int]:
     }  # fmt: skip
 
 
-def load_plexus_c(
+def load_knewat_c(
     world: WorldC, client: GraphClient, tenant: str, embedder: Embedder | None = None
 ) -> tuple[str, dict[str, int]]:
-    """Drop and recreate graph ``plexus_t_<tenant>`` holding the world. Returns ``(graph name, counts read back)``."""
+    """Drop and recreate graph ``knewat_t_<tenant>`` holding the world. Returns ``(graph name, counts read back)``."""
     name = graph_name(tenant)
     client.delete_graph(name)
     g = client.graph(name)
@@ -175,7 +175,7 @@ def load_plexus_c(
                 raise
             _wait_indexes(client, name, allow_empty=True)
     _wait_indexes(client, name)
-    got = plexus_counts_c(g)
+    got = knewat_counts_c(g)
     check_counts(world, got, "P")
     want = world.counts()
     if got["about"] != want["facts"] or got["in_scope"] != want["facts"]:

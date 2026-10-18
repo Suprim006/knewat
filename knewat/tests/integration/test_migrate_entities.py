@@ -1,4 +1,4 @@
-"""P9-d: ``plexus migrate entities`` (PRODUCT_FIXES_ANALYSIS C.5): backfill tok/num_key, duplicate report."""
+"""P9-d: ``knewat migrate entities`` (PRODUCT_FIXES_ANALYSIS C.5): backfill tok/num_key, duplicate report."""
 
 from __future__ import annotations
 
@@ -8,12 +8,12 @@ import uuid
 
 import pytest
 
-from plexus.cli import main
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.engram.migrate import BATCH, backfill_entity_keys, duplicate_names, near_duplicates, run
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
+from knewat.cli import main
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.engram.migrate import BATCH, backfill_entity_keys, duplicate_names, near_duplicates, run
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
 
 
 def _vec(seed: int, wobble: float = 0.0) -> list[float]:

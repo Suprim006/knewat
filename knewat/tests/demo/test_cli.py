@@ -1,12 +1,12 @@
-"""The ``plexus demo`` CLI, driven in-process against the test database."""
+"""The ``knewat demo`` CLI, driven in-process against the test database."""
 
 from __future__ import annotations
 
 import pytest
 
-from plexus.cli import main
-from plexus.demo.recorder import list_recordings
-from plexus.graph.tenancy import graph_name
+from knewat.cli import main
+from knewat.demo.recorder import list_recordings
+from knewat.graph.tenancy import graph_name
 
 from ..conftest import TEST_DB_HOST, TEST_DB_PORT
 from .conftest import rows
@@ -16,7 +16,7 @@ from .conftest import rows
 def cli_env(monkeypatch, tmp_path):
     monkeypatch.setenv("FALKORDB_HOST", TEST_DB_HOST)
     monkeypatch.setenv("FALKORDB_PORT", str(TEST_DB_PORT))
-    monkeypatch.setattr("plexus.demo.recorder.recordings_dir", lambda: tmp_path)
+    monkeypatch.setattr("knewat.demo.recorder.recordings_dir", lambda: tmp_path)
     return tmp_path
 
 

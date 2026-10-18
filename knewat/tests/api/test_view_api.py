@@ -10,18 +10,18 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from plexus.api import models as M
-from plexus.api.view_api import create_app
+from knewat.api import models as M
+from knewat.api.view_api import create_app
 
-API_SRC = Path(__file__).parents[2] / "src" / "plexus" / "api"
+API_SRC = Path(__file__).parents[2] / "src" / "knewat" / "api"
 
 
-def test_tenants_lists_plexus_graphs(api, seeded):
+def test_tenants_lists_knewat_graphs(api, seeded):
     body = M.TenantsResponse(**api.get("/api/tenants").json())
     assert seeded["tenant"] in {t.tenant for t in body.tenants}
     t = next(t for t in body.tenants if t.tenant == seeded["tenant"])
-    assert t.graph == f"plexus_t_{seeded['tenant']}"
-    assert all(not x.tenant.startswith("test_") for x in body.tenants)  # only plexus_t_* graphs
+    assert t.graph == f"knewat_t_{seeded['tenant']}"
+    assert all(not x.tenant.startswith("test_") for x in body.tenants)  # only knewat_t_* graphs
 
 
 def test_inventory(api, seeded):
@@ -126,8 +126,8 @@ async def test_sse_yields_events_that_land_while_connected(client, seeded):
     """Open the stream, THEN write a new tool call: the stream must push it."""
     import httpx
 
-    from plexus.audit import record_tool_call
-    from plexus.graph.tenancy import graph_name
+    from knewat.audit import record_tool_call
+    from knewat.graph.tenancy import graph_name
 
     t = seeded["tenant"]
     app = create_app(client=client)
@@ -174,12 +174,12 @@ def test_query_text_endpoint(api):
 
 
 def test_results_file(client, tmp_path, monkeypatch):
-    monkeypatch.delenv("PLEXUS_RESULTS_PATH", raising=False)
+    monkeypatch.delenv("KNEWAT_RESULTS_PATH", raising=False)
     with TestClient(create_app(client=client)) as tc:
         assert tc.get("/api/results").status_code == 404
     p = tmp_path / "results.json"
     p.write_text('{"l1": {"pass": true}}')
-    monkeypatch.setenv("PLEXUS_RESULTS_PATH", str(p))
+    monkeypatch.setenv("KNEWAT_RESULTS_PATH", str(p))
     with TestClient(create_app(client=client)) as tc:
         assert tc.get("/api/results").json() == {"l1": {"pass": True}}
     with TestClient(create_app(client=client, results_path=str(tmp_path / "gone.json"))) as tc:
@@ -194,7 +194,7 @@ def test_cors_origins_configurable(client, monkeypatch):
         assert acao(tc, "http://localhost:5180") == "http://localhost:5180"
         assert acao(tc, "http://127.0.0.1:5180") == "http://127.0.0.1:5180"
         assert acao(tc, "http://evil.example") is None
-    monkeypatch.setenv("PLEXUS_CORS_ORIGINS", "http://view.example:9000")
+    monkeypatch.setenv("KNEWAT_CORS_ORIGINS", "http://view.example:9000")
     with TestClient(create_app(client=client)) as tc:
         assert acao(tc, "http://view.example:9000") == "http://view.example:9000"
         assert acao(tc, "http://localhost:5180") is None
@@ -213,8 +213,8 @@ def test_no_write_path_in_api_package(api):
 
 
 def test_read_only_client_refuses_write_queries(client):
-    from plexus.api.view_api import ReadOnlyClient
-    from plexus.graph.queries import ReadOnlyViolation
+    from knewat.api.view_api import ReadOnlyClient
+    from knewat.graph.queries import ReadOnlyViolation
 
     ro = ReadOnlyClient(client)
     with pytest.raises(ReadOnlyViolation):
@@ -239,8 +239,8 @@ def test_openapi_has_all_endpoints(api):
 
 
 def test_exported_schema_is_current():
-    from plexus.api.export_schema import DEFAULT_PATH, build_schema
+    from knewat.api.export_schema import DEFAULT_PATH, build_schema
 
     assert json.loads(DEFAULT_PATH.read_text(encoding="utf-8")) == build_schema(), (
-        "docs/view-api.schema.json is stale: run `uv run python -m plexus.api.export_schema`"
+        "docs/view-api.schema.json is stale: run `uv run python -m knewat.api.export_schema`"
     )

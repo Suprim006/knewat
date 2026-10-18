@@ -4,8 +4,8 @@ Defaults are unchanged."""
 
 from __future__ import annotations
 
+from knewat.graph.tenancy import graph_name
 from mcp import Client
-from plexus.graph.tenancy import graph_name
 from tests.lineage.diamond import build_lineage
 
 from .test_tool_coverage import err, ok

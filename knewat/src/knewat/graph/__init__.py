@@ -1,15 +1,15 @@
 """Graph layer: client, tenancy, query library, schema."""
 
-from plexus.graph.client import GraphClient, Rows
-from plexus.graph.queries import (
+from knewat.graph.client import GraphClient, Rows
+from knewat.graph.queries import (
     MissingParam,
     QueryLibrary,
     ReadOnlyViolation,
     UnexpectedParam,
     UnknownQuery,
 )
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name, test_graph_name
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name, test_graph_name
 
 __all__ = [
     "GraphClient",

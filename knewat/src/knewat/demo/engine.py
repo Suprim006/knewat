@@ -3,9 +3,9 @@
 One turn at a time (round-robin by readiness): the scheduler looks at the ready tasks, picks the top one (the
 same order ``claim_next_task`` uses, so the agent's claim gets exactly that task), hands the turn to the agent
 whose role the task is for, and applies the fault script at call and turn boundaries. A *driver* plays a turn:
-``plexus.demo.scripted.ScriptedDriver`` calls the MCP tools from code, ``plexus.demo.orchestrator.ClaudeDriver``
+``knewat.demo.scripted.ScriptedDriver`` calls the MCP tools from code, ``knewat.demo.orchestrator.ClaudeDriver``
 starts a ``claude -p`` process. Both count tool calls on the same global step counter, which is what the fault
-script keys on ("step 15" = the 15th Plexus tool call of the run, whichever agent made it).
+script keys on ("step 15" = the 15th Knewat tool call of the run, whichever agent made it).
 """
 
 from __future__ import annotations
@@ -15,10 +15,10 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
-from plexus.demo.scenario import FaultScript, Scenario, TaskDef
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
-from plexus.relay import Relay
+from knewat.demo.scenario import FaultScript, Scenario, TaskDef
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
+from knewat.relay import Relay
 
 BUILDER = "builder"
 

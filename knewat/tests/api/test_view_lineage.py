@@ -6,11 +6,11 @@ import json
 
 import pytest
 
+from knewat.api import models as M
+from knewat.embed import HashEmbedder
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 from mcp import Client
-from plexus.api import models as M
-from plexus.embed import HashEmbedder
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 
 @pytest.fixture
@@ -136,7 +136,7 @@ def test_recall_endpoint(api, lineage_world):
 
 
 def test_lineage_endpoints_do_not_write(api, client, lineage_world):
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.tenancy import graph_name
 
     t = lineage_world["tenant"]
     q = "MATCH (n) RETURN count(n)"

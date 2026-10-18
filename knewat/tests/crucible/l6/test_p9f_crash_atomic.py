@@ -3,7 +3,7 @@
 L6-F killed a writer process 200 times (``TerminateProcess`` on Windows, SIGKILL elsewhere) at random moments
 and found 94 of 1,240 records (7.6%) with no Step/WROTE link, and 9 facts without the DERIVED_FROM link they
 were written with: the service path wrote the memory, then the Step, then the links, in separate statements.
-This runs the same kill loop (``crucible.l6.crash``) at a small size against the Plexus arm.
+This runs the same kill loop (``crucible.l6.crash``) at a small size against the Knewat arm.
 """
 
 from __future__ import annotations
@@ -13,13 +13,13 @@ import uuid
 
 import pytest
 
-from plexus.crucible.l6 import crash
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l6 import crash
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 DB_HOST = "127.0.0.1"
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
-KILLS = int(os.environ.get("PLEXUS_TEST_CRASH_KILLS", "25"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
+KILLS = int(os.environ.get("KNEWAT_TEST_CRASH_KILLS", "25"))
 
 
 @pytest.mark.integration

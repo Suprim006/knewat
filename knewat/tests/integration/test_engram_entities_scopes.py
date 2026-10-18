@@ -33,8 +33,8 @@ def test_resolve_fulltext_and_kind_guard(eng, client, graph):
 
 
 def test_resolve_vector_match(client, graph):
-    from plexus.embed import HashEmbedder
-    from plexus.engram import Engram
+    from knewat.embed import HashEmbedder
+    from knewat.engram import Engram
 
     # word-level hashing: a single repeated token is "near" (same direction) but not the same name
     e = Engram(client, graph, HashEmbedder(), entity_threshold=0.15)

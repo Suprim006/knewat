@@ -14,7 +14,7 @@ shortfall is an **orphan task**. A surplus would be a duplicate edge and is coun
 writes**: a task id the writer printed that is not in the store, or whose ``version`` is below the one the call
 returned.
 
-    python -m plexus.crucible.l6.crash_tasks run --kills 50 --port 6376 [--legacy]
+    python -m knewat.crucible.l6.crash_tasks run --kills 50 --port 6376 [--legacy]
 
 ``--legacy`` takes the five tools out of ``FOLDS_WROTE`` inside the writer process, i.e. the pre-fix behaviour (the
 write statement, then a second ``link_step`` statement), so the harness can show what the fix removes.
@@ -30,15 +30,15 @@ import tempfile
 import uuid
 from typing import Any
 
-from plexus.crucible.l6.crash import kill_rounds
+from knewat.crucible.l6.crash import kill_rounds
 
 AGENTS = ("w1", "w2")
 CYCLE = ("create", "claim", "complete", "create", "claim", "fail", "reopen", "claim", "complete")
 
 
 def _open(tenant: str, root: str, host: str, port: int) -> Any:
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
 
     return open_backend(
         BackendSpec(arm="P-mcp", tenant=tenant, root=root, host=host, port=port, embedder="hash")
@@ -55,7 +55,7 @@ def setup(tenant: str, root: str, host: str, port: int) -> None:
 # ------------------------------------------------------------------------------------------------ the writer process
 def writer(tenant: str, root: str, host: str, port: int, tag: str, legacy: bool) -> None:
     if legacy:
-        from plexus.mcp import lineage_hook
+        from knewat.mcp import lineage_hook
 
         lineage_hook.FOLDS_WROTE = frozenset({"assert_fact", "record_decision", "handoff"})
     b = _open(tenant, root, host, port)
@@ -108,7 +108,7 @@ def kill_loop(
 
     def cmd_for(k: int) -> list[str]:
         cmd = [
-            sys.executable, "-m", "plexus.crucible.l6.crash_tasks", "writer", "--tenant", tenant, "--root", root,
+            sys.executable, "-m", "knewat.crucible.l6.crash_tasks", "writer", "--tenant", tenant, "--root", root,
             "--host", host, "--port", str(port), "--tag", f"{seed}k{k}",
         ]  # fmt: skip
         return [*cmd, "--legacy"] if legacy else cmd
@@ -127,8 +127,8 @@ def kill_loop(
 
 # ------------------------------------------------------------------------------------------------ verification
 def verify(tenant: str, host: str, port: int, acked: list[dict[str, Any]]) -> dict[str, Any]:
-    from plexus.graph.client import GraphClient
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.client import GraphClient
+    from knewat.graph.tenancy import graph_name
 
     c = GraphClient(host=host, port=port)
     g = c.graph(graph_name(tenant))
@@ -184,8 +184,8 @@ def main(argv: list[str] | None = None) -> int:
             a.kills, root, tenant, a.host, a.port, a.seed, a.legacy, log=lambda s: print(s, flush=True)
         )
     finally:
-        from plexus.graph.client import GraphClient
-        from plexus.graph.tenancy import graph_name
+        from knewat.graph.client import GraphClient
+        from knewat.graph.tenancy import graph_name
 
         GraphClient(host=a.host, port=a.port).delete_graph(graph_name(tenant))
         if not a.root:

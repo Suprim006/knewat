@@ -1,7 +1,7 @@
 """P12-F3 kill test: ``verify_fact(changed)`` interrupted by SIGKILL never leaves a *silent* inconsistency.
 
 A writer process loops assert_fact / record_decision / verify_fact(changed); the parent kills it 40 times after a random
-0-400 ms. ``PLEXUS_TEST_VERIFY_GAP_MS=60`` (a test hook between the supersede and the backdate) widens the window and is
+0-400 ms. ``KNEWAT_TEST_VERIFY_GAP_MS=60`` (a test hook between the supersede and the backdate) widens the window and is
 set for the old and the new run alike. Silent = an old fact superseded by a verification with neither a completed
 verification (``VERIFIED_BY {outcome:'changed'}``) nor ``verify_degraded``; its Decisions are then unflagged too.
 
@@ -17,8 +17,8 @@ import uuid
 
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
-from plexus.crucible.l6 import verify_crash
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l6 import verify_crash
+from knewat.graph.tenancy import graph_name
 
 
 def test_no_silent_inconsistency_after_40_sigkills(client):

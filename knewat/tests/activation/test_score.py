@@ -6,9 +6,9 @@ import math
 
 import pytest
 
-from plexus.activation import Settings
-from plexus.activation import score as S
-from plexus.activation.model import neutral_activation
+from knewat.activation import Settings
+from knewat.activation import score as S
+from knewat.activation.model import neutral_activation
 
 # -- context term ----------------------------------------------------------------------------------
 
@@ -44,11 +44,11 @@ def test_d013_settings_defaults_and_neutral():
 def test_every_d013_variable_is_read():
     s = Settings.from_env(
         {
-            "PLEXUS_RECALL_SEPARATION": "off",
-            "PLEXUS_ACT_SMAX": "5",
-            "PLEXUS_ACT_CUE_S": "4",
-            "PLEXUS_ACT_W_ENTITY": "1",
-            "PLEXUS_ACT_W_PREDICATE": "0",
+            "KNEWAT_RECALL_SEPARATION": "off",
+            "KNEWAT_ACT_SMAX": "5",
+            "KNEWAT_ACT_CUE_S": "4",
+            "KNEWAT_ACT_W_ENTITY": "1",
+            "KNEWAT_ACT_W_PREDICATE": "0",
         }
     )
     assert (s.separation, s.s_max, s.cue_s, s.w_entity, s.w_predicate) == (False, 5.0, 4.0, 1.0, 0.0)
@@ -57,12 +57,12 @@ def test_every_d013_variable_is_read():
 @pytest.mark.parametrize(
     "env",
     [
-        {"PLEXUS_RECALL_SEPARATION": "maybe"},
-        {"PLEXUS_ACT_SMAX": "-1"},
-        {"PLEXUS_ACT_CUE_S": "0"},
-        {"PLEXUS_ACT_W_ENTITY": "11"},
+        {"KNEWAT_RECALL_SEPARATION": "maybe"},
+        {"KNEWAT_ACT_SMAX": "-1"},
+        {"KNEWAT_ACT_CUE_S": "0"},
+        {"KNEWAT_ACT_W_ENTITY": "11"},
     ],
 )
 def test_bad_d013_values_are_rejected_loudly(env):
-    with pytest.raises(ValueError, match="PLEXUS_"):
+    with pytest.raises(ValueError, match="KNEWAT_"):
         Settings.from_env(env)

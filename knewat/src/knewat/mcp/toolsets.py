@@ -1,9 +1,9 @@
-"""Toolsets: which of the Plexus tools one MCP session publishes (P12, scoped tool exposure).
+"""Toolsets: which of the Knewat tools one MCP session publishes (P12, scoped tool exposure).
 
 Every tool is re-read by the model on every API call (the tool list is part of the prompt), so a session that
 only coordinates should not pay for the staleness, forgetting or dedup tools in its prompt. A *toolset* is a
-comma-separated list of names, each either a **module** (the module boundaries of ``docs/PLEXUS_REPORT.md``
-§2.2, one :class:`~plexus.mcp.toolkit.ToolTable` each) or a **profile** (a documented union of modules):
+comma-separated list of names, each either a **module** (the module boundaries of ``docs/KNEWAT_REPORT.md``
+§2.2, one :class:`~knewat.mcp.toolkit.ToolTable` each) or a **profile** (a documented union of modules):
 
 =============  ==========================================================================================
 ``engram``      memory: sessions, episodes, facts, recall, fact history, procedures (7)
@@ -17,8 +17,8 @@ comma-separated list of names, each either a **module** (the module boundaries o
 ``full``        profile: every module (the default; unchanged behaviour)
 =============  ==========================================================================================
 
-Selection: ``plexus-mcp --toolset core`` (or env ``PLEXUS_TOOLSET``) sets a process default; over HTTP a client
-picks per session with ``/mcp/t/<tenant>?toolset=core`` or the ``X-Plexus-Toolset`` header, pinned to the MCP
+Selection: ``knewat-mcp --toolset core`` (or env ``KNEWAT_TOOLSET``) sets a process default; over HTTP a client
+picks per session with ``/mcp/t/<tenant>?toolset=core`` or the ``X-Knewat-Toolset`` header, pinned to the MCP
 session like the tenant. An unknown name is an error, never a silent ``full`` or an empty list. A tool outside the
 session's toolset is neither listed nor callable. A toolset is a prompt-size choice, **not access control**: any
 client can open another session with ``toolset=full`` (read-only tenants and audit modes are the safety controls).
@@ -28,18 +28,18 @@ from __future__ import annotations
 
 import os
 
-from plexus.mcp.lineage_tools import LINEAGE_TOOLS
-from plexus.mcp.memory_tools import MEMORY_TOOLS
-from plexus.mcp.staleness_tools import STALENESS_TOOLS
-from plexus.mcp.toolkit import ToolTable
-from plexus.mcp.tools_dedup import DEDUP_TOOLS
-from plexus.mcp.tools_engram import ENGRAM_TOOLS
-from plexus.mcp.tools_impact import IMPACT_TOOLS
-from plexus.mcp.tools_relations import RELATION_TOOLS
-from plexus.mcp.tools_relay import RELAY_TOOLS
+from knewat.mcp.lineage_tools import LINEAGE_TOOLS
+from knewat.mcp.memory_tools import MEMORY_TOOLS
+from knewat.mcp.staleness_tools import STALENESS_TOOLS
+from knewat.mcp.toolkit import ToolTable
+from knewat.mcp.tools_dedup import DEDUP_TOOLS
+from knewat.mcp.tools_engram import ENGRAM_TOOLS
+from knewat.mcp.tools_impact import IMPACT_TOOLS
+from knewat.mcp.tools_relations import RELATION_TOOLS
+from knewat.mcp.tools_relay import RELAY_TOOLS
 
-TOOLSET_HEADER = "x-plexus-toolset"
-TOOLSET_ENV = "PLEXUS_TOOLSET"
+TOOLSET_HEADER = "x-knewat-toolset"
+TOOLSET_ENV = "KNEWAT_TOOLSET"
 FULL = "full"
 
 _MODULE_TABLES: dict[str, tuple[ToolTable, ...]] = {
@@ -96,7 +96,7 @@ def tool_names(spec: str) -> frozenset[str]:
 
 
 def default_toolset(value: str | None = None) -> str:
-    """The process default: ``value`` (the ``--toolset`` flag), else env ``PLEXUS_TOOLSET``, else ``full``;
+    """The process default: ``value`` (the ``--toolset`` flag), else env ``KNEWAT_TOOLSET``, else ``full``;
     canonical, and raising :class:`ToolsetError` on a bad value so a misconfigured server fails at start."""
     if value is not None:
         return canonical(value)
@@ -105,5 +105,5 @@ def default_toolset(value: str | None = None) -> str:
 
 
 def module_of(tool: str) -> str | None:
-    """The module a tool belongs to (``None`` for a name that is no Plexus tool)."""
+    """The module a tool belongs to (``None`` for a name that is no Knewat tool)."""
     return next((m for m, names in MODULES.items() if tool in names), None)

@@ -1,6 +1,6 @@
 """Deterministic, non-LLM agents that play the Acme Notes scenario through the real MCP tools.
 
-The scripted agents talk to the Plexus MCP server over an in-memory MCP ``Client`` (the same server object the
+The scripted agents talk to the Knewat MCP server over an in-memory MCP ``Client`` (the same server object the
 stdio / HTTP transports serve), so every call writes a ``ToolCall`` and a Lineage ``Step`` exactly as for a real
 agent. Each call carries the *global* step number as its ``step`` argument, so the time machine's "step N" means
 the same moment for every agent. The same scenario + fault script always builds the same graph (ids differ).
@@ -12,14 +12,14 @@ import json
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+from knewat.demo.engine import BUILDER, AgentKilled, Driver, Turn, World
+from knewat.demo.engine import run as run_engine
+from knewat.demo.scenario import OPEN_LEASE_MS, FaultScript, load_scenario
+from knewat.embed import Embedder
+from knewat.graph.client import GraphClient
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 from mcp import Client
-from plexus.demo.engine import BUILDER, AgentKilled, Driver, Turn, World
-from plexus.demo.engine import run as run_engine
-from plexus.demo.scenario import OPEN_LEASE_MS, FaultScript, load_scenario
-from plexus.embed import Embedder
-from plexus.graph.client import GraphClient
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 
 class ToolFailed(RuntimeError):

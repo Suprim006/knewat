@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import Lineage
+from knewat.lineage import Lineage
 
 from .blast_p9f import build_blast
 

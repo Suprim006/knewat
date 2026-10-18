@@ -6,7 +6,7 @@ import uuid
 
 import pytest
 
-from plexus.graph.tenancy import graph_name
+from knewat.graph.tenancy import graph_name
 
 from ..api.conftest import drop_graphs as api_drop
 from ..api.conftest import sweep_stale_graphs as api_sweep
@@ -41,7 +41,7 @@ def test_sweep_drops_leaked_tenants_of_its_own_prefix_only(client, sweep, tenant
 def test_sweep_can_be_switched_off(client, monkeypatch):
     leaked = _make(client, graph_name(f"demot_{uuid.uuid4().hex[:10]}"))
     try:
-        monkeypatch.setenv("PLEXUS_TEST_KEEP_STALE", "1")
+        monkeypatch.setenv("KNEWAT_TEST_KEEP_STALE", "1")
         demo_sweep(client)
         assert _exists(client, leaked)
     finally:
@@ -62,6 +62,6 @@ class _FlakyClient:
 @pytest.mark.parametrize("drop", [demo_drop, api_drop], ids=["demo", "api"])
 def test_one_failing_delete_does_not_leak_the_rest(drop):
     fake = _FlakyClient(graph_name("t2"))
-    with pytest.raises(RuntimeError, match="cannot drop plexus_t_t2"):
+    with pytest.raises(RuntimeError, match="cannot drop knewat_t_t2"):
         drop(fake, ["t1", "t2", "t3"])
     assert fake.deleted == [graph_name("t1"), graph_name("t3")]

@@ -1,6 +1,6 @@
 """The ``CoordinationBackend`` protocol: the one tool surface every Crucible arm implements (BASELINE §0).
 
-Only the backend changes between arms. The method names and signatures mirror the Plexus MCP tools the
+Only the backend changes between arms. The method names and signatures mirror the Knewat MCP tools the
 benchmark uses (``remember_episode``, ``assert_fact``, ``recall``, ``forget_source``, ``create_tasks``,
 ``claim_next_task``, ``heartbeat``, ``complete_task``, ``handoff``, ``record_decision``, ``why``, ``knew_at``,
 ``as_of``) plus a few read helpers the harness needs to count violations (``facts``, ``task_status``,
@@ -29,7 +29,7 @@ from collections.abc import Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol, runtime_checkable
 
-OPEN = 9_999_999_999_999  # open-ended valid_to, identical to the Plexus graph model
+OPEN = 9_999_999_999_999  # open-ended valid_to, identical to the Knewat graph model
 
 TOOLS = (
     "remember_episode",
@@ -74,8 +74,8 @@ class BackendSpec:
 
     arm: str  # B0 | B1 | B2 | P | P-mcp
     tenant: str
-    root: str  # directory for file-based arms (ignored by Plexus)
-    host: str = ""  # FalkorDB host (Plexus arms)
+    root: str  # directory for file-based arms (ignored by Knewat)
+    host: str = ""  # FalkorDB host (Knewat arms)
     port: int = 0
     embedder: str = "fastembed"  # fastembed | hash
     options: dict[str, Any] = field(default_factory=dict)
@@ -209,7 +209,7 @@ class CoordinationBackend(Protocol):
 
 
 def valid_tenant(tenant: str) -> str:
-    """The shared tenant-name rule (identical to ``plexus.graph.tenancy``): no case folding, no separators."""
+    """The shared tenant-name rule (identical to ``knewat.graph.tenancy``): no case folding, no separators."""
     import re
 
     if not isinstance(tenant, str) or re.fullmatch(r"[a-z0-9_]{1,48}", tenant) is None:

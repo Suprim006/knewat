@@ -1,6 +1,6 @@
 """Memory-strength tools (P7-K, D-012): pin / unpin, inspect, sweep and restore.
 
-Forgetting in Plexus lowers a fact's *rank* only; these tools never delete. ``memory_sweep`` can move
+Forgetting in Knewat lowers a fact's *rank* only; these tools never delete. ``memory_sweep`` can move
 low-activation, unprotected, non-suspect facts to ``dormant`` (dry run by default) and ``restore_fact`` brings one
 back. Each tool is one service call; :meth:`Runtime.call` records the ``ToolCall`` and the agent's ``Step``.
 Asking for a fact's strength is not a use of the fact: no ``READ`` edge is written.
@@ -13,10 +13,10 @@ from typing import Annotated
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
-from plexus.activation import Activation
-from plexus.mcp.limits import AgentId, IdStr, ScopeArg, Step
-from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
-from plexus.mcp.toolkit import ToolTable
+from knewat.activation import Activation
+from knewat.mcp.limits import AgentId, IdStr, ScopeArg, Step
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
 
 MAX_SWEEP = 200
 

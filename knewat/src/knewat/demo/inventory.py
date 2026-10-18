@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 
 def inventory(client: GraphClient, tenant: str) -> dict[str, Any]:

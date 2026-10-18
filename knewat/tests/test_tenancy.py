@@ -2,17 +2,17 @@ import re
 
 import pytest
 
-from plexus.graph.tenancy import graph_name, test_graph_name
+from knewat.graph.tenancy import graph_name, test_graph_name
 
 
 @pytest.mark.parametrize("tenant", ["acme", "a", "t_1", "0", "a" * 48, "acme_notes_2026"])
 def test_graph_name_valid(tenant):
-    assert graph_name(tenant) == f"plexus_t_{tenant}"
+    assert graph_name(tenant) == f"knewat_t_{tenant}"
 
 
 @pytest.mark.parametrize(
     "tenant",
-    ["", "A", "Acme", "a-b", "a b", "a.b", "a/b", "a" * 49, "acme\n", " acme", "é", "a;b", "plexus_t_x\x00"],
+    ["", "A", "Acme", "a-b", "a b", "a.b", "a/b", "a" * 49, "acme\n", " acme", "é", "a;b", "knewat_t_x\x00"],
 )
 def test_graph_name_invalid(tenant):
     with pytest.raises(ValueError):

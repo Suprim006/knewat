@@ -1,7 +1,7 @@
 """Staleness MCP tools (P7-J, D-011): code changes make memories suspect; agents re-verify them.
 
 ``anchor_fact`` / ``describe_code`` link memory to code, ``mark_changed`` is called by the hooks of
-``plexus.codescan`` (git post-commit, Claude Code PostToolUse), ``facts_to_verify`` / ``docs_to_update`` are the work
+``knewat.codescan`` (git post-commit, Claude Code PostToolUse), ``facts_to_verify`` / ``docs_to_update`` are the work
 lists and ``verify_fact`` records the outcome of a re-check. Every tool is one service call; :meth:`Runtime.call`
 times it, records the ``ToolCall`` and the agent's ``Step``. Facts a call made suspect or verified are ``WROTE`` edges
 of the Step (through the ``after`` hook, because ``Fact`` is not a ``WROTE_LABELS`` label); a created ``Change`` is a
@@ -16,7 +16,7 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
-from plexus.mcp.limits import (
+from knewat.mcp.limits import (
     MAX_LIST,
     AgentId,
     EpochMs,
@@ -27,12 +27,12 @@ from plexus.mcp.limits import (
     StrictModel,
     Value,
 )
-from plexus.mcp.runtime import LINK_CHUNK, MeteredClient, Outcome, Runtime, TenantState
-from plexus.mcp.toolkit import ToolTable
+from knewat.mcp.runtime import LINK_CHUNK, MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
 
 MAX_PATH = 1024
 MAX_HASH = 128
-MAX_CHANGES = 200  # = plexus.staleness.service.MAX_CHANGES
+MAX_CHANGES = 200  # = knewat.staleness.service.MAX_CHANGES
 
 PathStr = Annotated[str, Field(min_length=1, max_length=MAX_PATH)]
 HashStr = Annotated[str, Field(max_length=MAX_HASH)]
@@ -54,7 +54,7 @@ class ChangeSpec(StrictModel):
     )
     old_hash: HashStr = Field(
         default="",
-        description="Hash before the change, if you know it. Used only when Plexus has no hash stored yet.",
+        description="Hash before the change, if you know it. Used only when Knewat has no hash stored yet.",
     )
     kind: Literal["file", "function", "class"] | None = Field(
         default=None, description="Optional: 'class' for a class symbol (default: function / file)."
@@ -153,7 +153,7 @@ def mark_changed(
     step: Step = None,
 ) -> Outcome:
     """Report that code changed (normally called by the git post-commit / Claude Code edit hooks, see
-    `plexus code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay
+    `knewat code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay
     recallable but are flagged. A first sighting of a file with no old_hash is just a baseline. Returns the
     suspect fact_ids, the decisions built on them, and the docs that describe the changed code. If truncated
     is true, call again with the same arguments (and the returned 'at') to continue."""

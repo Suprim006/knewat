@@ -15,16 +15,16 @@ from typing import Any
 from fastapi import HTTPException
 from redis.exceptions import RedisError, ResponseError
 
-from plexus.activation import Activation, Settings
-from plexus.api import models as M
-from plexus.graph.client import GraphClient, Rows
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.tenancy import TENANT_PREFIX, graph_name
+from knewat.activation import Activation, Settings
+from knewat.api import models as M
+from knewat.graph.client import GraphClient, Rows
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.tenancy import TENANT_PREFIX, graph_name
 
-log = logging.getLogger("plexus.api")
+log = logging.getLogger("knewat.api")
 
 FLOW_LIMIT_MAX = 1000
-MAX_STREAMS = 20  # concurrent /stream connections (env PLEXUS_API_MAX_STREAMS); more get 429
+MAX_STREAMS = 20  # concurrent /stream connections (env KNEWAT_API_MAX_STREAMS); more get 429
 FLOW_CACHE_TTL_S = 0.15  # subscribers polling within this window share one view/flow read
 FLOW_CACHE_MAX = 256
 

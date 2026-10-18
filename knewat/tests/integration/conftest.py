@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
 
 
 @pytest.fixture

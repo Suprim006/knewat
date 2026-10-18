@@ -9,14 +9,14 @@ from dataclasses import dataclass, field
 
 from mcp.server.mcpserver.exceptions import ToolError
 
-from plexus.embed import Embedder
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
-from plexus.lineage import Lineage
-from plexus.mcp.limits import MAX_NAME
-from plexus.mcp.metering import MeteredClient
-from plexus.relay import Relay
-from plexus.staleness import Staleness  # P7-J
+from knewat.embed import Embedder
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
+from knewat.lineage import Lineage
+from knewat.mcp.limits import MAX_NAME
+from knewat.mcp.metering import MeteredClient
+from knewat.relay import Relay
+from knewat.staleness import Staleness  # P7-J
 
 _UUID = re.compile(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
 

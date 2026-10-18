@@ -15,7 +15,7 @@ project with its own tasks, sources, facts, decisions, handoffs and episodes:
 
 All sprints share one deterministic clock and one deterministic id sequence (``scenario.deterministic``), so the file,
 SQLite and vector arms are byte-reproducible and the LLM answer cache can hit. Ground truth is the per-sprint
-:class:`~plexus.crucible.l2.scenario.Ledger` the script keeps while it runs.
+:class:`~knewat.crucible.l2.scenario.Ledger` the script keeps while it runs.
 """
 
 from __future__ import annotations
@@ -24,8 +24,8 @@ import dataclasses
 from dataclasses import dataclass
 from typing import Any
 
-from plexus.crucible.api import CoordinationBackend
-from plexus.crucible.l2.scenario import (
+from knewat.crucible.api import CoordinationBackend
+from knewat.crucible.l2.scenario import (
     BUILDER_LEASE_MS,
     ROLES,
     TICK,
@@ -35,7 +35,7 @@ from plexus.crucible.l2.scenario import (
     _Run,
     deterministic,
 )
-from plexus.demo.scenario import OPEN_LEASE_MS, Scenario, load_scenario
+from knewat.demo.scenario import OPEN_LEASE_MS, Scenario, load_scenario
 
 DATABASES = (
     "PostgreSQL 16", "MySQL 8", "MariaDB 11", "CockroachDB 24", "SQL Server 2022", "Oracle 23",

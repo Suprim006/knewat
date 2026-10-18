@@ -3,8 +3,8 @@ from __future__ import annotations
 import threading
 from typing import Any
 
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
 
 
 def _race(client, graph, embedder, n, fn) -> list[Any]:

@@ -1,6 +1,6 @@
 """Pydantic response models for the View API (exported to docs/view-api.schema.json).
 
-Shapes are what ``plexus-view`` consumes; field names are final. Times are epoch milliseconds.
+Shapes are what ``knewat-view`` consumes; field names are final. Times are epoch milliseconds.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ PropValue = str | int | float | bool
 
 
 class TenantInfo(BaseModel):
-    tenant: str = Field(description="Tenant id (graph name without the plexus_t_ prefix).")
+    tenant: str = Field(description="Tenant id (graph name without the knewat_t_ prefix).")
     graph: str = Field(description="FalkorDB graph name.")
 
 
@@ -68,7 +68,7 @@ class GraphNode(BaseModel):
         "(active | superseded | dormant | forgotten | quarantined), with defaults for facts written before P7; "
         "maybe_duplicate_of (the id of an older fact this one may duplicate, from the soft DUPLICATES_MAYBE link; "
         "present only while unresolved); and, "
-        "unless PLEXUS_FORGETTING=off, activation (float, omitted when -inf) and protected (bool)."
+        "unless KNEWAT_FORGETTING=off, activation (float, omitted when -inf) and protected (bool)."
     )
 
 
@@ -339,7 +339,7 @@ class MemoryStrengthResponse(BaseModel):
     last_recall: int | None = None
     explanation: str
     forgetting: bool = Field(
-        description="False when PLEXUS_FORGETTING=off: recall ignores activation (this is still computed)."
+        description="False when KNEWAT_FORGETTING=off: recall ignores activation (this is still computed)."
     )
 
 

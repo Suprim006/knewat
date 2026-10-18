@@ -30,7 +30,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.contexts import (
+from knewat.crucible.l2.contexts import (
     _DROP_COLS,
     B1_TABLES,
     CONTEXT_CHARS,

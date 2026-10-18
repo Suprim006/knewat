@@ -14,13 +14,13 @@ from pathlib import Path
 
 import pytest
 
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.audit_policy import AuditPolicy
+from knewat.mcp.runtime import Outcome, Runtime
+from knewat.mcp.server import KnewatServer, build_server
+from knewat.mcp.toolkit import ToolTable, all_tool_defs
 from mcp import Client
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.audit_policy import AuditPolicy
-from plexus.mcp.runtime import Outcome, Runtime
-from plexus.mcp.server import PlexusServer, build_server
-from plexus.mcp.toolkit import ToolTable, all_tool_defs
 
 READ_TOOLS = {
     "recall",
@@ -72,23 +72,23 @@ def test_default_mode_is_full_and_overrides_match_by_glob_first_wins():
     p = AuditPolicy.from_env({})
     assert p.tenant_mode("anything") == "full"
     p = AuditPolicy.from_env(
-        {"PLEXUS_AUDIT_MODE": "light", "PLEXUS_AUDIT_MODES": "demo*=off, team_*=full ,x_*=light"}
+        {"KNEWAT_AUDIT_MODE": "light", "KNEWAT_AUDIT_MODES": "demo*=off, team_*=full ,x_*=light"}
     )
     assert p.tenant_mode("demo") == "off" and p.tenant_mode("demo_scripted") == "off"
     assert p.tenant_mode("team_abcd") == "full"
     assert p.tenant_mode("x_1") == "light"
     assert p.tenant_mode("other") == "light"  # the default
-    p = AuditPolicy.from_env({"PLEXUS_AUDIT_MODES": "t*=off,team_*=full"})
+    p = AuditPolicy.from_env({"KNEWAT_AUDIT_MODES": "t*=off,team_*=full"})
     assert p.tenant_mode("team_a") == "off"  # first match wins
 
 
 @pytest.mark.parametrize(
     "env",
     [
-        {"PLEXUS_AUDIT_MODE": "loud"},
-        {"PLEXUS_AUDIT_MODES": "demo*"},
-        {"PLEXUS_AUDIT_MODES": "demo*=quiet"},
-        {"PLEXUS_AUDIT_MODES": "=off"},
+        {"KNEWAT_AUDIT_MODE": "loud"},
+        {"KNEWAT_AUDIT_MODES": "demo*"},
+        {"KNEWAT_AUDIT_MODES": "demo*=quiet"},
+        {"KNEWAT_AUDIT_MODES": "=off"},
     ],
 )
 def test_a_bad_audit_setting_fails_loudly_at_startup(env):
@@ -126,7 +126,7 @@ def test_effective_mode_table(tenant_mode, kind, exposure, requested, expected):
 
 # ------------------------------------------------------------------------------------ 2. Runtime modes
 def _runtime(client, tenant, mode: str = "full", table: str = ""):
-    env = {"PLEXUS_AUDIT_MODE": mode, "PLEXUS_AUDIT_MODES": table}
+    env = {"KNEWAT_AUDIT_MODE": mode, "KNEWAT_AUDIT_MODES": table}
     return Runtime(
         client=client,
         embedder=HashEmbedder(),
@@ -306,7 +306,7 @@ def _mislabelled(rt):
         """A tool that claims to be a read but starts a session (a write). Test double only."""
         return Outcome({"session_id": ts.engram(m).start_session(agent_id, "x")})
 
-    mcp = PlexusServer("t", log_level="WARNING")
+    mcp = KnewatServer("t", log_level="WARNING")
     table.register(mcp, rt)
     return mcp
 
@@ -330,7 +330,7 @@ async def test_a_mislabelled_read_tool_is_audited_in_full_on_a_light_tenant(clie
 # ------------------------------------------------------------------------------------ guard coupling
 def _load_guard():
     path = Path(__file__).resolve().parents[3] / "deploy" / "guard.py"
-    spec = importlib.util.spec_from_file_location("plexus_deploy_guard", path)
+    spec = importlib.util.spec_from_file_location("knewat_deploy_guard", path)
     mod = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = mod  # dataclasses resolves string annotations through sys.modules
     spec.loader.exec_module(mod)
@@ -338,14 +338,14 @@ def _load_guard():
 
 
 def test_the_guard_allowlist_is_exactly_the_read_tools():
-    """guard.py imports no Plexus code: its OBSERVER_TOOLS list is checked against the registry here."""
+    """guard.py imports no Knewat code: its OBSERVER_TOOLS list is checked against the registry here."""
     guard = _load_guard()
     assert guard.OBSERVER_TOOLS == {d.name for d in all_tool_defs() if d.kind == "read"}
 
 
 def test_the_deploy_audit_rule_makes_demo_tenants_off_and_team_tenants_unchanged():
     guard = _load_guard()
-    env = {"PLEXUS_AUDIT_MODES": "team_*=light"}
+    env = {"KNEWAT_AUDIT_MODES": "team_*=light"}
     policy = AuditPolicy.from_env(guard.ensure_demo_audit_off(env))
     assert policy.tenant_mode("demo") == policy.tenant_mode("demo_scripted") == "off"
     assert policy.tenant_mode("team_abcd") == "light" and policy.tenant_mode("acme") == "full"

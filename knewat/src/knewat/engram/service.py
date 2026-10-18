@@ -14,18 +14,18 @@ from typing import Any
 
 from redis.exceptions import ResponseError
 
-from plexus.activation import model as act
-from plexus.activation.rank import Ranked, rerank
-from plexus.activation.service import Activation
-from plexus.activation.settings import Settings
-from plexus.common import OPEN, check_between, normalize
-from plexus.common import new_id as _new_id
-from plexus.common import now_ms as _now_ms  # module attribute: crucible's l5 pins it to fake the clock
-from plexus.embed import Embedder, embed_checked, get_embedder
-from plexus.engram import relations
-from plexus.engram.dedup import MAYBE_CAP, DedupSettings, features
-from plexus.engram.errors import UnknownReference
-from plexus.graph.client import GraphClient
+from knewat.activation import model as act
+from knewat.activation.rank import Ranked, rerank
+from knewat.activation.service import Activation
+from knewat.activation.settings import Settings
+from knewat.common import OPEN, check_between, normalize
+from knewat.common import new_id as _new_id
+from knewat.common import now_ms as _now_ms  # module attribute: crucible's l5 pins it to fake the clock
+from knewat.embed import Embedder, embed_checked, get_embedder
+from knewat.engram import relations
+from knewat.engram.dedup import MAYBE_CAP, DedupSettings, features
+from knewat.engram.errors import UnknownReference
+from knewat.graph.client import GraphClient
 
 NO_STEP = -1  # Episode.step when the caller has no step
 MAX_ORIGINS = 100  # derived_from ids per fact (= Lineage.MAX_DERIVE_IDS)
@@ -51,12 +51,12 @@ RECALL_ENTITIES = 5  # entities the pattern-separation read resolves per recall 
 RECALL_PREDICATES = 10  # predicates the predicate-cue read counts per recall (CROSS_CHECK §3.2)
 MAX_ENTITY_QUERY_TOKENS = 24  # name tokens OR-ed into the Entity.name full-text query
 ENTITY_NEIGHBOURS = 5  # nearest entities the vector lookup of resolve_entity considers
-NO_TOKEN = "plexusnomatchtoken"  # full-text query for a name without any word character: matches nothing
+NO_TOKEN = "knewatnomatchtoken"  # full-text query for a name without any word character: matches nothing
 DEFAULT_HISTORY = 200  # fact_history default
 MAX_HISTORY = 10_000  # fact_history ceiling: versions of ONE entity+predicate in one scope
 
 
-log = logging.getLogger("plexus.engram")
+log = logging.getLogger("knewat.engram")
 
 _WORD = re.compile(r"[^\W_]+", re.UNICODE)
 _NUMBER = re.compile(r"\d+(?:\.\d+)*")  # 16, 8080, 1.2.3 (a trailing '.' is not part of the number)
@@ -93,7 +93,7 @@ def entity_key(name: str) -> str:
     """The key two entity names must share for the vector path to merge them (``Entity.num_key``).
 
     P9-c's discriminator key (numbers, unit-normalised quantities, number words, negation / antonyms; see
-    ``plexus.engram.dedup``) plus a hyphenated trailing single letter: ``auth-service-a`` and
+    ``knewat.engram.dedup``) plus a hyphenated trailing single letter: ``auth-service-a`` and
     ``auth-service-b`` are two services, although every other token is the same and the embeddings are close.
     """
     letter = _TRAILING_LETTER.search(name.strip().lower())
@@ -313,7 +313,7 @@ class Engram:
     ) -> dict[str, Any]:
         """Relate two entities: ``(subject)-[:RELATES {kind, scope_id}]->(object)``, typed and directed.
 
-        Idempotent. ``recall(hops=1|2)`` walks these edges in both directions (``plexus.engram.relations``).
+        Idempotent. ``recall(hops=1|2)`` walks these edges in both directions (``knewat.engram.relations``).
         Returns ``{created, subject_id, object_id, kind, scope_id}``; raises :class:`UnknownReference`
         (writing nothing) for an unknown scope and ``ValueError`` for an empty kind or a self-relation.
         """
@@ -631,7 +631,7 @@ class Engram:
         below.
 
         **Pattern separation (D-013 P1, CROSS_CHECK §3.2-3.3).** With ``separation`` on (``True``, or ``None``
-        and ``PLEXUS_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
+        and ``KNEWAT_RECALL_SEPARATION`` not ``off``) and no ``as_of``, the query's words are matched against
         ``Entity.name`` (one bounded full-text read, ``engram/recall_entities``); an entity counts as *named*
         when every word of its name is in the query. The named entities' own current facts join the
         candidates (one bounded read in the ``engram/recall_hop_facts`` shape, ``2k`` nearest per entity), so
@@ -644,9 +644,9 @@ class Engram:
         other candidates with the same predicate about another entity at nearly the same relevance. Rows gain
         ``entity_match``, ``predicate_match``, ``sep`` and ``lures``.
 
-        **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
+        **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``KNEWAT_FORGETTING``
         not ``off``) and no ``as_of``, the pool is re-ranked by ``relevance x (floor + (1 - floor) x sigmoid(A
-        - A0))`` (``plexus.activation.rank``), then cut to ``k``; the rows
+        - A0))`` (``knewat.activation.rank``), then cut to ``k``; the rows
         gain ``activation`` and ``protected``. With forgetting and separation both off, or with ``as_of``,
         the order is the relevance and those two fields are ``None``. Rows always carry ``surprise``,
         ``verify_state`` (``suspect`` when marked so or when the review date has passed), ``suspect_since``
@@ -707,7 +707,7 @@ class Engram:
         q = self._embed_query(query)
         kw_ids = self._keyword_ids(query, scope_id, pool, t, statuses, all_scopes)
         # CROSS_CHECK §3.3: the named entities' own facts, read before the main query so the ToolCall is
-        # still named after engram/recall (plexus.mcp.metering); merged after it.
+        # still named after engram/recall (knewat.mcp.metering); merged after it.
         named_rows = (
             self._entity_facts(list(meta["entities"]), q, scope_id, seeds, t, statuses, all_scopes)
             if sp and meta["entities"]

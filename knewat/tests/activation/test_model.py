@@ -6,7 +6,7 @@ import math
 
 import pytest
 
-from plexus.activation.model import (
+from knewat.activation.model import (
     DAY_MS,
     W_RECALL,
     Event,

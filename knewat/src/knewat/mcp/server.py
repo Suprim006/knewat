@@ -1,4 +1,4 @@
-"""Plexus MCP server: ``plexus-mcp --transport stdio --tenant acme`` or ``--transport http --port 8765``."""
+"""Knewat MCP server: ``knewat-mcp --transport stdio --tenant acme`` or ``--transport http --port 8765``."""
 
 from __future__ import annotations
 
@@ -15,19 +15,19 @@ from mcp.server.transport_security import TransportSecuritySettings
 from mcp_types import ListToolsResult
 from pydantic import ValidationError
 
-from plexus.mcp.http import TenantPathMiddleware
-from plexus.mcp.lineage_tools import register_lineage
-from plexus.mcp.memory_tools import register_memory
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.staleness_tools import register_staleness
-from plexus.mcp.tools import register_engram_relay
-from plexus.mcp.tools_dedup import register_dedup
-from plexus.mcp.tools_impact import register_impact
-from plexus.mcp.tools_relations import register_relations
-from plexus.mcp.toolsets import FULL, TOOLSET_HEADER, ToolsetError, default_toolset, module_of, tool_names
+from knewat.mcp.http import TenantPathMiddleware
+from knewat.mcp.lineage_tools import register_lineage
+from knewat.mcp.memory_tools import register_memory
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.staleness_tools import register_staleness
+from knewat.mcp.tools import register_engram_relay
+from knewat.mcp.tools_dedup import register_dedup
+from knewat.mcp.tools_impact import register_impact
+from knewat.mcp.tools_relations import register_relations
+from knewat.mcp.toolsets import FULL, TOOLSET_HEADER, ToolsetError, default_toolset, module_of, tool_names
 
 INSTRUCTIONS = (
-    "Plexus is a shared graph memory and coordination layer for a team of agents. "
+    "Knewat is a shared graph memory and coordination layer for a team of agents. "
     "Call start_session first. Use recall before acting and assert_fact to store durable knowledge; use "
     "create_tasks / claim_next_task / complete_task to coordinate, handoff to pass work on, and record_decision "
     "(with the fact ids it relies on) so decisions can be explained later. Every tool takes your agent_id."
@@ -98,18 +98,18 @@ def compact_schema(s: Any) -> Any:
     return out
 
 
-class PlexusServer(MCPServer):
+class KnewatServer(MCPServer):
     """MCPServer that reports argument-validation failures as one short line instead of a pydantic dump,
     publishes compact tool schemas (see :func:`compact_schema`) and scopes the published tools to the
-    session's toolset (see :mod:`plexus.mcp.toolsets`; default ``full`` = every tool)."""
+    session's toolset (see :mod:`knewat.mcp.toolsets`; default ``full`` = every tool)."""
 
     def __init__(self, *args: Any, toolset: str = FULL, **kwargs: Any):
         super().__init__(*args, **kwargs)
         self.toolset = toolset  # process default (canonical): stdio, and HTTP sessions that pick none
 
     def session_toolset(self, headers: Any) -> str:
-        """The toolset of the request: the session's (``x-plexus-toolset``, set and pinned by
-        :class:`~plexus.mcp.http.TenantPathMiddleware`), else the process default."""
+        """The toolset of the request: the session's (``x-knewat-toolset``, set and pinned by
+        :class:`~knewat.mcp.http.TenantPathMiddleware`), else the process default."""
         raw = (headers or {}).get(TOOLSET_HEADER) if headers is not None else None
         return raw if raw else self.toolset
 
@@ -142,13 +142,13 @@ class PlexusServer(MCPServer):
             raise
 
 
-def build_server(rt: Runtime, toolset: str | None = None) -> PlexusServer:
+def build_server(rt: Runtime, toolset: str | None = None) -> KnewatServer:
     """An MCPServer with every tool registered.
 
-    ``toolset`` (default: env ``PLEXUS_TOOLSET``, else ``full``) is the process default of the published tool
+    ``toolset`` (default: env ``KNEWAT_TOOLSET``, else ``full``) is the process default of the published tool
     list; every tool is still registered, a session sees only its toolset's."""
-    mcp = PlexusServer(
-        "plexus", instructions=INSTRUCTIONS, log_level="WARNING", toolset=default_toolset(toolset)
+    mcp = KnewatServer(
+        "knewat", instructions=INSTRUCTIONS, log_level="WARNING", toolset=default_toolset(toolset)
     )
     register_engram_relay(mcp, rt)
     register_lineage(mcp, rt)
@@ -160,18 +160,18 @@ def build_server(rt: Runtime, toolset: str | None = None) -> PlexusServer:
     return mcp
 
 
-DEFAULT_ALLOWED_HOSTS = "127.0.0.1:*,localhost:*,[::1]:*,127.0.0.1,localhost,plexus-mcp:*,plexus-mcp"
+DEFAULT_ALLOWED_HOSTS = "127.0.0.1:*,localhost:*,[::1]:*,127.0.0.1,localhost,knewat-mcp:*,knewat-mcp"
 
 
 def build_http_app(rt: Runtime, allowed_hosts: list[str] | None = None, toolset: str | None = None):
     """ASGI app: tenant-binding middleware around the SDK's streamable-HTTP app (``/mcp``, ``/mcp/t/<tenant>``).
 
-    DNS-rebinding protection stays on: only Host headers in ``allowed_hosts`` (env ``PLEXUS_MCP_ALLOWED_HOSTS``,
+    DNS-rebinding protection stays on: only Host headers in ``allowed_hosts`` (env ``KNEWAT_MCP_ALLOWED_HOSTS``,
     comma-separated, ``host:*`` allows any port) are accepted.
     """
     hosts = allowed_hosts or [
         h.strip()
-        for h in os.environ.get("PLEXUS_MCP_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS).split(",")
+        for h in os.environ.get("KNEWAT_MCP_ALLOWED_HOSTS", DEFAULT_ALLOWED_HOSTS).split(",")
         if h.strip()
     ]
     security = TransportSecuritySettings(
@@ -192,19 +192,19 @@ def _prewarm(rt: Runtime) -> None:
 
 
 def main(argv: list[str] | None = None) -> None:
-    ap = argparse.ArgumentParser(prog="plexus-mcp", description=__doc__)
+    ap = argparse.ArgumentParser(prog="knewat-mcp", description=__doc__)
     ap.add_argument("--transport", choices=["stdio", "http"], default="stdio")
     ap.add_argument(
-        "--tenant", help="stdio: the tenant this process serves (default: env PLEXUS_TENANT or 'default')"
+        "--tenant", help="stdio: the tenant this process serves (default: env KNEWAT_TENANT or 'default')"
     )
-    ap.add_argument("--host", default=os.environ.get("PLEXUS_MCP_HOST", "127.0.0.1"))
-    ap.add_argument("--port", type=int, default=int(os.environ.get("PLEXUS_MCP_PORT", "8765")))
+    ap.add_argument("--host", default=os.environ.get("KNEWAT_MCP_HOST", "127.0.0.1"))
+    ap.add_argument("--port", type=int, default=int(os.environ.get("KNEWAT_MCP_PORT", "8765")))
     ap.add_argument(
         "--toolset",
         default=None,
         help="tools to publish: 'full' (default), 'core' (engram,relay,lineage) or a comma-separated list of "
-        "modules: engram, relay, lineage, staleness, forgetting, relations, dedup (default: env PLEXUS_TOOLSET); "
-        "HTTP clients can pick per session with ?toolset= or X-Plexus-Toolset",
+        "modules: engram, relay, lineage, staleness, forgetting, relations, dedup (default: env KNEWAT_TOOLSET); "
+        "HTTP clients can pick per session with ?toolset= or X-Knewat-Toolset",
     )
     a = ap.parse_args(argv)
     try:
@@ -216,7 +216,7 @@ def main(argv: list[str] | None = None) -> None:
     )
 
     if a.transport == "stdio":
-        tenant = a.tenant or os.environ.get("PLEXUS_TENANT") or "default"
+        tenant = a.tenant or os.environ.get("KNEWAT_TENANT") or "default"
         rt = Runtime(stdio_tenant=tenant)
         rt.tenant_of(None)  # fail fast on an invalid tenant name
         _prewarm(rt)

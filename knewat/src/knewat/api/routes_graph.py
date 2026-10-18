@@ -6,9 +6,9 @@ from typing import Any
 
 from fastapi import APIRouter, Query
 
-from plexus.api import models as M
-from plexus.api.context import ApiContext, activation_props, clean
-from plexus.common import OPEN
+from knewat.api import models as M
+from knewat.api.context import ApiContext, activation_props, clean
+from knewat.common import OPEN
 
 # What a Fact node reports when it has no such property (written before P7); the contract's defaults.
 FACT_DEFAULTS: dict[str, Any] = {

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import Lineage, UnknownNode
+from knewat.lineage import Lineage, UnknownNode
 
 from .blast import build_blast
 from .conftest import cypher

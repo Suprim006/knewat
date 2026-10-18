@@ -1,4 +1,4 @@
-"""The tool-definition pattern (``plexus.mcp.toolkit``).
+"""The tool-definition pattern (``knewat.mcp.toolkit``).
 
 Every tool is declared the same way, and nested argument objects refuse unknown keys. Pinned once here instead
 of once per tool."""
@@ -7,8 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from mcp import Client
-from plexus.mcp import (
+from knewat.mcp import (
     lineage_tools,
     memory_tools,
     staleness_tools,
@@ -18,9 +17,10 @@ from plexus.mcp import (
     tools_relations,
     tools_relay,
 )
-from plexus.mcp.limits import StrictModel
-from plexus.mcp.toolkit import ToolTable
-from plexus.mcp.tools import register_engram_relay
+from knewat.mcp.limits import StrictModel
+from knewat.mcp.toolkit import ToolTable
+from knewat.mcp.tools import register_engram_relay
+from mcp import Client
 
 TABLES = [
     tools_engram.ENGRAM_TOOLS,
@@ -41,7 +41,7 @@ def _strict_models() -> list[type[StrictModel]]:
         cls = todo.pop()
         out.append(cls)
         todo.extend(cls.__subclasses__())
-    return [c for c in out if c.__module__.startswith("plexus.mcp.")]
+    return [c for c in out if c.__module__.startswith("knewat.mcp.")]
 
 
 def test_argument_models_exist_and_forbid_unknown_keys():
@@ -79,9 +79,9 @@ async def test_published_tools_are_exactly_the_tables(server):
 
 
 def test_register_engram_relay_returns_names_in_definition_order():
-    from plexus.mcp.server import PlexusServer
+    from knewat.mcp.server import KnewatServer
 
-    mcp = PlexusServer("t")
+    mcp = KnewatServer("t")
     names = register_engram_relay(mcp, None)  # type: ignore[arg-type]  # the runtime is only used when a tool runs
     assert names == [d.name for t in (tools_engram.ENGRAM_TOOLS, tools_relay.RELAY_TOOLS) for d in t]
 

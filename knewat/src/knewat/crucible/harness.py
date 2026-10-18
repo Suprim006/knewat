@@ -14,13 +14,13 @@ from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
-from plexus.crucible.api import BackendSpec, CoordinationBackend, Unsupported
-from plexus.crucible.backends import open_backend
+from knewat.crucible.api import BackendSpec, CoordinationBackend, Unsupported
+from knewat.crucible.backends import open_backend
 
 
 @dataclass
 class Env:
-    """Where the arms live: a scratch dir for the file arms, a FalkorDB endpoint for the Plexus arms."""
+    """Where the arms live: a scratch dir for the file arms, a FalkorDB endpoint for the Knewat arms."""
 
     root: str
     host: str = "127.0.0.1"
@@ -33,7 +33,7 @@ class Env:
             root=root or tempfile.mkdtemp(prefix="crucible-"),
             host=os.environ.get("FALKORDB_HOST") or "127.0.0.1",
             port=int(os.environ.get("FALKORDB_PORT") or 6379),
-            embedder=embedder or os.environ.get("PLEXUS_EMBEDDER") or "fastembed",
+            embedder=embedder or os.environ.get("KNEWAT_EMBEDDER") or "fastembed",
         )
 
     def spec(self, arm: str, tenant: str, **options: Any) -> BackendSpec:
@@ -70,7 +70,7 @@ class ArmRun:
 
     def cleanup(self) -> None:
         for b in self._opened:
-            drop = getattr(b, "drop", None)  # Plexus arms: delete the tenant graph first, then disconnect
+            drop = getattr(b, "drop", None)  # Knewat arms: delete the tenant graph first, then disconnect
             if drop is not None:
                 with contextlib.suppress(Exception):
                     drop()

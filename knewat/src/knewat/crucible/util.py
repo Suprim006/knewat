@@ -11,7 +11,7 @@ import uuid
 from collections.abc import Callable, Iterator, Sequence
 from typing import Any
 
-from plexus.engram.service import fact_text, normalize, token_key  # same text rules as Plexus
+from knewat.engram.service import fact_text, normalize, token_key  # same text rules as Knewat
 
 __all__ = [
     "FileLock",

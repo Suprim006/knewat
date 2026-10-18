@@ -6,7 +6,7 @@ import os
 import threading
 from pathlib import Path
 
-from plexus.embed.base import DIM
+from knewat.embed.base import DIM
 
 MODEL_NAME = "BAAI/bge-small-en-v1.5"
 # BGE's retrieval instruction for queries against stored passages (model card: query instruction)
@@ -15,14 +15,14 @@ BGE_QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 def query_prefix(model_name: str) -> str:
     """The query instruction for ``model_name`` (``""`` for non-BGE models or
-    ``PLEXUS_BGE_QUERY_PREFIX=off``)."""
-    if os.environ.get("PLEXUS_BGE_QUERY_PREFIX", "on").strip().lower() in ("off", "0", "false", "no"):
+    ``KNEWAT_BGE_QUERY_PREFIX=off``)."""
+    if os.environ.get("KNEWAT_BGE_QUERY_PREFIX", "on").strip().lower() in ("off", "0", "false", "no"):
         return ""
     return BGE_QUERY_PREFIX if "bge" in model_name.lower() else ""
 
 
 def default_cache_dir() -> str:
-    return os.environ.get("PLEXUS_EMBED_CACHE") or str(Path.home() / ".cache" / "plexus-fastembed")
+    return os.environ.get("KNEWAT_EMBED_CACHE") or str(Path.home() / ".cache" / "knewat-fastembed")
 
 
 class FastEmbedder:

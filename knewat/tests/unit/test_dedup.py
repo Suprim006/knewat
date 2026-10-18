@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.engram.dedup import (
+from knewat.engram.dedup import (
     DedupSettings,
     features,
     jaccard,
@@ -149,10 +149,10 @@ def test_features_are_sorted_unique_tokens_and_a_string_key():
 def test_settings_defaults_and_env_override():
     s = DedupSettings.from_env({})
     assert (s.jaccard, s.tier2_cos, s.maybe_cos, s.maybe_jaccard) == (0.6, 0.16, 0.20, 0.5)
-    s = DedupSettings.from_env({"PLEXUS_DUP_JACCARD": "0.7", "PLEXUS_DUP_TIER2_COS": "0.12"})
+    s = DedupSettings.from_env({"KNEWAT_DUP_JACCARD": "0.7", "KNEWAT_DUP_TIER2_COS": "0.12"})
     assert s.jaccard == 0.7 and s.tier2_cos == 0.12
-    with pytest.raises(ValueError, match="PLEXUS_DUP_JACCARD"):
-        DedupSettings.from_env({"PLEXUS_DUP_JACCARD": "1.5"})
+    with pytest.raises(ValueError, match="KNEWAT_DUP_JACCARD"):
+        DedupSettings.from_env({"KNEWAT_DUP_JACCARD": "1.5"})
 
 
 def test_substitution_guard_blocks_a_one_word_change_but_not_a_paraphrase():

@@ -1,8 +1,8 @@
 """Arm B1h: every L2 question answered by hand-written SQL against the SQLite store (no LLM, no retrieval).
 
 This is the control the BEAT_SQL analysis asked for: the same 17 question operations as the Cypher answerer
-(``plexus_answerer.PlexusAnswerer``), written by the same author with the same effort, but in SQL over the B1 tables
-(plus the ``claims`` history table of :class:`~plexus.crucible.backends.sqlite_h.SqliteHistoryBackend`). One read-only
+(``knewat_answerer.KnewatAnswerer``), written by the same author with the same effort, but in SQL over the B1 tables
+(plus the ``claims`` history table of :class:`~knewat.crucible.backends.sqlite_h.SqliteHistoryBackend`). One read-only
 statement per fact the question needs, parameterised, shaped into the same answer format and scored by the same
 ``score``. The L2 baselines B0/B1/B2 are LLM readers of a dump; this arm is a *query* and so is comparable to P.
 
@@ -20,9 +20,9 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.questions import Question
-from plexus.crucible.l2.scenario import decision_label
-from plexus.crucible.util import normalize, scope_chain
+from knewat.crucible.l2.questions import Question
+from knewat.crucible.l2.scenario import decision_label
+from knewat.crucible.util import normalize, scope_chain
 
 _SEP = "\x1f"
 
@@ -369,7 +369,7 @@ class SqlAnswerer:
 class ScaleSqlAnswerer(SqlAnswerer):
     """The L2-scale variant: the history holds K sprints, and class-wide questions are restricted to the named sprint.
 
-    Same restriction rules as ``ScalePlexusAnswerer``: task ids start with the sprint tag, source uris contain
+    Same restriction rules as ``ScaleKnewatAnswerer``: task ids start with the sprint tag, source uris contain
     ``/<sprint>/``, episode texts start with ``S07:``. Here the restriction is part of the SQL (``LIKE``), not a Python
     filter over the rows.
     """

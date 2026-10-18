@@ -1,6 +1,6 @@
 """L6-C arms: B1h (SQLite recursive CTE), P-tuned (level-wise Cypher), P-product / P-flat (``Engram.recall``).
 
-Every arm answers a :class:`~plexus.crucible.l6.world_c.QuestionC` with ``(answer, meta)``; ``answer = {"top5": [fact ids in
+Every arm answers a :class:`~knewat.crucible.l6.world_c.QuestionC` with ``(answer, meta)``; ``answer = {"top5": [fact ids in
 rank order], "fact": top5[0] or None}`` and ``meta`` is ``arms_a.meta(...)`` (``error`` is ``"timeout"`` past the 5,000 ms
 budget of any statement). The deterministic arms (B1h, P-tuned) are handed the anchor id and the predicate: the family
 measures traversal and ranking, not question parsing. ``P-product`` / ``P-flat`` get the text ``"<anchor name> <predicate>"``.
@@ -14,8 +14,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l6 import arms_a as A
-from plexus.crucible.l6.world_c import EPS, QuestionC
+from knewat.crucible.l6 import arms_a as A
+from knewat.crucible.l6.world_c import EPS, QuestionC
 
 # ------------------------------------------------------------------------------------------------ B1h (SQL)
 C_SQL = """
@@ -211,7 +211,7 @@ class ProductC:
         self.engram, self.scope_id, self.hops = engram, scope_id, hops
 
     def answer(self, q: QuestionC) -> tuple[dict[str, Any], dict[str, Any]]:
-        from plexus.engram.relations import MAX_HOPS
+        from knewat.engram.relations import MAX_HOPS
 
         rec = self.engram.client
         rec.statements, rec.server_ms = 0, 0.0

@@ -1,4 +1,4 @@
-"""``plexus demo ablation``: copy a tenant, cut the edges in the copy, probe both side by side."""
+"""``knewat demo ablation``: copy a tenant, cut the edges in the copy, probe both side by side."""
 
 from __future__ import annotations
 
@@ -6,10 +6,10 @@ import json
 
 import pytest
 
-from plexus.cli import main
-from plexus.demo.ablation import STRIPPED, run_ablation
-from plexus.demo.inventory import inventory
-from plexus.graph.tenancy import graph_name
+from knewat.cli import main
+from knewat.demo.ablation import STRIPPED, run_ablation
+from knewat.demo.inventory import inventory
+from knewat.graph.tenancy import graph_name
 
 
 def _run(*argv: str) -> int:
@@ -114,7 +114,7 @@ def test_cli_drop_and_json(client, scripted_run, cli_env, capsys):
 def test_empty_tenant_is_refused_with_a_hint(client, demo_tenants, cli_env):
     with pytest.raises(SystemExit) as e:
         main(["demo", "ablation", "--tenant", demo_tenants()])
-    assert "plexus demo replay" in str(e.value)
+    assert "knewat demo replay" in str(e.value)
 
 
 def test_tenant_name_too_long_for_the_copy(client):

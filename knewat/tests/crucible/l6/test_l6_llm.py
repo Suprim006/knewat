@@ -9,10 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l2.llm import BudgetExceeded
-from plexus.crucible.l6 import llm as L
-from plexus.crucible.l6 import pilot as P
-from plexus.crucible.l6 import sql_mcp
+from knewat.crucible.l2.llm import BudgetExceeded
+from knewat.crucible.l6 import llm as L
+from knewat.crucible.l6 import pilot as P
+from knewat.crucible.l6 import sql_mcp
 
 FAKE = [sys.executable, str(Path(__file__).with_name("fake_claude_l6.py"))]
 

@@ -1,9 +1,9 @@
 """P9-b bench: path-enumerating vs level-wise traversal on diamond DAGs (server-side ``run_time_ms``).
 
-    PLEXUS_TEST_DB_PORT=63NN uv run python -m tests.lineage.bench_traversal [--old-queries DIR]
+    KNEWAT_TEST_DB_PORT=63NN uv run python -m tests.lineage.bench_traversal [--old-queries DIR]
 
 ``--old-queries`` = a ``queries/`` directory of the base commit
-(``git archive <sha> plexus/queries | tar -x -C X``); the old forget_source / quarantine / why_edges are timed
+(``git archive <sha> knewat/queries | tar -x -C X``); the old forget_source / quarantine / why_edges are timed
 from it. The ``*1..N`` rows run the natural path-enumerating
 pattern (what Cypher users write) with a 3 s timeout and show the explosion the level-wise forms avoid.
 """
@@ -14,11 +14,11 @@ import argparse
 import statistics
 import uuid
 
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.schema import apply_schema
-from plexus.lineage import Lineage
-from plexus.relay import Relay
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.schema import apply_schema
+from knewat.lineage import Lineage
+from knewat.relay import Relay
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 from tests.lineage.diamond import TimedClient, build_lineage, build_tasks
 

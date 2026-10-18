@@ -11,10 +11,10 @@ answers every probe with three parameterised statements:
    returns, plus a ``kw`` flag = the fact is a keyword hit, which the Cypher side gets from ``engram/recall_keywords``);
 3. ``ACTIVATION_SQL``: ``A(f)``, graded salience and the protection flag per candidate, computed in SQL (a window
    function for the newest 50 events, ``power`` / ``ln``, the D-012 weights, the contract's suspect-recall rule and
-   the D-013 salience weights) - what ``activation/activation`` + ``plexus.activation.service`` produce.
+   the D-013 salience weights) - what ``activation/activation`` + ``knewat.activation.service`` produce.
 
 The two lexical rules both arms apply in Python stay in Python (every word of an entity's name in the query; the
-exact-keyword bypass), and the final ``mult`` formula is the shared pure function ``plexus.activation.rank.rerank``
+exact-keyword bypass), and the final ``mult`` formula is the shared pure function ``knewat.activation.rank.rerank``
 over the columns each arm returned. ``sqlite-vec`` has no scope pre-filter either, so the same x4 over-fetch retry
 is used. No LLM. ``sql_lines()`` counts the SQL written for the arm (non-blank, non-comment lines of the three
 statements), the number the pre-registration asks for.
@@ -29,13 +29,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.activation.rank import rerank
-from plexus.activation.service import FactActivation
-from plexus.activation.settings import Settings
-from plexus.common import normalize
-from plexus.embed import Embedder
-from plexus.engram import service as engram_service
-from plexus.engram.service import (
+from knewat.activation.rank import rerank
+from knewat.activation.service import FactActivation
+from knewat.activation.settings import Settings
+from knewat.common import normalize
+from knewat.embed import Embedder
+from knewat.engram import service as engram_service
+from knewat.engram.service import (
     EXPAND_BOOST,
     MAX_K,
     MAX_OVER,
@@ -47,7 +47,7 @@ from plexus.engram.service import (
     _tokens,
     fact_text,
 )
-from plexus.graph.client import GraphClient
+from knewat.graph.client import GraphClient
 
 OPEN = 9_999_999_999_999
 DIM = 384
@@ -57,7 +57,7 @@ CREATE TABLE scopes(id TEXT PRIMARY KEY);
 CREATE TABLE scope_inherits(child TEXT NOT NULL, parent TEXT NOT NULL);
 CREATE TABLE entities(id TEXT PRIMARY KEY, name TEXT NOT NULL, norm_name TEXT NOT NULL);
 CREATE INDEX entities_norm ON entities(norm_name);
--- FTS5 is configured like the RediSearch full-text index Plexus uses: a stemmer and '_' kept inside tokens
+-- FTS5 is configured like the RediSearch full-text index Knewat uses: a stemmer and '_' kept inside tokens
 -- (unicode61 alone splits 'billing_cycle' into two words and does not stem, which changes the keyword hits).
 CREATE VIRTUAL TABLE entities_fts USING fts5(name, content='entities', content_rowid='rowid', tokenize="porter unicode61 tokenchars '_'");
 CREATE TABLE facts(id TEXT PRIMARY KEY, entity_id TEXT NOT NULL, scope_id TEXT NOT NULL, predicate TEXT NOT NULL,
@@ -137,7 +137,7 @@ FROM best b JOIN facts f ON f.id = b.id JOIN entities e ON e.id = f.entity_id
 ORDER BY b.rank, f.id
 """
 
-# -- statement 3: A(f), salience and protection per fact (activation/activation + plexus.activation.service) ----------
+# -- statement 3: A(f), salience and protection per fact (activation/activation + knewat.activation.service) ----------
 # `ids` is a VALUES list built per call (one placeholder per fact id).
 ACTIVATION_SQL = """
 WITH RECURSIVE ids(id) AS (VALUES {ids}),

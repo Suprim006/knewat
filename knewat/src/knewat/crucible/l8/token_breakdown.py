@@ -1,6 +1,6 @@
 """Where do an L8 arm's tokens go? A per-tool attribution from the recorded ``claude -p`` transcripts. No LLM, $0.
 
-    python -m plexus.crucible.l8.token_breakdown --runs plexus/demo_data/crucible/l8_postfix/runs --arms P,B1,B0p
+    python -m knewat.crucible.l8.token_breakdown --runs knewat/demo_data/crucible/l8_postfix/runs --arms P,B1,B0p
 
 Model (exact in aggregate, proportional inside one delta):
 
@@ -30,7 +30,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-MCP = "mcp__plexus__"
+MCP = "mcp__knewat__"
 
 
 def _name(n: str) -> str:

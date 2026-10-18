@@ -10,7 +10,7 @@ import time
 
 import pytest
 
-from plexus.crucible.api import (
+from knewat.crucible.api import (
     OPEN,
     BackendSpec,
     ClaimConflict,
@@ -19,7 +19,7 @@ from plexus.crucible.api import (
     UnknownReference,
     Unsupported,
 )
-from plexus.crucible.backends import open_backend
+from knewat.crucible.backends import open_backend
 
 
 def agent(b, name="a1", role=""):
@@ -387,7 +387,7 @@ def test_knew_at_or_unsupported(backend):
 
 
 @pytest.mark.parametrize(
-    "tenant", ["../b", "A", "a b", "a;b", "a'); MATCH (n) DETACH DELETE n //", "plexus_t_b/..", "", "x" * 49]
+    "tenant", ["../b", "A", "a b", "a;b", "a'); MATCH (n) DETACH DELETE n //", "knewat_t_b/..", "", "x" * 49]
 )
 def test_invalid_tenant_names_are_rejected(arm, make_spec, tenant):
     spec = make_spec(arm, tenant)

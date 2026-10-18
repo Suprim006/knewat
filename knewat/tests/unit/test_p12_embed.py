@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from plexus.embed.fastembed_embedder import BGE_QUERY_PREFIX, FastEmbedder, query_prefix
-from plexus.mcp.embedding import CheckedEmbedder
+from knewat.embed.fastembed_embedder import BGE_QUERY_PREFIX, FastEmbedder, query_prefix
+from knewat.mcp.embedding import CheckedEmbedder
 
 
 class _Fake(FastEmbedder):
@@ -19,7 +19,7 @@ class _Fake(FastEmbedder):
 def test_query_prefix_only_for_bge_and_switchable(monkeypatch):
     assert query_prefix("BAAI/bge-small-en-v1.5") == BGE_QUERY_PREFIX
     assert query_prefix("sentence-transformers/all-MiniLM-L6-v2") == ""
-    monkeypatch.setenv("PLEXUS_BGE_QUERY_PREFIX", "off")
+    monkeypatch.setenv("KNEWAT_BGE_QUERY_PREFIX", "off")
     assert query_prefix("BAAI/bge-small-en-v1.5") == ""
 
 
@@ -38,7 +38,7 @@ def test_checked_embedder_forwards_the_query_form():
 
 
 def test_engram_uses_the_query_form_only_for_recall_queries():
-    from plexus.engram.service import Engram
+    from knewat.engram.service import Engram
 
     f = _Fake()
     eng = Engram(client=None, graph="g", embedder=f)  # type: ignore[arg-type]

@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import json
 
+from knewat.graph.tenancy import graph_name
 from mcp import Client
-from plexus.graph.tenancy import graph_name
 
 
 async def ok(c: Client, tool: str, /, **args) -> dict:

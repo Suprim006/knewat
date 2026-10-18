@@ -9,13 +9,12 @@ from pathlib import Path
 import pytest
 from starlette.testclient import TestClient
 
-from mcp import Client
-from plexus.embed import HashEmbedder
-from plexus.mcp import server as server_mod
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_http_app, build_server
-from plexus.mcp.toolkit import all_tool_defs
-from plexus.mcp.toolsets import (
+from knewat.embed import HashEmbedder
+from knewat.mcp import server as server_mod
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_http_app, build_server
+from knewat.mcp.toolkit import all_tool_defs
+from knewat.mcp.toolsets import (
     MODULES,
     PROFILES,
     ToolsetError,
@@ -24,10 +23,11 @@ from plexus.mcp.toolsets import (
     modules_of,
     tool_names,
 )
+from mcp import Client
 
 from .test_http import _body, _call, _init, _open, _result, _rpc
 
-REPORT = Path(__file__).resolve().parents[3] / "docs" / "PLEXUS_REPORT.md"
+REPORT = Path(__file__).resolve().parents[3] / "docs" / "KNEWAT_REPORT.md"
 ALL = {d.name for d in all_tool_defs()}
 CORE = MODULES["engram"] | MODULES["relay"] | MODULES["lineage"]
 
@@ -44,7 +44,7 @@ def test_modules_partition_every_tool_exactly_once():
 
 
 def test_modules_match_the_report_module_table():
-    """Module boundaries are the documented ones (PLEXUS_REPORT.md §2.2 'Main tools'), not an ad-hoc split."""
+    """Module boundaries are the documented ones (KNEWAT_REPORT.md §2.2 'Main tools'), not an ad-hoc split."""
     rows = {
         "engram": "**Engram**", "relay": "**Relay**", "lineage": "**Lineage**", "staleness": "**Staleness**",
         "forgetting": "**Forgetting**", "relations": "**Relations + impact**", "dedup": "**Dedup confirm**",
@@ -77,17 +77,17 @@ def test_unknown_or_empty_toolset_is_refused_with_the_valid_names(bad):
 
 
 def test_process_default_flag_env_and_fail_fast(monkeypatch):
-    monkeypatch.delenv("PLEXUS_TOOLSET", raising=False)
+    monkeypatch.delenv("KNEWAT_TOOLSET", raising=False)
     assert default_toolset() == "full"
-    monkeypatch.setenv("PLEXUS_TOOLSET", "")
+    monkeypatch.setenv("KNEWAT_TOOLSET", "")
     assert default_toolset() == "full"
-    monkeypatch.setenv("PLEXUS_TOOLSET", "relay,engram")
+    monkeypatch.setenv("KNEWAT_TOOLSET", "relay,engram")
     assert default_toolset() == "engram,relay"
     assert default_toolset("core") == "core"  # the flag wins over the env
-    monkeypatch.setenv("PLEXUS_TOOLSET", "nope")
+    monkeypatch.setenv("KNEWAT_TOOLSET", "nope")
     with pytest.raises(ToolsetError):
         default_toolset()
-    with pytest.raises(SystemExit):  # plexus-mcp --toolset nope: argparse error, no server started
+    with pytest.raises(SystemExit):  # knewat-mcp --toolset nope: argparse error, no server started
         server_mod.main(["--transport", "stdio", "--toolset", "nope"])
 
 
@@ -98,7 +98,7 @@ async def _names(srv) -> list[str]:
 
 
 async def test_full_is_the_default_and_unchanged(runtime, monkeypatch):
-    monkeypatch.delenv("PLEXUS_TOOLSET", raising=False)
+    monkeypatch.delenv("KNEWAT_TOOLSET", raising=False)
     default = build_server(runtime)
     assert default.toolset == "full"
     async with Client(default) as c:
@@ -165,7 +165,7 @@ def test_http_default_is_full(http, new_tenant):
 def test_http_toolset_by_query_or_header(http, new_tenant, how):
     t = new_tenant()
     path = f"/mcp/t/{t}?toolset=core" if how == "query" else f"/mcp/t/{t}"
-    extra = {} if how == "query" else {"X-Plexus-Toolset": "core"}
+    extra = {} if how == "query" else {"X-Knewat-Toolset": "core"}
     h = _open(http, path, extra)
     assert set(_list(http, path, h)) == CORE
     _result(_call(http, path, h, "start_session", {"agent_id": "a"}))
@@ -183,7 +183,7 @@ def test_http_toolset_is_pinned_to_the_session(http, new_tenant):
     assert r.status_code == 400 and "uses toolset 'relay', not 'full'" in r.json()["error"]
     # a session opened without a toolset cannot pick one later either
     h2 = _open(http, f"/mcp/t/{t}")
-    r = http.post(f"/mcp/t/{t}", headers={**h2, "X-Plexus-Toolset": "core"}, json=_rpc("tools/list", {}, 5))
+    r = http.post(f"/mcp/t/{t}", headers={**h2, "X-Knewat-Toolset": "core"}, json=_rpc("tools/list", {}, 5))
     assert r.status_code == 400 and "uses toolset 'default', not 'core'" in r.json()["error"]
 
 
@@ -192,8 +192,8 @@ def test_http_toolset_is_pinned_to_the_session(http, new_tenant):
     [
         ("?toolset=coordination", {}, "unknown toolset 'coordination'"),
         ("?toolset=", {}, "empty toolset name"),
-        ("", {"X-Plexus-Toolset": "fulll"}, "unknown toolset 'fulll'"),
-        ("?toolset=core", {"X-Plexus-Toolset": "relay"}, "name different toolsets"),
+        ("", {"X-Knewat-Toolset": "fulll"}, "unknown toolset 'fulll'"),
+        ("?toolset=core", {"X-Knewat-Toolset": "relay"}, "name different toolsets"),
     ],
 )
 def test_http_bad_toolset_is_a_400(http, new_tenant, query, headers, needle):
@@ -222,7 +222,7 @@ def test_http_server_default_toolset_and_pin_cleanup(client, new_tenant):
 
 
 def test_l8_harness_toolset_is_arm_p_only(tmp_path):
-    from plexus.crucible.l8.run import run_arm
+    from knewat.crucible.l8.run import run_arm
 
     with pytest.raises(ValueError, match="arm P only"):
         run_arm("B1", 20261017, tmp_path, toolset="core")

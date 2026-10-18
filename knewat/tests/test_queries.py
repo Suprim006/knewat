@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from plexus.graph.queries import (
+from knewat.graph.queries import (
     MissingParam,
     MultiStatementError,
     QueryFormatError,

@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import asyncio
 
-from plexus.demo.scenario import FaultScript
-from plexus.demo.scripted import run_scripted
-from plexus.embed import HashEmbedder
+from knewat.demo.scenario import FaultScript
+from knewat.demo.scripted import run_scripted
+from knewat.embed import HashEmbedder
 
 from .conftest import FAST_LEASE_MS, rows
 

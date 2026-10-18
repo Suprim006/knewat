@@ -15,10 +15,10 @@ import re
 import sys
 import time
 
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
-from plexus.relay import Relay
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
+from knewat.relay import Relay
 
 _n = 0
 
@@ -35,7 +35,7 @@ def tool(name: str, args: dict, run) -> dict:
         {
             "type": "assistant",
             "message": {
-                "content": [{"type": "tool_use", "id": tid, "name": f"mcp__plexus__{name}", "input": args}]
+                "content": [{"type": "tool_use", "id": tid, "name": f"mcp__knewat__{name}", "input": args}]
             },
         }
     )
@@ -60,13 +60,13 @@ def tool(name: str, args: dict, run) -> dict:
 def main() -> None:
     argv = sys.argv[1:]
     prompt = argv[argv.index("-p") + 1]
-    cfg = json.load(open(argv[argv.index("--mcp-config") + 1], encoding="utf-8"))["mcpServers"]["plexus"]
+    cfg = json.load(open(argv[argv.index("--mcp-config") + 1], encoding="utf-8"))["mcpServers"]["knewat"]
     tenant = cfg["args"][cfg["args"].index("--tenant") + 1]
     client = GraphClient(host=cfg["env"]["FALKORDB_HOST"], port=int(cfg["env"]["FALKORDB_PORT"]))
     apply_schema(client, graph_name(tenant))  # the real MCP server does this on first use
     relay = Relay(client, graph_name(tenant))
     agent = re.search(r"agent_id is '(\w+)'", prompt).group(1)  # type: ignore[union-attr]
-    emit({"type": "system", "subtype": "init", "mcp_servers": [{"name": "plexus", "status": "connected"}]})
+    emit({"type": "system", "subtype": "init", "mcp_servers": [{"name": "knewat", "status": "connected"}]})
     tool(
         "start_session",
         {"agent_id": agent},

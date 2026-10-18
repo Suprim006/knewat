@@ -1,4 +1,4 @@
-"""``plexus code hook-run`` (Claude Code PostToolUse), ``hook-claude`` and ``hook-git``."""
+"""``knewat code hook-run`` (Claude Code PostToolUse), ``hook-claude`` and ``hook-git``."""
 
 from __future__ import annotations
 
@@ -10,11 +10,11 @@ import time
 
 import pytest
 
-from plexus.cli import build_parser
-from plexus.codescan.cli import MARK_BEGIN, hook_settings
-from plexus.codescan.client import McpCallError, run_session
-from plexus.codescan.fastclient import run_fast_session
-from plexus.codescan.paths import canonical_path
+from knewat.cli import build_parser
+from knewat.codescan.cli import MARK_BEGIN, hook_settings
+from knewat.codescan.client import McpCallError, run_session
+from knewat.codescan.fastclient import run_fast_session
+from knewat.codescan.paths import canonical_path
 
 from .conftest import commit_all
 
@@ -127,11 +127,11 @@ def test_an_unreachable_server_exits_zero_quickly_with_a_one_line_note(tmp_path,
         monkeypatch, capsys, event(f, cwd=tmp_path), "--tenant", "t", "--url", "http://127.0.0.1:9"
     )
     assert code == 0 and out == "" and time.monotonic() - t0 < 5.5
-    assert err.startswith("plexus hook-run:") and err.count("\n") == 1
+    assert err.startswith("knewat hook-run:") and err.count("\n") == 1
 
 
 def test_a_missing_tenant_does_not_fail_the_edit(tmp_path, monkeypatch, capsys):
-    monkeypatch.delenv("PLEXUS_TENANT", raising=False)
+    monkeypatch.delenv("KNEWAT_TENANT", raising=False)
     code, out, err = hook(monkeypatch, capsys, event(tmp_path / "a.py", cwd=tmp_path))
     assert code == 0 and out == "" and "tenant" in err
 
@@ -141,7 +141,7 @@ def test_hook_run_is_a_real_subprocess_that_exits_zero(live, project, tmp_path):
     (repo / "pay.py").write_text(V2, encoding="utf-8", newline="\n")
     t0 = time.monotonic()
     p = subprocess.run(  # noqa: S603
-        [sys.executable, "-m", "plexus.codescan", "hook-run", *project["args"]],
+        [sys.executable, "-m", "knewat.codescan", "hook-run", *project["args"]],
         input=event(repo / "pay.py", cwd=repo),
         capture_output=True,
         text=True,
@@ -163,9 +163,9 @@ def test_hook_claude_prints_a_posttooluse_fragment(capsys):
     assert entry["matcher"] == "Edit|Write|MultiEdit"
     (h,) = entry["hooks"]
     assert h["type"] == "command" and h["timeout"] == 10
-    assert "-m plexus.codescan hook-run --tenant acme --url http://127.0.0.1:8765" in h["command"]
-    assert hook_settings("t", "u", "plexus")["hooks"]["PostToolUse"][0]["hooks"][0]["command"].startswith(
-        "plexus code"
+    assert "-m knewat.codescan hook-run --tenant acme --url http://127.0.0.1:8765" in h["command"]
+    assert hook_settings("t", "u", "knewat")["hooks"]["PostToolUse"][0]["hooks"][0]["command"].startswith(
+        "knewat code"
     )
 
 
@@ -176,7 +176,7 @@ def test_hook_git_installs_an_executable_idempotent_post_commit(repo, capsys):
     text = hook_file.read_text(encoding="utf-8")
     assert text.startswith("#!/bin/sh\n") and text.count(MARK_BEGIN) == 1
     assert (
-        "-m plexus.codescan scan --repo" in text
+        "-m knewat.codescan scan --repo" in text
         and "--commit HEAD || true" in text
         and "--tenant acme" in text
     )
@@ -211,7 +211,7 @@ def test_the_installed_git_hook_runs_on_commit(live, repo, capsys):
     assert run(["code", "hook-git", "--repo", str(repo), *base]) == 0
     time.sleep(1.1)
     (repo / "pay.py").write_text(V2, encoding="utf-8", newline="\n")
-    commit_all(repo, "edit pay")  # post-commit runs `plexus code scan --commit HEAD`
+    commit_all(repo, "edit pay")  # post-commit runs `knewat code scan --commit HEAD`
     state = live.rows("MATCH (f:Fact {id:$f}) RETURN f.verify_state", f=f)
     assert state == [["suspect"]]
     assert live.rows("MATCH (c:Change) RETURN count(c)") == [[1]]
@@ -234,5 +234,5 @@ def test_the_fast_client_speaks_the_same_protocol_and_reports_tool_errors(live):
         run_fast_session(live.url, live.tenant, "alice", bad)
     with pytest.raises(McpCallError, match="cannot reach"):
         run_fast_session("http://127.0.0.1:9", "t", "a", bad, timeout=2)
-    with pytest.raises(McpCallError, match="bad Plexus url"):
+    with pytest.raises(McpCallError, match="bad Knewat url"):
         run_fast_session("ftp://x", "t", "a", bad)

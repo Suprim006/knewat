@@ -1,9 +1,9 @@
 """L8 Round A2 (P12): the post-fix P runs next to Round A's P, B1 and B0' runs, from the per-run ``metrics.json``.
 
-``python -m plexus.crucible.l8.compare_a2`` writes ``demo_data/crucible/l8_postfix/compare_a2.{json,md}``.
+``python -m knewat.crucible.l8.compare_a2`` writes ``demo_data/crucible/l8_postfix/compare_a2.{json,md}``.
 Pooled rates and the separation tests come from the unchanged Round A scorer (``score.pool``); the extra rows
 (history recall, contradictions, provenance, recovery, failed tasks) are summed from the same metrics files the
-Round A report used. Run ``python -m plexus.crucible.l8.report --out demo_data/crucible/l8_postfix`` first (it
+Round A report used. Run ``python -m knewat.crucible.l8.report --out demo_data/crucible/l8_postfix`` first (it
 re-scores every run and writes the ``metrics.json`` files).
 """
 
@@ -13,7 +13,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l8.score import pool
+from knewat.crucible.l8.score import pool
 
 ROOT = Path(__file__).resolve().parents[4] / "demo_data" / "crucible"
 ROUND_A = ROOT / "l8"
@@ -41,11 +41,11 @@ def failed_tasks(base: Path, arm: str) -> list[list[dict[str, str]]]:
         calls = []
         for f in sorted(tdir.glob("*.jsonl")):
             for line in f.read_text(encoding="utf-8").splitlines():
-                if "mcp__plexus__fail_task" not in line:
+                if "mcp__knewat__fail_task" not in line:
                     continue
                 ev = json.loads(line)
                 for b in (ev.get("message") or {}).get("content") or []:
-                    if isinstance(b, dict) and b.get("name") == "mcp__plexus__fail_task":
+                    if isinstance(b, dict) and b.get("name") == "mcp__knewat__fail_task":
                         calls.append(
                             {"task": b["input"].get("task_id", ""), "reason": b["input"].get("reason", "")}
                         )

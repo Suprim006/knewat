@@ -13,7 +13,7 @@ from __future__ import annotations
 from collections.abc import Iterable, Iterator
 from typing import Any
 
-from plexus.codescan.hashing import hash_bytes, python_symbols
+from knewat.codescan.hashing import hash_bytes, python_symbols
 
 MAX_ENTRIES = 200  # mark_changed accepts at most this many entries per call
 MAX_SYMBOLS_PER_FILE = MAX_ENTRIES - 10

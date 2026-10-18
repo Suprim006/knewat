@@ -4,12 +4,12 @@ from __future__ import annotations
 
 import asyncio
 
-from plexus.demo.inventory import inventory
-from plexus.demo.scenario import FaultScript, load_scenario
-from plexus.demo.scripted import run_scripted
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.lineage import Lineage
+from knewat.demo.inventory import inventory
+from knewat.demo.scenario import FaultScript, load_scenario
+from knewat.demo.scripted import run_scripted
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.lineage import Lineage
 
 from .conftest import FAST_LEASE_MS, rows
 

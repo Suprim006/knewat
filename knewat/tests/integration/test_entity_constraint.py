@@ -7,9 +7,9 @@ import logging
 import pytest
 from redis.exceptions import ResponseError
 
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.graph.schema import ENTITY_KEY, apply_schema, wait_for_constraints
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.graph.schema import ENTITY_KEY, apply_schema, wait_for_constraints
 
 DUP_MSG = "unique constraint violation on node of type Entity"
 
@@ -49,7 +49,7 @@ def test_legacy_duplicates_do_not_break_apply_schema(client, empty_graph, caplog
     g = client.graph(empty_graph)
     g.query("CREATE INDEX FOR (n:Entity) ON (n.norm_name)")
     g.query("CREATE (:Entity {id: '1', norm_name: 'x'}), (:Entity {id: '2', norm_name: 'x'})")
-    with caplog.at_level(logging.WARNING, logger="plexus.graph.schema"):
+    with caplog.at_level(logging.WARNING, logger="knewat.graph.schema"):
         apply_schema(client, empty_graph)
     assert _norm_name_status(client, empty_graph) == "FAILED"
     assert any("norm_name" in r.getMessage() for r in caplog.records)
@@ -58,7 +58,7 @@ def test_legacy_duplicates_do_not_break_apply_schema(client, empty_graph, caplog
 
 
 def test_wait_for_constraints_still_raises_for_a_failed_id_constraint(client, empty_graph):
-    from plexus.graph.schema import SchemaError
+    from knewat.graph.schema import SchemaError
 
     g = client.graph(empty_graph)
     g.query("CREATE INDEX FOR (n:Task) ON (n.id)")

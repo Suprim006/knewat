@@ -1,6 +1,6 @@
 import random
 
-from plexus.graph.schema import UNIQUE_LABELS, apply_schema, wait_for_constraints
+from knewat.graph.schema import UNIQUE_LABELS, apply_schema, wait_for_constraints
 
 ALL_LABELS = [
     "Agent", "Scope", "Session", "Episode", "Entity", "Fact", "Source", "Procedure",

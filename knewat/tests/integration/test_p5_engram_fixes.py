@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.engram import UnknownReference
+from knewat.engram import UnknownReference
 
 
 def _count(client, graph, label):

@@ -1,7 +1,7 @@
 """Family J (concurrent session populations): unit tests of the session model + toy-size cells.
 
 SQLite cells run anywhere; FalkorDB cells (marked integration through the ``client`` fixture) need
-``PLEXUS_TEST_DB_PORT``.
+``KNEWAT_TEST_DB_PORT``.
 """
 
 from __future__ import annotations
@@ -13,10 +13,10 @@ from collections import Counter
 import pytest
 from redis.exceptions import ResponseError
 
-from plexus.crucible.api import ClaimConflict
-from plexus.crucible.l7 import j
-from plexus.crucible.l7.j_arms import SAdapter
-from plexus.crucible.l7.j_session import (
+from knewat.crucible.api import ClaimConflict
+from knewat.crucible.l7 import j
+from knewat.crucible.l7.j_arms import SAdapter
+from knewat.crucible.l7.j_session import (
     RECORDED_MIX,
     Rec,
     Session,
@@ -256,7 +256,7 @@ def test_toy_cell_falkordb(arm, client, tmp_path):
     assert cell["falkordb_server"]["graph_cmd_calls"] > 0
     assert cell["store"]["per_tenant"][0]["nodes"] > 50
     # the cell's graph is gone
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.tenancy import graph_name
 
     with pytest.raises(ResponseError, match="empty key"):
         client.graph(graph_name(f"j{cell['tag']}t0")).ro_query("MATCH (n) RETURN count(n)")

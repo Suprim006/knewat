@@ -1,6 +1,6 @@
-"""P: the Plexus arm. One tenant graph per run, driven through the real service layer.
+"""P: the Knewat arm. One tenant graph per run, driven through the real service layer.
 
-``PlexusBackend`` calls the same code the MCP tools call (``Engram``, ``Relay``, ``Lineage``) and, in ``mode="mcp"``,
+``KnewatBackend`` calls the same code the MCP tools call (``Engram``, ``Relay``, ``Lineage``) and, in ``mode="mcp"``,
 goes through ``Runtime._run`` so every call also opens a ``Step`` and writes a ``ToolCall`` exactly as the server
 does (the only things left out are the JSON transport and the network hop to the MCP server).
 
@@ -25,16 +25,16 @@ from typing import Any
 from falkordb import FalkorDB
 from mcp.server.mcpserver.exceptions import ToolError
 
-from plexus.crucible import api
-from plexus.crucible.api import ClaimConflict, UnknownReference
-from plexus.crucible.backends.base import claim_result, list_row, recall_hit, task_status_view
-from plexus.embed import Embedder, get_embedder
-from plexus.engram.errors import UnknownReference as EngramUnknown
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.lineage_hook import FOLDS_WROTE, discard_step, open_pre_step
-from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
-from plexus.relay import errors as relay_errors
+from knewat.crucible import api
+from knewat.crucible.api import ClaimConflict, UnknownReference
+from knewat.crucible.backends.base import claim_result, list_row, recall_hit, task_status_view
+from knewat.embed import Embedder, get_embedder
+from knewat.engram.errors import UnknownReference as EngramUnknown
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.lineage_hook import FOLDS_WROTE, discard_step, open_pre_step
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.relay import errors as relay_errors
 
 POOL = int(os.environ.get("CRUCIBLE_POOL", "512"))
 
@@ -65,14 +65,14 @@ def _ref(fid: str) -> tuple[str, str]:
     return ("Fact", fid)
 
 
-class PlexusBackend:
+class KnewatBackend:
     name = "P"
-    label = "Plexus"
+    label = "Knewat"
     capabilities = frozenset(
         {"why", "knew_at", "as_of", "semantic_dedupe", "contradictions", "forget_cascade", "dependencies"}
     )
     isolation = (
-        "one FalkorDB graph per tenant (plexus_t_<tenant>); the tenant is bound at construction, never taken from "
+        "one FalkorDB graph per tenant (knewat_t_<tenant>); the tenant is bound at construction, never taken from "
         "a tool argument, and validated against ^[a-z0-9_]{1,48}$"
     )
 
@@ -94,7 +94,7 @@ class PlexusBackend:
         self.tenant = tenant
         self.mode = mode
         self.name = "P" if mode == "service" else "P-mcp"
-        self.label = "Plexus" if mode == "service" else "Plexus (MCP path)"
+        self.label = "Knewat" if mode == "service" else "Knewat (MCP path)"
         self._owns_client = client is None
         self.client = client or _client(host, port)
         self.embedder: Embedder = embedder if isinstance(embedder, Embedder) else get_embedder(embedder)
@@ -151,7 +151,7 @@ class PlexusBackend:
 
     @staticmethod
     def _now() -> int:
-        from plexus.crucible.util import now_ms
+        from knewat.crucible.util import now_ms
 
         return now_ms()
 
@@ -178,7 +178,7 @@ class PlexusBackend:
         return self._call("remember_episode", agent_id, work)["episode_id"]
 
     def add_source(self, uri: str, kind: str = "doc", trust: float = 1.0) -> str:
-        from plexus.lineage import Lineage
+        from knewat.lineage import Lineage
 
         m = MeteredClient(self.client)
         return Lineage(m, self.graph).create_source(uri, kind, trust)  # type: ignore[arg-type]
@@ -251,8 +251,8 @@ class PlexusBackend:
         ]
 
     def forget_source(self, source_id: str) -> dict[str, Any]:
-        from plexus.lineage import Lineage
-        from plexus.lineage.service import UnknownNode
+        from knewat.lineage import Lineage
+        from knewat.lineage.service import UnknownNode
 
         m = MeteredClient(self.client)
         try:
@@ -436,7 +436,7 @@ class PlexusBackend:
 
     # -- lineage ----------------------------------------------------------------------------------------------------
     def why(self, node_id: str) -> dict[str, Any]:
-        from plexus.lineage.service import UnknownNode
+        from knewat.lineage.service import UnknownNode
 
         try:
             r = self.ts.lineage(MeteredClient(self.client)).why(node_id)
@@ -469,8 +469,8 @@ class PlexusBackend:
         return self.ts.lineage(MeteredClient(self.client)).knew_at(agent_id, step_n)
 
     def who_knew(self, fact_id: str) -> dict[str, Any]:
-        """Agents whose Steps READ the fact (Plexus-only lineage read; the ablation probes use it)."""
-        from plexus.lineage.service import UnknownNode
+        """Agents whose Steps READ the fact (Knewat-only lineage read; the ablation probes use it)."""
+        from knewat.lineage.service import UnknownNode
 
         try:
             return self.ts.lineage(MeteredClient(self.client)).who_knew(fact_id)

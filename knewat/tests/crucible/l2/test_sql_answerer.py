@@ -6,17 +6,17 @@ import sqlite3
 
 import pytest
 
-from plexus.crucible.backends.sqlite_h import SqliteHistoryBackend
-from plexus.crucible.l2 import sql_run
-from plexus.crucible.l2.plexus_answerer import PlexusAnswerer
-from plexus.crucible.l2.questions import generate, score
-from plexus.crucible.l2.scale_scenario import play_scale
-from plexus.crucible.l2.scenario import play
-from plexus.crucible.l2.sql_answerer import ScaleSqlAnswerer, SqlAnswerer
+from knewat.crucible.backends.sqlite_h import SqliteHistoryBackend
+from knewat.crucible.l2 import sql_run
+from knewat.crucible.l2.knewat_answerer import KnewatAnswerer
+from knewat.crucible.l2.questions import generate, score
+from knewat.crucible.l2.scale_scenario import play_scale
+from knewat.crucible.l2.scenario import play
+from knewat.crucible.l2.sql_answerer import ScaleSqlAnswerer, SqlAnswerer
 
 
 def test_sql_answerer_has_every_cypher_op():
-    cypher = {n[4:] for n in vars(PlexusAnswerer) if n.startswith("_op_")}
+    cypher = {n[4:] for n in vars(KnewatAnswerer) if n.startswith("_op_")}
     sql = {n[4:] for n in vars(SqlAnswerer) if n.startswith("_op_")}
     assert sql == cypher and len(sql) == 34  # 34 operations answer the 10 families
 
@@ -83,7 +83,7 @@ def test_claim_row_is_written_in_the_claim_transaction(tmp_path):
 
 def test_b1_baseline_artifacts_do_not_include_the_claims_table(tmp_path):
     """The L2 cache keys on the B1 dump; the extra table must not change it."""
-    from plexus.crucible.l2 import contexts as C
+    from knewat.crucible.l2 import contexts as C
 
     assert "claims" not in C.B1_TABLES
 

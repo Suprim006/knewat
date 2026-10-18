@@ -1,5 +1,5 @@
 # ruff: noqa: E501  (long prose lines, as in mcp/ and cli.py)
-"""The client-side steps behind ``plexus code scan | baseline | hook-run``: collect entries, call the server, report."""
+"""The client-side steps behind ``knewat code scan | baseline | hook-run``: collect entries, call the server, report."""
 
 from __future__ import annotations
 
@@ -9,10 +9,10 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-from plexus.codescan import gitutil
-from plexus.codescan.client import Session
-from plexus.codescan.entries import chunk_entries, file_entries
-from plexus.codescan.paths import absolute_canonical, canonical_path
+from knewat.codescan import gitutil
+from knewat.codescan.client import Session
+from knewat.codescan.entries import chunk_entries, file_entries
+from knewat.codescan.paths import absolute_canonical, canonical_path
 
 MAX_FILE_BYTES = 5_000_000  # larger files are not hashed (generated blobs, databases)
 MAX_RESEND = 20  # re-calls of one chunk while the server reports truncated
@@ -85,7 +85,7 @@ def working_groups(repo: str, paths: Iterable[str], *, baseline: bool = False) -
             new = read_working(cp)
         except FileTooLarge:  # not a deletion: leave the anchor and its facts alone
             print(
-                f"plexus code: skipped {cp}: file too large to hash (> {MAX_FILE_BYTES} bytes)",
+                f"knewat code: skipped {cp}: file too large to hash (> {MAX_FILE_BYTES} bytes)",
                 file=sys.stderr,
             )
             continue
@@ -174,8 +174,8 @@ def format_report(title: str, summary: Summary, rows: list[dict[str, Any]]) -> s
 
 def tracked_files(repo: str, tenant: str) -> list[str]:
     """Absolute paths inside ``repo`` with a Source or a CodeAnchor in the tenant's graph (needs FalkorDB access)."""
-    from plexus.graph.client import GraphClient
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.client import GraphClient
+    from knewat.graph.tenancy import graph_name
 
     client = GraphClient()
     try:

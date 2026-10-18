@@ -1,6 +1,6 @@
 """Forgetting + separation off (or as_of) is byte-identical to the retrieval order before P7-K.
 
-D-013 added ``PLEXUS_RECALL_SEPARATION`` (on by default): with it on, the sibling expansion is fan-damped and
+D-013 added ``KNEWAT_RECALL_SEPARATION`` (on by default): with it on, the sibling expansion is fan-damped and
 a query that names an entity is re-ranked, so the identity holds with BOTH switches off (the documented
 contract).
 
@@ -99,17 +99,17 @@ def test_forgetting_off_reproduces_the_pre_change_order(world):
 
 def test_the_environment_switch_does_the_same(world, monkeypatch):
     eng, scope = world
-    monkeypatch.setenv("PLEXUS_FORGETTING", "off")
-    monkeypatch.setenv("PLEXUS_RECALL_SEPARATION", "off")
+    monkeypatch.setenv("KNEWAT_FORGETTING", "off")
+    monkeypatch.setenv("KNEWAT_RECALL_SEPARATION", "off")
     assert _cut_ties(golden_fixture.orders(eng, scope)) == _cut_ties(GOLDEN)
 
 
 def test_an_explicit_argument_beats_the_environment(world, monkeypatch):
     eng, scope = world
-    monkeypatch.setenv("PLEXUS_FORGETTING", "off")
+    monkeypatch.setenv("KNEWAT_FORGETTING", "off")
     rows = eng.recall("database", scope, k=3, forgetting=True)
     assert all(r["activation"] is not None for r in rows)
-    monkeypatch.setenv("PLEXUS_FORGETTING", "on")
+    monkeypatch.setenv("KNEWAT_FORGETTING", "on")
     rows = eng.recall("database", scope, k=3, forgetting=False)
     assert all(r["activation"] is None and r["protected"] is None for r in rows)
 

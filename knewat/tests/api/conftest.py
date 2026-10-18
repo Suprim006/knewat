@@ -9,12 +9,12 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 
+from knewat.api.view_api import create_app
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 from mcp import Client
-from plexus.api.view_api import create_app
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 STALE_PREFIX = graph_name("apit_")
 
@@ -23,12 +23,12 @@ _SWEPT = False
 
 
 def sweep_stale_graphs(client) -> None:
-    """Drop ``plexus_t_apit_*`` graphs left behind by a run that was killed before its teardown.
+    """Drop ``knewat_t_apit_*`` graphs left behind by a run that was killed before its teardown.
 
     Assumes the test DB is private to this run (one container per agent, see scripts/agent_db.sh); set
-    ``PLEXUS_TEST_KEEP_STALE=1`` to skip when sharing one. Only this module's own prefix is touched.
+    ``KNEWAT_TEST_KEEP_STALE=1`` to skip when sharing one. Only this module's own prefix is touched.
     """
-    if os.environ.get("PLEXUS_TEST_KEEP_STALE"):
+    if os.environ.get("KNEWAT_TEST_KEEP_STALE"):
         return
     for name in client.db.list_graphs():
         if name.startswith(STALE_PREFIX):
@@ -98,7 +98,7 @@ async def seed(client, tenant: str) -> dict:
 def new_tenant(client):
     """Factory for unique tenant ids; every graph it handed out is dropped in teardown.
 
-    The first use in a session also sweeps ``plexus_t_apit_*`` graphs leaked by a killed earlier run.
+    The first use in a session also sweeps ``knewat_t_apit_*`` graphs leaked by a killed earlier run.
     """
     _sweep_once(client)
     made: list[str] = []

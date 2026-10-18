@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.engram import OPEN
-from plexus.lineage import UnknownNode
+from knewat.engram import OPEN
+from knewat.lineage import UnknownNode
 
 from .conftest import cypher
 

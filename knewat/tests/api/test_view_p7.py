@@ -7,12 +7,12 @@ import math
 
 import pytest
 
-from plexus.activation import Activation
-from plexus.api import models as M
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.graph.tenancy import graph_name
-from plexus.staleness import Staleness
+from knewat.activation import Activation
+from knewat.api import models as M
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.graph.tenancy import graph_name
+from knewat.staleness import Staleness
 
 CODE = "C:/repo/app/payments.py"
 DOC = "C:/repo/docs/payments.md"
@@ -84,7 +84,7 @@ def test_pinned_and_dormant_show_as_stored(api, seeded, svc):
 
 
 def test_activation_is_absent_when_forgetting_is_off(api, seeded, monkeypatch):
-    monkeypatch.setenv("PLEXUS_FORGETTING", "off")
+    monkeypatch.setenv("KNEWAT_FORGETTING", "off")
     facts, _ = fact_nodes(api, seeded["tenant"])
     f2 = facts[seeded["f2"]]
     assert "activation" not in f2.props and "protected" not in f2.props
@@ -111,7 +111,7 @@ def test_activation_is_computed_in_batches_of_at_most_200(api, seeded, client, m
     assert len(facts) == 452 and all("activation" in f.props for f in facts.values())
     # one compute() call per graph request, which itself queries 200 ids at a time
     assert seen == [452]
-    from plexus.activation.service import MAX_IDS
+    from knewat.activation.service import MAX_IDS
 
     assert MAX_IDS == 200
 
@@ -146,7 +146,7 @@ def test_verify_queue_limit_scope_and_off(api, seeded, svc, monkeypatch):
     assert api.get(f"/api/{t}/verify-queue", params={"limit": 0}).status_code == 422
     assert api.get(f"/api/{t}/verify-queue", params={"limit": 201}).status_code == 422
     assert api.get(f"/api/{t}/verify-queue", params={"scope_id": "nope"}).json()["rows"] == []
-    monkeypatch.setenv("PLEXUS_FORGETTING", "off")
+    monkeypatch.setenv("KNEWAT_FORGETTING", "off")
     (row,) = M.VerifyQueueResponse(**api.get(f"/api/{t}/verify-queue").json()).rows
     assert row.activation is None and row.protected is None  # absent when forgetting is off
 
@@ -155,7 +155,7 @@ def test_docs_to_update_lists_docs_describing_changed_code(api, seeded, svc, cli
     g, st, _ = svc
     t = seeded["tenant"]
     assert M.DocsToUpdateResponse(**api.get(f"/api/{t}/docs-to-update").json()).docs == []
-    from plexus.lineage import Lineage
+    from knewat.lineage import Lineage
 
     sid = Lineage(client, g).create_source(DOC, "doc", title="Payments guide")
     st.describe_code(sid, CODE, hash="h0")

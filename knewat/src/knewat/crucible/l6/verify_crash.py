@@ -4,9 +4,9 @@ Inspector: an old fact that was superseded by a verification (a successor ``SUPE
 verification (``VERIFIED_BY {outcome:'changed'}``) or the ``verify_degraded`` marker; otherwise the interruption is
 *silent*. Also counted: Decisions BASED_ON such a silent fact that are not flagged.
 
-    python -m plexus.crucible.l6.verify_crash run --kills 40 --port 6377
+    python -m knewat.crucible.l6.verify_crash run --kills 40 --port 6377
 
-``PLEXUS_TEST_VERIFY_GAP_MS`` (test hook in the Staleness service) sleeps between the supersede and the backdate so the
+``KNEWAT_TEST_VERIFY_GAP_MS`` (test hook in the Staleness service) sleeps between the supersede and the backdate so the
 kill window is wide enough to be hit; it is set for the writer processes by :func:`kill_loop`.
 """
 
@@ -19,7 +19,7 @@ import sys
 import uuid
 from typing import Any
 
-from plexus.crucible.l6.crash import kill_rounds
+from knewat.crucible.l6.crash import kill_rounds
 
 AGENT = "w1"
 TASK = "t0"
@@ -27,11 +27,11 @@ GAP_MS = "60"
 
 
 def _services(host: str, port: int, graph: str) -> tuple[Any, Any, Any, Any]:
-    from plexus.embed import HashEmbedder
-    from plexus.engram import Engram
-    from plexus.graph.client import GraphClient
-    from plexus.relay import Relay
-    from plexus.staleness import Staleness
+    from knewat.embed import HashEmbedder
+    from knewat.engram import Engram
+    from knewat.graph.client import GraphClient
+    from knewat.relay import Relay
+    from knewat.staleness import Staleness
 
     c = GraphClient(host=host, port=port)
     eng = Engram(c, graph, HashEmbedder())
@@ -39,7 +39,7 @@ def _services(host: str, port: int, graph: str) -> tuple[Any, Any, Any, Any]:
 
 
 def setup(host: str, port: int, graph: str) -> str:
-    from plexus.graph.schema import apply_schema
+    from knewat.graph.schema import apply_schema
 
     c, eng, relay, _ = _services(host, port, graph)
     apply_schema(c, graph)
@@ -65,7 +65,7 @@ def writer(host: str, port: int, graph: str, scope: str, tag: str) -> None:
 
 
 def inspect(host: str, port: int, graph: str) -> dict[str, Any]:
-    from plexus.graph.client import GraphClient
+    from knewat.graph.client import GraphClient
 
     c = GraphClient(host=host, port=port)
     g = c.graph(graph)
@@ -102,11 +102,11 @@ def inspect(host: str, port: int, graph: str) -> dict[str, Any]:
 
 def kill_loop(kills: int, host: str, port: int, graph: str, seed: int, log: Any = print) -> dict[str, Any]:
     scope = setup(host, port, graph)
-    env = {**os.environ, "PLEXUS_TEST_VERIFY_GAP_MS": GAP_MS}
+    env = {**os.environ, "KNEWAT_TEST_VERIFY_GAP_MS": GAP_MS}
 
     def cmd_for(k: int) -> list[str]:
         return [
-            sys.executable, "-m", "plexus.crucible.l6.verify_crash", "writer", "--host", host,
+            sys.executable, "-m", "knewat.crucible.l6.verify_crash", "writer", "--host", host,
             "--port", str(port), "--graph", graph, "--scope", scope, "--tag", f"{seed}k{k}",
         ]  # fmt: skip
 
@@ -137,7 +137,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "writer":
         writer(a.host, a.port, a.graph, a.scope, a.tag)
         return 0
-    from plexus.graph.client import GraphClient
+    from knewat.graph.client import GraphClient
 
     graph = a.graph or f"vcrash_{uuid.uuid4().hex[:6]}"
     try:

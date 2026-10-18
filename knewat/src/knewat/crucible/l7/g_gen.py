@@ -12,7 +12,7 @@ import random
 from collections import deque
 from typing import Any
 
-from plexus.crucible.l7.common import SEED
+from knewat.crucible.l7.common import SEED
 
 T0 = 1_760_000_000_000
 OPEN = 9_999_999_999_999

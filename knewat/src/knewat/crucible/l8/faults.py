@@ -13,8 +13,8 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l8.repo import FUNCS, INVALIDATING, MODULES, Edit, init_repo, initial_modules, key, land
-from plexus.crucible.l8.scenario import TASK_BY_ID, nominal_order
+from knewat.crucible.l8.repo import FUNCS, INVALIDATING, MODULES, Edit, init_repo, initial_modules, key, land
+from knewat.crucible.l8.scenario import TASK_BY_ID, nominal_order
 
 SEEDS = tuple(20261016 + r for r in range(1, 6))  # 20261017..20261021
 COMMIT_TURNS = range(4, 19)  # 4..18 inclusive
@@ -124,7 +124,7 @@ def build_schedule(seed: int, check_dir: Path | None = None) -> dict[str, Any]:
             n = len(mods[e.module].funcs)
             a, b = rng.sample(range(n), 2)
             e.extra = {"a": a, "b": b}
-        from plexus.crucible.l8.repo import apply_edit
+        from knewat.crucible.l8.repo import apply_edit
 
         apply_edit(mods, e)
         for f, tok in e.new_tokens.items():

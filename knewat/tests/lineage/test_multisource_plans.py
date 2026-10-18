@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.graph.client import GraphClient
+from knewat.graph.client import GraphClient
 
 from ..plan_util import max_records, profile_ops
 from .audit_util import OPEN, seed_scale

@@ -1,4 +1,4 @@
-"""Family F: provenance crash-consistency (expected Plexus loss).
+"""Family F: provenance crash-consistency (expected Knewat loss).
 
 A writer process loops ``assert_fact`` (alternating a plain fact and one derived from the previous fact),
 ``record_decision`` and ``handoff`` through an arm's backend, printing one line per acknowledged call. The parent waits
@@ -10,8 +10,8 @@ Windows); 200 kills per arm, a new process each time, one tenant per arm. Afterw
 * **lost acknowledged writes**: ids the writer printed that are not in the store;
 * the totals, so the counts can be read.
 
-    python -m plexus.crucible.l6.crash run --arm P --kills 200 --port 6361
-    python -m plexus.crucible.l6.crash writer --arm P ...      (internal)
+    python -m knewat.crucible.l6.crash run --arm P --kills 200 --port 6361
+    python -m knewat.crucible.l6.crash writer --arm P ...      (internal)
 """
 
 from __future__ import annotations
@@ -37,9 +37,9 @@ AGENTS = ("w1", "w2")
 
 
 def _open(arm: str, tenant: str, root: str, host: str, port: int) -> Any:
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
-    from plexus.crucible.backends.sqlite_h import SqliteHistoryBackend
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
+    from knewat.crucible.backends.sqlite_h import SqliteHistoryBackend
 
     if arm == "B1h":
         return SqliteHistoryBackend(tenant, root)
@@ -142,7 +142,7 @@ def kill_loop(
 
     def cmd_for(k: int) -> list[str]:
         return [
-            sys.executable, "-m", "plexus.crucible.l6.crash", "writer", "--arm", arm, "--tenant", tenant, "--root", root,
+            sys.executable, "-m", "knewat.crucible.l6.crash", "writer", "--arm", arm, "--tenant", tenant, "--root", root,
             "--host", host, "--port", str(port), "--source", sid, "--tag", f"{seed}k{k}",
         ]  # fmt: skip
 
@@ -163,7 +163,7 @@ def verify(
 ) -> dict[str, Any]:
     ids = {k: [a["id"] for a in acked if a["kind"] == k] for k in ("fact", "decision", "handoff")}
     if arm == "P":
-        return _verify_plexus(tenant, host, port, ids)
+        return _verify_knewat(tenant, host, port, ids)
     if arm == "B1h":
         return _verify_sqlite(Path(root) / "B1" / tenant / "crucible.db", ids)
     return _verify_files(Path(root) / "B0" / tenant, ids)
@@ -187,9 +187,9 @@ def _shape(
     return out
 
 
-def _verify_plexus(tenant: str, host: str, port: int, ids: dict[str, list[str]]) -> dict[str, Any]:
-    from plexus.graph.client import GraphClient
-    from plexus.graph.tenancy import graph_name
+def _verify_knewat(tenant: str, host: str, port: int, ids: dict[str, list[str]]) -> dict[str, Any]:
+    from knewat.graph.client import GraphClient
+    from knewat.graph.tenancy import graph_name
 
     c = GraphClient(host=host, port=port)
     g = c.graph(graph_name(tenant))
@@ -352,8 +352,8 @@ def main(argv: list[str] | None = None) -> int:
         )
     finally:
         if a.arm == "P":
-            from plexus.graph.client import GraphClient
-            from plexus.graph.tenancy import graph_name
+            from knewat.graph.client import GraphClient
+            from knewat.graph.tenancy import graph_name
 
             GraphClient(host=a.host, port=a.port).delete_graph(graph_name(tenant))
         if not a.root:

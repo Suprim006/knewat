@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from plexus.api import models as M
-from plexus.graph.tenancy import graph_name
+from knewat.api import models as M
+from knewat.graph.tenancy import graph_name
 
 
 def test_graph_nodes_carry_maybe_duplicate_of_and_the_edge_is_listed(api, seeded, client):

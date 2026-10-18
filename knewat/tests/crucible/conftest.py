@@ -7,13 +7,13 @@ import uuid
 
 import pytest
 
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import open_backend
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import open_backend
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 DB_HOST = "127.0.0.1"
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 
 ARMS = [
     "B0",

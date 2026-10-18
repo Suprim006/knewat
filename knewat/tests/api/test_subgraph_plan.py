@@ -16,8 +16,8 @@ from pathlib import Path
 
 import pytest
 
-from plexus.api.view_api import INVENTORY_LABELS
-from plexus.graph.queries import QueryLibrary
+from knewat.api.view_api import INVENTORY_LABELS
+from knewat.graph.queries import QueryLibrary
 from tests.plan_util import explain_lines, max_records, profile_ops
 
 OPEN = 9_999_999_999_999

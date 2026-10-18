@@ -1,6 +1,6 @@
-"""$0 size of the published Plexus tool list: what the MCP manifest costs on EVERY model call, without a model call.
+"""$0 size of the published Knewat tool list: what the MCP manifest costs on EVERY model call, without a model call.
 
-    python -m plexus.crucible.l8.manifest_size [--toolset core --toolset full] [--out FILE]
+    python -m knewat.crucible.l8.manifest_size [--toolset core --toolset full] [--out FILE]
 
 ``manifest_probe`` measures the same thing in API prompt tokens with one paid ``claude -p`` call per variant. This
 script builds the server in memory (no database call is made: listing tools touches no graph), lists the tools a
@@ -17,12 +17,12 @@ import asyncio
 import json
 from pathlib import Path
 
+from knewat.embed import HashEmbedder
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 from mcp import Client
-from plexus.embed import HashEmbedder
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 
 async def measure(toolset: str) -> dict[str, int]:

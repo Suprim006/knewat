@@ -1,7 +1,7 @@
 """The L6 LLM pilot: 8 questions per family (A, B, D) for B1a, B0g and B0r, within a hard $20 cap.
 
-    python -m plexus.crucible.l6.pilot run --stage measure     # 2 calls per arm on family B: measures cost per call
-    python -m plexus.crucible.l6.pilot run --stage rest        # the remaining calls (gate: projected total <= $16)
+    python -m knewat.crucible.l6.pilot run --stage measure     # 2 calls per arm on family B: measures cost per call
+    python -m knewat.crucible.l6.pilot run --stage rest        # the remaining calls (gate: projected total <= $16)
 
 Pre-registered in BASELINE.md ("L6 pre-registration", "LLM pilot budget"); ids, caps and the gate are the ones written
 there. Every call is cached in ``demo_data/crucible/l6_cache``; a re-run costs nothing for cached calls.
@@ -22,16 +22,16 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible.l2.llm import BudgetExceeded
-from plexus.crucible.l2.run import reply_format
-from plexus.crucible.l2.scale_contexts import Bm25
-from plexus.crucible.l6 import llm as L
-from plexus.crucible.l6 import run as R
-from plexus.crucible.l6 import score as SC
-from plexus.crucible.l6 import stores as S
-from plexus.crucible.l6 import world as W
-from plexus.crucible.util import iso_utc, run_stamp
+from knewat.crucible import environment
+from knewat.crucible.l2.llm import BudgetExceeded
+from knewat.crucible.l2.run import reply_format
+from knewat.crucible.l2.scale_contexts import Bm25
+from knewat.crucible.l6 import llm as L
+from knewat.crucible.l6 import run as R
+from knewat.crucible.l6 import score as SC
+from knewat.crucible.l6 import stores as S
+from knewat.crucible.l6 import world as W
+from knewat.crucible.util import iso_utc, run_stamp
 
 DEMO = R.DEMO
 CACHE = R.DEMO.parent / "l6_cache"
@@ -193,12 +193,12 @@ def run_pilot(
     )
     client = None
     if graphs:  # the P arm reads the real graph: one tenant per family, dropped at the end
-        from plexus.graph.client import GraphClient
-        from plexus.graph.tenancy import graph_name
+        from knewat.graph.client import GraphClient
+        from knewat.graph.tenancy import graph_name
 
         client = GraphClient(host=host, port=port)
         for f in P_FAMILIES:
-            S.load_plexus(preps[f].world, client, preps[f].tenant)
+            S.load_knewat(preps[f].world, client, preps[f].tenant)
             log(f"pilot: loaded graph for family {f} (tenant {preps[f].tenant})")
 
     def cleanup() -> None:

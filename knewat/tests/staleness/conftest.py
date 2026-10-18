@@ -2,12 +2,12 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.activation import Activation, Settings
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.lineage import Lineage
-from plexus.relay import Relay
-from plexus.staleness import Staleness
+from knewat.activation import Activation, Settings
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.lineage import Lineage
+from knewat.relay import Relay
+from knewat.staleness import Staleness
 
 
 class Clock:

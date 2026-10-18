@@ -4,7 +4,7 @@ import math
 
 import pytest
 
-from plexus.embed import DIM, Embedder, HashEmbedder, get_embedder
+from knewat.embed import DIM, Embedder, HashEmbedder, get_embedder
 
 
 def _dot(a, b):
@@ -30,7 +30,7 @@ def test_hash_embedder_deterministic_and_word_overlap():
 
 def test_protocol_and_factory(monkeypatch):
     assert isinstance(HashEmbedder(), Embedder)
-    monkeypatch.setenv("PLEXUS_EMBEDDER", "hash")
+    monkeypatch.setenv("KNEWAT_EMBEDDER", "hash")
     assert isinstance(get_embedder(), HashEmbedder)
     assert get_embedder() is get_embedder()
     with pytest.raises(ValueError):
@@ -39,7 +39,7 @@ def test_protocol_and_factory(monkeypatch):
 
 @pytest.mark.slow
 def test_fastembed_semantic(tmp_path):
-    from plexus.embed import FastEmbedder
+    from knewat.embed import FastEmbedder
 
     e = FastEmbedder()
     v = e.embed(["The database is PostgreSQL", "We use Postgres as our database", "I like hiking"])

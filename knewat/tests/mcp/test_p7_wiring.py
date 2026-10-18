@@ -5,9 +5,9 @@ from __future__ import annotations
 import asyncio
 import time
 
+from knewat.activation import Activation
+from knewat.graph.tenancy import graph_name
 from mcp import Client
-from plexus.activation import Activation
-from plexus.graph.tenancy import graph_name
 
 from .test_tool_coverage import ok, rows
 
@@ -178,7 +178,7 @@ async def test_facts_to_verify_has_no_activation_when_forgetting_is_off(server, 
         f = await _decided_fact(c, "timeout", "30 seconds")
         await _anchor(c, f)
         await ok(c, "mark_changed", agent_id="hook", changes=[{"path": CODE, "new_hash": "h1"}], commit="c1")
-        monkeypatch.setenv("PLEXUS_FORGETTING", "off")
+        monkeypatch.setenv("KNEWAT_FORGETTING", "off")
         todo = await ok(c, "facts_to_verify", agent_id="bob")
         assert [x["fact_id"] for x in todo["facts"]] == [f]
         assert "activation" not in todo["facts"][0]

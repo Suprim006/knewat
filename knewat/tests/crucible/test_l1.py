@@ -6,13 +6,13 @@ import time
 
 import pytest
 
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import register_arm
-from plexus.crucible.backends.sqlite import SqliteBackend
-from plexus.crucible.config import quick_l1
-from plexus.crucible.harness import Env
-from plexus.crucible.l1 import TESTS, run_test
-from plexus.crucible.util import now_ms
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import register_arm
+from knewat.crucible.backends.sqlite import SqliteBackend
+from knewat.crucible.config import quick_l1
+from knewat.crucible.harness import Env
+from knewat.crucible.l1 import TESTS, run_test
+from knewat.crucible.util import now_ms
 
 from .conftest import ARMS, DB_HOST, DB_PORT
 
@@ -169,7 +169,7 @@ def test_harness_catches_broken_arms(cls, test, violation, broken, env, cfg):
 
 
 def test_spec_arms_are_registered():
-    from plexus.crucible.backends import open_backend
+    from knewat.crucible.backends import open_backend
 
     with pytest.raises(ValueError):
         open_backend(BackendSpec(arm="nope", tenant="t", root="."))

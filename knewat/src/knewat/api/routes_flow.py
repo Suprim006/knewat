@@ -11,9 +11,9 @@ from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import StreamingResponse
 from starlette.background import BackgroundTask
 
-from plexus.api import models as M
-from plexus.api.context import FLOW_LIMIT_MAX, ApiContext, Slot, event
-from plexus.common import OPEN, now_ms
+from knewat.api import models as M
+from knewat.api.context import FLOW_LIMIT_MAX, ApiContext, Slot, event
+from knewat.common import OPEN, now_ms
 
 STREAM_POLL_S = 0.5
 STREAM_LOOKBACK_MS = 2000  # re-read this much history each poll; ids already sent are skipped

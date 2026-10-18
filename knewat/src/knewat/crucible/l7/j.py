@@ -1,6 +1,6 @@
 """Crucible L7 family J: concurrent session populations (P10 pre-registration, section J).
 
-``python -m plexus.crucible.l7.j run --port 6369 --scale {dev,full} --out <dir> [--arms ...] [--pops ...]
+``python -m knewat.crucible.l7.j run --port 6369 --scale {dev,full} --out <dir> [--arms ...] [--pops ...]
 [--layouts ...] [--mixes ...] [--reps N] [--seconds S]``
 
 A *cell* is (arm, population P, tenant layout, mix, repetition). Per cell: fresh tenants (names unique to the cell),
@@ -29,10 +29,10 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l7 import common
-from plexus.crucible.l7.common import DEFAULT_HOST, SEED, DockerSampler, container_for_port, lat_summary
-from plexus.crucible.l7.j_arms import ARMS, make_adapter
-from plexus.crucible.l7.j_session import MIXES, RECORDED_MIX, load_sequences, preload
+from knewat.crucible.l7 import common
+from knewat.crucible.l7.common import DEFAULT_HOST, SEED, DockerSampler, container_for_port, lat_summary
+from knewat.crucible.l7.j_arms import ARMS, make_adapter
+from knewat.crucible.l7.j_session import MIXES, RECORDED_MIX, load_sequences, preload
 
 LAYOUTS = ("J-team", "J-one")
 TEAM_SIZE = 5
@@ -193,7 +193,7 @@ def run_cell(
     is_f = arm.startswith("F")
     client = None
     if is_f:
-        from plexus.crucible.backends.plexus import _client
+        from knewat.crucible.backends.knewat import _client
 
         client = _client(host, port)
     adapters: list[Any] = []
@@ -241,7 +241,7 @@ def run_cell(
             logs.append(lf)
             procs.append(
                 subprocess.Popen(
-                    [sys.executable, "-m", "plexus.crucible.l7.j_worker", str(p)], stdout=lf, stderr=lf
+                    [sys.executable, "-m", "knewat.crucible.l7.j_worker", str(p)], stdout=lf, stderr=lf
                 )
             )
         stage = "ready"
@@ -524,7 +524,7 @@ def _med_rng(xs: list[float]) -> str:
 
 
 def make_parser() -> argparse.ArgumentParser:
-    ap = argparse.ArgumentParser(prog="python -m plexus.crucible.l7.j")
+    ap = argparse.ArgumentParser(prog="python -m knewat.crucible.l7.j")
     sub = ap.add_subparsers(dest="cmd", required=True)
     r = sub.add_parser("run", help="run the family J grid")
     r.add_argument("--host", default=DEFAULT_HOST)
@@ -580,7 +580,7 @@ def main(argv: list[str] | None = None) -> int:
     work = Path(args.workdir or tempfile.mkdtemp(prefix="j-"))
     work.mkdir(parents=True, exist_ok=True)
     doc = common.envelope(
-        "j", args.host, args.port, started, "python -m plexus.crucible.l7.j " + " ".join(sys.argv[1:])
+        "j", args.host, args.port, started, "python -m knewat.crucible.l7.j " + " ".join(sys.argv[1:])
     )
     doc["params"] = {
         "scale": args.scale, "arms": args.arms, "pops": args.pops, "layouts": args.layouts, "mixes": args.mixes,

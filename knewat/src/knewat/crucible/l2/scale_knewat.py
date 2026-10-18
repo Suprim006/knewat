@@ -1,6 +1,6 @@
 """Arm P at scale: the same deterministic Cypher answerer, with sprint scoping where a question asks about a whole class.
 
-``plexus_answerer.PlexusAnswerer`` is reused unchanged. Questions whose arguments already name a unique thing (a task id
+``knewat_answerer.KnewatAnswerer`` is reused unchanged. Questions whose arguments already name a unique thing (a task id
 ``s07-t03-...``, a fact label, a decision name, a subject, a source uri) run exactly the same operation with exactly the
 same statements. Questions that ask about ALL decisions / handoffs / claims / conflicts / episodes need to be restricted
 to the sprint named in the question; those operations are overridden below (``_sop_*``), listed in the BASELINE
@@ -14,12 +14,12 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from plexus.crucible.l2.plexus_answerer import PlexusAnswerer, Trace, _label, _norm, _scope
-from plexus.crucible.l2.questions import Question
-from plexus.crucible.l2.scenario import decision_label
+from knewat.crucible.l2.knewat_answerer import KnewatAnswerer, Trace, _label, _norm, _scope
+from knewat.crucible.l2.questions import Question
+from knewat.crucible.l2.scenario import decision_label
 
 
-class ScalePlexusAnswerer(PlexusAnswerer):
+class ScaleKnewatAnswerer(KnewatAnswerer):
     SCOPED_OPS = (
         "handoffs_to", "handoffs_with_superseded_facts", "decisions_on_superseded", "decisions_on_forgotten",
         "active_conflicts", "active_conflict_agents", "reclaimed_tasks", "completed_by", "visible_facts",
@@ -29,7 +29,7 @@ class ScalePlexusAnswerer(PlexusAnswerer):
     def __init__(self, client: Any, tenant: str):
         super().__init__(client, tenant)
         self._ops = {
-            n[4:]: fn for n, fn in vars(PlexusAnswerer).items() if n.startswith("_op_")
+            n[4:]: fn for n, fn in vars(KnewatAnswerer).items() if n.startswith("_op_")
         }  # the unchanged ops
         self._sops = {n[5:]: fn for n, fn in vars(type(self)).items() if n.startswith("_sop_")}
         assert set(self._sops) == set(self.SCOPED_OPS)

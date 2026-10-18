@@ -1,8 +1,8 @@
 """Run L2 at scale: K sprints of history (>= 10x the 32k-character budget), 40 questions, arms P / B0 / B1 / B2.
 
-    python -m plexus.crucible.l2.scale_run questions                       # regenerate demo_data/crucible/questions_scale.yaml
-    python -m plexus.crucible.l2.scale_run run --mode pilot --port 6366    # 5 questions x B0,B1,B2 with claude -p, + P
-    python -m plexus.crucible.l2.scale_run run --mode full  --port 6366    # all 40 (cached answers are free)
+    python -m knewat.crucible.l2.scale_run questions                       # regenerate demo_data/crucible/questions_scale.yaml
+    python -m knewat.crucible.l2.scale_run run --mode pilot --port 6366    # 5 questions x B0,B1,B2 with claude -p, + P
+    python -m knewat.crucible.l2.scale_run run --mode full  --port 6366    # all 40 (cached answers are free)
 
 Same scoring rule, reply parser, model, runner and results envelope as ``run.py``; the numbers live in
 ``layers["L2_scale"]`` (shape: :func:`assemble_scale_layer`, documented in the README). Pre-registered in
@@ -23,15 +23,15 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible import results as H
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import open_backend
-from plexus.crucible.l2 import contexts as C
-from plexus.crucible.l2 import scale_contexts as SC
-from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner
-from plexus.crucible.l2.questions import CONVENTIONS, FAMILIES, Question, score
-from plexus.crucible.l2.run import (
+from knewat.crucible import environment
+from knewat.crucible import results as H
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import open_backend
+from knewat.crucible.l2 import contexts as C
+from knewat.crucible.l2 import scale_contexts as SC
+from knewat.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner
+from knewat.crucible.l2.questions import CONVENTIONS, FAMILIES, Question, score
+from knewat.crucible.l2.run import (
     DEMO_DATA,
     _pct,
     arm_summary,
@@ -41,16 +41,16 @@ from plexus.crucible.l2.run import (
     grade_call,
     reply_format,
 )
-from plexus.crucible.l2.scale_plexus import ScalePlexusAnswerer
-from plexus.crucible.l2.scale_questions import (
+from knewat.crucible.l2.scale_knewat import ScaleKnewatAnswerer
+from knewat.crucible.l2.scale_questions import (
     CONVENTIONS_SCALE_EXTRA,
     SEED,
     dump_scale_questions,
     generate_scale,
     load_scale_questions,
 )
-from plexus.crucible.l2.scale_scenario import ScaleLedger, play_scale
-from plexus.crucible.util import fmt_ms, iso_utc, run_stamp
+from knewat.crucible.l2.scale_scenario import ScaleLedger, play_scale
+from knewat.crucible.util import fmt_ms, iso_utc, run_stamp
 
 K_SPRINTS = 20
 QUESTIONS_PATH = DEMO_DATA / "questions_scale.yaml"
@@ -72,11 +72,11 @@ ANSWERERS_SCALE = {
     "B2": "claude -p over the top-12 retrieved memory chunks (local bge-small embeddings), cap 32k chars",
     "P": "deterministic Cypher against the tenant graph (no LLM), sprint-scoped where a question asks about a whole class",
 }
-PLEXUS_CHANGES = [
+KNEWAT_CHANGES = [
     "Operations whose arguments already name a unique thing (task id, fact label, decision name, subject, source uri) run the unchanged l2 operation with the unchanged statements: decision_facts, decision_fact_agents, decision_sources, handoff_artifacts, handoff_route, handoff_facts, as_of_values, as_of_facts, value_history, decisions_on_fact, superseder, fact_agent, fact_source, fact_scope, blocked_by_failure, direct_dependencies, ready_after, reclaimer, previous_claimer, current_value, scope_leak, episode_agent, remaining_from_source, forgotten_facts.",
     "Nine operations ask about a whole class (all handoffs to X, all decisions on superseded facts, ...) and are restricted to the sprint named in the question by a Python filter over the rows of the same statements (task ids start with the sprint tag, source uris contain it, episode texts start with it): handoffs_to, handoffs_with_superseded_facts, decisions_on_superseded, decisions_on_forgotten, active_conflicts, active_conflict_agents, reclaimed_tasks, completed_by, episode_count.",
     "One operation needs one new read-only statement: visible_facts runs queries/l2scale/facts_visible_subject.cypher (l2/facts_visible plus a subject restriction), because the global scope now holds the facts of all 20 sprints.",
-    "No other query was changed; the original plexus_answerer.py and queries/l2/*.cypher are untouched.",
+    "No other query was changed; the original knewat_answerer.py and queries/l2/*.cypher are untouched.",
 ]
 HONESTY = [
     "L2-scale: exact-match accuracy over script-derived questions (40 generated, 10 families x 4; 36 asked after the pre-registered budget rule) about 20 independent sprints of one team history; one scenario family, one model (sonnet), one run per question; no LLM judge. Ground truth is computed from the per-sprint scenario ledgers, not read back from any arm. Pre-registered in docs/BASELINE.md before the first paid call.",
@@ -85,7 +85,7 @@ HONESTY = [
     "Baselines are the same unmodified `claude -p --model sonnet` with no tools at the same 32,000-character cap, shown BM25-ranked chunks/rows (B0, B1) or vector top-12 (B2) selected with the question text. The selectors were written once, before any paid call, and not tuned afterwards.",
     "Arm P answers with hand-written Cypher per question family (the same operations as the 43-question L2 run, with the sprint scoping listed in the results); that engineering effort is part of what P costs and the baselines get no equivalent helper.",
     'Reply rule for the baselines is the final L2 rule: prose may precede the reply, which must END with one {"answer": ...} object; the whole-reply-JSON variant is reported next to it.',
-    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
+    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Knewat's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
 ]
 
 
@@ -156,10 +156,10 @@ def _row(q: Question, ok: bool, got: Any, why: str, k: int, **extra: Any) -> dic
     }  # fmt: skip
 
 
-def answer_plexus_scale(
+def answer_knewat_scale(
     p: ScalePrepared, qs: list[Question], client: Any, k: int, log: Callable[[str], None]
 ) -> list[dict[str, Any]]:
-    ans = ScalePlexusAnswerer(client, p.tenant)
+    ans = ScaleKnewatAnswerer(client, p.tenant)
     rows = []
     for q in qs:
         try:
@@ -301,7 +301,7 @@ def assemble_scale_layer(
             "bm25": {"k1": SC.K1, "b": SC.B, "query": "the question text"},
         },
         "question_set": {
-            "path": "plexus/demo_data/crucible/questions_scale.yaml",
+            "path": "knewat/demo_data/crucible/questions_scale.yaml",
             "sha256": hashlib.sha256(qpath.read_bytes()).hexdigest() if qpath.exists() else "",
             "total": len(all_qs),
             "asked": len(qs),
@@ -317,7 +317,7 @@ def assemble_scale_layer(
             "cost_usd": {a: v["usage"]["cost_usd"] for a, v in arms.items()},
             "latency_ms_median": {a: v["usage"]["latency_ms"]["median"] for a, v in arms.items()},
         },
-        "plexus_changes": PLEXUS_CHANGES,
+        "knewat_changes": KNEWAT_CHANGES,
         "notes": notes,
     }
 
@@ -327,7 +327,7 @@ def headline_scale(layer: dict[str, Any]) -> list[str]:
     out = []
     for a, v in arms.items():
         acc, usage = v["accuracy"], v["usage"]
-        who = "Plexus (deterministic Cypher)" if a == "P" else f"{a} + claude -p ({layer['model']})"
+        who = "Knewat (deterministic Cypher)" if a == "P" else f"{a} + claude -p ({layer['model']})"
         extra = (
             ""
             if a == "P"
@@ -342,7 +342,7 @@ def headline_scale(layer: dict[str, Any]) -> list[str]:
                 continue
             diff = arms["P"]["accuracy"]["pct"] - v["accuracy"]["pct"]
             word = "ties" if diff == 0 else ("beats" if diff > 0 else "trails")
-            out.append(f"L2-scale: Plexus {word} {a} by {abs(diff):.1f} points.")
+            out.append(f"L2-scale: Knewat {word} {a} by {abs(diff):.1f} points.")
     return out
 
 
@@ -484,8 +484,8 @@ def render_scale_report(doc: dict[str, Any]) -> str:
         w.append("none")
     w.append("\n## Headline\n")
     w += [f"- {x}" for x in doc["summary"]["headline"]]
-    w.append("\n## Plexus changes relative to the 43-question L2 answerer\n")
-    w += [f"- {x}" for x in layer["plexus_changes"]]
+    w.append("\n## Knewat changes relative to the 43-question L2 answerer\n")
+    w += [f"- {x}" for x in layer["knewat_changes"]]
     w.append("\n## Notes\n")
     w += [f"- {n}" for n in layer["notes"]]
     w.append("\n## Honesty\n")
@@ -528,7 +528,7 @@ def run_scale(
     )  # fmt: skip
     emb = None
     if "B2" in arms:
-        from plexus.embed import get_embedder
+        from knewat.embed import get_embedder
 
         emb = get_embedder(embedder)
     prepared: dict[str, ScalePrepared] = {}
@@ -548,10 +548,10 @@ def run_scale(
                 f"{arm}: {k} sprints played ({s['facts']} facts, {s['decisions']} decisions); ledgers match the reference"
             )
             if arm == "P":
-                from plexus.graph.client import GraphClient
+                from knewat.graph.client import GraphClient
 
                 client = GraphClient(host=host, port=port)
-                rows = answer_plexus_scale(p, qs, client, k, log)
+                rows = answer_knewat_scale(p, qs, client, k, log)
                 results[arm] = arm_summary_scale(arm, rows, True, None)
             else:
                 assert p.path is not None
@@ -677,7 +677,7 @@ def main(argv: list[str] | None = None) -> int:
     doc, _d = run_scale(
         mode=a.mode, arms=arms, model=a.model, budget_usd=a.budget_usd, host=a.host, port=a.port,
         embedder=a.embedder, out_root=a.out, cache_dir=a.cache, log=lambda s: print(s, flush=True),
-        command="python -m plexus.crucible.l2.scale_run " + " ".join(argv if argv is not None else sys.argv[1:]),
+        command="python -m knewat.crucible.l2.scale_run " + " ".join(argv if argv is not None else sys.argv[1:]),
         question_ids=tuple(x for x in a.ids.split(",") if x) or None, keep_graph=a.keep_graph,
     )  # fmt: skip
     for hline in doc["summary"]["headline"]:

@@ -6,8 +6,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import FastEmbedder
-from plexus.engram import Engram
+from knewat.embed import FastEmbedder
+from knewat.engram import Engram
 
 pytestmark = pytest.mark.slow
 

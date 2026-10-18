@@ -1,4 +1,4 @@
-"""B2 Vector: retrieval-based memory (Mem0-style) with the same local embedding model as Plexus.
+"""B2 Vector: retrieval-based memory (Mem0-style) with the same local embedding model as Knewat.
 
 Honest statement of the hybrid: facts and episodes are stored as float32 vectors in SQLite (``fact_vec`` /
 ``episode_vec``) and searched by brute-force cosine in numpy; **claims, leases, tasks, decisions and handoffs
@@ -6,7 +6,7 @@ live in the same SQLite tables as B1** because a vector store cannot do atomic c
 
 * ``recall`` is semantic (cosine over fact text embeddings), not BM25;
 * ``assert_fact`` treats a paraphrase as a duplicate when the *value* embedding is within the same distance
-  threshold Plexus uses **and** the numeric tokens agree (so ``16`` is not ``15``);
+  threshold Knewat uses **and** the numeric tokens agree (so ``16`` is not ``15``);
 * no steps / READ edges, so ``why`` and ``knew_at`` raise :class:`Unsupported`.
 """
 
@@ -18,12 +18,12 @@ from typing import Any
 
 import numpy as np
 
-from plexus.crucible.api import Unsupported
-from plexus.crucible.backends.base import MAX_RECALL_K, recall_hit
-from plexus.crucible.backends.sqlite import SqliteBackend
-from plexus.crucible.util import fact_text, token_key
-from plexus.embed import Embedder, embed_checked, get_embedder
-from plexus.engram.service import FACT_DUP
+from knewat.crucible.api import Unsupported
+from knewat.crucible.backends.base import MAX_RECALL_K, recall_hit
+from knewat.crucible.backends.sqlite import SqliteBackend
+from knewat.crucible.util import fact_text, token_key
+from knewat.embed import Embedder, embed_checked, get_embedder
+from knewat.engram.service import FACT_DUP
 
 VEC_SCHEMA = """
 CREATE TABLE IF NOT EXISTS fact_vec(fact_id TEXT PRIMARY KEY, text_emb BLOB NOT NULL, value_emb BLOB NOT NULL);

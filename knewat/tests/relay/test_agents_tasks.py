@@ -1,6 +1,6 @@
 import pytest
 
-from plexus.relay import DuplicateTask, InvalidDag, UnknownReference
+from knewat.relay import DuplicateTask, InvalidDag, UnknownReference
 
 
 def _labels(client, graph, label):

@@ -31,10 +31,10 @@ from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
-from plexus.crucible.api import ClaimConflict
-from plexus.crucible.l7.common import DEMO, SEED
+from knewat.crucible.api import ClaimConflict
+from knewat.crucible.l7.common import DEMO, SEED
 
-RECORDINGS = DEMO.parent.parent / "recordings"  # plexus/demo_data/recordings
+RECORDINGS = DEMO.parent.parent / "recordings"  # knewat/demo_data/recordings
 RUNS = ("acme-claude-sonnet", "pilot-haiku")
 BATCH = 6  # tasks per create_tasks (the recorded planner batches have 6 tasks)
 TRAV_RATE = 0.10  # J-trav: share of calls replaced by why / impact

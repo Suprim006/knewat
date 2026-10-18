@@ -1,4 +1,4 @@
-"""Shared fixtures. Integration tests use a throwaway graph per test on PLEXUS_TEST_DB_PORT (default 6310)."""
+"""Shared fixtures. Integration tests use a throwaway graph per test on KNEWAT_TEST_DB_PORT (default 6310)."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ import os
 import pytest
 from redis.exceptions import RedisError
 
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import test_graph_name
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import test_graph_name
 
 TEST_DB_HOST = "127.0.0.1"  # "localhost" tries ::1 first on Windows+Docker (+2 s per connection)
-TEST_DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+TEST_DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 
 
 def pytest_collection_modifyitems(items):
@@ -36,7 +36,7 @@ def client(library):
     except RedisError as exc:  # fail loudly: a silent skip would hide a missing DB in the gate
         pytest.fail(
             f"FalkorDB not reachable on {TEST_DB_HOST}:{TEST_DB_PORT} ({exc}). "
-            "Start one with scripts/agent_db.sh <slot> and pass PLEXUS_TEST_DB_PORT=63<slot> inline.",
+            "Start one with scripts/agent_db.sh <slot> and pass KNEWAT_TEST_DB_PORT=63<slot> inline.",
             pytrace=False,
         )
     yield c

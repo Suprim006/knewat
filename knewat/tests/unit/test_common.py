@@ -1,12 +1,12 @@
-"""plexus.common: the helpers every service shares."""
+"""knewat.common: the helpers every service shares."""
 
 import time
 
 import pytest
 
-from plexus import common
-from plexus.engram import OPEN as ENGRAM_OPEN
-from plexus.engram import normalize as engram_normalize
+from knewat import common
+from knewat.engram import OPEN as ENGRAM_OPEN
+from knewat.engram import normalize as engram_normalize
 
 
 def test_open_and_normalize_are_the_same_objects_everywhere():

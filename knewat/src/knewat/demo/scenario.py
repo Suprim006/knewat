@@ -2,7 +2,7 @@
 
 Everything here is data. ``demo_data/acme/`` holds the source documents (``sources/*.md``), the task DAG and the
 per-task briefs the real Claude agents get (``tasks.json``), and the role prompts (``roles/*.md``). The scripted
-agents (``plexus.demo.scripted``) and the real ``claude -p`` orchestrator (``plexus.demo.orchestrator``) play the
+agents (``knewat.demo.scripted``) and the real ``claude -p`` orchestrator (``knewat.demo.orchestrator``) play the
 same scenario through the same MCP tools.
 """
 
@@ -21,7 +21,7 @@ RECORDINGS_DIRNAME = "recordings"
 
 
 def demo_data_dir() -> Path:
-    """``plexus/demo_data``."""
+    """``knewat/demo_data``."""
     return Path(__file__).resolve().parents[3] / "demo_data"
 
 

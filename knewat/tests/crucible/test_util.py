@@ -8,8 +8,8 @@ import threading
 
 import pytest
 
-from plexus.crucible.l4 import stats
-from plexus.crucible.util import FileLock, classify, keyword_score, percentile, scope_chain, words
+from knewat.crucible.l4 import stats
+from knewat.crucible.util import FileLock, classify, keyword_score, percentile, scope_chain, words
 
 
 def test_percentile_nearest_rank():
@@ -77,7 +77,7 @@ def test_file_lock_excludes_threads_and_processes(tmp_path):
 
     threads = [threading.Thread(target=bump, args=(25,)) for _ in range(4)]
     code = (
-        "import sys; from plexus.crucible.util import FileLock; from pathlib import Path;"
+        "import sys; from knewat.crucible.util import FileLock; from pathlib import Path;"
         "l=FileLock(sys.argv[1]); c=Path(sys.argv[2]);"
         "exec('for _ in range(25):\\n with l.hold():\\n  c.write_text(str(int(c.read_text())+1))')"
     )

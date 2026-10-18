@@ -1,8 +1,8 @@
 """Crucible L7 family G: multi-tenancy at scale (graph per tenant vs SQLite file per tenant vs one shared SQLite file).
 
-    python -m plexus.crucible.l7.g run --port 6365 --scale {dev,full} --out <dir> [--parts G1,G2,G3,G4]
+    python -m knewat.crucible.l7.g run --port 6365 --scale {dev,full} --out <dir> [--parts G1,G2,G3,G4]
 
-Tenant counts are cumulative (tenants 0..N-1 exist when N is measured). Port 6365 / container plexus-db-65 only.
+Tenant counts are cumulative (tenants 0..N-1 exist when N is measured). Port 6365 / container knewat-db-65 only.
 G1 creation, G2 footprint, G3a product-path leakage (gate: 0), G3b raw-channel matrix, G4 latency vs N.
 """
 
@@ -22,18 +22,18 @@ from typing import Any
 
 import redis
 
-from plexus.crucible.l7 import common, g_gen
-from plexus.crucible.l7.g_arms import (
+from knewat.crucible.l7 import common, g_gen
+from knewat.crucible.l7.g_arms import (
     SHARED_TABLES,
     FArm,
     SFileArm,
     SSharedArm,
     tenant_predicate_sites,
 )  # fmt: skip
-from plexus.crucible.l7.g_gen import tenant_name, tenant_world
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l7.g_gen import tenant_name, tenant_world
+from knewat.graph.tenancy import graph_name
 
-CONTAINER = "plexus-db-65"
+CONTAINER = "knewat-db-65"
 SCALES = {
     "dev": {
         "ns": (1, 2, 20, 200),
@@ -744,7 +744,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--scale", choices=sorted(SCALES), default="dev")
     r.add_argument("--out", default=str(common.DEMO))
     r.add_argument("--parts", default="G1,G2,G3,G4")
-    r.add_argument("--flush", action="store_true", help="FLUSHALL plexus-db-65 at the end")
+    r.add_argument("--flush", action="store_true", help="FLUSHALL knewat-db-65 at the end")
     r.add_argument(
         "--skip-rdb", action="store_true", help="never BGSAVE (RDB size per tenant is then not measured)"
     )
@@ -753,9 +753,9 @@ def main(argv: list[str] | None = None) -> int:
     SKIP_RDB = bool(a.skip_rdb)
     global CONTAINER
     if not 6310 <= a.port <= 6399:
-        print("family G needs an agent DB port 63NN (container plexus-db-NN)", file=sys.stderr)
+        print("family G needs an agent DB port 63NN (container knewat-db-NN)", file=sys.stderr)
         return 2
-    CONTAINER = f"plexus-db-{a.port % 100}"  # the slot's own container (default slot 65)
+    CONTAINER = f"knewat-db-{a.port % 100}"  # the slot's own container (default slot 65)
     doc = run(a)
     d = common.write(doc, Path(a.out), report_md(doc))
     log(f"wrote {d}")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.relay import MAX_LEASE_MS
+from knewat.relay import MAX_LEASE_MS
 
 HUGE = [2**63 - 1, 2**63, 2**62, 10**30, MAX_LEASE_MS + 1]
 

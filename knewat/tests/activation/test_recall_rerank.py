@@ -14,9 +14,9 @@ import time
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.embed.base import DIM
-from plexus.engram import Engram
+from knewat.embed import HashEmbedder
+from knewat.embed.base import DIM
+from knewat.engram import Engram
 
 from .conftest import DAY, HOUR, write
 
@@ -124,7 +124,7 @@ def test_the_candidate_pool_is_twice_k_so_a_used_fact_just_outside_the_top_k_can
     aeng, scope, mk, monkeypatch
 ):
     monkeypatch.setenv(
-        "PLEXUS_ACT_FLOOR", "0.5"
+        "KNEWAT_ACT_FLOOR", "0.5"
     )  # a wider multiplier range than the 0.9 default, to see the rise
     near = mk.fact("near", 0.30, age_days=200)
     farther = mk.fact("farther", 0.36, age_days=200)

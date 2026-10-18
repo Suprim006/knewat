@@ -1,7 +1,7 @@
 """``assert_relation``: typed relations between entities (P9-b / P2); ``recall(hops)`` follows them.
 
 ``assert_relation(subject, kind, object, scope)`` writes ``(Entity)-[:RELATES {kind, scope_id}]->(Entity)`` (idempotent).
-The relations are only as good as what agents write: Plexus makes no LLM call to extract them.
+The relations are only as good as what agents write: Knewat makes no LLM call to extract them.
 """
 
 from __future__ import annotations
@@ -11,9 +11,9 @@ from typing import Annotated
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
-from plexus.mcp.limits import AgentId, Name, NameReq, ScopeArg, Step
-from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
-from plexus.mcp.toolkit import ToolTable
+from knewat.mcp.limits import AgentId, Name, NameReq, ScopeArg, Step
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
 
 RELATION_TOOLS = ToolTable()
 tool = RELATION_TOOLS

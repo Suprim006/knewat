@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.common import normalize
-from plexus.embed import FastEmbedder, HashEmbedder
-from plexus.engram import Engram
-from plexus.engram.service import ENTITY_NEAR, FULLTEXT_JACCARD, _tokens, entity_key
+from knewat.common import normalize
+from knewat.embed import FastEmbedder, HashEmbedder
+from knewat.engram import Engram
+from knewat.engram.service import ENTITY_NEAR, FULLTEXT_JACCARD, _tokens, entity_key
 
 
 @pytest.fixture(scope="module")
@@ -40,7 +40,7 @@ def _stmt(eng: Engram, name: str, kind: str = "thing", *, k: int = 5, thr: float
             "kind": kind,
             "tok": tok,
             "num_key": entity_key(name),
-            "q": "|".join(tok) or "plexusnomatchtoken",
+            "q": "|".join(tok) or "knewatnomatchtoken",
             "emb": eng._embed([name])[0],
             "entity_id": f"id-{normalize(name)}",
             "jac": FULLTEXT_JACCARD,
@@ -207,7 +207,7 @@ def test_exact_hit_is_write_free(eng, client, graph):
 
 def test_rejected_references_create_no_entity(eng, client, graph, proj):
     """P5 Q8: a call with an unknown scope must not leave an orphan Entity behind."""
-    from plexus.engram.errors import UnknownReference
+    from knewat.engram.errors import UnknownReference
 
     with pytest.raises(UnknownReference):
         eng.assert_fact("Ghost Service", "database", "pg", "no-such-scope", "a1", now=1)

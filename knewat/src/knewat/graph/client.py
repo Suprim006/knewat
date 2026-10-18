@@ -15,7 +15,7 @@ from falkordb import FalkorDB, Graph
 from redis import BlockingConnectionPool
 from redis.exceptions import BusyLoadingError, ResponseError
 
-from plexus.graph.queries import QueryLibrary, ReadOnlyViolation, RenderedQuery
+from knewat.graph.queries import QueryLibrary, ReadOnlyViolation, RenderedQuery
 
 _STAT_ATTRS = (
     "nodes_created",
@@ -61,9 +61,9 @@ def _env_conn(host: str | None, port: int | None, password: str | None) -> tuple
     return host, port, password or None
 
 
-DEFAULT_POOL = 256  # pool size (env PLEXUS_DB_POOL); callers beyond it wait, they do not fail
-DEFAULT_POOL_TIMEOUT_S = 30.0  # how long a caller waits for a free connection (env PLEXUS_DB_POOL_TIMEOUT)
-DEFAULT_LOADING_WAIT_S = 60.0  # how long to retry while Redis loads the AOF (env PLEXUS_DB_LOADING_WAIT_S)
+DEFAULT_POOL = 256  # pool size (env KNEWAT_DB_POOL); callers beyond it wait, they do not fail
+DEFAULT_POOL_TIMEOUT_S = 30.0  # how long a caller waits for a free connection (env KNEWAT_DB_POOL_TIMEOUT)
+DEFAULT_LOADING_WAIT_S = 60.0  # how long to retry while Redis loads the AOF (env KNEWAT_DB_LOADING_WAIT_S)
 _LOADING_POLL_S = 0.25
 
 
@@ -100,7 +100,7 @@ def _is_tolerated(exc: Exception, tolerate: Sequence[str]) -> bool:
 class GraphClient:
     """Connection: args, else ``FALKORDB_HOST/PORT/PASSWORD`` env, else localhost:6379.
 
-    Backed by a ``BlockingConnectionPool`` of ``max_connections`` (env ``PLEXUS_DB_POOL``, default 256):
+    Backed by a ``BlockingConnectionPool`` of ``max_connections`` (env ``KNEWAT_DB_POOL``, default 256):
     a caller that finds every connection busy waits up to ``pool_timeout`` seconds instead of failing.
     While Redis is still loading its dataset (``-LOADING``) connect and queries are retried for up to
     ``loading_wait_s``.
@@ -118,11 +118,11 @@ class GraphClient:
     ):
         self.host, self.port, password = _env_conn(host, port, password)
         if max_connections is None:
-            max_connections = int(_env_float("PLEXUS_DB_POOL", DEFAULT_POOL))
+            max_connections = int(_env_float("KNEWAT_DB_POOL", DEFAULT_POOL))
         if pool_timeout is None:
-            pool_timeout = _env_float("PLEXUS_DB_POOL_TIMEOUT", DEFAULT_POOL_TIMEOUT_S)
+            pool_timeout = _env_float("KNEWAT_DB_POOL_TIMEOUT", DEFAULT_POOL_TIMEOUT_S)
         self.loading_wait_s = (
-            _env_float("PLEXUS_DB_LOADING_WAIT_S", DEFAULT_LOADING_WAIT_S)
+            _env_float("KNEWAT_DB_LOADING_WAIT_S", DEFAULT_LOADING_WAIT_S)
             if loading_wait_s is None
             else loading_wait_s
         )

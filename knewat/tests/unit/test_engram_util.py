@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from plexus.engram.service import _jaccard, _tokens, fact_text, normalize
+from knewat.engram.service import _jaccard, _tokens, fact_text, normalize
 
 
 def test_normalize():
@@ -19,7 +19,7 @@ def test_fact_text():
 
 
 def test_every_engram_query_loads_and_modes():
-    from plexus.graph.queries import QueryLibrary
+    from knewat.graph.queries import QueryLibrary
 
     lib = QueryLibrary()
     names = lib.names("engram/")

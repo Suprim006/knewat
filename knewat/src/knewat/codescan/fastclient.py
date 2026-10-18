@@ -4,7 +4,7 @@
 ``import mcp`` costs about two seconds on a cold Windows machine, which would blow the budget of a Claude Code
 ``PostToolUse`` hook (it runs after EVERY edit and must finish in under 2 s). The hook only needs three requests of
 the streamable-HTTP transport (``initialize``, ``notifications/initialized``, ``tools/call``), so it speaks them
-directly. ``scan`` and ``baseline`` use the ``mcp`` package client (:mod:`plexus.codescan.client`); both are tested
+directly. ``scan`` and ``baseline`` use the ``mcp`` package client (:mod:`knewat.codescan.client`); both are tested
 against the same real server. Same interface: ``await session.call(tool, **args)``.
 """
 
@@ -18,7 +18,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any
 from urllib.parse import urlsplit
 
-from plexus.codescan.client import McpCallError, tenant_path, tool_arguments, tool_result
+from knewat.codescan.client import McpCallError, tenant_path, tool_arguments, tool_result
 
 PROTOCOL_VERSION = "2025-06-18"
 
@@ -29,7 +29,7 @@ class FastSession:
     def __init__(self, url: str, tenant: str, agent_id: str, deadline: float):
         parts = urlsplit(url)
         if parts.scheme not in ("http", "https") or not parts.hostname:
-            raise McpCallError(f"bad Plexus url '{url[:80]}'")
+            raise McpCallError(f"bad Knewat url '{url[:80]}'")
         self.url = url
         self.path = tenant_path(parts.path, tenant)
         self.agent_id = agent_id
@@ -62,7 +62,7 @@ class FastSession:
             data = resp.read().decode("utf-8", errors="replace")
         except (OSError, http.client.HTTPException) as exc:
             raise McpCallError(
-                f"cannot reach Plexus at {self.url}: {type(exc).__name__}: {exc}"[:200]
+                f"cannot reach Knewat at {self.url}: {type(exc).__name__}: {exc}"[:200]
             ) from exc
         sid = resp.getheader("Mcp-Session-Id")
         if sid:
@@ -75,7 +75,7 @@ class FastSession:
         if "text/event-stream" in content_type:
             events = [ln[5:].strip() for ln in data.splitlines() if ln.startswith("data:")]
             if not events:
-                raise McpCallError("empty event stream from the Plexus server")
+                raise McpCallError("empty event stream from the Knewat server")
             return json.loads(events[-1])
         return json.loads(data)
 
@@ -88,12 +88,12 @@ class FastSession:
                 "params": {
                     "protocolVersion": PROTOCOL_VERSION,
                     "capabilities": {},
-                    "clientInfo": {"name": "plexus-hook", "version": "0"},
+                    "clientInfo": {"name": "knewat-hook", "version": "0"},
                 },
             }
         )
         if status != 200:
-            raise McpCallError(f"Plexus answered HTTP {status} to initialize: {data[:120]}")
+            raise McpCallError(f"Knewat answered HTTP {status} to initialize: {data[:120]}")
         self._message(ctype, data)
         self._post({"jsonrpc": "2.0", "method": "notifications/initialized", "params": {}})
 
@@ -108,7 +108,7 @@ class FastSession:
             }
         )
         if status != 200:
-            raise McpCallError(f"Plexus answered HTTP {status} to {tool}: {data[:120]}")
+            raise McpCallError(f"Knewat answered HTTP {status} to {tool}: {data[:120]}")
         msg = self._message(ctype, data)
         if "error" in msg:
             raise McpCallError(str(msg["error"].get("message", msg["error"]))[:300])
@@ -142,7 +142,7 @@ def run_fast_session[T](
         return asyncio.run(fn(s))
     except (ValueError, KeyError, IndexError) as exc:  # a malformed reply
         raise McpCallError(
-            f"unexpected reply from the Plexus server: {type(exc).__name__}: {exc}"[:200]
+            f"unexpected reply from the Knewat server: {type(exc).__name__}: {exc}"[:200]
         ) from exc
     finally:
         s.close()

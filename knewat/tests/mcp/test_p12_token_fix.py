@@ -1,6 +1,6 @@
 """P12 token fix: recall's compact hits.
 
-The L8 token breakdown (``plexus.crucible.l8.token_breakdown``) found recall's full hits to be ~12% of the
+The L8 token breakdown (``knewat.crucible.l8.token_breakdown``) found recall's full hits to be ~12% of the
 P arm's tokens, 42% of each hit the provenance path no agent used. These tests pin what the compact hit
 must keep.
 """
@@ -11,9 +11,9 @@ import json
 
 import pytest
 
+from knewat.common import OPEN
+from knewat.mcp.tools_engram import compact_hit
 from mcp import Client
-from plexus.common import OPEN
-from plexus.mcp.tools_engram import compact_hit
 
 
 async def ok(c: Client, tool: str, /, **args) -> dict:

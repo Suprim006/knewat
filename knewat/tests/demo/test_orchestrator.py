@@ -9,10 +9,10 @@ from pathlib import Path
 
 import pytest
 
-from plexus.demo import orchestrator as orch
-from plexus.demo.engine import Turn, World
-from plexus.demo.engine import run as run_engine
-from plexus.demo.scenario import FaultScript, load_scenario
+from knewat.demo import orchestrator as orch
+from knewat.demo.engine import Turn, World
+from knewat.demo.engine import run as run_engine
+from knewat.demo.scenario import FaultScript, load_scenario
 
 from ..conftest import TEST_DB_HOST, TEST_DB_PORT
 from .conftest import rows
@@ -26,7 +26,7 @@ def _cfg(tmp_path, tenant, **kw) -> orch.ClaudeConfig:
         mcp_config=orch.write_mcp_config(
             tmp_path / "mcp.json",
             tenant,
-            "plexus-mcp",
+            "knewat-mcp",
             {"FALKORDB_HOST": TEST_DB_HOST, "FALKORDB_PORT": str(TEST_DB_PORT)},  # never the dev DB on 6379
         ),
         launcher=FAKE,
@@ -44,7 +44,7 @@ def test_command_line_is_locked_down(tmp_path):
     )
     cmd = orch.build_command(cfg, "do it", "be a planner")
     assert cmd[:3] == ["claude", "-p", "do it"]
-    assert "--strict-mcp-config" in cmd and cmd[cmd.index("--allowedTools") + 1] == "mcp__plexus__*"
+    assert "--strict-mcp-config" in cmd and cmd[cmd.index("--allowedTools") + 1] == "mcp__knewat__*"
     assert cmd[cmd.index("--tools") + 1] == ""  # no built-in tools at all
     assert cmd[cmd.index("--max-turns") + 1] == "20" and cmd[cmd.index("--model") + 1] == "sonnet"
     assert cmd[cmd.index("--output-format") + 1] == "stream-json" and "--verbose" in cmd
@@ -57,9 +57,9 @@ def test_env_drops_the_api_key():
 
 
 def test_mcp_config_binds_the_run_tenant(tmp_path):
-    p = orch.write_mcp_config(tmp_path / "m.json", "run_a", "C:/x/plexus-mcp.exe", {"FALKORDB_PORT": "6386"})
-    srv = json.loads(p.read_text())["mcpServers"]["plexus"]
-    assert srv["command"] == "C:/x/plexus-mcp.exe"
+    p = orch.write_mcp_config(tmp_path / "m.json", "run_a", "C:/x/knewat-mcp.exe", {"FALKORDB_PORT": "6386"})
+    srv = json.loads(p.read_text())["mcpServers"]["knewat"]
+    assert srv["command"] == "C:/x/knewat-mcp.exe"
     assert srv["args"] == ["--transport", "stdio", "--tenant", "run_a"]
     assert srv["env"]["FALKORDB_PORT"] == "6386"
 
@@ -134,8 +134,8 @@ def test_transcripts_are_sanitised(tmp_path):
         "cwd": str(tmp_path),
         "slash_commands": ["private-plugin:thing"],
         "plugins": ["x"],
-        "tools": ["mcp__plexus__recall"],
-        "mcp_servers": [{"name": "plexus", "status": "connected"}],
+        "tools": ["mcp__knewat__recall"],
+        "mcp_servers": [{"name": "knewat", "status": "connected"}],
         "model": "claude-x",
     }
     other = {"type": "user", "note": f"path {tmp_path} and {Path.home()}"}

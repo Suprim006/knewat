@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from plexus.codescan import workflow
-from plexus.codescan.paths import canonical_path
-from plexus.codescan.workflow import FileTooLarge, read_working, working_groups
+from knewat.codescan import workflow
+from knewat.codescan.paths import canonical_path
+from knewat.codescan.workflow import FileTooLarge, read_working, working_groups
 
 
 def test_read_working_tells_missing_from_oversize(tmp_path, monkeypatch):

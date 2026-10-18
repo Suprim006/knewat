@@ -1,6 +1,6 @@
 import pytest
 
-from plexus.relay import InvalidDag, UnknownReference
+from knewat.relay import InvalidDag, UnknownReference
 
 LEASE = 10_000
 

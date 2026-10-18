@@ -8,12 +8,12 @@ from pathlib import Path
 
 import pytest
 
+from knewat.crucible.l3.baseline_mcp import build_baseline_server
+from knewat.crucible.l3.run import BackendWorld, headline_l3, transcript_metrics
+from knewat.demo.engine import run as run_engine
+from knewat.demo.scenario import FaultScript, load_scenario
+from knewat.demo.scripted import ScriptedDriver
 from mcp import Client
-from plexus.crucible.l3.baseline_mcp import build_baseline_server
-from plexus.crucible.l3.run import BackendWorld, headline_l3, transcript_metrics
-from plexus.demo.engine import run as run_engine
-from plexus.demo.scenario import FaultScript, load_scenario
-from plexus.demo.scripted import ScriptedDriver
 
 TOOLS = {
     "start_session", "remember_episode", "add_source", "assert_fact", "recall", "create_tasks", "claim_next_task",
@@ -33,7 +33,7 @@ def play_team(backend, **faults):
     return w
 
 
-def test_server_exposes_the_plexus_tool_names_and_arguments():
+def test_server_exposes_the_knewat_tool_names_and_arguments():
     async def names(backend):
         async with Client(build_baseline_server(backend)) as mcp:
             return {t.name: t for t in (await mcp.list_tools()).tools}
@@ -51,10 +51,10 @@ def test_server_exposes_the_plexus_tool_names_and_arguments():
         mine = set(tools[name].input_schema["properties"])
         theirs = set(real[name]["inputSchema"]["properties"]) - {
             "audit"
-        }  # P9-e: Plexus-only audit level on reads
-        if name == "recall":  # P7-K: optional Plexus-only arguments (forgetting, hops); baselines have none
+        }  # P9-e: Knewat-only audit level on reads
+        if name == "recall":  # P7-K: optional Knewat-only arguments (forgetting, hops); baselines have none
             theirs -= {"include_dormant", "forgetting", "hops", "detail"}  # P9-b: hops; P12: detail
-        if name == "assert_fact":  # P13: multi-source provenance is Plexus-only; baselines take one source_id
+        if name == "assert_fact":  # P13: multi-source provenance is Knewat-only; baselines take one source_id
             theirs -= {"source_ids"}
         assert mine == theirs, (name, mine ^ theirs)
 
@@ -80,7 +80,7 @@ def test_transcript_metrics_counts_the_agents_own_calls():
             {
                 "type": "assistant",
                 "message": {
-                    "content": [{"type": "tool_use", "id": i, "name": f"mcp__plexus__{name}", "input": inp}]
+                    "content": [{"type": "tool_use", "id": i, "name": f"mcp__knewat__{name}", "input": inp}]
                 },
             }
         )

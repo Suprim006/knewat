@@ -6,10 +6,10 @@ import json
 
 import pytest
 
-from plexus.demo.inventory import inventory
-from plexus.demo.recorder import DUMP_NAME, META_NAME, list_recordings, record_run
-from plexus.demo.replay import ReplayError, replay
-from plexus.graph.tenancy import graph_name
+from knewat.demo.inventory import inventory
+from knewat.demo.recorder import DUMP_NAME, META_NAME, list_recordings, record_run
+from knewat.demo.replay import ReplayError, replay
+from knewat.graph.tenancy import graph_name
 
 from .conftest import rows
 
@@ -29,7 +29,7 @@ def test_record_then_replay_round_trips(client, scripted_run, demo_tenants, tmp_
     res = replay(client, "unit-run", target, root=tmp_path)
     assert res["matches"] and res["inventory"] == on_disk["inventory"]
 
-    # the restored graph is a working Plexus graph: same facts, edges, vectors and indexes
+    # the restored graph is a working Knewat graph: same facts, edges, vectors and indexes
     q = "MATCH (f:Fact) RETURN f.predicate, f.value, f.status ORDER BY f.predicate, f.value"
     assert rows(client, target, q) == rows(client, tenant, q)
     assert rows(client, target, "MATCH (f:Fact) WHERE f.embedding IS NOT NULL RETURN count(f)")[0][0] > 0
@@ -56,7 +56,7 @@ def test_bad_run_names_are_rejected(client, tmp_path):
 
 
 def _committed_runs():
-    from plexus.demo.scenario import recordings_dir
+    from knewat.demo.scenario import recordings_dir
 
     return sorted(p.parent.name for p in recordings_dir().glob("*/meta.json"))
 
@@ -69,7 +69,7 @@ def test_committed_recordings_exist():
 @pytest.mark.parametrize("run", _committed_runs())
 def test_committed_recordings_replay_to_their_recorded_counts(client, demo_tenants, run):
     """Every recording shipped in demo_data/recordings restores on this FalkorDB and matches its meta.json."""
-    from plexus.demo.recorder import load_meta
+    from knewat.demo.recorder import load_meta
 
     meta = load_meta(run)
     tenant = demo_tenants()

@@ -1,7 +1,7 @@
 """B1h: the B1 SQLite store plus the one table a hand-written SQL answerer needs that B1 never kept: the claim history.
 
 B1 keeps only a task's final claimer (``tasks.claimed_by``), so "which tasks were reclaimed after a lease expired, and from
-whom" is not answerable from its tables, while Plexus keeps a ``CLAIMED {reclaimed_from}`` edge per claim. A competent SQL
+whom" is not answerable from its tables, while Knewat keeps a ``CLAIMED {reclaimed_from}`` edge per claim. A competent SQL
 design would keep the same fact in a table, written in the SAME ``BEGIN IMMEDIATE`` transaction as the claim, so that is all
 this subclass adds. Nothing else differs from :class:`SqliteBackend` (same schema, same indexes, same transactions); the L2
 context builders read a fixed table list (``contexts.B1_TABLES``), so the B1 baseline's artifacts are unchanged.
@@ -12,10 +12,10 @@ from __future__ import annotations
 import sqlite3
 from typing import Any
 
-from plexus.crucible.api import UnknownReference
-from plexus.crucible.backends.base import check_lease, claim_result
-from plexus.crucible.backends.sqlite import SqliteBackend
-from plexus.crucible.util import now_ms
+from knewat.crucible.api import UnknownReference
+from knewat.crucible.backends.base import check_lease, claim_result
+from knewat.crucible.backends.sqlite import SqliteBackend
+from knewat.crucible.util import now_ms
 
 CLAIMS_SCHEMA = """
 CREATE TABLE IF NOT EXISTS claims(

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.engram import OPEN
+from knewat.engram import OPEN
 
 
 def _facts(client, graph, status=None):

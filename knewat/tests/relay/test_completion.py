@@ -1,6 +1,6 @@
 import pytest
 
-from plexus.relay import ClaimConflict, DuplicateArtifact, InvalidDag, UnknownReference
+from knewat.relay import ClaimConflict, DuplicateArtifact, InvalidDag, UnknownReference
 
 LEASE = 10_000
 

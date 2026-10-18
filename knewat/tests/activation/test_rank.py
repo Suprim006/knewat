@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.activation import FactActivation, Settings
-from plexus.activation.model import DAY_MS, Event, activation, neutral_activation
-from plexus.activation.rank import rerank
+from knewat.activation import FactActivation, Settings
+from knewat.activation.model import DAY_MS, Event, activation, neutral_activation
+from knewat.activation.rank import rerank
 
 NOW = 5_000 * DAY_MS
 S = Settings(

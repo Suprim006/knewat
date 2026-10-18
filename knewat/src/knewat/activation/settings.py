@@ -1,11 +1,11 @@
 """Activation settings, read from the environment (defaults in brackets).
 
-Forgetting (D-012): ``PLEXUS_FORGETTING`` [on] (``on``/``off``) · ``PLEXUS_ACT_EVENTS`` [50] ·
-``PLEXUS_ACT_A0`` [the activation of a fact created once, one day ago] · ``PLEXUS_ACT_DECAY`` [0.5] ·
-``PLEXUS_ACT_FLOOR`` [0.9].
+Forgetting (D-012): ``KNEWAT_FORGETTING`` [on] (``on``/``off``) · ``KNEWAT_ACT_EVENTS`` [50] ·
+``KNEWAT_ACT_A0`` [the activation of a fact created once, one day ago] · ``KNEWAT_ACT_DECAY`` [0.5] ·
+``KNEWAT_ACT_FLOOR`` [0.9].
 
-Pattern separation (D-013 P1): ``PLEXUS_RECALL_SEPARATION`` [on] · ``PLEXUS_ACT_CUE_S`` [5] ·
-``PLEXUS_ACT_W_ENTITY`` [0.03] · ``PLEXUS_ACT_W_PREDICATE`` [0.02] · ``PLEXUS_ACT_SMAX`` [ln 50] (the fan at
+Pattern separation (D-013 P1): ``KNEWAT_RECALL_SEPARATION`` [on] · ``KNEWAT_ACT_CUE_S`` [5] ·
+``KNEWAT_ACT_W_ENTITY`` [0.03] · ``KNEWAT_ACT_W_PREDICATE`` [0.02] · ``KNEWAT_ACT_SMAX`` [ln 50] (the fan at
 which the sibling expansion of ``engram/recall`` is damped to nothing).
 """
 
@@ -16,8 +16,8 @@ import os
 from collections.abc import Mapping
 from dataclasses import dataclass
 
-from plexus.activation.model import neutral_activation
-from plexus.activation.score import CUE_S_DEFAULT, W_ENTITY_DEFAULT, W_PREDICATE_DEFAULT
+from knewat.activation.model import neutral_activation
+from knewat.activation.score import CUE_S_DEFAULT, W_ENTITY_DEFAULT, W_PREDICATE_DEFAULT
 
 MAX_EVENTS = 200
 _ON = {"on", "1", "true", "yes"}
@@ -43,15 +43,15 @@ class Settings:
 
     def __post_init__(self) -> None:
         if not 0.0 < self.decay <= 2.0:
-            raise ValueError("PLEXUS_ACT_DECAY must be in (0, 2]")
+            raise ValueError("KNEWAT_ACT_DECAY must be in (0, 2]")
         if not 0.0 <= self.floor <= 1.0:
-            raise ValueError("PLEXUS_ACT_FLOOR must be between 0 and 1")
+            raise ValueError("KNEWAT_ACT_FLOOR must be between 0 and 1")
         if not 1 <= self.events <= MAX_EVENTS:
-            raise ValueError(f"PLEXUS_ACT_EVENTS must be between 1 and {MAX_EVENTS}")
-        for name, v in (("PLEXUS_ACT_W_ENTITY", self.w_entity), ("PLEXUS_ACT_W_PREDICATE", self.w_predicate)):
+            raise ValueError(f"KNEWAT_ACT_EVENTS must be between 1 and {MAX_EVENTS}")
+        for name, v in (("KNEWAT_ACT_W_ENTITY", self.w_entity), ("KNEWAT_ACT_W_PREDICATE", self.w_predicate)):
             if not 0.0 <= v <= 10.0:
                 raise ValueError(f"{name} must be between 0 and 10")
-        for name, v, hi in (("PLEXUS_ACT_SMAX", self.s_max, 20.0), ("PLEXUS_ACT_CUE_S", self.cue_s, 20.0)):
+        for name, v, hi in (("KNEWAT_ACT_SMAX", self.s_max, 20.0), ("KNEWAT_ACT_CUE_S", self.cue_s, 20.0)):
             if not 0.0 < v <= hi:
                 raise ValueError(f"{name} must be in (0, {hi:g}]")
 
@@ -78,22 +78,22 @@ class Settings:
             v = get(name)
             return default if v is None else float(v)
 
-        forgetting = flag("PLEXUS_FORGETTING")
-        separation = flag("PLEXUS_RECALL_SEPARATION")
+        forgetting = flag("KNEWAT_FORGETTING")
+        separation = flag("KNEWAT_RECALL_SEPARATION")
         try:
             return cls(
-                decay=num("PLEXUS_ACT_DECAY", 0.5),
-                a0=float(v) if (v := get("PLEXUS_ACT_A0")) is not None else None,
-                floor=num("PLEXUS_ACT_FLOOR", 0.9),
-                events=int(get("PLEXUS_ACT_EVENTS") or 50),
+                decay=num("KNEWAT_ACT_DECAY", 0.5),
+                a0=float(v) if (v := get("KNEWAT_ACT_A0")) is not None else None,
+                floor=num("KNEWAT_ACT_FLOOR", 0.9),
+                events=int(get("KNEWAT_ACT_EVENTS") or 50),
                 forgetting=forgetting,
                 separation=separation,
-                s_max=num("PLEXUS_ACT_SMAX", S_MAX_DEFAULT),
-                cue_s=num("PLEXUS_ACT_CUE_S", CUE_S_DEFAULT),
-                w_entity=num("PLEXUS_ACT_W_ENTITY", W_ENTITY_DEFAULT),
-                w_predicate=num("PLEXUS_ACT_W_PREDICATE", W_PREDICATE_DEFAULT),
+                s_max=num("KNEWAT_ACT_SMAX", S_MAX_DEFAULT),
+                cue_s=num("KNEWAT_ACT_CUE_S", CUE_S_DEFAULT),
+                w_entity=num("KNEWAT_ACT_W_ENTITY", W_ENTITY_DEFAULT),
+                w_predicate=num("KNEWAT_ACT_W_PREDICATE", W_PREDICATE_DEFAULT),
             )
         except ValueError as exc:
-            if "PLEXUS_" in str(exc):
+            if "KNEWAT_" in str(exc):
                 raise
-            raise ValueError(f"invalid PLEXUS_ACT_* / PLEXUS_FORGETTING setting: {exc}") from None
+            raise ValueError(f"invalid KNEWAT_ACT_* / KNEWAT_FORGETTING setting: {exc}") from None

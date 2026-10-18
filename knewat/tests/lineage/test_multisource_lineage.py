@@ -16,10 +16,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.lineage import Lineage
-from plexus.relay import Relay
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.lineage import Lineage
+from knewat.relay import Relay
 
 from .conftest import cypher
 

@@ -1,9 +1,9 @@
 """Run Layer 2: play the scenario on every arm, answer the questions, score them, write the ``L2`` layer.
 
-    python -m plexus.crucible.l2.run questions                       # regenerate demo_data/crucible/questions.yaml
-    python -m plexus.crucible.l2.run run --mode pilot --port 6378     # 5 questions x B0,B1,B2 with claude -p, + P
-    python -m plexus.crucible.l2.run run --mode full  --port 6378     # all questions
-    python -m plexus.crucible.l2.run merge --into results.json --l2 demo_data/crucible/l2/<run>/results.json
+    python -m knewat.crucible.l2.run questions                       # regenerate demo_data/crucible/questions.yaml
+    python -m knewat.crucible.l2.run run --mode pilot --port 6378     # 5 questions x B0,B1,B2 with claude -p, + P
+    python -m knewat.crucible.l2.run run --mode full  --port 6378     # all questions
+    python -m knewat.crucible.l2.run merge --into results.json --l2 demo_data/crucible/l2/<run>/results.json
 
 ``results.json`` has the same envelope as H's (``schema_version``, ``run``, ``environment``, ``config``, ``arms``,
 ``layers``, ``summary``, ``honesty``); the L2 numbers live in ``layers["L2"]`` (shape: :func:`assemble_layer`).
@@ -24,14 +24,14 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible import results as H
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import open_backend
-from plexus.crucible.l2 import contexts as C
-from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner, LlmCall
-from plexus.crucible.l2.plexus_answerer import PlexusAnswerer
-from plexus.crucible.l2.questions import (
+from knewat.crucible import environment
+from knewat.crucible import results as H
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import open_backend
+from knewat.crucible.l2 import contexts as C
+from knewat.crucible.l2.knewat_answerer import KnewatAnswerer
+from knewat.crucible.l2.llm import USAGE_KEYS, BudgetExceeded, ClaudeRunner, LlmCall
+from knewat.crucible.l2.questions import (
     FAMILIES,
     Question,
     dump_questions,
@@ -41,8 +41,8 @@ from plexus.crucible.l2.questions import (
     scenario_summary,
     score,
 )
-from plexus.crucible.l2.scenario import Ledger, play
-from plexus.crucible.util import fmt_ms, iso_utc, percentile, run_stamp
+from knewat.crucible.l2.scenario import Ledger, play
+from knewat.crucible.util import fmt_ms, iso_utc, percentile, run_stamp
 
 PKG = Path(__file__).resolve()
 DEMO_DATA = PKG.parents[4] / "demo_data" / "crucible"
@@ -63,11 +63,11 @@ ANSWERERS = {
 L2_HONESTY = [
     "L2: exact-match accuracy over a script-derived question set (43 questions, 10 families), one scenario, one model, one run per question; no LLM judge anywhere. Ground truth is computed from the scenario script, not read back from any arm.",
     "Baselines are the same unmodified `claude -p` with no tools, shown their own artifacts at the same 32,000-character cap. At this scenario size the B0 and B1 artifacts fit in the cap without truncation, so the cap is not what limits them; B2 deliberately sees only its top-12 retrieved chunks.",
-    "Result in plain words: at this scenario size (12 tasks, 9 facts, 6 decisions) the whole B0 run is about 25k characters and the whole B1 dump about 18k, so Sonnet reads everything and answers every question; Plexus TIES them on accuracy. What Plexus does measurably better here is cost and determinism (no tokens, a few milliseconds, same answer every time versus 13-16k tokens and ~5 s per question). Whether accuracy diverges when the artifacts outgrow the context cap is NOT measured by this run.",
+    "Result in plain words: at this scenario size (12 tasks, 9 facts, 6 decisions) the whole B0 run is about 25k characters and the whole B1 dump about 18k, so Sonnet reads everything and answers every question; Knewat TIES them on accuracy. What Knewat does measurably better here is cost and determinism (no tokens, a few milliseconds, same answer every time versus 13-16k tokens and ~5 s per question). Whether accuracy diverges when the artifacts outgrow the context cap is NOT measured by this run.",
     "Arm P answers each question with a hand-written Cypher statement per question family. That is the point of the comparison (a graph can answer these with one query) but it is also engineering effort the baselines do not get: the baselines were given no hand-written SQL or grep helpers either.",
     "The Procedures family of BASELINE §2 is not in this set: the backend protocol has no procedure tool, so the arms cannot be compared on it. Cross-session recall is reduced to episodes recorded by agents (the protocol has no sessions).",
     "The scenario is the P3 Acme script replayed on the backend protocol, plus three L2 additions (the forum-post poison fault, one extra builder decision, two project-scoped facts); see crucible/l2/scenario.py.",
-    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Plexus's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
+    "B1 and B2 (and B0's task file) keep only a task's final claimer, not the claim history; only B0's per-agent logs and Knewat's CLAIMED edges record who held an expired lease. Recovery questions therefore test what each arm's artifacts actually contain, as configured in L1.",
 ]
 
 
@@ -151,10 +151,10 @@ def grade_call(q: Question, call: LlmCall) -> tuple[bool, str, Any]:
     return ok, why, call.answer
 
 
-def answer_plexus(
+def answer_knewat(
     p: Prepared, qs: list[Question], client: Any, log: Callable[[str], None]
 ) -> list[dict[str, Any]]:
-    ans = PlexusAnswerer(client, p.tenant)
+    ans = KnewatAnswerer(client, p.tenant)
     rows = []
     for q in qs:
         try:
@@ -308,7 +308,7 @@ def assemble_layer(
         "b2_top_k": C.B2_TOP_K,
         "budget_usd": budget_usd,
         "question_set": {
-            "path": "plexus/demo_data/crucible/questions.yaml",
+            "path": "knewat/demo_data/crucible/questions.yaml",
             "sha256": qhash,
             "total": len(all_qs),
             "asked": len(qs),
@@ -333,7 +333,7 @@ def headline_l2(layer: dict[str, Any]) -> list[str]:
     for a, v in arms.items():
         acc = v["accuracy"]
         usage = v["usage"]
-        who = "Plexus (deterministic Cypher)" if a == "P" else f"{a} + claude -p ({layer['model']})"
+        who = "Knewat (deterministic Cypher)" if a == "P" else f"{a} + claude -p ({layer['model']})"
         extra = (
             ""
             if a == "P"
@@ -352,7 +352,7 @@ def headline_l2(layer: dict[str, Any]) -> list[str]:
             ]
             word = "ties" if diff == 0 else ("beats" if diff > 0 else "trails")
             out.append(
-                f"L2: Plexus {word} {a} by {abs(diff):.1f} points"
+                f"L2: Knewat {word} {a} by {abs(diff):.1f} points"
                 + (f"; {a} is ahead on {', '.join(lost)}" if lost else "")
                 + "."
             )
@@ -507,7 +507,7 @@ def run_l2(
     runner = ClaudeRunner(model, cache_dir=cache_dir, budget_usd=budget_usd, launcher=launcher)
     emb = None
     if "B2" in arms:
-        from plexus.embed import get_embedder
+        from knewat.embed import get_embedder
 
         emb = get_embedder(embedder)
     prepared: dict[str, Prepared] = {}
@@ -526,10 +526,10 @@ def run_l2(
                 f"{arm}: scenario played ({len(p.ledger.facts)} facts, {len(p.ledger.decisions)} decisions); ledger matches the reference"
             )
             if arm == "P":
-                from plexus.graph.client import GraphClient
+                from knewat.graph.client import GraphClient
 
                 client = GraphClient(host=host, port=port)
-                rows = answer_plexus(p, qs, client, log)
+                rows = answer_knewat(p, qs, client, log)
                 results[arm] = arm_summary(arm, rows, True, None)
             else:
                 rows, done = answer_baseline(p, qs, runner, emb, log, out_root / run_id)
@@ -554,7 +554,7 @@ def run_l2(
             "Scoring rule for the baselines: the model may reason in prose first, but the reply must END with exactly one "
             '{"answer": ...} JSON object (no text after it); that object is compared by exact match. '
             "`accuracy_whole_reply_json` is the stricter variant where only replies that are nothing but the JSON object "
-            "count. The first full run used the whole-reply rule and scored B0 36/43, B1 38/43, B2 39/43 (Plexus 43/43): 13 baseline replies had a sentence of reasoning before a correct JSON object and were counted as unparseable. The rule was changed to the one above after seeing that (a methodology fix made with the results in view, so treat it as such), and every number was recomputed from the cached replies without any new LLM call. Both variants are reported."
+            "count. The first full run used the whole-reply rule and scored B0 36/43, B1 38/43, B2 39/43 (Knewat 43/43): 13 baseline replies had a sentence of reasoning before a correct JSON object and were counted as unparseable. The rule was changed to the one above after seeing that (a methodology fix made with the results in view, so treat it as such), and every number was recomputed from the cached replies without any new LLM call. Both variants are reported."
         )
         if mode == "pilot":
             notes.append(
@@ -632,7 +632,7 @@ def main(argv: list[str] | None = None) -> int:
     doc, d = run_l2(
         mode=a.mode, arms=arms, model=a.model, budget_usd=a.budget_usd, host=a.host, port=a.port,
         embedder=a.embedder, out_root=a.out, cache_dir=a.cache, log=lambda s: print(s, flush=True),
-        command="python -m plexus.crucible.l2.run " + " ".join(argv if argv is not None else sys.argv[1:]),
+        command="python -m knewat.crucible.l2.run " + " ".join(argv if argv is not None else sys.argv[1:]),
         question_ids=tuple(x for x in a.ids.split(",") if x) or None, keep_graph=a.keep_graph,
     )  # fmt: skip
     for h in doc["summary"]["headline"]:

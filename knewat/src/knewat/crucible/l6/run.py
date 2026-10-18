@@ -1,9 +1,9 @@
 """L6 runner: deterministic arms (A, A-dag, B, D), concurrency (E), crash-consistency (F) and the combined L6 layer.
 
-    python -m plexus.crucible.l6.run det    --port 6361          # A, A-dag, B, D: P-naive/P-anchored/P-tuned/B1h/B1h-untuned/P-pre
-    python -m plexus.crucible.l6.run conc   --port 6361 --runs 10 --seconds 6
-    python -m plexus.crucible.l6.run crash  --port 6361 --kills 200
-    python -m plexus.crucible.l6.run layer                         # merge the latest of each into demo_data/crucible/l6/latest.json
+    python -m knewat.crucible.l6.run det    --port 6361          # A, A-dag, B, D: P-naive/P-anchored/P-tuned/B1h/B1h-untuned/P-pre
+    python -m knewat.crucible.l6.run conc   --port 6361 --runs 10 --seconds 6
+    python -m knewat.crucible.l6.run crash  --port 6361 --kills 200
+    python -m knewat.crucible.l6.run layer                         # merge the latest of each into demo_data/crucible/l6/latest.json
 
 Every command writes ``demo_data/crucible/l6/<stamp>-<kind>/results.json`` and a ``latest-<kind>.json`` copy. A result
 records the git commit and whether the tree was dirty. No LLM is called here (the pilot is ``l6.pilot``).
@@ -25,16 +25,16 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible.l6 import arms_a as A
-from plexus.crucible.l6 import arms_b as B
-from plexus.crucible.l6 import arms_d as D
-from plexus.crucible.l6 import conc, crash
-from plexus.crucible.l6 import score as SC
-from plexus.crucible.l6 import stores as S
-from plexus.crucible.l6 import world as W
-from plexus.crucible.util import iso_utc, percentile, run_stamp
-from plexus.graph.client import GraphClient
+from knewat.crucible import environment
+from knewat.crucible.l6 import arms_a as A
+from knewat.crucible.l6 import arms_b as B
+from knewat.crucible.l6 import arms_d as D
+from knewat.crucible.l6 import conc, crash
+from knewat.crucible.l6 import score as SC
+from knewat.crucible.l6 import stores as S
+from knewat.crucible.l6 import world as W
+from knewat.crucible.util import iso_utc, percentile, run_stamp
+from knewat.graph.client import GraphClient
 
 PKG = Path(__file__).resolve()
 DEMO = PKG.parents[4] / "demo_data" / "crucible" / "l6"
@@ -155,14 +155,14 @@ def det_a(
     only: set[str] | None = None,
 ) -> dict[str, Any]:
     """Family A, all arms; ``only`` restricts it to the named arms (the P9-int post-fix re-run)."""
-    from plexus.lineage.service import Lineage
+    from knewat.lineage.service import Lineage
 
     t = time.time()
     w, qs = W.gen_a(scale)
     log(f"A: world {w.counts()} generated in {time.time() - t:.1f}s")
     p_tuned, _ = S.build_sqlite(w, tmp, "a_tuned", tuned=True)
     p_untuned, _ = S.build_sqlite(w, tmp, "a_untuned", tuned=False)
-    name, _ = S.load_plexus(w, client, "l6_a")
+    name, _ = S.load_knewat(w, client, "l6_a")
     g = client.graph(name)
     arms: dict[str, Callable[[Any], tuple[Any, dict[str, Any]]]] = {
         "B1h": A.SqlArm(p_tuned).blast, "B1h-untuned": A.SqlArm(p_untuned, tuned=False).blast,
@@ -212,13 +212,13 @@ def det_a(
 
 
 def det_dag(client: GraphClient, tmp: Path, log: Callable[[str], None]) -> dict[str, Any]:
-    from plexus.relay.service import Relay
+    from knewat.relay.service import Relay
 
     rows: dict[str, list[dict[str, Any]]] = {}
     for layers in (8, 12, 16, 20, 24):
         w, q = W.gen_dag(layers)
         path, _ = S.build_sqlite(w, tmp, f"dag{layers}")
-        name, _ = S.load_plexus(w, client, f"l6_dag{layers}")
+        name, _ = S.load_knewat(w, client, f"l6_dag{layers}")
         g = client.graph(name)
         relay = Relay(client, name)
 
@@ -263,11 +263,11 @@ def det_dag(client: GraphClient, tmp: Path, log: Callable[[str], None]) -> dict[
 
 
 def det_b(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: float = 1.0) -> dict[str, Any]:
-    from plexus.lineage.service import Lineage
+    from knewat.lineage.service import Lineage
 
     w, qs = W.gen_b(scale)
     path, _ = S.build_sqlite(w, tmp, "b")
-    name, _ = S.load_plexus(w, client, "l6_b")
+    name, _ = S.load_knewat(w, client, "l6_b")
     g = client.graph(name)
     arms: dict[str, Callable[[Any], tuple[Any, dict[str, Any]]]] = {
         "B1h": B.SqlB(path).answer, "P-tuned": B.TunedB(g).answer, "P-naive": B.NaiveB(g).answer,
@@ -297,7 +297,7 @@ def det_b(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: flo
 def det_d(client: GraphClient, tmp: Path, log: Callable[[str], None], scale: float = 1.0) -> dict[str, Any]:
     w, qs = W.gen_d(scale)
     path, _ = S.build_sqlite(w, tmp, "d")
-    name, _ = S.load_plexus(w, client, "l6_d")
+    name, _ = S.load_knewat(w, client, "l6_d")
     g = client.graph(name)
     out = {
         "B1h": measure("B1h", "D", qs, D.SqlD(path).answer, template=lambda q: q.template),
@@ -353,7 +353,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     log: Callable[[str], None] = lambda s: print(s, flush=True)  # noqa: E731
     started = time.time()
-    cmd = "python -m plexus.crucible.l6.run " + " ".join(argv if argv is not None else sys.argv[1:])
+    cmd = "python -m knewat.crucible.l6.run " + " ".join(argv if argv is not None else sys.argv[1:])
     if a.cmd == "layer":
         print(json.dumps(build_layer(a.out)["summary"], indent=1))
         return 0
@@ -390,7 +390,7 @@ def main(argv: list[str] | None = None) -> int:
                     "P": crash.kill_loop("P", a.kills, root, tenant, a.host, a.port, 20261016, log=log)
                 }
             finally:
-                from plexus.graph.tenancy import graph_name
+                from knewat.graph.tenancy import graph_name
 
                 client.delete_graph(graph_name(tenant))
                 shutil.rmtree(root, ignore_errors=True)
@@ -423,7 +423,7 @@ def main(argv: list[str] | None = None) -> int:
                 tenant = f"l6f_{arm.lower()}_{int(time.time()) % 100000}"
                 res[arm] = crash.kill_loop(arm, a.kills, root, tenant, a.host, a.port, 20261016, log=log)
                 if arm == "P":
-                    from plexus.graph.tenancy import graph_name
+                    from knewat.graph.tenancy import graph_name
 
                     client.delete_graph(graph_name(tenant))
                 shutil.rmtree(root, ignore_errors=True)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import UnknownStep
+from knewat.lineage import UnknownStep
 
 from .conftest import cypher
 

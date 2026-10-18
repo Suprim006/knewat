@@ -8,7 +8,7 @@ depends on the deepest task of a chain (level 9). In any snapshot both are block
 
 from __future__ import annotations
 
-from plexus.relay import Relay
+from knewat.relay import Relay
 from tests.lineage.test_p9f_snapshot_reads import _race
 
 CHAIN = 8

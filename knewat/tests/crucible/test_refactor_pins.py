@@ -7,12 +7,12 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.api import ClaimConflict, UnknownReference
-from plexus.crucible.backends import base
-from plexus.crucible.harness import RunResult
-from plexus.crucible.report import render
+from knewat.crucible.api import ClaimConflict, UnknownReference
+from knewat.crucible.backends import base
+from knewat.crucible.harness import RunResult
+from knewat.crucible.report import render
 
-RESULTS = Path(__file__).resolve().parents[2] / "src" / "plexus" / "crucible" / "results" / "20261014T204729Z"
+RESULTS = Path(__file__).resolve().parents[2] / "src" / "knewat" / "crucible" / "results" / "20261014T204729Z"
 
 
 def test_report_renders_byte_identical_to_the_committed_one():

@@ -132,7 +132,7 @@ def test_limit_and_implicit_anchors(stale, mem):
 
 
 def test_the_ranking_hook_can_reorder(client, graph, eng, clock, mem):
-    from plexus.staleness import Staleness
+    from knewat.staleness import Staleness
 
     a, b = _anchored(Staleness(client, graph, engram=eng, clock=clock), mem, pred="a", value="1"), None
     s = Staleness(client, graph, engram=eng, clock=clock, rank=lambda rows: list(reversed(rows)))

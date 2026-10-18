@@ -10,13 +10,13 @@ import json
 import pytest
 from redis.exceptions import ConnectionError as RedisConnectionError
 
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.lineage import Lineage
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
+from knewat.relay import Relay
 from mcp import Client
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.lineage import Lineage
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
-from plexus.relay import Relay
 
 
 async def ok(c: Client, tool: str, /, **args) -> dict:
@@ -157,7 +157,7 @@ async def test_failed_audit_row_is_reported(monkeypatch, server):
     def boom(*a, **kw):
         raise RedisConnectionError("down")
 
-    monkeypatch.setattr("plexus.mcp.runtime.record_tool_call", boom)
+    monkeypatch.setattr("knewat.mcp.runtime.record_tool_call", boom)
     async with Client(server) as c:
         r = await ok(c, "assert_fact", agent_id="a", subject="S", predicate="p", value="v")
         assert r["audit_degraded"] is True and "tool_call_id" not in r and r["fact_id"]

@@ -16,13 +16,13 @@ import re
 import pytest
 from tests.plan_util import BIG, max_records, profile_ops, seed_big_scope
 
-from plexus.activation import Activation, Settings
-from plexus.activation import score as S
-from plexus.embed import HashEmbedder
-from plexus.embed.base import DIM
-from plexus.engram import Engram
-from plexus.engram import service as svc
-from plexus.lineage import Lineage
+from knewat.activation import Activation, Settings
+from knewat.activation import score as S
+from knewat.embed import HashEmbedder
+from knewat.embed.base import DIM
+from knewat.engram import Engram
+from knewat.engram import service as svc
+from knewat.lineage import Lineage
 
 WE, WP = S.W_ENTITY_DEFAULT, S.W_PREDICATE_DEFAULT
 _MARK = re.compile(r"~(\d+\.\d+)")

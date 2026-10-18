@@ -6,10 +6,10 @@ import math
 
 import pytest
 
-from plexus.activation import FactActivation, Settings
-from plexus.activation import score as S
-from plexus.activation.model import DAY_MS, Event, activation
-from plexus.activation.rank import lures_of, rerank
+from knewat.activation import FactActivation, Settings
+from knewat.activation import score as S
+from knewat.activation.model import DAY_MS, Event, activation
+from knewat.activation.rank import lures_of, rerank
 
 NOW = 5_000 * DAY_MS
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from plexus.graph.queries import QueryLibrary
+from knewat.graph.queries import QueryLibrary
 
 ROOT = Path(__file__).resolve().parents[2]
 QUERIES_MD = (ROOT / "docs" / "queries.md").read_text(encoding="utf-8")
@@ -27,7 +27,7 @@ def test_docs_queries_md_names_no_query_that_does_not_exist():
 
 
 def test_graph_model_mentions_every_indexed_label_and_property():
-    idx = (ROOT / "plexus" / "queries" / "schema" / "indexes.cypher").read_text(encoding="utf-8")
+    idx = (ROOT / "knewat" / "queries" / "schema" / "indexes.cypher").read_text(encoding="utf-8")
     pairs = re.findall(r"CREATE INDEX FOR \(n:(\w+)\) ON \(n\.(\w+)\)", idx)
     assert len(pairs) >= 50
     assert [lab for lab in {lab for lab, _ in pairs} if lab not in MODEL_MD] == []
@@ -44,7 +44,7 @@ def test_graph_model_mentions_every_indexed_label_and_property():
 def test_docs_mcp_md_tool_counts_match_the_tool_snapshot():
     import json
 
-    n = len(json.loads((ROOT / "plexus" / "tests" / "mcp" / "snapshots" / "tools.json").read_text("utf-8")))
+    n = len(json.loads((ROOT / "knewat" / "tests" / "mcp" / "snapshots" / "tools.json").read_text("utf-8")))
     text = (ROOT / "docs" / "mcp.md").read_text(encoding="utf-8")
     assert f"{n} tools" in text, f"docs/mcp.md never says '{n} tools'"
     stale = [m for m in re.findall(r"(?:now )?exposes? (\d+) tools", text) if int(m) != n]
@@ -53,14 +53,14 @@ def test_docs_mcp_md_tool_counts_match_the_tool_snapshot():
 
 def test_env_example_lists_the_codescan_client_variables():
     env = (ROOT / ".env.example").read_text(encoding="utf-8")
-    for name in ("PLEXUS_TENANT", "PLEXUS_URL"):
-        assert name in env, f"{name} is read by plexus.codescan but missing from .env.example"
+    for name in ("KNEWAT_TENANT", "KNEWAT_URL"):
+        assert name in env, f"{name} is read by knewat.codescan but missing from .env.example"
 
 
 # -- P7-14 ----------------------------------------------------------------------------------------------
 def test_forgetting_md_multiplier_at_a0_matches_the_default_floor():
-    from plexus.activation import Settings
-    from plexus.activation.model import multiplier
+    from knewat.activation import Settings
+    from knewat.activation.model import multiplier
 
     st = Settings()
     want = f"{multiplier(st.neutral, st.neutral, st.floor):.2f}"

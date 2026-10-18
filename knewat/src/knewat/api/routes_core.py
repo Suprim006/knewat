@@ -10,11 +10,11 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
 from redis.exceptions import RedisError
 
-from plexus.api import models as M
-from plexus.api.context import ApiContext
-from plexus.common import now_ms
-from plexus.graph.queries import UnknownQuery
-from plexus.graph.tenancy import TENANT_PREFIX
+from knewat.api import models as M
+from knewat.api.context import ApiContext
+from knewat.common import now_ms
+from knewat.graph.queries import UnknownQuery
+from knewat.graph.tenancy import TENANT_PREFIX
 
 INVENTORY_KEY_SAMPLE = 200  # nodes sampled PER LABEL for the property-key inventory
 # The graph model's node labels and edge types (docs/graph-model.md). view/inventory_nodes|edges|keys count each of
@@ -65,7 +65,7 @@ def router(ctx: ApiContext) -> APIRouter:
 
     @r.get("/api/results")
     def results():
-        path = ctx.results_path or os.environ.get("PLEXUS_RESULTS_PATH")
+        path = ctx.results_path or os.environ.get("KNEWAT_RESULTS_PATH")
         if not path or not Path(path).is_file():
             raise HTTPException(404, "no Crucible results available")
         try:

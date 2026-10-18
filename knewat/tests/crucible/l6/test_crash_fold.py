@@ -12,8 +12,8 @@ import uuid
 
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
-from plexus.crucible.l6 import crash
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l6 import crash
+from knewat.graph.tenancy import graph_name
 
 
 def test_no_orphans_after_50_sigkills(client):

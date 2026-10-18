@@ -6,8 +6,8 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from plexus.audit.recorder import Ref
-from plexus.graph.client import GraphClient, Rows
+from knewat.audit.recorder import Ref
+from knewat.graph.client import GraphClient, Rows
 
 AUXILIARY_PREFIX = (
     "activation/",  # reads under these prefixes never name a ToolCall when the tool ran another read

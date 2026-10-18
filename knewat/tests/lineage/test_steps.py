@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import StepOrderError, UnknownStep
+from knewat.lineage import StepOrderError, UnknownStep
 
 from .conftest import cypher
 

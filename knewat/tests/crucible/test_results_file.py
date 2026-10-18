@@ -1,8 +1,8 @@
 """The committed combined results file (L1 + L4 + ablation + L2 + L2-scale + B1h + C7x + L6) that the View's Results page reads.
 
 ``latest.json`` is what ``crucible all`` writes (and overwrites on every run); ``latest-all.json`` is that file with
-the L2, L2-scale, B1h, C7-extended and L6 results merged in: ``python -m plexus.crucible.combine`` (``--check`` verifies it). The
-test below proves the committed file is exactly that merge. plexus-view carries a byte-identical copy as the
+the L2, L2-scale, B1h, C7-extended and L6 results merged in: ``python -m knewat.crucible.combine`` (``--check`` verifies it). The
+test below proves the committed file is exactly that merge. knewat-view carries a byte-identical copy as the
 fixture of its Results test, so a drift between the two shows up here.
 """
 
@@ -14,9 +14,9 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
-RESULTS = ROOT / "plexus" / "src" / "plexus" / "crucible" / "results"
+RESULTS = ROOT / "knewat" / "src" / "knewat" / "crucible" / "results"
 ALL = RESULTS / "latest-all.json"
-VIEW_COPY = ROOT / "plexus-view" / "src" / "fixtures" / "results.real.json"
+VIEW_COPY = ROOT / "knewat-view" / "src" / "fixtures" / "results.real.json"
 
 
 @pytest.fixture(scope="module")
@@ -54,13 +54,13 @@ def test_l2_scale_keys_the_view_reads(doc):
         assert all({"id", "correct"} <= set(q) for q in v["questions"])
         assert ("failure_analysis" in v) == (arm != "P")
     assert sc["history"]["artifact_chars_over_budget"]["B0"] > 16
-    assert sc["notes"] and sc["plexus_changes"]
+    assert sc["notes"] and sc["knewat_changes"]
     assert doc["summary"]["l2_scale_accuracy_pct"] == {"B0": 83.3, "B1": 88.9, "B2": 63.9, "P": 100.0}
 
 
 def test_l2_scale_honesty_travels_with_the_layer_verbatim(doc):
     src = json.loads(
-        (ROOT / "plexus" / "demo_data" / "crucible" / "l2_scale" / "latest-full.json").read_text(
+        (ROOT / "knewat" / "demo_data" / "crucible" / "l2_scale" / "latest-full.json").read_text(
             encoding="utf-8"
         )
     )
@@ -70,7 +70,7 @@ def test_l2_scale_honesty_travels_with_the_layer_verbatim(doc):
 
 
 def _all():
-    from plexus.crucible.combine import (
+    from knewat.crucible.combine import (
         DEFAULT_B1H,
         DEFAULT_BASE,
         DEFAULT_C7X,
@@ -86,13 +86,13 @@ def _all():
 
 def test_combined_file_is_exactly_the_merge_of_its_parts():
     assert ALL.read_text(encoding="utf-8") == _all(), (
-        "latest-all.json is stale: run `python -m plexus.crucible.combine` and copy it to "
-        "plexus-view/src/fixtures/results.real.json"
+        "latest-all.json is stale: run `python -m knewat.crucible.combine` and copy it to "
+        "knewat-view/src/fixtures/results.real.json"
     )
 
 
 def test_combine_does_not_touch_its_inputs(tmp_path):
-    from plexus.crucible.combine import (
+    from knewat.crucible.combine import (
         DEFAULT_B1H,
         DEFAULT_BASE,
         DEFAULT_C7X,
@@ -121,17 +121,17 @@ def test_l4_keys_the_view_reads(doc):
 
 def test_honesty_notes_replace_the_out_of_scope_l2_line(doc):
     assert not any(h.startswith("L2 (provenance questions answered by an LLM") for h in doc["honesty"])
-    assert any("Plexus TIES them on accuracy" in h for h in doc["honesty"])
+    assert any("Knewat TIES them on accuracy" in h for h in doc["honesty"])
 
 
 def test_view_fixture_is_a_copy_of_the_committed_file():
     assert VIEW_COPY.read_bytes() == ALL.read_bytes(), (
-        "plexus-view/src/fixtures/results.real.json drifted from crucible/results/latest-all.json: cp it again"
+        "knewat-view/src/fixtures/results.real.json drifted from crucible/results/latest-all.json: cp it again"
     )
 
 
 def test_b1h_c7x_and_l6_are_in_by_default_and_can_be_left_out(tmp_path):
-    from plexus.crucible.combine import (
+    from knewat.crucible.combine import (
         DEFAULT_BASE,
         DEFAULT_L2,
         DEFAULT_L2_SCALE,

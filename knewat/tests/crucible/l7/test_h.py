@@ -1,12 +1,12 @@
-"""Family H (L7): ground truth sanity and a toy end-to-end run of every Cypher/SQL arm (FalkorDB on PLEXUS_TEST_DB_PORT)."""
+"""Family H (L7): ground truth sanity and a toy end-to-end run of every Cypher/SQL arm (FalkorDB on KNEWAT_TEST_DB_PORT)."""
 
 from __future__ import annotations
 
 import pytest
 
-from plexus.crucible.l7 import h
-from plexus.crucible.l7.common import code_lines
-from plexus.crucible.l7.h_world import SCALES, Truth, h_world
+from knewat.crucible.l7 import h
+from knewat.crucible.l7.common import code_lines
+from knewat.crucible.l7.h_world import SCALES, Truth, h_world
 
 # arms that are expected to be wrong at toy size, by construction (reported as such in the results)
 KNOWN_WRONG = {"H3:cypher:h3.shortestpath.cypher", "H1c:cypher:h1c.natural.cypher"}

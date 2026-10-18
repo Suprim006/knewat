@@ -11,13 +11,13 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.backends.sqlite import FTS_SCHEMA, SCHEMA
-from plexus.crucible.l7 import common
-from plexus.crucible.l7.g_gen import OPEN, SCOPE, T0, counts, tenant_name, tenant_world
-from plexus.embed import get_embedder
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.backends.sqlite import FTS_SCHEMA, SCHEMA
+from knewat.crucible.l7 import common
+from knewat.crucible.l7.g_gen import OPEN, SCOPE, T0, counts, tenant_name, tenant_world
+from knewat.embed import get_embedder
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
 
 DEC = 5  # decimals kept of each embedding component (bulk-load parameter size)
 
@@ -234,8 +234,8 @@ class FArm:
     # -- G3a: the product services bound to A's graph ---------------------------------------------------------
     def probe(self, a: int, b: int) -> dict[str, Any]:
         """From tenant A's binding (the product services on A's graph) try to read B's data. Returns leaked rows + controls."""
-        from plexus.engram.service import Engram
-        from plexus.lineage.service import Lineage, UnknownNode
+        from knewat.engram.service import Engram
+        from knewat.lineage.service import Lineage, UnknownNode
 
         wa, wb = self.worlds[a], self.worlds[b]
         graph = self.gname(a)

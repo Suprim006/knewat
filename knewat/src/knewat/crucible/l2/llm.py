@@ -10,7 +10,7 @@ One process per question, single shot:
   stdin because a 32k-character prompt does not fit a Windows command line and the spec only allows *reading a
   provided context*; ``permission_denials`` and any ``tool_use`` block are checked and fail the question;
 * the process runs in an empty scratch directory (no project ``CLAUDE.md``);
-* the reply must be exactly ``{"answer": ...}`` (:func:`plexus.crucible.l2.questions.parse_reply`).
+* the reply must be exactly ``{"answer": ...}`` (:func:`knewat.crucible.l2.questions.parse_reply`).
 
 Answers are cached by sha256 of (model, prompt version, role prompt, context, question), so a re-run costs nothing.
 The cache keeps the reply, usage, cost and latency of the call that produced it (``cached=True`` marks reuse).
@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.questions import CONVENTIONS, Question, parse_reply
+from knewat.crucible.l2.questions import CONVENTIONS, Question, parse_reply
 
 PROMPT_VERSION = "l2-v1"
 ROLE = (

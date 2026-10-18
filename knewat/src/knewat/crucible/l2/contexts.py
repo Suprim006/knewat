@@ -6,7 +6,7 @@
 * **B1 SQLite**: the schema (``CREATE TABLE`` text) plus every content table dumped as CSV, in priority order, cut at
   the budget. Single-shot: the model cannot run SQL, so a dump is what a one-shot reader gets.
 * **B2 Vector**: the store's rows rendered as self-contained memory chunks (one per fact, decision, handoff, episode,
-  task, source), embedded with the same local model Plexus uses; the top-k chunks for the question text, cut at the
+  task, source), embedded with the same local model Knewat uses; the top-k chunks for the question text, cut at the
   budget. Retrieval is the point of this arm, so it sees only k chunks, not the whole store.
 
 Each builder returns a :class:`Context` with the exact text, its length and whether anything was cut, so the report
@@ -25,8 +25,8 @@ from pathlib import Path
 
 import numpy as np
 
-from plexus.crucible.backends.sqlite import SCHEMA
-from plexus.embed import Embedder, embed_checked
+from knewat.crucible.backends.sqlite import SCHEMA
+from knewat.embed import Embedder, embed_checked
 
 CONTEXT_CHARS = 32_000
 B2_TOP_K = 12

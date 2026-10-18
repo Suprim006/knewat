@@ -3,7 +3,7 @@ fail_task / reopen_task through the P-mcp backend is SIGKILLed 50 times (random 
 
 Orphan = a task state change (create, claim, complete, fail, reopen; each is one ``version`` step) without its own
 ``(Step)-[:WROTE]->(Task)`` edge: a Task must have exactly ``version + 1`` WROTE edges (see
-``plexus.crucible.l6.crash_tasks``).
+``knewat.crucible.l6.crash_tasks``).
 
 Before the fix (the five tools linked by a second ``link_step`` statement; ``--legacy`` reproduces that), run with
 seed 20261018 and 50 kills: 41 of 1,287 expected
@@ -21,8 +21,8 @@ import uuid
 
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
-from plexus.crucible.l6 import crash_tasks
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l6 import crash_tasks
+from knewat.graph.tenancy import graph_name
 
 
 def test_no_orphan_task_writes_after_50_sigkills(client):

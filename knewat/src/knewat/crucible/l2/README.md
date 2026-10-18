@@ -4,7 +4,7 @@
 
 | Arm | Answerer | What it is shown |
 |---|---|---|
-| **P** | deterministic Cypher (`plexus_answerer.py`, `queries/l2/*.cypher`), no LLM | the tenant graph |
+| **P** | deterministic Cypher (`knewat_answerer.py`, `queries/l2/*.cypher`), no LLM | the tenant graph |
 | **B0** | unmodified `claude -p --model sonnet`, no tools | the arm's files (`tasks.json`, `MEMORY.md`, `decisions.jsonl`, `handoffs.jsonl`, `sources.json`, `logs/*.jsonl`), cap 32,000 chars |
 | **B1** | same | schema + CSV dump of the SQLite tables, cap 32,000 chars |
 | **B2** | same | top-12 retrieved memory chunks (local bge-small), cap 32,000 chars |
@@ -15,26 +15,26 @@
 |---|---|
 | `scenario.py` | plays the P3 script on any `CoordinationBackend`, records the ground-truth `Ledger`. `deterministic()` makes the file/SQLite arms byte-reproducible (fixed ids, script clock) so the LLM answer cache can hit |
 | `questions.py` | the question families, `build_questions(ledger)` (answers are *derived*), normalisation, `score`, `parse_reply` |
-| `plexus_answerer.py` + `queries/l2/*.cypher` | arm P |
+| `knewat_answerer.py` + `queries/l2/*.cypher` | arm P |
 | `contexts.py` | what B0 / B1 / B2 show the model, and whether the cap cut anything |
 | `llm.py` | `ClaudeRunner`: one `claude -p` process per question, stdin context, strict checks, on-disk cache |
 | `run.py` | the CLI: `questions`, `run --mode pilot\|full`, `merge`; builds `results.json` + `report.md` |
-| `../../demo_data/crucible/questions.yaml` | the committed question set (regenerate: `python -m plexus.crucible.l2.run questions`; a test fails if it drifts) |
+| `../../demo_data/crucible/questions.yaml` | the committed question set (regenerate: `python -m knewat.crucible.l2.run questions`; a test fails if it drifts) |
 | `../../demo_data/crucible/l2/<run>/` | `results.json`, `report.md`, `B0.context.txt`, `B1.context.txt` |
 | `../../demo_data/crucible/l2_cache/<arm>/Qnn-<hash>.json` | every `claude -p` call (reply, usage, cost, latency), keyed by sha256(model, prompt version, context, question) |
 
 ## Run
 
 ```bash
-cd plexus
-docker run -d --name plexus-db-78 -p 127.0.0.1:6378:6379 falkordb/falkordb:6.0.2
-uv run python -m plexus.crucible.l2.run run --mode pilot --port 6378 --budget-usd 1.5   # 5 questions x B0,B1,B2 (+P)
-uv run python -m plexus.crucible.l2.run run --mode full  --port 6378 --budget-usd 8     # all 43; cached answers are free
-uv run python -m plexus.crucible.l2.run merge --into path/to/H/results.json --l2 demo_data/crucible/l2/<run>/results.json
-PLEXUS_TEST_DB_PORT=6378 uv run pytest tests/crucible/l2 tests/crucible/l3      # no LLM: the CLI is mocked
+cd knewat
+docker run -d --name knewat-db-78 -p 127.0.0.1:6378:6379 falkordb/falkordb:6.0.2
+uv run python -m knewat.crucible.l2.run run --mode pilot --port 6378 --budget-usd 1.5   # 5 questions x B0,B1,B2 (+P)
+uv run python -m knewat.crucible.l2.run run --mode full  --port 6378 --budget-usd 8     # all 43; cached answers are free
+uv run python -m knewat.crucible.l2.run merge --into path/to/H/results.json --l2 demo_data/crucible/l2/<run>/results.json
+KNEWAT_TEST_DB_PORT=6378 uv run pytest tests/crucible/l2 tests/crucible/l3      # no LLM: the CLI is mocked
 ```
 
-## `results.json` shape (for plexus-view)
+## `results.json` shape (for knewat-view)
 
 Same envelope as `crucible/results.py` (`schema_version` 1, `kind` "crucible-results", `run`, `environment`, `config`,
 `arms`, `layers`, `summary`, `honesty`). The L2 numbers are in **`layers["L2"]`** (capital L, like `L1`/`L4`);
@@ -85,8 +85,8 @@ CLI's own `total_cost_usd`. Rows served from the cache keep the cost and latency
 three things the P3 script does not do, because BASELINE §2 asks for them: the poison fault is on (a forum post
 asserts `database=MongoDB 4`, a decision is taken on it, its source is forgotten), the builder records one more
 decision at t06 (six in total), and two project-scoped facts exist for the scope-isolation questions.
-Ground truth comes from the ledger the script keeps while it runs. The Plexus answerer is checked against it on a live
-graph (`tests/crucible/l2/test_plexus_answerer.py`, 43/43).
+Ground truth comes from the ledger the script keeps while it runs. The Knewat answerer is checked against it on a live
+graph (`tests/crucible/l2/test_knewat_answerer.py`, 43/43).
 
 Not covered: the Procedures family (the backend protocol has no procedure tool); cross-session recall is episodes by
 agent (no sessions in the protocol).
@@ -100,15 +100,15 @@ agent (no sessions in the protocol).
 | `scale_scenario.py` | `Sprint` (tag, ids, varied values), `play_scale(backend, k)`: k sprints on one clock, one `Ledger` per sprint |
 | `scale_questions.py` | the 40 question slots per sprint, the sprint assignment rule (`assign_sprints`, seed 20261015), YAML dump/load |
 | `scale_contexts.py` | `Bm25`, `b0_scale_context`, `b1_scale_context` (B2 reuses `contexts.B2Index`) |
-| `scale_plexus.py` + `queries/l2scale/` | `ScalePlexusAnswerer`: the L2 answerer with sprint scoping for 9 class-wide ops and one new statement (`visible_facts`) |
+| `scale_knewat.py` + `queries/l2scale/` | `ScaleKnewatAnswerer`: the L2 answerer with sprint scoping for 9 class-wide ops and one new statement (`visible_facts`) |
 | `scale_run.py` | CLI: `questions`, `run --mode pilot\|full`; writes `demo_data/crucible/l2_scale/<run>/{results.json,report.md,contexts/<arm>/Qnn.txt}`; cache in `l2_scale_cache/` |
 
 ```bash
-cd plexus
-docker run -d --name plexus-db-66 -p 127.0.0.1:6366:6379 falkordb/falkordb:6.0.2
-env -u ANTHROPIC_API_KEY uv run python -m plexus.crucible.l2.scale_run run --mode pilot --port 6366 --budget-usd 2
-env -u ANTHROPIC_API_KEY uv run python -m plexus.crucible.l2.scale_run run --mode full  --port 6366 --budget-usd 6   # 36 questions (FULL_DROPPED_IDS removed by the budget rule)
-PLEXUS_TEST_DB_PORT=6366 uv run pytest tests/crucible/l2      # no LLM: the CLI is mocked
+cd knewat
+docker run -d --name knewat-db-66 -p 127.0.0.1:6366:6379 falkordb/falkordb:6.0.2
+env -u ANTHROPIC_API_KEY uv run python -m knewat.crucible.l2.scale_run run --mode pilot --port 6366 --budget-usd 2
+env -u ANTHROPIC_API_KEY uv run python -m knewat.crucible.l2.scale_run run --mode full  --port 6366 --budget-usd 6   # 36 questions (FULL_DROPPED_IDS removed by the budget rule)
+KNEWAT_TEST_DB_PORT=6366 uv run pytest tests/crucible/l2      # no LLM: the CLI is mocked
 ```
 
 ### `layers["L2_scale"]` shape
@@ -130,6 +130,6 @@ Same envelope as `L2` (`schema_version`, `kind`, `run` with `layers: ["L2_scale"
                                           median_share_of_shown_lines_from_the_asked_sprint},
            questions[i] adds: sprint, stratum, shown_units, shown_lines, shown_lines_with_sprint,
                               evidence_in_context: {found,total}|null } },
-  summary, plexus_changes: [str], notes: [str] }
+  summary, knewat_changes: [str], notes: [str] }
 ```
 `evidence_in_context` is a diagnostic (do all words of each expected item occur anywhere in the shown context), never a score.

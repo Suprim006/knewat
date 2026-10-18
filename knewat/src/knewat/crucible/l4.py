@@ -3,15 +3,15 @@
 Three experiments, each reported per arm:
 
 * ``claim_sweep``   W workers each run claim -> heartbeat -> complete cycles on one tenant. Latency p50/p95/p99 per
-                    operation and total throughput as W grows 1 -> 200. For the Plexus arms the server-side
+                    operation and total throughput as W grows 1 -> 200. For the Knewat arms the server-side
                     ``run_time_ms`` (summed over the call's queries, as the ToolCall stores it) is reported next to
                     the client latency.
 * ``recall_sweep``  W workers run recalls over ``recall_facts`` seeded facts (embedding included, as in production).
 * ``tenant_sweep``  the write ceiling: the same W workers and the same total task count spread over 1, 4, 16 tenant
-                    graphs (Plexus: one FalkorDB graph per tenant; B1: one SQLite file per tenant).
+                    graphs (Knewat: one FalkorDB graph per tenant; B1: one SQLite file per tenant).
 
 Client latency is measured by Python threads in one process, so at high W it contains GIL queuing; that is why the
-server time is shown next to it. Arms are driven through the same ``CoordinationBackend`` surface (L4 PLEXUS = service
+server time is shown next to it. Arms are driven through the same ``CoordinationBackend`` surface (L4 KNEWAT = service
 layer; ``P-mcp`` additionally opens a Step and writes a ToolCall per call, as the MCP server does).
 """
 
@@ -24,9 +24,9 @@ import time
 from collections.abc import Callable
 from typing import Any
 
-from plexus.crucible.config import L4Config
-from plexus.crucible.harness import ArmRun, Env, describe_errors, run_workers
-from plexus.crucible.util import percentile
+from knewat.crucible.config import L4Config
+from knewat.crucible.harness import ArmRun, Env, describe_errors, run_workers
+from knewat.crucible.util import percentile
 
 OPS = ("claim", "heartbeat", "complete")
 
@@ -278,7 +278,7 @@ def tenant_point(env: Env, arm: str, tenants: int, cfg: L4Config) -> dict[str, A
 def embedder_probe(env: Env, cfg: L4Config) -> list[dict[str, Any]]:
     """Embed query-sized texts from W threads with no database involved. This is the ceiling for every arm whose
     recall embeds the query (B2, P, P-mcp): the model instance is shared and its calls are serialised."""
-    from plexus.embed import get_embedder
+    from knewat.embed import get_embedder
 
     emb = get_embedder(env.embedder)
     emb.embed(["warm up"])

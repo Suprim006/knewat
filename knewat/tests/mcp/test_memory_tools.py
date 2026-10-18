@@ -6,8 +6,8 @@ import json
 
 import pytest
 
+from knewat.graph.tenancy import graph_name
 from mcp import Client
-from plexus.graph.tenancy import graph_name
 
 
 async def ok(c: Client, tool: str, /, **args) -> dict:

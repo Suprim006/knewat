@@ -16,7 +16,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l5.staleness import GIT_BASE_TIME, Func, Module, segments
+from knewat.crucible.l5.staleness import GIT_BASE_TIME, Func, Module, segments
 
 TOKEN_RE = re.compile(r"AX-\d{5}")
 
@@ -149,7 +149,7 @@ def init_repo(root: Path, mods: dict[str, Module]) -> str:
 
 
 def ast_truth(root: Path, before: str, after: str) -> set[str]:
-    """Tracked functions whose source segment differs between two commits (independent of plexus.codescan)."""
+    """Tracked functions whose source segment differs between two commits (independent of knewat.codescan)."""
     out: set[str] = set()
     for m in MODULES:
         old = segments(git(root, "show", f"{before}:{m}.py"))

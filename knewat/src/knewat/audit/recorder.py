@@ -7,8 +7,8 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 
-from plexus.common import new_id, now_ms
-from plexus.graph.client import GraphClient
+from knewat.common import new_id, now_ms
+from knewat.graph.client import GraphClient
 
 MAX_LINKS = 200  # CREATED/UPDATED edges per call (bounded write)
 LINKABLE_LABELS = frozenset(

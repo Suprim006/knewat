@@ -2,7 +2,7 @@
 
 ``assert_fact`` never merges a value it is not sure about; when a new fact looks like an existing one but not
 enough to merge, it stores the new fact AND a ``DUPLICATES_MAYBE`` link and returns ``possible_duplicates``
-(``recall`` hits carry ``maybe_duplicate_of``). The agent that knows decides with these two tools. Plexus makes no
+(``recall`` hits carry ``maybe_duplicate_of``). The agent that knows decides with these two tools. Knewat makes no
 LLM call. Both tools are ordinary write tools: a ``ToolCall`` and the agent's ``Step`` (``WROTE`` both facts).
 """
 
@@ -13,10 +13,10 @@ from typing import Annotated
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
-from plexus.engram.dedup import Dedup
-from plexus.mcp.limits import AgentId, IdStr, Step
-from plexus.mcp.runtime import LINK_CHUNK, MeteredClient, Outcome, Runtime, TenantState
-from plexus.mcp.toolkit import ToolTable
+from knewat.engram.dedup import Dedup
+from knewat.mcp.limits import AgentId, IdStr, Step
+from knewat.mcp.runtime import LINK_CHUNK, MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
 
 DEDUP_TOOLS = ToolTable()
 tool = DEDUP_TOOLS

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-import plexus.engram.service as svc
+import knewat.engram.service as svc
 
 QUERY = "alpha beta gamma delta"
 

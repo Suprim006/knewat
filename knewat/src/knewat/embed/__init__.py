@@ -1,11 +1,11 @@
-"""Local embedding models. ``get_embedder()`` picks one via env ``PLEXUS_EMBEDDER`` (fastembed | hash)."""
+"""Local embedding models. ``get_embedder()`` picks one via env ``KNEWAT_EMBEDDER`` (fastembed | hash)."""
 
 from __future__ import annotations
 
 import os
 
-from plexus.embed.base import DIM, Embedder, EmbeddingDimensionError, check_dim, embed_checked
-from plexus.embed.hash_embedder import HashEmbedder
+from knewat.embed.base import DIM, Embedder, EmbeddingDimensionError, check_dim, embed_checked
+from knewat.embed.hash_embedder import HashEmbedder
 
 __all__ = [
     "DIM",
@@ -21,22 +21,22 @@ __all__ = [
 _singletons: dict[str, Embedder] = {}
 
 
-def __getattr__(name: str):  # FastEmbedder imports lazily so `import plexus.embed` stays light
+def __getattr__(name: str):  # FastEmbedder imports lazily so `import knewat.embed` stays light
     if name == "FastEmbedder":
-        from plexus.embed.fastembed_embedder import FastEmbedder
+        from knewat.embed.fastembed_embedder import FastEmbedder
 
         return FastEmbedder
     raise AttributeError(name)
 
 
 def get_embedder(kind: str | None = None) -> Embedder:
-    """Process-wide embedder for ``kind`` (default: env ``PLEXUS_EMBEDDER``, else ``fastembed``)."""
-    kind = (kind or os.environ.get("PLEXUS_EMBEDDER") or "fastembed").lower()
+    """Process-wide embedder for ``kind`` (default: env ``KNEWAT_EMBEDDER``, else ``fastembed``)."""
+    kind = (kind or os.environ.get("KNEWAT_EMBEDDER") or "fastembed").lower()
     if kind not in _singletons:
         if kind == "hash":
             _singletons[kind] = HashEmbedder()
         elif kind == "fastembed":
-            from plexus.embed.fastembed_embedder import FastEmbedder
+            from knewat.embed.fastembed_embedder import FastEmbedder
 
             _singletons[kind] = FastEmbedder()
         else:

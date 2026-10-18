@@ -7,7 +7,7 @@ import time
 
 from redis.exceptions import ResponseError
 
-from plexus.graph.client import GraphClient
+from knewat.graph.client import GraphClient
 
 log = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ UNIQUE_LABELS = ("Task", "Fact", "Agent", "Decision", "Handoff")
 
 # Entity.norm_name is UNIQUE too, the backstop behind `engram/resolve_entity`. A graph that already holds
 # two entities with one norm_name leaves this constraint FAILED: reported as a warning
-# (`plexus migrate entities`), never raised, so a legacy tenant keeps starting.
+# (`knewat migrate entities`), never raised, so a legacy tenant keeps starting.
 ENTITY_KEY = ("Entity", "norm_name")
 
 # FalkorDB 6.0.2 messages when the object is already there (verified live):
@@ -79,7 +79,7 @@ def wait_for_constraints(
             for key, s in soft_status.items():
                 if s != "OPERATIONAL":
                     log.warning(
-                        "constraint UNIQUE(%s) on %s is %s: `plexus migrate entities` lists the duplicates",
+                        "constraint UNIQUE(%s) on %s is %s: `knewat migrate entities` lists the duplicates",
                         key,
                         graph,
                         s,

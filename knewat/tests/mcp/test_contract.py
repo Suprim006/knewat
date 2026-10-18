@@ -8,8 +8,8 @@ from pathlib import Path
 
 import pytest
 
+from knewat.graph.tenancy import graph_name
 from mcp import Client
-from plexus.graph.tenancy import graph_name
 
 SNAPSHOT = Path(__file__).parent / "snapshots" / "tools.json"
 
@@ -268,7 +268,7 @@ async def test_tenant_is_not_an_argument_and_schema_applied_once(runtime, server
     assert list(runtime._tenants) == [tenant]
     assert "evil" not in runtime._tenants
     # a stdio runtime ignores any header and serves its one tenant
-    assert runtime.tenant_of({"x-plexus-tenant": "other"}) == tenant
+    assert runtime.tenant_of({"x-knewat-tenant": "other"}) == tenant
 
 
 async def test_scope_specs_project_inherits_global(server, client, tenant):
@@ -293,7 +293,7 @@ async def test_scope_specs_project_inherits_global(server, client, tenant):
 
 @pytest.mark.parametrize("bad", ["Upper", "has space", "x" * 49, ""])
 def test_invalid_tenant_rejected(client, bad):
-    from plexus.mcp.runtime import Runtime
+    from knewat.mcp.runtime import Runtime
 
     rt = Runtime(client=client, stdio_tenant=bad or None)
     with pytest.raises(Exception, match=r"invalid tenant|no tenant"):

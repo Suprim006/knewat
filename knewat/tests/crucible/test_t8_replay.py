@@ -1,4 +1,4 @@
-"""The $0 trial-8 replay (plexus.crucible.t8_replay): the memo is void, C1 and P1 stay, C2 and C3 go."""
+"""The $0 trial-8 replay (knewat.crucible.t8_replay): the memo is void, C1 and P1 stay, C2 and C3 go."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from plexus.crucible import t8_replay
+from knewat.crucible import t8_replay
 
 from ..conftest import TEST_DB_PORT
 

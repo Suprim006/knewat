@@ -1,6 +1,6 @@
 """Relay MCP tools: agents, a task DAG with leases, handoffs, artifacts and decisions.
 
-Same shape as :mod:`plexus.mcp.tools_engram`: every tool takes ``agent_id`` and an optional ``step``; the tenant is
+Same shape as :mod:`knewat.mcp.tools_engram`: every tool takes ``agent_id`` and an optional ``step``; the tenant is
 bound to the connection; each tool body is one service call that :meth:`Runtime.call` times, audits and attaches to
 the agent's ``Step``.
 """
@@ -10,7 +10,7 @@ from typing import Annotated
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
-from plexus.mcp.limits import (
+from knewat.mcp.limits import (
     MAX_ID,
     MAX_INT,
     MAX_LIST,
@@ -26,9 +26,9 @@ from plexus.mcp.limits import (
     Value,
     Version,
 )
-from plexus.mcp.runtime import MeteredClient, Outcome, TenantState
-from plexus.mcp.toolkit import ToolTable
-from plexus.relay.service import MAX_BLOCKED_DEPTH
+from knewat.mcp.runtime import MeteredClient, Outcome, TenantState
+from knewat.mcp.toolkit import ToolTable
+from knewat.relay.service import MAX_BLOCKED_DEPTH
 
 MAX_TASKS = 200
 

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.mcp.embedding import CheckedEmbedder
+from knewat.embed import HashEmbedder
+from knewat.mcp.embedding import CheckedEmbedder
 
 
 def test_embedder_guard_rejects_wrong_dimension():

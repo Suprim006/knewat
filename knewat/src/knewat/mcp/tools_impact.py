@@ -16,12 +16,12 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
-from plexus.lineage.service import DEFAULT_CASCADE_DEPTH, DEFAULT_IMPACT_DETAIL, MAX_DEPTH
-from plexus.mcp.limits import MAX_LIST, AgentId, IdStr, Step
-from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
-from plexus.mcp.toolkit import ToolTable
-from plexus.relay import service as relay_service
-from plexus.relay.service import MAX_BLOCKED_DEPTH
+from knewat.lineage.service import DEFAULT_CASCADE_DEPTH, DEFAULT_IMPACT_DETAIL, MAX_DEPTH
+from knewat.mcp.limits import MAX_LIST, AgentId, IdStr, Step
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
+from knewat.relay import service as relay_service
+from knewat.relay.service import MAX_BLOCKED_DEPTH
 
 MAX_ITEMS = 2000  # ids listed per category (totals are always exact)
 

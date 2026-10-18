@@ -14,11 +14,11 @@ from typing import Any
 
 from redis.exceptions import RedisError
 
-from plexus.graph.client import GraphClient
-from plexus.mcp.metering import MeteredClient, Outcome
-from plexus.mcp.tenant import TenantState
+from knewat.graph.client import GraphClient
+from knewat.mcp.metering import MeteredClient, Outcome
+from knewat.mcp.tenant import TenantState
 
-log = logging.getLogger("plexus.mcp")  # stderr only: stdout is the stdio protocol channel
+log = logging.getLogger("knewat.mcp")  # stderr only: stdout is the stdio protocol channel
 
 WROTE_LABELS = frozenset(
     {"Decision", "Handoff", "Task"}

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from plexus.codescan.entries import MAX_ENTRIES, chunk_entries, file_entries
-from plexus.codescan.hashing import hash_bytes
+from knewat.codescan.entries import MAX_ENTRIES, chunk_entries, file_entries
+from knewat.codescan.hashing import hash_bytes
 
 P = "C:/r/app/pay.py"
 OLD = b"def f():\n    return 1\n\n\ndef g():\n    return 2\n"

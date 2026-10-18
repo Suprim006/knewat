@@ -9,9 +9,9 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any, NoReturn
 
-from plexus.common import check_between, new_id, normalize, now_ms, unique
-from plexus.graph.client import GraphClient
-from plexus.lineage import explain
+from knewat.common import check_between, new_id, normalize, now_ms, unique
+from knewat.graph.client import GraphClient
+from knewat.lineage import explain
 
 MAX_LINK_IDS = 200  # ids per list in link_step
 MAX_RECALL_RESULTS = 200

@@ -1,7 +1,7 @@
 """A stand-in for ``claude -p`` used by the L8 harness tests ($0, no model).
 
 It parses the prompt the harness passes, performs a scripted version of the assignment against the arm's real store
-(P: PlexusBackend on the tenant from mcp.json; B1: the SQLite backend at --root; B0': files in the work directory),
+(P: KnewatBackend on the tenant from mcp.json; B1: the SQLite backend at --root; B0': files in the work directory),
 writes the artifact file into the working directory, and prints stream-json events shaped like Claude Code's
 (``system/init``, ``assistant`` tool_use, ``user`` tool_result, ``result``). Behaviour knob (env ``L8_FAKE_MODE``):
 
@@ -52,11 +52,11 @@ class Fake:
         m = re.search(r"agent_id is '(\w+)'", self.prompt)
         self.agent = m.group(1) if m else "planner"
         if self.mcp:
-            srv = cfg["mcpServers"]["plexus"]
+            srv = cfg["mcpServers"]["knewat"]
             sargs = srv["args"]
             tenant = sargs[sargs.index("--tenant") + 1]
-            from plexus.crucible.api import BackendSpec
-            from plexus.crucible.backends import open_backend
+            from knewat.crucible.api import BackendSpec
+            from knewat.crucible.backends import open_backend
 
             if "--root" in sargs:
                 self.backend = open_backend(
@@ -68,7 +68,7 @@ class Fake:
                     arm="P-mcp", tenant=tenant, root="", host=env["FALKORDB_HOST"], port=int(env["FALKORDB_PORT"]),
                     embedder="hash"))  # fmt: skip
         emit({"type": "system", "subtype": "init", "model": "fake-sonnet", "claude_code_version": "fake",
-              "mcp_servers": [{"name": "plexus", "status": "connected"}] if self.mcp else []})  # fmt: skip
+              "mcp_servers": [{"name": "knewat", "status": "connected"}] if self.mcp else []})  # fmt: skip
         self.n = 0
 
     # -- tool helpers ---------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ class Fake:
             "record_decision": lambda: {"decision_id": b.record_decision(a, inp["task_id"], inp["text"], inp.get("based_on_fact_ids", []))},
             "handoff": lambda: {"handoff_id": b.handoff(a, inp["to_agent"], inp["task_id"], inp["note"], [], inp.get("fact_ids", []))},
         }  # fmt: skip
-        return self.call(f"mcp__plexus__{short}", {"agent_id": a, **inp}, fns[short])
+        return self.call(f"mcp__knewat__{short}", {"agent_id": a, **inp}, fns[short])
 
     def read(self, rel: str) -> str:
         p = self.cwd / rel
@@ -176,7 +176,7 @@ class Fake:
                         "cache_read_input_tokens": 100 * self.n}, "permission_denials": []})  # fmt: skip
 
     def task(self) -> None:
-        from plexus.crucible.l8.scenario import TASK_BY_ID
+        from knewat.crucible.l8.scenario import TASK_BY_ID
 
         tid = re.search(r"Task id: (\S+)", self.prompt).group(1)
         t = TASK_BY_ID[tid]

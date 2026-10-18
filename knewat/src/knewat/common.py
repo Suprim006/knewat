@@ -1,6 +1,6 @@
-"""Small helpers shared by the Plexus services (Engram, Relay, Lineage, Staleness, Activation, Audit, API).
+"""Small helpers shared by the Knewat services (Engram, Relay, Lineage, Staleness, Activation, Audit, API).
 
-Dependency-free on purpose: every service imports from here, so this module imports nothing from Plexus.
+Dependency-free on purpose: every service imports from here, so this module imports nothing from Knewat.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ def now_ms() -> int:
 
 
 def new_id() -> str:
-    """A fresh random UUID string, used for every node id Plexus creates."""
+    """A fresh random UUID string, used for every node id Knewat creates."""
     return str(uuid.uuid4())
 
 

@@ -1,8 +1,8 @@
 import pytest
 from redis.exceptions import BusyLoadingError, RedisError, ResponseError
 
-from plexus.graph.client import GraphClient, Rows
-from plexus.graph.queries import QueryLibrary, ReadOnlyViolation
+from knewat.graph.client import GraphClient, Rows
+from knewat.graph.queries import QueryLibrary, ReadOnlyViolation
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
 
@@ -151,11 +151,11 @@ def test_sync_client_small_pool_queues_callers(tmp_path, empty_graph):
 
 
 def test_sync_pool_size_env_and_default(monkeypatch):
-    monkeypatch.delenv("PLEXUS_DB_POOL", raising=False)
+    monkeypatch.delenv("KNEWAT_DB_POOL", raising=False)
     c = GraphClient(host=TEST_DB_HOST, port=TEST_DB_PORT, password="")
     assert c.pool.max_connections == 256
     c.close()
-    monkeypatch.setenv("PLEXUS_DB_POOL", "17")
+    monkeypatch.setenv("KNEWAT_DB_POOL", "17")
     c = GraphClient(host=TEST_DB_HOST, port=TEST_DB_PORT, password="")
     assert c.pool.max_connections == 17
     c.close()
@@ -207,7 +207,7 @@ def test_busy_loading_is_retried_for_a_bounded_time(lib_client, empty_graph, mon
 
 
 def test_busy_loading_at_connect_is_retried(monkeypatch):
-    import plexus.graph.client as mod
+    import knewat.graph.client as mod
 
     attempts = {"n": 0}
     real = mod.FalkorDB

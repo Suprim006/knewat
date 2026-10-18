@@ -7,8 +7,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l7.common import chunks
-from plexus.crucible.l7.h_world import HWorld
+from knewat.crucible.l7.common import chunks
+from knewat.crucible.l7.h_world import HWorld
 
 SQL_SCHEMA = """
 CREATE TABLE agents(id TEXT PRIMARY KEY);

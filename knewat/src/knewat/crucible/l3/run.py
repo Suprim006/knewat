@@ -1,10 +1,10 @@
 """Layer 3 pilot runner: the real 3-agent team (unmodified ``claude -p``) once per arm, same scheduler and faults.
 
-    python -m plexus.crucible.l3.run run --arms B0,B1,P --model sonnet --port 6378 --budget-usd 4
+    python -m knewat.crucible.l3.run run --arms B0,B1,P --model sonnet --port 6378 --budget-usd 4
 
 The scheduler, role prompts, per-turn prompts, fault script and the ``claude -p`` driver are the P3 demo's
-(``plexus.demo``). What differs per arm is only the MCP server behind the ``plexus`` name (see
-:mod:`plexus.crucible.l3.baseline_mcp`) and, for B0/B1, how the *harness* reads task state (:class:`BackendWorld`;
+(``knewat.demo``). What differs per arm is only the MCP server behind the ``knewat`` name (see
+:mod:`knewat.crucible.l3.baseline_mcp`) and, for B0/B1, how the *harness* reads task state (:class:`BackendWorld`;
 the agents never see this). Metrics come from the agents' own stream-json transcripts and the final task states, so
 they are the same code for every arm. n = 1 run per arm: a pilot, not a benchmark (BASELINE §3 wants >= 5).
 """
@@ -22,22 +22,22 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import results as H
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import open_backend
-from plexus.crucible.util import iso_utc, run_stamp
-from plexus.demo.engine import World
-from plexus.demo.engine import run as run_engine
-from plexus.demo.orchestrator import (
+from knewat.crucible import results as H
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import open_backend
+from knewat.crucible.util import iso_utc, run_stamp
+from knewat.demo.engine import World
+from knewat.demo.engine import run as run_engine
+from knewat.demo.orchestrator import (
     REAL_BUILDER_LEASE_MS,
     ClaudeConfig,
     ClaudeDriver,
     ClaudeRunError,
     StopRun,
-    plexus_mcp_command,
+    knewat_mcp_command,
     write_mcp_config,
 )
-from plexus.demo.scenario import FaultScript, Scenario, load_scenario
+from knewat.demo.scenario import FaultScript, Scenario, load_scenario
 
 DEMO_DATA = Path(__file__).resolve().parents[4] / "demo_data" / "crucible"
 OUT_DIR = DEMO_DATA / "l3"
@@ -69,7 +69,7 @@ class _BackendRelay:
 
 @dataclass
 class BackendWorld(World):
-    """A :class:`World` whose harness-side state reads come from a baseline backend instead of a Plexus graph."""
+    """A :class:`World` whose harness-side state reads come from a baseline backend instead of a Knewat graph."""
 
     backend: Any = None
 
@@ -130,7 +130,7 @@ def transcript_metrics(transcripts: dict[str, str]) -> dict[str, Any]:
                 if not isinstance(block, dict):
                     continue
                 if block.get("type") == "tool_use":
-                    name = str(block.get("name", "")).removeprefix("mcp__plexus__")
+                    name = str(block.get("name", "")).removeprefix("mcp__knewat__")
                     inp = block.get("input") or {}
                     pending[block["id"]] = (name, inp)
                     calls += 1
@@ -241,15 +241,15 @@ def run_arm(
     cfgfile = workdir / "mcp.json"
     client = None
     if arm == "P":
-        from plexus.graph.client import GraphClient
-        from plexus.graph.schema import apply_schema
-        from plexus.graph.tenancy import graph_name
+        from knewat.graph.client import GraphClient
+        from knewat.graph.schema import apply_schema
+        from knewat.graph.tenancy import graph_name
 
         client = GraphClient(host=host, port=port)
         apply_schema(client, graph_name(tenant))
         write_mcp_config(
-            cfgfile, tenant, plexus_mcp_command(),
-            env={"FALKORDB_HOST": host, "FALKORDB_PORT": str(port), "PLEXUS_EMBEDDER": embedder},
+            cfgfile, tenant, knewat_mcp_command(),
+            env={"FALKORDB_HOST": host, "FALKORDB_PORT": str(port), "KNEWAT_EMBEDDER": embedder},
         )  # fmt: skip
         backend = None
     else:
@@ -259,11 +259,11 @@ def run_arm(
             json.dumps(
                 {
                     "mcpServers": {
-                        "plexus": {
+                        "knewat": {
                             "command": sys.executable,
                             "args": [
                                 "-m",
-                                "plexus.crucible.l3.baseline_mcp",
+                                "knewat.crucible.l3.baseline_mcp",
                                 "--arm",
                                 arm,
                                 "--root",
@@ -307,7 +307,7 @@ def run_arm(
     if backend is not None:
         backend.close()
     if client is not None:
-        from plexus.graph.tenancy import graph_name
+        from knewat.graph.tenancy import graph_name
 
         client.delete_graph(graph_name(tenant))
         client.close()
@@ -317,7 +317,7 @@ def run_arm(
 # ------------------------------------------------------------------------------------------------ results
 L3_HONESTY = [
     "L3 pilot: ONE run per arm (BASELINE §3 asks for >= 5 with fixed seeds); LLM runs are noisy, so nothing here is a ranking.",
-    "B0/B1 agents talk to a purpose-built stdio MCP server with the same tool names and argument names as the Plexus tools the scenario uses (crucible/l3/baseline_mcp.py); they have no lineage tools and `verify_artifact` is only acknowledged. P uses the real plexus-mcp.",
+    "B0/B1 agents talk to a purpose-built stdio MCP server with the same tool names and argument names as the Knewat tools the scenario uses (crucible/l3/baseline_mcp.py); they have no lineage tools and `verify_artifact` is only acknowledged. P uses the real knewat-mcp.",
     "The scheduler, prompts, faults (builder killed at step 15, style guide v2 at step 20) and model are the P3 demo's and identical across arms. The poison fault is off.",
     "Metrics come from the agents' stream-json transcripts and the final task states; 'stale artifacts' is a text heuristic (an artifact summary written after v2 was published that names v1 and not v2).",
 ]
@@ -436,7 +436,7 @@ def main(argv: list[str] | None = None) -> int:
         "schema_version": H.SCHEMA_VERSION, "kind": "crucible-results",
         "run": {"id": run_id, "started_at": iso_utc(started),
                 "finished_at": iso_utc(), "duration_s": round(time.time() - started, 1),
-                "quick": True, "command": "python -m plexus.crucible.l3.run " + " ".join(argv if argv is not None else sys.argv[1:]),
+                "quick": True, "command": "python -m knewat.crucible.l3.run " + " ".join(argv if argv is not None else sys.argv[1:]),
                 "layers": ["L3"]},
         "config": {"arms": list(arms), "l3": {"model": a.model, "max_turns": a.max_turns, "runs_per_arm": 1}},
         "arms": H.arms_section([x for x in arms if x in ("B0", "B1", "B2", "P")]),

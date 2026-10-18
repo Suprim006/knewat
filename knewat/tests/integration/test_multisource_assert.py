@@ -10,10 +10,10 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import FastEmbedder, HashEmbedder
-from plexus.engram import Engram
-from plexus.engram.errors import UnknownReference
-from plexus.lineage import Lineage
+from knewat.embed import FastEmbedder, HashEmbedder
+from knewat.engram import Engram
+from knewat.engram.errors import UnknownReference
+from knewat.lineage import Lineage
 
 
 def q(client, graph, cypher, **p):

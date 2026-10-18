@@ -14,11 +14,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.questions import Question
-from plexus.crucible.l2.scenario import decision_label
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l2.questions import Question
+from knewat.crucible.l2.scenario import decision_label
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.tenancy import graph_name
 
 QUERIES_ROOT = Path(__file__).resolve().parent / "queries"
 
@@ -45,7 +45,7 @@ class Trace:
     queries: list[str] = field(default_factory=list)
 
 
-class PlexusAnswerer:
+class KnewatAnswerer:
     def __init__(self, client: GraphClient, tenant: str):
         self.client = client
         self.graph = graph_name(tenant)

@@ -1,9 +1,9 @@
 """Crucible L7 family I: atomic multi-entity writes (SQL transactions vs FalkorDB one-statement / MULTI-EXEC / product).
 
-    python -m plexus.crucible.l7.i run --port 6368 --scale {dev,full} --out <dir> [--parts I1,I2,I3,I4,I5] [--arms ...]
-    python -m plexus.crucible.l7.i merge --out <dir> <results.json> ...      (merge parts into one doc)
+    python -m knewat.crucible.l7.i run --port 6368 --scale {dev,full} --out <dir> [--parts I1,I2,I3,I4,I5] [--arms ...]
+    python -m knewat.crucible.l7.i merge --out <dir> <results.json> ...      (merge parts into one doc)
 
-Arms, items and the partial-detection rule are described in ``i_arms``. Port 6368 / container plexus-db-68 only.
+Arms, items and the partial-detection rule are described in ``i_arms``. Port 6368 / container knewat-db-68 only.
 """
 
 from __future__ import annotations
@@ -23,8 +23,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l7 import common
-from plexus.crucible.l7.i_arms import (
+from knewat.crucible.l7 import common
+from knewat.crucible.l7.i_arms import (
     ARMS,
     ITEMS,
     SLUG,
@@ -96,7 +96,7 @@ def writer(arm_name: str, host: str, port: int, tenant: str, root: str, tag: str
 
 def _spawn_writer(arm: str, host: str, port: int, tenant: str, root: str, tag: str) -> subprocess.Popen:
     cmd = [
-        sys.executable, "-m", "plexus.crucible.l7.i", "writer", "--arm", arm, "--host", host, "--port", str(port),
+        sys.executable, "-m", "knewat.crucible.l7.i", "writer", "--arm", arm, "--host", host, "--port", str(port),
         "--tenant", tenant, "--root", root, "--tag", tag,
     ]  # fmt: skip
     return subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
@@ -316,8 +316,8 @@ def run_i3_arm(
     arm_name: str, kills: int, host: str, port: int, root: str, seed: int, writers: int = 4
 ) -> dict[str, Any]:
     container = common.container_for_port(port)
-    assert container == f"plexus-db-{port % 100}" and 6310 <= port <= 6399, (
-        "I3 may only kill the slot's own plexus-db-NN"
+    assert container == f"knewat-db-{port % 100}" and 6310 <= port <= 6399, (
+        "I3 may only kill the slot's own knewat-db-NN"
     )
     run = uuid.uuid4().hex[:6]
     arm = new_world(arm_name, host, port, root, run)
@@ -435,7 +435,7 @@ def _glue_lines(cls: type, method: str = "closeout") -> int:
 
 
 def run_i5(n: int, host: str, port: int, root: str, i1: dict | None, i2: dict | None) -> dict[str, Any]:
-    from plexus.crucible.l7.i_arms import QDIR, FOneStatement, SqliteArm
+    from knewat.crucible.l7.i_arms import QDIR, FOneStatement, SqliteArm
 
     stmt_f = common.code_lines((QDIR / "f_1stmt_first.cypher").read_text(encoding="utf-8"))
     sql_txt = "\n".join(
@@ -642,23 +642,23 @@ def cmd_run(a: argparse.Namespace) -> int:
                 )
                 _dump(doc, a)
         if "I3A" in parts:
-            from plexus.crucible.l7 import i_aof
+            from knewat.crucible.l7 import i_aof
 
             if a.aof_result:
                 aof = json.loads(Path(a.aof_result).read_text(encoding="utf-8"))
             else:
                 if not a.aof_data:
                     raise SystemExit(
-                        "I3A needs --aof-data or PLEXUS_AOF_EVIDENCE (the crash evidence is not in the repo)"
+                        "I3A needs --aof-data or KNEWAT_AOF_EVIDENCE (the crash evidence is not in the repo)"
                     )
                 aof = i_aof.run_repro(Path(a.aof_data), repeats=3)
             doc["parts"].setdefault("I3", {"arms": {}})["aof_repro"] = aof
         if "I4" in parts:
-            from plexus.crucible.l7 import i_conc
+            from knewat.crucible.l7 import i_conc
 
             doc["parts"]["I4"] = i_conc.run_i4(a.host, a.port, root, sc, log)
         if "I4C" in parts:
-            from plexus.crucible.l7 import i_conc
+            from knewat.crucible.l7 import i_conc
 
             rows = [
                 i_conc.rerun_a_cell(
@@ -733,12 +733,12 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument(
         "--aof-result",
         default="",
-        help="JSON written by `python -m plexus.crucible.l7.i_aof` (skips the repro)",
+        help="JSON written by `python -m knewat.crucible.l7.i_aof` (skips the repro)",
     )
     r.add_argument(
         "--aof-data",
-        default=os.environ.get("PLEXUS_AOF_EVIDENCE"),
-        help="data dir of the AOF that crashed FalkorDB on replay (not in the repo; env PLEXUS_AOF_EVIDENCE)",
+        default=os.environ.get("KNEWAT_AOF_EVIDENCE"),
+        help="data dir of the AOF that crashed FalkorDB on replay (not in the repo; env KNEWAT_AOF_EVIDENCE)",
     )
     m = sub.add_parser("merge")
     m.add_argument("--out", required=True)
@@ -751,7 +751,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "merge":
         return cmd_merge(a)
     if not 6310 <= a.port <= 6399:
-        print("family I needs an agent DB port 63NN (container plexus-db-NN)", file=sys.stderr)
+        print("family I needs an agent DB port 63NN (container knewat-db-NN)", file=sys.stderr)
         return 2
     return cmd_run(a)
 

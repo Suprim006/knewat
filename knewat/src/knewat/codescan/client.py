@@ -1,5 +1,5 @@
 # ruff: noqa: E501  (long prose lines, as in mcp/ and cli.py)
-"""A tiny client for the Plexus MCP server over streamable HTTP (``{url}/mcp/t/{tenant}``).
+"""A tiny client for the Knewat MCP server over streamable HTTP (``{url}/mcp/t/{tenant}``).
 
 Used by the CLI and the hooks; it runs on the developer machine and only calls the MCP tools, exactly like an agent.
 """
@@ -24,7 +24,7 @@ class McpCallError(RuntimeError):
 
 
 def default_url() -> str:
-    return os.environ.get("PLEXUS_URL") or DEFAULT_URL
+    return os.environ.get("KNEWAT_URL") or DEFAULT_URL
 
 
 def tenant_path(base: str, tenant: str) -> str:
@@ -87,7 +87,7 @@ def run_session[T](
             if isinstance(e, McpCallError):
                 raise e from None
         detail = "; ".join(str(e) or type(e).__name__ for e in inner)
-        raise McpCallError(f"cannot reach Plexus at {url}: {detail[:200]}") from exc
+        raise McpCallError(f"cannot reach Knewat at {url}: {detail[:200]}") from exc
 
 
 def _leaves(exc: BaseException) -> list[BaseException]:

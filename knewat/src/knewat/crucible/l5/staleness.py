@@ -2,13 +2,13 @@
 
 A scripted git repository (12 modules x 5 functions = 60 functions, one initial commit and ``commits`` change commits) and
 60 facts, one per function. Three arms, each in its own tenant graph and fed by the real client code
-(``plexus.codescan.workflow.commit_groups``):
+(``knewat.codescan.workflow.commit_groups``):
 
 * ``S``  facts anchored to the function (symbol level), every file and symbol entry is sent;
 * ``F``  facts anchored to the file, file-level entries only;
 * ``N``  no anchors (the baseline: nothing can be flagged).
 
-The ground truth is computed from the source text with ``ast`` and does not use ``plexus.codescan`` (the script's own edit
+The ground truth is computed from the source text with ``ast`` and does not use ``knewat.codescan`` (the script's own edit
 log is checked against it). No LLM.
 """
 
@@ -24,17 +24,17 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.codescan.entries import chunk_entries
-from plexus.codescan.gitutil import toplevel
-from plexus.codescan.hashing import hash_bytes, python_symbols
-from plexus.codescan.paths import absolute_canonical
-from plexus.codescan.workflow import commit_groups
-from plexus.embed import Embedder
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
-from plexus.staleness import Staleness
+from knewat.codescan.entries import chunk_entries
+from knewat.codescan.gitutil import toplevel
+from knewat.codescan.hashing import hash_bytes, python_symbols
+from knewat.codescan.paths import absolute_canonical
+from knewat.codescan.workflow import commit_groups
+from knewat.embed import Embedder
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
+from knewat.staleness import Staleness
 
 SEED = 20261016
 KINDS = ("value", "sibling", "docstring", "add", "module-comment", "whitespace", "reorder", "delete")
@@ -112,7 +112,7 @@ def _commit(root: Path, message: str, k: int) -> str:
 
 
 def segments(text: str) -> dict[str, str]:
-    """Source of every top-level function, independent of ``plexus.codescan``: de-indented, right-stripped."""
+    """Source of every top-level function, independent of ``knewat.codescan``: de-indented, right-stripped."""
     tree = ast.parse(text.replace("\r\n", "\n"))
     out: dict[str, str] = {}
     for node in tree.body:

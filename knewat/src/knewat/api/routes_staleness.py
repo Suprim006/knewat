@@ -5,14 +5,14 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Query
 from fastapi import Path as PathParam
 
-from plexus.activation import Activation, Settings
-from plexus.api import models as M
-from plexus.api.context import ApiContext, activation_props
-from plexus.api.routes_lineage import MAX_ID
-from plexus.common import OPEN
-from plexus.staleness import Staleness
+from knewat.activation import Activation, Settings
+from knewat.api import models as M
+from knewat.api.context import ApiContext, activation_props
+from knewat.api.routes_lineage import MAX_ID
+from knewat.common import OPEN
+from knewat.staleness import Staleness
 
-VERIFY_LIMIT_MAX = 200  # = plexus.staleness.service.MAX_LIST
+VERIFY_LIMIT_MAX = 200  # = knewat.staleness.service.MAX_LIST
 
 
 def router(ctx: ApiContext) -> APIRouter:

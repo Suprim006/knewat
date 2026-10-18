@@ -12,8 +12,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l6.arms_a import TIMEOUT_MS, CypherArm, Timeout, meta
-from plexus.crucible.l6.world import QuestionD
+from knewat.crucible.l6.arms_a import TIMEOUT_MS, CypherArm, Timeout, meta
+from knewat.crucible.l6.world import QuestionD
 
 # ------------------------------------------------------------------------------------------------ SQL
 _RANGE = "f.scope BETWEEN :lo AND :hi"

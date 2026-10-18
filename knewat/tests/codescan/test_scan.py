@@ -1,5 +1,5 @@
 # ruff: noqa: E501
-"""``plexus code baseline | scan`` against a real server and a temp git repository."""
+"""``knewat code baseline | scan`` against a real server and a temp git repository."""
 
 from __future__ import annotations
 
@@ -7,9 +7,9 @@ import time
 
 import pytest
 
-from plexus.cli import build_parser
-from plexus.codescan.client import McpCallError, run_session
-from plexus.codescan.paths import canonical_path
+from knewat.cli import build_parser
+from knewat.codescan.client import McpCallError, run_session
+from knewat.codescan.paths import canonical_path
 
 from .conftest import commit_all
 
@@ -160,7 +160,7 @@ def test_scan_of_a_repo_without_a_server_fails_cleanly(world, capsys):
         ]
     )
     assert code == 1
-    assert "plexus code scan:" in capsys.readouterr().err
+    assert "knewat code scan:" in capsys.readouterr().err
 
 
 def test_end_to_end_verify_and_time_travel(live, world):

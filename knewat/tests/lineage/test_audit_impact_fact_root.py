@@ -6,7 +6,7 @@ Before: the generator appended the root LAST (``reach + [src]``), so ``limit=1``
 
 from __future__ import annotations
 
-from plexus.lineage import Lineage
+from knewat.lineage import Lineage
 
 from .conftest import cypher
 

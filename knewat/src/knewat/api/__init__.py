@@ -1,1 +1,1 @@
-"""Read-only View API (FastAPI + SSE) consumed by plexus-view. Reads go through ``ro()`` only."""
+"""Read-only View API (FastAPI + SSE) consumed by knewat-view. Reads go through ``ro()`` only."""

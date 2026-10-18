@@ -1,6 +1,6 @@
 """Family I3 extra: reproduce the slot-64 AOF-replay crash from the preserved data directory, then bisect the AOF.
 
-Only ONE extra container is used: ``plexus-db-71-aofrepro`` on 127.0.0.1:6371 (image falkordb/falkordb:6.0.2, the same env
+Only ONE extra container is used: ``knewat-db-71-aofrepro`` on 127.0.0.1:6371 (image falkordb/falkordb:6.0.2, the same env
 as ``scripts/agent_db.sh``). The original data directory is never mounted or modified: every attempt works on a COPY that
 is ``docker cp``-ed into a created-but-not-started container. The container is removed at the end.
 
@@ -19,10 +19,10 @@ from functools import partial
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l7.common import docker
+from knewat.crucible.l7.common import docker
 
-NAME = os.environ.get("PLEXUS_AOF_NAME", "plexus-db-71-aofrepro")
-HOST_PORT = os.environ.get("PLEXUS_AOF_PORT", "6371")
+NAME = os.environ.get("KNEWAT_AOF_NAME", "knewat-db-71-aofrepro")
+HOST_PORT = os.environ.get("KNEWAT_AOF_PORT", "6371")
 IMAGE = "falkordb/falkordb:6.0.2"
 ENV = [
     "REDIS_ARGS=--appendonly yes --maxmemory-policy noeviction",

@@ -1,6 +1,6 @@
 """P12 token fix: the compact published tool schemas.
 
-The L8 token breakdown (``plexus.crucible.l8.token_breakdown``) found the tool list, re-read on every API
+The L8 token breakdown (``knewat.crucible.l8.token_breakdown``) found the tool list, re-read on every API
 call, to be the largest single cost of the P arm. These tests pin what the compact schema drops and what
 it must keep.
 """
@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import json
 
+from knewat.mcp.server import compact_schema
 from mcp import Client
-from plexus.mcp.server import compact_schema
 
 
 def test_compact_schema_drops_boilerplate_only():

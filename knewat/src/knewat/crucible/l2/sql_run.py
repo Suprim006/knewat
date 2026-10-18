@@ -1,12 +1,12 @@
 """Run arm B1h (hand-written SQL) on the L2 and L2-scale question sets and score it against the committed ground truth.
 
-    python -m plexus.crucible.l2.sql_run run                # -> demo_data/crucible/b1h/<stamp>/{results.json,report.md}
-    python -m plexus.crucible.l2.sql_run run --which l2     # only the 43-question set
+    python -m knewat.crucible.l2.sql_run run                # -> demo_data/crucible/b1h/<stamp>/{results.json,report.md}
+    python -m knewat.crucible.l2.sql_run run --which l2     # only the 43-question set
 
 No LLM call, no FalkorDB: the script of each set is replayed onto a throw-away :class:`SqliteHistoryBackend` (the ledger
 must equal the reference ledger the committed questions were generated from), the questions are loaded from the committed
 ``questions.yaml`` / ``questions_scale.yaml`` (their answers were derived from the script ledger, never typed), and every
-question is answered by :class:`~plexus.crucible.l2.sql_answerer.SqlAnswerer`. The scale set asks the same 36 questions as
+question is answered by :class:`~knewat.crucible.l2.sql_answerer.SqlAnswerer`. The scale set asks the same 36 questions as
 the paid L2-scale run (``FULL_DROPPED_IDS`` are dropped, as pre-registered in BASELINE amendment 1).
 """
 
@@ -23,15 +23,15 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.backends.sqlite_h import SqliteHistoryBackend
-from plexus.crucible.l2 import run as L2R
-from plexus.crucible.l2 import scale_run as SR
-from plexus.crucible.l2.questions import FAMILIES, Question, load_questions, score
-from plexus.crucible.l2.scale_questions import load_scale_questions
-from plexus.crucible.l2.scale_scenario import play_scale
-from plexus.crucible.l2.scenario import play
-from plexus.crucible.l2.sql_answerer import ScaleSqlAnswerer, SqlAnswerer
-from plexus.crucible.util import iso_utc, percentile, run_stamp
+from knewat.crucible.backends.sqlite_h import SqliteHistoryBackend
+from knewat.crucible.l2 import run as L2R
+from knewat.crucible.l2 import scale_run as SR
+from knewat.crucible.l2.questions import FAMILIES, Question, load_questions, score
+from knewat.crucible.l2.scale_questions import load_scale_questions
+from knewat.crucible.l2.scale_scenario import play_scale
+from knewat.crucible.l2.scenario import play
+from knewat.crucible.l2.sql_answerer import ScaleSqlAnswerer, SqlAnswerer
+from knewat.crucible.util import iso_utc, percentile, run_stamp
 
 DEMO_DATA = L2R.DEMO_DATA
 OUT_DIR = DEMO_DATA / "b1h"
@@ -106,7 +106,7 @@ def run_scale(work: Path, k: int = SR.K_SPRINTS, qpath: Path = SR.QUESTIONS_PATH
 
 
 def compare(rows_b1h: list[dict[str, Any]], p_rows: list[dict[str, Any]] | None) -> dict[str, Any] | None:
-    """Per-question agreement with the committed Plexus (P) rows of the same run (a paired view, no new P run)."""
+    """Per-question agreement with the committed Knewat (P) rows of the same run (a paired view, no new P run)."""
     if p_rows is None:
         return None
     p = {r["id"]: r["correct"] for r in p_rows}
@@ -138,11 +138,11 @@ def code_size() -> dict[str, Any]:
 
     cypher = sum(loc(p) for p in (here / "queries" / "l2").glob("*.cypher"))
     return {
-        "cypher_answerer_lines": loc(here / "plexus_answerer.py"),
+        "cypher_answerer_lines": loc(here / "knewat_answerer.py"),
         "cypher_statement_lines": cypher,
         "sql_answerer_lines": loc(here / "sql_answerer.py"),
         "note": "non-blank non-comment lines; the SQL answerer also holds the scale variant (about a quarter of it), "
-        "the Cypher one keeps that in scale_plexus.py (not counted)",
+        "the Cypher one keeps that in scale_knewat.py (not counted)",
     }
 
 
@@ -188,14 +188,14 @@ def build(which: str = "both") -> dict[str, Any]:
             "layers": layers,
             "honesty": [
                 "B1h is the existing B1 SQLite store with one added table (claims, written in the claim's own transaction) "
-                "because B1 never kept the claim history that the Recovery questions need and Plexus keeps as CLAIMED edges. "
+                "because B1 never kept the claim history that the Recovery questions need and Knewat keeps as CLAIMED edges. "
                 "No other schema or index change.",
                 "The 17 SQL operations were written by the same author as the Cypher ones, with knowledge of the question "
                 "set and the scenario: that is the point of a control (same effort, same spec), but it is not a blind SQL "
                 "arm. Ground truth is the committed question files (derived from the script ledger), the ledger of the B1h "
                 "replay equals the reference ledger.",
-                "A tie on correctness here says the L2/L2-scale gap between Plexus and the B1/B0 readers is reader-vs-query, "
-                "not graph-vs-SQL. B1h is in-process SQLite (no network hop), Plexus crosses a container network: "
+                "A tie on correctness here says the L2/L2-scale gap between Knewat and the B1/B0 readers is reader-vs-query, "
+                "not graph-vs-SQL. B1h is in-process SQLite (no network hop), Knewat crosses a container network: "
                 "latency columns are not a like-for-like speed comparison.",
             ],
         }

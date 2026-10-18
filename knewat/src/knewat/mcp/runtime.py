@@ -5,9 +5,9 @@ A tool is a plain function ``fn(ts: TenantState, m: MeteredClient) -> Outcome`` 
 the tool ran, records one ``ToolCall`` node afterwards, and turns failures into clear tool errors without ever
 exposing Cypher text.
 
-The pieces live in small modules and are re-exported here, so ``from plexus.mcp.runtime import ...`` keeps working:
-:mod:`~plexus.mcp.metering` (``MeteredClient``, ``Outcome``), :mod:`~plexus.mcp.tenant` (``TenantState``, scope
-resolution) and :mod:`~plexus.mcp.lineage_hook` (``Step`` / ``WROTE`` / ``READ`` attachment). This module keeps what
+The pieces live in small modules and are re-exported here, so ``from knewat.mcp.runtime import ...`` keeps working:
+:mod:`~knewat.mcp.metering` (``MeteredClient``, ``Outcome``), :mod:`~knewat.mcp.tenant` (``TenantState``, scope
+resolution) and :mod:`~knewat.mcp.lineage_hook` (``Step`` / ``WROTE`` / ``READ`` attachment). This module keeps what
 is process-wide: the database client, the tenant cache and the call wrapper.
 """
 
@@ -25,20 +25,20 @@ import anyio
 from mcp.server.mcpserver.exceptions import ToolError
 from redis.exceptions import RedisError, ResponseError
 
-from plexus.audit import record_tool_call
-from plexus.embed import Embedder
-from plexus.engram.errors import UnknownReference
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryError
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
-from plexus.mcp import lineage_hook
-from plexus.mcp.audit_policy import AuditMode, AuditPolicy, ToolKind
-from plexus.mcp.embedding import CheckedEmbedder, make_embedder
-from plexus.mcp.lineage_hook import HOOK_NODE_KEYS, LINK_CHUNK, WROTE_LABELS
-from plexus.mcp.metering import AUXILIARY_PREFIX, MeteredClient, Outcome
-from plexus.mcp.tenant import TenantState
-from plexus.relay import RelayError
+from knewat.audit import record_tool_call
+from knewat.embed import Embedder
+from knewat.engram.errors import UnknownReference
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryError
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
+from knewat.mcp import lineage_hook
+from knewat.mcp.audit_policy import AuditMode, AuditPolicy, ToolKind
+from knewat.mcp.embedding import CheckedEmbedder, make_embedder
+from knewat.mcp.lineage_hook import HOOK_NODE_KEYS, LINK_CHUNK, WROTE_LABELS
+from knewat.mcp.metering import AUXILIARY_PREFIX, MeteredClient, Outcome
+from knewat.mcp.tenant import TenantState
+from knewat.relay import RelayError
 
 __all__ = [
     "AUXILIARY_PREFIX",
@@ -53,10 +53,10 @@ __all__ = [
     "TenantState",
 ]
 
-log = logging.getLogger("plexus.mcp")  # stderr only: stdout is the stdio protocol channel
+log = logging.getLogger("knewat.mcp")  # stderr only: stdout is the stdio protocol channel
 
-TENANT_HEADER = "x-plexus-tenant"
-SCHEMA_RECHECK_S = 5.0  # how often a tenant's indexes are re-verified (env PLEXUS_SCHEMA_RECHECK_S)
+TENANT_HEADER = "x-knewat-tenant"
+SCHEMA_RECHECK_S = 5.0  # how often a tenant's indexes are re-verified (env KNEWAT_SCHEMA_RECHECK_S)
 
 
 class Runtime:
@@ -71,11 +71,11 @@ class Runtime:
         audit_policy: AuditPolicy | None = None,
     ):
         self.client = client or GraphClient()
-        self.audit = audit_policy or AuditPolicy.from_env()  # a bad PLEXUS_AUDIT_MODE(S) fails at start
+        self.audit = audit_policy or AuditPolicy.from_env()  # a bad KNEWAT_AUDIT_MODE(S) fails at start
         self.schema_recheck_s = (
             schema_recheck_s
             if schema_recheck_s is not None
-            else float(os.environ.get("PLEXUS_SCHEMA_RECHECK_S") or SCHEMA_RECHECK_S)
+            else float(os.environ.get("KNEWAT_SCHEMA_RECHECK_S") or SCHEMA_RECHECK_S)
         )
         self._agent_locks: dict[tuple[str, str], list] = {}  # (tenant, agent) -> [lock, users]
         self._embedder = (
@@ -191,9 +191,9 @@ class Runtime:
     ) -> dict[str, Any]:
         """Run ``fn`` for the bound tenant, record a ToolCall, return its data (+ ``tool_call_id``).
 
-        ``kind`` / ``exposure`` come from the tool's :class:`~plexus.mcp.toolkit.ToolDef` and ``audit`` is the
+        ``kind`` / ``exposure`` come from the tool's :class:`~knewat.mcp.toolkit.ToolDef` and ``audit`` is the
         caller's per-call request; with the tenant's mode they pick how much is recorded (see
-        :mod:`plexus.mcp.audit_policy`). A write tool on an ``off`` tenant is refused before anything is touched.
+        :mod:`knewat.mcp.audit_policy`). A write tool on an ``off`` tenant is refused before anything is touched.
         """
         if not agent_id or not agent_id.strip():
             raise ToolError("agent_id is required")
@@ -316,7 +316,7 @@ class Runtime:
                 raise
         raise AssertionError("unreachable")  # pragma: no cover (the second attempt returns or raises)
 
-    # -- Lineage hook (see plexus.mcp.lineage_hook) --------------------------------------------------------
+    # -- Lineage hook (see knewat.mcp.lineage_hook) --------------------------------------------------------
     def _open_step(
         self, ts: TenantState, agent_id: str, step: int | None, at: int, degraded: list[str]
     ) -> str | None:

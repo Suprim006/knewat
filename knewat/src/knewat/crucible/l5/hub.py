@@ -22,13 +22,13 @@ import time
 import uuid
 from typing import Any
 
-from plexus.activation import Settings
-from plexus.crucible.l5.forgetting import _Recording, virtual_now
-from plexus.embed import Embedder
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
+from knewat.activation import Settings
+from knewat.crucible.l5.forgetting import _Recording, virtual_now
+from knewat.embed import Embedder
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
 
 SEED = 20261016
 HUB_NAME = "Atlas Core Platform"

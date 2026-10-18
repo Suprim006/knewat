@@ -1,4 +1,4 @@
-"""MCP fixtures: a Runtime on a throwaway tenant (graph ``plexus_t_<tenant>`` dropped in teardown)."""
+"""MCP fixtures: a Runtime on a throwaway tenant (graph ``knewat_t_<tenant>`` dropped in teardown)."""
 
 from __future__ import annotations
 
@@ -6,10 +6,10 @@ import uuid
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 
 
 @pytest.fixture

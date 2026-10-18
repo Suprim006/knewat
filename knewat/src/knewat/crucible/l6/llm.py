@@ -25,20 +25,20 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.llm import USAGE_KEYS, BudgetExceeded
-from plexus.crucible.l2.questions import parse_reply as _parse_l2
+from knewat.crucible.l2.llm import USAGE_KEYS, BudgetExceeded
+from knewat.crucible.l2.questions import parse_reply as _parse_l2
 
 PROMPT_VERSION = "l6-v1"
 MODEL = "sonnet"
 PER_CALL_CAP_USD = 0.80
 MAX_TURNS = {"B0r": 3, "B1a": 20, "B0g": 20, "P": 20}
-# P: the real Plexus MCP server, read-only tools only (the write tools, quarantine_source above all, are not allowed)
+# P: the real Knewat MCP server, read-only tools only (the write tools, quarantine_source above all, are not allowed)
 P_TOOLS = ("impact", "why", "blocked_by_failure", "task_status", "who_knew", "fact_history")
 ALLOWED_TOOLS = {
     "B0r": set(),
     "B1a": {"mcp__sql__query"},
     "B0g": {"Bash", "Read", "Grep", "Glob"},
-    "P": {f"mcp__plexus__{t}" for t in P_TOOLS},
+    "P": {f"mcp__knewat__{t}" for t in P_TOOLS},
 }
 
 COMMON = (
@@ -89,7 +89,7 @@ ROLES = {
         "database. " + SCHEMA_NOTE + " " + COMMON
     ),
     "P": (
-        "You answer one question about a team's recorded memory, kept in the Plexus graph memory. You have its read-only tools "
+        "You answer one question about a team's recorded memory, kept in the Knewat graph memory. You have its read-only tools "
         "(`impact`, `why`, `blocked_by_failure`, `task_status`, `who_knew`, `fact_history`); each tool describes itself. Facts are "
         "recorded with their provenance: a fact derives from a source or from other facts, decisions are based on facts, handoffs "
         "carry facts, steps read facts. Use the tools; do not guess and do not invent ids. If no tool can give a part of the answer, "
@@ -211,7 +211,7 @@ class PilotRunner:
             "B0r": "tools=none max_turns=3 stdin",
             "B1a": f"tools=mcp__sql__query(read-only sql, 20s, 200 rows, 12000 chars) max_turns={MAX_TURNS['B1a']}",
             "B0g": f"tools=Bash,Read,Grep,Glob max_turns={MAX_TURNS['B0g']} cwd=copy of the files",
-            "P": f"tools=plexus-mcp stdio, allowed {','.join(P_TOOLS)} max_turns={MAX_TURNS['P']} embedder=hash",
+            "P": f"tools=knewat-mcp stdio, allowed {','.join(P_TOOLS)} max_turns={MAX_TURNS['P']} embedder=hash",
         }[arm]
 
     def key(self, arm: str, prompt: str, data_sha: str) -> str:
@@ -250,7 +250,7 @@ class PilotRunner:
             ]
         if arm == "P":
             assert mcp_config is not None
-            allowed = ",".join(f"mcp__plexus__{t}" for t in P_TOOLS)
+            allowed = ",".join(f"mcp__knewat__{t}" for t in P_TOOLS)
             return [
                 *base,
                 "--tools",
@@ -334,7 +334,7 @@ class PilotRunner:
                             "mcpServers": {
                                 "sql": {
                                     "command": sys.executable,
-                                    "args": ["-m", "plexus.crucible.l6.sql_mcp", "--db", db],
+                                    "args": ["-m", "knewat.crucible.l6.sql_mcp", "--db", db],
                                 }
                             }
                         }
@@ -349,16 +349,16 @@ class PilotRunner:
                     json.dumps(
                         {
                             "mcpServers": {
-                                "plexus": {
+                                "knewat": {
                                     "command": str(
                                         Path(sys.executable).parent
-                                        / ("plexus-mcp.exe" if os.name == "nt" else "plexus-mcp")
+                                        / ("knewat-mcp.exe" if os.name == "nt" else "knewat-mcp")
                                     ),
                                     "args": ["--transport", "stdio", "--tenant", tenant],
                                     "env": {
                                         "FALKORDB_HOST": self.db_host,
                                         "FALKORDB_PORT": str(self.db_port),
-                                        "PLEXUS_EMBEDDER": "hash",
+                                        "KNEWAT_EMBEDDER": "hash",
                                     },
                                 }
                             }

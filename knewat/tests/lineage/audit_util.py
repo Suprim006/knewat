@@ -11,8 +11,8 @@ import subprocess
 import tempfile
 from pathlib import Path
 
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
 
 BASELINE = "edf9a91"
 HERE = Path(__file__).resolve()
@@ -32,12 +32,12 @@ def old_library() -> QueryLibrary:
             text=True,
             check=True,
         ).stdout.strip()
-        dest = Path(tempfile.mkdtemp(prefix="plexus_old_queries_"))
+        dest = Path(tempfile.mkdtemp(prefix="knewat_old_queries_"))
         archive = subprocess.run(
-            ["git", "archive", BASELINE, "plexus/queries"], cwd=repo, capture_output=True, check=True
+            ["git", "archive", BASELINE, "knewat/queries"], cwd=repo, capture_output=True, check=True
         ).stdout
         subprocess.run(["tar", "-x", "-C", str(dest)], input=archive, check=True)
-        _old_root = dest / "plexus" / "queries"
+        _old_root = dest / "knewat" / "queries"
     return QueryLibrary(_old_root)
 
 

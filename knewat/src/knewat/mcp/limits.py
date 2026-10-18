@@ -14,7 +14,7 @@ from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from plexus.common import OPEN  # "open-ended" epoch ms; also the upper bound for any caller-supplied time
+from knewat.common import OPEN  # "open-ended" epoch ms; also the upper bound for any caller-supplied time
 
 MAX_ID = 128
 MAX_NAME = 512

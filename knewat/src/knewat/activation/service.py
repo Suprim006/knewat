@@ -11,12 +11,12 @@ from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass, field
 from typing import Any
 
-from plexus.activation import model
-from plexus.activation import score as score_mod
-from plexus.activation.model import Event
-from plexus.activation.settings import SWEEP_MARGIN, Settings
-from plexus.common import check_between, now_ms, unique
-from plexus.graph.client import GraphClient
+from knewat.activation import model
+from knewat.activation import score as score_mod
+from knewat.activation.model import Event
+from knewat.activation.settings import SWEEP_MARGIN, Settings
+from knewat.common import check_between, now_ms, unique
+from knewat.graph.client import GraphClient
 
 MAX_IDS = 200  # fact ids per activation query
 MAX_SWEEP_SCAN = 5000  # active facts of a scope that one sweep looks at (oldest first)

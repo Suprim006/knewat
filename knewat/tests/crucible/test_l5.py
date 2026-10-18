@@ -1,4 +1,4 @@
-"""Crucible L5 at toy size (no LLM). The full run is `python -m plexus.crucible.l5`; its design is pre-registered in
+"""Crucible L5 at toy size (no LLM). The full run is `python -m knewat.crucible.l5`; its design is pre-registered in
 docs/BASELINE.md. These tests check that the harness measures what it claims to, not the headline numbers."""
 
 from __future__ import annotations
@@ -7,9 +7,9 @@ import json
 
 import pytest
 
-from plexus.crucible.l5 import report as R
-from plexus.crucible.l5.staleness import KINDS, build_repo, run_arm, segments
-from plexus.embed import HashEmbedder
+from knewat.crucible.l5 import report as R
+from knewat.crucible.l5.staleness import KINDS, build_repo, run_arm, segments
+from knewat.embed import HashEmbedder
 
 from .conftest import DB_HOST, DB_PORT
 
@@ -74,7 +74,7 @@ def test_staleness_arms(tmp_path, l5_client, emb):
 
 
 def test_forgetting_toy_run(l5_client, emb):
-    from plexus.crucible.l5.forgetting import run_forgetting
+    from knewat.crucible.l5.forgetting import run_forgetting
 
     res = run_forgetting(l5_client, emb, k_sprints=1, noise_mult=2, days=20)
     assert res["classes"]["critical"] > 0 and res["noise_facts"] > 0
@@ -90,7 +90,7 @@ def test_forgetting_toy_run(l5_client, emb):
 
 
 def test_forgetting_d013_modes_toy(l5_client, emb):
-    from plexus.crucible.l5.forgetting import run_forgetting
+    from knewat.crucible.l5.forgetting import run_forgetting
 
     names = ("off", "kw-fix", "sep", "sep+mult")
     res = run_forgetting(l5_client, emb, k_sprints=2, noise_mult=2, modes=names, burst=True)
@@ -111,7 +111,7 @@ def test_forgetting_d013_modes_toy(l5_client, emb):
 
 def test_hub_variant_toy(l5_client, emb, tmp_path):
     """The plan's §5.3 hub world runs end to end on the hash embedder (toy: every arm, criteria present)."""
-    from plexus.crucible.l5 import hub as H
+    from knewat.crucible.l5 import hub as H
 
     res = H.run_hub(l5_client, emb)
     assert res["world"]["facts"] == H.HUB_FACTS + H.N_OTHERS * H.FACTS_PER_OTHER
@@ -130,11 +130,11 @@ def test_hub_variant_toy(l5_client, emb, tmp_path):
 
 
 def test_forgetting_sql_arm_toy(l5_client, emb, tmp_path):
-    """Plan §5.4: the SQL arm (export + three statements) runs next to Plexus; activation agrees for every fact,
+    """Plan §5.4: the SQL arm (export + three statements) runs next to Knewat; activation agrees for every fact,
     the retrieval-only mode (`off`) finds the same target at rank 1 for every probe, and the arm counts its
     statements and SQL lines."""
-    from plexus.crucible.l5 import sql_arm
-    from plexus.crucible.l5.forgetting import run_forgetting
+    from knewat.crucible.l5 import sql_arm
+    from knewat.crucible.l5.forgetting import run_forgetting
 
     res = run_forgetting(
         l5_client,
@@ -151,14 +151,14 @@ def test_forgetting_sql_arm_toy(l5_client, emb, tmp_path):
     assert res["sql_arm"]["sql_lines"] == sql_arm.sql_lines() > 50
     pr = res["sql_pairs"]["off"]
     # the hash embedder produces exact distance ties, so only rank-1 agreement is asserted on the toy world
-    assert pr["same_top1"] == pr["n"] and pr["only_plexus_at1"] == pr["only_sql_at1"] == 0
+    assert pr["same_top1"] == pr["n"] and pr["only_knewat_at1"] == pr["only_sql_at1"] == 0
     assert res["sql_modes"]["sep+mult"]["statements_per_probe"] >= 3.0
     assert res["modes"]["sep+mult"]["statements_per_probe"] >= 4.0
     assert res["sql_modes"]["off"]["probe_ms"]["n"] == pr["n"]
 
 
 def test_forgetting_unknown_mode(l5_client, emb):
-    from plexus.crucible.l5.forgetting import run_forgetting
+    from knewat.crucible.l5.forgetting import run_forgetting
 
     with pytest.raises(ValueError):
         run_forgetting(l5_client, emb, k_sprints=1, modes=("nope",))

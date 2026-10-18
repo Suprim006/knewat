@@ -6,14 +6,14 @@ import os
 
 import pytest
 
-from plexus.crucible.l2.plexus_answerer import QUERIES_ROOT, PlexusAnswerer
-from plexus.crucible.l2.questions import build_questions, score
-from plexus.crucible.l2.scenario import play
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
+from knewat.crucible.l2.knewat_answerer import QUERIES_ROOT, KnewatAnswerer
+from knewat.crucible.l2.questions import build_questions, score
+from knewat.crucible.l2.scenario import play
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
 
 DB_HOST = "127.0.0.1"
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 
 
 def test_every_query_file_loads_and_is_read_only():
@@ -25,21 +25,21 @@ def test_every_query_file_loads_and_is_read_only():
 
 
 def test_every_op_has_a_cypher_answerer(tmp_path):
-    from plexus.crucible.l2.questions import generate
+    from knewat.crucible.l2.questions import generate
 
     _, qs = generate(tmp_path)
-    ops = {n[4:] for n in vars(PlexusAnswerer) if n.startswith("_op_")}
+    ops = {n[4:] for n in vars(KnewatAnswerer) if n.startswith("_op_")}
     assert {q.op for q in qs} <= ops
 
 
 @pytest.mark.integration
-def test_plexus_answers_match_ground_truth(opened):
+def test_knewat_answers_match_ground_truth(opened):
     b = opened("P")
     led = play(b)
     qs = build_questions(led)
     client = GraphClient(host=DB_HOST, port=DB_PORT)
     try:
-        ans = PlexusAnswerer(client, b.tenant)
+        ans = KnewatAnswerer(client, b.tenant)
         wrong = []
         for q in qs:
             got, meta = ans.answer(q)

@@ -1,15 +1,15 @@
 """Streamable-HTTP tenant binding (ASGI middleware around the MCP SDK's Starlette app).
 
-``/mcp/t/<tenant>`` (or ``/mcp`` + ``X-Plexus-Tenant``) is rewritten to ``/mcp`` with a trusted ``x-plexus-tenant``
+``/mcp/t/<tenant>`` (or ``/mcp`` + ``X-Knewat-Tenant``) is rewritten to ``/mcp`` with a trusted ``x-knewat-tenant``
 header that the tools read through ``ctx.headers``. The tenant is PINNED to the MCP session when it is created;
 replaying that ``mcp-session-id`` under another tenant gets a 403. Pinning fails CLOSED: a session id this
 middleware holds no pin for (never issued, evicted, expired) is refused with a 404, which tells an MCP client to
 initialize a new session. Pins are evicted least-recently-used. The tenant is a routing identity, not an
 authenticated one (bind to loopback / put a token in front if the port leaves the machine).
 
-A **toolset** (``?toolset=core`` or ``X-Plexus-Toolset``, see :mod:`plexus.mcp.toolsets`) is validated here (400
+A **toolset** (``?toolset=core`` or ``X-Knewat-Toolset``, see :mod:`knewat.mcp.toolsets`) is validated here (400
 with the valid names when unknown), fixed when the session is created (a later request naming another toolset gets
-a 400) and passed on as a trusted canonical ``x-plexus-toolset`` header; no toolset means the server's default.
+a 400) and passed on as a trusted canonical ``x-knewat-toolset`` header; no toolset means the server's default.
 
 ``GET /healthz`` is a static liveness answer; ``GET /healthz?deep=1`` also pings the database (503 when it is down).
 """
@@ -23,9 +23,9 @@ from urllib.parse import parse_qs
 
 import anyio
 
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import TENANT_HEADER
-from plexus.mcp.toolsets import TOOLSET_HEADER, ToolsetError, canonical
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.runtime import TENANT_HEADER
+from knewat.mcp.toolsets import TOOLSET_HEADER, ToolsetError, canonical
 
 PATH_PREFIX = "/mcp/t/"
 MAX_PINS = 10_000
@@ -88,11 +88,11 @@ class TenantPathMiddleware:
             return await self._reply(send, 400, "invalid tenant: must match ^[a-z0-9_]{1,48}$")
         from_path = path[len(PATH_PREFIX) :].split("/", 1)[0] if path.startswith(PATH_PREFIX) else None
         if from_path is not None and from_header is not None and from_path != from_header:
-            return await self._reply(send, 400, "tenant in the URL and in X-Plexus-Tenant differ")
+            return await self._reply(send, 400, "tenant in the URL and in X-Knewat-Tenant differ")
         tenant = from_path if from_path is not None else from_header
         if not tenant:
             return await self._reply(
-                send, 400, "no tenant: connect to /mcp/t/<tenant> (or send X-Plexus-Tenant)"
+                send, 400, "no tenant: connect to /mcp/t/<tenant> (or send X-Knewat-Tenant)"
             )
         try:
             graph_name(tenant)
@@ -145,16 +145,16 @@ class TenantPathMiddleware:
 
 
 def _requested_toolset(scope, hdrs) -> str | None:
-    """The canonical toolset the request names (``?toolset=`` and/or ``X-Plexus-Toolset``), ``None`` if neither.
+    """The canonical toolset the request names (``?toolset=`` and/or ``X-Knewat-Toolset``), ``None`` if neither.
     Raises :class:`ToolsetError` for an unknown name, a non-UTF-8 header or two different values."""
     query = parse_qs(scope.get("query_string", b"").decode("latin-1"), keep_blank_values=True).get("toolset")
     raw = next((v for k, v in hdrs if k.lower() == TOOLSET_HEADER.encode()), None)
     header = _text(raw)
     if raw is not None and header is None:
-        raise ToolsetError("X-Plexus-Toolset is not valid UTF-8")
+        raise ToolsetError("X-Knewat-Toolset is not valid UTF-8")
     picked = {canonical(v) for v in [*(query or []), *([header] if header is not None else [])]}
     if len(picked) > 1:
-        raise ToolsetError(f"the URL and X-Plexus-Toolset name different toolsets: {sorted(picked)}")
+        raise ToolsetError(f"the URL and X-Knewat-Toolset name different toolsets: {sorted(picked)}")
     return picked.pop() if picked else None
 
 

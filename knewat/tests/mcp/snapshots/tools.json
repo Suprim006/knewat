@@ -1056,7 +1056,7 @@
     }
   },
   "mark_changed": {
-    "description": "Report that code changed (normally called by the git post-commit / Claude Code edit hooks, see\n`plexus code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay\nrecallable but are flagged. A first sighting of a file with no old_hash is just a baseline. Returns the\nsuspect fact_ids, the decisions built on them, and the docs that describe the changed code. If truncated\nis true, call again with the same arguments (and the returned 'at') to continue.",
+    "description": "Report that code changed (normally called by the git post-commit / Claude Code edit hooks, see\n`knewat code`). Memories that depend on a changed file or function become SUSPECT, not false: they stay\nrecallable but are flagged. A first sighting of a file with no old_hash is just a baseline. Returns the\nsuspect fact_ids, the decisions built on them, and the docs that describe the changed code. If truncated\nis true, call again with the same arguments (and the returned 'at') to continue.",
     "inputSchema": {
       "$defs": {
         "ChangeSpec": {
@@ -1077,7 +1077,7 @@
             },
             "old_hash": {
               "default": "",
-              "description": "Hash before the change, if you know it. Used only when Plexus has no hash stored yet.",
+              "description": "Hash before the change, if you know it. Used only when Knewat has no hash stored yet.",
               "type": "string"
             },
             "path": {

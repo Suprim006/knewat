@@ -1,6 +1,6 @@
 """Assemble the L8 round-A results (results.json + report.md) from the scored runs, the audits and the probe.
 
-python -m plexus.crucible.l8.report --out demo_data/crucible/l8 [--audit] [--probe-seed 20261017]
+python -m knewat.crucible.l8.report --out demo_data/crucible/l8 [--audit] [--probe-seed 20261017]
 """
 
 from __future__ import annotations
@@ -12,12 +12,12 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible.l8.run import OUT_DEFAULT, git_state
-from plexus.crucible.l8.score import common_task_rate, redump_p_steps, score_all
-from plexus.crucible.util import iso_utc, run_stamp
+from knewat.crucible import environment
+from knewat.crucible.l8.run import OUT_DEFAULT, git_state
+from knewat.crucible.l8.score import common_task_rate, redump_p_steps, score_all
+from knewat.crucible.util import iso_utc, run_stamp
 
-ARM_NAME = {"P": "P (Plexus)", "B1": "B1 (SQLite)", "B0p": "B0′ (Claude Code files)"}
+ARM_NAME = {"P": "P (Knewat)", "B1": "B1 (SQLite)", "B0p": "B0′ (Claude Code files)"}
 
 
 def pct(x: float | None) -> str:
@@ -47,19 +47,19 @@ def headline(pooled: dict[str, Any]) -> dict[str, Any]:
     out = []
     if sep_b1 and Y is not None and X is not None and Y < X:
         out.append(
-            f"With the same agents, prompts and fault timeline, Plexus cut stale actions from {pct(X)} (B1) / {pct(X2)} "
+            f"With the same agents, prompts and fault timeline, Knewat cut stale actions from {pct(X)} (B1) / {pct(X2)} "
             f"(B0′) to {pct(Y)}, and step repetition from {pct(A)} (B1) to {pct(B)}, at {Z}× the tokens per correct "
             f"action ({W}× billing-weighted); the Postgres arm with the same tool design (B3) was not run in round A, so "
             "whether the design or the graph accounts for the difference is not settled."
         )
     elif sep_b1:
         out.append(
-            f"Plexus had MORE stale actions than SQLite ({pct(Y)} vs {pct(X)}, separated, n = {n} seeds each) and used {Z}× "
+            f"Knewat had MORE stale actions than SQLite ({pct(Y)} vs {pct(X)}, separated, n = {n} seeds each) and used {Z}× "
             f"the tokens per correct action ({W}× billing-weighted): a loss on the headline metric."
         )
     else:
         out.append(
-            f"Plexus did not reduce stale actions versus SQLite ({pct(Y)} vs {pct(X)}, n = {n} seeds each; not separated by "
+            f"Knewat did not reduce stale actions versus SQLite ({pct(Y)} vs {pct(X)}, n = {n} seeds each; not separated by "
             f"the pre-stated rule) and used {Z}× the tokens per correct action ({W}× billing-weighted); its remaining "
             "advantages are the ones L2/L6 established (deterministic, $0 provenance answers)."
         )
@@ -335,7 +335,7 @@ def assemble(
     audit_rows = []
     probe = None
     if audit:
-        from plexus.crucible.l8.audit import audit_run
+        from knewat.crucible.l8.audit import audit_run
 
         for rj in sorted((out / "runs").glob("*/*/run.json")):
             rd = rj.parent
@@ -349,7 +349,7 @@ def assemble(
                                "Q3": {k: res["Q3"][k] for k in ("truth", "answer", "correct")},
                                "reader_cost": round(sum(c["cost"] for c in res["reader_calls"]), 4)})  # fmt: skip
     if probe_seed:
-        from plexus.crucible.l8.audit import run_probe
+        from knewat.crucible.l8.audit import run_probe
 
         rp = json.loads((out / "runs" / str(probe_seed) / "P" / "run.json").read_text(encoding="utf-8"))
         rb = json.loads((out / "runs" / str(probe_seed) / "B1" / "run.json").read_text(encoding="utf-8"))
@@ -395,7 +395,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--port", type=int, default=6365)
     a = ap.parse_args(argv)
     d = assemble(a.out, audit=a.audit, probe_seed=a.probe_seed, host=a.host, port=a.port, started=time.time(),
-                 command="python -m plexus.crucible.l8.report " + " ".join(argv or []))  # fmt: skip
+                 command="python -m knewat.crucible.l8.report " + " ".join(argv or []))  # fmt: skip
     print((d / "report.md").read_text(encoding="utf-8"))
     return 0
 

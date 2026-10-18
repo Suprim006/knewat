@@ -26,9 +26,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l6.world import T0, World, _fact_text
-from plexus.graph.client import GraphClient
-from plexus.lineage.service import Lineage
+from knewat.crucible.l6.world import T0, World, _fact_text
+from knewat.graph.client import GraphClient
+from knewat.lineage.service import Lineage
 
 OPEN = 9_999_999_999_999
 Q_SOURCES, Q_FACTS, Q_DEC = 20, 60, 6
@@ -131,7 +131,7 @@ class EArm:
     def close(self) -> None: ...
 
 
-class PlexusE(EArm):
+class KnewatE(EArm):
     """P-1stmt / P-levelwise over a FalkorDB graph already loaded with the world."""
 
     ONE = (
@@ -539,12 +539,12 @@ def run_all(
 
 
 def _make_arm(nm: str, world: World, tmp: Path, client: GraphClient | None, run: int) -> EArm:
-    from plexus.crucible.l6 import stores as S
+    from knewat.crucible.l6 import stores as S
 
     if nm.startswith("P-"):
         assert client is not None
-        name, _ = S.load_plexus(world, client, f"l6_e_{run}_{nm.lower().replace('-', '_')}")
-        return PlexusE(client, name, levelwise=nm == "P-levelwise")
+        name, _ = S.load_knewat(world, client, f"l6_e_{run}_{nm.lower().replace('-', '_')}")
+        return KnewatE(client, name, levelwise=nm == "P-levelwise")
     if nm.startswith("B1h-"):
         mode = nm.split("-", 1)[1]
         path, _ = S.build_sqlite(world, tmp, f"e_{run}_{mode}")

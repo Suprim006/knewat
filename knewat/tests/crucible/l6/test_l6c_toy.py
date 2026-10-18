@@ -1,7 +1,7 @@
 """L6-C at toy size: generator invariants, both hand-written arms against the generator's truth, the product arm runs, plan shape.
 
-No result is recorded here (the registered size is run by ``plexus.crucible.l6.run_c``). Needs a FalkorDB on
-``PLEXUS_TEST_DB_PORT`` (marked ``integration``).
+No result is recorded here (the registered size is run by ``knewat.crucible.l6.run_c``). Needs a FalkorDB on
+``KNEWAT_TEST_DB_PORT`` (marked ``integration``).
 """
 
 from __future__ import annotations
@@ -11,14 +11,14 @@ import os
 
 import pytest
 
-from plexus.crucible.l6 import arms_c as C
-from plexus.crucible.l6 import stores_c as S
-from plexus.crucible.l6 import world_c as W
-from plexus.embed.hash_embedder import HashEmbedder
-from plexus.engram.service import Engram
-from plexus.graph.client import GraphClient
+from knewat.crucible.l6 import arms_c as C
+from knewat.crucible.l6 import stores_c as S
+from knewat.crucible.l6 import world_c as W
+from knewat.embed.hash_embedder import HashEmbedder
+from knewat.engram.service import Engram
+from knewat.graph.client import GraphClient
 
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 SCALE = 0.05
 
 
@@ -36,7 +36,7 @@ def client():
 
 @pytest.fixture(scope="module")
 def graph(world, client):
-    name, _ = S.load_plexus_c(world, client, "l6c_toy_t")
+    name, _ = S.load_knewat_c(world, client, "l6c_toy_t")
     yield name
     client.delete_graph(name)
 

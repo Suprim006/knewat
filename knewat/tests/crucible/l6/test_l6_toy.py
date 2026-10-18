@@ -1,7 +1,7 @@
 """L6 at toy size: the generators' truth, the loaders' counts, the scorer, and every deterministic arm against the truth.
 
-No result is recorded here (the registered sizes are run by ``plexus.crucible.l6.run``). Cypher arms need a FalkorDB on
-``PLEXUS_TEST_DB_PORT`` and are marked ``integration``.
+No result is recorded here (the registered sizes are run by ``knewat.crucible.l6.run``). Cypher arms need a FalkorDB on
+``KNEWAT_TEST_DB_PORT`` and are marked ``integration``.
 """
 
 from __future__ import annotations
@@ -11,15 +11,15 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l6 import arms_a as A
-from plexus.crucible.l6 import arms_b as B
-from plexus.crucible.l6 import arms_d as D
-from plexus.crucible.l6 import score as SC
-from plexus.crucible.l6 import stores as S
-from plexus.crucible.l6 import world as W
-from plexus.graph.client import GraphClient
+from knewat.crucible.l6 import arms_a as A
+from knewat.crucible.l6 import arms_b as B
+from knewat.crucible.l6 import arms_d as D
+from knewat.crucible.l6 import score as SC
+from knewat.crucible.l6 import stores as S
+from knewat.crucible.l6 import world as W
+from knewat.graph.client import GraphClient
 
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 
 
 @pytest.fixture(scope="module")
@@ -182,7 +182,7 @@ def client():
 @pytest.mark.integration
 def test_cypher_arms_family_a_and_dag(wa, client):
     w, qs = wa
-    name, _ = S.load_plexus(w, client, "l6_toy_a")
+    name, _ = S.load_knewat(w, client, "l6_toy_a")
     try:
         g = client.graph(name)
         tuned, anchored = A.TunedArm(g), A.AnchoredArm(g)
@@ -200,7 +200,7 @@ def test_cypher_arms_family_a_and_dag(wa, client):
     finally:
         client.delete_graph(name)
     w, q = W.gen_dag(8)
-    name, _ = S.load_plexus(w, client, "l6_toy_dag")
+    name, _ = S.load_knewat(w, client, "l6_toy_dag")
     try:
         g = client.graph(name)
         for arm in (A.TunedArm(g), A.NaiveArm(g)):
@@ -213,7 +213,7 @@ def test_cypher_arms_family_a_and_dag(wa, client):
 @pytest.mark.integration
 def test_cypher_arms_family_b_and_d(wb, wd, client):
     w, qs = wb
-    name, _ = S.load_plexus(w, client, "l6_toy_b")
+    name, _ = S.load_knewat(w, client, "l6_toy_b")
     try:
         g = client.graph(name)
         for arm in (B.TunedB(g), B.NaiveB(g)):
@@ -223,7 +223,7 @@ def test_cypher_arms_family_b_and_d(wb, wd, client):
     finally:
         client.delete_graph(name)
     w, qs = wd
-    name, _ = S.load_plexus(w, client, "l6_toy_d")
+    name, _ = S.load_knewat(w, client, "l6_toy_d")
     try:
         arm = D.CypherD(client.graph(name))
         for q in qs:

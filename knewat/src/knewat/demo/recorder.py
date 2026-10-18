@@ -16,11 +16,11 @@ from typing import Any
 
 import redis
 
-from plexus.demo.engine import World
-from plexus.demo.inventory import inventory
-from plexus.demo.scenario import recordings_dir
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.demo.engine import World
+from knewat.demo.inventory import inventory
+from knewat.demo.scenario import recordings_dir
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 _RUN_RE = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,60}")
 DUMP_NAME = "graph.dump"

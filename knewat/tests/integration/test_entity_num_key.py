@@ -5,9 +5,9 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.engram.dedup import features
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.engram.dedup import features
 
 
 class SameVector(HashEmbedder):

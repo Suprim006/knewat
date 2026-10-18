@@ -5,10 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from plexus.demo.inventory import inventory
-from plexus.demo.recorder import DUMP_NAME, load_meta, raw_connection, run_dir
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.demo.inventory import inventory
+from knewat.demo.recorder import DUMP_NAME, load_meta, raw_connection, run_dir
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 
 class ReplayError(RuntimeError):

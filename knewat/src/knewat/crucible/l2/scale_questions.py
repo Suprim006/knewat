@@ -14,7 +14,7 @@ import random
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.questions import (
+from knewat.crucible.l2.questions import (
     FAMILIES,
     Question,
     _decisions_on,
@@ -23,8 +23,8 @@ from plexus.crucible.l2.questions import (
     _facts_at,
     load_questions,
 )
-from plexus.crucible.l2.scale_scenario import ScaleLedger, Sprint
-from plexus.crucible.l2.scenario import Ledger, decision_label
+from knewat.crucible.l2.scale_scenario import ScaleLedger, Sprint
+from knewat.crucible.l2.scenario import Ledger, decision_label
 
 SEED = 20261015
 FMT_FACTS = 'a JSON list of fact names, e.g. ["predicate=value"]'
@@ -310,7 +310,7 @@ def dump_scale_questions(qs: list[Question], sl: ScaleLedger, path: Path) -> Non
 
     doc = {
         "schema": "crucible-l2-scale-questions/1",
-        "generated_from": "plexus.crucible.l2.scale_scenario.play_scale (K sprints); answers are derived from the per-sprint ledgers, never typed",
+        "generated_from": "knewat.crucible.l2.scale_scenario.play_scale (K sprints); answers are derived from the per-sprint ledgers, never typed",
         "seed": SEED,
         "scenario": scale_summary(sl, qs),
         "questions": [q.to_json() for q in qs],
@@ -322,15 +322,15 @@ def dump_scale_questions(qs: list[Question], sl: ScaleLedger, path: Path) -> Non
 
 
 def load_scale_questions(path: Path) -> list[Question]:
-    """Same file layout as :func:`plexus.crucible.l2.questions.load_questions` (a ``questions`` list)."""
+    """Same file layout as :func:`knewat.crucible.l2.questions.load_questions` (a ``questions`` list)."""
     return load_questions(path)
 
 
 def generate_scale(root: str | Path, k: int) -> tuple[ScaleLedger, list[Question]]:
     """Play k sprints on a throw-away B1 store and derive the questions from the ledgers."""
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
-    from plexus.crucible.l2.scale_scenario import play_scale
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
+    from knewat.crucible.l2.scale_scenario import play_scale
 
     b = open_backend(BackendSpec(arm="B1", tenant="l2s_truth", root=str(root)))
     try:

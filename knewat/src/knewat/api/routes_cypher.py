@@ -22,10 +22,10 @@ from fastapi.concurrency import run_in_threadpool
 from redis.exceptions import RedisError, ResponseError
 from redis.exceptions import TimeoutError as RedisTimeout
 
-from plexus.api import models as M
-from plexus.api.context import ApiContext, is_missing_graph
+from knewat.api import models as M
+from knewat.api.context import ApiContext, is_missing_graph
 
-log = logging.getLogger("plexus.api.cypher")
+log = logging.getLogger("knewat.api.cypher")
 
 MAX_QUERY_CHARS = 4000
 MAX_PARAMS_BYTES = 8000

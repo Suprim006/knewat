@@ -6,8 +6,8 @@ import math
 
 import pytest
 
-from plexus.activation import Activation, Settings
-from plexus.activation.service import SALIENCE_W, salience_of
+from knewat.activation import Activation, Settings
+from knewat.activation.service import SALIENCE_W, salience_of
 
 from .conftest import DAY, write
 

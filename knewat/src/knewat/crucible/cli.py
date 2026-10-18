@@ -4,11 +4,11 @@ Examples::
 
     uv run crucible all --quick                       # CI-sized, against FALKORDB_HOST/PORT (default localhost:6379)
     FALKORDB_PORT=6389 uv run crucible l1 --arms B1,P --tests C1,C3 --reps 3
-    docker compose -p plexus-bench --profile bench run --rm crucible all     # the published run, inside the network
+    docker compose -p knewat-bench --profile bench run --rm crucible all     # the published run, inside the network
 
 Results go to ``<results dir>/<timestamp>/results.json`` + ``report.md`` (``CRUCIBLE_RESULTS_DIR`` or
-``--out``; default ``plexus/src/plexus/crucible/results``). Exit code: 0 when the run completed and the Plexus arm
-had no L1 violation; 1 when the Plexus arm failed an L1 test (baseline failures are findings, not errors); 2 when the
+``--out``; default ``knewat/src/knewat/crucible/results``). Exit code: 0 when the run completed and the Knewat arm
+had no L1 violation; 1 when the Knewat arm failed an L1 test (baseline failures are findings, not errors); 2 when the
 database is unreachable or the arguments are wrong.
 """
 
@@ -24,10 +24,10 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import results as R
-from plexus.crucible.config import L1_ARMS, L4_ARMS, L1Config, L4Config, quick_l1, quick_l4
-from plexus.crucible.harness import Env
-from plexus.crucible.l1 import TESTS
+from knewat.crucible import results as R
+from knewat.crucible.config import L1_ARMS, L4_ARMS, L1Config, L4Config, quick_l1, quick_l4
+from knewat.crucible.harness import Env
+from knewat.crucible.l1 import TESTS
 
 
 def _csv(value: str) -> tuple[str, ...]:
@@ -36,7 +36,7 @@ def _csv(value: str) -> tuple[str, ...]:
 
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
-        prog="crucible", description="Plexus Crucible: change only the backend, measure the rest."
+        prog="crucible", description="Knewat Crucible: change only the backend, measure the rest."
     )
     p.add_argument(
         "layer",
@@ -58,7 +58,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--out", type=Path, help="results root (default $CRUCIBLE_RESULTS_DIR or the package results/ dir)"
     )
     p.add_argument(
-        "--embedder", choices=("fastembed", "hash"), help="default fastembed (or $PLEXUS_EMBEDDER)"
+        "--embedder", choices=("fastembed", "hash"), help="default fastembed (or $KNEWAT_EMBEDDER)"
     )
     p.add_argument("--host", help="FalkorDB host (default $FALKORDB_HOST or 127.0.0.1)")
     p.add_argument("--port", type=int, help="FalkorDB port (default $FALKORDB_PORT or 6379)")
@@ -164,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
         if not args.base or not args.cell or not args.reason:
             print("crucible rerun needs --base, at least one --cell and a --reason", file=sys.stderr)
             return 2
-        from plexus.crucible.rerun import rerun
+        from knewat.crucible.rerun import rerun
 
         try:
             d, _ = rerun(args.base, args.cell, args.reason, env, log=lambda m: print(m, flush=True))
@@ -186,17 +186,17 @@ def main(argv: list[str] | None = None) -> int:
     ab: dict[str, Any] | None = None
     try:
         if args.layer in ("l1", "all"):
-            from plexus.crucible.l1 import run_l1
+            from knewat.crucible.l1 import run_l1
 
             print("== L1: correctness under concurrency ==", flush=True)
             l1 = run_l1(env, l1_cfg, log=lambda m: print(m, flush=True))
         if args.layer in ("l4", "all"):
-            from plexus.crucible.l4 import run_l4
+            from knewat.crucible.l4 import run_l4
 
             print("== L4: performance and scale ==", flush=True)
             l4 = run_l4(env, l4_cfg, log=lambda m: print(m, flush=True))
         if args.layer in ("ablation", "all"):
-            from plexus.crucible.ablation import run_ablation
+            from knewat.crucible.ablation import run_ablation
 
             print("== Ablation ==", flush=True)
             ab = run_ablation(env, l1_cfg, log=lambda m: print(m, flush=True))
@@ -220,12 +220,12 @@ def main(argv: list[str] | None = None) -> int:
     out_root = args.out or R.default_results_dir()
     d = R.write(res, out_root, run_id)
     print(f"results: {d / 'results.json'}\nreport:  {d / 'report.md'}", flush=True)
-    plexus_failed = False
+    knewat_failed = False
     if l1 is not None and "P" in l1:
-        plexus_failed = any(not r["passed"] for r in l1["P"].values())
-        if plexus_failed:
-            print("crucible: the Plexus arm FAILED an L1 test (see report)", file=sys.stderr)
-    return 1 if plexus_failed else 0
+        knewat_failed = any(not r["passed"] for r in l1["P"].values())
+        if knewat_failed:
+            print("crucible: the Knewat arm FAILED an L1 test (see report)", file=sys.stderr)
+    return 1 if knewat_failed else 0
 
 
 if __name__ == "__main__":

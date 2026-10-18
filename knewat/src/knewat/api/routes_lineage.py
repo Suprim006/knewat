@@ -9,10 +9,10 @@ from fastapi import APIRouter, HTTPException
 from fastapi import Path as PathParam
 from redis.exceptions import RedisError, ResponseError
 
-from plexus.api import models as M
-from plexus.api.context import ApiContext, activation_props, is_missing_graph, log
-from plexus.common import OPEN
-from plexus.lineage import Lineage
+from knewat.api import models as M
+from knewat.api.context import ApiContext, activation_props, is_missing_graph, log
+from knewat.common import OPEN
+from knewat.lineage import Lineage
 
 MAX_ID = 128
 

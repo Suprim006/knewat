@@ -1,10 +1,10 @@
 """Family J: per-arm adapters. Every arm performs the same logical operation per call.
 
-* ``F-mcp``      ``PlexusBackend(mode="mcp")``: every call goes through ``Runtime._run`` (Step + READ/WROTE + ToolCall).
+* ``F-mcp``      ``KnewatBackend(mode="mcp")``: every call goes through ``Runtime._run`` (Step + READ/WROTE + ToolCall).
                  Tools the Crucible backend lacks (start_session, verify_artifact, why, impact, remember_episode into a
-                 given session) run the product's own MCP work functions (``plexus.mcp.tools_*``) through the same
+                 given session) run the product's own MCP work functions (``knewat.mcp.tools_*``) through the same
                  ``_call`` path, so they are audited like the rest.
-* ``F-service``  ``PlexusBackend(mode="service")``: the same services, no per-call ToolCall audit.
+* ``F-service``  ``KnewatBackend(mode="service")``: the same services, no per-call ToolCall audit.
 * ``S-file``     the B1 SQLite store, one file per tenant. Additions (see ``J_SCHEMA``): ``sessions`` (start_session) and
                  ``artifact_verifications`` (verify_artifact), written inside ``BEGIN IMMEDIATE`` like every B1 write.
                  ``why`` = B1 ``why``; ``impact`` = one recursive CTE (the J-trav mix only builds the extra
@@ -22,9 +22,9 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.api import UnknownReference
-from plexus.crucible.backends.sqlite import SqliteBackend
-from plexus.crucible.util import new_id, now_ms
+from knewat.crucible.api import UnknownReference
+from knewat.crucible.backends.sqlite import SqliteBackend
+from knewat.crucible.util import new_id, now_ms
 
 ARMS = ("F-mcp", "F-service", "S-file")
 
@@ -32,17 +32,17 @@ ARMS = ("F-mcp", "F-service", "S-file")
 # ------------------------------------------------------------------------------------------------ F
 class FAdapter:
     def __init__(self, tenant: str, host: str, port: int, mode: str, client: Any = None):
-        from plexus.crucible.backends.plexus import PlexusBackend
+        from knewat.crucible.backends.knewat import KnewatBackend
 
         self.tenant, self.mode = tenant, mode
-        self.b = PlexusBackend(tenant, host=host, port=port, embedder="hash", mode=mode, client=client)
+        self.b = KnewatBackend(tenant, host=host, port=port, embedder="hash", mode=mode, client=client)
 
     # ``_call`` is the backend's own plumbing for both modes (mcp -> Runtime._run; service -> same services w/o audit)
     def _tool(self, tool: str, agent: str, fn) -> dict[str, Any]:
         return self.b._call(tool, agent, fn)
 
     def start_session(self, agent: str, role: str = "") -> str:
-        from plexus.mcp import tools_engram
+        from knewat.mcp import tools_engram
 
         d = self._tool(
             "start_session",
@@ -54,7 +54,7 @@ class FAdapter:
         return d["session_id"]
 
     def remember_episode(self, agent: str, session_id: str, text: str) -> str:
-        from plexus.mcp.runtime import Outcome
+        from knewat.mcp.runtime import Outcome
 
         def work(ts, m):
             eid = ts.engram(m).remember_episode(session_id, "note", text, None)
@@ -89,7 +89,7 @@ class FAdapter:
         return self.b.record_decision(agent, task_id, text, fact_ids)
 
     def verify_artifact(self, agent: str, artifact_id: str) -> None:
-        from plexus.mcp import tools_relay
+        from knewat.mcp import tools_relay
 
         self._tool(
             "verify_artifact",
@@ -100,7 +100,7 @@ class FAdapter:
         )
 
     def why(self, agent: str, node_id: str) -> None:
-        from plexus.mcp import lineage_tools
+        from knewat.mcp import lineage_tools
 
         self._tool(
             "why",
@@ -109,7 +109,7 @@ class FAdapter:
         )
 
     def impact(self, agent: str, kind: str, node_id: str) -> None:
-        from plexus.mcp import tools_impact
+        from knewat.mcp import tools_impact
 
         self._tool(
             "impact",

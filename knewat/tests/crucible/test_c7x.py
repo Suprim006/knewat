@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from collections import Counter, defaultdict
 
-from plexus.crucible.config import quick_l1
-from plexus.crucible.harness import Env
-from plexus.crucible.l1 import C7X_PATH, c7x, load_c7x, rule_of_three
+from knewat.crucible.config import quick_l1
+from knewat.crucible.harness import Env
+from knewat.crucible.l1 import C7X_PATH, c7x, load_c7x, rule_of_three
 
 from .conftest import DB_HOST, DB_PORT
 
@@ -88,10 +88,10 @@ def test_baseline_arms_are_measured_but_not_gated():
     assert r.passed and r.metrics["false_merges"] > 100
 
 
-def test_the_plexus_arm_has_zero_false_merges_on_a_slice(tmp_path, embedder_kind):
+def test_the_knewat_arm_has_zero_false_merges_on_a_slice(tmp_path, embedder_kind):
     env = Env(root=str(tmp_path / "root"), host=DB_HOST, port=DB_PORT, embedder=embedder_kind)
     pairs = [p for p in load_c7x() if p["category"] in ("negation", "unit_diff", "punctuation")][:30]
-    from plexus.crucible.harness import ArmRun
+    from knewat.crucible.harness import ArmRun
 
     run = ArmRun(env, "P")
     try:

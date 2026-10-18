@@ -1,6 +1,6 @@
 """Benchmark for ``activation/activation`` (spec P7-K slice 3): 10k facts, each with up to 50 READ edges.
 
-Run:  PLEXUS_TEST_DB_PORT=6392 uv run python -m tests.activation.bench_activation [facts] [reads_per_fact]
+Run:  KNEWAT_TEST_DB_PORT=6392 uv run python -m tests.activation.bench_activation [facts] [reads_per_fact]
 Prints the server-side ``run_time_ms`` (FalkorDB's own timing, not the Docker port-forward time) for 50 ids.
 """
 
@@ -13,10 +13,10 @@ import sys
 import time
 import uuid
 
-from plexus.activation import Activation, Settings
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.schema import apply_schema
+from knewat.activation import Activation, Settings
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.schema import apply_schema
 
 DAY = 86_400_000
 NOW = 5_000 * DAY
@@ -58,7 +58,7 @@ def build(client: GraphClient, graph: str, facts: int, reads: int, steps: int = 
 def main() -> None:
     facts = int(sys.argv[1]) if len(sys.argv) > 1 else 10_000
     reads = int(sys.argv[2]) if len(sys.argv) > 2 else 50
-    port = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6392"))
+    port = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6392"))
     client = GraphClient(host="127.0.0.1", port=port, password="", library=QueryLibrary())
     graph = f"test_bench_{uuid.uuid4().hex[:8]}"
     try:

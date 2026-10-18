@@ -6,7 +6,7 @@ import json
 
 import pytest
 
-from plexus.codescan.paths import anchor_id
+from knewat.codescan.paths import anchor_id
 
 from .conftest import cypher
 

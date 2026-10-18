@@ -1,14 +1,14 @@
-"""Run the Acme Notes scenario with three REAL Claude Code agents (``claude -p``) against Plexus over MCP.
+"""Run the Acme Notes scenario with three REAL Claude Code agents (``claude -p``) against Knewat over MCP.
 
 Each turn is one headless ``claude -p`` process for one role, started by the shared scheduler
-(``plexus.demo.engine``): the planner creates the task graph and makes decisions, the researcher turns documents into
+(``knewat.demo.engine``): the planner creates the task graph and makes decisions, the researcher turns documents into
 sourced facts, the builder claims build tasks and hands off. Every process gets a generated per-run ``mcp.json``
-(stdio ``plexus-mcp --tenant <run tenant>``), ``--strict-mcp-config``, no built-in tools and only
-``mcp__plexus__*`` allowed, and runs without ``ANTHROPIC_API_KEY`` so usage goes to the signed-in subscription.
+(stdio ``knewat-mcp --tenant <run tenant>``), ``--strict-mcp-config``, no built-in tools and only
+``mcp__knewat__*`` allowed, and runs without ``ANTHROPIC_API_KEY`` so usage goes to the signed-in subscription.
 
-The orchestrator reads each process's ``stream-json`` output: it counts Plexus tool calls on the global step counter,
+The orchestrator reads each process's ``stream-json`` output: it counts Knewat tool calls on the global step counter,
 tracks the claim / complete state, applies the fault script (killing the builder process mid-task) and checks every
-``result`` for ``is_error`` and ``permission_denials`` (a blocked tool still exits 0). Plexus itself contains no LLM.
+``result`` for ``is_error`` and ``permission_denials`` (a blocked tool still exits 0). Knewat itself contains no LLM.
 """
 
 from __future__ import annotations
@@ -26,16 +26,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.demo.engine import BUILDER, AgentKilled, Turn, World
-from plexus.demo.engine import run as run_engine
-from plexus.demo.scenario import (
+from knewat.demo.engine import BUILDER, AgentKilled, Turn, World
+from knewat.demo.engine import run as run_engine
+from knewat.demo.scenario import (
     FaultScript,
     TaskDef,
     load_scenario,
     role_prompt,
 )
 
-MCP_PREFIX = "mcp__plexus__"
+MCP_PREFIX = "mcp__knewat__"
 REAL_LEASE_MS = 60_000  # ordinary leases in real runs (a turn is slow)
 REAL_BUILDER_LEASE_MS = 45_000
 TURN_TIMEOUT_S = 900
@@ -58,9 +58,9 @@ def clean_env(base: dict[str, str] | None = None, extra: dict[str, str] | None =
     return env
 
 
-def plexus_mcp_command() -> str:
-    """The ``plexus-mcp`` script of the running environment (no ``uv run``: it starts faster)."""
-    exe = "plexus-mcp.exe" if os.name == "nt" else "plexus-mcp"
+def knewat_mcp_command() -> str:
+    """The ``knewat-mcp`` script of the running environment (no ``uv run``: it starts faster)."""
+    exe = "knewat-mcp.exe" if os.name == "nt" else "knewat-mcp"
     p = Path(sys.executable).parent / exe
     return str(p) if p.exists() else exe
 
@@ -68,18 +68,18 @@ def plexus_mcp_command() -> str:
 def build_mcp_config(
     tenant: str, mcp_command: str | None = None, env: dict[str, str] | None = None
 ) -> dict[str, object]:
-    """The MCP config of one stdio Plexus server bound to ``tenant`` (what ``claude --mcp-config`` reads)."""
+    """The MCP config of one stdio Knewat server bound to ``tenant`` (what ``claude --mcp-config`` reads)."""
     server_env = {
         "FALKORDB_HOST": os.environ.get("FALKORDB_HOST", "127.0.0.1"),
         "FALKORDB_PORT": os.environ.get("FALKORDB_PORT", "6379"),
     }
-    if os.environ.get("PLEXUS_EMBEDDER"):
-        server_env["PLEXUS_EMBEDDER"] = os.environ["PLEXUS_EMBEDDER"]
+    if os.environ.get("KNEWAT_EMBEDDER"):
+        server_env["KNEWAT_EMBEDDER"] = os.environ["KNEWAT_EMBEDDER"]
     server_env.update(env or {})
     return {
         "mcpServers": {
-            "plexus": {
-                "command": mcp_command or plexus_mcp_command(),
+            "knewat": {
+                "command": mcp_command or knewat_mcp_command(),
                 "args": ["--transport", "stdio", "--tenant", tenant],
                 "env": server_env,
             }
@@ -88,7 +88,7 @@ def build_mcp_config(
 
 
 def build_http_mcp_config(url: str, tenant: str) -> dict[str, object]:
-    """The MCP config of a streamable-HTTP Plexus endpoint; the tenant is pinned by the URL path ``/mcp/t/<tenant>``."""
+    """The MCP config of a streamable-HTTP Knewat endpoint; the tenant is pinned by the URL path ``/mcp/t/<tenant>``."""
     if not url.startswith(("http://", "https://")):
         raise ValueError(f"--http must be an http(s) URL, got {url!r}")
     base = url.rstrip("/")
@@ -96,13 +96,13 @@ def build_http_mcp_config(url: str, tenant: str) -> dict[str, object]:
         base += f"/t/{tenant}"
     elif "/mcp/t/" not in base:
         base += f"/mcp/t/{tenant}"
-    return {"mcpServers": {"plexus": {"type": "http", "url": base}}}
+    return {"mcpServers": {"knewat": {"type": "http", "url": base}}}
 
 
 def write_mcp_config(
     path: Path, tenant: str, mcp_command: str | None = None, env: dict[str, str] | None = None
 ) -> Path:
-    """The per-run ``mcp.json``: one stdio Plexus server bound to ``tenant``."""
+    """The per-run ``mcp.json``: one stdio Knewat server bound to ``tenant``."""
     path.write_text(json.dumps(build_mcp_config(tenant, mcp_command, env), indent=2), encoding="utf-8")
     return path
 
@@ -136,7 +136,7 @@ def build_command(cfg: ClaudeConfig, prompt: str, system_append: str) -> list[st
         str(cfg.mcp_config),
         "--strict-mcp-config",
         "--allowedTools",
-        "mcp__plexus__*",
+        "mcp__knewat__*",
         "--tools",
         "",
         "--output-format",
@@ -197,7 +197,7 @@ class TeamState:
 def step_hint(w: World) -> str:
     n = w.step + 1
     return (
-        f"\nStep numbers: pass `step` on every Plexus call: step={n} on your first call in this assignment, "
+        f"\nStep numbers: pass `step` on every Knewat call: step={n} on your first call in this assignment, "
         f"step={n + 1} on the next, then {n + 2}, {n + 3}, ... (one number per call, including start_session; "
         "never reuse or skip a number)."
     )
@@ -248,7 +248,7 @@ class TurnReport:
     kind: str
     killed: bool = False
     result: dict[str, Any] = field(default_factory=dict)
-    plexus_calls: int = 0
+    knewat_calls: int = 0
     transcript: str = ""
     problems: list[str] = field(default_factory=list)
 
@@ -369,22 +369,22 @@ class ClaudeDriver:
             bad = [
                 s
                 for s in ev.get("mcp_servers", [])
-                if s.get("name") == "plexus" and s.get("status") != "connected"
+                if s.get("name") == "knewat" and s.get("status") != "connected"
             ]
-            if bad or not any(s.get("name") == "plexus" for s in ev.get("mcp_servers", [])):
-                raise ClaudeRunError(f"Plexus MCP server did not connect: {ev.get('mcp_servers')}")
+            if bad or not any(s.get("name") == "knewat" for s in ev.get("mcp_servers", [])):
+                raise ClaudeRunError(f"Knewat MCP server did not connect: {ev.get('mcp_servers')}")
         elif kind == "assistant":
             for block in ev.get("message", {}).get("content", []):
                 if block.get("type") != "tool_use":
                     continue
                 name = block.get("name", "")
                 if not name.startswith(MCP_PREFIX):
-                    rep.problems.append(f"non-Plexus tool used: {name}")
+                    rep.problems.append(f"non-Knewat tool used: {name}")
                     continue
                 short = name[len(MCP_PREFIX) :]
                 pending[block["id"]] = (short, block.get("input") or {})
                 step = w.count_call(turn.agent, short)
-                rep.plexus_calls += 1
+                rep.knewat_calls += 1
                 self._emit(f"step {step:>3}  {turn.agent:<10} {short}")
         elif kind == "user":
             for block in ev.get("message", {}).get("content", []):
@@ -474,7 +474,7 @@ class ClaudeDriver:
                     "agent": r.agent,
                     "name": r.name,
                     "killed": r.killed,
-                    "plexus_calls": r.plexus_calls,
+                    "knewat_calls": r.knewat_calls,
                     "subtype": res.get("subtype"),
                     "is_error": res.get("is_error"),
                     "num_turns": res.get("num_turns"),
@@ -511,7 +511,7 @@ async def _kill(proc: asyncio.subprocess.Process) -> None:
 
 
 def _result_json(content: Any) -> dict[str, Any]:
-    """The JSON object a Plexus tool returned, from a ``tool_result`` content (string or list of text blocks)."""
+    """The JSON object a Knewat tool returned, from a ``tool_result`` content (string or list of text blocks)."""
     if isinstance(content, list):
         content = "".join(b.get("text", "") for b in content if isinstance(b, dict))
     if isinstance(content, str):
@@ -526,7 +526,7 @@ def _result_json(content: Any) -> dict[str, Any]:
 # ------------------------------------------------------------------------------------------------ CLI entry
 def step_numbering(client, tenant: str) -> dict[str, int]:
     """How well the agents followed the shared step counter: ToolCalls whose ``step`` is their landing position."""
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.tenancy import graph_name
 
     calls = client.ro(graph_name(tenant), "view/flow", {"after": 0, "limit": 5000})
     ok = sum(1 for i, c in enumerate(calls, start=1) if c["step"] == i)
@@ -538,14 +538,14 @@ def step_numbering(client, tenant: str) -> dict[str, int]:
 
 
 def cli_run_claude(a: argparse.Namespace) -> int:
-    from plexus.cli import _client, _prepare_tenant
-    from plexus.demo.recorder import record_run
+    from knewat.cli import _client, _prepare_tenant
+    from knewat.demo.recorder import record_run
 
     client = _client()
     run = a.run_name or time.strftime("claude-%Y%m%d-%H%M")
     tenant = a.tenant or "demo_claude"
     _prepare_tenant(client, tenant, a.reset)
-    workdir = Path(tempfile.mkdtemp(prefix=f"plexus-demo-{run}-"))
+    workdir = Path(tempfile.mkdtemp(prefix=f"knewat-demo-{run}-"))
     cfg = ClaudeConfig(
         workdir=workdir,
         mcp_config=write_mcp_config(workdir / "mcp.json", tenant, a.mcp_command),
@@ -574,7 +574,7 @@ def cli_run_claude(a: argparse.Namespace) -> int:
     claude_meta.update(
         status=status,
         error=error,
-        mcp_config=json.loads(cfg.mcp_config.read_text())["mcpServers"]["plexus"]["args"],
+        mcp_config=json.loads(cfg.mcp_config.read_text())["mcpServers"]["knewat"]["args"],
         step_numbering=step_numbering(client, tenant),
     )
     print(

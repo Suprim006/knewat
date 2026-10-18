@@ -5,7 +5,7 @@ the query resolved to; no database.
 
 ``final = relevance * (floor + (1 - floor) * sigmoid(A - A0))``, protected facts use ``max(A, A0)``; with
 pattern separation on, ``final`` is also multiplied by ``exp(sep)``. ``sep`` is the context term
-(:mod:`plexus.activation.score`): the entity cue (the query names the fact's entity) and the predicate cue
+(:mod:`knewat.activation.score`): the entity cue (the query names the fact's entity) and the predicate cue
 (the query names the fact's predicate), each ``w * max(0, S - ln fan)``, summed.
 With forgetting off the multiplier is 1 (relevance and separation only); with separation off ``sep`` is zero
 and no lures are reported. Both off = the plain vector/keyword order.
@@ -19,10 +19,10 @@ from collections.abc import Collection, Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from plexus.activation import model
-from plexus.activation import score as S
-from plexus.activation.service import FactActivation
-from plexus.activation.settings import Settings
+from knewat.activation import model
+from knewat.activation import score as S
+from knewat.activation.service import FactActivation
+from knewat.activation.settings import Settings
 
 _WORD = re.compile(r"[^\W_]+", re.UNICODE)
 LURE_GAP = (
@@ -94,7 +94,7 @@ def rerank(
     ``relevance`` = ``1 - rank`` (``rank`` is the cosine distance after the sibling boost), clamped to [0, 1].
     ``entities`` maps the ids of the entities the query names to their fan (current facts about them);
     ``predicates`` maps the predicates the query names to their fan (current facts with that predicate in
-    the searched scopes). Both are cues of the context term (:func:`plexus.activation.score.context_term`).
+    the searched scopes). Both are cues of the context term (:func:`knewat.activation.score.context_term`).
     A fact that is a full-text keyword hit **and** whose text (``entity predicate: value``) contains every
     query keyword (``words``) is exempt from the use-history multiplier.
     ``forgetting`` / ``separation`` default to the settings. Order: ``final`` descending, then vector rank,

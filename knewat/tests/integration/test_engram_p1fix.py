@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import EmbeddingDimensionError
-from plexus.engram import Engram, UnknownReference
+from knewat.embed import EmbeddingDimensionError
+from knewat.engram import Engram, UnknownReference
 
 COMMON = " ".join(f"w{i}" for i in range(40))  # 40 shared tokens: one changed digit stays within 0.08
 
@@ -113,7 +113,7 @@ def test_entities_differing_only_in_numbers_stay_distinct(eng, a, b):
 
 
 def test_default_entity_threshold_is_tighter():
-    from plexus.engram.service import ENTITY_NEAR
+    from knewat.engram.service import ENTITY_NEAR
 
     assert ENTITY_NEAR == 0.10
 

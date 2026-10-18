@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l2.questions import (
+from knewat.crucible.l2.questions import (
     FAMILIES,
     Question,
     build_questions,
@@ -51,7 +51,7 @@ def test_ground_truth_is_stable(truth, tmp_path):
 
 def test_committed_file_matches_the_generator(truth):
     _, qs = truth
-    assert COMMITTED.exists(), "run: python -m plexus.crucible.l2.run questions"
+    assert COMMITTED.exists(), "run: python -m knewat.crucible.l2.run questions"
     assert [q.to_json() for q in load_questions(COMMITTED)] == [q.to_json() for q in qs]
 
 

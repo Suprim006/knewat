@@ -1,7 +1,7 @@
 """L5b: activation ranking with and without forgetting, on the L2-scale history plus decaying noise (pre-registered in
 docs/BASELINE.md).
 
-The history is ``play_scale`` (K sprints) in one tenant of the Plexus arm. For every subject that has a real fact, N noise
+The history is ``play_scale`` (K sprints) in one tenant of the Knewat arm. For every subject that has a real fact, N noise
 facts are added in the same scope; then 90 days of reads are simulated with a seeded schedule (hot set read all the time,
 the *critical* facts a Decision rests on read exactly once, 90 days ago, noise read a little at the start and then never).
 Probes are fact lookups. Modes: ``off``, ``on`` (activation ranking), ``on+sweep`` (a real sweep first, then ``on``).
@@ -23,15 +23,15 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import plexus.engram.service as engram_service
-from plexus.activation import Activation, Settings
-from plexus.crucible.backends.plexus import PlexusBackend
-from plexus.crucible.l2.scale_scenario import play_scale
-from plexus.crucible.l5 import sql_arm
-from plexus.embed import Embedder
-from plexus.engram import Engram
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+import knewat.engram.service as engram_service
+from knewat.activation import Activation, Settings
+from knewat.crucible.backends.knewat import KnewatBackend
+from knewat.crucible.l2.scale_scenario import play_scale
+from knewat.crucible.l5 import sql_arm
+from knewat.embed import Embedder
+from knewat.engram import Engram
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 SEED = 20261016
 DAY_MS = 86_400_000
@@ -212,7 +212,7 @@ def _measure(
     now: int | None = None,
     recorder: _Recording | None = None,
 ) -> dict[str, Any]:
-    """One mode over every probe. ``eng`` is the Plexus ``Engram`` (its client wrapped in ``recorder`` for the
+    """One mode over every probe. ``eng`` is the Knewat ``Engram`` (its client wrapped in ``recorder`` for the
     statement / server-time columns) or the SQL arm (``sql_arm.SqlRecall``, which counts its own statements)."""
     per_class: dict[str, dict[str, Any]] = {}
     rows_total = noise_rows = chars = 0
@@ -306,7 +306,7 @@ def _measure(
         "probe_ms": _quantiles(probe_ms),
         "server_ms": _quantiles(server_ms)
         if server_ms
-        else None,  # Plexus: FalkorDB run_time_ms; SQL: in-process statement time
+        else None,  # Knewat: FalkorDB run_time_ms; SQL: in-process statement time
         "statements_per_probe": statistics.mean(stmts) if stmts else None,
     }
     if hits_off is not None:
@@ -329,9 +329,9 @@ def _paired(a: dict[str, Any], b: dict[str, Any], probes: list[Probe]) -> dict[s
     same_top1 = sum(1 for p in probes if (ta.get(p.fact_id) or [None])[0] == (tb.get(p.fact_id) or [None])[0])
     return {
         "n": len(probes),
-        "only_plexus_at1": len(only_a1),
+        "only_knewat_at1": len(only_a1),
         "only_sql_at1": len(only_b1),
-        "only_plexus_at5": len(only_a5),
+        "only_knewat_at5": len(only_a5),
         "only_sql_at5": len(only_b5),
         "same_top1": same_top1,
         "same_top5_list": same_top5,
@@ -364,7 +364,7 @@ def run_forgetting(
     tenant = tenant or f"l5f_{uuid.uuid4().hex[:8]}"
     graph = graph_name(tenant)
     t_start = time.time()
-    backend = PlexusBackend(tenant, client=client, embedder=embedder)
+    backend = KnewatBackend(tenant, client=client, embedder=embedder)
     try:
         ledger = play_scale(backend, k_sprints)
         real = [dict(r) for r in client.ro(graph, "crucible/l5_real_facts", {"limit": 50_000})]

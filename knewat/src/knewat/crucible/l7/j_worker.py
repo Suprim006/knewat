@@ -1,4 +1,4 @@
-"""Family J driver process: ``python -m plexus.crucible.l7.j_worker <config.json>``.
+"""Family J driver process: ``python -m knewat.crucible.l7.j_worker <config.json>``.
 
 Builds one adapter per tenant it touches (F: one shared GraphClient per process; S: one backend per tenant file),
 starts one thread per assigned session slot (closed loop: when a session ends the next one starts), waits for the
@@ -17,9 +17,9 @@ import traceback
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l7.common import SEED, process_resources
-from plexus.crucible.l7.j_arms import make_adapter
-from plexus.crucible.l7.j_session import Rec, Session, TenantPool, load_sequences
+from knewat.crucible.l7.common import SEED, process_resources
+from knewat.crucible.l7.j_arms import make_adapter
+from knewat.crucible.l7.j_session import Rec, Session, TenantPool, load_sequences
 
 
 def _slot_loop(
@@ -67,7 +67,7 @@ def main(cfg_path: str) -> None:
     arm, host, port, root = cfg["arm"], cfg["host"], cfg["port"], cfg["root"]
     client = None
     if arm.startswith("F"):
-        from plexus.crucible.backends.plexus import _client
+        from knewat.crucible.backends.knewat import _client
 
         client = _client(host, port)
     adapters: dict[str, Any] = {}

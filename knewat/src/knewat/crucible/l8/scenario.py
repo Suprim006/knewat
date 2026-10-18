@@ -3,7 +3,7 @@
 Every task names the code settings it ``needs`` (``module.function``; their values are sentinel tokens) and the
 artifact file it must write (``artifacts/<task>/<file>``). A task's artifact is *correct* when it contains the token
 each needed function returns at the time of the action. Briefs come in two renderings of the same instructions:
-``mcp`` (the Plexus tool names; arms P and B1) and ``files`` (arm B0', Claude Code with its own memory files). The
+``mcp`` (the Knewat tool names; arms P and B1) and ``files`` (arm B0', Claude Code with its own memory files). The
 content of each instruction is the same; only the verb that stores or reads team memory differs.
 """
 
@@ -14,8 +14,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.scale_scenario import Sprint
-from plexus.demo.scenario import load_scenario
+from knewat.crucible.l2.scale_scenario import Sprint
+from knewat.demo.scenario import load_scenario
 
 PROMPT_VERSION = "l8-v1"
 SUBJECT = "Acme Notes API S21"
@@ -439,10 +439,10 @@ def common_mcp(root: Path | None = None) -> str:
         encoding="utf-8"
     )
     base = base.replace(
-        "All of the team's shared state lives in Plexus, a graph memory and coordination\nservice you reach ONLY "
-        "through the `mcp__plexus__*` tools. You have no other tools: no shell, no files, no web.",
-        "All of the team's shared state lives in Plexus, a memory and coordination\nservice you reach through the "
-        "`mcp__plexus__*` tools. You also have Read, Write, Edit, Glob and Grep (no shell, no web).",
+        "All of the team's shared state lives in Knewat, a graph memory and coordination\nservice you reach ONLY "
+        "through the `mcp__knewat__*` tools. You have no other tools: no shell, no files, no web.",
+        "All of the team's shared state lives in Knewat, a memory and coordination\nservice you reach through the "
+        "`mcp__knewat__*` tools. You also have Read, Write, Edit, Glob and Grep (no shell, no web).",
     )
     if "You also have Read" not in base:
         raise AssertionError("common.md changed; the L8 substitution no longer applies")

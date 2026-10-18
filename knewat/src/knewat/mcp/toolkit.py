@@ -26,14 +26,14 @@ from typing import Annotated, Any, ClassVar, Literal
 from mcp.server.mcpserver import Context, MCPServer
 from pydantic import Field
 
-from plexus.mcp.audit_policy import ToolKind
-from plexus.mcp.runtime import Outcome, Runtime
+from knewat.mcp.audit_policy import ToolKind
+from knewat.mcp.runtime import Outcome, Runtime
 
 WorkFn = Callable[..., Outcome]
 _INJECTED = 2  # leading work-function parameters supplied by Runtime.call: (ts, m)
 _CTX = "ctx"
 _RESULT = dict[str, Any]
-_AUDIT = "audit"  # the optional per-call argument every read tool gets (see plexus.mcp.audit_policy)
+_AUDIT = "audit"  # the optional per-call argument every read tool gets (see knewat.mcp.audit_policy)
 AuditArg = Annotated[
     Literal["light", "full"] | None,
     Field(
@@ -100,7 +100,7 @@ class ToolTable:
 
 
 def all_tool_defs() -> list[ToolDef]:
-    """Every tool declared on any :class:`ToolTable` (import the tool modules first, e.g. ``plexus.mcp.server``)."""
+    """Every tool declared on any :class:`ToolTable` (import the tool modules first, e.g. ``knewat.mcp.server``)."""
     return [d for table in ToolTable._tables for d in table]
 
 

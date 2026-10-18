@@ -1,10 +1,10 @@
 """$0 replay of trial 8 (provenance + retraction of a void source) against the multi-source build (P13).
 
-    python -m plexus.crucible.t8_replay [--port 6377] [--out plexus/demo_data/crucible/t8replay]
+    python -m knewat.crucible.t8_replay [--port 6377] [--out knewat/demo_data/crucible/t8replay]
 
 Trial 8 (``trials/FINDINGS.md`` section 5): session 1 registers a compliance memo (rules C1, C2, C3) and a product
 spec (P1, P2; P2 is the same rule as C1), session 3 says "the memo is void: remove the rules that came only from
-it". Right answer: C2 and C3 go; C1 (the spec still requires it) and P1 stay. The four Plexus runs linked C1 to the
+it". Right answer: C2 and C3 go; C1 (the spec still requires it) and P1 stay. The four Knewat runs linked C1 to the
 memo only (``assert_fact`` took one ``source_id``) and never called ``quarantine_source``.
 
 This script replays that through the real MCP tools (in-memory client, no model, no cost), three ways, each on its
@@ -30,13 +30,13 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from knewat.embed import HashEmbedder
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_server
 from mcp import Client
-from plexus.embed import HashEmbedder
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 RULES = ("C1", "C2", "C3", "P1")
 C1_TEXT = "export outputs active tasks only; archived tasks are never exported"

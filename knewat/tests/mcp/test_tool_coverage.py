@@ -9,8 +9,8 @@ import ast
 import json
 from pathlib import Path
 
+from knewat.graph.tenancy import graph_name
 from mcp import Client
-from plexus.graph.tenancy import graph_name
 
 HERE = Path(__file__).parent
 CALLERS = {"_call", "call", "ok", "err", "run", "call_err", "call_tool"}

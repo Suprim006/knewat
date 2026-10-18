@@ -9,8 +9,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.activation import Activation, Settings
-from plexus.activation.model import DAY_MS
+from knewat.activation import Activation, Settings
+from knewat.activation.model import DAY_MS
 
 from .conftest import reads, write
 

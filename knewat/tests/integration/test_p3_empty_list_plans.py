@@ -16,7 +16,7 @@ import itertools
 import pytest
 from tests.plan_util import profile_ops
 
-from plexus.graph.tenancy import test_graph_name
+from knewat.graph.tenancy import test_graph_name
 
 N = 3000  # nodes per label: the broken plan reads all N
 LABELS = ("Artifact", "Fact", "Task", "Decision", "Handoff", "Scope", "Source", "Episode")

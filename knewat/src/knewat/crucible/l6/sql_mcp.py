@@ -1,6 +1,6 @@
 """A stdio MCP server with ONE tool, ``query(sql)``: read-only SQL over an L6 SQLite store (arm B1a).
 
-    python -m plexus.crucible.l6.sql_mcp --db <path to crucible.db>
+    python -m knewat.crucible.l6.sql_mcp --db <path to crucible.db>
 
 Only ``SELECT`` / ``WITH`` / ``EXPLAIN`` statements are accepted, the database is opened ``mode=ro``, a statement is
 interrupted after 20 s, and a result is cut at 200 rows / 12,000 characters (the cut is announced), so a runaway query

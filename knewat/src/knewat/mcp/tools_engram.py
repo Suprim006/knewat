@@ -1,11 +1,11 @@
 """Engram MCP tools: sessions and episodes, facts (assert / recall / history) and procedures.
 
 Every tool takes ``agent_id`` (who is acting) and an optional ``step`` (the agent's own step counter, used by the
-time machine). The tenant is NOT an argument: it is bound to the connection (see ``plexus.mcp.runtime``). Each
+time machine). The tenant is NOT an argument: it is bound to the connection (see ``knewat.mcp.runtime``). Each
 tool body is one service call; :meth:`Runtime.call` times it, records a ``ToolCall`` and (when Lineage is
 installed) attaches the call to the agent's ``Step``: ``WROTE`` for what it created or updated, ``READ`` for the
 facts it looked at (``Outcome.read_ids`` / ``Outcome.assert_result`` / ``Outcome.after``). The tool pattern
-itself (work function -> published tool) lives in :mod:`plexus.mcp.toolkit`.
+itself (work function -> published tool) lives in :mod:`knewat.mcp.toolkit`.
 """
 
 from typing import Annotated, Any, Literal
@@ -13,9 +13,9 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import Field
 
-from plexus.common import OPEN
-from plexus.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K, MAX_SOURCES
-from plexus.mcp.limits import (
+from knewat.common import OPEN
+from knewat.engram.service import DEFAULT_BUDGET_CHARS, DEFAULT_K, MAX_SOURCES
+from knewat.mcp.limits import (
     ALL_SCOPES,
     MAX_INT,
     MAX_LIST,
@@ -31,8 +31,8 @@ from plexus.mcp.limits import (
     TextReq,
     Value,
 )
-from plexus.mcp.runtime import MeteredClient, Outcome, TenantState
-from plexus.mcp.toolkit import ToolTable
+from knewat.mcp.runtime import MeteredClient, Outcome, TenantState
+from knewat.mcp.toolkit import ToolTable
 
 Role = Literal["user", "assistant", "tool", "note"]
 

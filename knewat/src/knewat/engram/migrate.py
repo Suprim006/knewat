@@ -1,4 +1,4 @@
-"""``plexus migrate entities``: move a pre-P9-d tenant to atomic entity resolution (analysis C.5).
+"""``knewat migrate entities``: move a pre-P9-d tenant to atomic entity resolution (analysis C.5).
 
 1. list normalised names held by more than one Entity (they would leave UNIQUE(``Entity.norm_name``) FAILED);
 2. backfill ``Entity.tok`` / ``Entity.num_key`` in batches of ``BATCH`` (entities without them never match the
@@ -20,7 +20,7 @@ import json
 from collections.abc import Iterator
 from typing import Any
 
-from plexus.engram.service import (
+from knewat.engram.service import (
     ENTITY_NEAR,
     FULLTEXT_JACCARD,
     MAX_ENTITY_QUERY_TOKENS,
@@ -28,8 +28,8 @@ from plexus.engram.service import (
     _tokens,
     entity_key,
 )
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import ENTITY_KEY, apply_schema
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import ENTITY_KEY, apply_schema
 
 _NEVER = (1 << 62, "")  # sorts after every real (created_at, id)
 BATCH = 200  # entities per backfill statement and per page

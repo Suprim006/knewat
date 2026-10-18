@@ -5,10 +5,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from plexus.api import models as M
-from plexus.api.view_api import INVENTORY_EDGE_TYPES, INVENTORY_LABELS
-from plexus.graph.queries import QueryLibrary
-from plexus.graph.tenancy import graph_name
+from knewat.api import models as M
+from knewat.api.view_api import INVENTORY_EDGE_TYPES, INVENTORY_LABELS
+from knewat.graph.queries import QueryLibrary
+from knewat.graph.tenancy import graph_name
 
 REPO = Path(__file__).resolve().parents[3]
 

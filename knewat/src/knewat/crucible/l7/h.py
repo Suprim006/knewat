@@ -1,11 +1,11 @@
 """Crucible L7 family H: query expressiveness and traversal, Cypher (FalkorDB) vs SQL (SQLite), hand-written.
 
-    python -m plexus.crucible.l7.h run --port 6367 --scale {dev,full} [--out DIR]
+    python -m knewat.crucible.l7.h run --port 6367 --scale {dev,full} [--out DIR]
 
 Every query text is a file in ``l7/h_queries/`` (lines are counted from it). The application-side BFS used by the
 ``*-bfs`` arms is :func:`bfs`, the same function for both backends (only the per-level statement differs); its
 lines are counted from its source. Each question runs 5 times (the first answer is scored; a timeout is not
-repeated and counts 10,000 ms for all repetitions). Ground truth: :class:`plexus.crucible.l7.h_world.Truth`.
+repeated and counts 10,000 ms for all repetitions). Ground truth: :class:`knewat.crucible.l7.h_world.Truth`.
 """
 
 from __future__ import annotations
@@ -23,9 +23,9 @@ from typing import Any
 
 from falkordb import FalkorDB
 
-from plexus.crucible.l7 import common as C
-from plexus.crucible.l7.h_stores import CYPHER_INDEXES, SQL_INDEXES, build_sqlite, load_falkordb
-from plexus.crucible.l7.h_world import H3_MAX_HOPS, HWorld, Truth, h_world
+from knewat.crucible.l7 import common as C
+from knewat.crucible.l7.h_stores import CYPHER_INDEXES, SQL_INDEXES, build_sqlite, load_falkordb
+from knewat.crucible.l7.h_world import H3_MAX_HOPS, HWorld, Truth, h_world
 
 QDIR = Path(__file__).resolve().parent / "h_queries"
 REPS = 5
@@ -345,7 +345,7 @@ def main(argv: list[str] | None = None) -> int:
     a = ap.parse_args(argv)
     started = time.time()
     doc = C.envelope(
-        "h", a.host, a.port, started, " ".join(["python -m plexus.crucible.l7.h", *sys.argv[1:]])
+        "h", a.host, a.port, started, " ".join(["python -m knewat.crucible.l7.h", *sys.argv[1:]])
     )
     doc["indexes"] = {"sqlite": list(SQL_INDEXES), "falkordb": list(CYPHER_INDEXES)}
     doc["reps"] = REPS

@@ -9,10 +9,10 @@ Three modes, decided per tenant (env) and lowered per call (``audit`` argument o
 ``recall`` is the one *exposure* tool: its ``READ`` edges feed ``who_knew`` / ``knew_at`` / forgetting, so on a tenant
 that is not ``off`` it stays ``full`` unless the caller asks for ``audit='light'`` for that call.
 
-Configuration (read once, at :class:`~plexus.mcp.runtime.Runtime` start; a bad value fails loudly):
+Configuration (read once, at :class:`~knewat.mcp.runtime.Runtime` start; a bad value fails loudly):
 
-* ``PLEXUS_AUDIT_MODE``  - the default tenant mode (default ``full``).
-* ``PLEXUS_AUDIT_MODES`` - ``"demo*=off,team_*=full"``: ``glob=mode`` pairs, first match wins, matched on the tenant id.
+* ``KNEWAT_AUDIT_MODE``  - the default tenant mode (default ``full``).
+* ``KNEWAT_AUDIT_MODES`` - ``"demo*=off,team_*=full"``: ``glob=mode`` pairs, first match wins, matched on the tenant id.
 """
 
 from __future__ import annotations
@@ -28,8 +28,8 @@ ToolKind = Literal["read", "write"]
 
 MODES: tuple[str, ...] = ("off", "light", "full")
 _RANK = {m: i for i, m in enumerate(MODES)}
-ENV_DEFAULT = "PLEXUS_AUDIT_MODE"
-ENV_TABLE = "PLEXUS_AUDIT_MODES"
+ENV_DEFAULT = "KNEWAT_AUDIT_MODE"
+ENV_TABLE = "KNEWAT_AUDIT_MODES"
 
 
 def _mode(value: str, where: str) -> AuditMode:

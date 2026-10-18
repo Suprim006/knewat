@@ -10,7 +10,7 @@ from __future__ import annotations
 import pytest
 from tests.plan_util import BIG, max_records, profile_ops, seed_big_scope
 
-from plexus.engram.service import OPEN
+from knewat.engram.service import OPEN
 
 
 @pytest.fixture

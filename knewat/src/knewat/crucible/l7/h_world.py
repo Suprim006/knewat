@@ -18,7 +18,7 @@ from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from typing import Any
 
-from plexus.crucible.l7.common import SEED
+from knewat.crucible.l7.common import SEED
 
 SCALES: dict[str, dict[str, int]] = {
     "toy": {"agents": 12, "sources": 20, "facts": 300, "triangles": 5, "cycles": 3},

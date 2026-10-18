@@ -12,8 +12,8 @@ import random
 from dataclasses import dataclass
 from typing import Any
 
-from plexus.graph.client import GraphClient
-from plexus.graph.queries import QueryLibrary
+from knewat.graph.client import GraphClient
+from knewat.graph.queries import QueryLibrary
 
 
 @dataclass(frozen=True)

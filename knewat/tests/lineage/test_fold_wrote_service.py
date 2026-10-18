@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from plexus.embed import HashEmbedder
-from plexus.engram import Engram
-from plexus.lineage import Lineage
-from plexus.relay import Relay
+from knewat.embed import HashEmbedder
+from knewat.engram import Engram
+from knewat.lineage import Lineage
+from knewat.relay import Relay
 
 
 def test_service_level_wrote_needs_no_link_step(client, graph, clock):

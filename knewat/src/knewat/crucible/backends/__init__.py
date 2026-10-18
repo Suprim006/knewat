@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
-from plexus.crucible.api import BackendSpec, CoordinationBackend
+from knewat.crucible.api import BackendSpec, CoordinationBackend
 
 ARMS = ("B0", "B1", "B2", "P")
 ALL_ARMS = (*ARMS, "P-mcp")
@@ -26,21 +26,21 @@ def open_backend(spec: BackendSpec) -> CoordinationBackend:
     if spec.arm in _EXTRA:
         return _EXTRA[spec.arm](spec)
     if spec.arm == "B0":
-        from plexus.crucible.backends.files import FilesBackend
+        from knewat.crucible.backends.files import FilesBackend
 
         return FilesBackend(spec.tenant, spec.root)
     if spec.arm == "B1":
-        from plexus.crucible.backends.sqlite import SqliteBackend
+        from knewat.crucible.backends.sqlite import SqliteBackend
 
         return SqliteBackend(spec.tenant, spec.root)
     if spec.arm == "B2":
-        from plexus.crucible.backends.vector import VectorBackend
+        from knewat.crucible.backends.vector import VectorBackend
 
         return VectorBackend(spec.tenant, spec.root, spec.embedder)
     if spec.arm in ("P", "P-mcp"):
-        from plexus.crucible.backends.plexus import PlexusBackend
+        from knewat.crucible.backends.knewat import KnewatBackend
 
-        return PlexusBackend(
+        return KnewatBackend(
             spec.tenant,
             host=spec.host or None,
             port=spec.port or None,

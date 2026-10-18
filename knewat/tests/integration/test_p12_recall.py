@@ -8,10 +8,10 @@ import logging
 import pytest
 from redis.exceptions import ResponseError
 
-from plexus.embed import HashEmbedder
-from plexus.engram import migrate
-from plexus.engram import service as svc
-from plexus.engram.service import Engram
+from knewat.embed import HashEmbedder
+from knewat.engram import migrate
+from knewat.engram import service as svc
+from knewat.engram.service import Engram
 
 
 @pytest.fixture
@@ -137,7 +137,7 @@ def test_keyword_failure_is_logged_not_swallowed(eng, glob, monkeypatch, caplog)
         return real(graph, name, params, *a, **kw)
 
     monkeypatch.setattr(eng.client, "ro", boom)
-    with caplog.at_level(logging.WARNING, logger="plexus.engram"):
+    with caplog.at_level(logging.WARNING, logger="knewat.engram"):
         hits = eng.recall("Acme owner", glob)
     assert hits and hits[0]["value"] == "alice"  # the vector side still answers
     assert any("keyword channel failed" in r.getMessage() for r in caplog.records)

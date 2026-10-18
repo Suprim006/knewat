@@ -1,4 +1,4 @@
-"""L7 family G (multi-tenancy) at toy size. Integration tests need FalkorDB on PLEXUS_TEST_DB_PORT (family G's port is 6365).
+"""L7 family G (multi-tenancy) at toy size. Integration tests need FalkorDB on KNEWAT_TEST_DB_PORT (family G's port is 6365).
 
 The ACL test creates and deletes its own Redis users and only runs when the port is 6365 (the one server where ACLs may be changed).
 """
@@ -13,9 +13,9 @@ from pathlib import Path
 import pytest
 import redis
 
-from plexus.crucible.l7 import g as fam
-from plexus.crucible.l7 import g_gen
-from plexus.crucible.l7.g_arms import FArm, SFileArm, SSharedArm, tenant_predicate_sites
+from knewat.crucible.l7 import g as fam
+from knewat.crucible.l7 import g_gen
+from knewat.crucible.l7.g_arms import FArm, SFileArm, SSharedArm, tenant_predicate_sites
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
 
@@ -162,7 +162,7 @@ def test_falkor_loader_asserts_ledger_counts(tenants):
     assert f.read_counts(ks[0]) == g_gen.counts(f.worlds[ks[0]])
 
 
-@pytest.mark.skipif(TEST_DB_PORT != 6365, reason="ACL users may only be created on plexus-db-65")
+@pytest.mark.skipif(TEST_DB_PORT != 6365, reason="ACL users may only be created on knewat-db-65")
 def test_acl_user_blocks_other_tenant(tenants):
     f, ks = tenants
     r = redis.Redis(host=TEST_DB_HOST, port=TEST_DB_PORT, decode_responses=True)

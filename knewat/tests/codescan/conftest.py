@@ -1,5 +1,5 @@
 # ruff: noqa: E501
-"""Fixtures for the client-side tests: a real Plexus MCP server on a loopback port, and temp git repositories."""
+"""Fixtures for the client-side tests: a real Knewat MCP server on a loopback port, and temp git repositories."""
 
 from __future__ import annotations
 
@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_http_app
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_http_app
 
 
 @pytest.fixture

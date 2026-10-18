@@ -10,9 +10,9 @@ from __future__ import annotations
 from collections.abc import Callable, Iterable, Sequence
 from typing import Any
 
-from plexus.common import check_between, new_id, now_ms, unique
-from plexus.graph.client import GraphClient
-from plexus.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask, InvalidDag, UnknownReference
+from knewat.common import check_between, new_id, now_ms, unique
+from knewat.graph.client import GraphClient
+from knewat.relay.errors import ClaimConflict, DuplicateArtifact, DuplicateTask, InvalidDag, UnknownReference
 
 MAX_TASKS_PER_CALL = 500
 MAX_EDGES_PER_CALL = 5000

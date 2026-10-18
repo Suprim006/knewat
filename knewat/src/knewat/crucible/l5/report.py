@@ -13,12 +13,12 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l5.forgetting import run_forgetting
-from plexus.crucible.l5.hub import hub_criteria, render_hub, run_hub
-from plexus.crucible.l5.staleness import run_staleness
-from plexus.crucible.util import iso_utc, run_stamp
-from plexus.embed import get_embedder
-from plexus.graph.client import GraphClient
+from knewat.crucible.l5.forgetting import run_forgetting
+from knewat.crucible.l5.hub import hub_criteria, render_hub, run_hub
+from knewat.crucible.l5.staleness import run_staleness
+from knewat.crucible.util import iso_utc, run_stamp
+from knewat.embed import get_embedder
+from knewat.graph.client import GraphClient
 
 DEFAULT_OUT = Path(__file__).resolve().parents[4] / "demo_data" / "crucible" / "l5"
 
@@ -187,7 +187,7 @@ def run_all(
         "llm_calls": 0,
     }
     if staleness:
-        with tempfile.TemporaryDirectory(prefix="plexus-l5-") as tmp:
+        with tempfile.TemporaryDirectory(prefix="knewat-l5-") as tmp:
             res["staleness"] = run_staleness(client, embedder, Path(tmp), modules, funcs, commits)
     if forgetting:
         res["forgetting"] = run_forgetting(
@@ -317,7 +317,7 @@ def render_report(res: dict[str, Any]) -> str:
             fid = sa.get("activation_fidelity", {})
             L += [
                 "",
-                "## L5b SQL arm (B1h-L5, plan §5.4): Plexus vs hand-written SQL on the exported graph",
+                "## L5b SQL arm (B1h-L5, plan §5.4): Knewat vs hand-written SQL on the exported graph",
                 "",
                 f"SQLite {sa.get('sqlite_version')} + sqlite-vec; export {sa.get('export_seconds')} s, rows {sa.get('rows')}; "
                 f"SQL written for the arm: {sa.get('sql_lines')} non-blank non-comment lines (3 statements). "
@@ -328,7 +328,7 @@ def render_report(res: dict[str, Any]) -> str:
                 "|---|---|---|---|---|---|---|---|---|",
             ]
             for name in f["sql_modes"]:
-                for arm, m in (("Plexus", f["modes"][name]), ("B1h-L5 (SQL)", f["sql_modes"][name])):
+                for arm, m in (("Knewat", f["modes"][name]), ("B1h-L5 (SQL)", f["sql_modes"][name])):
                     rc = m["recall"]["all"]
                     sm = (m.get("server_ms") or {}).get("p50")
                     L.append(
@@ -340,12 +340,12 @@ def render_report(res: dict[str, Any]) -> str:
                 "",
                 "Paired per probe (same probes, same graph):",
                 "",
-                "| Mode | n | only Plexus @1 | only SQL @1 | only Plexus @5 | only SQL @5 | same top-1 | identical top-5 list |",
+                "| Mode | n | only Knewat @1 | only SQL @1 | only Knewat @5 | only SQL @5 | same top-1 | identical top-5 list |",
                 "|---|---|---|---|---|---|---|---|",
             ]
             for name, pr in f["sql_pairs"].items():
                 L.append(
-                    f"| {name} | {pr['n']} | {pr['only_plexus_at1']} | {pr['only_sql_at1']} | {pr['only_plexus_at5']} | "
+                    f"| {name} | {pr['n']} | {pr['only_knewat_at1']} | {pr['only_sql_at1']} | {pr['only_knewat_at5']} | "
                     f"{pr['only_sql_at5']} | {pr['same_top1']} | {pr['same_top5_list']} |"
                 )
         sw = f["sweep"]
@@ -374,7 +374,7 @@ def render_report(res: dict[str, Any]) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(
-        prog="plexus.crucible.l5", description="Crucible L5: staleness and forgetting (no LLM)"
+        prog="knewat.crucible.l5", description="Crucible L5: staleness and forgetting (no LLM)"
     )
     p.add_argument("--out", type=Path, default=DEFAULT_OUT)
     p.add_argument("--only", choices=("staleness", "forgetting", "hub"))

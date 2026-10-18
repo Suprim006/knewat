@@ -1,6 +1,6 @@
-"""L2 at scale: the K-sprint scenario, the 40 questions, the BM25 selectors, the sprint-scoped Plexus answerer, the run.
+"""L2 at scale: the K-sprint scenario, the 40 questions, the BM25 selectors, the sprint-scoped Knewat answerer, the run.
 
-No LLM anywhere: the CLI is the mocked ``fake_claude_l2.py``. Arm P needs a FalkorDB (``PLEXUS_TEST_DB_PORT``).
+No LLM anywhere: the CLI is the mocked ``fake_claude_l2.py``. Arm P needs a FalkorDB (``KNEWAT_TEST_DB_PORT``).
 """
 
 from __future__ import annotations
@@ -12,20 +12,20 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import open_backend
-from plexus.crucible.l2 import contexts as C
-from plexus.crucible.l2 import scale_contexts as SC
-from plexus.crucible.l2.llm import PROMPT_VERSION, cache_key
-from plexus.crucible.l2.questions import FAMILIES, Question, score
-from plexus.crucible.l2.scale_plexus import ScalePlexusAnswerer
-from plexus.crucible.l2.scale_questions import (
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import open_backend
+from knewat.crucible.l2 import contexts as C
+from knewat.crucible.l2 import scale_contexts as SC
+from knewat.crucible.l2.llm import PROMPT_VERSION, cache_key
+from knewat.crucible.l2.questions import FAMILIES, Question, score
+from knewat.crucible.l2.scale_knewat import ScaleKnewatAnswerer
+from knewat.crucible.l2.scale_questions import (
     assign_sprints,
     build_scale_questions,
     generate_scale,
     load_scale_questions,
 )
-from plexus.crucible.l2.scale_run import (
+from knewat.crucible.l2.scale_run import (
     CONVENTIONS_SCALE,
     K_SPRINTS,
     PILOT_IDS,
@@ -33,15 +33,15 @@ from plexus.crucible.l2.scale_run import (
     run_scale,
     stratum_of,
 )
-from plexus.crucible.l2.scale_run import (
+from knewat.crucible.l2.scale_run import (
     PROMPT_VERSION as SCALE_PROMPT_VERSION,
 )
-from plexus.crucible.l2.scale_scenario import Sprint, play_scale
-from plexus.crucible.l2.scenario import TURNS
+from knewat.crucible.l2.scale_scenario import Sprint, play_scale
+from knewat.crucible.l2.scenario import TURNS
 
 FAKE = [sys.executable, str(Path(__file__).with_name("fake_claude_l2.py"))]
 COMMITTED = Path(__file__).resolve().parents[3] / "demo_data/crucible/questions_scale.yaml"
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 
 
 @pytest.fixture(scope="module")
@@ -68,7 +68,7 @@ def test_forty_questions_ten_families_four_each(truth):
 def test_budget_reduction_drops_four_non_pilot_questions_one_per_family(truth):
     import random
 
-    from plexus.crucible.l2.scale_run import FULL_DROPPED_IDS
+    from knewat.crucible.l2.scale_run import FULL_DROPPED_IDS
 
     _, qs = truth
     fams = random.Random(20261016).sample(list(FAMILIES), 4)
@@ -137,12 +137,12 @@ def test_every_op_has_an_answerer_and_scoped_ops_are_listed(truth):
     _, qs = truth
     ops = {
         n[4:]
-        for n in vars(__import__("plexus.crucible.l2.plexus_answerer", fromlist=["x"]).PlexusAnswerer)
+        for n in vars(__import__("knewat.crucible.l2.knewat_answerer", fromlist=["x"]).KnewatAnswerer)
         if n.startswith("_op_")
     }
-    sops = {n[5:] for n in vars(ScalePlexusAnswerer) if n.startswith("_sop_")}
+    sops = {n[5:] for n in vars(ScaleKnewatAnswerer) if n.startswith("_sop_")}
     assert {q.op for q in qs} <= ops | sops
-    assert sops == set(ScalePlexusAnswerer.SCOPED_OPS)
+    assert sops == set(ScaleKnewatAnswerer.SCOPED_OPS)
 
 
 def test_conventions_and_cache_keys(truth):
@@ -207,7 +207,7 @@ def test_b1_selection_always_has_the_schema_and_respects_the_budget(small_histor
 
 
 def test_evidence_diagnostic_is_a_word_check_not_a_score(truth):
-    from plexus.crucible.l2.scale_run import evidence_in_context
+    from knewat.crucible.l2.scale_run import evidence_in_context
 
     _, qs = truth
     q = next(x for x in qs if x.op == "value_history")
@@ -269,7 +269,7 @@ def test_baselines_end_to_end_with_the_mocked_cli(tmp_path, fake_answers):
         qpath=COMMITTED, run_id="t-pilot2",
     )  # fmt: skip
     assert len(fake_answers.read_text().split()) == 15
-    from plexus.crucible.l2.scale_run import refresh_results
+    from knewat.crucible.l2.scale_run import refresh_results
 
     refresh_results(
         d / "results.json", COMMITTED
@@ -280,7 +280,7 @@ def test_baselines_end_to_end_with_the_mocked_cli(tmp_path, fake_answers):
     for needle in (
         "## History vs the context budget",
         "## Failure analysis",
-        "## Plexus changes",
+        "## Knewat changes",
         "## Honesty",
         "Q14",
     ):
@@ -288,15 +288,15 @@ def test_baselines_end_to_end_with_the_mocked_cli(tmp_path, fake_answers):
 
 
 @pytest.mark.integration
-def test_plexus_answers_all_forty_match_ground_truth(opened):
+def test_knewat_answers_all_forty_match_ground_truth(opened):
     b = opened("P")
     sl = play_scale(b, K_SPRINTS)
     qs = build_scale_questions(sl)
-    from plexus.graph.client import GraphClient
+    from knewat.graph.client import GraphClient
 
     client = GraphClient(host="127.0.0.1", port=DB_PORT)
     try:
-        ans = ScalePlexusAnswerer(client, b.tenant)
+        ans = ScaleKnewatAnswerer(client, b.tenant)
         wrong = []
         for q in qs:
             got, meta = ans.answer(q)
@@ -310,7 +310,7 @@ def test_plexus_answers_all_forty_match_ground_truth(opened):
 
 
 def test_question_roundtrip_through_yaml(tmp_path, truth):
-    from plexus.crucible.l2.scale_questions import dump_scale_questions
+    from knewat.crucible.l2.scale_questions import dump_scale_questions
 
     sl, qs = truth
     dump_scale_questions(qs, sl, tmp_path / "q.yaml")

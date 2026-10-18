@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l2.scenario import TURNS, decision_label, fact_label, play
+from knewat.crucible.l2.scenario import TURNS, decision_label, fact_label, play
 
 ROOT = Path(__file__).resolve().parents[3]
 L2_ONLY = ("ingest-forum-post", "forget-forum-post", "ext-project-facts")
@@ -31,8 +31,8 @@ def test_turn_order_matches_the_p3_recording():
 
 
 def test_texts_come_from_the_p3_script():
-    src = (ROOT / "src/plexus/demo/scripted.py").read_text(encoding="utf-8")
-    mine = (ROOT / "src/plexus/crucible/l2/scenario.py").read_text(encoding="utf-8")
+    src = (ROOT / "src/knewat/demo/scripted.py").read_text(encoding="utf-8")
+    mine = (ROOT / "src/knewat/crucible/l2/scenario.py").read_text(encoding="utf-8")
     pattern = (
         r'"((?:Build|Adopt|Use JWT|Spec approved|Evaluate|Drafting|Endpoint draft|Style guide|Schema:'
         r'|Endpoint design|CRUD spec|Release bundle|Updated for)[^"]{8,})"'
@@ -71,5 +71,5 @@ def test_every_arm_tells_the_same_story(opened):
 
 
 @pytest.mark.integration
-def test_plexus_arm_tells_the_same_story(opened):
+def test_knewat_arm_tells_the_same_story(opened):
     assert _strip_ids(play(opened("P"))) == _strip_ids(play(opened("B1")))

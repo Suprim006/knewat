@@ -6,8 +6,8 @@ import threading
 import time
 from collections import Counter
 
-from plexus.graph.client import GraphClient
-from plexus.relay import Relay
+from knewat.graph.client import GraphClient
+from knewat.relay import Relay
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
 N_THREADS = 50

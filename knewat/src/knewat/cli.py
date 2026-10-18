@@ -1,5 +1,5 @@
-"""``plexus`` command line: ``plexus demo seed | live | record | replay | inventory | list | ablation`` and
-``plexus mcp-config``.
+"""``knewat`` command line: ``knewat demo seed | live | record | replay | inventory | list | ablation`` and
+``knewat mcp-config``.
 
 Connection settings come from the usual env vars (``FALKORDB_HOST``, ``FALKORDB_PORT``, ``FALKORDB_PASSWORD``).
 """
@@ -11,10 +11,10 @@ import asyncio
 import sys
 from collections.abc import Sequence
 
-from plexus.codescan.cli import add_code_commands
-from plexus.demo.scenario import FaultScript, load_scenario
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.codescan.cli import add_code_commands
+from knewat.demo.scenario import FaultScript, load_scenario
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 DEFAULT_TENANT = "demo"
 STEP_SECONDS = 0.5  # pause per tool call at --speed 1
@@ -26,12 +26,12 @@ def _client() -> GraphClient:
 
 def _embedder(kind: str | None):
     if not kind:
-        return None  # the Runtime picks PLEXUS_EMBEDDER / fastembed lazily
-    from plexus.embed import HashEmbedder
+        return None  # the Runtime picks KNEWAT_EMBEDDER / fastembed lazily
+    from knewat.embed import HashEmbedder
 
     if kind == "hash":
         return HashEmbedder()
-    from plexus.mcp.embedding import make_embedder
+    from knewat.mcp.embedding import make_embedder
 
     return make_embedder()
 
@@ -57,8 +57,8 @@ def _prepare_tenant(client: GraphClient, tenant: str, reset: bool) -> None:
 # ------------------------------------------------------------------------------------------------ commands
 def cmd_seed(a: argparse.Namespace) -> int:
     """Apply the schema to the tenant and register the documents that exist before the run starts as Sources."""
-    from plexus.graph.schema import apply_schema
-    from plexus.lineage import Lineage
+    from knewat.graph.schema import apply_schema
+    from knewat.lineage import Lineage
 
     client = _client()
     _prepare_tenant(client, a.tenant, a.reset)
@@ -81,14 +81,14 @@ def cmd_seed(a: argparse.Namespace) -> int:
 
 def cmd_live(a: argparse.Namespace) -> int:
     if a.claude:
-        from plexus.demo.orchestrator import cli_run_claude
+        from knewat.demo.orchestrator import cli_run_claude
 
         return cli_run_claude(a)
     if not a.scripted:
         raise SystemExit(
             "choose a mode: --scripted (deterministic agents) or --claude (real claude -p agents)"
         )
-    from plexus.demo.scripted import run_scripted
+    from knewat.demo.scripted import run_scripted
 
     a.tenant = a.tenant or DEFAULT_TENANT
     client = _client()
@@ -115,7 +115,7 @@ def cmd_live(a: argparse.Namespace) -> int:
         print(f"fault/event @step {ev['step']:>3}: {ev['event']}  {info}")
     print(f"\nscripted run finished: {w.step} tool calls, tenant '{a.tenant}'")
     if a.record:
-        from plexus.demo.recorder import record_run
+        from knewat.demo.recorder import record_run
 
         meta = record_run(client, a.tenant, a.record, mode="scripted", world=w)
         print(
@@ -125,14 +125,14 @@ def cmd_live(a: argparse.Namespace) -> int:
 
 
 def cmd_inventory(a: argparse.Namespace) -> int:
-    from plexus.demo.inventory import format_inventory, inventory
+    from knewat.demo.inventory import format_inventory, inventory
 
     print(format_inventory(inventory(_client(), a.tenant)))
     return 0
 
 
 def cmd_record(a: argparse.Namespace) -> int:
-    from plexus.demo.recorder import record_run
+    from knewat.demo.recorder import record_run
 
     meta = record_run(_client(), a.tenant, a.run, mode=a.mode)
     print(
@@ -142,7 +142,7 @@ def cmd_record(a: argparse.Namespace) -> int:
 
 
 def cmd_replay(a: argparse.Namespace) -> int:
-    from plexus.demo.replay import replay
+    from knewat.demo.replay import replay
 
     client = _client()
     graph_name(a.tenant)
@@ -155,7 +155,7 @@ def cmd_replay(a: argparse.Namespace) -> int:
 
 
 def cmd_list(a: argparse.Namespace) -> int:
-    from plexus.demo.recorder import list_recordings
+    from knewat.demo.recorder import list_recordings
 
     for m in list_recordings():
         print(
@@ -168,7 +168,7 @@ def cmd_ablation(a: argparse.Namespace) -> int:
     """Copy the tenant, cut DEPENDS_ON / BASED_ON / DERIVED_FROM / READ in the copy, probe both side by side."""
     import json
 
-    from plexus.demo.ablation import format_report, run_ablation, to_dict
+    from knewat.demo.ablation import format_report, run_ablation, to_dict
 
     graph_name(a.tenant)
     client = _client()
@@ -178,11 +178,11 @@ def cmd_ablation(a: argparse.Namespace) -> int:
 
 
 def cmd_mcp_config(a: argparse.Namespace) -> int:
-    """Print (or write) an MCP config for this checkout: stdio via the venv's plexus-mcp, or streamable HTTP."""
+    """Print (or write) an MCP config for this checkout: stdio via the venv's knewat-mcp, or streamable HTTP."""
     import json
     from pathlib import Path
 
-    from plexus.demo.orchestrator import build_http_mcp_config, build_mcp_config
+    from knewat.demo.orchestrator import build_http_mcp_config, build_mcp_config
 
     graph_name(a.tenant)  # validates the tenant name
     try:
@@ -201,7 +201,7 @@ def cmd_mcp_config(a: argparse.Namespace) -> int:
 # ------------------------------------------------------------------------------------------------ parser
 def _tenant_arg(sp: argparse.ArgumentParser, default: str | None = DEFAULT_TENANT) -> None:
     sp.add_argument(
-        "--tenant", default=default, help=f"tenant (graph plexus_t_<tenant>), default '{default}'"
+        "--tenant", default=default, help=f"tenant (graph knewat_t_<tenant>), default '{default}'"
     )
 
 
@@ -226,7 +226,7 @@ def _add_live(ds) -> None:
         "--speed", type=float, default=1.0, help="scripted: steps per half second; 0 = no pause (default 1)"
     )
     s.add_argument("--reset", action="store_true", help="drop the tenant's graph first")
-    s.add_argument("--embedder", choices=["hash", "fastembed"], help="scripted: override PLEXUS_EMBEDDER")
+    s.add_argument("--embedder", choices=["hash", "fastembed"], help="scripted: override KNEWAT_EMBEDDER")
     s.add_argument("--kill-at", type=int, default=15, help="kill the builder from this step (default 15)")
     s.add_argument("--v2-at", type=int, default=20, help="publish style guide v2 from this step (default 20)")
     s.add_argument(
@@ -247,7 +247,7 @@ def _add_live(ds) -> None:
     s.add_argument("--max-turns", type=int, default=25, help="claude: max turns per agent turn (default 25)")
     s.add_argument("--run-name", help="claude: run name / recording directory (default claude-<timestamp>)")
     s.add_argument(
-        "--mcp-command", help="claude: path of plexus-mcp (default: the venv script next to python)"
+        "--mcp-command", help="claude: path of knewat-mcp (default: the venv script next to python)"
     )
     s.set_defaults(fn=cmd_live)
 
@@ -260,7 +260,7 @@ def _add_record_replay(ds) -> None:
     s.set_defaults(fn=cmd_record)
 
     s = ds.add_parser("replay", help="restore a recording into a tenant and verify its inventory")
-    s.add_argument("run", help="recording name (see 'plexus demo list')")
+    s.add_argument("run", help="recording name (see 'knewat demo list')")
     _tenant_arg(s)
     s.add_argument("--reset", action="store_true", help="overwrite the tenant if it has data")
     s.set_defaults(fn=cmd_replay)
@@ -285,7 +285,7 @@ def _add_inspect(ds) -> None:
 
 
 def _add_demo_commands(sub) -> None:
-    """``plexus demo seed | live | record | replay | inventory | list | ablation``."""
+    """``knewat demo seed | live | record | replay | inventory | list | ablation``."""
     demo = sub.add_parser("demo", help="the Acme Notes API demo scenario")
     ds = demo.add_subparsers(dest="cmd", required=True)
     _add_seed(ds)
@@ -304,7 +304,7 @@ def _add_mcp_config(sub) -> None:
         "--http", metavar="URL", help="streamable-HTTP endpoint (e.g. http://127.0.0.1:8765) instead of stdio"
     )
     m.add_argument(
-        "--mcp-command", help="stdio: path of plexus-mcp (default: the venv script next to python)"
+        "--mcp-command", help="stdio: path of knewat-mcp (default: the venv script next to python)"
     )
     m.add_argument("--out", metavar="FILE", help="write the config to FILE instead of printing it")
     m.set_defaults(fn=cmd_mcp_config)
@@ -312,7 +312,7 @@ def _add_mcp_config(sub) -> None:
 
 def cmd_migrate_entities(a: argparse.Namespace) -> int:
     """Backfill Entity.tok / num_key, add UNIQUE(norm_name), report duplicate names and near-duplicate entities."""
-    from plexus.engram import migrate
+    from knewat.engram import migrate
 
     graph = graph_name(a.tenant)
     client = _client()
@@ -324,14 +324,14 @@ def cmd_migrate_entities(a: argparse.Namespace) -> int:
 
 
 def _add_migrate_commands(sub) -> None:
-    """``plexus migrate entities``: P9-d, move a tenant to atomic entity resolution."""
+    """``knewat migrate entities``: P9-d, move a tenant to atomic entity resolution."""
     mig = sub.add_parser("migrate", help="one-off data migrations of an existing tenant")
     ms = mig.add_subparsers(dest="cmd", required=True)
     s = ms.add_parser(
         "entities",
         help="backfill Entity.tok/num_key, add UNIQUE(Entity.norm_name), list duplicate and near-duplicate entities",
     )
-    s.add_argument("--tenant", required=True, help="tenant (graph plexus_t_<tenant>); no default on purpose")
+    s.add_argument("--tenant", required=True, help="tenant (graph knewat_t_<tenant>); no default on purpose")
     s.add_argument("--dry-run", action="store_true", help="write nothing: only count and report")
     s.add_argument("--json", action="store_true", help="print the full report as JSON")
     s.add_argument("--max-pairs", type=int, default=50, help="near-duplicate pairs to print (default 50)")
@@ -339,12 +339,12 @@ def _add_migrate_commands(sub) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="plexus", description="Plexus command line")
+    p = argparse.ArgumentParser(prog="knewat", description="Knewat command line")
     sub = p.add_subparsers(dest="group", required=True)
     _add_demo_commands(sub)
     _add_mcp_config(sub)
-    _add_migrate_commands(sub)  # P9-d: plexus migrate entities
-    add_code_commands(sub)  # P7-J: plexus code scan | baseline | hook-claude | hook-git | hook-run
+    _add_migrate_commands(sub)  # P9-d: knewat migrate entities
+    add_code_commands(sub)  # P7-J: knewat code scan | baseline | hook-claude | hook-git | hook-run
     return p
 
 

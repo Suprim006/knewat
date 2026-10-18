@@ -1,6 +1,6 @@
 """Subprocess entry point for C2: claim one task, keep heartbeating, wait to be killed.
 
-``python -m plexus.crucible.victim '<BackendSpec json>' <agent_id> <lease_ms> <heartbeat_ms>``
+``python -m knewat.crucible.victim '<BackendSpec json>' <agent_id> <lease_ms> <heartbeat_ms>``
 
 Prints ``CLAIMED <task_id> <version>`` once it holds a task. The harness then ``SIGKILL``s the process (on Windows
 ``TerminateProcess``): no cleanup code runs, exactly like a crashed agent.
@@ -12,8 +12,8 @@ import json
 import sys
 import time
 
-from plexus.crucible.api import BackendSpec
-from plexus.crucible.backends import open_backend
+from knewat.crucible.api import BackendSpec
+from knewat.crucible.backends import open_backend
 
 
 def main(argv: list[str]) -> int:

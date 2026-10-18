@@ -20,10 +20,10 @@ from pathlib import Path
 from statistics import median
 from typing import Any
 
-from plexus.crucible.l8 import scenario as S
-from plexus.crucible.l8.repo import TOKEN_RE
+from knewat.crucible.l8 import scenario as S
+from knewat.crucible.l8.repo import TOKEN_RE
 
-MCP_PREFIX = "mcp__plexus__"
+MCP_PREFIX = "mcp__knewat__"
 DONE_RE = re.compile(r"\bdone\b", re.I)
 NOT_DONE_RE = re.compile(r"\bnot\s+(yet\s+)?done\b", re.I)
 TASK_ID_RE = re.compile(r"^[\s|*-]*`?(t\d\d-[a-z0-9-]+)")
@@ -977,8 +977,8 @@ def redump_p_steps(run_dir: Path, host: str = "127.0.0.1", port: int = 6365) -> 
     """Add ``wrote_steps`` (node, agent, step n, at) to a P run's store_dump.json from its (unchanged) tenant graph.
 
     The runner's dump kept WROTE rows without the Step number; amendment 3 matches provenance on it. Read-only."""
-    from plexus.graph.client import GraphClient
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.client import GraphClient
+    from knewat.graph.tenancy import graph_name
 
     run = json.loads((run_dir / "run.json").read_text(encoding="utf-8"))
     p = run_dir / "store_dump.json"

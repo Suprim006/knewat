@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.embed import DIM, EmbeddingDimensionError, HashEmbedder, check_dim, embed_checked
-from plexus.engram.service import numeric_tokens, token_key
+from knewat.embed import DIM, EmbeddingDimensionError, HashEmbedder, check_dim, embed_checked
+from knewat.engram.service import numeric_tokens, token_key
 
 
 def test_numeric_tokens_are_sorted_multiset():

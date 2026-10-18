@@ -8,10 +8,10 @@ import pytest
 from redis.exceptions import ResponseError
 from starlette.testclient import TestClient
 
-from plexus.embed import HashEmbedder
-from plexus.graph.tenancy import graph_name
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_http_app
+from knewat.embed import HashEmbedder
+from knewat.graph.tenancy import graph_name
+from knewat.mcp.runtime import Runtime
+from knewat.mcp.server import build_http_app
 
 HDR = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
 
@@ -118,16 +118,16 @@ def test_replaying_a_session_under_another_tenant_is_rejected(http, client, new_
 
 def test_header_binding_and_header_pinning(http, client, new_tenant):
     a, evil = new_tenant(), new_tenant()
-    ha = _open(http, "/mcp", {"X-Plexus-Tenant": a})
+    ha = _open(http, "/mcp", {"X-Knewat-Tenant": a})
     assert _call(http, "/mcp", ha, "start_session", {"agent_id": "x"}).status_code == 200
     assert _count(client, a, "start_session") == 1
-    swapped = {**ha, "X-Plexus-Tenant": evil}
+    swapped = {**ha, "X-Knewat-Tenant": evil}
     assert _call(http, "/mcp", swapped, "start_session", {"agent_id": "x"}).status_code == 403
 
 
 def test_client_header_cannot_override_path(http, new_tenant):
     a, b = new_tenant(), new_tenant()
-    r = _init(http, f"/mcp/t/{a}", {"X-Plexus-Tenant": b})
+    r = _init(http, f"/mcp/t/{a}", {"X-Knewat-Tenant": b})
     assert r.status_code == 400 and "differ" in r.json()["error"]
 
 
@@ -200,13 +200,13 @@ class _Probe:
 @pytest.mark.parametrize(
     ("path", "headers", "needle"),
     [
-        ("/mcp", [(b"x-plexus-tenant", b"ab\xffcd")], b"invalid tenant"),
+        ("/mcp", [(b"x-knewat-tenant", b"ab\xffcd")], b"invalid tenant"),
         ("/mcp/t/okten", [(b"mcp-session-id", b"ab\xffcd")], b"invalid session id"),
-        ("/mcp/t/okten", [(b"x-plexus-tenant", b"\xc3\x28")], b"invalid tenant"),
+        ("/mcp/t/okten", [(b"x-knewat-tenant", b"\xc3\x28")], b"invalid tenant"),
     ],
 )
 async def test_non_utf8_headers_get_a_400_not_a_500(path, headers, needle):
-    from plexus.mcp.http import TenantPathMiddleware
+    from knewat.mcp.http import TenantPathMiddleware
 
     probe = _Probe()
     mw = TenantPathMiddleware(probe.app)

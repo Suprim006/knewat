@@ -8,11 +8,11 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l2 import contexts as C
-from plexus.crucible.l2.llm import BudgetExceeded, ClaudeRunner, cache_key, clean_env
-from plexus.crucible.l2.questions import generate, score
-from plexus.crucible.l2.scenario import play
-from plexus.embed import HashEmbedder
+from knewat.crucible.l2 import contexts as C
+from knewat.crucible.l2.llm import BudgetExceeded, ClaudeRunner, cache_key, clean_env
+from knewat.crucible.l2.questions import generate, score
+from knewat.crucible.l2.scenario import play
+from knewat.embed import HashEmbedder
 
 FAKE = [sys.executable, str(Path(__file__).with_name("fake_claude_l2.py"))]
 ROOT = Path(__file__).resolve().parents[3]
@@ -138,8 +138,8 @@ def test_b2_retrieves_top_k_chunks(opened):
 
 
 def test_two_plays_give_byte_identical_contexts(tmp_path):
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
 
     seen = {}
     for run in ("a", "b"):

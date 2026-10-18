@@ -13,7 +13,7 @@ import pytest
 import uvicorn
 from fastapi.testclient import TestClient
 
-from plexus.api.view_api import OPEN, create_app
+from knewat.api.view_api import OPEN, create_app
 
 HUGE = 99999999999999999999
 INT64 = 9223372036854775808

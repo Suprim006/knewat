@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.engram import Engram, UnknownReference
-from plexus.engram import relations as rel
+from knewat.engram import Engram, UnknownReference
+from knewat.engram import relations as rel
 
 QUERY = "Payment Service latency"
 OFF = {"forgetting": False}  # the activation re-rank is time-dependent; equality checks need a fixed order

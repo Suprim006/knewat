@@ -17,10 +17,10 @@ from typing import Any
 
 from redis.exceptions import WatchError
 
-from plexus.crucible.l7.i_arms import SLUG
-from plexus.graph.client import GraphClient
-from plexus.graph.schema import apply_schema
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l7.i_arms import SLUG
+from knewat.graph.client import GraphClient
+from knewat.graph.schema import apply_schema
+from knewat.graph.tenancy import graph_name
 
 BUSY_MS = 10_000
 MODE_BUDGET_S = 240.0  # a mode that has not finished by then is stopped and reported as incomplete

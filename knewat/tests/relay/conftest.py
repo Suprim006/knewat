@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.relay import Relay
+from knewat.relay import Relay
 
 
 class Clock:

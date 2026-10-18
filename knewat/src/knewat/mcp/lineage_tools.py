@@ -1,6 +1,6 @@
 """Lineage MCP tools: why, why_recalled, who_knew, knew_at, as_of, add_source, forget_source, quarantine_source,
-release_quarantine. Each is a thin wrapper over ``plexus.lineage.Lineage``. Step recording and READ/WROTE/Recall
-attachment for every call live in ``plexus.mcp.runtime``.
+release_quarantine. Each is a thin wrapper over ``knewat.lineage.Lineage``. Step recording and READ/WROTE/Recall
+attachment for every call live in ``knewat.mcp.runtime``.
 """
 
 from __future__ import annotations
@@ -11,15 +11,15 @@ from typing import Annotated, Any, Literal
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
-from plexus.lineage import Lineage
-from plexus.lineage.service import (
+from knewat.lineage import Lineage
+from knewat.lineage.service import (
     DEFAULT_CASCADE_DEPTH,
     DEFAULT_WHY_DEPTH,
     MAX_DEPTH,
     MAX_DETAIL,
     MAX_WHY_ELEMENTS,
 )
-from plexus.mcp.limits import (
+from knewat.mcp.limits import (
     MAX_INT,
     AgentId,
     EpochMs,
@@ -32,8 +32,8 @@ from plexus.mcp.limits import (
     Text,
     Title,
 )
-from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
-from plexus.mcp.toolkit import ToolTable
+from knewat.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
+from knewat.mcp.toolkit import ToolTable
 
 LINEAGE_TOOLS = ToolTable()
 tool = LINEAGE_TOOLS

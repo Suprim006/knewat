@@ -172,7 +172,7 @@ def _notes_and_reproduce(honesty: list[str], w: Writer) -> None:
     w("")
     w("```bash")
     w(
-        "docker compose -p plexus-bench --profile bench run --rm crucible all      # full L1 + L4 + ablation, inside the network"
+        "docker compose -p knewat-bench --profile bench run --rm crucible all      # full L1 + L4 + ablation, inside the network"
     )
     w(
         "uv run crucible all --quick                                               # CI-sized, against a local FalkorDB"
@@ -381,7 +381,7 @@ def _l4_recall(recall: list[dict[str, Any]], w: Writer) -> None:
     w("### recall: client latency p50 / p95 / p99 (ms) and throughput")
     w("")
     w(
-        f"{recall[0]['facts']} facts seeded; each recall embeds the query (arms with embeddings) and, for the Plexus/SQLite arms, records the recall."
+        f"{recall[0]['facts']} facts seeded; each recall embeds the query (arms with embeddings) and, for the Knewat/SQLite arms, records the recall."
     )
     w("")
     w(
@@ -487,7 +487,7 @@ def _ablation(ab: dict[str, Any], w: Writer) -> None:
     w(_table(["Capability", "Needs edge", "Intact", "Ablated", "Ablated detail"], rows))
     w("")
     w(
-        "L1 re-run with the edges stripped as soon as they are written (`P-abl`) next to the intact Plexus arm:"
+        "L1 re-run with the edges stripped as soon as they are written (`P-abl`) next to the intact Knewat arm:"
     )
     w("")
     rr = []

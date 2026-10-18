@@ -1,15 +1,15 @@
 """L8 runner: one arm x one seed of the S21 sprint with real ``claude -p`` agents (or a stand-in launcher in tests).
 
-    python -m plexus.crucible.l8.run prepare --out DIR                      # schedule/sentinels for the 5 seeds ($0)
-    python -m plexus.crucible.l8.run arm --seed 20261017 --arm P --out DIR  # one paid run
+    python -m knewat.crucible.l8.run prepare --out DIR                      # schedule/sentinels for the 5 seeds ($0)
+    python -m knewat.crucible.l8.run arm --seed 20261017 --arm P --out DIR  # one paid run
 
 Reused machinery (§2): ``ClaudeDriver`` (process handling, stream-json, kill, transcript sanitising) from
-``plexus.demo.orchestrator``; the baseline MCP server (``crucible/l3/baseline_mcp.py``) for B1; ``play_scale`` (L2-scale)
-for the 20-sprint history; the L5a renderer and ``ast`` truth through ``l8.repo``; ``plexus code hook-git`` for P.
+``knewat.demo.orchestrator``; the baseline MCP server (``crucible/l3/baseline_mcp.py``) for B1; ``play_scale`` (L2-scale)
+for the 20-sprint history; the L5a renderer and ``ast`` truth through ``l8.repo``; ``knewat code hook-git`` for P.
 What is new: the turn-boundary schedule (commits, kills K1-K3, v2), the file tools, the B0' arm (no MCP; the harness
 is the lead), and the per-run record the deterministic scorer reads.
 
-Arms: ``P`` (plexus-mcp stdio, FalkorDB tenant graph, post-commit hook -> mark_changed), ``B1`` (SQLite through the
+Arms: ``P`` (knewat-mcp stdio, FalkorDB tenant graph, post-commit hook -> mark_changed), ``B1`` (SQLite through the
 baseline MCP, no staleness tools), ``B0p`` (B0': Claude Code with Read/Write/Edit/Glob/Grep and its own files).
 """
 
@@ -28,23 +28,23 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l3.run import _result_json
-from plexus.crucible.l8 import scenario as S
-from plexus.crucible.l8.faults import SEEDS, all_tokens, build_schedule
-from plexus.crucible.l8.repo import Edit, git, init_repo, initial_modules, land
-from plexus.demo.engine import AgentKilled
-from plexus.demo.orchestrator import (
+from knewat.crucible.l3.run import _result_json
+from knewat.crucible.l8 import scenario as S
+from knewat.crucible.l8.faults import SEEDS, all_tokens, build_schedule
+from knewat.crucible.l8.repo import Edit, git, init_repo, initial_modules, land
+from knewat.demo.engine import AgentKilled
+from knewat.demo.orchestrator import (
     REAL_BUILDER_LEASE_MS,
     REAL_LEASE_MS,
     ClaudeConfig,
     ClaudeDriver,
     ClaudeRunError,
     TurnReport,
-    plexus_mcp_command,
+    knewat_mcp_command,
 )
 
 ARMS = ("P", "B1", "B0p")
-MCP_PREFIX = "mcp__plexus__"
+MCP_PREFIX = "mcp__knewat__"
 FILE_TOOLS = "Read,Write,Edit,Glob,Grep"
 MCP_WRITES = frozenset(
     {"assert_fact", "record_decision", "handoff", "remember_episode", "add_source", "anchor_fact", "verify_fact",
@@ -72,11 +72,11 @@ def git_state() -> dict[str, Any]:
 
     lines = g("status", "--porcelain", "--untracked-files=all").splitlines()
     out_rels = (
-        "plexus/demo_data/crucible/l8/",
-        "plexus/demo_data/crucible/l8_postfix/",
-        "plexus/demo_data/crucible/l8_p12tok/",
-        "plexus/demo_data/crucible/l8_p12ts/",
-        "plexus/demo_data/crucible/l8_trialsint/",
+        "knewat/demo_data/crucible/l8/",
+        "knewat/demo_data/crucible/l8_postfix/",
+        "knewat/demo_data/crucible/l8_p12tok/",
+        "knewat/demo_data/crucible/l8_p12ts/",
+        "knewat/demo_data/crucible/l8_trialsint/",
     )
     code = [x for x in lines if not any(r in x for r in out_rels)]
     return {
@@ -135,11 +135,11 @@ class Store:
     def close(self) -> None: ...
 
 
-class PlexusStore(Store):
+class KnewatStore(Store):
     def __init__(self, tenant: str, host: str, port: int):
-        from plexus.graph.client import GraphClient
-        from plexus.graph.tenancy import graph_name
-        from plexus.relay import Relay
+        from knewat.graph.client import GraphClient
+        from knewat.graph.tenancy import graph_name
+        from knewat.relay import Relay
 
         self.client = GraphClient(host=host, port=port)
         self.graph = graph_name(tenant)
@@ -201,7 +201,7 @@ class PlexusStore(Store):
 
 class SqliteStore(Store):
     def __init__(self, tenant: str, root: Path):
-        from plexus.crucible.backends.sqlite import SqliteBackend
+        from knewat.crucible.backends.sqlite import SqliteBackend
 
         self.b = SqliteBackend(tenant, root)
         self.path = Path(self.b.path) if hasattr(self.b, "path") else None
@@ -348,7 +348,7 @@ class L8Driver(ClaudeDriver):
     def step_hint(self) -> str:
         n = self.st.step + 1
         return (
-            f"\nStep numbers: pass `step` on every Plexus call: step={n} on your first call in this assignment, "
+            f"\nStep numbers: pass `step` on every Knewat call: step={n} on your first call in this assignment, "
             f"step={n + 1} on the next, then {n + 2}, {n + 3}, ... (one number per call, including start_session; "
             "never reuse or skip a number)."
         )
@@ -448,9 +448,9 @@ class L8Driver(ClaudeDriver):
             self.turn_meta[-1]["model"] = ev.get("model")
             self.turn_meta[-1]["claude_code_version"] = ev.get("claude_code_version")
             if self.mcp:
-                srv = [s for s in ev.get("mcp_servers", []) if s.get("name") == "plexus"]
+                srv = [s for s in ev.get("mcp_servers", []) if s.get("name") == "knewat"]
                 if not srv or srv[0].get("status") != "connected":
-                    raise ClaudeRunError(f"Plexus MCP server did not connect: {ev.get('mcp_servers')}")
+                    raise ClaudeRunError(f"Knewat MCP server did not connect: {ev.get('mcp_servers')}")
         elif kind == "assistant":
             for block in ev.get("message", {}).get("content", []):
                 if block.get("type") != "tool_use":
@@ -459,7 +459,7 @@ class L8Driver(ClaudeDriver):
                 pending[block["id"]] = (name, block.get("input") or {})
                 if name.startswith(MCP_PREFIX):
                     st.step += 1
-                    rep.plexus_calls += 1
+                    rep.knewat_calls += 1
                     self._emit(f"step {st.step:>3}  {turn.agent:<10} {name[len(MCP_PREFIX) :]}")
                 else:
                     self._emit(
@@ -652,11 +652,11 @@ class HookServer:
         return f"http://127.0.0.1:{HOOK_PORT}"
 
     def start(self, log_path: Path) -> None:
-        env = {**os.environ, "FALKORDB_HOST": self.host, "FALKORDB_PORT": str(self.port), "PLEXUS_EMBEDDER": "hash",
-               "PLEXUS_AUDIT_MODE": "full"}  # fmt: skip
+        env = {**os.environ, "FALKORDB_HOST": self.host, "FALKORDB_PORT": str(self.port), "KNEWAT_EMBEDDER": "hash",
+               "KNEWAT_AUDIT_MODE": "full"}  # fmt: skip
         self.log = open(log_path, "ab")  # noqa: SIM115
         self.proc = subprocess.Popen(
-            [plexus_mcp_command(), "--transport", "http", "--port", str(HOOK_PORT)],
+            [knewat_mcp_command(), "--transport", "http", "--port", str(HOOK_PORT)],
             env=env, stdout=self.log, stderr=subprocess.STDOUT,
         )  # fmt: skip
         import socket
@@ -680,9 +680,9 @@ class HookServer:
 
 def copy_history_b0(dest: Path, tenant: str, scratch: Path) -> int:
     """Play the 20 sprints into a FilesBackend (B0) and copy its files to ``dest`` (B0' reads them as markdown)."""
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
-    from plexus.crucible.l2.scale_scenario import play_scale
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
+    from knewat.crucible.l2.scale_scenario import play_scale
 
     root = scratch / "b0hist"
     b = open_backend(BackendSpec(arm="B0", tenant=tenant, root=str(root)))
@@ -700,7 +700,7 @@ def run_arm(
 ) -> dict[str, Any]:  # fmt: skip
     """One arm x one seed. Writes ``out/runs/<seed>/<arm>/``: run.json, transcripts/, store_dump.json, final
     artifacts / memory, the repo's git log. Returns run.json's content. ``toolset`` (arm P only) starts the
-    agents' plexus-mcp with ``--toolset`` (default: no flag = every tool); the hook server is unaffected."""
+    agents' knewat-mcp with ``--toolset`` (default: no flag = every tool); the hook server is unaffected."""
     if toolset is not None and arm != "P":
         raise ValueError("--toolset applies to arm P only")
     sched, sentinels = load_seed(out, seed)
@@ -721,12 +721,12 @@ def run_arm(
     store: Store
     cfgfile = work_root / "mcp.json"
     if arm == "P":
-        from plexus.crucible.api import BackendSpec
-        from plexus.crucible.backends import open_backend
-        from plexus.crucible.l2.scale_scenario import play_scale
-        from plexus.graph.client import GraphClient
-        from plexus.graph.schema import apply_schema
-        from plexus.graph.tenancy import graph_name
+        from knewat.crucible.api import BackendSpec
+        from knewat.crucible.backends import open_backend
+        from knewat.crucible.l2.scale_scenario import play_scale
+        from knewat.graph.client import GraphClient
+        from knewat.graph.schema import apply_schema
+        from knewat.graph.tenancy import graph_name
 
         gc = GraphClient(host=host, port=port)
         apply_schema(gc, graph_name(tenant))
@@ -739,23 +739,23 @@ def run_arm(
         env = {
             "FALKORDB_HOST": host,
             "FALKORDB_PORT": str(port),
-            "PLEXUS_EMBEDDER": "hash",
-            "PLEXUS_AUDIT_MODE": "full",
+            "KNEWAT_EMBEDDER": "hash",
+            "KNEWAT_AUDIT_MODE": "full",
         }
         p_args = ["--transport", "stdio", "--tenant", tenant, *(["--toolset", toolset] if toolset else [])]
-        cfg_json = {"mcpServers": {"plexus": {"command": plexus_mcp_command(), "args": p_args, "env": env}}}
-        store = PlexusStore(tenant, host, port)
+        cfg_json = {"mcpServers": {"knewat": {"command": knewat_mcp_command(), "args": p_args, "env": env}}}
+        store = KnewatStore(tenant, host, port)
     elif arm == "B1":
-        from plexus.crucible.api import BackendSpec
-        from plexus.crucible.backends import open_backend
-        from plexus.crucible.l2.scale_scenario import play_scale
+        from knewat.crucible.api import BackendSpec
+        from knewat.crucible.backends import open_backend
+        from knewat.crucible.l2.scale_scenario import play_scale
 
         root = work_root / "store"
         b = open_backend(BackendSpec(arm="B1", tenant=tenant, root=str(root)))
         play_scale(b, 20)
         b.close()
-        cfg_json = {"mcpServers": {"plexus": {"command": sys.executable, "args": [
-            "-m", "plexus.crucible.l3.baseline_mcp", "--arm", "B1", "--root", str(root), "--tenant", tenant,
+        cfg_json = {"mcpServers": {"knewat": {"command": sys.executable, "args": [
+            "-m", "knewat.crucible.l3.baseline_mcp", "--arm", "B1", "--root", str(root), "--tenant", tenant,
             "--embedder", "hash"], "env": {}}}}  # fmt: skip
         store = SqliteStore(tenant, root)
     elif arm == "B0p":
@@ -775,11 +775,11 @@ def run_arm(
     if arm == "P":
         assert hook is not None, "arm P needs the hook MCP server"
         subprocess.run(
-            [sys.executable, "-m", "plexus.codescan", "hook-git", "--repo", str(workdir / "repo"), "--tenant", tenant,
+            [sys.executable, "-m", "knewat.codescan", "hook-git", "--repo", str(workdir / "repo"), "--tenant", tenant,
              "--url", hook.url], check=True, capture_output=True, text=True,
         )  # fmt: skip
         base = subprocess.run(
-            [sys.executable, "-m", "plexus.codescan", "baseline", "--repo", str(workdir / "repo"), "--tenant", tenant,
+            [sys.executable, "-m", "knewat.codescan", "baseline", "--repo", str(workdir / "repo"), "--tenant", tenant,
              "--url", hook.url, "--paths", *[f"{m}.py" for m in mods]], capture_output=True, text=True,
             env={**os.environ, "FALKORDB_HOST": host, "FALKORDB_PORT": str(port)},
         )  # fmt: skip
@@ -790,7 +790,7 @@ def run_arm(
         }
 
     def on_commit() -> int | None:
-        return store.count_changes() if isinstance(store, PlexusStore) else None
+        return store.count_changes() if isinstance(store, KnewatStore) else None
 
     st = L8State(arm, sched, store)
     cfg = ClaudeConfig(
@@ -850,7 +850,7 @@ def main(argv: list[str] | None = None) -> int:
     r.add_argument("--scratch", type=Path, default=None)
     r.add_argument("--launcher", default=None, help="tests: a stand-in for claude (space-separated argv)")
     r.add_argument(
-        "--toolset", default=None, help="arm P: plexus-mcp --toolset for the agents (default: all)"
+        "--toolset", default=None, help="arm P: knewat-mcp --toolset for the agents (default: all)"
     )
     a = ap.parse_args(argv)
     if a.cmd == "prepare":

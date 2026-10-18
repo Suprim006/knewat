@@ -1,7 +1,7 @@
 [project]
-name = "plexus"
+name = "knewat"
 version = "0.1.0"
-description = "Plexus: a shared graph brain (memory + coordination) for AI agent teams, on FalkorDB."
+description = "Knewat: a shared graph brain (memory + coordination) for AI agent teams, on FalkorDB."
 requires-python = ">=3.12,<3.13"
 license = { text = "MIT" }
 dependencies = [
@@ -14,10 +14,10 @@ dependencies = [
 ]
 
 [project.scripts]
-plexus-mcp = "plexus.mcp.server:main"
-plexus-api = "plexus.api.view_api:main"
-plexus = "plexus.cli:main"
-crucible = "plexus.crucible.cli:main"
+knewat-mcp = "knewat.mcp.server:main"
+knewat-api = "knewat.api.view_api:main"
+knewat = "knewat.cli:main"
+crucible = "knewat.crucible.cli:main"
 
 [dependency-groups]
 dev = [
@@ -33,7 +33,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/plexus"]
+packages = ["src/knewat"]
 
 [tool.ruff]
 line-length = 110
@@ -45,13 +45,13 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
 # LLM-facing tool descriptions and module docstrings are long prose lines.
-"src/plexus/mcp/*.py" = ["E501"]
-"src/plexus/api/*.py" = ["E501"]
+"src/knewat/mcp/*.py" = ["E501"]
+"src/knewat/api/*.py" = ["E501"]
 # demo: scenario prose, docstrings and test expectations read better unwrapped.
-"src/plexus/demo/*.py" = ["E501"]
-"src/plexus/cli.py" = ["E501"]
+"src/knewat/demo/*.py" = ["E501"]
+"src/knewat/cli.py" = ["E501"]
 "tests/demo/*.py" = ["E501"]
-"src/plexus/crucible/**/*.py" = ["E501"]
+"src/knewat/crucible/**/*.py" = ["E501"]
 "tests/crucible/*.py" = ["E501"]
 
 [tool.pytest.ini_options]
@@ -59,6 +59,6 @@ testpaths = ["tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 markers = [
-    "integration: needs a running FalkorDB (PLEXUS_TEST_DB_PORT, default 6310)",
+    "integration: needs a running FalkorDB (KNEWAT_TEST_DB_PORT, default 6310)",
     "slow: loads the fastembed model (needs ~130 MB cache; first run downloads it)",
 ]

@@ -1,12 +1,12 @@
-"""Slice 3: ``verify_fact``: the agent re-checks a suspect fact; Plexus records the outcome."""
+"""Slice 3: ``verify_fact``: the agent re-checks a suspect fact; Knewat records the outcome."""
 
 from __future__ import annotations
 
 import pytest
 from redis.exceptions import ConnectionError as RedisConnectionError
 
-from plexus.codescan.paths import canonical_path
-from plexus.staleness import Staleness
+from knewat.codescan.paths import canonical_path
+from knewat.staleness import Staleness
 
 from .conftest import cypher
 
@@ -121,7 +121,7 @@ def test_changed_supersedes_and_backdates_to_the_time_of_the_change(
     old, new = _fact(client, graph, suspect), _fact(client, graph, out["new_fact_id"])
     assert (old["status"], old["valid_to"], old["state"]) == ("superseded", 1_500_000, "verified")
     assert (new["status"], new["valid_from"], new["valid_to"]) == ("active", 1_500_000, 9_999_999_999_999)
-    assert new["recorded_at"] == 2_000_000  # when Plexus learned it is unchanged
+    assert new["recorded_at"] == 2_000_000  # when Knewat learned it is unchanged
     assert _edges(client, graph, suspect) == [["bob", 2_000_000, "c2", "changed"]]
     assert cypher(
         client,

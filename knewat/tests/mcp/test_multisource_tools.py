@@ -7,8 +7,8 @@ import json
 
 import pytest
 
+from knewat.crucible.l8.manifest_size import measure
 from mcp import Client
-from plexus.crucible.l8.manifest_size import measure
 
 from .test_lineage_integration import call, call_err, rows
 

@@ -25,16 +25,16 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from plexus.common import OPEN
-from plexus.crucible.api import (
+from knewat.common import OPEN
+from knewat.crucible.api import (
     ClaimConflict,
     CrucibleError,
     InvalidTenant,
     UnknownReference,
     Unsupported,
 )
-from plexus.crucible.config import L1Config
-from plexus.crucible.harness import (
+from knewat.crucible.config import L1Config
+from knewat.crucible.harness import (
     ArmRun,
     Env,
     RunResult,
@@ -42,7 +42,7 @@ from plexus.crucible.harness import (
     run_workers,
     unsupported_result,
 )
-from plexus.crucible.util import normalize
+from knewat.crucible.util import normalize
 
 TESTS: dict[str, dict[str, str]] = {
     "C1": {
@@ -214,7 +214,7 @@ def _start_victims(
             [
                 sys.executable,
                 "-m",
-                "plexus.crucible.victim",
+                "knewat.crucible.victim",
                 json.dumps(spec.to_json()),
                 v,
                 str(cfg.c2_lease_ms),
@@ -598,7 +598,7 @@ def _c5_probes(run: ArmRun, a: Any, tb: _TenantB) -> list[tuple[str, Callable[[]
         ("knew_at:bob", lambda: a.knew_at("bob", 100)),
     ]
     for guess in (
-        f"plexus_t_{tb.tenant}",
+        f"knewat_t_{tb.tenant}",
         f"../{tb.tenant}",
         f"{tb.tenant}/../x",
         tb.tenant.upper(),
@@ -607,8 +607,8 @@ def _c5_probes(run: ArmRun, a: Any, tb: _TenantB) -> list[tuple[str, Callable[[]
         "..\\..\\" + tb.tenant,
     ):
         probes.append((f"open-tenant:{guess[:30]}", lambda g=guess: _guess_tenant(run, g, marker, tb.ids)))
-    if hasattr(a, "rt"):  # Plexus: the tenant is bound to the connection, a header must not rebind it
-        probes.append(("header-spoof", lambda: a.rt.tenant_of({"x-plexus-tenant": tb.tenant})))
+    if hasattr(a, "rt"):  # Knewat: the tenant is bound to the connection, a header must not rebind it
+        probes.append(("header-spoof", lambda: a.rt.tenant_of({"x-knewat-tenant": tb.tenant})))
     for inj in INJECTIONS:
         probes += [
             (f"inj-assert:{inj[:12]}", lambda inj=inj: a.assert_fact("alice", inj, inj, inj)),
@@ -923,7 +923,7 @@ def rule_of_three(n: int) -> float | None:
 
 
 def _soft_linked(b: Any, new_id: str, old_id: str) -> bool:
-    """True when the Plexus store holds ``(new)-[:DUPLICATES_MAYBE]->(old)``. Other arms have no such link."""
+    """True when the Knewat store holds ``(new)-[:DUPLICATES_MAYBE]->(old)``. Other arms have no such link."""
     client, graph = getattr(b, "client", None), getattr(b, "graph", None)
     if client is None or graph is None:
         return False
@@ -934,7 +934,7 @@ def _soft_linked(b: Any, new_id: str, old_id: str) -> bool:
 def _c7x_outcome(b: Any, p: dict[str, Any]) -> str:
     """Assert both values (two agents, in order) and classify: ``merged`` | ``maybe`` | ``new``.
 
-    Plexus reports ``duplicate_of`` itself (the lookup by subject name is not used: with a weak embedder a subject can
+    Knewat reports ``duplicate_of`` itself (the lookup by subject name is not used: with a weak embedder a subject can
     resolve to another pair's entity); the other arms are judged by whether both of this pair's values are still active.
     """
     ag_a, ag_b = f"{p['id']}-a", f"{p['id']}-b"
@@ -955,7 +955,7 @@ def _c7x_outcome(b: Any, p: dict[str, Any]) -> str:
 
 def c7x(run: ArmRun, seed: int, cfg: L1Config, pairs: list[dict[str, Any]] | None = None) -> RunResult:
     """Every labelled pair through one fresh tenant (sequential). A *false merge* is a pair labelled ``distinct`` or
-    ``maybe`` that ended as one fact. Gated (violation) on the Plexus arms; the baseline arms only report the count."""
+    ``maybe`` that ended as one fact. Gated (violation) on the Knewat arms; the baseline arms only report the count."""
     corpus = pairs if pairs is not None else load_c7x()
     res = RunResult(seed=seed, params={"pairs": len(corpus)})
     b = run.open("c7x")

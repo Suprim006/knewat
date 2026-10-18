@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import UnknownNode
-from plexus.lineage.explain import bound_edges, paths_from
+from knewat.lineage import UnknownNode
+from knewat.lineage.explain import bound_edges, paths_from
 
 
 def _fact(res, fid):

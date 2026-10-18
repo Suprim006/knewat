@@ -1,7 +1,7 @@
 """Shared helpers for Crucible L7 (P10: graph vs SQL strengths by scale). See docs/research/P10_GRAPH_VS_SQL.md.
 
 Results envelope and writer follow L6 (``l6.run.envelope`` / ``write``) with schema ``crucible-l7/1`` and the output
-directory ``plexus/demo_data/crucible/l7/``. Everything here is backend-neutral.
+directory ``knewat/demo_data/crucible/l7/``. Everything here is backend-neutral.
 """
 
 from __future__ import annotations
@@ -20,8 +20,8 @@ from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible.util import iso_utc, percentile, run_stamp
+from knewat.crucible import environment
+from knewat.crucible.util import iso_utc, percentile, run_stamp
 
 SEED = 20261016
 TIMEOUT_MS = 10_000  # per-statement budget for every database arm (pre-registration "Conventions")
@@ -33,7 +33,7 @@ DEFAULT_HOST = "127.0.0.1"  # "localhost" tries ::1 first on Windows + Docker
 
 # ------------------------------------------------------------------------------------------------ results files
 def git_state() -> dict[str, Any]:
-    """HEAD and whether the WHOLE ``plexus/`` tree (code + tests, not demo_data) differs from it.
+    """HEAD and whether the WHOLE ``knewat/`` tree (code + tests, not demo_data) differs from it.
 
     ``l6.run.git_state`` only looks at the ``l6/`` directory, so it reports a clean tree for uncommitted L7 code.
     """
@@ -249,5 +249,5 @@ class DockerSampler:
 
 
 def container_for_port(port: int) -> str:
-    """The docker container publishing 127.0.0.1:<port> (``plexus-db-<slot>`` for ``63<slot>``)."""
-    return f"plexus-db-{str(port)[-2:]}" if str(port).startswith("63") else ""
+    """The docker container publishing 127.0.0.1:<port> (``knewat-db-<slot>`` for ``63<slot>``)."""
+    return f"knewat-db-{str(port)[-2:]}" if str(port).startswith("63") else ""

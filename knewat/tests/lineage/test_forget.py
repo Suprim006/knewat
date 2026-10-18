@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import UnknownNode
+from knewat.lineage import UnknownNode
 
 from .conftest import cypher
 

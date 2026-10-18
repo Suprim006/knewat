@@ -10,8 +10,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l6.arms_a import TIMEOUT_MS, CypherArm, Timeout, meta
-from plexus.crucible.l6.world import QuestionB
+from knewat.crucible.l6.arms_a import TIMEOUT_MS, CypherArm, Timeout, meta
+from knewat.crucible.l6.world import QuestionB
 
 PATH_SQL = (
     "WITH RECURSIVE p(id, path, depth) AS ("

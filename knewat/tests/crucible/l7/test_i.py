@@ -1,6 +1,6 @@
 """L7 family I (atomic multi-entity writes) at toy size.
 
-Integration tests need FalkorDB on PLEXUS_TEST_DB_PORT (family I's own port is 6368); nothing here kills a container.
+Integration tests need FalkorDB on KNEWAT_TEST_DB_PORT (family I's own port is 6368); nothing here kills a container.
 """
 
 from __future__ import annotations
@@ -12,10 +12,10 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l7 import i as fam
-from plexus.crucible.l7 import i_arms as arms
-from plexus.crucible.l7 import i_conc
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.l7 import i as fam
+from knewat.crucible.l7 import i_arms as arms
+from knewat.crucible.l7 import i_conc
+from knewat.graph.tenancy import graph_name
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
 

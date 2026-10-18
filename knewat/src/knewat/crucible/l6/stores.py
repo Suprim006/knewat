@@ -17,10 +17,10 @@ from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.backends.sqlite_h import SqliteHistoryBackend
-from plexus.crucible.l6.world import T0, World
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
+from knewat.crucible.backends.sqlite_h import SqliteHistoryBackend
+from knewat.crucible.l6.world import T0, World
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
 
 OPEN = 9_999_999_999_999
 BATCH = 4000
@@ -129,7 +129,7 @@ def sqlite_counts(c: sqlite3.Connection) -> dict[str, int]:
 
 
 # ------------------------------------------------------------------------------------------------ FalkorDB
-def load_plexus(world: World, client: GraphClient, tenant: str) -> tuple[str, dict[str, int]]:
+def load_knewat(world: World, client: GraphClient, tenant: str) -> tuple[str, dict[str, int]]:
     """Drop and recreate the tenant graph with the model-v1 nodes and edges the L6 queries (and the product) read."""
     name = graph_name(tenant)
     client.delete_graph(name)
@@ -228,12 +228,12 @@ def load_plexus(world: World, client: GraphClient, tenant: str) -> tuple[str, di
         "UNWIND $rows AS r MATCH (h:Handoff {id: r.h}) MATCH (f:Fact {id: r.f}) CREATE (h)-[:CARRIES]->(f)",
         [{"h": h["id"], "f": f} for h in world.handoffs for f in h["carries"]],
     )
-    got = plexus_counts(g)
+    got = knewat_counts(g)
     check_counts(world, got, "P")
     return name, got
 
 
-def plexus_counts(g: Any) -> dict[str, int]:
+def knewat_counts(g: Any) -> dict[str, int]:
     def n(q: str) -> int:
         return int(g.ro_query(q).result_set[0][0])
 

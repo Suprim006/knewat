@@ -19,12 +19,12 @@ from collections.abc import Callable, Iterable, Iterator, Sequence
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.api import (
+from knewat.crucible.api import (
     OPEN,
     UnknownReference,
     valid_tenant,
 )
-from plexus.crucible.backends.base import (
+from knewat.crucible.backends.base import (
     MAX_RECALL_K,
     artifact_specs,
     assert_result,
@@ -44,7 +44,7 @@ from plexus.crucible.backends.base import (
     task_status_view,
     unique,
 )
-from plexus.crucible.util import (
+from knewat.crucible.util import (
     classify,
     fact_text,
     new_id,

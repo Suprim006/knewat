@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from plexus.codescan.hashing import hash_bytes, python_symbols
+from knewat.codescan.hashing import hash_bytes, python_symbols
 
 SRC = '''\
 import os

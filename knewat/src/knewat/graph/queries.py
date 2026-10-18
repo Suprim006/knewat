@@ -1,6 +1,6 @@
 """Named, parameterised Cypher query library.
 
-Every query the product depends on lives in ``plexus/queries/**/*.cypher`` with a header comment::
+Every query the product depends on lives in ``knewat/queries/**/*.cypher`` with a header comment::
 
     // name: engram/assert_fact
     // purpose: one line on what the query does
@@ -106,10 +106,10 @@ class RenderedQuery:
 
 
 def default_queries_root() -> Path:
-    override = os.environ.get("PLEXUS_QUERIES_DIR")
+    override = os.environ.get("KNEWAT_QUERIES_DIR")
     if override:
         return Path(override)
-    # src/plexus/graph/queries.py -> plexus/ (project root) / queries
+    # src/knewat/graph/queries.py -> knewat/ (project root) / queries
     return Path(__file__).resolve().parents[3] / "queries"
 
 

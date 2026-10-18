@@ -6,7 +6,7 @@ import hashlib
 import math
 import re
 
-from plexus.embed.base import DIM
+from knewat.embed.base import DIM
 
 _TOKEN = re.compile(r"[a-z0-9]+")
 

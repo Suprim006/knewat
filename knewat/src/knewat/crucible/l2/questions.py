@@ -8,7 +8,7 @@ Every question carries:
   words, ``task``/``agent``/``artifact``/``source``/``scope``/``text``/``value``/``predicate`` = case-folded string,
   ``fact_by`` = ``fact @ agent``);
 * ``answer``: the ground truth, derived from the ledger (never typed by hand);
-* ``op`` / ``args``: the deterministic query the Plexus arm runs (``plexus_answerer``); LLM arms never see them.
+* ``op`` / ``args``: the deterministic query the Knewat arm runs (``knewat_answerer``); LLM arms never see them.
 
 There is no LLM judge: :func:`score` is a normalised string comparison.
 """
@@ -22,7 +22,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.scenario import (
+from knewat.crucible.l2.scenario import (
     ACME_SCOPE,
     BILLING_SCOPE,
     BILLING_SUBJECT,
@@ -499,7 +499,7 @@ def dump_questions(qs: list[Question], led: Ledger, path: Path) -> None:
 
     doc = {
         "schema": "crucible-l2-questions/1",
-        "generated_from": "plexus.crucible.l2.scenario.play (the Acme Notes script); answers are derived, never typed",
+        "generated_from": "knewat.crucible.l2.scenario.play (the Acme Notes script); answers are derived, never typed",
         "scenario": scenario_summary(led),
         "conventions": CONVENTIONS,
         "questions": [q.to_json() for q in qs],
@@ -541,9 +541,9 @@ def generate(root: str | Path) -> tuple[Ledger, list[Question]]:
     The ledger is arm-independent (the tests check that all arms produce the same one), so any arm would do;
     B1 needs neither a database server nor an embedding model.
     """
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
-    from plexus.crucible.l2.scenario import play
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
+    from knewat.crucible.l2.scenario import play
 
     b = open_backend(BackendSpec(arm="B1", tenant="l2_truth", root=str(root)))
     try:

@@ -1,6 +1,6 @@
 """Deterministic arms for family A (blast radius) and A-dag: B1h (SQL), B1h-untuned, P-tuned, P-naive.
 
-Every arm takes a :class:`~plexus.crucible.l6.world.QuestionA` and returns ``(answer, meta)`` where ``answer`` has the
+Every arm takes a :class:`~knewat.crucible.l6.world.QuestionA` and returns ``(answer, meta)`` where ``answer`` has the
 shape of ``QuestionA.answer``. ``meta`` = ``{latency_ms, server_ms, statements, error}``; ``error`` is ``"timeout"`` when
 the 5,000 ms budget of any statement is exceeded (the question then counts as wrong, its latency is the budget).
 The product arm ``P`` (``impact``) lives in ``arms_product.py`` because it needs the traversal fix.
@@ -14,7 +14,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l6.world import QuestionA, QuestionDag
+from knewat.crucible.l6.world import QuestionA, QuestionDag
 
 TIMEOUT_MS = 5000
 

@@ -1,4 +1,4 @@
-"""``plexus demo ablation``: show, on a real tenant, which features stop working when the graph's edges are cut.
+"""``knewat demo ablation``: show, on a real tenant, which features stop working when the graph's edges are cut.
 
 The tenant graph is copied (``GRAPH.COPY``) to ``<tenant>_ablated`` and ``DEPENDS_ON``, ``BASED_ON``, ``DERIVED_FROM``
 and ``READ`` are deleted there (the same bounded ``crucible/strip_edges`` query the Crucible ablation uses). The same
@@ -21,11 +21,11 @@ from typing import Any
 
 from redis.exceptions import ResponseError
 
-from plexus.demo.inventory import inventory
-from plexus.graph.client import GraphClient
-from plexus.graph.tenancy import graph_name
-from plexus.lineage import Lineage
-from plexus.relay.service import Relay
+from knewat.demo.inventory import inventory
+from knewat.graph.client import GraphClient
+from knewat.graph.tenancy import graph_name
+from knewat.lineage import Lineage
+from knewat.relay.service import Relay
 
 STRIPPED = ("DEPENDS_ON", "BASED_ON", "DERIVED_FROM", "READ")
 STRIP_BATCH = 1000
@@ -173,7 +173,7 @@ def _write_probes(
         out["blocked_by_failure(task)"] = (n, f"{n} task(s) blocked behind {tg.root_task}", n > 0)
     if deps:
         for agent in ("ablation-a", "ablation-b"):
-            relay.register_agent(agent, agent, "probe", "plexus-demo")
+            relay.register_agent(agent, agent, "probe", "knewat-demo")
         claimed: list[str] = []
         for i in range(min(len(deps), MAX_TASKS) + 1):
             t = relay.claim_next_task("ablation-a" if i % 2 == 0 else "ablation-b", LEASE_MS)
@@ -279,7 +279,7 @@ def run_ablation(
         before = {"total_nodes": 0}
     if not before["total_nodes"]:
         raise SystemExit(
-            f"tenant '{tenant}' has no data. Load one first: plexus demo replay acme-claude-sonnet --tenant {tenant}"
+            f"tenant '{tenant}' has no data. Load one first: knewat demo replay acme-claude-sonnet --tenant {tenant}"
         )
     tg = pick_targets(client, src)
     deps = {r["id"]: list(r["deps"]) for r in client.ro(src, "demo/ablation_task_deps", {"limit": MAX_TASKS})}

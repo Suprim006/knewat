@@ -30,10 +30,10 @@ from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible import environment
-from plexus.crucible.config import L1Config, L4Config
-from plexus.crucible.l1 import TESTS
-from plexus.crucible.util import iso_utc, run_stamp
+from knewat.crucible import environment
+from knewat.crucible.config import L1Config, L4Config
+from knewat.crucible.l1 import TESTS
+from knewat.crucible.util import iso_utc, run_stamp
 
 SCHEMA_VERSION = 1
 
@@ -48,14 +48,14 @@ ARM_INFO: dict[str, dict[str, str]] = {
     },
     "B2": {
         "represents": "Retrieval-based memory (Mem0-style)",
-        "description": "Same local bge-small embeddings as Plexus, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
+        "description": "Same local bge-small embeddings as Knewat, stored in SQLite + numpy brute-force cosine. Hybrid: claims, decisions and handoffs use B1's SQLite tables because a vector store cannot do atomic claims",
     },
     "P": {
-        "represents": "Plexus: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
+        "represents": "Knewat: FalkorDB 6.0.2, one graph per tenant, deterministic Cypher",
         "description": "Engram/Relay/Lineage service layer called directly (memory, decision and handoff calls also write Steps and READ/WROTE edges)",
     },
     "P-mcp": {
-        "represents": "Plexus as the MCP server runs it",
+        "represents": "Knewat as the MCP server runs it",
         "description": "Same as P, but every call goes through Runtime._run: a Step and a ToolCall node are written per call (no JSON transport or network hop to the MCP server)",
     },
 }
@@ -64,11 +64,11 @@ HONESTY = [
     "Synthetic workloads and data only; one scenario family, a single-node database, scripted (non-LLM) workers.",
     "L1 workers are threads sharing one backend object (each with its own DB connection / file descriptors); only C2's victims are separate OS processes killed with SIGKILL. Concurrency is real but not deterministic: seeds fix the workload (priorities, DAG shape, values, query times), not the interleaving.",
     "Violations are reported as exact counts summed over all runs, never averaged.",
-    "B0 and B1 are configured competently (locks / transactions). Where they match Plexus the table says so; Plexus's advantage is claimed only for what a graph does better: provenance, dependency traversal, time travel, contradictions at write time and cascading forget.",
+    "B0 and B1 are configured competently (locks / transactions). Where they match Knewat the table says so; Knewat's advantage is claimed only for what a graph does better: provenance, dependency traversal, time travel, contradictions at write time and cascading forget.",
     "L2 (provenance questions answered by an LLM for baselines) and L3 (end-to-end LLM agents) are out of scope of this run.",
-    "L4 client latency is measured by Python threads in one process: at high worker counts it includes GIL queuing. Server-side run_time_ms is shown next to it for the Plexus arms.",
-    "C5 probes each arm's tool API and, for Plexus, the MCP runtime's tenant binding (a header cannot rebind a connection). It does not probe the HTTP View API: that API is read-only, names the tenant in the URL and has no authentication in v1, so isolation there is by deployment. For B0/B1/B2 nothing stops a process with file access from opening another tenant's directory, and Plexus does not enforce per-graph access control inside FalkorDB either; a client with database access can query any graph.",
-    "BASELINE §1 asks for one container per arm. B0/B1/B2 are embedded libraries with no server, so they run inside the crucible container; only FalkorDB (the Plexus arms) is a separate container.",
+    "L4 client latency is measured by Python threads in one process: at high worker counts it includes GIL queuing. Server-side run_time_ms is shown next to it for the Knewat arms.",
+    "C5 probes each arm's tool API and, for Knewat, the MCP runtime's tenant binding (a header cannot rebind a connection). It does not probe the HTTP View API: that API is read-only, names the tenant in the URL and has no authentication in v1, so isolation there is by deployment. For B0/B1/B2 nothing stops a process with file access from opening another tenant's directory, and Knewat does not enforce per-graph access control inside FalkorDB either; a client with database access can query any graph.",
+    "BASELINE §1 asks for one container per arm. B0/B1/B2 are embedded libraries with no server, so they run inside the crucible container; only FalkorDB (the Knewat arms) is a separate container.",
     "Numbers from `--quick` runs, or from outside Docker (Windows port forward adds ~10 ms per round trip), are not the published figures.",
 ]
 
@@ -83,19 +83,19 @@ def new_run_id(quick: bool) -> str:
 
 
 def arms_section(arms: Sequence[str]) -> dict[str, Any]:
-    from plexus.crucible.backends.files import FilesBackend
-    from plexus.crucible.backends.plexus import PlexusBackend
-    from plexus.crucible.backends.sqlite import SqliteBackend
-    from plexus.crucible.backends.vector import VectorBackend
+    from knewat.crucible.backends.files import FilesBackend
+    from knewat.crucible.backends.knewat import KnewatBackend
+    from knewat.crucible.backends.sqlite import SqliteBackend
+    from knewat.crucible.backends.vector import VectorBackend
 
     classes = {
         "B0": FilesBackend,
         "B1": SqliteBackend,
         "B2": VectorBackend,
-        "P": PlexusBackend,
-        "P-mcp": PlexusBackend,
+        "P": KnewatBackend,
+        "P-mcp": KnewatBackend,
     }
-    labels = {"B0": "Files", "B1": "SQLite", "B2": "Vector", "P": "Plexus", "P-mcp": "Plexus (MCP path)"}
+    labels = {"B0": "Files", "B1": "SQLite", "B2": "Vector", "P": "Knewat", "P-mcp": "Knewat (MCP path)"}
     out: dict[str, Any] = {}
     for a in arms:
         cls = classes[a]
@@ -133,13 +133,13 @@ def headline(matrix: dict[str, dict[str, str]], l1_arms: dict[str, Any]) -> list
         both_fail = [t for t, row in matrix.items() if row.get(arm) == row.get("P") == "FAIL"]
         label = arm
         if ties:
-            lines.append(f"{label} matches Plexus (0 violations on both) on {', '.join(ties)}.")
+            lines.append(f"{label} matches Knewat (0 violations on both) on {', '.join(ties)}.")
         if wins:
-            lines.append(f"Plexus passes where {label} does not: {', '.join(wins)}.")
+            lines.append(f"Knewat passes where {label} does not: {', '.join(wins)}.")
         if losses:
-            lines.append(f"{label} passes where Plexus FAILS: {', '.join(losses)}.")
+            lines.append(f"{label} passes where Knewat FAILS: {', '.join(losses)}.")
         if both_fail:
-            lines.append(f"Both {label} and Plexus fail: {', '.join(both_fail)}.")
+            lines.append(f"Both {label} and Knewat fail: {', '.join(both_fail)}.")
     return lines
 
 
@@ -185,7 +185,7 @@ def assemble(
                 "claim = claim_next_task, heartbeat, complete are timed separately; each cycle is claim -> heartbeat -> complete.",
                 "B2's claims are B1's SQLite claims (hybrid), so only its recall is measured separately.",
                 "P-mcp adds a Step and a ToolCall write to every call, as the MCP server does.",
-                "B0/B1/B2 are embedded libraries running inside the crucible container (they have no server); the Plexus arms talk to the FalkorDB container over the compose network. B1/B2 use SQLite's built-in busy handler, which has no fairness queue, so tail latency under write contention is large; cross-process writers cannot be queued in-process.",
+                "B0/B1/B2 are embedded libraries running inside the crucible container (they have no server); the Knewat arms talk to the FalkorDB container over the compose network. B1/B2 use SQLite's built-in busy handler, which has no fairness queue, so tail latency under write contention is large; cross-process writers cannot be queued in-process.",
                 "recall includes embedding the query with the local bge-small model (one model instance per process, calls serialised by its lock) for B2, P and P-mcp.",
             ],
         }
@@ -224,7 +224,7 @@ def assemble(
 
 def write(results: dict[str, Any], out_root: Path, run_id: str) -> Path:
     """Write ``<out_root>/<run_id>/results.json`` + ``report.md``; refresh ``<out_root>/latest.json``."""
-    from plexus.crucible.report import render
+    from knewat.crucible.report import render
 
     d = out_root / run_id
     d.mkdir(parents=True, exist_ok=True)

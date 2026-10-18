@@ -31,7 +31,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l8.score import load_events
+from knewat.crucible.l8.score import load_events
 
 CACHE = Path(__file__).resolve().parents[4] / "demo_data" / "crucible" / "l8" / "cache"
 MODEL = "sonnet"
@@ -93,9 +93,9 @@ def history_ledger() -> list[Any]:
     """The L2-scale ledger of the 20 preloaded sprints (deterministic; replayed into a throwaway SQLite store)."""
     global _LEDGER
     if _LEDGER is None:
-        from plexus.crucible.api import BackendSpec
-        from plexus.crucible.backends import open_backend
-        from plexus.crucible.l2.scale_scenario import play_scale
+        from knewat.crucible.api import BackendSpec
+        from knewat.crucible.backends import open_backend
+        from knewat.crucible.l2.scale_scenario import play_scale
 
         root = tempfile.mkdtemp(prefix="l8-ledger-", dir=os.environ.get("TMPDIR"))
         b = open_backend(BackendSpec(arm="B1", tenant="l8ledger", root=root))
@@ -200,8 +200,8 @@ def q1_correct(ans: dict[str, Any], truth: dict[str, Any], probes: list[tuple[st
 def answer_p(
     tenant: str, host: str, port: int, cstar: dict[str, Any] | None, probes: list[tuple[str, bool]]
 ) -> dict[str, Any]:
-    from plexus.graph.client import GraphClient
-    from plexus.graph.tenancy import graph_name
+    from knewat.graph.client import GraphClient
+    from knewat.graph.tenancy import graph_name
 
     gc = GraphClient(host=host, port=port)
     g = gc.graph(graph_name(tenant))
@@ -419,9 +419,9 @@ def extract_stmt(reply: str) -> str:
 
 def run_probe(seed_run_p: dict[str, Any], seed_run_b1: dict[str, Any], sent: dict[str, Any], host: str, port: int,
               reps: int = 3, max_cost: float = 3.0) -> dict[str, Any]:  # fmt: skip
-    from plexus.crucible.backends.sqlite import SCHEMA as B1_DDL
-    from plexus.graph.client import GraphClient
-    from plexus.graph.tenancy import graph_name
+    from knewat.crucible.backends.sqlite import SCHEMA as B1_DDL
+    from knewat.graph.client import GraphClient
+    from knewat.graph.tenancy import graph_name
 
     doc = (Path(__file__).resolve().parents[5] / "docs" / "graph-model.md").read_text(encoding="utf-8")
     gc = GraphClient(host=host, port=port)

@@ -7,9 +7,9 @@ import time
 
 import pytest
 
-import plexus.relay.service as rsvc
-from plexus.graph.client import GraphClient
-from plexus.relay import ClaimConflict, DuplicateTask, Relay, UnknownReference
+import knewat.relay.service as rsvc
+from knewat.graph.client import GraphClient
+from knewat.relay import ClaimConflict, DuplicateTask, Relay, UnknownReference
 from tests.conftest import TEST_DB_HOST, TEST_DB_PORT
 
 LEASE = 100_000

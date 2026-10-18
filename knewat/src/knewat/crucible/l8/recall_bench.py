@@ -1,7 +1,7 @@
 """L8 recall completeness, no LLM (P12): does ``recall`` return the long-horizon facts the L8 tasks need?
 
 Builds the same P store an L8 run starts from (the 20-sprint L2-scale history played through the P-mcp backend
-with the ``hash`` embedder, exactly as ``l8.run.run_arm``), then talks to an in-process Plexus MCP server (the real
+with the ``hash`` embedder, exactly as ``l8.run.run_arm``), then talks to an in-process Knewat MCP server (the real
 tool layer: argument defaults, scope resolution, recall) and measures two things:
 
 * **replay**: every ``assert_fact`` / ``add_source`` / ``recall`` the Round A P agents issued, in transcript order,
@@ -14,7 +14,7 @@ tool layer: argument defaults, scope resolution, recall) and measures two things
   it) with the tool's *default* arguments, after the seed's S21 writes are in the store. Completeness = targets
   returned / targets asked.
 
-Usage: ``python -m plexus.crucible.l8.recall_bench --port 6366 --label before [--seeds 20261017 ...]``.
+Usage: ``python -m knewat.crucible.l8.recall_bench --port 6366 --label before [--seeds 20261017 ...]``.
 Writes ``demo_data/crucible/l8_postfix/recall_bench-<label>.json``. Records no benchmark result by itself.
 """
 
@@ -30,7 +30,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
-from plexus.crucible.l2.scale_scenario import Sprint
+from knewat.crucible.l2.scale_scenario import Sprint
 
 ROOT = Path(__file__).resolve().parents[4]
 RUNS = ROOT / "demo_data" / "crucible" / "l8" / "runs"
@@ -109,7 +109,7 @@ def canonical_targets() -> list[dict[str, Any]]:
 
 
 def transcript_events(seed: int) -> list[dict[str, Any]]:
-    """Ordered plexus tool calls of the seed's P run, each with its task id and (for add_source) old result id."""
+    """Ordered knewat tool calls of the seed's P run, each with its task id and (for add_source) old result id."""
     tdir = RUNS / str(seed) / "P" / "transcripts"
     events: list[dict[str, Any]] = []
     for f in sorted(tdir.glob("*.jsonl")):
@@ -124,8 +124,8 @@ def transcript_events(seed: int) -> list[dict[str, Any]]:
             content = msg.get("content") if isinstance(msg.get("content"), list) else []
             if ev.get("type") == "assistant":
                 for b in content:
-                    if b.get("type") == "tool_use" and str(b.get("name", "")).startswith("mcp__plexus__"):
-                        e = {"tool": b["name"][len("mcp__plexus__") :], "args": b["input"], "task": task,
+                    if b.get("type") == "tool_use" and str(b.get("name", "")).startswith("mcp__knewat__"):
+                        e = {"tool": b["name"][len("mcp__knewat__") :], "args": b["input"], "task": task,
                              "file": f.name}  # fmt: skip
                         events.append(e)
                         pending[b["id"]] = e
@@ -154,16 +154,16 @@ async def _bench_seed(
     embedder: str = "hash",
     detail: str | None = None,
 ) -> dict[str, Any]:
+    from knewat.crucible.api import BackendSpec
+    from knewat.crucible.backends import open_backend
+    from knewat.crucible.l2.scale_scenario import play_scale
+    from knewat.embed import get_embedder
+    from knewat.graph.client import GraphClient
+    from knewat.graph.schema import apply_schema
+    from knewat.graph.tenancy import graph_name
+    from knewat.mcp.runtime import Runtime
+    from knewat.mcp.server import build_server
     from mcp import Client
-    from plexus.crucible.api import BackendSpec
-    from plexus.crucible.backends import open_backend
-    from plexus.crucible.l2.scale_scenario import play_scale
-    from plexus.embed import get_embedder
-    from plexus.graph.client import GraphClient
-    from plexus.graph.schema import apply_schema
-    from plexus.graph.tenancy import graph_name
-    from plexus.mcp.runtime import Runtime
-    from plexus.mcp.server import build_server
 
     tenant = f"l8rb_{seed}_{uuid.uuid4().hex[:6]}"
     gc = GraphClient(host="127.0.0.1", port=port)
@@ -178,9 +178,9 @@ async def _bench_seed(
     if embedder == "hash":
         emb = get_embedder("hash")
     else:  # the server's embedder (BGE with its query form)
-        from plexus.mcp.embedding import make_embedder
+        from knewat.mcp.embedding import make_embedder
 
-        os.environ["PLEXUS_EMBEDDER"] = embedder
+        os.environ["KNEWAT_EMBEDDER"] = embedder
         emb = make_embedder()
     server = build_server(Runtime(client=gc, embedder=emb, stdio_tenant=tenant))
     src_map: dict[str, str] = {}
@@ -328,11 +328,11 @@ def main(argv: list[str] | None = None) -> int:
         r = asyncio.run(_bench_seed(seed, a.port, canonical, a.scope, a.embedder, a.detail))
         print(f"seed {seed}: replay calls {len(r['replay'])}, tool errors {r['tool_errors']}", flush=True)
         seeds.append(r)
-    from plexus.crucible.l8.run import git_state
+    from knewat.crucible.l8.run import git_state
 
     rec = {"kind": "crucible-l8-recall-bench", "label": a.label, "scope_override": a.scope, "embedder": a.embedder,
            "detail_override": a.detail,
-           "bge_query_prefix": os.environ.get("PLEXUS_BGE_QUERY_PREFIX", "on"), "git": git_state(),
+           "bge_query_prefix": os.environ.get("KNEWAT_BGE_QUERY_PREFIX", "on"), "git": git_state(),
            "summary": summarise(seeds),
            "seeds": seeds}  # fmt: skip
     a.out.mkdir(parents=True, exist_ok=True)

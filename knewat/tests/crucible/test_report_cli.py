@@ -6,14 +6,14 @@ import json
 
 import pytest
 
-from plexus.crucible import cli
-from plexus.crucible.report import render
+from knewat.crucible import cli
+from knewat.crucible.report import render
 
 from .conftest import DB_HOST, DB_PORT
 
 
 def check_schema(res: dict) -> None:
-    """The contract the View Results page relies on (see plexus.crucible.results)."""
+    """The contract the View Results page relies on (see knewat.crucible.results)."""
     assert res["schema_version"] == 1 and res["kind"] == "crucible-results"
     assert {"id", "started_at", "finished_at", "duration_s", "quick", "command", "layers"} <= set(res["run"])
     assert {"python", "platform", "in_docker", "git_commit", "embedder", "falkordb"} <= set(
@@ -114,7 +114,7 @@ def test_unreachable_database_exits_2(tmp_path, monkeypatch):
 
 
 @pytest.mark.integration
-def test_plexus_l1_and_ablation_through_the_cli(tmp_path):
+def test_knewat_l1_and_ablation_through_the_cli(tmp_path):
     code, res, report = run_cli(
         tmp_path, "l1", "--quick", "--arms", "P", "--tests", "C1,C3,C5", "--reps", "1"
     )

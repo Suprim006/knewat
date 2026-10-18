@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from plexus.relay import Relay
+from knewat.relay import Relay
 from tests.lineage.diamond import TimedClient, build_tasks
 
 

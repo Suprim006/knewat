@@ -9,12 +9,12 @@ from pathlib import Path
 
 import pytest
 
-from plexus.crucible.l2.questions import generate
-from plexus.crucible.l2.run import PILOT_IDS, merge_into, render_report, run_l2
+from knewat.crucible.l2.questions import generate
+from knewat.crucible.l2.run import PILOT_IDS, merge_into, render_report, run_l2
 
 FAKE = [sys.executable, str(Path(__file__).with_name("fake_claude_l2.py"))]
 COMMITTED = Path(__file__).resolve().parents[3] / "demo_data/crucible/questions.yaml"
-DB_PORT = int(os.environ.get("PLEXUS_TEST_DB_PORT", "6310"))
+DB_PORT = int(os.environ.get("KNEWAT_TEST_DB_PORT", "6310"))
 
 
 @pytest.fixture
@@ -88,7 +88,7 @@ def test_all_four_arms_and_merge(tmp_path, fake_answers):
     assert p["usage"]["cost_usd"] == 0 and p["usage"]["llm_calls"] == 0 and p["usage"]["statements"] >= 5
     assert all(r["tokens"] == 0 and r["statements"] >= 1 for r in p["questions"])
     assert doc["summary"]["l2_accuracy_pct"] == {"B0": 80.0, "B1": 80.0, "B2": 80.0, "P": 100.0}
-    assert any("Plexus beats B0" in h for h in doc["summary"]["headline"])
+    assert any("Knewat beats B0" in h for h in doc["summary"]["headline"])
     # merge into an H-shaped results.json
     base = {
         "schema_version": 1, "kind": "crucible-results", "run": {"id": "h", "layers": ["L1"]},

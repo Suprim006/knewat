@@ -1,14 +1,14 @@
-"""How many prompt tokens does the Plexus MCP tool list cost per API call? One ``claude -p`` call per variant.
+"""How many prompt tokens does the Knewat MCP tool list cost per API call? One ``claude -p`` call per variant.
 
-    python -m plexus.crucible.l8.manifest_probe --workdir DIR --port 6366 [--head-src PATH]
+    python -m knewat.crucible.l8.manifest_probe --workdir DIR --port 6366 [--head-src PATH]
         [--toolset core --toolset core,staleness ...]
 
 Variants: ``none`` (no MCP server: Claude Code's own prompt + the five file tools), ``compact`` (the shipped tool
-list) and, with ``--head-src``, the server of another source tree (e.g. ``git archive HEAD plexus/src
-plexus/queries`` unpacked somewhere) run as ``python -m plexus.mcp.server`` with that ``PYTHONPATH``. The prompt
+list) and, with ``--head-src``, the server of another source tree (e.g. ``git archive HEAD knewat/src
+knewat/queries`` unpacked somewhere) run as ``python -m knewat.mcp.server`` with that ``PYTHONPATH``. The prompt
 is one short line and ``--max-turns 1``, so a variant's prompt tokens minus ``none``'s are the tool list's tokens,
 exactly as the API counts them (~$0.14 a variant). Each ``--toolset NAME`` adds a variant ``toolset:NAME`` (the
-compact list scoped with ``plexus-mcp --toolset NAME``, see :mod:`plexus.mcp.toolsets`).
+compact list scoped with ``knewat-mcp --toolset NAME``, see :mod:`knewat.mcp.toolsets`).
 """
 
 from __future__ import annotations
@@ -23,10 +23,10 @@ FILE_TOOLS = "Read,Write,Edit,Glob,Grep"
 
 
 def probe(workdir: Path, name: str, server: dict | None) -> dict:
-    cfg = {"mcpServers": {} if server is None else {"plexus": server}}
+    cfg = {"mcpServers": {} if server is None else {"knewat": server}}
     path = workdir / f"mcp-{name}.json"
     path.write_text(json.dumps(cfg), encoding="utf-8")
-    allowed = f"mcp__plexus__*,{FILE_TOOLS}" if server else FILE_TOOLS
+    allowed = f"mcp__knewat__*,{FILE_TOOLS}" if server else FILE_TOOLS
     cmd = ["claude", "-p", "Reply with the single word OK. Do not call any tool.", "--model", "sonnet",
            "--max-turns", "1", "--mcp-config", str(path), "--strict-mcp-config", "--allowedTools", allowed,
            "--tools", FILE_TOOLS, "--output-format", "json", "--no-session-persistence"]  # fmt: skip
@@ -41,14 +41,14 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--workdir", type=Path, required=True)
     ap.add_argument("--port", default="6366")
-    ap.add_argument("--head-src", default=None, help="PYTHONPATH of another plexus source tree to probe")
+    ap.add_argument("--head-src", default=None, help="PYTHONPATH of another knewat source tree to probe")
     ap.add_argument("--toolset", action="append", default=[], help="add a scoped variant (repeatable)")
     ap.add_argument("--out", type=Path)
     a = ap.parse_args(argv)
     a.workdir.mkdir(parents=True, exist_ok=True)
     py = str(Path(sys.executable)).replace("\\", "/")
     env = {"FALKORDB_HOST": "127.0.0.1", "FALKORDB_PORT": str(a.port)}
-    args = ["-m", "plexus.mcp.server", "--transport", "stdio", "--tenant", "manifestprobe"]
+    args = ["-m", "knewat.mcp.server", "--transport", "stdio", "--tenant", "manifestprobe"]
     variants: dict[str, dict | None] = {
         "none": None,
         "compact": {"command": py, "args": args, "env": env},

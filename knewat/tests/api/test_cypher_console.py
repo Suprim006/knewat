@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from fastapi import HTTPException
 
-from plexus.api import routes_cypher as R
+from knewat.api import routes_cypher as R
 
 
 def post(api, tenant, query, params=None):

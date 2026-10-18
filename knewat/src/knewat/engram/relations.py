@@ -11,11 +11,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from plexus.common import normalize, now_ms
-from plexus.engram.errors import UnknownReference
+from knewat.common import normalize, now_ms
+from knewat.engram.errors import UnknownReference
 
 if TYPE_CHECKING:
-    from plexus.engram.service import Engram
+    from knewat.engram.service import Engram
 
 MAX_HOPS = 2
 HOP_ENTITIES = 20  # entities followed per hop

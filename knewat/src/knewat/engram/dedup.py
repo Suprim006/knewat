@@ -30,9 +30,9 @@ from dataclasses import dataclass
 from fractions import Fraction
 from typing import Any
 
-from plexus.common import OPEN
-from plexus.common import now_ms as _now_ms
-from plexus.engram.errors import EngramError
+from knewat.common import OPEN
+from knewat.common import now_ms as _now_ms
+from knewat.engram.errors import EngramError
 
 # ----------------------------------------------------------------------------------------------- settings
 DEFAULT_JACCARD = 0.6  # tier 2: stemmed, stop-word-free token Jaccard
@@ -44,8 +44,8 @@ MAYBE_CAP = 5  # at most this many soft links per asserted fact (the nearest fir
 
 @dataclass(frozen=True)
 class DedupSettings:
-    """Thresholds of tiers 2 and 3, from the environment: ``PLEXUS_DUP_JACCARD`` [0.6], ``PLEXUS_DUP_TIER2_COS``
-    [0.16], ``PLEXUS_DUP_MAYBE_COS`` [0.20], ``PLEXUS_DUP_MAYBE_JACCARD`` [0.5]."""
+    """Thresholds of tiers 2 and 3, from the environment: ``KNEWAT_DUP_JACCARD`` [0.6], ``KNEWAT_DUP_TIER2_COS``
+    [0.16], ``KNEWAT_DUP_MAYBE_COS`` [0.20], ``KNEWAT_DUP_MAYBE_JACCARD`` [0.5]."""
 
     jaccard: float = DEFAULT_JACCARD
     tier2_cos: float = DEFAULT_TIER2_COS
@@ -54,12 +54,12 @@ class DedupSettings:
 
     def __post_init__(self) -> None:
         for name, v in (
-            ("PLEXUS_DUP_JACCARD", self.jaccard),
-            ("PLEXUS_DUP_MAYBE_JACCARD", self.maybe_jaccard),
+            ("KNEWAT_DUP_JACCARD", self.jaccard),
+            ("KNEWAT_DUP_MAYBE_JACCARD", self.maybe_jaccard),
         ):
             if not 0.0 < v <= 1.0:
                 raise ValueError(f"{name} must be in (0, 1]")
-        for name, v in (("PLEXUS_DUP_TIER2_COS", self.tier2_cos), ("PLEXUS_DUP_MAYBE_COS", self.maybe_cos)):
+        for name, v in (("KNEWAT_DUP_TIER2_COS", self.tier2_cos), ("KNEWAT_DUP_MAYBE_COS", self.maybe_cos)):
             if not 0.0 <= v <= 2.0:
                 raise ValueError(f"{name} must be a cosine distance in [0, 2]")
 
@@ -75,10 +75,10 @@ class DedupSettings:
                 raise ValueError(f"{name} must be a number") from None
 
         return cls(
-            jaccard=num("PLEXUS_DUP_JACCARD", DEFAULT_JACCARD),
-            tier2_cos=num("PLEXUS_DUP_TIER2_COS", DEFAULT_TIER2_COS),
-            maybe_cos=num("PLEXUS_DUP_MAYBE_COS", DEFAULT_MAYBE_COS),
-            maybe_jaccard=num("PLEXUS_DUP_MAYBE_JACCARD", DEFAULT_MAYBE_JACCARD),
+            jaccard=num("KNEWAT_DUP_JACCARD", DEFAULT_JACCARD),
+            tier2_cos=num("KNEWAT_DUP_TIER2_COS", DEFAULT_TIER2_COS),
+            maybe_cos=num("KNEWAT_DUP_MAYBE_COS", DEFAULT_MAYBE_COS),
+            maybe_jaccard=num("KNEWAT_DUP_MAYBE_JACCARD", DEFAULT_MAYBE_JACCARD),
         )
 
 

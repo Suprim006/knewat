@@ -7,7 +7,7 @@ from __future__ import annotations
 
 import pytest
 
-from plexus.lineage import Lineage
+from knewat.lineage import Lineage
 from tests.plan_util import max_records, profile_ops
 
 from .conftest import cypher

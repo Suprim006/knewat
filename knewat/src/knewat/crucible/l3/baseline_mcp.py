@@ -1,8 +1,8 @@
-"""A stdio MCP server that gives the file / SQLite / vector backends the Plexus tool surface (Layer 3).
+"""A stdio MCP server that gives the file / SQLite / vector backends the Knewat tool surface (Layer 3).
 
 BASELINE §0: "Tool API: identical MCP tool names and signatures in every arm. Only the tool descriptions differ".
-This server registers, under the server name ``plexus``, the tools the Acme scenario's agents call, with the same
-names and argument names as ``plexus.mcp.tools`` (``start_session``, ``remember_episode``, ``add_source``,
+This server registers, under the server name ``knewat``, the tools the Acme scenario's agents call, with the same
+names and argument names as ``knewat.mcp.tools`` (``start_session``, ``remember_episode``, ``add_source``,
 ``assert_fact``, ``recall``, ``create_tasks``, ``claim_next_task``, ``heartbeat``, ``complete_task``, ``handoff``,
 ``record_decision``, ``verify_artifact``), each a thin call into a :class:`CoordinationBackend`. What the baseline
 backends cannot do is not faked:
@@ -12,7 +12,7 @@ backends cannot do is not faked:
   but not stored (the backends have no verification record);
 * ``recall`` returns what the arm's own recall returns (grep-like for B0, BM25 for B1, cosine for B2).
 
-Run: ``python -m plexus.crucible.l3.baseline_mcp --arm B0 --root DIR --tenant T`` (state lives on disk, so every
+Run: ``python -m knewat.crucible.l3.baseline_mcp --arm B0 --root DIR --tenant T`` (state lives on disk, so every
 ``claude -p`` process that starts this server sees the same team memory).
 """
 
@@ -26,8 +26,8 @@ from mcp.server.mcpserver import MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from pydantic import BaseModel, Field
 
-from plexus.crucible.api import BackendSpec, CoordinationBackend, CrucibleError
-from plexus.crucible.backends import open_backend
+from knewat.crucible.api import BackendSpec, CoordinationBackend, CrucibleError
+from knewat.crucible.backends import open_backend
 
 INSTRUCTIONS = (
     "Shared team memory and task coordination for a team of agents. Call start_session first. Use recall before "
@@ -56,7 +56,7 @@ class ArtifactSpec(BaseModel):
 
 
 def _guard(fn):
-    """Backend errors become tool errors (what the Plexus tools do), not crashes of the server."""
+    """Backend errors become tool errors (what the Knewat tools do), not crashes of the server."""
 
     @functools.wraps(fn)
     def wrapped(*a, **kw):
@@ -69,7 +69,7 @@ def _guard(fn):
 
 
 def build_baseline_server(b: CoordinationBackend) -> MCPServer:
-    mcp = MCPServer("plexus", instructions=INSTRUCTIONS, log_level="WARNING")
+    mcp = MCPServer("knewat", instructions=INSTRUCTIONS, log_level="WARNING")
 
     def tool(fn):
         return mcp.tool()(_guard(fn))

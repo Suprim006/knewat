@@ -1,11 +1,11 @@
-"""Tests that need the real bge-small model (slow: first run downloads ~130 MB to PLEXUS_EMBED_CACHE)."""
+"""Tests that need the real bge-small model (slow: first run downloads ~130 MB to KNEWAT_EMBED_CACHE)."""
 
 from __future__ import annotations
 
 import pytest
 
-from plexus.embed import FastEmbedder
-from plexus.engram import Engram
+from knewat.embed import FastEmbedder
+from knewat.engram import Engram
 
 pytestmark = pytest.mark.slow
 

@@ -1,6 +1,6 @@
 import pytest
 
-from plexus.relay import UnknownReference
+from knewat.relay import UnknownReference
 
 LEASE = 10_000
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from plexus.crucible.l8.score import Truth, perm_test, score_run, wilson
+from knewat.crucible.l8.score import Truth, perm_test, score_run, wilson
 
 OLD, NEW, OTHER, X2OLD = "AX-11111", "AX-22222", "AX-33333", "AX-30001"
 
@@ -52,7 +52,7 @@ def _write_run(tmp: Path) -> tuple[Path, Path]:
     (seed / "schedule.json").write_text(json.dumps({"x2_old_token": X2OLD, "commits": []}))
     run = tmp / "runs" / "1" / "P"
     (run / "transcripts").mkdir(parents=True)
-    P = "mcp__plexus__"
+    P = "mcp__knewat__"
     art = "<workdir>/artifacts/t07-implement-crud-spec/crud-spec.md"
     t = {
         # turn 2: assert the old value (current then) -> scored, current
