@@ -123,7 +123,7 @@ def test_page_says_what_was_left_out(eng, glob):
     assert len(rows) == 2 and page["more_available"] and page["truncated"] and page["omitted_by_budget"] == 0
     rows, page = eng.recall_with_meta("owner", glob, k=6, budget_chars=60)
     assert len(rows) < 6 and page["omitted_by_budget"] == 6 - len(rows) and page["truncated"]
-    rows, page = eng.recall_page("owner", glob, k=50)
+    rows, page = eng.recall_with_meta("owner", glob, k=50)
     assert len(rows) == 6 and not page["truncated"]
 
 
