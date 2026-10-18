@@ -1,4 +1,5 @@
-# Plexus one-container public deployment (Render Free, 512 MB): FalkorDB + plexus-api + MCP HTTP + static plexus-view.
+# Plexus one-container public deployment (Render Free, 512 MB): FalkorDB + plexus-api (with the Cypher console) + static
+# plexus-view. No MCP server, no embedding model (D-016).
 # Build context: the REPO ROOT (needs plexus/ and plexus-view/):   docker build -f deploy/Dockerfile -t plexus-deploy .
 #
 # Why python:3.12-slim + the FalkorDB files copied out of the official image, instead of building FROM falkordb:
@@ -19,7 +20,7 @@ RUN npm run build
 # ---- 2. FalkorDB 6.0.2 files (copied in stage 4) ------------------------------------------------------------------
 FROM falkordb/falkordb:6.0.2 AS falkordb
 
-# ---- 3. Python venv (no dev deps) + the baked embedding model -----------------------------------------------------
+# ---- 3. Python venv (no dev deps) ---------------------------------------------------------------------------------
 FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1 AS py
 ENV UV_LINK_MODE=copy UV_NO_CACHE=1 UV_COMPILE_BYTECODE=1 UV_PROJECT_ENVIRONMENT=/app/.venv \
     HF_HUB_DISABLE_SYMLINKS_WARNING=1
@@ -30,8 +31,6 @@ RUN uv sync --frozen --no-dev --no-install-project
 COPY plexus/src ./src
 COPY plexus/queries ./queries
 RUN uv sync --frozen --no-dev
-# Bake the int8 bge-small model (~67 MB) so nothing is downloaded at runtime (S2).
-RUN /app/.venv/bin/python -c "from fastembed import TextEmbedding; TextEmbedding('BAAI/bge-small-en-v1.5', cache_dir='/opt/fastembed')"
 
 # ---- 4. runtime ---------------------------------------------------------------------------------------------------
 FROM python:3.12-slim@sha256:a6e34c598f2467ed0e9a8d349809fcd8b5c603269512df273a0bb1784edc11b1
@@ -43,11 +42,7 @@ ENV PYTHONUNBUFFERED=1 \
     PLEXUS_QUERIES_DIR=/app/queries \
     PLEXUS_STATIC_DIR=/app/view \
     PLEXUS_RESULTS_DIR=/app/results \
-    FASTEMBED_CACHE_PATH=/opt/fastembed \
-    PLEXUS_EMBED_CACHE=/opt/fastembed \
-    PLEXUS_EMBEDDER=fastembed \
-    PLEXUS_EMBED_THREADS=1 \
-    FASTEMBED_THREADS=1 \
+    PLEXUS_EMBEDDER=hash \
     PLEXUS_DB_POOL=32 \
     PLEXUS_API_MAX_STREAMS=8 \
     FALKORDB_SO=/opt/falkordb/falkordb.so \
@@ -57,7 +52,6 @@ RUN useradd --create-home --uid 10001 plexus
 COPY --from=falkordb /usr/local/bin/redis-server /usr/local/bin/redis-server
 COPY --from=falkordb /var/lib/falkordb/bin/falkordb.so /opt/falkordb/falkordb.so
 COPY --from=py /app /app
-COPY --from=py --chown=plexus:plexus /opt/fastembed /opt/fastembed
 COPY --from=view /src/dist /app/view
 # Only the two recordings that are restored on boot (plexus demo replay), and the Crucible results for /api/results
 # (latest-all.json when P5 has produced it, else latest.json; the app picks).

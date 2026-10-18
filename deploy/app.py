@@ -1,12 +1,10 @@
-"""Deploy-only ASGI wrapper: one process serves the View (static), the read-only View API and the public MCP endpoint.
+"""Deploy-only ASGI wrapper: one process serves the View (static) and the View API (including the Cypher console).
 
-    /healthz, /api/*, /docs   -> plexus.api.view_api (FastAPI, read-only), per-IP rate limited
-    /mcp, /mcp/t/<tenant>     -> PublicGuard -> TenantPathMiddleware -> MCP streamable-HTTP app
+    /healthz, /api/*, /docs   -> plexus.api.view_api (FastAPI), per-IP rate limited; POST (Cypher) has its own bucket
     everything else           -> the built plexus-view (dist/), with a single-page-app fallback to index.html
 
-Nothing in ``plexus/src`` is modified; this module only composes its public pieces. The MCP DNS-rebinding Host
-allow-list is switched off on purpose: it protects loopback services from a browser on the same machine, while
-this service is public and reachable under whatever hostname the platform assigns (Render, a custom domain).
+The MCP server is deliberately not mounted: this deployment only shows the seeded demo data until MCP is stable
+(D-016). Nothing in ``plexus/src`` is modified; this module only composes its public pieces.
 """
 
 from __future__ import annotations
@@ -15,25 +13,13 @@ import logging
 import os
 from pathlib import Path
 
-from mcp.server.transport_security import TransportSecuritySettings
 from starlette.exceptions import HTTPException
 from starlette.responses import PlainTextResponse
 from starlette.staticfiles import StaticFiles
 
-from deploy.guard import (
-    ActivityLog,
-    ApiRateLimit,
-    GuardConfig,
-    IdleSweeper,
-    PublicGuard,
-    TenantDirectory,
-    ensure_demo_audit_off,
-)
+from deploy.guard import ApiRateLimit, GuardConfig
 from plexus.api.view_api import create_app as create_view_api
 from plexus.graph.client import GraphClient
-from plexus.mcp.http import TenantPathMiddleware
-from plexus.mcp.runtime import Runtime
-from plexus.mcp.server import build_server
 
 log = logging.getLogger("plexus.deploy")
 
@@ -69,18 +55,11 @@ def pick_results_file(results_dir: str | Path | None) -> str | None:
 
 
 class PublicApp:
-    """The router. Also drives the lifespan of the mounted ASGI apps (the MCP session manager needs it)."""
+    """The router: the API under ``/api``, ``/healthz``, ``/docs``; the static View for everything else."""
 
-    def __init__(
-        self, api, mcp_guard, static, mcp_lifespan, activity: ActivityLog, directory: TenantDirectory, runtime=None
-    ):
-        self.runtime = runtime
+    def __init__(self, api, static):
         self.api = api
-        self.mcp = mcp_guard
         self.static = static
-        self.mcp_lifespan = mcp_lifespan  # async context manager factory (the MCP Starlette app's lifespan)
-        self.activity = activity
-        self.directory = directory
 
     async def __call__(self, scope, receive, send):
         kind = scope["type"]
@@ -91,20 +70,13 @@ class PublicApp:
         path = scope["path"]
         if path == "/healthz" or path.startswith(API_PATHS):
             return await self.api(scope, receive, send)
-        if path == "/mcp" or path.startswith("/mcp/"):
-            return await self.mcp(scope, receive, send)
         return await self.static(scope, receive, send)
 
-    async def _lifespan(self, receive, send):
+    @staticmethod
+    async def _lifespan(receive, send):
         await receive()  # lifespan.startup
-        try:
-            async with self.mcp_lifespan():
-                await send({"type": "lifespan.startup.complete"})
-                await receive()  # lifespan.shutdown
-        except Exception as exc:
-            log.exception("startup failed")
-            await send({"type": "lifespan.startup.failed", "message": str(exc)})
-            return
+        await send({"type": "lifespan.startup.complete"})
+        await receive()  # lifespan.shutdown
         await send({"type": "lifespan.shutdown.complete"})
 
 
@@ -113,7 +85,7 @@ def build_app(
     cfg: GuardConfig | None = None,
     static_dir: str | Path | None = None,
     results_dir: str | Path | None = None,
-) -> tuple[PublicApp, IdleSweeper]:
+) -> PublicApp:
     cfg = cfg or GuardConfig.from_env()
     client = client or GraphClient()
     static_dir = Path(static_dir or os.environ.get("PLEXUS_STATIC_DIR", "/app/view"))
@@ -121,27 +93,5 @@ def build_app(
 
     os.environ.setdefault("PLEXUS_CORS_ORIGINS", "")  # same origin: no cross-origin caller needs the API
     api = ApiRateLimit(create_view_api(client=client, results_path=results), cfg)
-
-    ensure_demo_audit_off()  # demo* tenants are served in audit mode `off`: read-only, nothing written
-    rt = Runtime(client=client)
-    mcp_inner = build_server(rt).streamable_http_app(
-        streamable_http_path="/mcp",
-        transport_security=TransportSecuritySettings(enable_dns_rebinding_protection=False),
-        max_request_body_size=cfg.max_body_bytes,
-        session_idle_timeout=600.0,
-        max_sessions=200,
-    )
-    mcp = TenantPathMiddleware(mcp_inner, health=client.ping)
-
-    def list_graphs() -> list[str]:
-        return list(client.db.list_graphs())
-
-    directory = TenantDirectory(list_graphs, cfg.max_tenants)
-    activity = ActivityLog()
-    guard = PublicGuard(mcp, cfg, directory, activity)
     static = SpaStaticFiles(directory=str(static_dir), html=True, check_dir=static_dir.is_dir())
-    app = PublicApp(
-        api, guard, static, lambda: mcp_inner.router.lifespan_context(mcp_inner), activity, directory, runtime=rt
-    )
-    sweeper = IdleSweeper(activity, list_graphs, client.delete_graph, idle_s=cfg.idle_hours * 3600)
-    return app, sweeper
+    return PublicApp(api, static)

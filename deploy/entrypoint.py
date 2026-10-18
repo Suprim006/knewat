@@ -5,8 +5,8 @@
     3. reseed: restore the recordings ``acme-claude-sonnet`` -> tenant ``demo`` and ``acme-scripted`` ->
        ``demo_scripted`` (what ``plexus demo replay <run> --tenant <t> --reset`` does), failing the boot if a
        restored inventory does not match the recording's meta.json
-    4. start the idle sweeper thread (team_* graphs idle > 24 h are deleted)
-    5. serve the combined ASGI app with uvicorn on 0.0.0.0:$PORT (Render sets PORT; default 10000)
+    4. serve the combined ASGI app (View + read-only API + Cypher console) with uvicorn on 0.0.0.0:$PORT
+       (Render sets PORT; default 10000). No MCP server runs here (D-016).
 
 If redis dies the whole process exits (the platform restarts the container, which reseeds); SIGTERM stops both.
 """
@@ -125,14 +125,7 @@ def main() -> None:
         from deploy.guard import GuardConfig
 
         cfg = GuardConfig.from_env()
-        app, sweeper = build_app(client, cfg)
-        threading.Thread(
-            target=sweeper.run_forever, args=(cfg.sweep_interval_s, stop), daemon=True, name="idle-sweep"
-        ).start()
-        if os.environ.get("PLEXUS_PREWARM", "1") == "1":  # load the embedding model off the request path
-            from plexus.mcp.server import _prewarm
-
-            _prewarm(app.runtime)
+        app = build_app(client, cfg)
 
         import uvicorn
 

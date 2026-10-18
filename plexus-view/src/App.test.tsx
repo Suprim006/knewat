@@ -7,7 +7,16 @@ describe('App shell', () => {
   it('shows the nav, a tenant selector and the fixture tenants', async () => {
     renderApp('/flow');
     const nav = screen.getByRole('navigation', { name: 'Main' });
-    for (const name of ['Explorer', 'Flow', 'Time Machine', 'Why', 'Verify', 'Inventory', 'Results']) {
+    for (const name of [
+      'Explorer',
+      'Flow',
+      'Time Machine',
+      'Why',
+      'Verify',
+      'Inventory',
+      'Cypher',
+      'Results',
+    ]) {
       expect(within(nav).getByRole('link', { name })).toBeInTheDocument();
     }
     const select = await screen.findByRole('combobox', { name: 'Tenant' });

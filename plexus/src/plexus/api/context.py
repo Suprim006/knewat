@@ -39,6 +39,10 @@ class ReadOnlyClient:
     def ro(self, graph: str, name: str, params: dict | None = None) -> Rows:
         return self._inner.ro(graph, name, params)
 
+    def cypher(self, graph: str, text: str, params: dict | None, timeout_ms: int) -> Rows:
+        """Caller-supplied Cypher, read-only (``GRAPH.RO_QUERY``). Used by the Cypher console route and nothing else."""
+        return self._inner.ro_text(graph, text, params, timeout_ms)
+
     def ping(self) -> bool:
         return self._inner.ping()
 

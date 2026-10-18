@@ -10,7 +10,7 @@ with a graph query, not a guess.
 
 | | |
 |---|---|
-| Live demo | `<RENDER_URL>` (one container on Render Free: the View, the read-only API and a public MCP endpoint, see [Live demo](#live-demo)) |
+| Live demo | `<RENDER_URL>` (one container on Render Free: the View, the read-only API and a read-only Cypher console; no MCP endpoint, see [Live demo](#live-demo)) |
 | Demo video (≤ 3 min) | `<VIDEO_URL>` (script: [`docs/VIDEO_SCRIPT.md`](docs/VIDEO_SCRIPT.md)) |
 | Blog post | [`docs/BLOG_DRAFT.md`](docs/BLOG_DRAFT.md) |
 | Run it yourself | `docker compose up -d --wait --build`, see [Setup](#setup) (Docker is the only requirement) |
@@ -347,22 +347,20 @@ byte-reproducible; `python -m plexus.crucible.combine` merges everything into `l
 
 ## Live demo
 
-`<RENDER_URL>`: one Docker container on Render Free runs FalkorDB 6.0.2, the read-only View API, an MCP endpoint over
-HTTP and the static View. How to deploy it yourself (with the keep-awake pinger) and the safety controls:
-[`docs/deploy.md`](docs/deploy.md).
+`<RENDER_URL>`: one Docker container on Render Free runs FalkorDB 6.0.2, the read-only View API and the static View. The MCP
+server is **not** deployed until it is stable ([D-016](docs/DECISIONS.md)). How to deploy it yourself (the CI gate, the
+keep-awake check) and the safety controls: [`docs/deploy.md`](docs/deploy.md).
 
 - **Read-only tenants `demo`** (the real Claude Sonnet recording) **and `demo_scripted`** are restored from the recordings on
   every boot. Browse them in the View: pick the tenant in the header.
+- **Run your own Cypher** on the **Cypher** page (`POST /api/{tenant}/cypher`). It is read-only (`GRAPH.RO_QUERY`: the server
+  refuses writes), 3 s timeout, at most 500 rows, no `LOAD CSV`, `CALL` limited to read procedures, 20 queries per minute per IP.
 - **No LLM runs on the public site.** The only LLM runs are the recorded ones.
-- **Bring your own agent:** the public MCP endpoint accepts writes only on tenants named `team_` + 4 to 24 lowercase letters or
-  digits, at `<RENDER_URL>/mcp/t/team_xxxx` (see [Bring your own agent](#bring-your-own-agent)). Every MCP tool call on `demo*`
-  is refused, even a read, because every Plexus tool call writes an audit `ToolCall` node.
-- **Anything in a `team_` graph is public** (the tenant name is routing, not authentication, and the View lists every
-  tenant). Put nothing private in it. Idle `team_` graphs are deleted after 24 h, and a restart drops them all.
-- Rate limit: 60 MCP requests per minute per IP. Request bodies are capped at 512 KiB; at most 50 tenant graphs exist.
-- Verified locally under `-m 512m --cpus 0.5`: boot in 5 to 14 s, peak 332 MiB (cgroup; 322 MiB by `docker stats`), 40/40
-  checks of `deploy/verify.py` (stale: measured on `c9234d8`). The deployment on Render itself has not been verified yet.
-- The first request after 15 idle minutes wakes the service (about a minute plus the reseed) unless an uptime pinger is set up.
+- Request bodies to the console are capped at 16 KiB. Nothing visitors do changes the graph; a restart reseeds it.
+- Verified locally under `-m 512m --cpus 0.5` (36/36 checks of `deploy/verify.py`): boot in about 4 s, peak 88 MiB (cgroup;
+  83 MiB by `docker stats`). The deployment on Render itself has not been verified yet.
+- The first request after 15 idle minutes wakes the service (about a minute plus the reseed) unless the `live-smoke` workflow
+  or an uptime pinger keeps it awake.
 
 ## Setup
 
@@ -416,12 +414,12 @@ Any MCP client can connect. The server has 45 tools (`start_session`, `assert_fa
 `record_decision`, `why`, `knew_at`, ...; the list is in [`docs/mcp.md`](docs/mcp.md)). Every tool takes an `agent_id`; the
 tenant is part of the connection, never an argument.
 
-**Against the public demo** (once `<RENDER_URL>` is live): use a `team_` tenant of your own. It is public and deleted after 24 h
-idle; `demo` itself refuses every tool call.
+**Against the public demo:** not available. The MCP endpoint is not deployed until it is stable (D-016); run the local stack
+(`docker compose up -d --wait --build`) and connect to `http://127.0.0.1:8765/mcp/t/<tenant>`.
 
 ```bash
-claude mcp add --transport http plexus <RENDER_URL>/mcp/t/team_alice01
-# or in a config file:  { "mcpServers": { "plexus": { "type": "http", "url": "<RENDER_URL>/mcp/t/team_alice01" } } }
+claude mcp add --transport http plexus http://127.0.0.1:8765/mcp/t/alice
+# or in a config file:  { "mcpServers": { "plexus": { "type": "http", "url": "http://127.0.0.1:8765/mcp/t/alice" } } }
 claude    # then ask: "Use the plexus tools as agent 'alice': start a session, assert the fact subject=API predicate=version value=v1,
           #            then assert value=v2, recall 'API version', and call why/as_of to show what changed"
 ```
@@ -480,13 +478,13 @@ docker-compose.yml       FalkorDB 6.0.2, plexus-api, plexus-mcp, plexus-view, pl
 ## Testing
 
 [`docs/TESTING.md`](docs/TESTING.md) has the Definition of Ready for Testing with evidence and a step-by-step manual
-checklist. At the last full run, 1512 Python tests and 229 View tests passed (plus 55 unit tests for the deploy guard), and
+checklist. At the last full run, 1512 Python tests and 229 View tests passed (plus the unit tests for the deploy guard and app), and
 `ruff` and the View's lint and typecheck were clean; tests that need a database use their own throw-away graphs. Known gaps
 are listed there too: for example, a real Claude Code run has driven only 14 of the 45 tools (11 in the Acme run, 3 more in the P7 physio run; all 45 have an MCP contract
 test), and the L1/L4 benchmark and the LLM arms are separate commands. `python scripts/verify_readme.py` checks that every
 link in this README, the video script and the blog draft resolves and that the quoted numbers still match the results files.
 
-> *(stale: the 1512 / 229 / 55 counts were measured on `p9int` (2026-10-16). The current main passes 1825 Python tests with 2 skipped (full suite on the `integ` tree, identical to `7618d18`); the View and deploy-guard counts have not been re-run. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
+> *(stale: the 1512 / 229 counts and the 55 guard-test count (now 61 deploy tests, run on this branch) were measured on `p9int` (2026-10-16). The current main passes 1825 Python tests with 2 skipped (full suite on the `integ` tree, identical to `7618d18`); the View and deploy-guard counts have not been re-run. See [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md).)*
 
 ## Docs
 

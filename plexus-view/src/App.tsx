@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Layout } from './app/Layout';
+import { CypherConsole } from './views/CypherConsole';
 import { Inventory } from './views/Inventory';
 import { Results } from './views/Results';
 import { TimeMachine } from './views/TimeMachine';
@@ -37,6 +38,7 @@ export function AppRoutes() {
         <Route path="why/:id" element={<Why />} />
         <Route path="verify" element={<Verify />} />
         <Route path="inventory" element={<Inventory />} />
+        <Route path="cypher" element={<CypherConsole />} />
         <Route path="results" element={<Results />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>

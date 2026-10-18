@@ -276,6 +276,26 @@ def test_api_rate_limit():
     assert codes == [202] * 3 + [429] * 2
 
 
+def test_cypher_posts_have_their_own_smaller_bucket_and_the_gets_are_unaffected():
+    inner = Recorder()
+    a = ApiRateLimit(inner, GuardConfig(api_rate_per_min=100, cypher_rate_per_min=2))
+    q = b'{"query": "RETURN 1"}'
+    codes = [call(a, path="/api/demo/cypher", body=q, client="9.9.9.9")[0] for _ in range(4)]
+    assert codes == [202, 202, 429, 429]
+    assert call(a, path="/api/demo/cypher", body=q, client="9.9.9.9")[1][b"retry-after"]
+    assert call(a, path="/api/tenants", method="GET", client="9.9.9.9")[0] == 202
+    assert call(a, path="/api/demo/cypher", body=q, client="8.8.8.8")[0] == 202  # another client
+
+
+def test_cypher_body_cap_on_content_length_and_streamed():
+    inner = Recorder()
+    a = ApiRateLimit(inner, GuardConfig(cypher_max_body_bytes=100))
+    assert call(a, path="/api/demo/cypher", body=b"x" * 101, headers={"content-length": "101"})[0] == 413
+    assert call(a, path="/api/demo/cypher", chunks=[b"x" * 60, b"x" * 60])[0] == 413  # no Content-Length
+    assert call(a, path="/api/demo/cypher", body=b"x" * 100)[0] == 202
+    assert inner.calls == [("/api/demo/cypher", b"x" * 100)]
+
+
 # ----------------------------------------------------------------------------------------------- idle sweep
 def test_idle_sweep_deletes_only_idle_team_graphs():
     clock = Clock()

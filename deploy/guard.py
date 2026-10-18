@@ -99,6 +99,9 @@ class GuardConfig:
     api_rate_per_min: int = 300  # per client IP, /api (the read-only View API)
     demo_rate_per_min: int = 30  # per client IP, tool calls on demo tenants (a recall embeds its query)
     demo_global_rate_per_min: int = 120  # all clients together, tool calls on demo tenants
+    cypher_rate_per_min: int = 20  # per client IP, POST /api/{tenant}/cypher (a query can run for seconds)
+    cypher_global_rate_per_min: int = 120  # all clients together, the same route
+    cypher_max_body_bytes: int = 16 * 1024
     max_body_bytes: int = 512 * 1024
     idle_hours: float = 24.0
     sweep_interval_s: float = 600.0
@@ -115,6 +118,9 @@ class GuardConfig:
             api_rate_per_min=_env_int("PLEXUS_API_RATE_PER_MIN", 300),
             demo_rate_per_min=_env_int("PLEXUS_DEMO_RATE_PER_MIN", 30),
             demo_global_rate_per_min=_env_int("PLEXUS_DEMO_GLOBAL_RATE_PER_MIN", 120),
+            cypher_rate_per_min=_env_int("PLEXUS_CYPHER_RATE_PER_MIN", 20),
+            cypher_global_rate_per_min=_env_int("PLEXUS_CYPHER_GLOBAL_RATE_PER_MIN", 120),
+            cypher_max_body_bytes=_env_int("PLEXUS_CYPHER_MAX_BODY_BYTES", 16 * 1024),
             max_body_bytes=_env_int("PLEXUS_MAX_BODY_BYTES", 512 * 1024),
             idle_hours=_env_float("PLEXUS_TEAM_IDLE_HOURS", 24.0),
             sweep_interval_s=_env_float("PLEXUS_SWEEP_INTERVAL_S", 600.0),
@@ -472,22 +478,51 @@ class PublicGuard:
 
 
 class ApiRateLimit:
-    """Per-IP token bucket for the read-only View API (``/api``); the SSE stream counts once, when it opens."""
+    """Per-IP token bucket for the read-only View API (``/api``); the SSE stream counts once, when it opens.
 
-    def __init__(self, app, cfg: GuardConfig, limiter: RateLimiter | None = None):
+    ``POST`` (the Cypher console, ``/api/{tenant}/cypher``) also spends a smaller, separate bucket and has its own
+    body cap, enforced on ``Content-Length`` and while streaming.
+    """
+
+    def __init__(
+        self,
+        app,
+        cfg: GuardConfig,
+        limiter: RateLimiter | None = None,
+        cypher_limiter: RateLimiter | None = None,
+    ):
         self.app = app
         self.cfg = cfg
         self.limiter = limiter or RateLimiter(cfg.api_rate_per_min, cfg.api_rate_per_min * 10)
+        self.cypher_limiter = cypher_limiter or RateLimiter(cfg.cypher_rate_per_min, cfg.cypher_global_rate_per_min)
 
     async def __call__(self, scope, receive, send):
-        if scope["type"] == "http" and (wait := self.limiter.check(client_ip(scope, self.cfg))):
-            return await reply_json(
-                send,
-                429,
-                {"detail": "rate limit exceeded; slow down"},
-                [(b"retry-after", str(max(1, int(wait + 0.999))).encode())],
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        ip = client_ip(scope, self.cfg)
+        if wait := self.limiter.check(ip):
+            return await self._too_many(send, wait, "rate limit exceeded; slow down")
+        if scope["method"] != "POST":
+            return await self.app(scope, receive, send)
+        if wait := self.cypher_limiter.check(ip):
+            return await self._too_many(
+                send, wait, f"rate limit exceeded: {self.cfg.cypher_rate_per_min} Cypher queries/min per client"
             )
-        return await self.app(scope, receive, send)
+        limit = self.cfg.cypher_max_body_bytes
+        declared = dict(scope.get("headers", [])).get(b"content-length", b"0")
+        if declared.isdigit() and int(declared) > limit:
+            return await reply_json(send, 413, {"detail": f"request body too large (limit {limit} bytes)"})
+        try:
+            body, disconnected = await read_body(receive, limit)
+        except _TooLarge:
+            return await reply_json(send, 413, {"detail": f"request body too large (limit {limit} bytes)"})
+        if disconnected:
+            return None
+        return await self.app(scope, _replay(body, receive), send)
+
+    @staticmethod
+    async def _too_many(send, wait: float, detail: str) -> None:
+        await reply_json(send, 429, {"detail": detail}, [(b"retry-after", str(max(1, int(wait + 0.999))).encode())])
 
 
 # ------------------------------------------------------------------------------------------ idle sweep

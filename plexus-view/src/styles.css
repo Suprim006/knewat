@@ -150,6 +150,58 @@ input[type='search'] {
   width: 100%;
 }
 
+.cypher-input {
+  width: 100%;
+  min-height: 7rem;
+  box-sizing: border-box;
+  font: 13px/1.5 var(--mono);
+  padding: 0.5rem 0.65rem;
+  border: 1px solid var(--border, #8884);
+  border-radius: 6px;
+  background: var(--panel, transparent);
+  color: inherit;
+  resize: vertical;
+}
+.cypher-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+}
+.cypher-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0;
+}
+.cypher-table-wrap {
+  overflow: auto;
+  max-height: 60vh;
+}
+.cypher-table {
+  border-collapse: collapse;
+  font: 12px/1.5 var(--mono);
+}
+.cypher-table th,
+.cypher-table td {
+  border: 1px solid #8883;
+  padding: 0.2rem 0.5rem;
+  text-align: left;
+  vertical-align: top;
+}
+.cypher-table .null {
+  opacity: 0.5;
+  font-style: italic;
+}
+.cypher-table details summary {
+  cursor: pointer;
+}
+.cypher-table details pre {
+  margin: 0.25rem 0 0;
+  white-space: pre-wrap;
+  max-width: 40rem;
+}
+
 .btn {
   background: var(--surface);
   color: var(--text);

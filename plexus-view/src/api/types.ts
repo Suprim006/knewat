@@ -396,6 +396,21 @@ export interface DocsQuery {
   limit?: number;
 }
 
+/** A node/edge/path/list/map/scalar in a Cypher result cell (`POST /api/{t}/cypher`). */
+export type CypherValue = string | number | boolean | null | CypherValue[] | { [key: string]: CypherValue };
+
+/** `POST /api/{t}/cypher` (read-only; the server rejects writes with 400). */
+export interface CypherResult {
+  tenant: string;
+  columns: string[];
+  rows: CypherValue[][];
+  /** Rows returned. */
+  row_count: number;
+  /** True when the server cut the result at 500 rows. */
+  truncated: boolean;
+  run_time_ms: number;
+}
+
 /** Interface implemented by both the HTTP client and the fixture client. */
 export interface ViewApi {
   tenants(): Promise<TenantList>;
@@ -413,6 +428,8 @@ export interface ViewApi {
   memoryStrength(tenant: string, factId: string): Promise<MemoryStrength>;
   /** Rejects with a 404 {@link ApiError} until the Crucible produces results. */
   results(): Promise<Results>;
+  /** Run a read-only Cypher query. Rejects with an {@link ApiError} whose message is the server's detail. */
+  cypher(tenant: string, query: string, params?: Record<string, unknown>): Promise<CypherResult>;
   /** URL of the SSE stream for a tenant (`null` in fixture mode). */
   streamUrl(tenant: string): string | null;
 }

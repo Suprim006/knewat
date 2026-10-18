@@ -22,7 +22,7 @@ def build_schema() -> dict:
         "/api/{tenant}/flow -> FlowResponse; /api/{tenant}/stream (SSE, event 'toolcall', data = ToolCallEvent); "
         "/api/{tenant}/step/{n} -> StepResponse; /api/{tenant}/why/{id} -> WhyResponse; /api/{tenant}/recall/{id} -> RecallResponse; "
         "/api/{tenant}/verify-queue -> VerifyQueueResponse; /api/{tenant}/docs-to-update -> DocsToUpdateResponse; "
-        "/api/{tenant}/memory-strength/{fact_id} -> MemoryStrengthResponse; /api/queries/{name} -> QueryText; /api/results -> Crucible results JSON (opaque). Errors: ErrorBody."
+        "/api/{tenant}/memory-strength/{fact_id} -> MemoryStrengthResponse; /api/queries/{name} -> QueryText; POST /api/{tenant}/cypher -> CypherResponse (body CypherRequest: read-only Cypher text); /api/results -> Crucible results JSON (opaque). Errors: ErrorBody."
     )
     return defs
 

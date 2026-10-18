@@ -1,0 +1,105 @@
+# CI for the Plexus demo. Render deploys a commit only after every job here is green (render.yaml:
+# autoDeployTrigger: checksPass), so this workflow is the gate in front of production.
+#
+#   python  ruff + the View API / deploy tests against a throw-away FalkorDB 6.0.2
+#   view    plexus-view: lint, typecheck, vitest, production build
+#   image   builds deploy/Dockerfile (what Render builds) and runs deploy/smoke.py against it under Render's limits
+#
+# The full Python suite (about 1,800 tests, ~20 min, timing-sensitive) and the benchmarks run on the owner's machine
+# (docs/TESTING.md); they are not repeated here.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      falkordb:
+        image: falkordb/falkordb:6.0.2
+        ports: ["6379:6379"]
+        env:
+          FALKORDB_ARGS: "TIMEOUT_MAX 10000 TIMEOUT_DEFAULT 5000 MAX_QUEUED_QUERIES 500 RESULTSET_SIZE 100000 QUERY_MEM_CAPACITY 268435456"
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 12
+    env:
+      PLEXUS_TEST_DB_PORT: "6379"
+    defaults:
+      run:
+        working-directory: plexus
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.12.5"
+          enable-cache: true
+          cache-dependency-glob: plexus/uv.lock
+      - run: uv sync --frozen
+      - name: ruff (plexus)
+        run: uv run ruff check . && uv run ruff format --check .
+      - name: ruff (deploy)
+        run: uv run ruff check ../deploy --config ../deploy/ruff.toml && uv run ruff format --check ../deploy --config ../deploy/ruff.toml
+      - name: View API, queries, schema, docs consistency
+        run: uv run pytest tests/api tests/unit tests/test_queries.py tests/test_schema.py tests/test_tenancy.py tests/test_client.py tests/test_docs_consistency.py -q -p no:cacheprovider
+      - name: deploy guard and app tests (no database)
+        run: uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini --rootdir ../deploy -p no:cacheprovider
+      - name: README numbers still match the docs
+        run: uv run python ../scripts/verify_readme.py
+
+  view:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: plexus-view
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: plexus-view/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npx vitest run
+      - run: npm run build
+
+  image:
+    needs: [python, view]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build the Render image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/Dockerfile
+          load: true
+          tags: plexus-deploy:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Run it under Render's Free limits
+        run: |
+          docker run -d --name plexus-deploy -m 512m --cpus 0.5 -e PORT=10000 -p 127.0.0.1:10000:10000 plexus-deploy:ci
+      - name: Smoke test (View, API pages, Cypher console and its refusals)
+        run: python3 deploy/smoke.py http://127.0.0.1:10000 --wait 180
+      - name: Container log
+        if: always()
+        run: docker logs plexus-deploy 2>&1 | tail -60
