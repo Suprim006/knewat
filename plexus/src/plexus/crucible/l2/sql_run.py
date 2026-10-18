@@ -42,11 +42,6 @@ ANSWERER = (
 )
 ARM = "B1h"
 
-SENTENCE = (
-    "A hand-written-SQL arm on the same SQLite store ties Plexus on correctness (and is faster per call in process): the "
-    "L2/L2-scale gap is reader-vs-query, not graph-vs-SQL."
-)  # the sentence BEAT_SQL §6.3 suggests, filled with the measured outcome by `render_report`
-
 
 def _empty_meta() -> dict[str, Any]:
     return {"latency_ms": 0.0, "server_ms": 0.0, "statements": 0, "queries": []}

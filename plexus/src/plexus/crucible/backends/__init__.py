@@ -8,7 +8,6 @@ from plexus.crucible.api import BackendSpec, CoordinationBackend
 
 ARMS = ("B0", "B1", "B2", "P")
 ALL_ARMS = (*ARMS, "P-mcp")
-LABELS = {"B0": "Files", "B1": "SQLite", "B2": "Vector", "P": "Plexus", "P-mcp": "Plexus (MCP path)"}
 
 
 _EXTRA: dict[str, Callable[[BackendSpec], CoordinationBackend]] = {}

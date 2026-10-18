@@ -431,6 +431,7 @@ def main(argv: list[str] | None = None) -> int:
         "arms": arms,
         "honesty": L3_HONESTY,
     }
+    layer["headline"] = headline_l3(layer)
     doc = {
         "schema_version": H.SCHEMA_VERSION, "kind": "crucible-results",
         "run": {"id": run_id, "started_at": iso_utc(started),

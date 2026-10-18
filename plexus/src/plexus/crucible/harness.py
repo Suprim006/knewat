@@ -12,7 +12,6 @@ import time
 import uuid
 from collections.abc import Callable, Iterable, Sequence
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 from plexus.crucible.api import BackendSpec, CoordinationBackend, Unsupported
@@ -59,7 +58,6 @@ class ArmRun:
     def __init__(self, env: Env, arm: str):
         self.env, self.arm = env, arm
         self._opened: list[CoordinationBackend] = []
-        self._dirs: list[Path] = []
 
     def spec(self, tag: str = "t", tenant: str | None = None) -> BackendSpec:
         return self.env.spec(self.arm, tenant or new_tenant(tag))

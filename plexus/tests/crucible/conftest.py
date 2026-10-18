@@ -22,7 +22,6 @@ ARMS = [
     pytest.param("P", marks=pytest.mark.integration),
     pytest.param("P-mcp", marks=pytest.mark.integration),
 ]
-ARMS_FAST = [a for a in ARMS if not (hasattr(a, "marks") and any(m.name == "slow" for m in a.marks))]
 
 
 def new_tenant() -> str:
