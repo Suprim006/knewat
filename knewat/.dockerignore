@@ -7,4 +7,4 @@ demo_data/
 __pycache__/
 *.pyc
 tests/
-src/plexus/crucible/results/
+src/knewat/crucible/results/

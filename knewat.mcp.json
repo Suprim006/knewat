@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "plexus": {
+    "knewat": {
       "command": "uv",
-      "args": ["run", "--directory", "plexus", "plexus-mcp", "--transport", "stdio", "--tenant", "demo"],
+      "args": ["run", "--directory", "knewat", "knewat-mcp", "--transport", "stdio", "--tenant", "demo"],
       "env": {
         "FALKORDB_HOST": "127.0.0.1",
         "FALKORDB_PORT": "6379"

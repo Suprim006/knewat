@@ -5,7 +5,7 @@ The MCP endpoint is public ("bring your own agent"), so everything in front of i
 * **Tenant policy.** Only ``team_[a-z0-9]{4,24}`` tenants can be written through MCP. ``demo`` / ``demo_*`` tenants are
   **readable and not writable**: the MCP handshake works, a ``tools/call`` of one of the :data:`OBSERVER_TOOLS` (the
   read tools) is forwarded, and every other call is refused with a tool error that says why. The real enforcement is
-  the Plexus runtime, which serves ``demo*`` in audit mode ``off`` (no write of any kind, writes refused, no graph
+  the Knewat runtime, which serves ``demo*`` in audit mode ``off`` (no write of any kind, writes refused, no graph
   created; see :func:`ensure_demo_audit_off`); the allowlist here is a second gate. A demo tenant whose graph does not
   exist is refused too, so a request can not make the server create graphs. Any other tenant name is refused with 403.
 * **Per-IP token bucket** (default 60 requests/min) plus a global bucket as a backstop (the client IP is only as
@@ -15,7 +15,7 @@ The MCP endpoint is public ("bring your own agent"), so everything in front of i
 * **Graph cap.** At most ``max_tenants`` (50) tenant graphs; a request that would create one more is refused (503).
 * **Idle sweep.** :class:`IdleSweeper` deletes ``team_*`` graphs with no MCP traffic for 24 h.
 
-No Plexus source is imported here, so this file is unit-testable without a database (graph listing and deletion are
+No Knewat source is imported here, so this file is unit-testable without a database (graph listing and deletion are
 injected callables).
 """
 
@@ -33,17 +33,17 @@ from dataclasses import dataclass, field
 
 import anyio.to_thread
 
-log = logging.getLogger("plexus.deploy.guard")
+log = logging.getLogger("knewat.deploy.guard")
 
-TENANT_PREFIX = "plexus_t_"  # graph name = TENANT_PREFIX + tenant (plexus.graph.tenancy)
+TENANT_PREFIX = "knewat_t_"  # graph name = TENANT_PREFIX + tenant (knewat.graph.tenancy)
 TEAM_RE = re.compile(r"team_[a-z0-9]{4,24}")
 DEMO_RE = re.compile(r"demo(_[a-z0-9_]*)?")
 MCP_PREFIX = "/mcp/t/"
-TENANT_HEADER = b"x-plexus-tenant"
+TENANT_HEADER = b"x-knewat-tenant"
 
 # The read tools a public demo tenant may call. This is the set of tools declared ``kind="read"`` in
-# ``plexus.mcp`` (``memory_sweep`` stays out: its ``dry_run`` is an argument). A test in the Plexus suite asserts
-# the two lists are equal, so they can not drift; this file imports no Plexus code.
+# ``knewat.mcp`` (``memory_sweep`` stays out: its ``dry_run`` is an argument). A test in the Knewat suite asserts
+# the two lists are equal, so they can not drift; this file imports no Knewat code.
 OBSERVER_TOOLS = frozenset(
     {
         "recall",
@@ -62,18 +62,18 @@ OBSERVER_TOOLS = frozenset(
         "docs_to_update",
     }
 )
-DEMO_AUDIT_RULE = "demo*=off"  # PLEXUS_AUDIT_MODES entry: public demo tenants write nothing, ever
+DEMO_AUDIT_RULE = "demo*=off"  # KNEWAT_AUDIT_MODES entry: public demo tenants write nothing, ever
 
 
 def ensure_demo_audit_off(environ: MutableMapping[str, str] | None = None) -> MutableMapping[str, str]:
-    """Put ``demo*=off`` first in ``PLEXUS_AUDIT_MODES`` (first match wins, so an operator can not weaken it).
+    """Put ``demo*=off`` first in ``KNEWAT_AUDIT_MODES`` (first match wins, so an operator can not weaken it).
 
-    Call before the Plexus ``Runtime`` is created: it reads the variable once, at start. Idempotent.
+    Call before the Knewat ``Runtime`` is created: it reads the variable once, at start. Idempotent.
     """
     env = os.environ if environ is None else environ
-    rules = [r.strip() for r in (env.get("PLEXUS_AUDIT_MODES") or "").split(",") if r.strip()]
+    rules = [r.strip() for r in (env.get("KNEWAT_AUDIT_MODES") or "").split(",") if r.strip()]
     if DEMO_AUDIT_RULE not in rules:
-        env["PLEXUS_AUDIT_MODES"] = ",".join([DEMO_AUDIT_RULE, *rules])
+        env["KNEWAT_AUDIT_MODES"] = ",".join([DEMO_AUDIT_RULE, *rules])
     return env
 
 
@@ -112,21 +112,21 @@ class GuardConfig:
     def from_env(cls) -> GuardConfig:
         on_render = os.environ.get("RENDER", "").lower() == "true"
         return cls(
-            max_tenants=_env_int("PLEXUS_MAX_TENANTS", 50),
-            rate_per_min=_env_int("PLEXUS_RATE_PER_MIN", 60),
-            global_rate_per_min=_env_int("PLEXUS_GLOBAL_RATE_PER_MIN", 600),
-            api_rate_per_min=_env_int("PLEXUS_API_RATE_PER_MIN", 300),
-            demo_rate_per_min=_env_int("PLEXUS_DEMO_RATE_PER_MIN", 30),
-            demo_global_rate_per_min=_env_int("PLEXUS_DEMO_GLOBAL_RATE_PER_MIN", 120),
-            cypher_rate_per_min=_env_int("PLEXUS_CYPHER_RATE_PER_MIN", 20),
-            cypher_global_rate_per_min=_env_int("PLEXUS_CYPHER_GLOBAL_RATE_PER_MIN", 120),
-            cypher_max_body_bytes=_env_int("PLEXUS_CYPHER_MAX_BODY_BYTES", 16 * 1024),
-            max_body_bytes=_env_int("PLEXUS_MAX_BODY_BYTES", 512 * 1024),
-            idle_hours=_env_float("PLEXUS_TEAM_IDLE_HOURS", 24.0),
-            sweep_interval_s=_env_float("PLEXUS_SWEEP_INTERVAL_S", 600.0),
+            max_tenants=_env_int("KNEWAT_MAX_TENANTS", 50),
+            rate_per_min=_env_int("KNEWAT_RATE_PER_MIN", 60),
+            global_rate_per_min=_env_int("KNEWAT_GLOBAL_RATE_PER_MIN", 600),
+            api_rate_per_min=_env_int("KNEWAT_API_RATE_PER_MIN", 300),
+            demo_rate_per_min=_env_int("KNEWAT_DEMO_RATE_PER_MIN", 30),
+            demo_global_rate_per_min=_env_int("KNEWAT_DEMO_GLOBAL_RATE_PER_MIN", 120),
+            cypher_rate_per_min=_env_int("KNEWAT_CYPHER_RATE_PER_MIN", 20),
+            cypher_global_rate_per_min=_env_int("KNEWAT_CYPHER_GLOBAL_RATE_PER_MIN", 120),
+            cypher_max_body_bytes=_env_int("KNEWAT_CYPHER_MAX_BODY_BYTES", 16 * 1024),
+            max_body_bytes=_env_int("KNEWAT_MAX_BODY_BYTES", 512 * 1024),
+            idle_hours=_env_float("KNEWAT_TEAM_IDLE_HOURS", 24.0),
+            sweep_interval_s=_env_float("KNEWAT_SWEEP_INTERVAL_S", 600.0),
             # Render fronts every service with Cloudflare, which sets CF-Connecting-IP and rejects a forged one.
-            ip_header=(os.environ.get("PLEXUS_CLIENT_IP_HEADER") or ("cf-connecting-ip" if on_render else "")).lower(),
-            xff_hops=_env_int("PLEXUS_XFF_HOPS", 0),
+            ip_header=(os.environ.get("KNEWAT_CLIENT_IP_HEADER") or ("cf-connecting-ip" if on_render else "")).lower(),
+            xff_hops=_env_int("KNEWAT_XFF_HOPS", 0),
         )
 
 
@@ -141,7 +141,7 @@ def classify(tenant: str) -> str:
 
 
 def tenant_of(path: str, headers: Iterable[tuple[bytes, bytes]]) -> str | None:
-    """The tenant the inner middleware will use: the first segment after ``/mcp/t/``, else ``X-Plexus-Tenant``."""
+    """The tenant the inner middleware will use: the first segment after ``/mcp/t/``, else ``X-Knewat-Tenant``."""
     if path.startswith(MCP_PREFIX):
         return path[len(MCP_PREFIX) :].split("/", 1)[0] or None
     for k, v in headers:
@@ -375,7 +375,7 @@ class PublicGuard:
                 [(b"retry-after", str(max(1, int(wait + 0.999))).encode())],
             )
         tenant = tenant_of(scope["path"], scope.get("headers", []))
-        if tenant is None:  # no / undecodable tenant: let the Plexus middleware give its precise 400
+        if tenant is None:  # no / undecodable tenant: let the Knewat middleware give its precise 400
             return await self.app(scope, receive, send)
         kind = classify(tenant)
         if kind == "deny":
@@ -400,7 +400,7 @@ class PublicGuard:
                     {
                         "error": f"the public deployment holds its maximum of {self.cfg.max_tenants} tenant graphs; "
                         "idle team_ graphs are removed after "
-                        f"{self.cfg.idle_hours:g} h. Try again later or run Plexus locally (docker compose)."
+                        f"{self.cfg.idle_hours:g} h. Try again later or run Knewat locally (docker compose)."
                     },
                 )
             self.activity.touch(tenant)

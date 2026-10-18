@@ -1,10 +1,10 @@
-# Render Blueprint: Plexus live demo, one Docker web service on the Free plan (512 MB RAM, 0.5 CPU).
-# FalkorDB + plexus-api (read-only View API with the Cypher console) + the static View run in this single container
+# Render Blueprint: Knewat live demo, one Docker web service on the Free plan (512 MB RAM, 0.5 CPU).
+# FalkorDB + knewat-api (read-only View API with the Cypher console) + the static View run in this single container
 # (deploy/Dockerfile). The MCP server is not deployed (D-016). Setup, the CI/CD pipeline and the public-safety limits:
 # docs/deploy.md.
 services:
   - type: web
-    name: plexus-demo
+    name: knewat-demo
     runtime: docker
     plan: free
     branch: main
@@ -18,25 +18,25 @@ services:
     buildFilter:
       paths:
         - deploy/**
-        - plexus-view/**
-        - plexus/src/**
-        - plexus/queries/**
-        - plexus/pyproject.toml
-        - plexus/uv.lock
-        - plexus/demo_data/recordings/acme-claude-sonnet/**
-        - plexus/demo_data/recordings/acme-scripted/**
+        - knewat-view/**
+        - knewat/src/**
+        - knewat/queries/**
+        - knewat/pyproject.toml
+        - knewat/uv.lock
+        - knewat/demo_data/recordings/acme-claude-sonnet/**
+        - knewat/demo_data/recordings/acme-scripted/**
         - render.yaml
     envVars:
       # CORS: same origin. The View is served by this process and calls /api on the same host, so no cross-origin caller
       # is needed; the only origin listed is the service's own (harmless if Render gives it another subdomain).
-      - key: PLEXUS_CORS_ORIGINS
-        value: https://plexus-demo.onrender.com
+      - key: KNEWAT_CORS_ORIGINS
+        value: https://knewat-demo.onrender.com
       # Public-safety limits (defaults shown; see docs/deploy.md)
-      - key: PLEXUS_API_RATE_PER_MIN # per client IP, all of /api
+      - key: KNEWAT_API_RATE_PER_MIN # per client IP, all of /api
         value: "300"
-      - key: PLEXUS_CYPHER_RATE_PER_MIN # per client IP, POST /api/{tenant}/cypher
+      - key: KNEWAT_CYPHER_RATE_PER_MIN # per client IP, POST /api/{tenant}/cypher
         value: "20"
-      - key: PLEXUS_CYPHER_GLOBAL_RATE_PER_MIN # all clients together, the same route
+      - key: KNEWAT_CYPHER_GLOBAL_RATE_PER_MIN # all clients together, the same route
         value: "120"
-      - key: PLEXUS_REDIS_MAXMEMORY
+      - key: KNEWAT_REDIS_MAXMEMORY
         value: 100mb

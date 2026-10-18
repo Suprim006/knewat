@@ -10,13 +10,13 @@
 .env*
 docs
 scripts
-plexus/tests
-plexus-view/dist
-plexus-view/docs
-plexus/demo_data/crucible
-plexus/demo_data/acme
-plexus/demo_data/recordings/pilot-haiku
+knewat/tests
+knewat-view/dist
+knewat-view/docs
+knewat/demo_data/crucible
+knewat/demo_data/acme
+knewat/demo_data/recordings/pilot-haiku
 # Crucible run folders are large; the app only serves latest*.json
-plexus/src/plexus/crucible/results/*
-!plexus/src/plexus/crucible/results/latest*.json
+knewat/src/knewat/crucible/results/*
+!knewat/src/knewat/crucible/results/latest*.json
 deploy/tests

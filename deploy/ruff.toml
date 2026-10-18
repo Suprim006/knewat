@@ -5,7 +5,7 @@ target-version = "py312"
 select = ["E", "F", "I", "B", "UP"]
 
 [lint.isort]
-known-first-party = ["deploy", "plexus"]
+known-first-party = ["deploy", "knewat"]
 
 [format]
 line-ending = "lf"
