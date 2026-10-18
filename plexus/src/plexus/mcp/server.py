@@ -98,11 +98,6 @@ def compact_schema(s: Any) -> Any:
     return out
 
 
-def schema_mode() -> str:
-    """``PLEXUS_MCP_SCHEMA=full`` publishes pydantic's verbose schemas (the pre-P12 tool list); default compact."""
-    return "full" if os.environ.get("PLEXUS_MCP_SCHEMA", "").strip().lower() == "full" else "compact"
-
-
 class PlexusServer(MCPServer):
     """MCPServer that reports argument-validation failures as one short line instead of a pydantic dump,
     publishes compact tool schemas (see :func:`compact_schema`) and scopes the published tools to the
@@ -120,8 +115,6 @@ class PlexusServer(MCPServer):
 
     async def list_tools(self):
         tools = await super().list_tools()
-        if schema_mode() == "full":
-            return tools
         # outputSchema is pydantic's generic {"type": "object", "additionalProperties": true} for every tool
         return [t.model_copy(update={"input_schema": compact_schema(t.input_schema), "output_schema": None})
                 for t in tools]  # fmt: skip

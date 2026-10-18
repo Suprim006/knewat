@@ -111,14 +111,6 @@ def test_the_named_entity_wins_over_a_nearer_twin_and_both_switches_off_keep_the
     assert by[sib]["sep"] == pytest.approx(WE * (5 - math.log(2)))
     assert by[twin]["entity_match"] is False and by[twin]["predicate_match"] is True
     assert by[twin]["sep"] == pytest.approx(WP * (5 - math.log(2)))
-    # the single-cue form P1 first shipped: the predicate is not a cue, the twin gets nothing
-    one, _ = eng.recall_with_meta(
-        Q, scope, k=3, forgetting=False, separation=True, settings=Settings(cues="entity")
-    )
-    assert ids(one) == [target, twin, sib]
-    by1 = {r["fact_id"]: r for r in one}
-    assert by1[target]["sep"] == pytest.approx(0.15 * (1 - math.log(2) / math.log(50)))
-    assert by1[twin]["sep"] == 0.0, "the match is reported, the single-cue form gives it no weight"
     assert by[target]["lures"] == [twin] and by[twin]["lures"] == [target], (
         "same predicate, other entity, 0.01 apart"
     )
@@ -136,12 +128,11 @@ def test_the_twin_is_not_resolved_as_a_named_entity(eng, scope, twins):
     ] == 2
 
 
-def test_separation_works_with_forgetting_on_in_both_modes(eng, scope, twins):
+def test_separation_works_with_forgetting_on(eng, scope, twins):
     target, twin, sib, sib8 = twins
-    for mode in ("mult", "add"):
-        got = eng.recall(Q, scope, k=3, settings=Settings(act_mode=mode), forgetting=True, separation=True)
-        assert ids(got)[0] == target, mode
-        assert got[0]["activation"] is not None and got[0]["salience"] == 0.0
+    got = eng.recall(Q, scope, k=3, forgetting=True, separation=True)
+    assert ids(got)[0] == target
+    assert got[0]["activation"] is not None and got[0]["salience"] == 0.0
 
 
 def test_a_hub_entity_gets_no_lift(eng, scope):
@@ -158,12 +149,6 @@ def test_a_hub_entity_gets_no_lift(eng, scope):
         WE * (5 - math.log(51)) + WP * (5 - math.log(2))
     )
     assert got[1]["entity_match"] is False and got[1]["sep"] == pytest.approx(WP * (5 - math.log(2)))
-    # the single-cue form: fan >= 50 lifts nothing, relevance decides
-    one = eng.recall(
-        "Hub Service api_version QUERY", scope, k=2, forgetting=False, settings=Settings(cues="entity")
-    )
-    assert ids(one) == [twin, target], "fan >= 50: relevance decides"
-    assert one[1]["entity_match"] is True and one[1]["sep"] == 0.0
 
 
 def test_why_recalled_stores_the_entities_the_separation_flag_and_the_lift(eng, scope, twins, client, graph):
@@ -191,11 +176,10 @@ def test_why_recalled_stores_the_entities_the_separation_flag_and_the_lift(eng, 
 
 def test_memory_strength_reports_salience_fan_and_entity_lift(eng, scope, twins, client, graph):
     target, _, _, _ = twins
-    s = Activation(client, graph, Settings(act_mode="add")).strength(target)
+    s = Activation(client, graph, Settings()).strength(target)
     assert s is not None
-    assert s["mode"] == "add" and s["fan"] == 2 and s["entity_lift"] == pytest.approx(WE * (5 - math.log(2)))
-    assert s["salience"] == 0.0 and s["suggested_verify_after"] is None and -0.05 <= s["act_term"] <= 0.05
-    assert s["decays"] and all(0 < d <= 1.0 for d in s["decays"])
+    assert s["fan"] == 2 and s["entity_lift"] == pytest.approx(WE * (5 - math.log(2)))
+    assert s["salience"] == 0.0 and s["suggested_verify_after"] is None
 
 
 # -- plan shape: the entity read must not enumerate the scope ------------------------------------------
