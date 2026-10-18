@@ -1,5 +1,7 @@
 # Plexus graph model v1 (with the v1.1 / v1.2 / v1.3 additions of P1, P2 and P7, and v1.4 of P9)
 
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+
 Source of truth: `docs/PLAN.md` §2. The schema is applied by `plexus/queries/schema/*.cypher` through
 `plexus.graph.schema.apply_schema`, and `plexus/tests/test_schema.py` checks the live indexes and constraints
 against the lists below. If this file and the schema files disagree, that is a bug.

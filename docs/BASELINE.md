@@ -1,5 +1,7 @@
 # BASELINE.md: how we prove Plexus works (benchmark plan, "Crucible")
 
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+
 > **Partly STALE (2026-10-18):** the last section, 'Re-verification on main (2026-10-18)', re-ran the $0 deterministic layers on `rerun-current` (the code of main 7cca016) and gives published vs re-run per number; rows [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md) lists as CURRENT are valid for the current build (some at a moved value, stated there). The older result sections keep the numbers of the build they were measured on. Still STALE: L3, the L6 LLM pilot, L7, L8 and the removed L5b arms.
 
 Status: plan, written before the event (design notes are allowed under rule R5). Implementation starts after kickoff.

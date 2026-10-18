@@ -1,5 +1,7 @@
 # Trials 1-4: pre-registration
 
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+
 Written 2026-10-17 before any scored run. Smoke runs used to debug the harness are excluded
 (`*_smoke`). Any changes after this point go in the amendments section at the bottom, with dates.
 

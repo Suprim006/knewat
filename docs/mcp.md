@@ -1,5 +1,7 @@
 # Plexus MCP server
 
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+
 Entry point: `plexus-mcp` (`plexus.mcp.server:main`). Built on the `mcp` 2.x SDK (`mcp.server.mcpserver.MCPServer`),
 pinned `mcp>=2.3,<3` (see `docs/spikes/S1-mcp-claude.md`).
 

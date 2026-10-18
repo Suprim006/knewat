@@ -1,5 +1,7 @@
 # AI usage disclosure (rule R7)
 
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+
 Plexus is built with AI assistance, and this file says where. The owner (Suprim) reviews the graph model, every
 `.cypher` file and the architecture (rule R8), and records design decisions in `docs/DECISIONS.md`. Update this
 file as work happens, not at the end.

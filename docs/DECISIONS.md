@@ -1,5 +1,7 @@
 # Decisions log
 
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+
 Each entry records the reasoning, so the owner can explain every choice to judges (rule R8).
 Format: **ID — title** · date · status (proposed / accepted / superseded).
 
