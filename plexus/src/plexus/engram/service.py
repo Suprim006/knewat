@@ -31,6 +31,7 @@ from plexus.graph.client import GraphClient
 
 NO_STEP = -1  # Episode.step when the caller has no step
 MAX_ORIGINS = 100  # derived_from ids per fact (= Lineage.MAX_DERIVE_IDS)
+MAX_SOURCES = 20  # source_ids per assert_fact call (P13)
 
 ENTITY_NEAR = 0.10  # cosine distance: entity-name vector match (and the numeric tokens must agree)
 FACT_DUP = 0.08  # cosine distance: value paraphrase duplicate (and the numeric tokens must agree)
@@ -432,8 +433,15 @@ class Engram:
         dup_threshold: float | None = None,
         step_id: str | None = None,
         derived_from: Iterable[str] = (),
+        source_ids: Iterable[str] = (),
     ) -> dict[str, Any]:
         """Assert ``subject predicate value`` in ``scope_id`` as ``agent_id``.
+
+        ``source_ids`` (P13, trial 8; at most 20, unioned with ``source_id``): every listed Source gets its
+        own ``(fact)-[:DERIVED_FROM]->(Source)`` edge, so a fact two documents support survives the quarantine
+        of one. An id that is not a Source rejects the whole call (:class:`UnknownReference` ``'source'``,
+        nothing written). Asserting an existing value again with sources it is not yet linked to corroborates
+        it: the result carries ``sources_added`` (the newly linked ids, ``[]`` if none; absent for a new one).
 
         ``step_id`` (an existing Step): a NEW fact is linked ``(Step)-[:WROTE]->(Fact)`` by that statement.
 
@@ -471,6 +479,14 @@ class Engram:
         origins = list(dict.fromkeys(derived_from or ()))
         if len(origins) > MAX_ORIGINS:
             raise ValueError(f"at most {MAX_ORIGINS} derived_from ids per fact")
+        extra = list(dict.fromkeys(s for s in (source_ids or ()) if s))
+        if len(extra) > MAX_SOURCES:
+            raise ValueError(f"at most {MAX_SOURCES} source_ids per fact")
+        # source_id keeps its own slot in the statement; the other sources travel as origins (one MERGE each)
+        extra = [s for s in extra if s != source_id]
+        origins = origins + [s for s in extra if s not in origins]
+
+        self._check_sources(extra)  # before the Entity exists, and for an existing Entity too: Sources only
 
         def check() -> None:
             self._check_refs(scope_id, episode_id, source_id)
@@ -531,6 +547,7 @@ class Engram:
             "contradicts": list(r["contradicts"]),
             "entity_id": entity["id"],
             "surprise": r["surprise"],
+            **({"sources_added": sorted(r["sources_added"])} if r["duplicate_of"] else {}),
             "possible_duplicates": [
                 {
                     "fact_id": m["id"],
@@ -550,6 +567,16 @@ class Engram:
             {"q": text_emb, "scope_id": scope_id, "over": act.NOVELTY_OVER, "k": act.NOVELTY_K},
         )
         return act.novelty(near[0]["distance"] if near else None)
+
+    def _check_sources(self, ids: list[str]) -> None:
+        """Raise :class:`UnknownReference` ``'source'`` for ids that name no Source (a Fact id is not one)."""
+        if not ids:
+            return
+        rows = self.client.ro(self.graph, "engram/existing_origins", {"ids": ids})
+        have = {r["id"] for r in rows if r["label"] == "Source"}
+        missing = [i for i in ids if i not in have]
+        if missing:
+            raise UnknownReference("source", missing)
 
     def _check_origins(self, origins: list[str]) -> None:
         """Raise :class:`UnknownReference` ``'origin'`` for ids that name no Fact, Source or Episode."""

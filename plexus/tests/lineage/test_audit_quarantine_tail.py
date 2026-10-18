@@ -31,6 +31,8 @@ def _norm_q(rows):
     r = dict(rows[0])
     for k in ("fact_ids", "decision_ids", "handoff_ids", "agent_ids"):
         r[k] = sorted(r[k])
+    # P13: the baseline has no multi-source columns; on these single-source fixtures they must be empty
+    assert r.pop("corroborated", []) == [] and r.pop("corroborated_total", 0) == 0
     return [r]
 
 

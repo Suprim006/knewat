@@ -5,7 +5,7 @@
 //   fact_id:str, emb:list[float], value_emb:list[float], dup_threshold:float, jac2:float, cos2:float, maybe_cos:float, maybe_jac:float, maybe_cap:int,
 //   novelty:float, surprise_supersede:float, surprise_contradict:float, search_text:str
 // search_text (P12): entity name + predicate words; the full-text channel of recall indexes it next to Fact.value. Written on the new fact only.
-// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, a given episode/source or a derived_ids origin does not exist (nothing is written, not even the Agent)
+// returns: fact_id (the new fact, or the existing duplicate), duplicate_of (id or null), sources_added (P13: on the duplicate path the ids of the Sources named by this call that the existing fact was NOT yet linked to, i.e. the corroboration this call added; [] for a new fact), superseded (ids), contradicts (ids), surprise (the Fact.surprise stored on the NEW fact; null for a duplicate, which stores nothing), maybe (the soft duplicates the new fact was linked to: [{id, value, cos, jac}], nearest first; [] for a duplicate); no row when the entity, scope, a given episode/source or a derived_ids origin does not exist (nothing is written, not even the Agent)
 // mode: rw
 
 // Rules, evaluated on facts with status 'active' or 'dormant' and valid_to=open_to in the same scope (P7-02: a fact a sweep moved to
@@ -45,6 +45,10 @@
 // Surprise (D-012), stored once on the new Fact: contradicting another agent's current fact = $surprise_contradict (0.9); closing (superseding) a current
 // fact = $surprise_supersede (0.6); otherwise $novelty (the caller's single vector read, activation/novelty: min(0.5, max(0, 1 - max cosine)), 0.5 for the
 // first fact of a scope). It is decided here because only this statement knows whether the write supersedes or contradicts.
+// P13 multi-source (trial 8): a fact several documents support carries one (fact)-[:DERIVED_FROM]->(Source) edge per source. The caller (Engram.assert_fact)
+//   passes `source_id` (kept) and puts the rest of its `source_ids` (<= 20, all checked to be Sources) into `derived_ids`, so the one MERGE of the
+//   duplicate path below IS the corroboration: a duplicate assert from a new document links that document to the existing fact. `added` is read in its own
+//   WITH BEFORE the FOREACH writes (`linked`, one pattern comprehension from the bound `dup`; no scan), so it lists only the sources this call newly linked.
 // source_id / episode_id are '' when absent. A given id that does not resolve yields no row (the guard sits before the Agent MERGE).
 // derived_ids (P9-f, ported onto the audited statement): Sources / Episodes / Facts the fact is derived from, linked (new)-[:DERIVED_FROM]->(origin) in
 //   THIS statement (MERGEd onto a duplicate, never onto itself or twice to source_id / episode_id). Before, Lineage.derive_from was a second statement and a
@@ -112,6 +116,12 @@ WITH ag, e, sc, ep, src, stp, origins, dup, closing, soft, ts, clashing,
      CASE WHEN size(clashing) > 0 THEN $surprise_contradict
           WHEN size(closing) > 0 THEN $surprise_supersede
           ELSE $novelty END AS sp
+WITH ag, e, sc, ep, src, stp, origins, dup, closing, soft, ts, clashing, sp,
+     [(dup)-[:DERIVED_FROM]->(hs:Source) | hs.id] AS linked
+WITH ag, e, sc, ep, src, stp, origins, dup, closing, soft, ts, clashing, sp,
+     [xs IN CASE WHEN src IS NULL THEN [] ELSE [src] END
+            + [xo IN origins WHERE 'Source' IN labels(xo) AND (src IS NULL OR xo.id <> src.id)]
+      WHERE dup IS NOT NULL AND NOT xs.id IN linked | xs.id] AS added
 FOREACH (d IN CASE WHEN dup IS NULL THEN [] ELSE [dup] END |
   MERGE (d)-[da:ASSERTED_BY]->(ag)
     ON CREATE SET da.at = $now, da.text = $value
@@ -140,6 +150,7 @@ FOREACH (_ IN CASE WHEN dup IS NULL THEN [1] ELSE [] END |
     CREATE (nf)-[:DUPLICATES_MAYBE {score: 1.0 - sm.cos, cos: sm.cos, jaccard: sm.jac, at: $now}]->(so))))
 RETURN CASE WHEN dup IS NULL THEN $fact_id ELSE dup.id END AS fact_id,
        dup.id AS duplicate_of,
+       added AS sources_added,
        [rc IN closing | rc.id] AS superseded,
        [rk IN clashing | rk.id] AS contradicts,
        CASE WHEN dup IS NULL THEN sp ELSE null END AS surprise,
