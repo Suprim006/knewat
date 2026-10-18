@@ -77,7 +77,7 @@ tokens per API call instead of 28,873. `PLEXUS_MCP_SCHEMA=full` publishes the ve
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
   1..50, default 50).
-- **Lineage** (registered when `plexus.lineage` is installed; see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
+- **Lineage** (see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
   `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`. `why` takes an
   optional `depth` (1..12, default 6) and `max_elements` (2..5000, default 200; nodes + edges, closest to the root first, `truncated` says whether anything was cut; P9-f); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
   (1..12, default 8; release with at least the depth the quarantine used). A derivation chain longer than `depth` is cut there:
@@ -266,7 +266,7 @@ With `uv run`, Claude's first `ToolSearch` can run while the server is still `pe
 `uv run plexus-api` (port 8080, env `PLEXUS_API_HOST`/`PLEXUS_API_PORT`; CORS origins from `PLEXUS_CORS_ORIGINS`, default
 `localhost`/`127.0.0.1` on 5180 and 5173; Crucible results file from `PLEXUS_RESULTS_PATH`). Response shapes:
 `docs/view-api.schema.json` (regenerate with `uv run python -m plexus.api.export_schema`). Reads only: the API holds a
-`ReadOnlyClient` with no write method, and `step/{n}` and `why/{id}` return 501 until `plexus.lineage` is installed.
+`ReadOnlyClient` with no write method.
 
 Bounds: `since`, `until`, `after` and the `step/{n}` path are `0..9 999 999 999 999` (out of range = **422**, never 502); `why`/`recall`
 ids are 1..128 chars. `/stream`: `poll_ms` is at least 200, at most `PLEXUS_API_MAX_STREAMS` (default 20) connections are open at once

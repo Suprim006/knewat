@@ -16,11 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from plexus.api import routes_core, routes_flow, routes_graph, routes_lineage, routes_staleness
 from plexus.api.context import MAX_STREAMS, ApiContext, ReadOnlyClient, StreamGate
 from plexus.api.routes_core import INVENTORY_EDGE_TYPES, INVENTORY_LABELS
-from plexus.api.routes_flow import sse_events
 from plexus.common import OPEN
 from plexus.graph.client import GraphClient
 
-# Names this module has always exported (tests and tools import them from here).
+# Names tests import from here.
 __all__ = [
     "INVENTORY_EDGE_TYPES",
     "INVENTORY_LABELS",
@@ -29,7 +28,6 @@ __all__ = [
     "StreamGate",
     "create_app",
     "main",
-    "sse_events",
 ]
 
 DEFAULT_ORIGINS = "http://localhost:5180,http://127.0.0.1:5180,http://localhost:5173,http://127.0.0.1:5173"

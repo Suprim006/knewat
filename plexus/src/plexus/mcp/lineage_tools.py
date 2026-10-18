@@ -1,23 +1,17 @@
-"""Lineage MCP tools, registered only when ``plexus.lineage`` exists (P2-D merges separately).
-
-``plexus.lineage.Lineage(client, graph)`` provides ``why``, ``why_recalled``, ``who_knew``, ``knew_at``, ``as_of``,
-``create_source``, ``forget_source``, ``quarantine`` and ``release_quarantine``; a method that is missing is simply
-not exposed as a tool (each tool below names the method it needs with ``@tool.when(...)``). Step recording and
-READ/WROTE/Recall attachment for every call live in ``plexus.mcp.runtime``.
+"""Lineage MCP tools: why, why_recalled, who_knew, knew_at, as_of, add_source, forget_source, quarantine_source,
+release_quarantine. Each is a thin wrapper over ``plexus.lineage.Lineage``. Step recording and READ/WROTE/Recall
+attachment for every call live in ``plexus.mcp.runtime``.
 """
 
 from __future__ import annotations
 
 import hashlib
-import importlib
-import importlib.util
-import logging
-import sys
 from typing import Annotated, Any, Literal
 
 from mcp.server.mcpserver import MCPServer
 from pydantic import Field
 
+from plexus.lineage import Lineage
 from plexus.lineage.service import (
     DEFAULT_CASCADE_DEPTH,
     DEFAULT_WHY_DEPTH,
@@ -41,24 +35,12 @@ from plexus.mcp.limits import (
 from plexus.mcp.runtime import MeteredClient, Outcome, Runtime, TenantState
 from plexus.mcp.toolkit import ToolTable
 
-log = logging.getLogger("plexus.mcp")
-
 LINEAGE_TOOLS = ToolTable()
 tool = LINEAGE_TOOLS
 
 
-def lineage_available() -> bool:
-    if sys.modules.get("plexus.lineage") is not None:
-        return True
-    try:
-        return importlib.util.find_spec("plexus.lineage") is not None
-    except (ImportError, ValueError):
-        return False
-
-
-def _lineage(ts: TenantState, m: MeteredClient):
-    mod = importlib.import_module("plexus.lineage")
-    return mod.Lineage(m, ts.graph)
+def _lineage(ts: TenantState, m: MeteredClient) -> Lineage:
+    return Lineage(m, ts.graph)
 
 
 def _jsonable(x: Any) -> Any:
@@ -76,20 +58,12 @@ def _note_uri(title: str, text: str) -> str:
 
 
 def register_lineage(mcp: MCPServer, rt: Runtime) -> list[str]:
-    """Register whichever Lineage tools the installed ``plexus.lineage`` provides. Returns their names."""
-    if not lineage_available():
-        return []
-    mod = importlib.import_module("plexus.lineage")
-    cls = getattr(mod, "Lineage", None)
-    if cls is None:
-        log.warning("plexus.lineage has no Lineage class; Lineage tools not registered")
-        return []
-    has = {d.requires for d in LINEAGE_TOOLS if d.requires and hasattr(cls, d.requires)}
-    return LINEAGE_TOOLS.register(mcp, rt, has)
+    """Register the Lineage tools on ``mcp``; returns their names."""
+    return LINEAGE_TOOLS.register(mcp, rt)
 
 
 # ---------------------------------------------------------------- explain and time machine
-@tool.when("why", kind="read")
+@tool(kind="read")
 def why(
     ts: TenantState,
     m: MeteredClient,
@@ -120,7 +94,7 @@ def why(
     return Outcome({"why": _jsonable(_lineage(ts, m).why(node_id, depth=depth, max_elements=max_elements))})
 
 
-@tool.when("why_recalled", kind="read")
+@tool(kind="read")
 def why_recalled(
     ts: TenantState,
     m: MeteredClient,
@@ -133,7 +107,7 @@ def why_recalled(
     return Outcome({"why_recalled": _jsonable(_lineage(ts, m).why_recalled(recall_id))})
 
 
-@tool.when("who_knew", kind="read")
+@tool(kind="read")
 def who_knew(
     ts: TenantState,
     m: MeteredClient,
@@ -145,7 +119,7 @@ def who_knew(
     return Outcome({"who_knew": _jsonable(_lineage(ts, m).who_knew(fact_id))})
 
 
-@tool.when("knew_at", kind="read")
+@tool(kind="read")
 def knew_at(
     ts: TenantState,
     m: MeteredClient,
@@ -159,7 +133,7 @@ def knew_at(
     return Outcome({"knew_at": _jsonable(_lineage(ts, m).knew_at(subject_agent, step_n))})
 
 
-@tool.when("as_of", kind="read")
+@tool(kind="read")
 def as_of(
     ts: TenantState,
     m: MeteredClient,
@@ -179,7 +153,7 @@ def as_of(
 
 
 # ---------------------------------------------------------------- sources
-@tool.when("create_source")
+@tool
 def add_source(
     ts: TenantState,
     m: MeteredClient,
@@ -221,7 +195,7 @@ def _lean(r: dict[str, Any], key: str) -> dict[str, Any]:
     return r
 
 
-@tool.when("forget_source")
+@tool
 def forget_source(
     ts: TenantState,
     m: MeteredClient,
@@ -246,7 +220,7 @@ def forget_source(
     return Outcome({"forgotten": r}, updated=[("Fact", f) for f in r["fact_ids"]])
 
 
-@tool.when("quarantine")
+@tool
 def quarantine_source(
     ts: TenantState,
     m: MeteredClient,
@@ -271,7 +245,7 @@ def quarantine_source(
     return Outcome({"quarantined": r}, updated=[("Fact", f) for f in r["fact_ids"]])
 
 
-@tool.when("release_quarantine")
+@tool
 def release_quarantine(
     ts: TenantState,
     m: MeteredClient,

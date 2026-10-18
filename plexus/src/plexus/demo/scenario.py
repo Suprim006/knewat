@@ -9,7 +9,6 @@ same scenario through the same MCP tools.
 from __future__ import annotations
 
 import json
-import os
 import re
 from dataclasses import dataclass, field
 from functools import lru_cache
@@ -22,10 +21,7 @@ RECORDINGS_DIRNAME = "recordings"
 
 
 def demo_data_dir() -> Path:
-    """``plexus/demo_data`` (override with env ``PLEXUS_DEMO_DATA``)."""
-    env = os.environ.get("PLEXUS_DEMO_DATA")
-    if env:
-        return Path(env)
+    """``plexus/demo_data``."""
     return Path(__file__).resolve().parents[3] / "demo_data"
 
 

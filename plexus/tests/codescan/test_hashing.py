@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from plexus.codescan.hashing import hash_bytes, hash_file, python_symbols
+from plexus.codescan.hashing import hash_bytes, python_symbols
 
 SRC = '''\
 import os
@@ -38,11 +38,8 @@ def _by_name(src):
     return {s.name: s for s in syms}
 
 
-def test_file_hash_ignores_line_endings(tmp_path):
-    lf, crlf = tmp_path / "a.txt", tmp_path / "b.txt"
-    lf.write_bytes(b"one\ntwo\n")
-    crlf.write_bytes(b"one\r\ntwo\r\n")
-    assert hash_file(lf) == hash_file(crlf) == hash_bytes(b"one\ntwo\n")
+def test_hash_ignores_line_endings():
+    assert hash_bytes(b"one\r\ntwo\r\n") == hash_bytes(b"one\ntwo\n")
     assert hash_bytes(b"one\ntwo") != hash_bytes(b"one\ntwo\n")
 
 

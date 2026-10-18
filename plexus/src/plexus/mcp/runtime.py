@@ -37,7 +37,7 @@ from plexus.mcp.audit_policy import AuditMode, AuditPolicy, ToolKind
 from plexus.mcp.embedding import CheckedEmbedder, make_embedder
 from plexus.mcp.lineage_hook import HOOK_NODE_KEYS, LINK_CHUNK, WROTE_LABELS
 from plexus.mcp.metering import AUXILIARY_PREFIX, MeteredClient, Outcome
-from plexus.mcp.tenant import TenantState, lineage_class
+from plexus.mcp.tenant import TenantState
 from plexus.relay import RelayError
 
 __all__ = [
@@ -51,7 +51,6 @@ __all__ = [
     "Outcome",
     "Runtime",
     "TenantState",
-    "lineage_class",
 ]
 
 log = logging.getLogger("plexus.mcp")  # stderr only: stdout is the stdio protocol channel
@@ -236,9 +235,9 @@ class Runtime:
             # there to be explained) and say so loudly. On an 'off' tenant the write was refused instead.
             log.error("tool %s is declared 'read' but wrote (%s); auditing it in full", tool, m.writes)
             mode = "full"
-        # The Step is opened only after the tool succeeded (a rejected call leaves no Step; the three tools that
-        # fold WROTE into their write open it first and remove it again on failure), but stamped with the time the call started: "what the agent knew at this step" is then the
-        # state it acted on, not the state after its own write.
+        # The Step is opened only after the tool succeeded (a rejected call leaves no Step; FOLDS_WROTE tools open
+        # it first and remove it on failure), stamped with the time the call started: "what the agent knew at this
+        # step" is then the state it acted on, not the state after its own write.
         if mode == "full":
             step_id = m.step_id or self._open_step(ts, agent_id, step, started, degraded)
             extra = self._attach(ts, step_id, out, degraded)
@@ -321,7 +320,7 @@ class Runtime:
     def _open_step(
         self, ts: TenantState, agent_id: str, step: int | None, at: int, degraded: list[str]
     ) -> str | None:
-        """The agent's Step for this call (get-or-create by (agent, n)); ``None`` without Lineage."""
+        """The agent's Step for this call (get-or-create by (agent, n))."""
         return lineage_hook.open_step(self.client, ts, agent_id, step, at, degraded)
 
     def _attach(

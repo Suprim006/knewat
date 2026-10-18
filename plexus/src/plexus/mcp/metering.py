@@ -36,9 +36,8 @@ class MeteredClient:
         self.run_time_ms = 0.0
         self.queries: list[str] = []
         self.writes: list[str] = []
-        # P9-int: the Step the runtime opened BEFORE the tool ran (assert_fact / record_decision / handoff), so the
-        # write statement can create (Step)-[:WROTE]->(node) itself. None when there is none (audit light/off, no
-        # Lineage, a degraded Step): the runtime then links after the write, as it does for every other tool.
+        # The Step the runtime opened BEFORE the tool ran (see lineage_hook.FOLDS_WROTE). None when there is none
+        # (audit light/off, a degraded Step): the runtime then links after the write.
         self.step_id: str | None = None
 
     def _note(self, name: str, rows: Rows | None, write: bool) -> None:
@@ -90,7 +89,7 @@ class Outcome:
     created: Sequence[Ref] = ()
     updated: Sequence[Ref] = ()
     step_id: str | None = None  # ignored: the runtime sets it from Lineage.record_step
-    # Lineage attachment (ignored when plexus.lineage is not installed):
+    # Lineage attachment:
     read_ids: Sequence[str] = ()  # Facts the call looked at -> (Step)-[:READ]->(Fact)
     assert_result: dict[str, Any] | None = None  # Engram.assert_fact result -> Lineage.link_assert_result
     linked: Sequence[

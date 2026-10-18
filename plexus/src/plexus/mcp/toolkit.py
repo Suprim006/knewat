@@ -19,7 +19,7 @@ error mapping), so no tool repeats that plumbing.
 from __future__ import annotations
 
 import inspect
-from collections.abc import Callable, Collection, Iterator
+from collections.abc import Callable, Iterator
 from dataclasses import dataclass
 from typing import Annotated, Any, ClassVar, Literal
 
@@ -45,7 +45,7 @@ AuditArg = Annotated[
 
 @dataclass(frozen=True)
 class ToolDef:
-    """One tool: its work function, the ``Lineage`` method it needs (``None`` = always available) and its class.
+    """One tool: its work function and its class.
 
     ``kind`` is ``'write'`` unless the tool declares ``'read'`` (a forgotten annotation is the safe one: audited in
     full and refused on a read-only tenant). A ``'read'`` tool never writes domain data: the runtime enforces that on
@@ -54,7 +54,6 @@ class ToolDef:
     """
 
     work: WorkFn
-    requires: str | None = None
     kind: ToolKind = "write"
     exposure: bool = False
 
@@ -80,36 +79,24 @@ class ToolTable:
         self, work: WorkFn | None = None, *, kind: ToolKind = "write", exposure: bool = False
     ) -> Any:
         """``@tool`` or ``@tool(kind="read")``: add ``work`` to the table (it stays a plain function)."""
-        add = self.when(None, kind=kind, exposure=exposure)
-        return add if work is None else add(work)
-
-    def when(
-        self, requires: str | None, *, kind: ToolKind = "write", exposure: bool = False
-    ) -> Callable[[WorkFn], WorkFn]:
-        """``@tool.when("create_source")``: publish the tool only if the installed ``Lineage`` has that method."""
         if exposure and kind != "read":
             raise TypeError("exposure=True only makes sense for a read tool")
 
         def add(work: WorkFn) -> WorkFn:
             _check_signature(work)
-            self._defs.append(ToolDef(work, requires, kind, exposure))
+            self._defs.append(ToolDef(work, kind, exposure))
             return work
 
-        return add
+        return add if work is None else add(work)
 
     def __iter__(self) -> Iterator[ToolDef]:
         return iter(self._defs)
 
-    def register(self, mcp: MCPServer, rt: Runtime, available: Collection[str] | None = None) -> list[str]:
-        """Register the tools on ``mcp`` and return their names. ``available`` filters ``requires``-gated tools
-        (``None`` means every gated tool is available)."""
-        names: list[str] = []
+    def register(self, mcp: MCPServer, rt: Runtime) -> list[str]:
+        """Register the tools on ``mcp`` and return their names."""
         for d in self._defs:
-            if d.requires is not None and available is not None and d.requires not in available:
-                continue
             mcp.tool()(_handler(rt, d))
-            names.append(d.name)
-        return names
+        return [d.name for d in self._defs]
 
 
 def all_tool_defs() -> list[ToolDef]:

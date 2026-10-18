@@ -102,21 +102,6 @@ def test_a_tool_without_agent_id_or_step_is_rejected_at_definition_time():
     assert list(table) == []
 
 
-def test_requires_gates_a_tool_on_the_available_methods():
-    table = ToolTable()
-
-    @table.when("quarantine")
-    def gated(ts, m, agent_id, step=None):
-        raise AssertionError("never called")
-
-    from plexus.mcp.server import PlexusServer
-
-    mcp = PlexusServer("t")
-    assert table.register(mcp, None, available={"why"}) == []  # type: ignore[arg-type]
-    assert table.register(mcp, None, available={"quarantine"}) == ["gated"]  # type: ignore[arg-type]
-    assert table.register(PlexusServer("t2"), None) == ["gated"]  # type: ignore[arg-type]
-
-
 async def test_description_is_the_cleaned_docstring(server):
     """Published descriptions are dedented docstrings: no indentation carried over from the source file."""
     async with Client(server) as c:
