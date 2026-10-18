@@ -1,0 +1,4 @@
+[plexus smoke] session_1: rc=0 52.6s $0.177 (total $0.18)
+[plexus smoke] session_2: rc=0 39.2s $0.077 (total $0.25)
+[plexus smoke] session_3: rc=0 83.4s $0.108 (total $0.36)
+[plexus smoke] session_4: rc=0 48.8s $0.102 (total $0.47)

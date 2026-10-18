@@ -1,0 +1,4 @@
+[baseline r1] A (planner-builder, sonnet): rc=0 36.8s $0.056 denials=0 (total $0.06)
+[baseline r1] B1 (builder-2, haiku): rc=0 46.8s $0.006 denials=0 (total $0.06)
+[baseline r1] ci-bot -> CI_NOTES.md (main checkout, uncommitted)
+[baseline r1] B2 (builder-2, haiku): rc=0 48.0s $0.005 denials=0 (total $0.07)

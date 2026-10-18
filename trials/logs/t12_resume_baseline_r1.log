@@ -1,0 +1,40 @@
+[baseline r1] 35/100 ctx=18850 tools=0 COMPACTED $0.824 total=$6.83
+[baseline r1] 36/100 ctx=36156 tools=0 $0.829 total=$7.66
+[baseline r1] 37/100 ctx=40226 tools=0 $0.833 total=$8.49
+[baseline r1] 38/100 ctx=45719 tools=0 $0.836 total=$9.33
+[baseline r1] 39/100 ctx=48508 tools=0 $0.838 total=$10.16
+[baseline r1] 40/100 ctx=50381 tools=0 $0.840 total=$11.00
+[baseline r1] 41/100 ctx=52361 tools=0 $0.842 total=$11.85
+[baseline r1] 42/100 ctx=55468 tools=0 $0.846 total=$12.69
+[baseline r1] 43/100 ctx=60224 tools=0 $0.849 total=$13.54
+[baseline r1] 44/100 ctx=62733 tools=0 $0.857 total=$14.40
+[baseline r1] 45/100 ctx=11436 tools=0 COMPACTED $0.871 total=$15.27
+[baseline r1] 46/100 ctx=28822 tools=0 $0.877 total=$16.15
+[baseline r1] 47/100 ctx=33312 tools=0 $0.881 total=$17.03
+[baseline r1] 48/100 ctx=37627 tools=0 $0.883 total=$17.91
+[baseline r1] 49/100 ctx=39361 tools=0 $0.884 total=$18.79
+[baseline r1] 50/100 ctx=40422 tools=0 $0.885 total=$19.68
+[baseline r1] 51/100 ctx=41586 tools=0 $0.887 total=$20.57
+[baseline r1] 52/100 ctx=44057 tools=0 $0.890 total=$21.46
+[baseline r1] 53/100 ctx=48463 tools=0 $0.894 total=$22.35
+[baseline r1] 54/100 ctx=53940 tools=0 $0.912 total=$23.26
+[baseline r1] 55/100 ctx=15636 tools=0 COMPACTED $0.933 total=$24.19
+[baseline r1] 56/100 ctx=40023 tools=0 $0.940 total=$25.13
+[baseline r1] 57/100 ctx=44617 tools=0 $0.943 total=$26.08
+[baseline r1] 58/100 ctx=48040 tools=0 $0.945 total=$27.02
+[baseline r1] 59/100 ctx=49866 tools=0 $0.947 total=$27.97
+[baseline r1] 60/100 ctx=51424 tools=0 $0.948 total=$28.92
+[baseline r1] 61/100 ctx=53285 tools=0 $0.951 total=$29.87
+[baseline r1] 62/100 ctx=55928 tools=0 $0.954 total=$30.82
+[baseline r1] 63/100 ctx=59759 tools=0 $0.957 total=$31.78
+[baseline r1] 64/100 ctx=63342 tools=0 $0.972 total=$32.75
+[baseline r1] 65/100 ctx=15380 tools=0 COMPACTED $0.990 total=$33.74
+[baseline r1] 66/100 ctx=37492 tools=0 $0.997 total=$34.74
+[baseline r1] 67/100 ctx=42500 tools=0 $1.001 total=$35.74
+[baseline r1] 68/100 ctx=47157 tools=0 $1.004 total=$36.74
+[baseline r1] 69/100 ctx=49865 tools=0 $1.006 total=$37.75
+[baseline r1] 70/100 ctx=51499 tools=0 $1.007 total=$38.76
+[baseline r1] 71/100 ctx=53330 tools=0 $1.010 total=$39.77
+[baseline r1] 72/100 ctx=55928 tools=0 $1.013 total=$40.78
+STOPPED: over --max-cost $40.0
+done: 72 turns, $40.78

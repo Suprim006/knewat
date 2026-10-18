@@ -307,6 +307,26 @@ and see what stops working.
 What the ablation does **not** show: that nothing else could store these relations. SQLite (B1) answers some of the same
 provenance questions with recursive CTEs, and the benchmark below reports where it ties.
 
+## Everyday workflows: where shared memory helps
+
+Real Claude Code agents doing ordinary feature work in small repos, in separate sessions that share no conversation.
+There are three arms: plain Claude Code, Claude Code told to keep decisions in `CLAUDE.md`, and Claude Code with Plexus.
+Scoring runs the code the agents wrote. 4 runs per arm, predictions pre-registered. Full records: [trials/](trials/FINDINGS.md).
+
+| Workflow | Plain | CLAUDE.md | Plexus |
+|---|---|---|---|
+| A team rule decided in repo A, later work in repo B (rule violations, of 24) | 24 | 24 | **0** |
+| Parallel agents on git worktrees: rule on an unmerged branch + a non-AI ci-bot's deprecation notice (of 12) | 9 | 8 | **0** |
+| Retract a void document: rules correctly kept (of 8) / void-only rule removed (of 4) | 8 / 0 | 8 / 4 | 8 / 4 |
+
+Plexus wins where no shared file reaches the next agent: another repo, an unmerged branch, a note from a tool that
+isn't an AI. It ties a well-kept `CLAUDE.md` where the file does reach the next agent. Within one repo on one machine,
+plain Claude Code's own auto-memory already ties both (trials 3/4).
+The trial 8 tie exposed a gap: a fact could name only one source. Facts now take several sources (D-015). On the final
+code the re-run linked the double-sourced rule to both documents and retracted the void one through
+`quarantine_source` / `forget_source`, both 4/4. Plexus costs $0.01-0.10 more per run. Caveats: small synthetic repos,
+n = 4 per arm, designed after trials 1-5; build per trial in [docs/NUMBERS_STATUS.md](docs/NUMBERS_STATUS.md) (section H).
+
 ## Benchmark results (Crucible, honest)
 
 Crucible swaps only the backend behind an identical tool API: **B0** files (flock + atomic replace), **B1** SQLite

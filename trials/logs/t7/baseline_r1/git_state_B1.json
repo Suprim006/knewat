@@ -1,0 +1,69 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_r1/tinytasks\nHEAD adde27871b8fa3b0f7c31bff994459d348742551\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_r1/wt_a\nHEAD 76b81545918cb55932afe69cf387f9525a5bddc2\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_r1/wt_b\nHEAD 93dd5135bb7fa7aca95a2c4e0491ddef08c18b03\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "adde27871b8fa3b0f7c31bff994459d348742551",
+      "log": [
+        "adde278 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "76b81545918cb55932afe69cf387f9525a5bddc2",
+      "log": [
+        "76b8154 Add snooze command and snooze_task",
+        "adde278 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "93dd5135bb7fa7aca95a2c4e0491ddef08c18b03",
+      "log": [
+        "93dd513 Add quick-add and postpone CLI commands",
+        "adde278 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tests/test_cli.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [],
+    "feat-b": []
+  }
+}

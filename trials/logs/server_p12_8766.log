@@ -1,0 +1,5 @@
+INFO:     Started server process [25036]
+INFO:     Waiting for application startup.
+2026-10-18 10:14:11,227 mcp.server.streamable_http_manager INFO StreamableHTTP session manager started
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8766 (Press CTRL+C to quit)

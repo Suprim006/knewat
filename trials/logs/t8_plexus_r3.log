@@ -1,0 +1,3 @@
+[plexus r3] session_1: rc=0 58.4s $0.110 turns=13 denials=0 (total $0.11)
+[plexus r3] session_2: rc=0 25.1s $0.029 turns=4 denials=0 (total $0.14)
+[plexus r3] session_3: rc=0 42.3s $0.080 turns=10 denials=0 (total $0.22)

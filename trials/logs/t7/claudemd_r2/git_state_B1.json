@@ -1,0 +1,71 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/claudemd_r2/tinytasks\nHEAD 40f95bc82815f4d6d39622d44477dda8c0cf4040\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/claudemd_r2/wt_a\nHEAD ab58b1c7df14222928d48aabf65066616a60c266\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/claudemd_r2/wt_b\nHEAD 4d7f1fa3e20540f50ed088408e6f9c2adb5e074a\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "40f95bc82815f4d6d39622d44477dda8c0cf4040",
+      "log": [
+        "40f95bc initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "ab58b1c7df14222928d48aabf65066616a60c266",
+      "log": [
+        "ab58b1c Add snooze command with whole-minute due_at; record convention in CLAUDE.md",
+        "40f95bc initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "CLAUDE.md",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "4d7f1fa3e20540f50ed088408e6f9c2adb5e074a",
+      "log": [
+        "4d7f1fa Add quick-add and postpone commands",
+        "40f95bc initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [
+      "CLAUDE.md"
+    ],
+    "feat-b": []
+  }
+}

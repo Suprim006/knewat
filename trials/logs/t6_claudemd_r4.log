@@ -1,0 +1,4 @@
+[claudemd r4] session_1 (cwd tinytasks): rc=0 31.7s $0.059 turns=5 denials=0 (total $0.06)
+[claudemd r4] session_2 (cwd tasksync): rc=0 30.1s $0.051 turns=5 denials=0 (total $0.11)
+[claudemd r4] session_3 (cwd tasksync): rc=0 73.4s $0.122 turns=18 denials=0 (total $0.23)
+[claudemd r4] session_4 (cwd tasksync): rc=0 28.1s $0.053 turns=4 denials=0 (total $0.29)
