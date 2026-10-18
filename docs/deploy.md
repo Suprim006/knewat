@@ -1,7 +1,7 @@
 # Public deployment: one container on Render Free
 
 One Docker image runs the public demo: FalkorDB 6.0.2, the read-only View API with its **Cypher console**, and the static
-`plexus-view`. It reseeds the two synthetic demo tenants from the recordings on every boot, so it needs no disk and no
+`knewat-view`. It reseeds the two synthetic demo tenants from the recordings on every boot, so it needs no disk and no
 external database. **The MCP server is not deployed** until it is stable (decision record: `docs/DECISIONS.md` D-016, which
 supersedes the MCP part of D-006). The earlier image that also served a public `/mcp` endpoint is in git history at `7cca016`;
 its measurements (peak 332 MiB, 40 checks, 55 guard tests) described that image and are not repeated here.
@@ -9,7 +9,7 @@ its measurements (peak 332 MiB, 40 checks, 55 guard tests) described that image 
 ```
 Internet ──https──> Render (Cloudflare + proxy) ──> :$PORT (10000) inside the container
                       uvicorn, one process (deploy/app.py)
-                        /                         static plexus-view (dist/, SPA fallback)
+                        /                         static knewat-view (dist/, SPA fallback)
                         /healthz, /api/*, /docs   View API (FastAPI), per-IP rate limit
                         POST /api/{tenant}/cypher the Cypher console (own bucket, 16 KiB body cap)
                       redis-server + falkordb.so  127.0.0.1:6379   (never published, never bound to 0.0.0.0)
@@ -40,9 +40,9 @@ message), 404 (unknown tenant), 408 (timed out), 413 (query over 4,000 character
 
 | Layer | Behaviour | Where |
 |---|---|---|
-| Rate limit | 20 queries/min per client IP, 120/min for everyone (429); GETs have their own bucket, 300/min per IP | `deploy/guard.py`; `PLEXUS_CYPHER_RATE_PER_MIN`, `PLEXUS_CYPHER_GLOBAL_RATE_PER_MIN`, `PLEXUS_API_RATE_PER_MIN` |
-| Body cap | 16 KiB, on `Content-Length` and while streaming (413) | `PLEXUS_CYPHER_MAX_BODY_BYTES` |
-| Text check | no `LOAD` (FalkorDB's `LOAD CSV` reads files and URLs); `CALL` only to `db.labels`, `db.relationshipTypes`, `db.propertyKeys`, `db.indexes`, `db.constraints`, the fulltext / vector `query*` procedures, `dbms.procedures` / `dbms.functions` and `algo.*`. Comments and string literals are skipped by a scanner, so a keyword hidden in either is no bypass | `plexus/src/plexus/api/routes_cypher.py` |
+| Rate limit | 20 queries/min per client IP, 120/min for everyone (429); GETs have their own bucket, 300/min per IP | `deploy/guard.py`; `KNEWAT_CYPHER_RATE_PER_MIN`, `KNEWAT_CYPHER_GLOBAL_RATE_PER_MIN`, `KNEWAT_API_RATE_PER_MIN` |
+| Body cap | 16 KiB, on `Content-Length` and while streaming (413) | `KNEWAT_CYPHER_MAX_BODY_BYTES` |
+| Text check | no `LOAD` (FalkorDB's `LOAD CSV` reads files and URLs); `CALL` only to `db.labels`, `db.relationshipTypes`, `db.propertyKeys`, `db.indexes`, `db.constraints`, the fulltext / vector `query*` procedures, `dbms.procedures` / `dbms.functions` and `algo.*`. Comments and string literals are skipped by a scanner, so a keyword hidden in either is no bypass | `knewat/src/knewat/api/routes_cypher.py` |
 | Read-only server | `GRAPH.RO_QUERY`: the server refuses every `CREATE`, `SET`, `DELETE`, `MERGE`, `REMOVE` whatever the text says | `GraphClient.ro_text` |
 | Time and memory | 3 s timeout per query (kept below the Redis client's 5 s socket timeout; at 5 s the client's timeout raced the server's reply and a runaway query sometimes showed as a 503); `QUERY_MEM_CAPACITY` 64 MB, 2 query threads | `routes_cypher.TIMEOUT_MS`, `FALKORDB_ARGS` |
 | Result size | at most 500 rows leave the process (`truncated: true`) | `routes_cypher.MAX_ROWS` |
@@ -54,8 +54,8 @@ data is synthetic.
 
 Other controls: redis binds `127.0.0.1` only; no AOF, no RDB; `--maxmemory 100mb` with `noeviction` (a full database refuses
 writes, never evicts a graph); non-root user. The client IP comes from `CF-Connecting-IP` on Render (`RENDER=true`): confirmed
-only from third-party reports of a live Render service, not on Render itself. Override with `PLEXUS_CLIENT_IP_HEADER` or
-`PLEXUS_XFF_HOPS`.
+only from third-party reports of a live Render service, not on Render itself. Override with `KNEWAT_CLIENT_IP_HEADER` or
+`KNEWAT_XFF_HOPS`.
 
 ## The pipeline
 
@@ -82,11 +82,11 @@ was never run on Render.
 
 1. <https://render.com> → **Get Started** → **Sign up with GitHub**. A free web service should not ask for a card.
 2. **New +** → **Blueprint** → connect the repo (use *Configure account* if it is not listed).
-3. Branch `main`; Render finds `render.yaml` and shows one service, `plexus-demo`, plan **Free**. **Deploy Blueprint**.
+3. Branch `main`; Render finds `render.yaml` and shows one service, `knewat-demo`, plan **Free**. **Deploy Blueprint**.
 4. The first build takes 5 to 10 minutes. In **Logs** wait for
    `reseeded 'acme-claude-sonnet' -> tenant 'demo': 247 nodes, 708 edges, matches meta.json=True` and `boot complete`.
-5. The URL is at the top of the service page (normally `https://plexus-demo.onrender.com`). If it differs, edit
-   `PLEXUS_CORS_ORIGINS` in **Environment** (only cross-origin callers need it; the View is same-origin).
+5. The URL is at the top of the service page (normally `https://knewat-demo.onrender.com`). If it differs, edit
+   `KNEWAT_CORS_ORIGINS` in **Environment** (only cross-origin callers need it; the View is same-origin).
 6. Check it from your machine: `python deploy/smoke.py https://<host> --wait 600` (prints PASS or FAIL per check, exit 1 on failure).
 7. **GitHub → Settings → Secrets and variables → Actions → Variables → New repository variable**: `RENDER_URL` =
    `https://<host>`. `live-smoke.yml` then pings the site every 10 minutes: a health check that also keeps the service awake
@@ -102,13 +102,13 @@ or a free VM with `docker compose`).
 ## Local verification (the gate)
 
 ```bash
-docker build -f deploy/Dockerfile -t plexus-deploy .
-cd plexus && uv run python ../deploy/verify.py          # runs the image under Render's limits; removes the container
-cd plexus && uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini --rootdir ../deploy     # guard + app unit tests
+docker build -f deploy/Dockerfile -t knewat-deploy .
+cd knewat && uv run python ../deploy/verify.py          # runs the image under Render's limits; removes the container
+cd knewat && uv run pytest ../deploy/tests -q -c ../deploy/tests/pytest.ini --rootdir ../deploy     # guard + app unit tests
 python deploy/smoke.py http://127.0.0.1:10000            # against any running container
 ```
 
-Measured on Windows 11 / Docker Desktop (WSL2), image `plexus-deploy` built from the working tree of the commit that adds this
+Measured on Windows 11 / Docker Desktop (WSL2), image `knewat-deploy` built from the working tree of the commit that adds this
 section (base `7cca016`), `-m 512m --cpus 0.5`: **36/36 checks passed**, no traceback in the logs. Other containers were
 running on the same host, so timings vary between runs.
 
@@ -133,7 +133,7 @@ Render's 512 MiB. `deploy/verify.py` prints every `MEM` snapshot and a final `RE
 - **Not verified on Render itself:** the deploy, `autoDeployTrigger: checksPass` with GitHub Actions, `buildFilter`,
   `CF-Connecting-IP`. Render's CPU is shared and slower than a quiet 0.5 CPU slice, so expect a longer cold start there.
 - `demo_scripted`, not `demo-scripted`: tenant names match `^[a-z0-9_]{1,48}$`.
-- Reseed calls `plexus.demo.replay.replay(..., reset=True)` in-process and fails the boot if a restored inventory differs from
+- Reseed calls `knewat.demo.replay.replay(..., reset=True)` in-process and fails the boot if a restored inventory differs from
   the recording's `meta.json`. If redis exits, the process exits and Render restarts the container.
 - Re-enabling MCP later: mount `build_server(...).streamable_http_app` behind `PublicGuard` in `deploy/app.py` (the classes are
   still in `deploy/guard.py`), restore the embedding-model bake in the Dockerfile, and re-measure.

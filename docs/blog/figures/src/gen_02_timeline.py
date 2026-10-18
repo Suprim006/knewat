@@ -1,7 +1,7 @@
 """Figure 02: validity timeline. A fact is never overwritten; it is closed and superseded.
 
 Data (all read from the recorded run, nothing typed from memory):
-  plexus/demo_data/recordings/acme-claude-sonnet/transcripts/*.jsonl : every assert_fact tool_use -> (step, agent, predicate, value)
+  knewat/demo_data/recordings/acme-claude-sonnet/transcripts/*.jsonl : every assert_fact tool_use -> (step, agent, predicate, value)
   fact id prefixes: docs/VIDEO_SCRIPT.md "Recording ids"; this script asserts each prefix occurs in the transcripts.
   steps = recording meta.json "steps" (83). v1 asserted at step 8, v2 at step 27 (v1 valid_to = 27), jwt step 44, api key step 50.
   cursors at step 17 / 38: VIDEO_SCRIPT beat 5 (what did the builder know at step 17 -> v1, at step 38 -> v2).
@@ -14,7 +14,7 @@ from pathlib import Path
 from figlib import Fig, render, NODES, PANEL
 
 REPO = Path(__file__).resolve().parents[4]
-REC = REPO / "plexus/demo_data/recordings/acme-claude-sonnet"
+REC = REPO / "knewat/demo_data/recordings/acme-claude-sonnet"
 meta = json.loads((REC / "meta.json").read_text(encoding="utf-8"))
 STEPS = meta["steps"]
 

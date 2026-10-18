@@ -2,16 +2,16 @@
 
 > **Partly STALE (2026-10-18):** the numbers that [docs/NUMBERS_STATUS.md](NUMBERS_STATUS.md) lists as CURRENT were re-verified on `rerun-current` (the code of main 7cca016; $0 layers L1, L4, ablation, L2, L2-scale, B1h, C7 extended, L5a, L5b surviving arms, hub, L6). Every other number in this document was measured on an earlier build and is not valid for the current build until re-run.
 
-Plexus only knows what agents tell it. When Claude Code edits a file but not the fact or doc that describes it, nothing
+Knewat only knows what agents tell it. When Claude Code edits a file but not the fact or doc that describes it, nothing
 in the graph changes and recall keeps returning the old fact. Staleness closes that gap **without an LLM**: a client
 hashes the changed files, the server marks the facts that depend on them `suspect`, and an agent re-verifies them.
 Changing code never makes a fact false, it makes it *suspect*; nothing is deleted and recall still returns suspect facts.
 
 ```
- developer machine                                   Plexus server (Docker)                      agent
+ developer machine                                   Knewat server (Docker)                      agent
  -----------------                                   ----------------------                      -----
  git post-commit / Claude PostToolUse hook
-   plexus code scan | hook-run   --mark_changed-->   hash differs?  --> Facts ANCHORED_TO it or
+   knewat code scan | hook-run   --mark_changed-->   hash differs?  --> Facts ANCHORED_TO it or
    (hash files + Python symbols)                      (CodeAnchor / Source)   DERIVED_FROM its Source
                                                         |  verify_state='suspect', (Change)-[:SUSPECTED]->(Fact)
                                                         v
@@ -53,7 +53,7 @@ scan of every fact).
 A fact is **suspect at time t** if `coalesce(verify_state,'verified') = 'suspect'` OR `coalesce(verify_after, OPEN) <= t`.
 
 Canonical paths (`CodeAnchor.path`, doc `Source.uri`): absolute, `/` separators, upper-case drive letter, no `.`/`..`,
-no trailing slash (`C:/repo/app/payments.py`). One helper, `plexus.codescan.paths.canonical_path`, is used by the
+no trailing slash (`C:/repo/app/payments.py`). One helper, `knewat.codescan.paths.canonical_path`, is used by the
 client and the server; it is pure string handling, so a Linux container normalises a Windows path the same way.
 The client resolves symlinks and junctions (`os.path.realpath`) before canonicalising, so a file edited through a linked
 project directory gets the same path as the git hook reports for it; a UNC path keeps its host (`//server/share/a.py`).
@@ -93,7 +93,7 @@ the current code.)
   that is not suspect (it refreshes `verified_at`). A passed review date is consumed.
 - `still_true=false` needs `new_value`. The existing supersede path (`Engram.assert_fact(supersede=True)`) creates the
   new fact, then one statement (`staleness/backdate`) sets `old.valid_to = new.valid_from =` **the time of the newest
-  `Change` that suspected the old fact and is newer than its last confirmation** (event time; a value an agent confirmed after the change was true after it, so the window never ends before the confirmation), keeps `recorded_at` as the time Plexus learned it (two timelines),
+  `Change` that suspected the old fact and is newer than its last confirmation** (event time; a value an agent confirmed after the change was true after it, so the window never ends before the confirmation), keeps `recorded_at` as the time Knewat learned it (two timelines),
   marks the old fact verified (`VERIFIED_BY {outcome:'changed'}`), and flags the decisions that rested on it
   (`flagged=true`, `flag_reason='fact changed: <id>'`, the `forget_source` convention). The backdate applies only when it
   falls strictly inside the old fact's window, so `valid_to` never moves before `valid_from`. `as_of` before the change
@@ -122,7 +122,7 @@ the current code.)
 
 Other work lists: `facts_to_verify` (suspect or past review date, ordered by non-flagged decisions that depend on the
 fact, then activation (D-012, the fact agents actually use first; each row carries `activation` and `protected`), then
-oldest suspicion; with `PLEXUS_FORGETTING=off` the activation step and fields are dropped; `Staleness(rank=...)` replaces
+oldest suspicion; with `KNEWAT_FORGETTING=off` the activation step and fields are dropped; `Staleness(rank=...)` replaces
 the ordering),
 `docs_to_update` (docs describing code that changed after the doc's own last `TOUCHED`), `set_review_date` (for facts no
 code change can invalidate: a deployed URL, an account, a client request).
@@ -130,18 +130,18 @@ code change can invalidate: a deployed URL, an account, a client request).
 ## Using it
 
 All commands run on the developer machine and talk to the server over MCP (`{url}/mcp/t/{tenant}`); defaults:
-`--url http://127.0.0.1:8765` (or `PLEXUS_URL`), `--tenant` from `PLEXUS_TENANT`, `--agent code-hook`.
+`--url http://127.0.0.1:8765` (or `KNEWAT_URL`), `--tenant` from `KNEWAT_TENANT`, `--agent code-hook`.
 
 ```bash
 # once: record the current hashes of the files the graph already knows (Sources / anchors inside the repo).
 # Without --paths this reads the tracked paths straight from FalkorDB (FALKORDB_HOST / FALKORDB_PORT).
-plexus code baseline --repo C:/work/pv-core-api --tenant physio
-plexus code baseline --repo C:/work/pv-core-api --tenant physio --paths README.md app/services/payments.py
+knewat code baseline --repo C:/work/pv-core-api --tenant physio
+knewat code baseline --repo C:/work/pv-core-api --tenant physio --paths README.md app/services/payments.py
 
 # a commit (default HEAD; hashes come from git show REF and REF~1, event time = the commit time)
-plexus code scan --repo C:/work/pv-core-api --tenant physio --commit HEAD
+knewat code scan --repo C:/work/pv-core-api --tenant physio --commit HEAD
 # files as they are on disk now
-plexus code scan --repo C:/work/pv-core-api --tenant physio --paths app/services/payments.py
+knewat code scan --repo C:/work/pv-core-api --tenant physio --paths app/services/payments.py
 ```
 
 `scan` prints what became suspect, the decisions at risk and the docs to update.
@@ -149,18 +149,18 @@ plexus code scan --repo C:/work/pv-core-api --tenant physio --paths app/services
 **Claude Code hook** (after every `Edit` / `Write` / `MultiEdit`):
 
 ```bash
-plexus code hook-claude --tenant physio       # prints the settings.json fragment; merge it into .claude/settings.json
+knewat code hook-claude --tenant physio       # prints the settings.json fragment; merge it into .claude/settings.json
 ```
 
 ```json
 {"hooks": {"PostToolUse": [{"matcher": "Edit|Write|MultiEdit",
   "hooks": [{"type": "command", "timeout": 10,
-             "command": "\"C:/.../python.exe\" -m plexus.codescan hook-run --tenant physio --url http://127.0.0.1:8765"}]}]}}
+             "command": "\"C:/.../python.exe\" -m knewat.codescan hook-run --tenant physio --url http://127.0.0.1:8765"}]}]}}
 ```
 
 `hook-run` reads the event from stdin (`tool_name`, `tool_input.file_path`, `cwd`), hashes that file (and its Python
 symbols), calls `mark_changed`, and, only if something became suspect, prints
-`{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "Plexus: N memories about payments.py may be stale: ...; call facts_to_verify / verify_fact"}}`.
+`{"hookSpecificOutput": {"hookEventName": "PostToolUse", "additionalContext": "Knewat: N memories about payments.py may be stale: ...; call facts_to_verify / verify_fact"}}`.
 Claude Code adds `additionalContext` next to the tool result. Schema checked against the hooks reference
 (<https://code.claude.com/docs/en/hooks>: "PostToolUse input" for the event, "Add context for Claude" for
 `hookSpecificOutput.additionalContext`). It **never fails the edit**: every error (server down, bad JSON, no tenant) is one
@@ -172,10 +172,10 @@ Measured on this machine against a local server: 0.4 s for an event it ignores, 
 **Git hook** (also catches edits made outside Claude Code):
 
 ```bash
-plexus code hook-git --repo C:/work/pv-core-api --tenant physio   # writes/updates .git/hooks/post-commit
+knewat code hook-git --repo C:/work/pv-core-api --tenant physio   # writes/updates .git/hooks/post-commit
 ```
 
-It appends a marked block that runs `python -m plexus.codescan scan --commit HEAD || true`, keeps any hook that is
+It appends a marked block that runs `python -m knewat.codescan scan --commit HEAD || true`, keeps any hook that is
 already there, and replaces its own block on a re-run. A failing scan never fails the commit.
 
 ## Limits
@@ -202,29 +202,29 @@ already there, and replaces its own block on a re-run. A failing scan never fail
 
 ## Real run (P7-int): Claude Code verifies a stale memory on a copy of the physio graph
 
-Recording: `plexus/demo_data/recordings/physio-stale-sonnet/` (graph dump, `meta.json`, the prompt and both transcripts).
+Recording: `knewat/demo_data/recordings/physio-stale-sonnet/` (graph dump, `meta.json`, the prompt and both transcripts).
 Setup script: `scripts/p7_real_run_setup.sh`. Model `claude-sonnet-5-5` through `claude -p` (subscription, `env -u
-ANTHROPIC_API_KEY`, no `--bare`), `--max-turns 12`, tools `mcp__plexus__*` and `Read` only, 0 permission denials.
+ANTHROPIC_API_KEY`, no `--bare`), `--max-turns 12`, tools `mcp__knewat__*` and `Read` only, 0 permission denials.
 
-What was set up (nothing was written to the compose stack: the graph `plexus_t_byo` (42 facts) was read with `DUMP` from
-the compose database, `RESTORE`d and `GRAPH.COPY`-ed to `plexus_t_physio_test` on the private test database):
+What was set up (nothing was written to the compose stack: the graph `knewat_t_byo` (42 facts) was read with `DUMP` from
+the compose database, `RESTORE`d and `GRAPH.COPY`-ed to `knewat_t_physio_test` on the private test database):
 
 1. A scratch copy of `pv-core-api` (the original is untouched). The fact "payment gateways: eSewa and Khalti ... Legacy imepay
    is aliased to Khalti ..." was anchored with `anchor_fact` to `normalize_method` in the copy's
    `app/services/payments/gateway.py`, and the README `Source` was linked with `describe_code`. (The task text names
    `create_gateway_payment`; this repo has no such function, the payment gateway routing lives in `gateway.py`.)
-2. `plexus code baseline` (1 file, 11 entries, nothing stale), then one edit: `normalize_method` no longer applies the
-   `imepay -> khalti` alias. `plexus code scan --paths app/services/payments/gateway.py`:
+2. `knewat code baseline` (1 file, 11 entries, nothing stale), then one edit: `normalize_method` no longer applies the
+   `imepay -> khalti` alias. `knewat code scan --paths app/services/payments/gateway.py`:
    `2 changed, 1 memory may be stale; decisions built on them: 3; docs to update: README.md`.
 3. One `claude -p` with the prompt in `prompt.txt` (call `facts_to_verify`, read the code, `verify_fact`, `docs_to_update`).
 
 What Claude did (run 2, 5 turns, 21 s, $0.043 notional): `facts_to_verify` (one row, reason `changed in working tree
 (.../gateway.py)`) and `docs_to_update` in parallel, `Read` of `gateway.py`, then
 `verify_fact(still_true=false, new_value=<the fact with the alias clause corrected>, evidence=<the path>)`. Its summary
-named the stale clause, the three flagged decisions, the README and, unprompted, `AGENTS.md` (not registered in Plexus) and a
+named the stale clause, the three flagged decisions, the README and, unprompted, `AGENTS.md` (not registered in Knewat) and a
 code comment that does not match the code.
 
-Graph after the run (`plexus demo record`: 340 nodes, 1310 edges): the old fact `superseded`, `valid_to` = the `Change`
+Graph after the run (`knewat demo record`: 340 nodes, 1310 edges): the old fact `superseded`, `valid_to` = the `Change`
 time (`1792096666958`), the new fact `active` with `valid_from` = the same instant and `recorded_at` later (two
 timelines); `VERIFIED_BY {outcome: 'changed', agent: claude-verifier, evidence: <path>}` on the old fact; 1 `Change`, 1
 `SUSPECTED`, 11 `CodeAnchor` (the file and its 10 symbols), 3 decisions flagged `fact changed: <id>`; 0 suspect facts left.

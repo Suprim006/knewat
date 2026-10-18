@@ -1,4 +1,4 @@
-"""Shared helpers for the Plexus blog figures 01-04 (HTML + inline SVG, rendered by headless Chrome).
+"""Shared helpers for the Knewat blog figures 01-04 (HTML + inline SVG, rendered by headless Chrome).
 
 Design: dark slate card, monospace labels, 40 px grid, one semantic colour per node label, one visual
 channel per edge type (see tokens.css, which this module writes so the two can never drift).
@@ -49,7 +49,7 @@ FONT_UI = "'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif"
 
 
 def write_tokens() -> None:
-    lines = ["/* Plexus blog figures: shared design tokens. Written by figlib.write_tokens(); edit there. */", ":root {"]
+    lines = ["/* Knewat blog figures: shared design tokens. Written by figlib.write_tokens(); edit there. */", ":root {"]
     lines += [f"  --card: {CARD};", f"  --grid: {GRID};", f"  --panel: {PANEL};", f"  --ink: {INK};",
               f"  --muted: {MUTED};", f"  --dim: {DIM};",
               f"  --font-mono: {FONT_MONO};", f"  --font-ui: {FONT_UI};"]
@@ -99,7 +99,7 @@ def f(v: float) -> str:
 
 
 class Fig:
-    def __init__(self, W: int, H: int, title: str, subtitle: str, footer: str = "Plexus \u00b7 FalkorDB 6.0.2"):
+    def __init__(self, W: int, H: int, title: str, subtitle: str, footer: str = "Knewat \u00b7 FalkorDB 6.0.2"):
         self.W, self.H = W, H
         self.title, self.subtitle, self.footer = title, subtitle, footer
         self.defs: list[str] = []

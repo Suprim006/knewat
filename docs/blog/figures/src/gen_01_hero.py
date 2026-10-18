@@ -1,7 +1,7 @@
 """Figure 01: hero. Three Claude Code agents read and write one graph.
 
 Data: ids / values / steps from the recorded run acme-claude-sonnet:
-  plexus/demo_data/recordings/acme-claude-sonnet/meta.json  (inventory.total_nodes / total_edges, steps = tool calls)
+  knewat/demo_data/recordings/acme-claude-sonnet/meta.json  (inventory.total_nodes / total_edges, steps = tool calls)
   docs/VIDEO_SCRIPT.md "Recording ids" (v1 666d2f62, v2 41b8a3e6, api key 27ed13ad, jwt 608a66f1, decision d6cdfc22,
   style guide 06_api_style_guide_v2.md, security note 04_security_note.md, task t03-design-endpoints)
 Layout table (centres, w x h; px at 1x on a 1200x630 card):
@@ -14,11 +14,11 @@ from pathlib import Path
 from figlib import Fig, render
 
 REPO = Path(__file__).resolve().parents[4]
-meta = json.loads((REPO / "plexus/demo_data/recordings/acme-claude-sonnet/meta.json").read_text(encoding="utf-8"))
+meta = json.loads((REPO / "knewat/demo_data/recordings/acme-claude-sonnet/meta.json").read_text(encoding="utf-8"))
 N, E, CALLS = meta["inventory"]["total_nodes"], meta["inventory"]["total_edges"], meta["steps"]
 
 fig = Fig(1200, 630, "Three Claude Code agents read and write one graph",
-          "Plexus: graph memory and coordination for agent teams, on FalkorDB")
+          "Knewat: graph memory and coordination for agent teams, on FalkorDB")
 
 # agents
 fig.node("planner", 110, 185, 130, 46, "agent", "planner")

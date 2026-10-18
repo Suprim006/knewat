@@ -6,7 +6,7 @@ Data (recorded run acme-claude-sonnet):
   v1 fact 666d2f62-d330-4ac4-9a3b-db0b76efa904 (step 8, source acme-docs/02_api_style_guide_v1.md), superseded by v2
   decision "build against v1" 6fcb6a65 (step 13, based on v1)                       -> docs/VIDEO_SCRIPT.md "Recording ids"
   counts 1 fact, 2 agents, 1 source, 2 steps                                       -> docs/VIDEO_SCRIPT.md beat 6
-  response field names                                                              -> plexus/src/plexus/lineage/service.py Lineage.why docstring
+  response field names                                                              -> knewat/src/knewat/lineage/service.py Lineage.why docstring
                                                                                        and lineage/explain.py summarise() (the MCP tool `why` returns {"why": <that dict>})
 Not a captured response body: values are the recorded run's real ids, the dict is abridged ("..." = omitted fields).
 Layout (centres): col1 x=125 w170, col2 x=375 w180, col3 x=650 w170; rows y=225 (dimmed v1 chain), 335 (path), 445 (agents).
@@ -18,7 +18,7 @@ from pathlib import Path
 from figlib import Fig, render, PANEL, EDGES
 
 REPO = Path(__file__).resolve().parents[4]
-REC = REPO / "plexus/demo_data/recordings/acme-claude-sonnet/transcripts"
+REC = REPO / "knewat/demo_data/recordings/acme-claude-sonnet/transcripts"
 blob = "".join(p.read_text(encoding="utf-8") for p in REC.glob("*.jsonl"))
 IDS = {"dec": "d6cdfc22-7653-43dc-a025-31167e8ae048", "v2": "41b8a3e6-11c5-4338-8ef2-613e74bda2b7",
        "v1": "666d2f62-d330-4ac4-9a3b-db0b76efa904", "src2": "b668c0e4-0a23-43df-ab76-618a2d0f9631"}

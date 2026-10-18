@@ -1,60 +1,60 @@
-# Plexus MCP server
+# Knewat MCP server
 
-> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/KNEWAT_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
 
-Entry point: `plexus-mcp` (`plexus.mcp.server:main`). Built on the `mcp` 2.x SDK (`mcp.server.mcpserver.MCPServer`),
+Entry point: `knewat-mcp` (`knewat.mcp.server:main`). Built on the `mcp` 2.x SDK (`mcp.server.mcpserver.MCPServer`),
 pinned `mcp>=2.3,<3` (see `docs/spikes/S1-mcp-claude.md`).
 
 | Transport | Command | Tenant binding |
 |---|---|---|
-| stdio | `uv run --directory <abs>/plexus plexus-mcp --transport stdio --tenant acme` | `--tenant` (or env `PLEXUS_TENANT`), fixed for the process. One process per Claude Code session. |
-| streamable HTTP | `uv run plexus-mcp --transport http --port 8765` (compose service `plexus-mcp`) | URL path `/mcp/t/<tenant>` (or header `X-Plexus-Tenant` on `/mcp`), **pinned to the MCP session**: replaying a `mcp-session-id` under another tenant returns 403; a session id the server holds no pin for (never issued, evicted, expired) returns **404** (fail closed: the client initializes a new session). Pins are evicted least-recently-used. |
+| stdio | `uv run --directory <abs>/knewat knewat-mcp --transport stdio --tenant acme` | `--tenant` (or env `KNEWAT_TENANT`), fixed for the process. One process per Claude Code session. |
+| streamable HTTP | `uv run knewat-mcp --transport http --port 8765` (compose service `knewat-mcp`) | URL path `/mcp/t/<tenant>` (or header `X-Knewat-Tenant` on `/mcp`), **pinned to the MCP session**: replaying a `mcp-session-id` under another tenant returns 403; a session id the server holds no pin for (never issued, evicted, expired) returns **404** (fail closed: the client initializes a new session). Pins are evicted least-recently-used. |
 
-The tenant is never a tool argument. It must match `^[a-z0-9_]{1,48}$` and selects the graph `plexus_t_<tenant>`; the
-schema is applied on first use of a tenant and re-checked every `PLEXUS_SCHEMA_RECHECK_S` seconds (default 5): if the tenant graph is
+The tenant is never a tool argument. It must match `^[a-z0-9_]{1,48}$` and selects the graph `knewat_t_<tenant>`; the
+schema is applied on first use of a tenant and re-checked every `KNEWAT_SCHEMA_RECHECK_S` seconds (default 5): if the tenant graph is
 deleted or replaced under a running server (a demo `--reset`, a restore), the next call re-applies the schema and drops the
 cached scope ids, so no restart is needed. The tenant in the URL is a routing identity, not authentication: keep the
 port on loopback (compose publishes `127.0.0.1:8765` only) or put a token proxy in front.
 
 DB connection: env `FALKORDB_HOST`, `FALKORDB_PORT`, `FALKORDB_PASSWORD`. The sync client uses a blocking pool of
-`PLEXUS_DB_POOL` connections (default 256): callers beyond it wait up to `PLEXUS_DB_POOL_TIMEOUT` seconds (default 30)
-instead of failing, and connects/queries are retried for up to `PLEXUS_DB_LOADING_WAIT_S` seconds (default 60) while Redis is
-still loading its AOF (`-LOADING`). Embeddings: env `PLEXUS_EMBEDDER=fastembed|hash`
-(`PLEXUS_EMBED_THREADS`, default 1; `PLEXUS_EMBED_CACHE` / `FASTEMBED_CACHE_PATH` for the model cache).
-HTTP only: `PLEXUS_MCP_ALLOWED_HOSTS` (comma list, `host:*` = any port) for the Host-header allow-list.
+`KNEWAT_DB_POOL` connections (default 256): callers beyond it wait up to `KNEWAT_DB_POOL_TIMEOUT` seconds (default 30)
+instead of failing, and connects/queries are retried for up to `KNEWAT_DB_LOADING_WAIT_S` seconds (default 60) while Redis is
+still loading its AOF (`-LOADING`). Embeddings: env `KNEWAT_EMBEDDER=fastembed|hash`
+(`KNEWAT_EMBED_THREADS`, default 1; `KNEWAT_EMBED_CACHE` / `FASTEMBED_CACHE_PATH` for the model cache).
+HTTP only: `KNEWAT_MCP_ALLOWED_HOSTS` (comma list, `host:*` = any port) for the Host-header allow-list.
 `GET /healthz` is a static liveness answer; `GET /healthz?deep=1` also pings FalkorDB (503 when it is down); compose uses the
 deep form.
 
 ## Claude Code
 
-Local, stdio, generated for your checkout (fastest start-up; it names the `plexus-mcp` script of the venv that runs the command):
+Local, stdio, generated for your checkout (fastest start-up; it names the `knewat-mcp` script of the venv that runs the command):
 
 ```bash
-cd plexus && uv sync                                              # once
-FALKORDB_PORT=6379 uv run plexus mcp-config --tenant demo --out ../mcp.local.json   # or omit --out to print it
-uv run plexus mcp-config --tenant demo --http http://127.0.0.1:8765                  # streamable-HTTP variant instead
+cd knewat && uv sync                                              # once
+FALKORDB_PORT=6379 uv run knewat mcp-config --tenant demo --out ../mcp.local.json   # or omit --out to print it
+uv run knewat mcp-config --tenant demo --http http://127.0.0.1:8765                  # streamable-HTTP variant instead
 ```
 
-The command reads `FALKORDB_HOST` / `FALKORDB_PORT` / `PLEXUS_EMBEDDER` from the environment and writes them into the config's
-`env`. `plexus.mcp.json` at the repo root is only a **portable template**: it contains no machine path, starts the server with
-`uv run --directory plexus plexus-mcp ...` (relative to the directory Claude Code is started in, so start it from the repo root),
+The command reads `FALKORDB_HOST` / `FALKORDB_PORT` / `KNEWAT_EMBEDDER` from the environment and writes them into the config's
+`env`. `knewat.mcp.json` at the repo root is only a **portable template**: it contains no machine path, starts the server with
+`uv run --directory knewat knewat-mcp ...` (relative to the directory Claude Code is started in, so start it from the repo root),
 tenant `demo` and port 6379. It is slower to start than the generated config (Claude's first `ToolSearch` can run while the
 server is still `pending`), which is why headless runs should use the generated file. Copy it and edit `--tenant` / the port, or
-generate one with `plexus mcp-config`. `tests/demo/test_mcp_config.py` fails if a machine path ever gets committed into it.
+generate one with `knewat mcp-config`. `tests/demo/test_mcp_config.py` fails if a machine path ever gets committed into it.
 Headless:
 
 ```bash
 env -u ANTHROPIC_API_KEY claude -p "<task>" --mcp-config <abs>/mcp.local.json --strict-mcp-config \
-  --allowedTools "mcp__plexus__*" --model haiku --max-turns 8 --output-format stream-json --verbose
+  --allowedTools "mcp__knewat__*" --model haiku --max-turns 8 --output-format stream-json --verbose
 ```
 
 HTTP variant (tenant in the path):
 
 ```json
-{ "mcpServers": { "plexus": { "type": "http", "url": "http://127.0.0.1:8765/mcp/t/acme" } } }
+{ "mcpServers": { "knewat": { "type": "http", "url": "http://127.0.0.1:8765/mcp/t/acme" } } }
 ```
 
-or in a header: `{"type": "http", "url": "http://127.0.0.1:8765/mcp", "headers": {"X-Plexus-Tenant": "acme"}}`.
+or in a header: `{"type": "http", "url": "http://127.0.0.1:8765/mcp", "headers": {"X-Knewat-Tenant": "acme"}}`.
 
 A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `tool_result.is_error` in the stream.
 
@@ -71,7 +71,7 @@ soft-duplicate tools, `impact` and `assert_relation` (the sections after this li
   `relation_path`). `detail: "full"` returns the pre-P12 hit (`text`, provenance `path`, `surprise`, `activation` and every
   flag). Same facts, same order either way.
 
-Published tool schemas are **compact** (P12, `plexus.mcp.server.compact_schema`): no `title`, no length limits, no numeric
+Published tool schemas are **compact** (P12, `knewat.mcp.server.compact_schema`): no `title`, no length limits, no numeric
 bounds of 10 000 or more, `anyOf [X, null]` written as `X`, no `outputSchema`. Every description, type, enum, `required`,
 small bound and non-null default is kept, and the server still validates arguments against the full model (an
 over-long value still gets the one-line error). Measured with `claude -p` 2.1.296: the 45-tool list costs 19,877 prompt
@@ -79,7 +79,7 @@ tokens per API call instead of 28,873.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
   1..50, default 50).
-- **Lineage** (see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
+- **Lineage** (see `knewat/mcp/lineage_tools.py`): `add_source`, `why`,
   `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`. `why` takes an
   optional `depth` (1..12, default 6) and `max_elements` (2..5000, default 200; nodes + edges, closest to the root first, `truncated` says whether anything was cut; P9-f); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
   (1..12, default 8; release with at least the depth the quarantine used). A derivation chain longer than `depth` is cut there:
@@ -89,7 +89,7 @@ tokens per API call instead of 28,873.
   live Source supports it: those come back as `corroborated: [{fact_id, other_sources}]` (+ `corroborated_total`), `fact_ids` are the
   hidden ones. `forget_source` forgets a fact only when the Source was its last: the others are `unlinked: [{fact_id, other_sources}]`
   (+ `unlinked_total`). Both lists are omitted when empty. `impact(kind=source)` adds `facts.corroborated {total, ids, ids_truncated}`.
-  The manifest grew by 418 characters (core list 30,182 -> 30,600; `python -m plexus.crucible.l8.manifest_size`, $0).
+  The manifest grew by 418 characters (core list 30,182 -> 30,600; `python -m knewat.crucible.l8.manifest_size`, $0).
 
 `assert_fact`, `record_decision` and `handoff` write their `(Step)-[:WROTE]->(node)` edge in the same statement as the node
 (P9-int): the runtime opens the agent's `Step` before these three tools and removes it again if the call is rejected, so a
@@ -119,10 +119,10 @@ or a scope id (max 512 chars). **Writes** (`assert_fact`) create a named scope o
 `as_of`) never do: a scope that does not exist gives an empty answer (`recall` returns `count: 0`, `scope_id: null` and records
 no `Recall`), so a typo cannot grow the graph.
 
-## Toolsets: publish only the modules a session needs (P12, `plexus/mcp/toolsets.py`)
+## Toolsets: publish only the modules a session needs (P12, `knewat/mcp/toolsets.py`)
 
 The whole tool list is part of every API call's prompt, so a session can ask for a subset. A toolset is a
-comma-separated list of **modules** (the §2.2 module boundaries of `docs/PLEXUS_REPORT.md`) and/or **profiles**:
+comma-separated list of **modules** (the §2.2 module boundaries of `docs/KNEWAT_REPORT.md`) and/or **profiles**:
 
 | Name | Tools |
 |---|---|
@@ -136,10 +136,10 @@ comma-separated list of **modules** (the §2.2 module boundaries of `docs/PLEXUS
 | profile `core` | `engram,relay,lineage` (29) |
 | profile `full` | every module (45): **the default, unchanged** |
 
-* stdio: `plexus-mcp --transport stdio --tenant acme --toolset core` (or env `PLEXUS_TOOLSET`); a bad value stops
+* stdio: `knewat-mcp --transport stdio --tenant acme --toolset core` (or env `KNEWAT_TOOLSET`); a bad value stops
   the server at start with the list of valid names.
-* HTTP: `--toolset` / `PLEXUS_TOOLSET` is the default for sessions that pick none; a client picks per session with
-  `/mcp/t/<tenant>?toolset=core` or the header `X-Plexus-Toolset: core`. Unknown or empty name, or URL and header
+* HTTP: `--toolset` / `KNEWAT_TOOLSET` is the default for sessions that pick none; a client picks per session with
+  `/mcp/t/<tenant>?toolset=core` or the header `X-Knewat-Toolset: core`. Unknown or empty name, or URL and header
   disagreeing: **400** `invalid toolset: unknown toolset 'x'; valid: engram, relay, …, core, full` (never a silent full
   or empty list). The toolset is pinned to the MCP session at `initialize` like the tenant: a later request naming
   another toolset gets a 400.
@@ -148,8 +148,8 @@ comma-separated list of **modules** (the §2.2 module boundaries of `docs/PLEXUS
 * It is a prompt-size choice, **not access control** (any client can open a `toolset=full` session); read-only demo
   tenants and audit modes stay the safety controls. Responses, audit and validation are identical under every toolset.
 
-Measured with `claude -p` 2.1.296 (`python -m plexus.crucible.l8.manifest_probe --toolset …`,
-`plexus/demo_data/crucible/l8_p12tok/manifest_probe-toolsets.json`), prompt tokens of the tool list per API call:
+Measured with `claude -p` 2.1.296 (`python -m knewat.crucible.l8.manifest_probe --toolset …`,
+`knewat/demo_data/crucible/l8_p12tok/manifest_probe-toolsets.json`), prompt tokens of the tool list per API call:
 `full` 19,877, `core,staleness` 16,114, `core` 12,880, `relay` 5,111.
 
 ## Argument limits and errors
@@ -192,9 +192,9 @@ annotation is the safe one): `read` = `recall` `fact_history` `best_procedure` `
 `docs_to_update`. Everything else is `write` (including `memory_sweep`, whose `dry_run` is an argument). `recall` is also
 an *exposure* tool: its `READ` edges are the provenance behind `who_knew`, `knew_at`, `why_recalled` and forgetting.
 
-**Tenant mode**, from env read once at start (a bad value stops the server): `PLEXUS_AUDIT_MODE` = `full` (default) |
-`light` | `off`, and a per-tenant table `PLEXUS_AUDIT_MODES="demo*=off,team_*=full"` (`glob=mode`, first match wins,
-matched on the tenant id; unmatched tenants use `PLEXUS_AUDIT_MODE`).
+**Tenant mode**, from env read once at start (a bad value stops the server): `KNEWAT_AUDIT_MODE` = `full` (default) |
+`light` | `off`, and a per-tenant table `KNEWAT_AUDIT_MODES="demo*=off,team_*=full"` (`glob=mode`, first match wins,
+matched on the tenant id; unmatched tenants use `KNEWAT_AUDIT_MODE`).
 
 | Mode | read tool | `recall` (exposure) | write tool |
 |---|---|---|---|
@@ -220,7 +220,7 @@ matched on the tenant id; unmatched tenants use `PLEXUS_AUDIT_MODE`).
   Redis `INFO commandstats` with `graph.ro_query` up by 51 or more and **zero** `graph.query`/`graph.delete`/`set`/...,
   the keyspace and `rdb_changes_since_last_save` unchanged, and the node and edge counts identical. The same burst
   in `full` mode is the control (it issues >= 2 `graph.query` per call).
-* **Deployment.** `deploy/app.py` calls `ensure_demo_audit_off()`, which puts `demo*=off` first in `PLEXUS_AUDIT_MODES`
+* **Deployment.** `deploy/app.py` calls `ensure_demo_audit_off()`, which puts `demo*=off` first in `KNEWAT_AUDIT_MODES`
   (an operator's own `demo*` rule cannot weaken it): the public `demo` and `demo_*` tenants are readable over MCP and
   never written. See `docs/deploy.md`.
 
@@ -256,29 +256,29 @@ reads an agent will act on.
 
 ## Headless smoke (verified)
 
-`claude -p "Use the plexus tools: start a session as agent smoke, remember an episode 'hello', assert fact subject=API
+`claude -p "Use the knewat tools: start a session as agent smoke, remember an episode 'hello', assert fact subject=API
 predicate=version value=v1 in the default scope, then recall 'API version'. Report the recalled value."` with
-`--strict-mcp-config --allowedTools "mcp__plexus__*" --model haiku --max-turns 6` returned `v1` (success, 6 turns, ~$0.006).
-Tip: point `command` at the venv script (`<abs>/plexus/.venv/Scripts/plexus-mcp.exe`, no `uv run`) for the fastest start-up.
+`--strict-mcp-config --allowedTools "mcp__knewat__*" --model haiku --max-turns 6` returned `v1` (success, 6 turns, ~$0.006).
+Tip: point `command` at the venv script (`<abs>/knewat/.venv/Scripts/knewat-mcp.exe`, no `uv run`) for the fastest start-up.
 With `uv run`, Claude's first `ToolSearch` can run while the server is still `pending` and burn the turn budget
 (`error_max_turns`); the exit code is 0 either way, so check `result.subtype` and `permission_denials`.
 
 ## View API
 
-`uv run plexus-api` (port 8080, env `PLEXUS_API_HOST`/`PLEXUS_API_PORT`; CORS origins from `PLEXUS_CORS_ORIGINS`, default
-`localhost`/`127.0.0.1` on 5180 and 5173; Crucible results file from `PLEXUS_RESULTS_PATH`). Response shapes:
-`docs/view-api.schema.json` (regenerate with `uv run python -m plexus.api.export_schema`). Reads only: the API holds a
+`uv run knewat-api` (port 8080, env `KNEWAT_API_HOST`/`KNEWAT_API_PORT`; CORS origins from `KNEWAT_CORS_ORIGINS`, default
+`localhost`/`127.0.0.1` on 5180 and 5173; Crucible results file from `KNEWAT_RESULTS_PATH`). Response shapes:
+`docs/view-api.schema.json` (regenerate with `uv run python -m knewat.api.export_schema`). Reads only: the API holds a
 `ReadOnlyClient` with no write method.
 
 Bounds: `since`, `until`, `after` and the `step/{n}` path are `0..9 999 999 999 999` (out of range = **422**, never 502); `why`/`recall`
-ids are 1..128 chars. `/stream`: `poll_ms` is at least 200, at most `PLEXUS_API_MAX_STREAMS` (default 20) connections are open at once
+ids are 1..128 chars. `/stream`: `poll_ms` is at least 200, at most `KNEWAT_API_MAX_STREAMS` (default 20) connections are open at once
 (the next gets **429**), and subscribers polling the same `(tenant, after)` share one `view/flow` read per 150 ms. `GET /healthz?deep=1`
 also pings FalkorDB (503 when it is down). `inventory` counts nodes and edges per graph-model label/type in O(labels); if the graph
 holds a label or type the model does not list, it falls back to a full scan.
 
 ## Staleness tools (P7-J, 7 tools; see `docs/staleness.md`)
 
-Registered by `plexus/mcp/staleness_tools.py` (`register_staleness`), so the server then exposed 36 tools (41 with the memory tools). Changing code makes a
+Registered by `knewat/mcp/staleness_tools.py` (`register_staleness`), so the server then exposed 36 tools (41 with the memory tools). Changing code makes a
 memory **suspect**, never false: it stays recallable, and the agent re-checks it. Paths are normalised to the canonical form
 (absolute, `/`, upper-case drive); a relative path is an error. Limits: ids <= 128, paths <= 1024, hashes <= 128, <= 200 changes.
 
@@ -294,7 +294,7 @@ memory **suspect**, never false: it stays recallable, and the agent re-checks it
 
 Audit: facts a call made suspect or verified are `UPDATED` edges of the ToolCall and `WROTE` edges of the Step; a created `Change` /
 `CodeAnchor` is a `CREATED` edge. `facts_to_verify` adds no `READ` edges (a suspect fact is not strengthened by being listed).
-## Memory-strength tools (P7-K, `plexus/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
+## Memory-strength tools (P7-K, `knewat/mcp/memory_tools.py`; D-012, `docs/forgetting.md`)
 
 Five more tools, registered by `register_memory` (the 41 tools above are 29 + 7 staleness + these 5; the 2 soft-duplicate tools below make 43, `impact` and `assert_relation` 45). Forgetting
 lowers a fact's **rank only**; none of these deletes anything.
@@ -307,12 +307,12 @@ lowers a fact's **rank only**; none of these deletes anything.
 | `restore_fact` | `fact_id` | `{fact_id, restored, status, was}` (+ `reason: 'already_superseded'`, `superseded_by` when a newer active fact blocks it); a fact that is not dormant is left alone. |
 
 `recall` gains `include_dormant: bool = false` and `forgetting: bool | null = null` (null = the server default,
-`PLEXUS_FORGETTING`). Each fact in the result also carries `surprise`, `activation`, `protected` (both `null` when
+`KNEWAT_FORGETTING`). Each fact in the result also carries `surprise`, `activation`, `protected` (both `null` when
 forgetting is off), `verify_state`, `suspect_since` and `suspect_reason`. `assert_fact` returns `surprise`.
 Audit: `pin_fact`, `unpin_fact`, `restore_fact` and a real `memory_sweep` record `UPDATED` edges to the facts they
 changed; `ToolCall.query_name` of a forgetting-on `recall` is still `engram/recall`: `activation/*` reads are auxiliary and never name a call that ran another read.
 
-## Impact tool (P9-b, `plexus/mcp/tools_impact.py`)
+## Impact tool (P9-b, `knewat/mcp/tools_impact.py`)
 
 One read-only tool, registered by `register_impact` (45 tools in total: the 41 above, the 2 soft-duplicate tools, `impact` and `assert_relation`). It answers "what breaks if this is wrong?" before
 `quarantine_source` / `forget_source` / `fail_task` write anything, in one call instead of three.
@@ -329,7 +329,7 @@ Nothing is written (no `READ` edges either: looking at the damage must not make 
 `Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
 (1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source`, `release_quarantine` and `blocked_by_failure` expose the same
 `depth` since P9-int (same bounds and defaults). P9-f: `why` also takes `max_elements` (the value it used to hard-code), and `why` / `blocked_by_failure` each read ONE statement (`lineage/why_edges`, `relay/dependents_closure`), so the answer is one snapshot under concurrent writes.
-## Soft-duplicate tools (P9-c, `plexus/mcp/tools_dedup.py`; `plexus/engram/dedup.py`)
+## Soft-duplicate tools (P9-c, `knewat/mcp/tools_dedup.py`; `knewat/engram/dedup.py`)
 
 `assert_fact` decides whether a new value is the same statement as a current one (same entity, predicate and scope):
 
@@ -345,8 +345,8 @@ The discriminator key is a multiset of numbers and versions, unit-normalised qua
 prefixes) and a reviewed antonym table (`enabled`/`disabled`, `above`/`below`, `at least`/`at most`, `some`/`only`, ...). So
 `enabled`/`not enabled`, `5 minutes`/`5 hours`, `two`/`three` and `at least`/`at most` are never merged. When two values have the
 same content words in a different order (`A calls B` / `B calls A`) they are never auto-merged either (tier 3). Facts written
-before P9-c have no key and only match by exact text. Thresholds: `PLEXUS_DUP_JACCARD`, `PLEXUS_DUP_TIER2_COS`,
-`PLEXUS_DUP_MAYBE_COS`, `PLEXUS_DUP_MAYBE_JACCARD` (the tier-1 distance stays the `Engram` constructor argument).
+before P9-c have no key and only match by exact text. Thresholds: `KNEWAT_DUP_JACCARD`, `KNEWAT_DUP_TIER2_COS`,
+`KNEWAT_DUP_MAYBE_COS`, `KNEWAT_DUP_MAYBE_JACCARD` (the tier-1 distance stays the `Engram` constructor argument).
 
 A merge keeps the raw wording: `ASSERTED_BY.text` on the duplicate's edge, so it is detectable and reversible.
 `assert_fact` returns `possible_duplicates: [{fact_id, value, cos, jaccard}]` (empty when none; at most 5) and every `recall`
@@ -360,7 +360,7 @@ fact carries `maybe_duplicate_of: [fact ids]` (a compact hit only when it is non
 Both are write tools: a `ToolCall`, the agent's `Step` with `WROTE` edges to both facts and `UPDATED` audit edges. Errors
 (`unknown fact`, `not linked as possible duplicates`, `no longer the current value`) are plain tool errors.
 
-## Typed relations and `recall(hops)` (P9-b / P2, `plexus/mcp/tools_relations.py`, `plexus/engram/relations.py`)
+## Typed relations and `recall(hops)` (P9-b / P2, `knewat/mcp/tools_relations.py`, `knewat/engram/relations.py`)
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|
@@ -372,5 +372,5 @@ entities reached are appended after the direct hits: at most 20 entities and 20 
 every direct hit (own distance + 0.25 per hop). Those rows carry `hop` (1|2) and `relation_path` (`[{from, kind, to, dir}]` from the
 seed entity); direct rows are unchanged, and `hops=0` runs no extra query. A fact with no word or embedding overlap with the question
 is found this way when a chain of relations leads to its entity (test: `tests/integration/test_p9b_relations.py`). The relations are only as
-good as what agents write with `assert_relation`; Plexus extracts none by itself (no LLM). Relations are not time-versioned: with `as_of`
+good as what agents write with `assert_relation`; Knewat extracts none by itself (no LLM). Relations are not time-versioned: with `as_of`
 the facts follow the time filter but the edges are today's.

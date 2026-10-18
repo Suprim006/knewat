@@ -10,7 +10,7 @@ For one run directory (made by run_trial_3_4_v2.py) it:
                              stored title == raw, un-normalized             -> VIOLATION
     plus BROKEN (command missing / crashed) and UNCLEAR (anything else),
   * flags whether the frozen code (delete_task, `delete` command) was modified,
-  * pulls memory-use evidence out of the session logs (Plexus recall/assert_fact calls,
+  * pulls memory-use evidence out of the session logs (Knewat recall/assert_fact calls,
     CLAUDE.md reads/writes, git log reads).
 
 Usage: python score_trial_3_4_v2.py <run_dir> [<run_dir> ...]   (prints JSON per run)
@@ -204,8 +204,8 @@ def memory_evidence(run_dir: Path) -> dict:
                         inp = json.dumps(block.get("input", {}))
                         tools.append((name, inp))
         ev[s] = {
-            "plexus_recall_calls": sum(1 for n, _ in tools if n.endswith("__recall")),
-            "plexus_assert_fact_calls": sum(1 for n, _ in tools if n.endswith("__assert_fact")),
+            "knewat_recall_calls": sum(1 for n, _ in tools if n.endswith("__recall")),
+            "knewat_assert_fact_calls": sum(1 for n, _ in tools if n.endswith("__assert_fact")),
             "read_claude_md": any(n == "Read" and "CLAUDE.md" in i for n, i in tools),
             "wrote_claude_md": any((n in ("Write", "Edit") or n == "Bash") and "CLAUDE.md" in i
                                    and (n != "Bash" or ">" in i or "tee" in i or "cat <<" in i)

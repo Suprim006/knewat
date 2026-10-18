@@ -1,14 +1,14 @@
 # Decisions log
 
-> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/PLEXUS_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
+> Some paths cited here (`docs/research/`, `docs/PLAN.md`, `docs/KNEWAT_REPORT.md`, `docs/spikes/`, `docs/VIDEO_SCRIPT.md`, `docs/BLOG_DRAFT.md`) are working files that are not in this repository.
 
 Each entry records the reasoning, so the owner can explain every choice to judges (rule R8).
 Format: **ID — title** · date · status (proposed / accepted / superseded).
 
 ---
 
-## D-001 — Project: Plexus (memory + coordination + lineage + proof, one graph)
-2026-10-14 · **accepted** (owner confirmed the combined scope, the name **Plexus**, and the demo scenario: **generic software team**)
+## D-001 — Project: Knewat (memory + coordination + lineage + proof, one graph)
+2026-10-14 · **accepted** (owner confirmed the combined scope, the name **Knewat**, and the demo scenario: **generic software team**)
 
 **Context.** Track 02 asks for memory that persists, updates over time and is shared across agents, plus handoffs, concurrency and tenant isolation.
 The landscape research (`docs/research/landscape/*`) found gaps in today's products (Claude Code, Hermes, ChatGPT, Letta, Mem0, Graphiti) on both sides:
@@ -20,7 +20,7 @@ The landscape research (`docs/research/landscape/*`) found gaps in today's produ
 Per-tenant graphs and simple supersession are table stakes: competitors MERIDIAN, GraphMem and ZeroCapital have them.
 A single-module entry would either be crowded (memory alone, against Graphiti/Mem0/Cognee) or too narrow (coordination or quarantine alone).
 
-**Decision.** Build **Plexus**: one FalkorDB graph model and one MCP server with four modules plus a UI.
+**Decision.** Build **Knewat**: one FalkorDB graph model and one MCP server with four modules plus a UI.
 1. **Engram (memory):**
    - episodic `Session`/`Episode` chains;
    - semantic `Fact`s with validity windows and `SUPERSEDES`;
@@ -58,7 +58,7 @@ The ablation demo cuts the edges and shows the features break.
 - The scope is large, so the plan must be phased with hard cut lines.
 - Pitch order: "why" / time travel / contradictions / scoped memory first, claims last.
 
-## D-002 — Agents are unmodified Claude Code; Plexus has no LLM inside
+## D-002 — Agents are unmodified Claude Code; Knewat has no LLM inside
 2026-10-14 · **accepted**
 
 **Context.** The owner has a Claude subscription but no Anthropic API key. Anthropic's [legal & compliance page](https://code.claude.com/docs/en/legal-and-compliance) says:
@@ -69,24 +69,24 @@ The ablation demo cuts the edges and shows the features break.
 Headless `claude -p` uses the subscription login; `--bare` needs an API key ([headless docs](https://code.claude.com/docs/en/headless)).
 
 **Decision.**
-1. **Plexus contains no LLM and no LLM credentials.** All tools are deterministic Cypher. Semantic matching uses a local CPU embedding model (bge-small via fastembed, to confirm at kickoff).
+1. **Knewat contains no LLM and no LLM credentials.** All tools are deterministic Cypher. Semantic matching uses a local CPU embedding model (bge-small via fastembed, to confirm at kickoff).
 2. **The agents are the unmodified `claude` binary** (v2.1.296), signed in with the owner's own subscription and started by our orchestrator:
    ```
-   claude -p "<task>" --mcp-config plexus.mcp.json --allowedTools "mcp__plexus__*" --max-turns N --output-format stream-json
+   claude -p "<task>" --mcp-config knewat.mcp.json --allowedTools "mcp__knewat__*" --max-turns N --output-format stream-json
    ```
    `ANTHROPIC_API_KEY` stays unset.
-3. The benchmark's baseline arm and Plexus arm both use this same harness, account and model (see `docs/BASELINE.md`).
+3. The benchmark's baseline arm and Knewat arm both use this same harness, account and model (see `docs/BASELINE.md`).
 
 **Why.**
 - It complies with Anthropic's terms.
 - No API key or cost is needed.
-- Plexus's results are deterministic and reproducible.
+- Knewat's results are deterministic and reproducible.
 - It gives a clean A/B where only the coordination backend changes.
-- It also makes Plexus agent-agnostic: any MCP client can use it.
+- It also makes Knewat agent-agnostic: any MCP client can use it.
 
 **Alternatives rejected.**
 - An Anthropic API key: the owner doesn't have one; it remains an option later.
-- Routing Plexus's own LLM calls through the subscription (via the Hermes proxy or a token): prohibited.
+- Routing Knewat's own LLM calls through the subscription (via the Hermes proxy or a token): prohibited.
 - Claude Agent SDK on the subscription: SDK products are told to use API keys.
 
 ---
@@ -103,7 +103,7 @@ Headless `claude -p` uses the subscription login; `--bare` needs an API key ([he
   2. replays of recorded real Claude Code runs for the "why" and time-travel scenes.
 
   Real LLM runs appear only in the demo video.
-- Optional "bring your own agent": a judge connects *their own* Claude Code to the public Plexus MCP endpoint, and each connection gets its own graph or tenant.
+- Optional "bring your own agent": a judge connects *their own* Claude Code to the public Knewat MCP endpoint, and each connection gets its own graph or tenant.
 - **Owner follow-up (optional):** switch Hermes to an API key or another provider to remove the risk.
 
 ---
@@ -152,21 +152,21 @@ Details: `docs/research/free-vm.md`, `docs/research/hosting.md`.
 - files (how Claude Code and Hermes work today);
 - SQLite;
 - a vector store;
-- Plexus on FalkorDB.
+- Knewat on FalkorDB.
 
 Full plan: `docs/BASELINE.md`. Statements about the real Claude Code or Hermes products are labelled as a qualitative case study, not as benchmark results.
 
 ---
 
-## D-008 — Two projects in one repo: `plexus/` (product) and `plexus-view/` (demonstrator)
+## D-008 — Two projects in one repo: `knewat/` (product) and `knewat-view/` (demonstrator)
 2026-10-14 · **accepted**
 
 **Context.** The owner wants the product (FalkorDB + an MCP server of deterministic Cypher) kept separate from a view that demonstrates how data is stored, how it flows, and what the demo created.
 
 **Decision.**
 - **One monorepo with two projects:**
-  - `plexus/`: Python. MCP server, the Engram, Relay and Lineage modules, Crucible, the demo runner, and a **read-only View API** (FastAPI + SSE).
-  - `plexus-view/`: Vite + React + TypeScript with Cytoscape.js (or `@falkordb/canvas` if the P0 spike favours it). It talks **only** to the View API and never writes.
+  - `knewat/`: Python. MCP server, the Engram, Relay and Lineage modules, Crucible, the demo runner, and a **read-only View API** (FastAPI + SSE).
+  - `knewat-view/`: Vite + React + TypeScript with Cytoscape.js (or `@falkordb/canvas` if the P0 spike favours it). It talks **only** to the View API and never writes.
 - **The data flow is itself graph data:** every MCP tool's Cypher statement also creates a `ToolCall` node with `CREATED`/`UPDATED` edges to what it touched. This happens in the same atomic statement, so there's no extra round trip and nothing outside FalkorDB.
 
 **Why.**
@@ -182,13 +182,13 @@ Full plan: `docs/BASELINE.md`. Statements about the real Claude Code or Hermes p
 2026-10-14 · **accepted** (verify in the P0 spike S1)
 
 **Decision.**
-- **stdio** for local Claude Code agents (`plexus.mcp.json`); **streamable HTTP** for the public "bring your own agent" endpoint.
+- **stdio** for local Claude Code agents (`knewat.mcp.json`); **streamable HTTP** for the public "bring your own agent" endpoint.
 - The tenant is bound **per connection** (a CLI argument or env for stdio, a path or header for HTTP). Tools never accept a graph name, so an agent can't address another tenant's graph.
-- Graph names are `plexus_t_<tenant>` with `[a-z0-9_]` only. Test graphs are `test_<uuid>`.
+- Graph names are `knewat_t_<tenant>` with `[a-z0-9_]` only. Test graphs are `test_<uuid>`.
 
 **Why.** Tenant isolation is enforced at the connection layer and backed by one graph per tenant, plus ACL in deployment.
 
-**Verified (S1).** Both transports work with unmodified Claude Code 2.1.296. In stateful HTTP mode the SDK checks the tenant per request, so a session id could be replayed against another tenant path. Plexus therefore pins session id → tenant and returns 403 on a mismatch.
+**Verified (S1).** Both transports work with unmodified Claude Code 2.1.296. In stateful HTTP mode the SDK checks the tenant per request, so a session id could be replayed against another tenant path. Knewat therefore pins session id → tenant and returns 403 on a mismatch.
 
 ## D-010 — Demo runs: scripted for the public demo, real Claude runs recorded and replayed
 2026-10-15 · **accepted**
@@ -203,7 +203,7 @@ Full plan: `docs/BASELINE.md`. Statements about the real Claude Code or Hermes p
 ## D-011 — Memory that notices change: suspect → re-verify (staleness)
 2026-10-16 · **accepted** by the owner (rank only, nothing deleted; file-level + Python function anchors)
 
-**Context.** Plexus only knows what agents tell it. When Claude Code edits code but not the doc or fact that describes
+**Context.** Knewat only knows what agents tell it. When Claude Code edits code but not the doc or fact that describes
 it, nothing in the graph changes, and recall keeps returning the old fact. Users of today's tools complain about this
 most: months-old `MEMORY.md` with no freshness signal, and Graphiti ranking superseded facts equal to current ones
 (`docs/research/forgetting-B-products.md`). Graphiti's two timelines (when a fact was true vs when the system learned
@@ -213,8 +213,8 @@ it) are the right *record*, but its invalidation only reacts to new *text* and n
 - **Changing code doesn't make a fact false; it makes it suspect.** Facts get `verify_state`: `verified | suspect`. A
   suspect fact stays recallable, carrying `suspect_since` and the change that caused it, so knowledge is never lost
   just because a file was edited.
-- **Detection is deterministic and runs on the user's machine.** The Plexus server (in Docker) can't read the user's
-  repo. A client CLI (`plexus code-scan` / `plexus hook …`) hashes changed files, and changed functions where a parser
+- **Detection is deterministic and runs on the user's machine.** The Knewat server (in Docker) can't read the user's
+  repo. A client CLI (`knewat code-scan` / `knewat hook …`) hashes changed files, and changed functions where a parser
   exists, then calls `mark_changed(changes, commit)`. It is triggered by a Claude Code `PostToolUse` hook on
   Edit/Write and by a git `post-commit` hook.
 - **Linking facts to code:**
@@ -222,22 +222,22 @@ it) are the right *record*, but its invalidation only reacts to new *text* and n
     existing facts (for example the physio graph's `CLAUDE.md` facts) are covered with no extra work.
   - **Function level, optional and more precise:** `(Fact)-[:ANCHORED_TO]->(CodeAnchor {path, symbol, hash})`.
   - **Doc to code:** `(Source:doc)-[:DESCRIBES]->(CodeAnchor)`, so a code change lists the doc sections to update.
-- **The agent re-verifies; Plexus records the outcome.** `verify_fact(fact_id, still_true, new_value?, evidence?)`:
+- **The agent re-verifies; Knewat records the outcome.** `verify_fact(fact_id, still_true, new_value?, evidence?)`:
   - **Confirmed:** the fact returns to `verified`, with a `VERIFIED {at, commit}` edge to the agent.
   - **Changed:** the existing supersede path creates the new fact, and the old fact's `valid_to` is the **change's
-    time** (event time), while `recorded_at` stays the time Plexus learned it (Graphiti's two timelines).
+    time** (event time), while `recorded_at` stays the time Knewat learned it (Graphiti's two timelines).
 - **Check on use, not all at once.** Recall flags suspect facts, and Claude re-checks the ones it is about to rely on.
   `facts_to_verify` orders the rest by impact: decisions that depend on the fact first, then activation (D-012).
 - **Facts that aren't about code** (deployed URLs, accounts, client requests) can carry `verify_after`. Once it has
   passed, the fact becomes suspect too.
 - **Every suspicion is explainable:** `(Change {commit, at, paths})-[:SUSPECTED]->(Fact)` appears in `why`.
 
-**Why.** It targets the most-reported failure (stale memory with no signal) with a graph traversal Plexus already does
-(source → facts derived from it → decisions based on them). It keeps Plexus free of LLMs, and the agent supplies the
+**Why.** It targets the most-reported failure (stale memory with no signal) with a graph traversal Knewat already does
+(source → facts derived from it → decisions based on them). It keeps Knewat free of LLMs, and the agent supplies the
 judgement. **Rejected alternatives:**
 - a fixed TTL for code facts: code doesn't go stale with age;
 - auto-closing facts on change: true facts would be lost;
-- LLM-judged invalidation inside Plexus: breaks D-002 and is inconsistent (Graphiti #1841).
+- LLM-judged invalidation inside Knewat: breaks D-002 and is inconsistent (Graphiti #1841).
 
 ## D-012 — Activation-based forgetting: rank by use, never delete by decay
 2026-10-16 · **accepted** by the owner (rank only, nothing deleted; file-level + Python function anchors)
@@ -254,7 +254,7 @@ judgement. **Rejected alternatives:**
   (Cognee, MemOS).
 
 **Decision.**
-- **Activation is computed at query time from edges Plexus already writes. Nothing is written on read.**
+- **Activation is computed at query time from edges Knewat already writes. Nothing is written on read.**
   `A(f) = ln Σ_k w_k · max(now − t_k, 1 min)^(−0.5)` over the fact's most recent K = 50 access events:
   - creation: weight 1;
   - **use**: weight 1, meaning cited in a decision (`BASED_ON`), carried in a handoff, read by `assert_fact`
@@ -296,7 +296,7 @@ criteria: recall@5 fell from 98.6% to 73–75% and 7–8 of 80 critical probes w
 was deleted). Cause: among near-identical facts in one scope, the activation multiplier (0.5–1.0) moves a popular or
 protected twin more than the tiny relevance gap, so popularity outranks relevance. A post-hoc sweep showed floor 0.9
 keeps every critical probe and 96.4% recall@5 while still cutting noise (23% → 14%). **Decision:** the default floor is
-`PLEXUS_ACT_FLOOR=0.9`, confirmed by a second, pre-registered run (`docs/BASELINE.md`, L5b confirmatory). The
+`KNEWAT_ACT_FLOOR=0.9`, confirmed by a second, pre-registered run (`docs/BASELINE.md`, L5b confirmatory). The
 `memory_sweep` is lossy for cold-but-true facts in this benchmark (cold@5 ~35–70%) and stays optional, dry-run by
 default and reversible. Protection prevents sweeping, not outranking: the docs say so.
 
@@ -312,7 +312,7 @@ reliability (P3, not built yet). An independent cross-check (`neuro-memory/CROSS
 and ranking and found one required fix (the sweep threshold under the new decay scale).
 
 **Decision.**
-1. **P1 pattern separation, on by default** (`PLEXUS_RECALL_SEPARATION=on`). One extra bounded read per recall
+1. **P1 pattern separation, on by default** (`KNEWAT_RECALL_SEPARATION=on`). One extra bounded read per recall
    (`engram/recall_entities`: full-text OR of the query words over `Entity.name`, ≤ 5 entities, each with its fan =
    current facts about it in the searched scopes, entity-first plan). An entity counts as *named* only when every
    word of its name is in the query. Facts about a named entity get `sep = gamma · max(0, 1 − ln fan / S_max)` in
@@ -320,9 +320,9 @@ and ranking and found one required fix (the sweep threshold under the new decay 
    the sibling expansion in `engram/recall` is damped by the same factor; each row reports `lures` (other candidates
    with the same predicate about another entity within 0.02 relevance), `entity_match` and `sep`; `Recall` stores
    `entities` and `separation`, `RETURNED` stores `sep`, so `why_recalled` explains the lift. Nothing is written by a
-   recall. The exact-keyword bypass now tests the whole fact text (`PLEXUS_KW_BYPASS=fact`; `value` = the old rule).
-   `PLEXUS_KW_BYPASS=value`: Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
-2. **P2 additive mode, implemented behind `PLEXUS_ACT_MODE=add`, default stays `mult`.** `plexus.activation.score`:
+   recall. The exact-keyword bypass now tests the whole fact text (`KNEWAT_KW_BYPASS=fact`; `value` = the old rule).
+   `KNEWAT_KW_BYPASS=value`: Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
+2. **P2 additive mode, implemented behind `KNEWAT_ACT_MODE=add`, default stays `mult`.** `knewat.activation.score`:
    `ln rel + beta·tanh((A − A0)/2s) + sep + sal`, Pavlik–Anderson activation-dependent decay
    (`activation_spaced`, `c = 0.217, a = 0.177`, testing-effect weight for a recall after the last use), graded
    salience from the graph (`salience_of`: decisions, verifications, independent artifacts, done tasks, distinct
@@ -330,12 +330,12 @@ and ranking and found one required fix (the sweep threshold under the new decay 
    otherwise), salience slows decay (`kappa = 0.4`), the band guard replaces `max(A, A0)` for protected facts,
    `memory_sweep`'s default margin is `A0 − 0.72` under the new scale (CROSS_CHECK §3.1), and salience ≥ 0.5 protects
    from sweeps. `mult` mode is byte-for-byte D-012 (plus the bypass fix and separation).
-   `PLEXUS_ACT_MODE=add` (and its constants `PLEXUS_ACT_BETA`, `_S`, `_C`, `_A`, `_DMAX`, `_KAPPA`, `_DELTA`, `_BAND`): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
-3. **Identity contract:** `PLEXUS_FORGETTING=off` **and** `PLEXUS_RECALL_SEPARATION=off` reproduce the pre-D-012 order
+   `KNEWAT_ACT_MODE=add` (and its constants `KNEWAT_ACT_BETA`, `_S`, `_C`, `_A`, `_DMAX`, `_KAPPA`, `_DELTA`, `_BAND`): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
+3. **Identity contract:** `KNEWAT_FORGETTING=off` **and** `KNEWAT_RECALL_SEPARATION=off` reproduce the pre-D-012 order
    exactly (`tests/activation/test_recall_off.py`, golden captured on main 4584219). Separation alone changes the
    order only through the damped expansion and when the query names an entity.
 
-**Evidence (pre-registered, `docs/BASELINE.md` "L5b-D013"; results `plexus/demo_data/crucible/l5/20261017T08*-d013-*`).**
+**Evidence (pre-registered, `docs/BASELINE.md` "L5b-D013"; results `knewat/demo_data/crucible/l5/20261017T08*-d013-*`).**
 L5b, K = 20, seed 20261016, fastembed, 0 LLM calls, N = 5 / N = 15 / N = 5 burst:
 
 | mode | recall@1 (N=5 / 15 / burst) | recall@5 | noise share | rows above target: same entity / other entity (N=5) |
@@ -387,7 +387,7 @@ three sections after it).** Built and run as the next P1 step this decision poin
 context term over two cues, `w_entity · max(0, S − ln fan_entity) + w_predicate · max(0, S − ln fan_predicate)`, where the
 predicate cue uses the named-entity rule on the words of `Fact.predicate` and its fan comes from one more bounded read
 (`engram/recall_predicates`, index seek per named predicate); the named entities' own facts always join the candidates
-(`engram/recall_hop_facts` at hop 0, §3.3); each cue is floored at 0 (never a penalty); `PLEXUS_ACT_CUES=entity` restores
+(`engram/recall_hop_facts` at hop 0, §3.3); each cue is floored at 0 (never a penalty); `KNEWAT_ACT_CUES=entity` restores
 point 1 above exactly; the identity contract (point 3) is unchanged. **What the registered run found, against this decision's
 own reading:** the 20 residual L5b displacers are *not* "another predicate of the same sprint subject" — they are the
 scenario's 20 `CONTRADICTS` pairs (two active `auth_method` facts per subject, same entity, same predicate, both probes), so
@@ -403,7 +403,7 @@ registered number of record for CROSS_CHECK's constants stays the falsified one.
 pair is undefined by any cue (recency, P3 reliability or `resolve_contradiction` are the candidates — a new pre-registration);
 the L5b "same-entity gap" should no longer be cited as a product defect; the §3.3 union's ~5-point noise cost on L5b is the
 price of completeness about the named entity and is recorded, not hidden; the SQL arm of §5.4 was not given the predicate
-feature (tie claim unchanged). `PLEXUS_ACT_CUES=entity` (and `PLEXUS_ACT_GAMMA`): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
+feature (tie claim unchanged). `KNEWAT_ACT_CUES=entity` (and `KNEWAT_ACT_GAMMA`): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
 
 **Amendment 2026-10-17 (2) — the shipped default matches the text; one additive formula (`docs/research/BRANCH_REVIEW.md`
 findings 1–2, `CYPHER_AUDIT_SUMMARY.md` C1).** Point 2 says `mult` is "byte-for-byte D-012 (plus the bypass fix and separation)"
@@ -439,12 +439,12 @@ failing fewer. Measured on the merged build with FalkorDB 6.0.2: **lexical OFF f
 L8 replay 27/36), **ON fails 3** (the same two, noise 42.7 / 60.1 / 41.6 %, and one critical probe lost of 80 at N = 15, where D-012/D-013 had 0). On the
 metrics that were reported but not criteria, OFF is also ahead (L6-C `P-product` `hit_any` at depth 1/2/3: OFF 23/9/0 = main's tip today, ON 13/3/1) or
 level (the two clean L8 runs found the same facts in every replay call). The fusion's clear gains are on flat retrieval: the hub world's no-scoring arms (100 % instead
-of 96.5 %) and L5b `off` recall@1 (85.0 % instead of 79.3 %); D-013's cues already give the same in the arms that ship (`sep` 100 % / 85.7 % in both settings). **Decision: `PLEXUS_RECALL_LEXICAL_WEIGHT` defaults to 0** (main's
-relevance, `1 - rank`); `FUSION_WEIGHT = 0.5` is what the fusion was designed with and is available as an opt-in (`PLEXUS_RECALL_LEXICAL_WEIGHT=0.5`).
-The fusion code, its tests and its env switch stayed in the tree then. Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup` (`fuse_scores`, `PLEXUS_RECALL_LEXICAL_WEIGHT`, harness `PLEXUS_L5_LEXICAL_WEIGHT`). Honest limits of the decision: it is a count of two failures against three, one of them the replay
+of 96.5 %) and L5b `off` recall@1 (85.0 % instead of 79.3 %); D-013's cues already give the same in the arms that ship (`sep` 100 % / 85.7 % in both settings). **Decision: `KNEWAT_RECALL_LEXICAL_WEIGHT` defaults to 0** (main's
+relevance, `1 - rank`); `FUSION_WEIGHT = 0.5` is what the fusion was designed with and is available as an opt-in (`KNEWAT_RECALL_LEXICAL_WEIGHT=0.5`).
+The fusion code, its tests and its env switch stayed in the tree then. Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup` (`fuse_scores`, `KNEWAT_RECALL_LEXICAL_WEIGHT`, harness `KNEWAT_L5_LEXICAL_WEIGHT`). Honest limits of the decision: it is a count of two failures against three, one of them the replay
 number, which moves by +-1 between plays of identical code (27, 28 and 29 were all measured: new ids decide the near-ties of the twenty
 `billing_cycle` facts); without that criterion the counts are 1 and 2 and the decision is the same. The L5b / hub harness keeps its pin
-(`PLEXUS_L5_LEXICAL_WEIGHT`, default 0) was removed with the switch: it equalled the product default.
+(`KNEWAT_L5_LEXICAL_WEIGHT`, default 0) was removed with the switch: it equalled the product default.
 
 *2. Published numbers on the merged build.* Recall@1 (85.7 %, the ceiling), recall@5 (100 %), critical loss (0), cross-entity displacers (0) and the hub
 result (100 %) reproduce with the fusion off. **The noise share does not, in either setting, and is reported as a moved number:** `sep+mult` 32.3 % (N = 5),
@@ -454,7 +454,7 @@ result (100 %) reproduce with the fusion off. **The noise share does not, in eit
 (`off` mode: 40.3 / 57.4 % there, with the fusion on) and **no single switch removes it** (bypass text, pool size, value-only keyword ids: post-hoc X1, X3, X4,
 X5, all within +-2 points; dropping the keyword channel (X2) cuts the noise to 16.7 / 17.7 % but costs recall@1 (72.9 / 68.6 %), because the keyword bypass is
 what shields the cold target facts from the D-012 multiplier). The cause is therefore **not attributed**; the untested differences are the Python sibling boost
-(seeds, order), the fused sort, and the `search_text` full-text ranking. The published noise-share figures of `PLEXUS_REPORT` §7.5 describe main's build, not the merged one. L6-C's product arms
+(seeds, order), the fused sort, and the `search_text` full-text ranking. The published noise-share figures of `KNEWAT_REPORT` §7.5 describe main's build, not the merged one. L6-C's product arms
 (the only L6 family that calls `recall`): `hit_any` is 23 / 9 / 0 against the published 11 / 6 / 1, but main's tip gives the same 23 / 9 / 0 today (the published row predates main's predicate cue and
 section 3.3 union), the merged build with the fusion off reproduces it exactly and with the fusion on it is 13 / 3 / 1; strict stays 0/75 in every run, as registered. L6 A/B/D/E/F do not call `recall` and are re-run once for the write-path
 changes of the merge (see BASELINE).
@@ -494,7 +494,7 @@ one-pass join is the same idea; their scale test passes unchanged).
 ## D-015 — Multi-source facts: quarantine and forget respect a fact's other live sources (P13, trial 8)
 
 **Context.** Trial 8 (`trials/FINDINGS.md` section 5): rule C1 was required by two documents (compliance memo and product
-spec). `assert_fact` took one `source_id`; all four Plexus runs linked C1 to the memo and wrote "also product P2" into the value
+spec). `assert_fact` took one `source_id`; all four Knewat runs linked C1 to the memo and wrote "also product P2" into the value
 text. In session 3 ("the memo is void") C1 was kept only because the agent read that text; `quarantine_source(memo)` would have
 hidden C1 and `forget_source(memo)` would have forgotten it. No run used `quarantine_source` or `why`.
 
@@ -534,7 +534,7 @@ ANY of them is forgotten"). So the fix is in four places, not in the model: no n
    stay. The `source_id` argument text was shortened to pay for part of it: the list grows by 418 characters (core 30,182 -> 30,600,
    full 47,843 -> 48,261 by `crucible/l8/manifest_size.py`, a $0 count; `manifest_probe` needs paid `claude -p` calls), guarded by a
    450-character test budget. Empty `corroborated` / `unlinked` are not sent.
-   The tool list is published compact since P12 (`docs/research/L8_TOKEN_COST_P12.md`); `PLEXUS_MCP_SCHEMA=full` (the pre-P12
+   The tool list is published compact since P12 (`docs/research/L8_TOKEN_COST_P12.md`); `KNEWAT_MCP_SCHEMA=full` (the pre-P12
    verbose schemas): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
 
 **Cost (GRAPH.PROFILE, `demo_data/crucible/t8replay/profile.txt`).** One extra `CALL { WITH src, fs ... }` per query: `UNWIND fs`, one
@@ -552,12 +552,12 @@ next to 1,500 unrelated facts (`tests/lineage/test_multisource_plans.py`). `line
 - Unknown tool arguments are silently dropped by the MCP layer (before P13 a client sending `source_ids` got no error and no link);
   this is the framework's behaviour, not changed here.
 - The agent still has to name both documents. The tool nudge is the whole defence; whether it changes agent behaviour is measured by a
-  paid t8 re-run, which this change does not include (`python -m plexus.crucible.t8_replay` is the $0 check of the engine side).
+  paid t8 re-run, which this change does not include (`python -m knewat.crucible.t8_replay` is the $0 check of the engine side).
 - The duplicate path already linked `source_id` onto the existing fact before P13 (it just did not say so); the brief's "re-asserting from a
   second source drops it" does not hold on integ 1f9a8fa. The trial-8 runs lost the spec because they wrote C1 once, with the memo only.
 
 **Proof.** `tests/integration/test_multisource_assert.py`, `tests/lineage/test_multisource_lineage.py` (+ `_plans`), `tests/mcp/test_multisource_tools.py`,
-`tests/crucible/test_t8_replay.py`; the replay output is `plexus/demo_data/crucible/t8replay/` (`before_integ_1f9a8fa.*` is the same script on the old tree).
+`tests/crucible/test_t8_replay.py`; the replay output is `knewat/demo_data/crucible/t8replay/` (`before_integ_1f9a8fa.*` is the same script on the old tree).
 
 ---
 
@@ -570,7 +570,7 @@ demo box. The owner wants visitors to browse the seeded data and run their own C
 
 **Decision.**
 1. *The public image does not serve MCP.* `deploy/app.py` mounts only the View API and the static View; the entrypoint starts no
-   embedder and no idle sweeper; the Dockerfile no longer bakes the ~67 MB fastembed model (`PLEXUS_EMBEDDER=hash` in the image,
+   embedder and no idle sweeper; the Dockerfile no longer bakes the ~67 MB fastembed model (`KNEWAT_EMBEDDER=hash` in the image,
    so nothing can try to download one). MCP stays in the product (`docker compose` still runs it). `deploy/guard.py` keeps its MCP
    classes (`PublicGuard`, `TenantDirectory`, `IdleSweeper`) and their tests unused by the image, so re-enabling MCP later is a
    mount in `app.py`, not a rewrite; remove them if MCP is not coming back to the deployment.
