@@ -26,7 +26,7 @@ OPEN = 9_999_999_999_999
 BATCH = 4000
 
 
-def _chunks(rows: list[Any], n: int = BATCH) -> Iterator[list[Any]]:
+def chunks(rows: list[Any], n: int = BATCH) -> Iterator[list[Any]]:
     for i in range(0, len(rows), n):
         yield rows[i : i + n]
 
@@ -140,7 +140,7 @@ def load_plexus(world: World, client: GraphClient, tenant: str) -> tuple[str, di
         g.query(f"CREATE INDEX FOR (n:{label}) ON (n.id)")
 
     def run(cypher: str, rows: list[Any]) -> None:
-        for ch in _chunks(rows):
+        for ch in chunks(rows):
             g.query(cypher, {"rows": ch})
 
     run(

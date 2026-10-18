@@ -1,4 +1,4 @@
-"""Family F, Task variant (P12 fix 2): provenance crash-consistency of the five task tools.
+"""Family F, Task variant: provenance crash-consistency of the five task tools.
 
 A writer process loops ``create_tasks`` / ``claim_next_task`` / ``complete_task`` / ``fail_task`` / ``reopen_task``
 through the ``P-mcp`` backend (``Runtime._run``: Step + WROTE + ToolCall exactly as the server does) and prints one
@@ -24,18 +24,15 @@ from __future__ import annotations
 
 import argparse
 import json
-import random
 import shutil
-import subprocess
 import sys
 import tempfile
-import threading
-import time
 import uuid
 from typing import Any
 
+from plexus.crucible.l6.crash import kill_rounds
+
 AGENTS = ("w1", "w2")
-TASK_TOOLS = ("create_tasks", "claim_next_task", "complete_task", "fail_task", "reopen_task")
 CYCLE = ("create", "claim", "complete", "create", "claim", "fail", "reopen", "claim", "complete")
 
 
@@ -108,43 +105,19 @@ def kill_loop(
     log: Any = print,
 ) -> dict[str, Any]:
     setup(tenant, root, host, port)
-    rng = random.Random(seed)
-    acked: list[dict[str, Any]] = []
-    for k in range(kills):
+
+    def cmd_for(k: int) -> list[str]:
         cmd = [
             sys.executable, "-m", "plexus.crucible.l6.crash_tasks", "writer", "--tenant", tenant, "--root", root,
             "--host", host, "--port", str(port), "--tag", f"{seed}k{k}",
         ]  # fmt: skip
-        if legacy:
-            cmd.append("--legacy")
-        p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
-        lines: list[str] = []
-        ready = threading.Event()
+        return [*cmd, "--legacy"] if legacy else cmd
 
-        def pump(proc: subprocess.Popen = p, out: list[str] = lines, ev: threading.Event = ready) -> None:
-            assert proc.stdout is not None
-            for ln in proc.stdout:
-                if ln.strip() == "ready":
-                    ev.set()
-                else:
-                    out.append(ln)
-
-        t = threading.Thread(target=pump, daemon=True)
-        t.start()
-        if not ready.wait(60):
-            p.kill()
-            raise RuntimeError(f"writer {k} never became ready")
-        time.sleep(rng.uniform(0.0, 0.4))
-        p.kill()
-        p.wait()
-        t.join(5)
-        for ln in lines:
-            try:
-                acked.append(json.loads(ln))
-            except json.JSONDecodeError:
-                pass  # the last line may be cut by the kill: it was not acknowledged
+    def progress(k: int, acked: list[dict[str, Any]]) -> None:
         if (k + 1) % 10 == 0:
             log(f"F-tasks: {k + 1}/{kills} kills, {len(acked)} acknowledged calls so far")
+
+    acked = kill_rounds(cmd_for, kills, seed, progress=progress)
     res = verify(tenant, host, port, acked)
     res["kills"] = kills
     res["acknowledged_calls"] = len(acked)

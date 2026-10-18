@@ -16,7 +16,7 @@ import subprocess
 import sys
 import threading
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Iterator
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +27,7 @@ SEED = 20261016
 TIMEOUT_MS = 10_000  # per-statement budget for every database arm (pre-registration "Conventions")
 PKG = Path(__file__).resolve()
 DEMO = PKG.parents[4] / "demo_data" / "crucible" / "l7"
+BATCH = 4000  # rows per bulk-load statement
 DEFAULT_HOST = "127.0.0.1"  # "localhost" tries ::1 first on Windows + Docker
 
 
@@ -87,6 +88,11 @@ def write(doc: dict[str, Any], out: Path | None = None, report: str | None = Non
         (d / "report.md").write_text(report, encoding="utf-8", newline="\n")
     shutil.copyfile(d / "results.json", out / f"latest-{doc['kind']}.json")
     return d
+
+
+def chunks(rows: list[Any], n: int = BATCH) -> Iterator[list[Any]]:
+    for i in range(0, len(rows), n):
+        yield rows[i : i + n]
 
 
 # ------------------------------------------------------------------------------------------------ statistics
