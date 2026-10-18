@@ -20,10 +20,8 @@ from plexus.graph.client import GraphClient
 
 MAX_IDS = 200  # fact ids per activation query
 MAX_SWEEP_SCAN = 5000  # active facts of a scope that one sweep looks at (oldest first)
-SWEEP_MARGIN = 2.0  # default threshold under the D-012 model = A0 - 2 (Settings.sweep_margin is mode-aware)
 # D-013, add mode only: salience >= SALIENCE_PROTECT protects from sweeps (the boolean rules stay the floor)
 SALIENCE_PROTECT = 0.5
-SALIENCE_PIN = 0.95  # pin_fact raises the cached salience to at least this
 
 _WEIGHTS = {
     "create": model.W_CREATE,

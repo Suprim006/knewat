@@ -119,9 +119,9 @@ def test_short_token_query_reaches_the_keyword_side(eng, glob):
 def test_page_says_what_was_left_out(eng, glob):
     for i in range(6):
         eng.assert_fact(f"Svc{i}", "owner", f"team {i} owner of service {i}", glob, "a")
-    rows, page = eng.recall_page("owner", glob, k=2)
+    rows, page = eng.recall_with_meta("owner", glob, k=2)
     assert len(rows) == 2 and page["more_available"] and page["truncated"] and page["omitted_by_budget"] == 0
-    rows, page = eng.recall_page("owner", glob, k=6, budget_chars=60)
+    rows, page = eng.recall_with_meta("owner", glob, k=6, budget_chars=60)
     assert len(rows) < 6 and page["omitted_by_budget"] == 6 - len(rows) and page["truncated"]
     rows, page = eng.recall_page("owner", glob, k=50)
     assert len(rows) == 6 and not page["truncated"]

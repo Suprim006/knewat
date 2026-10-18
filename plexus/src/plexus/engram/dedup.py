@@ -341,7 +341,6 @@ def _build_lookup() -> dict[str, tuple[str, str]]:
 
 
 _ANTONYM = _build_lookup()
-_UNIT_NAMES = set(_SEC) | set(_BYTES) | set(_IBYTES) | {"percent", "pct", "%"}
 
 
 def _fmt(v: Fraction | int) -> str:
@@ -548,11 +547,6 @@ def substitution_blocks(a: Features, b: Features) -> bool:
     if len(a.tok) - inter == 1 and len(b.tok) - inter == 1:
         return True
     return len(a.seq) == len(b.seq) and sum(1 for x, y in zip(a.seq, b.seq, strict=True) if x != y) == 1
-
-
-def auto_merge_blocked(a: Features, b: Features) -> bool:
-    """The guards of tiers 1 and 2 (the Cypher statement implements the same rule on the stored token lists)."""
-    return sequence_blocks(a, b) or substitution_blocks(a, b)
 
 
 # ----------------------------------------------------------------------------------------------- confirm / reject

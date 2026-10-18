@@ -55,7 +55,6 @@ NO_TOKEN = "plexusnomatchtoken"  # full-text query for a name without any word c
 DEFAULT_HISTORY = 200  # fact_history default
 MAX_HISTORY = 10_000  # fact_history ceiling: versions of ONE entity+predicate in one scope
 
-PAGE_KEYS = ("truncated", "omitted_by_budget", "more_available", "candidates")  # recall_page note (P12)
 
 log = logging.getLogger("plexus.engram")
 
@@ -599,43 +598,6 @@ class Engram:
             settings=settings,
             all_scopes=all_scopes,
         )[0]
-
-    def recall_page(
-        self,
-        query: str,
-        scope_id: str,
-        k: int = DEFAULT_K,
-        as_of: int | None = None,
-        budget_chars: int = DEFAULT_BUDGET_CHARS,
-        *,
-        include_dormant: bool = False,
-        forgetting: bool | None = None,
-        hops: int = 0,
-        separation: bool | None = None,
-        settings: Settings | None = None,
-        all_scopes: bool = False,
-    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-        """``(rows, page)`` with ``page = {truncated, omitted_by_budget, more_available, candidates}`` (P12).
-
-        ``omitted_by_budget`` ranked rows were cut by ``budget_chars``, ``more_available`` = more candidates
-        matched than were returned (ask again with a larger ``k`` / ``budget_chars`` or a narrower query),
-        ``truncated`` = either. Nothing is cut silently. The same four keys are in the metadata of
-        :meth:`recall_with_meta`; this is that call with the page keys split out.
-        """
-        rows, meta = self.recall_with_meta(
-            query,
-            scope_id,
-            k,
-            as_of,
-            budget_chars,
-            include_dormant=include_dormant,
-            forgetting=forgetting,
-            hops=hops,
-            separation=separation,
-            settings=settings,
-            all_scopes=all_scopes,
-        )
-        return rows, {key: meta[key] for key in PAGE_KEYS}
 
     def recall_with_meta(
         self,

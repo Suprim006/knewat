@@ -162,11 +162,6 @@ def multiplier(a: float, a0: float, floor: float, *, protected: bool = False, by
     return floor + (1.0 - floor) * sigmoid(eff - a0)
 
 
-def final_score(relevance: float, mult: float) -> float:
-    """``relevance`` (clamped to 0..1) times the activation multiplier."""
-    return min(1.0, max(0.0, relevance)) * mult
-
-
 def counts(events: Sequence[Event]) -> dict[str, int]:
     out: dict[str, int] = {}
     for e in events:

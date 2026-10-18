@@ -11,7 +11,6 @@ from plexus.activation.model import (
     W_RECALL,
     Event,
     activation,
-    final_score,
     multiplier,
     neutral_activation,
     novelty,
@@ -114,8 +113,7 @@ def test_protected_facts_never_fall_below_neutral_and_keyword_hits_bypass():
     assert multiplier(a0 - 10, a0, 0.5, bypass=True) == 1.0
 
 
-def test_final_score_clamps_relevance_and_sigmoid_is_stable():
-    assert final_score(1.4, 0.5) == 0.5 and final_score(-0.2, 0.5) == 0.0
+def test_sigmoid_is_stable():
     assert sigmoid(-1000) == 0.0 and sigmoid(1000) == 1.0
 
 
