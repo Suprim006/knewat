@@ -2,18 +2,18 @@
  "schema": "crucible-l6/1",
  "kind": "crash",
  "run": {
-  "id": "20261016T051146Z-crash",
-  "started_at": "2026-10-16T05:11:46Z",
-  "finished_at": "2026-10-16T05:35:31Z",
-  "command": "python -m plexus.crucible.l6.run crash --port 6361 --kills 200",
+  "id": "20261018T083228Z-crash",
+  "started_at": "2026-10-18T08:32:28Z",
+  "finished_at": "2026-10-18T09:09:30Z",
+  "command": "python -m plexus.crucible.l6.run crash --port 6386 --kills 200",
   "llm_calls": 0,
   "cost_usd": 0.0
  },
  "git": {
-  "commit": "4e92938c7496a790d92b0030031eeadeb464496f",
-  "short": "4e92938",
+  "commit": "efff9209f0363931e155d36a2bcd14139c5b23ed",
+  "short": "efff920",
   "dirty": false,
-  "branch": "p9a"
+  "branch": "rerun-current"
  },
  "environment": {
   "python": "3.12.14",
@@ -21,11 +21,11 @@
   "machine": "AMD64",
   "cpu_count": 12,
   "in_docker": false,
-  "git_commit": "4e92938",
+  "git_commit": "efff920",
   "embedder": "none",
   "falkordb": {
    "host": "127.0.0.1",
-   "port": 6361,
+   "port": 6386,
    "reachable": true,
    "redis_version": "8.10.2",
    "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
@@ -80,9 +80,9 @@
   "F": {
    "B1h": {
     "totals": {
-     "facts": 13395,
-     "decisions": 6609,
-     "handoffs": 6573
+     "facts": 17129,
+     "decisions": 8483,
+     "handoffs": 8449
     },
     "orphans": {
      "facts": 0,
@@ -99,41 +99,41 @@
     "lost_acknowledged_total": 0,
     "rule_of_three_upper_pct": 0.01,
     "kills": 200,
-    "acknowledged_writes": 26483
+    "acknowledged_writes": 33969
    },
    "P": {
     "totals": {
-     "facts": 704,
-     "decisions": 280,
-     "handoffs": 256
+     "facts": 631,
+     "decisions": 258,
+     "handoffs": 233
     },
     "orphans": {
-     "facts": 60,
-     "decisions": 18,
-     "handoffs": 16
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
     },
-    "orphans_total": 94,
-    "missing_derived_from": 9,
+    "orphans_total": 0,
+    "missing_derived_from": 0,
     "lost_acknowledged": {
      "facts": 0,
      "decisions": 0,
      "handoffs": 0
     },
     "lost_acknowledged_total": 0,
-    "rule_of_three_upper_pct": null,
+    "rule_of_three_upper_pct": 0.27,
     "kills": 200,
-    "acknowledged_writes": 1112
+    "acknowledged_writes": 1073
    },
    "B0": {
     "totals": {
-     "facts": 886,
-     "decisions": 339,
-     "handoffs": 321
+     "facts": 970,
+     "decisions": 383,
+     "handoffs": 364
     },
     "orphans": {
-     "facts": 6,
-     "decisions": 0,
-     "handoffs": 1
+     "facts": 3,
+     "decisions": 2,
+     "handoffs": 2
     },
     "orphans_total": 7,
     "missing_derived_from": 0,
@@ -146,7 +146,7 @@
     "rule_of_three_upper_pct": null,
     "corrupt_lines": 0,
     "kills": 200,
-    "acknowledged_writes": 1534
+    "acknowledged_writes": 1704
    }
   }
  }
