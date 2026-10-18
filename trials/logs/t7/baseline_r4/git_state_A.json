@@ -1,0 +1,67 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_r4/tinytasks\nHEAD c8e04b7c688a522391b175a56311f03b955fdd78\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_r4/wt_a\nHEAD 4c8d8de22bd76ea3edafc8904da88f7f7b920de8\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/baseline_r4/wt_b\nHEAD c8e04b7c688a522391b175a56311f03b955fdd78\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "c8e04b7c688a522391b175a56311f03b955fdd78",
+      "log": [
+        "c8e04b7 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "4c8d8de22bd76ea3edafc8904da88f7f7b920de8",
+      "log": [
+        "4c8d8de Add snooze command with whole-minute due dates",
+        "c8e04b7 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "c8e04b7c688a522391b175a56311f03b955fdd78",
+      "log": [
+        "c8e04b7 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [],
+    "feat-b": []
+  }
+}

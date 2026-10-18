@@ -1,0 +1,67 @@
+{
+  "worktree_list": "worktree C:/Change_folder_after_HDD/trials/logs/t7/plexus_smoke1/tinytasks\nHEAD e5528a3d40f904a69d976e3718954037f157c739\nbranch refs/heads/main\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/plexus_smoke1/wt_a\nHEAD 0fc02b64e28fe4422a82cdab47e3796edfa50837\nbranch refs/heads/feat-a\n\nworktree C:/Change_folder_after_HDD/trials/logs/t7/plexus_smoke1/wt_b\nHEAD e5528a3d40f904a69d976e3718954037f157c739\nbranch refs/heads/feat-b",
+  "branches": {
+    "main": {
+      "sha": "e5528a3d40f904a69d976e3718954037f157c739",
+      "log": [
+        "e5528a3 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-a": {
+      "sha": "0fc02b64e28fe4422a82cdab47e3796edfa50837",
+      "log": [
+        "0fc02b6 Add snooze command and snooze_task API",
+        "e5528a3 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    },
+    "feat-b": {
+      "sha": "e5528a3d40f904a69d976e3718954037f157c739",
+      "log": [
+        "e5528a3 initial import"
+      ],
+      "files": [
+        ".gitignore",
+        "README.md",
+        "pyproject.toml",
+        "tests/test_api.py",
+        "tinytasks/api.py",
+        "tinytasks/cli.py",
+        "tinytasks/models.py",
+        "tinytasks/queries.py",
+        "tinytasks/storage.py"
+      ]
+    }
+  },
+  "status": {
+    "main": [],
+    "wt_a": [],
+    "wt_b": []
+  },
+  "claude_md_tracked": {
+    "main": [],
+    "feat-a": [],
+    "feat-b": []
+  }
+}

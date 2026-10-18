@@ -1,0 +1,4 @@
+[plexus r1] A (planner-builder, sonnet): rc=0 34.3s $0.059 denials=0 (total $0.06)
+[plexus r1] B1 (builder-2, haiku): rc=0 54.8s $0.012 denials=0 (total $0.07)
+[plexus r1] ci-bot -> plexus
+[plexus r1] B2 (builder-2, haiku): rc=0 49.9s $0.007 denials=0 (total $0.08)

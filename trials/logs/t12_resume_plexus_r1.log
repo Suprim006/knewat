@@ -1,0 +1,28 @@
+[plexus r1] 41/100 ctx=26268 tools=2 COMPACTED $1.038 total=$13.09
+[plexus r1] 42/100 ctx=29072 tools=0 $1.041 total=$14.13
+[plexus r1] 43/100 ctx=32386 tools=0 $1.043 total=$15.18
+[plexus r1] 44/100 ctx=36285 tools=0 $1.047 total=$16.22
+[plexus r1] 45/100 ctx=41291 tools=0 $1.056 total=$17.28
+[plexus r1] 46/100 ctx=56654 tools=0 $1.061 total=$18.34
+[plexus r1] 47/100 ctx=60331 tools=0 $1.064 total=$19.40
+[plexus r1] 48/100 ctx=63836 tools=0 $1.067 total=$20.47
+[plexus r1] 49/100 ctx=22848 tools=1 COMPACTED $1.072 total=$21.54
+[plexus r1] 50/100 ctx=25402 tools=1 $1.075 total=$22.62
+[plexus r1] 51/100 ctx=27816 tools=0 $1.077 total=$23.70
+[plexus r1] 52/100 ctx=30514 tools=0 $1.079 total=$24.78
+[plexus r1] 53/100 ctx=33787 tools=0 $1.082 total=$25.86
+[plexus r1] 54/100 ctx=37002 tools=0 $1.084 total=$26.94
+[plexus r1] 55/100 ctx=40402 tools=0 $1.095 total=$28.04
+[plexus r1] 56/100 ctx=59232 tools=0 $1.101 total=$29.14
+[plexus r1] 57/100 ctx=62496 tools=0 $1.103 total=$30.24
+[plexus r1] 58/100 ctx=24230 tools=1 COMPACTED $1.110 total=$31.35
+[plexus r1] 59/100 ctx=27038 tools=0 $1.112 total=$32.46
+[plexus r1] 60/100 ctx=28793 tools=0 $1.113 total=$33.58
+[plexus r1] 61/100 ctx=30120 tools=0 $1.115 total=$34.69
+[plexus r1] 62/100 ctx=33185 tools=0 $1.118 total=$35.81
+[plexus r1] 63/100 ctx=36246 tools=0 $1.121 total=$36.93
+[plexus r1] 64/100 ctx=40179 tools=0 $1.124 total=$38.05
+[plexus r1] 65/100 ctx=44012 tools=0 $1.136 total=$39.19
+[plexus r1] 66/100 ctx=29755 tools=2 COMPACTED $1.146 total=$40.34
+STOPPED: over --max-cost $40.0
+done: 66 turns, $40.34

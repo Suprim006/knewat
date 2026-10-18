@@ -1,0 +1,43 @@
+[plexus r1] 1/100 ctx=20973 tools=7 $0.004 total=$0.00
+[plexus r1] 2/100 ctx=24001 tools=1 $0.007 total=$0.01
+[plexus r1] 3/100 ctx=29088 tools=1 $0.011 total=$0.02
+[plexus r1] 4/100 ctx=34804 tools=1 $0.015 total=$0.04
+[plexus r1] 5/100 ctx=37912 tools=0 $0.022 total=$0.06
+[plexus r1] 6/100 ctx=53886 tools=1 $0.029 total=$0.09
+[plexus r1] 7/100 ctx=59278 tools=1 $0.033 total=$0.12
+[plexus r1] 8/100 ctx=64854 tools=1 $0.038 total=$0.16
+[plexus r1] 9/100 ctx=68867 tools=1 $0.041 total=$0.20
+[plexus r1] 10/100 ctx=72568 tools=1 $0.044 total=$0.24
+[plexus r1] 11/100 ctx=75810 tools=1 $0.048 total=$0.29
+[plexus r1] 12/100 ctx=80449 tools=1 $0.053 total=$0.35
+[plexus r1] 13/100 ctx=85676 tools=1 $0.058 total=$0.40
+[plexus r1] 14/100 ctx=91293 tools=1 $0.063 total=$0.47
+[plexus r1] 15/100 ctx=94561 tools=0 $0.068 total=$0.53
+[plexus r1] 16/100 ctx=103310 tools=1 $0.098 total=$0.63
+[plexus r1] 17/100 ctx=108536 tools=1 $0.123 total=$0.76
+[plexus r1] 18/100 ctx=112875 tools=1 $0.146 total=$0.90
+[plexus r1] 19/100 ctx=116624 tools=1 $0.168 total=$1.07
+[plexus r1] 20/100 ctx=119964 tools=1 $0.188 total=$1.26
+[plexus r1] 21/100 ctx=123172 tools=1 $0.212 total=$1.47
+[plexus r1] 22/100 ctx=127644 tools=1 $0.240 total=$1.71
+[plexus r1] 23/100 ctx=132823 tools=1 $0.268 total=$1.98
+[plexus r1] 24/100 ctx=138606 tools=1 $0.299 total=$2.28
+[plexus r1] 25/100 ctx=149486 tools=1 $0.354 total=$2.63
+[plexus r1] 26/100 ctx=156271 tools=1 $0.388 total=$3.02
+[plexus r1] 27/100 ctx=161510 tools=1 $0.419 total=$3.44
+[plexus r1] 28/100 ctx=166472 tools=1 $0.449 total=$3.89
+[plexus r1] 29/100 ctx=170417 tools=1 $0.476 total=$4.36
+[plexus r1] 30/100 ctx=174022 tools=1 $0.502 total=$4.86
+[plexus r1] 31/100 ctx=177397 tools=1 $0.534 total=$5.40
+[plexus r1] 32/100 ctx=182633 tools=1 $0.568 total=$5.97
+[plexus r1] 33/100 ctx=187532 tools=1 $0.602 total=$6.57
+[plexus r1] 34/100 ctx=193148 tools=1 $0.638 total=$7.20
+[plexus r1] 35/100 ctx=208325 tools=1 $0.715 total=$7.92
+[plexus r1] 36/100 ctx=216077 tools=1 $0.755 total=$8.68
+[plexus r1] 37/100 ctx=221353 tools=1 $0.793 total=$9.47
+[plexus r1] 38/100 ctx=226128 tools=1 $0.828 total=$10.30
+[plexus r1] 39/100 ctx=230164 tools=1 $0.863 total=$11.16
+[plexus r1] 40/100 ctx=234132 tools=1 $0.895 total=$12.05
+STOPPED: over --max-cost $12.0
+done: 40 turns, $12.05
+[plexus r3] held by SKIP_plexus_r3 (delete it and re-run to release)

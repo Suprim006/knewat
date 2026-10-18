@@ -1,0 +1,467 @@
+{
+  "arm": "plexus",
+  "run_id": "smoke2",
+  "model": "sonnet",
+  "tenant": "t6_plexus_smoke2_6cde20",
+  "run_dir": "C:/Change_folder_after_HDD/trials/logs/t6/plexus_smoke2",
+  "initial_state": {
+    "tinytasks": {
+      "head": "b0d2b99",
+      "commits": 1,
+      "dirty": false
+    },
+    "tasksync": {
+      "head": "6dfd0eb",
+      "commits": 1,
+      "dirty": false
+    }
+  },
+  "sessions": {
+    "session_1": {
+      "returncode": 0,
+      "seconds": 39.1,
+      "mcp_servers": [
+        {
+          "name": "plexus",
+          "status": "connected",
+          "source": "dynamic"
+        }
+      ],
+      "n_tools_listed": 35,
+      "builtin_tools_listed": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Write"
+      ],
+      "plexus_tools_listed": [
+        "mcp__plexus__add_source",
+        "mcp__plexus__as_of",
+        "mcp__plexus__assert_fact",
+        "mcp__plexus__best_procedure",
+        "mcp__plexus__blocked_by_failure",
+        "mcp__plexus__claim_next_task",
+        "mcp__plexus__complete_task",
+        "mcp__plexus__create_tasks",
+        "mcp__plexus__fact_history",
+        "mcp__plexus__fail_task",
+        "mcp__plexus__forget_source",
+        "mcp__plexus__handoff",
+        "mcp__plexus__heartbeat",
+        "mcp__plexus__knew_at",
+        "mcp__plexus__log_procedure_run",
+        "mcp__plexus__quarantine_source",
+        "mcp__plexus__ready_tasks",
+        "mcp__plexus__recall",
+        "mcp__plexus__record_decision",
+        "mcp__plexus__register_agent",
+        "mcp__plexus__release_quarantine",
+        "mcp__plexus__remember_episode",
+        "mcp__plexus__reopen_task",
+        "mcp__plexus__start_session",
+        "mcp__plexus__task_status",
+        "mcp__plexus__verify_artifact",
+        "mcp__plexus__who_knew",
+        "mcp__plexus__why",
+        "mcp__plexus__why_recalled"
+      ],
+      "cost_usd": 0.0689015,
+      "num_turns": 8,
+      "is_error": false,
+      "permission_denials": [],
+      "result": "I added the `archive ID` and `list [--include-archived]` commands, plus tests, and committed them as f1d1a90. All 8 tests pass: the 5 existing ones and 3 new ones in `tests/test_cli.py`.\n\n- **`archive ID`:** prints `archived` or `no such task`, using `archive_task`.\n- **`list`:** prints non-archived tasks as `ID: TITLE (due_at=SECONDS)`. With `--include-archived` it prints archived ones too.\n- **Other changes:** `main()` in `tinytasks/cli.py` now takes an optional `argv` so the tests can call it directly. I also added a line to the README describing the new commands.\n\nI recorded both review decisions in Plexus with `assert_fact`: archived tasks never leave company systems, and external timestamps are UTC ISO-8601 with a `Z`.\n\nNeither decision affects the new commands, because `list` only prints locally and keeps `due_at` in seconds as you specified. I didn't touch `../tasksync`. Since it reads this data file, it's worth checking that it skips archived tasks and writes UTC `Z` timestamps.",
+      "usage": {
+        "input_tokens": 10,
+        "cache_creation_input_tokens": 8358,
+        "cache_read_input_tokens": 109295,
+        "output_tokens": 2452,
+        "output_tokens_details": {
+          "thinking_tokens": 97
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 8358,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 381,
+            "cache_read_input_tokens": 25680,
+            "cache_creation_input_tokens": 406,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 406
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "tool_counts": {
+        "mcp__plexus__start_session": 1,
+        "Bash": 4,
+        "mcp__plexus__assert_fact": 2
+      },
+      "cwd": "C:/Change_folder_after_HDD/trials/logs/t6/plexus_smoke2/tinytasks",
+      "claude_md_files_after": {},
+      "repo_state_after": {
+        "tinytasks": {
+          "head": "f1d1a90",
+          "commits": 2,
+          "dirty": false
+        },
+        "tasksync": {
+          "head": "6dfd0eb",
+          "commits": 1,
+          "dirty": false
+        }
+      }
+    },
+    "session_2": {
+      "returncode": 0,
+      "seconds": 40.9,
+      "mcp_servers": [
+        {
+          "name": "plexus",
+          "status": "connected",
+          "source": "dynamic"
+        }
+      ],
+      "n_tools_listed": 35,
+      "builtin_tools_listed": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Write"
+      ],
+      "plexus_tools_listed": [
+        "mcp__plexus__add_source",
+        "mcp__plexus__as_of",
+        "mcp__plexus__assert_fact",
+        "mcp__plexus__best_procedure",
+        "mcp__plexus__blocked_by_failure",
+        "mcp__plexus__claim_next_task",
+        "mcp__plexus__complete_task",
+        "mcp__plexus__create_tasks",
+        "mcp__plexus__fact_history",
+        "mcp__plexus__fail_task",
+        "mcp__plexus__forget_source",
+        "mcp__plexus__handoff",
+        "mcp__plexus__heartbeat",
+        "mcp__plexus__knew_at",
+        "mcp__plexus__log_procedure_run",
+        "mcp__plexus__quarantine_source",
+        "mcp__plexus__ready_tasks",
+        "mcp__plexus__recall",
+        "mcp__plexus__record_decision",
+        "mcp__plexus__register_agent",
+        "mcp__plexus__release_quarantine",
+        "mcp__plexus__remember_episode",
+        "mcp__plexus__reopen_task",
+        "mcp__plexus__start_session",
+        "mcp__plexus__task_status",
+        "mcp__plexus__verify_artifact",
+        "mcp__plexus__who_knew",
+        "mcp__plexus__why",
+        "mcp__plexus__why_recalled"
+      ],
+      "cost_usd": 0.0931469,
+      "num_turns": 18,
+      "is_error": false,
+      "permission_denials": [],
+      "result": "`tasksync export-csv OUT` is added and committed as `d78e7c0`. The suite passes (7 tests, including 2 new ones). The command reads the data file the same way `export-json` does, through `--data` and `load_tasks`.\n\nThe CSV has the columns `id`, `title` and `due`. Two team policies from Plexus memory changed what you asked for slightly:\n\n- **Archived tasks are left out.** The policy says they must never be written to any file outside company systems. In the test data, task 2 is archived, so the CSV has 2 rows instead of 3.\n- **`due` is UTC with a `Z` suffix.** For example, `2026-10-03T04:00:00Z`. The policy requires this for every external timestamp. The existing `to_iso` writes local time with no `Z`, so I added `to_utc_iso` in `tasksync/timefmt.py` for the CSV rather than change `to_iso`.\n\n`export-json` still breaks both policies. It exports archived tasks and writes local-time timestamps. I left it alone because it's outside this request. Say if you want it brought into line.",
+      "usage": {
+        "input_tokens": 12,
+        "cache_creation_input_tokens": 10703,
+        "cache_read_input_tokens": 141009,
+        "output_tokens": 3621,
+        "output_tokens_details": {
+          "thinking_tokens": 323
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 10703,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 360,
+            "cache_read_input_tokens": 27969,
+            "cache_creation_input_tokens": 462,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 462
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "tool_counts": {
+        "mcp__plexus__start_session": 1,
+        "Glob": 1,
+        "mcp__plexus__recall": 1,
+        "Read": 6,
+        "Edit": 6,
+        "Bash": 2
+      },
+      "cwd": "C:/Change_folder_after_HDD/trials/logs/t6/plexus_smoke2/tasksync",
+      "claude_md_files_after": {},
+      "repo_state_after": {
+        "tinytasks": {
+          "head": "f1d1a90",
+          "commits": 2,
+          "dirty": false
+        },
+        "tasksync": {
+          "head": "d78e7c0",
+          "commits": 2,
+          "dirty": false
+        }
+      }
+    },
+    "session_3": {
+      "returncode": 0,
+      "seconds": 36.2,
+      "mcp_servers": [
+        {
+          "name": "plexus",
+          "status": "connected",
+          "source": "dynamic"
+        }
+      ],
+      "n_tools_listed": 35,
+      "builtin_tools_listed": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Write"
+      ],
+      "plexus_tools_listed": [
+        "mcp__plexus__add_source",
+        "mcp__plexus__as_of",
+        "mcp__plexus__assert_fact",
+        "mcp__plexus__best_procedure",
+        "mcp__plexus__blocked_by_failure",
+        "mcp__plexus__claim_next_task",
+        "mcp__plexus__complete_task",
+        "mcp__plexus__create_tasks",
+        "mcp__plexus__fact_history",
+        "mcp__plexus__fail_task",
+        "mcp__plexus__forget_source",
+        "mcp__plexus__handoff",
+        "mcp__plexus__heartbeat",
+        "mcp__plexus__knew_at",
+        "mcp__plexus__log_procedure_run",
+        "mcp__plexus__quarantine_source",
+        "mcp__plexus__ready_tasks",
+        "mcp__plexus__recall",
+        "mcp__plexus__record_decision",
+        "mcp__plexus__register_agent",
+        "mcp__plexus__release_quarantine",
+        "mcp__plexus__remember_episode",
+        "mcp__plexus__reopen_task",
+        "mcp__plexus__start_session",
+        "mcp__plexus__task_status",
+        "mcp__plexus__verify_artifact",
+        "mcp__plexus__who_knew",
+        "mcp__plexus__why",
+        "mcp__plexus__why_recalled"
+      ],
+      "cost_usd": 0.0819146,
+      "num_turns": 16,
+      "is_error": false,
+      "permission_denials": [],
+      "result": "I added `tasksync report-md OUT`, and the full suite passes (9 tests). It's committed as `20a005f`.\n\nThe report has a `# Task report` heading and a `Generated: <timestamp>` line. Below that is an `id | title | due` table sorted by due date. It loads the data file the same way `export-csv` does.\n\nThe Plexus recall turned up two team policies, which I applied:\n- **Archived tasks are left out.** The report is an external file, and the policy says archived tasks never leave company systems. This differs from your description, which didn't mention filtering. The report matches what `export-csv` does.\n- **Timestamps are UTC with a `Z` suffix**, for example `2026-10-03T04:00:00Z`. This applies to both `Generated` and `due`, and it's the policy for anything written to an external file.\n\nA `|` in a task title is escaped so it doesn't break the table.\n\nThe new function is `export_markdown` in `tasksync/exporters.py`. I added two tests to `tests/test_export.py`. One covers the ordering, the UTC timestamps and the archived-task filtering, and the other runs the CLI command.",
+      "usage": {
+        "input_tokens": 10,
+        "cache_creation_input_tokens": 9802,
+        "cache_read_input_tokens": 117866,
+        "output_tokens": 3090,
+        "output_tokens_details": {
+          "thinking_tokens": 37
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 9802,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 372,
+            "cache_read_input_tokens": 28839,
+            "cache_creation_input_tokens": 320,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 320
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "tool_counts": {
+        "mcp__plexus__start_session": 1,
+        "Glob": 1,
+        "mcp__plexus__recall": 1,
+        "Read": 6,
+        "Edit": 5,
+        "Bash": 1
+      },
+      "cwd": "C:/Change_folder_after_HDD/trials/logs/t6/plexus_smoke2/tasksync",
+      "claude_md_files_after": {},
+      "repo_state_after": {
+        "tinytasks": {
+          "head": "f1d1a90",
+          "commits": 2,
+          "dirty": false
+        },
+        "tasksync": {
+          "head": "20a005f",
+          "commits": 3,
+          "dirty": false
+        }
+      }
+    },
+    "session_4": {
+      "returncode": 0,
+      "seconds": 36.0,
+      "mcp_servers": [
+        {
+          "name": "plexus",
+          "status": "connected",
+          "source": "dynamic"
+        }
+      ],
+      "n_tools_listed": 35,
+      "builtin_tools_listed": [
+        "Bash",
+        "Edit",
+        "Glob",
+        "Grep",
+        "Read",
+        "Write"
+      ],
+      "plexus_tools_listed": [
+        "mcp__plexus__add_source",
+        "mcp__plexus__as_of",
+        "mcp__plexus__assert_fact",
+        "mcp__plexus__best_procedure",
+        "mcp__plexus__blocked_by_failure",
+        "mcp__plexus__claim_next_task",
+        "mcp__plexus__complete_task",
+        "mcp__plexus__create_tasks",
+        "mcp__plexus__fact_history",
+        "mcp__plexus__fail_task",
+        "mcp__plexus__forget_source",
+        "mcp__plexus__handoff",
+        "mcp__plexus__heartbeat",
+        "mcp__plexus__knew_at",
+        "mcp__plexus__log_procedure_run",
+        "mcp__plexus__quarantine_source",
+        "mcp__plexus__ready_tasks",
+        "mcp__plexus__recall",
+        "mcp__plexus__record_decision",
+        "mcp__plexus__register_agent",
+        "mcp__plexus__release_quarantine",
+        "mcp__plexus__remember_episode",
+        "mcp__plexus__reopen_task",
+        "mcp__plexus__start_session",
+        "mcp__plexus__task_status",
+        "mcp__plexus__verify_artifact",
+        "mcp__plexus__who_knew",
+        "mcp__plexus__why",
+        "mcp__plexus__why_recalled"
+      ],
+      "cost_usd": 0.0852323,
+      "num_turns": 17,
+      "is_error": false,
+      "permission_denials": [],
+      "result": "I added `tasksync webhook-payload OUT`. It writes the `tasks.sync` JSON body to the file OUT and sends nothing. The full suite passes (11 tests), and the change is committed as `0943820`.\n\nIt reads the data file the same way the other commands do. The output has the shape you gave: `event`, `sent_at`, and `tasks` with `id`, `title` and `due`.\n\nTwo team policies from Plexus shaped it:\n- **Timestamps:** `sent_at` and each `due` are UTC ISO-8601 with a `Z` suffix, for example `2026-10-03T04:00:00Z`. They don't use the local-time format that `export-json` uses.\n- **Archived tasks:** these are left out of the payload, because the policy says they must never leave the company. Your spec didn't mention this, so check that it matches what the webhook expects.\n\nI added one test for the payload contents and one for the CLI command, in `tests/test_export.py`.",
+      "usage": {
+        "input_tokens": 12,
+        "cache_creation_input_tokens": 9636,
+        "cache_read_input_tokens": 145043,
+        "output_tokens": 3216,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        },
+        "server_tool_use": {
+          "web_search_requests": 0,
+          "web_fetch_requests": 0
+        },
+        "service_tier": "standard",
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 9636,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "inference_geo": "global",
+        "iterations": [
+          {
+            "input_tokens": 2,
+            "output_tokens": 315,
+            "cache_read_input_tokens": 28613,
+            "cache_creation_input_tokens": 380,
+            "cache_creation": {
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 380
+            },
+            "type": "message"
+          }
+        ],
+        "speed": "standard",
+        "fallback_credit": null
+      },
+      "tool_counts": {
+        "mcp__plexus__start_session": 1,
+        "mcp__plexus__recall": 1,
+        "Glob": 1,
+        "Read": 6,
+        "Edit": 5,
+        "Bash": 2
+      },
+      "cwd": "C:/Change_folder_after_HDD/trials/logs/t6/plexus_smoke2/tasksync",
+      "claude_md_files_after": {},
+      "repo_state_after": {
+        "tinytasks": {
+          "head": "f1d1a90",
+          "commits": 2,
+          "dirty": false
+        },
+        "tasksync": {
+          "head": "0943820",
+          "commits": 4,
+          "dirty": false
+        }
+      }
+    }
+  },
+  "total_cost_usd": 0.3291
+}

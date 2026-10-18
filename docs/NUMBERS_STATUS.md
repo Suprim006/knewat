@@ -162,6 +162,22 @@ the commit was made. 'Envelope' means the commit recorded in the result's own `r
 
 `README` = README.md, `REPORT` = docs/PLEXUS_REPORT.md (s = section), `BASELINE` = docs/BASELINE.md, `TESTING` = docs/TESTING.md. 'Stated in' lists the main places; docs/research/* repeat the same numbers.
 
+### H. Everyday-workflow trials (real Claude Code agents, paid; `trials/`)
+
+Status set by the owner on 2026-10-18: CURRENT. The post-run changes (cleanup, removed off-by-default switches, lexical
+fusion off) don't affect what these trials measure, so they weren't re-run. Only H8 ran on the final product code.
+Records: `trials/FINDINGS.md`, `trials/PREREGISTRATION.md` (A1-A13), `trials/RESULTS_T678.md`.
+
+| # | Claim | Value | Where | Build | Status | Re-run on final code |
+|---|---|---|---|---|---|---|
+| H1 | Trial 6, decision made in repo A, work in repo B: violations of 24 (plain / CLAUDE.md / Plexus) | 24 / 24 / **0** | `trials/FINDINGS.md` s5 | `trials-int` `76da7d7` | CURRENT (owner) | no |
+| H2 | Trial 7, parallel worktrees, unmerged branch + non-AI ci-bot: violations of 12 | 9 / 8 / **0** | same | `trials-int` `76da7d7` | CURRENT (owner) | no |
+| H3 | Trial 8, retract a void source: rules correctly kept of 8 / C3 removed of 4 | 8/0, 8/4, 8/4 | same | `trials-int` `76da7d7` | CURRENT (owner) | no |
+| H4 | Trials 6-8 cost per run (plain / CLAUDE.md / Plexus), t6, t7, t8 | $0.26/0.28/0.36; $0.07/0.07/0.08; $0.16/0.18/0.25 | `trials/RESULTS_T678.md` | `trials-int` `76da7d7` | CURRENT (owner) | no |
+| H5 | Trial 8 Plexus arm with multi-source facts: C1 linked to both documents; retraction through `quarantine_source`/`forget_source`; graph result exact | 4/4; 4/4; 4/4; $0.23/run | `trials/FINDINGS.md` s5, PREREGISTRATION A11 | `main` `7618d18` | CURRENT | **yes** |
+| H6 | Trials 3/4 (same repo, 4 sessions) and 5 (clone handoff): violations of 24 (plain / CLAUDE.md / Plexus) | 0/0/0; 16/0/0 | `trials/FINDINGS.md` s2-3 | `p12` `3521a0c` | CURRENT (owner) | no |
+| H7 | Trials 1/2 (one 100-prompt session, forced compaction): rule violations per run (plain / Plexus); probe@90 | 74, 5 / 7, 3; 0 and 5 / 5 and 5 | `trials/FINDINGS.md` s4 | `p12` `3521a0c` | CURRENT (owner) | no |
+
 ## Documents that carry these numbers
 
 | Document | Flag |

@@ -1,0 +1,4 @@
+[baseline smoke1] session_1 (cwd tinytasks): rc=0 21.4s $0.064 turns=12 denials=0 (total $0.06)
+[baseline smoke1] session_2 (cwd tasksync): rc=0 25.0s $0.076 turns=17 denials=0 (total $0.14)
+[baseline smoke1] session_3 (cwd tasksync): rc=0 25.2s $0.066 turns=15 denials=0 (total $0.21)
+[baseline smoke1] session_4 (cwd tasksync): rc=0 19.9s $0.057 turns=11 denials=0 (total $0.26)
