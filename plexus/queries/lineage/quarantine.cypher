@@ -1,8 +1,13 @@
 // name: lineage/quarantine
-// purpose: ONE atomic statement (stretch): quarantine a poisoned Source. Facts reaching it through (f)-[:DERIVED_FROM*1..depth]->(src) (depth = $depth, 1..12, callers default to 8) get status 'quarantined' (hidden from recall / as_of, reversible), and the blast radius is returned: the Steps (hence agents) that READ them, the Decisions BASED_ON them and the Handoffs that CARRY them.
+// purpose: ONE atomic statement (stretch): quarantine a poisoned Source. Facts reaching it through (f)-[:DERIVED_FROM*1..depth]->(src) (depth = $depth, 1..12, callers default to 8) get status 'quarantined' (hidden from recall / as_of, reversible) UNLESS another live Source still supports them (P13, D-015), and the blast radius is returned: the Steps (hence agents) that READ them, the Decisions BASED_ON them and the Handoffs that CARRY them.
 // params: source_id:str, now:int, limit:int, depth:int, max_detail:int
-// returns: fact_ids (facts changed), reads [{agent_id, step_id, n, at, fact_id}] (earliest first, at most max_detail), reads_total, agent_ids (every agent that read one; never cut), decision_ids (at most max_detail), decisions_total, handoff_ids (at most max_detail), handoffs_total, truncated (true when `limit` facts were hit: call again). Zero rows = no such Source.
+// returns: fact_ids (the facts HIDDEN by this call), corroborated [{fact_id, other_sources}] (reached facts that stay visible because they have a direct DERIVED_FROM edge to another Source that is not quarantined; at most max_detail listed), corroborated_total (exact), reads [{agent_id, step_id, n, at, fact_id}] (earliest first, at most max_detail), reads_total, agent_ids (every agent that read one; never cut), decision_ids (at most max_detail), decisions_total, handoff_ids (at most max_detail), handoffs_total, truncated (true when `limit` facts were hit: call again). Zero rows = no such Source.
 // mode: rw
+// Multi-source (P13, trial 8, D-015): the Source itself is marked (Source.quarantined_at, first quarantine wins, removed by release_quarantine). A reached fact is HIDDEN only when it has no direct
+// (fact)-[:DERIVED_FROM]->(Source) edge to a Source other than $source_id with quarantined_at IS NULL; otherwise it is CORROBORATED: untouched, listed with those other live Sources. Quarantining the
+// last live Source of a corroborated fact later hides it. Judged on direct Source edges only: a derived fact (fact -> fact) is rescued only by its own Source, never by a corroborated parent.
+// The check is ONE CALL { WITH src, fs ... } over the candidate list: UNWIND fs (row order kept), a pattern comprehension of the fact's Source edges (raw values; the filter is a plain list comprehension, per the 6.0.2 notes),
+// one aggregate row out. Every later CALL imports all variables in scope (6.0.2) and works on the HIDDEN list only, so reads / decisions / handoffs describe what this call changed.
 // Only facts with status 'active', 'superseded' or 'dormant' are touched (a dormant fact is quarantined too, and released back to dormant, P7-int); the old status is kept in prior_status so lineage/release_quarantine can restore it. Decisions and handoffs are reported, not modified.
 // The write is bounded by $limit (callers use <= 5000), applied BEFORE the SET because LIMIT does not stop eager writes.
 // The response is bounded (P5 review Q11): reads / decision_ids / handoff_ids are cut at max_detail (callers use <= 5000), the *_total counts and agent_ids are exact.
@@ -68,26 +73,36 @@ UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
 CALL {
-  WITH fs
-  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS x
+  WITH src, fs
+  UNWIND fs AS cx
+  WITH src, cx, [(cx)-[:DERIVED_FROM]->(co:Source) | {id: co.id, q: co.quarantined_at}] AS oth
+  RETURN collect({f: cx, live: [o IN oth WHERE o.id <> src.id AND o.q IS NULL | o.id]}) AS rows
+}
+WITH src, size(fs) >= $limit AS trunc, [w IN rows WHERE size(w.live) = 0 | w.f] AS hid, [w IN rows WHERE size(w.live) > 0 | w] AS cs
+CALL {
+  WITH src, trunc, hid, cs
+  UNWIND CASE WHEN size(hid) = 0 THEN [null] ELSE hid END AS x
   OPTIONAL MATCH (s:Step)-[:READ]->(x)
   WITH x, s ORDER BY s.at ASC, s.agent_id ASC, x.id ASC
   RETURN collect(CASE WHEN s IS NULL THEN null ELSE {agent_id: s.agent_id, step_id: s.id, n: s.n, at: s.at, fact_id: x.id} END) AS reads,
          collect(DISTINCT s.agent_id) AS agent_ids
 }
 CALL {
-  WITH fs
-  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS y
+  WITH src, trunc, hid, cs
+  UNWIND CASE WHEN size(hid) = 0 THEN [null] ELSE hid END AS y
   OPTIONAL MATCH (d:Decision)-[:BASED_ON]->(y)
   RETURN collect(DISTINCT d) AS ds
 }
 CALL {
-  WITH fs
-  UNWIND CASE WHEN size(fs) = 0 THEN [null] ELSE fs END AS w
+  WITH src, trunc, hid, cs
+  UNWIND CASE WHEN size(hid) = 0 THEN [null] ELSE hid END AS w
   OPTIONAL MATCH (h:Handoff)-[:CARRIES]->(w)
   RETURN collect(DISTINCT h) AS hs
 }
-FOREACH (z IN fs | SET z.prior_status = z.status, z.status = 'quarantined', z.quarantined_at = $now)
-RETURN [a IN fs | a.id] AS fact_ids, reads[0..$max_detail] AS reads, size(reads) AS reads_total, agent_ids,
+FOREACH (z IN hid | SET z.prior_status = z.status, z.status = 'quarantined', z.quarantined_at = $now)
+FOREACH (sq IN [src] | SET sq.quarantined_at = coalesce(sq.quarantined_at, $now))
+RETURN [a IN hid | a.id] AS fact_ids, reads[0..$max_detail] AS reads, size(reads) AS reads_total, agent_ids,
        [b IN ds[0..$max_detail] | b.id] AS decision_ids, size(ds) AS decisions_total,
-       [c IN hs[0..$max_detail] | c.id] AS handoff_ids, size(hs) AS handoffs_total, size(fs) >= $limit AS truncated
+       [c IN hs[0..$max_detail] | c.id] AS handoff_ids, size(hs) AS handoffs_total,
+       [k IN cs[0..$max_detail] | {fact_id: k.f.id, other_sources: k.live}] AS corroborated, size(cs) AS corroborated_total,
+       trunc AS truncated

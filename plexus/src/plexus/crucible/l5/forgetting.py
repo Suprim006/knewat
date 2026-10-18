@@ -11,6 +11,7 @@ No LLM; the clock of the engine is replaced by a virtual ``now`` that is 90 days
 from __future__ import annotations
 
 import dataclasses
+import os
 import random
 import sqlite3
 import statistics
@@ -177,6 +178,22 @@ def simulate_reads(
     for i in range(0, len(reads), 1000):
         client.rw(graph, "crucible/l5_add_reads", {"reads": reads[i : i + 1000], "agent_id": "l5-reader"})
     return {"read_edges": len(reads), "critical_reads": len(critical), "hot_facts": len(hot)}
+
+
+def harness_lexical_weight() -> float:
+    """The lexical weight (P12 ``fuse_scores``) the L5b / hub harness runs ``Engram.recall`` with.
+
+    Default ``0.0``: the pre-registered D-013 / SQL-arm comparison mirrors the cosine relevance. The recall-check
+    (BASELINE.md) sets ``PLEXUS_L5_LEXICAL_WEIGHT`` to ``0.5`` to measure the shipped fusion; the value used is
+    written into the results' ``config``. Not read by the product.
+    """
+    raw = os.environ.get("PLEXUS_L5_LEXICAL_WEIGHT", "").strip()
+    if not raw:
+        return 0.0
+    w = float(raw)
+    if not 0.0 <= w <= 1.0:
+        raise ValueError(f"PLEXUS_L5_LEXICAL_WEIGHT must be within 0..1, got {raw}")
+    return w
 
 
 class _Recording:
@@ -391,6 +408,10 @@ def run_forgetting(
         window = (min(r["created_at"] for r in real), max(r["created_at"] for r in real))
         recorder = _Recording(client)
         eng = Engram(recorder, graph, embedder)  # type: ignore[arg-type]
+        # P12's lexical fusion is not part of the pre-registered D-013 / SQL-arm comparison (the SQL arm mirrors the
+        # cosine relevance); trials-int pins it off here so this harness measures what BASELINE registered.
+        # PLEXUS_L5_LEXICAL_WEIGHT overrides the pin for the recall-check ON/OFF comparison (BASELINE "Recall-check").
+        eng.lexical_weight = harness_lexical_weight()
         noise_ids = add_noise(eng, client, real, noise_mult, rng, window)
         noise = set(noise_ids)
         t_noise = time.time()
@@ -480,6 +501,7 @@ def run_forgetting(
                 "ks": list(KS),
                 "modes": list(order),
                 "burst": burst,
+                "lexical_weight": eng.lexical_weight,
             },
             "history": {**ledger.summary(), "real_active_facts": len(real)},
             "classes": {"critical": len(crit), "hot": len(hot), "cold": len(real) - len(crit) - len(hot)},

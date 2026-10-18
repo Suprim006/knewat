@@ -107,7 +107,8 @@ We saw several of these gaps while building Plexus with a multi-agent setup (Her
 
 ### 2.1 In one paragraph
 
-Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **45 tools**. Each tool is
+Plexus is a service that agents connect to over **MCP** (Model Context Protocol). It exposes **45 tools** (a session
+can ask for a subset by module, e.g. `toolset=core`, to keep the tool list out of its prompt; `docs/mcp.md`). Each tool is
 **one deterministic, parameterised Cypher query** (or a short fixed sequence of them) against a **FalkorDB graph per
 tenant**:
 - every memory, task, claim, handoff and decision is a node;
@@ -222,7 +223,7 @@ Full tables are in `docs/graph-model.md`; the edge types by module:
 | **who_knew(fact)** | The reverse: `(Step)-[:READ]->(fact)` back to agents and step numbers. | `queries/lineage/who_knew.cypher` |
 | **as_of(subject, predicate, T)** | The fact whose `[valid_from, valid_to)` contains T. | `queries/lineage/as_of.cypher` |
 | **forget_source / quarantine** | Expand up to twelve depth-gated one-hop levels of `DERIVED_FROM` from the `Source` (`depth` 1..12, default 8; P9-b), mark every derived fact forgotten or quarantined, and flag (not delete) every `Decision` `BASED_ON` them. Quarantine also reports the blast radius: agents that READ them, and handoffs that CARRIES them, through `CALL` subqueries over the collected fact list (audit P1/B1: the earlier form carried the list as a grouping key and timed out at 2,500 facts). Quarantine is reversible. | `queries/lineage/forget_source.cypher`, `quarantine.cypher` |
-| **blocked_by_failure(task)** | Breadth-first search over `DEPENDS_ON` (10 levels, 5,000 tasks). | `queries/relay/dependents_of.cypher` |
+| **blocked_by_failure(task)** | Level-wise search over `DEPENDS_ON` in one statement (50 levels, 5,000 tasks; P9-f: was one statement per level). | `queries/relay/dependents_closure.cypher` |
 | **mark_changed** | One bounded statement: compare the hashes of ≤ 200 anchors, create a `Change`, mark the active and dormant facts anchored to the changed code (directly, or through `DERIVED_FROM*1..5` from a `Source` whose uri is the changed file) `suspect`, and return the decisions `BASED_ON` them and the docs that `DESCRIBES` that code. Idempotent on unchanged hashes. | `queries/staleness/mark_changed.cypher` |
 | **verify_fact (changed)** | The supersede path, then a backdate: the old fact's `valid_to` becomes the `Change.at` (event time), `recorded_at` stays (record time), dependent decisions are flagged. | `queries/staleness/backdate.cypher` |
 | **Activation** | Gather each fact's last 50 use events (creation, re-assert, `BASED_ON`, `CARRIES`, `READ {via}`, `VERIFIED_BY`) and its protection edges in one read; ACT-R `A = ln Σ w·Δt^-0.5` is computed in Python and blended into recall as `relevance × (0.9 + 0.1·σ(A − A₀))`. | `queries/activation/activation.cypher` |
@@ -672,6 +673,12 @@ results `plexus/demo_data/crucible/l5/20261017T08*-d013-*`; 0 LLM calls):
 | `sep+mult` (the shipped default after D-013; post-hoc run) | 85.0% | 100% | 22.1% | 21 / 0 |
 | `sep` with the predicate cue at CROSS_CHECK's 0.6 / 0.4 (registered, falsified) | 85.7% | 100% | 32.3% (43.6%) | 20 / 0 |
 | **`sep+mult` with the two cues at 0.03 / 0.02 (the shipped default now; confirmatory run)** | **85.7%** | **100%** | **20.6% (20.9%)** | 20 / 0 |
+| `sep+mult` on the merged build (trials-int + recall-check: p12's pool and keyword channel, lexical fusion off by default; `BASELINE.md` "Recall-check") | 85.7% (85.0%) | 100% | **32.3% (41.6%) — moved** | 21 / 0 |
+
+*Merged-build note (recall-check, 2026-10-18).* The rows above, noise share included, were measured on main's build; re-measured today
+that build still gives 22.1 / 20.0 / 21.6% (`sep+mult`, N = 5 / 15 / burst). On the merged build (p12's keyword channel and pool) recall@1, recall@5, critical loss and
+cross-entity displacers reproduce, but the noise share is 32.3 / 41.6 / 33.3% with p12's lexical fusion off (the default now) and 42.7 / 60.1 / 41.6% with it on (+ one critical probe
+lost at N = 15); the part beyond the fusion (+10 to +22 points) is not attributed (`docs/DECISIONS.md` D-013 amendment 3).
 
 **P1, pattern separation (on by default).** One extra bounded read per recall resolves the entities the query names
 (`engram/recall_entities`, full-text over `Entity.name`, entity-first, with each entity's *fan*), and facts about a
@@ -749,7 +756,7 @@ The earlier "36 vs 32" gap was a gap against a reader, not against SQL.
 | D cross-sprint aggregation | **tie** 24/24; SQL 4.6× faster | B1a 8/8, B0g 8/8 | 1/8 |
 | E consistent reads under concurrent writes | **tie**: 0 violations when the read is one statement (FalkorDB snapshot = SQLite WAL); level-wise reads and unlocked files tear | — | — |
 | F provenance crash-consistency (200 SIGKILLs) | **Plexus lost**, as pre-registered: 94 of 1,240 facts without their Step/WROTE link vs 0 for SQLite. **After folding WROTE into the write: 0 of 1,842** | — | — |
-| C multi-hop recall through `RELATES`, −ln(fan) per hop, depth 1-3 (44k facts, 18k relations) | **tie** 75/75 both, identical top-5 lists; **SQL faster at depth** (12.6 vs 41.3 ms at d = 3, 3.3x; Cypher faster at d = 1: 4.7 vs 7.5 ms), one recursive CTE (21 lines, `loc` 32) against a level-wise walk (18 lines of Cypher + Python, `loc` 43); untuned SQL 10-250x slower, 4 timeouts at d = 3. **The shipped `recall(hops)` never puts the answer in its top 5 (0/75)** and finds it anywhere in its rows for 11/25 at d = 1 (3/25 with fastembed) | — | flat retrieval (`recall(hops=0)`) 0/75 |
+| C multi-hop recall through `RELATES`, −ln(fan) per hop, depth 1-3 (44k facts, 18k relations) | **tie** 75/75 both, identical top-5 lists; **SQL faster at depth** (12.6 vs 41.3 ms at d = 3, 3.3x; Cypher faster at d = 1: 4.7 vs 7.5 ms), one recursive CTE (21 lines, `loc` 32) against a level-wise walk (18 lines of Cypher + Python, `loc` 43); untuned SQL 10-250x slower, 4 timeouts at d = 3. **The shipped `recall(hops)` never puts the answer in its top 5 (0/75)** and finds it anywhere in its rows for 11/25 at d = 1 (3/25 with fastembed; 23/25 when re-measured on 2026-10-18, see §9.3) | — | flat retrieval (`recall(hops=0)`) 0/75 |
 
 LLM pilot: 88 `claude -p` calls, $7.09 of a $20 cap, 8 questions per family: too small to show differences under
 3 questions, and said so.
@@ -847,7 +854,8 @@ every tie published.
   SQL arm that both answer 75/75: the shipped tool ranks every hop fact behind every direct hit (so `k=5` never
   shows one), starts the walk from the entities of the direct hits instead of the entity the query names (which
   `recall_entities` has already resolved), and fills its 20-entities-per-hop cap alphabetically by name. The answer
-  appears anywhere in its rows for 11/25 at depth 1 and 6/25 at depth 2 (3/25 and 1/25 with fastembed). The
+  appears anywhere in its rows for 11/25 at depth 1 and 6/25 at depth 2 (3/25 and 1/25 with fastembed; re-measured on 2026-10-18 after the predicate cue and
+  the named-entity union: 23/25 and 9/25 on main's tip and on the merged build, 0/25 at depth 3, strict still 0/75 — `docs/BASELINE.md` "Recall-check"). The
   typed-relation feature is real; the ranking around it is not usable yet (§10, item 1).
 - **Recall speed is limited by the CPU embedder** (about 47 embeddings/s shared). Retrieval can still miss a valid
   fact whose embedding is far from the query and which shares no keyword with it, because vector filters run after

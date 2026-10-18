@@ -82,7 +82,7 @@ The diagram is a summary (ER cardinalities are indicative). The edge table below
 | Engram | `(Episode)-[:NEXT]->(Episode)` | |
 | Engram | `(Agent)-[:HAD]->(Session)` | |
 | Engram | `(Fact)-[:ABOUT]->(Entity)` | |
-| Engram | `(Fact)-[:DERIVED_FROM]->(Episode\|Source\|Fact)` | |
+| Engram | `(Fact)-[:DERIVED_FROM]->(Episode\|Source\|Fact)` | One edge per origin: a fact several documents support has one edge per `Source` (P13, D-015: `assert_fact(source_ids=[...])`, and a duplicate assert from a new document adds its edge). `quarantine_source` hides a fact only when none of its Sources is live, `forget_source` forgets it only when the forgotten Source was its last |
 | Engram | `(Fact)-[:IN_SCOPE]->(Scope)` | |
 | Engram | `(Scope)-[:INHERITS]->(Scope)` | |
 | Engram | `(Fact)-[:SUPERSEDES]->(Fact)` | |
@@ -130,6 +130,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 | Range | `Entity.norm_name` | entity MERGE key (also `UNIQUE`, see below) |
 | Range | `created_at` on **every** label (18) | `view/subgraph`: the Explorer's label / time-window filter is one index range seek per label instead of an All Node Scan |
 | Range | `CodeAnchor.path`, `Change.at` | P7: the file-level symbol lookup of `anchor_fact`, and the change feed of `docs_to_update` |
+| Range | `Fact.verify_degraded` | P12-F3: the unfinished-verification branch of `staleness/suspect_ids` (equality) |
 | Range | `Fact.verify_state`, `Fact.verify_after` | P7: the suspect scan (`staleness/suspect_ids`): an equality branch and a review-date range branch instead of one OR |
 | Range | `Fact.pinned` | P7: the pinned count of `view/inventory_memory` |
 | Range | `Source.uri`, `Scope.name`, `Procedure.task_type` | MERGE keys of `create_source`, `create_scope` (with `kind`) and `log_procedure_run` (with `name`); `best_procedure` filter |
@@ -177,6 +178,7 @@ Created by `queries/schema/{indexes,fulltext,vector}.cypher` (idempotent) and `a
 |---|---|---|
 | `Fact` | `value_tokens` | numeric/version tokens. A paraphrase counts as a duplicate only when they are identical (v1 ≠ v2, 8080 ≠ 8081) |
 | `Fact` | `forgotten_at`, `quarantined_at`, `prior_status` | Lineage forgetting and reversible quarantine |
+| `Source` | `quarantined_at` | P13 (D-015): set by `lineage/quarantine` (first quarantine wins), removed by `lineage/release_quarantine`. A Source without it is *live*: a fact it supports stays visible when another Source is quarantined |
 | `Source` | `title`, `text` | optional human-readable name and excerpt, written by `lineage/create_source` (empty string when absent) |
 | `Decision` | `flagged`, `flag_reason` | flagged (not deleted) when a fact it is `BASED_ON` is forgotten |
 | `Task` | `seq` | FIFO tie-break for claims, by `create_tasks` input order |
@@ -198,7 +200,7 @@ D-011 (staleness) and D-012 (activation forgetting); the behaviour is in `docs/s
 | `Fact` | `verify_state` `'verified'\|'suspect'` | `'verified'` | a code change makes a fact *suspect*, never false; an agent re-checks it |
 | `Fact` | `suspect_since` (epoch ms) | `0` | when it became suspect; orders the work list |
 | `Fact` | `verified_at` (epoch ms) | `0` | last `verify_fact` |
-| `Fact` | `verify_degraded` (bool) | absent | `verify_fact(changed)` superseded the fact but could not backdate it; calling it again finishes the job and removes the flag |
+| `Fact` | `verify_degraded` (bool) | absent | `verify_fact(changed)` started (written before the supersede) and did not finish, or superseded the fact but could not backdate it; calling it again finishes the job and removes the flag |
 | `Fact` | `verify_after` (epoch ms) | `OPEN` | a review date for facts that are not about code; once passed the fact is suspect too |
 | `Fact` | `surprise` (float 0..1) | `0.0` | set once at write from the novelty of the fact; raises its starting activation |
 | `Fact` | `pinned` (bool) | `false` | the owner says it must stay prominent; protects it from fading and from sweeps |

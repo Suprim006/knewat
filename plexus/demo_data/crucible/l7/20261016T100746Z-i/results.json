@@ -1,0 +1,1734 @@
+{
+ "schema": "crucible-l7/1",
+ "kind": "i",
+ "run": {
+  "id": "20261016T100746Z-i",
+  "started_at": "2026-10-16T10:07:46Z",
+  "finished_at": "2026-10-16T10:45:43Z",
+  "command": "C:\\Change_folder_after_HDD\\wt-p10\\plexus\\src\\plexus\\crucible\\l7\\i.py run --port 6368 --scale full --out C:/Change_folder_after_HDD/wt-p10/plexus/demo_data/crucible/l7 --parts I1,I2,I3,I4,I5 --arms F-product,F-multi,F-multiexec,F-1stmt",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "b4a4dcf3b3bdd93c95e27b242c1a5e13867dcb3e",
+  "short": "b4a4dcf",
+  "dirty": false,
+  "branch": "p10"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "b4a4dcf",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6368,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "sqlite_version": "3.53.1",
+ "seed": 20261016,
+ "timeout_ms": 10000,
+ "scale": "full",
+ "parts": {
+  "I1": {
+   "kills_per_arm": 200,
+   "arms": {
+    "F-product": {
+     "started": 365,
+     "acknowledged": 230,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 243,
+      "partial": 86,
+      "absent": 36
+     },
+     "partial": 86,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 135,
+     "inflight_complete": 13,
+     "inflight_partial": 86,
+     "inflight_absent": 36,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff": 86,
+      "handoff_links": 86,
+      "handoff_carries": 86,
+      "artifact_links": 51,
+      "task_done": 51,
+      "artifact": 51,
+      "decision": 28,
+      "decision_based_on": 28,
+      "decision_decided_for": 28
+     },
+     "partial_rate_per_acknowledged": 0.373913,
+     "arm": "F-product",
+     "kills": 200,
+     "mean_kill_delay_s": 0.188,
+     "run_s": 478.8,
+     "tenant": "l7i_fprod_835448",
+     "partial_rate_per_kill": 0.43,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.013043
+    },
+    "F-multi": {
+     "started": 1783,
+     "acknowledged": 1617,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 1637,
+      "partial": 145,
+      "absent": 1
+     },
+     "partial": 145,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 166,
+     "inflight_complete": 20,
+     "inflight_partial": 145,
+     "inflight_absent": 1,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff": 145,
+      "handoff_links": 145,
+      "handoff_carries": 145,
+      "artifact_links": 123,
+      "artifact": 123,
+      "task_done": 80,
+      "decision": 57,
+      "decision_based_on": 57,
+      "decision_decided_for": 57,
+      "step_wrote": 20,
+      "fact": 20,
+      "fact_asserted": 20,
+      "fact_derived": 20
+     },
+     "partial_rate_per_acknowledged": 0.089672,
+     "arm": "F-multi",
+     "kills": 200,
+     "mean_kill_delay_s": 0.201,
+     "run_s": 208.0,
+     "tenant": "l7i_fmulti_0bbf66",
+     "partial_rate_per_kill": 0.725,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.001855
+    },
+    "F-multiexec": {
+     "started": 2704,
+     "acknowledged": 2546,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 2701,
+      "partial": 0,
+      "absent": 3
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 158,
+     "inflight_complete": 155,
+     "inflight_partial": 0,
+     "inflight_absent": 3,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "F-multiexec",
+     "kills": 200,
+     "mean_kill_delay_s": 0.189,
+     "run_s": 182.2,
+     "tenant": "l7i_fmexec_a19ffd",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 0.001178,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.001178
+    },
+    "F-1stmt": {
+     "started": 3198,
+     "acknowledged": 3055,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 3196,
+      "partial": 0,
+      "absent": 2
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 143,
+     "inflight_complete": 141,
+     "inflight_partial": 0,
+     "inflight_absent": 2,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "F-1stmt",
+     "kills": 200,
+     "mean_kill_delay_s": 0.208,
+     "run_s": 195.2,
+     "tenant": "l7i_f1first_370554",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 0.000982,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.000982
+    }
+   }
+  },
+  "I2": {
+   "closeouts_per_arm": 400,
+   "stale_fraction": 0.25,
+   "arms": {
+    "S-txn": {
+     "arm": "S-txn",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.26,
+      "p99": 5.122,
+      "max": 6.024,
+      "mean": 0.316
+     },
+     "tenant": "l7i_stxn_d87bdd",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "S-auto": {
+     "arm": "S-auto",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 824,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.265,
+      "p99": 5.937,
+      "max": 31.826,
+      "mean": 0.44
+     },
+     "tenant": "l7i_sauto_1b1e7f",
+     "partial_total": 103
+    },
+    "F-product": {
+     "arm": "F-product",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 824,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 63.418,
+      "p99": 87.246,
+      "max": 108.693,
+      "mean": 61.104
+     },
+     "tenant": "l7i_fprod_7a1985",
+     "partial_total": 103,
+     "note": "no compensation: as the client convention / product is",
+     "queries_per_closeout_last": 19
+    },
+    "F-multi": {
+     "arm": "F-multi",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 824,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 14.2,
+      "p99": 20.268,
+      "max": 21.385,
+      "mean": 13.696
+     },
+     "tenant": "l7i_fmulti_221b92",
+     "partial_total": 103,
+     "note": "no compensation: as the client convention / product is"
+    },
+    "F-multi-cas-first": {
+     "arm": "F-multi-cas-first",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 14.483,
+      "p99": 21.037,
+      "max": 23.202,
+      "mean": 12.071
+     },
+     "tenant": "l7i_fmulticas_b3eebe",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "F-multiexec": {
+     "arm": "F-multiexec",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 1339,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 4.539,
+      "p99": 6.913,
+      "max": 7.946,
+      "mean": 4.62
+     },
+     "tenant": "l7i_fmexec_a6e6c9",
+     "partial_total": 103
+    },
+    "F-multiexec-err": {
+     "arm": "F-multiexec-err",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 103,
+     "stale_absent": 0,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 1339,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 4.566,
+      "p99": 8.189,
+      "max": 9.055,
+      "mean": 4.793
+     },
+     "tenant": "l7i_fmexecerr_36f019",
+     "partial_total": 103
+    },
+    "F-1stmt-first": {
+     "arm": "F-1stmt-first",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 3.535,
+      "p99": 6.086,
+      "max": 7.686,
+      "mean": 3.549
+     },
+     "tenant": "l7i_f1first_e0990b",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "F-1stmt-last": {
+     "arm": "F-1stmt-last",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 3.163,
+      "p99": 4.414,
+      "max": 5.289,
+      "mean": 3.195
+     },
+     "tenant": "l7i_f1last_29cded",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    }
+   }
+  },
+  "I3": {
+   "kills_per_arm": 20,
+   "arms": {
+    "F-1stmt": {
+     "started": 2974,
+     "acknowledged": 2930,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 2930,
+      "partial": 0,
+      "absent": 44
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 44,
+     "inflight_complete": 0,
+     "inflight_partial": 0,
+     "inflight_absent": 44,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "server_bug_reports_arm_total": 0,
+     "arm": "F-1stmt",
+     "kills_requested": 20,
+     "kills_done": 20,
+     "writers": 4,
+     "server_failed_to_restart": 0,
+     "server_bug_reports": 0,
+     "server_extra_bounces": 0,
+     "restart_ready_s": {
+      "n": 20,
+      "p50": 9.51,
+      "p99": 11.63,
+      "max": 11.63,
+      "mean": 9.588
+     },
+     "restarts": [
+      {
+       "k": 0,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.52,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.56,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.5,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.46,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.66,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.53,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 3,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.63,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.58,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.75,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.56,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 5,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.55,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.66,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 6,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.03,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.57,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 7,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.19,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.57,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 8,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.36,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.54,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.13,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.61,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.34,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.5,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.12,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.5,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.27,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.5,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.36,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.53,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.64,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.51,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.56,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.57,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.54,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.66,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.51,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.58,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 18,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.57,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.66,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 19,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.54,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.62,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      }
+     ],
+     "tenant": "l7i_f1first_87025f",
+     "rule_of_three_95_upper_per_kill": 0.15,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.001024
+    },
+    "F-multi": {
+     "started": 2473,
+     "acknowledged": 2412,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 2412,
+      "partial": 52,
+      "absent": 9
+     },
+     "partial": 52,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 61,
+     "inflight_complete": 0,
+     "inflight_partial": 52,
+     "inflight_absent": 9,
+     "entities_without_intent": 0,
+     "partial_missing_items": {
+      "handoff": 52,
+      "handoff_links": 52,
+      "handoff_carries": 52,
+      "artifact_links": 34,
+      "artifact": 34,
+      "task_done": 28,
+      "decision": 16,
+      "decision_based_on": 16,
+      "decision_decided_for": 16,
+      "step_wrote": 12,
+      "fact": 12,
+      "fact_asserted": 12,
+      "fact_derived": 12
+     },
+     "partial_rate_per_acknowledged": 0.021559,
+     "server_bug_reports_arm_total": 0,
+     "arm": "F-multi",
+     "kills_requested": 20,
+     "kills_done": 20,
+     "writers": 4,
+     "server_failed_to_restart": 0,
+     "server_bug_reports": 0,
+     "server_extra_bounces": 0,
+     "restart_ready_s": {
+      "n": 20,
+      "p50": 10.75,
+      "p99": 11.62,
+      "max": 11.62,
+      "mean": 10.721
+     },
+     "restarts": [
+      {
+       "k": 0,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.13,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.64,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 1,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.16,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.67,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 2,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 9.85,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.59,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 3,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.22,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.6,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 4,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.19,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.48,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 5,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.71,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.51,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 6,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.44,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.47,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 7,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.36,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.49,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 8,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.57,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.47,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 9,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.52,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.44,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 10,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.75,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.5,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 11,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.91,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.53,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 12,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.78,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.51,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 13,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.86,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.47,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 14,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 10.85,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.53,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 15,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.02,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.52,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 16,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.62,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.59,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 17,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.09,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.5,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 18,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.19,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.45,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      },
+      {
+       "k": 19,
+       "kill_rc": 0,
+       "start_rc": 0,
+       "ready_after_s": 11.2,
+       "up": true,
+       "state": "true 0",
+       "writer_errors": [
+        "ConnectionError"
+       ],
+       "kill_to_start_s": 0.48,
+       "extra_bounces": 0,
+       "new_bug_reports": 0
+      }
+     ],
+     "tenant": "l7i_fmulti_0a502b",
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.001244
+    }
+   }
+  },
+  "I4": {
+   "a": [
+    {
+     "backend": "SQLite",
+     "mode": "naive",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 102,
+     "lost_acked": 898,
+     "lost_vs_attempted": 898,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.9,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "atomic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.27,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "cas",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 106,
+     "wall_s": 0.23,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "pessimistic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 1.0,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "naive",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 88,
+     "lost_acked": 912,
+     "lost_vs_attempted": 912,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.69,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "atomic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 0.45,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "cas",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 6331,
+     "wall_s": 5.34,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "pessimistic",
+     "W": 20,
+     "ops": 50,
+     "attempted": 1000,
+     "acked": 1000,
+     "final": 1000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 8180,
+     "wall_s": 7.15,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "SQLite",
+     "mode": "naive",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 195,
+     "lost_acked": 9805,
+     "lost_vs_attempted": 9805,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 3.74,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "atomic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 4.44,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "cas",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 111292,
+     "wall_s": 13.93,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "SQLite",
+     "mode": "pessimistic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 8.25,
+     "completed_in_budget": true,
+     "busy_timeout_ms": 10000
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "naive",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 103,
+     "lost_acked": 9897,
+     "lost_vs_attempted": 9897,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 7.34,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "atomic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 0,
+     "wall_s": 4.79,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "cas",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 10000,
+     "final": 10000,
+     "lost_acked": 0,
+     "lost_vs_attempted": 0,
+     "errors": 0,
+     "error_kinds": {},
+     "retries": 284541,
+     "wall_s": 225.17,
+     "completed_in_budget": true,
+     "busy_timeout_ms": null
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "pessimistic",
+     "W": 200,
+     "ops": 50,
+     "attempted": 10000,
+     "acked": 7104,
+     "final": 7103,
+     "lost_acked": 1,
+     "lost_vs_attempted": 2897,
+     "errors": 2895,
+     "error_kinds": {
+      "ResponseError: Invalid graph operation on empty key": 2821,
+      "AttributeError: 'NoneType' object has no attribute 'readline'": 23,
+      "ValueError: I/O operation on closed file.": 47,
+      "ConnectionError: Error 10038 while writing to socket. An operation was": 1,
+      "ConnectionError: Error 10058 while writing to socket. A request to sen": 3
+     },
+     "retries": 329628,
+     "wall_s": 264.52,
+     "completed_in_budget": false,
+     "busy_timeout_ms": null
+    }
+   ],
+   "b": [
+    {
+     "backend": "SQLite",
+     "mode": "one statement",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "one statement",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "multi-statement no txn",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 485,
+     "both": 485,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "multi-statement no txn",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 500,
+     "both": 500,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "multi-statement no txn",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 499,
+     "both": 499,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "multi-statement no txn",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 499,
+     "both": 499,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN IMMEDIATE",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN IMMEDIATE",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN DEFERRED",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 494,
+     "error_kinds": {
+      "OperationalError: database is locked": 494
+     }
+    },
+    {
+     "backend": "SQLite",
+     "mode": "BEGIN DEFERRED",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 500,
+     "error_kinds": {
+      "OperationalError: database is locked": 500
+     }
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "WATCH+MULTI/EXEC",
+     "think_ms": 0,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    },
+    {
+     "backend": "FalkorDB",
+     "mode": "WATCH+MULTI/EXEC",
+     "think_ms": 2,
+     "rounds": 500,
+     "violations": 0,
+     "both": 0,
+     "none": 0,
+     "errors": 0,
+     "error_kinds": {}
+    }
+   ],
+   "busy_timeout_ms": 10000,
+   "mode_budget_s": 240.0
+  },
+  "I5": {
+   "lines_statement_text": {
+    "F-1stmt": 14,
+    "S-txn": 12
+   },
+   "lines_python_glue_closeout_method": {
+    "F-1stmt": 12,
+    "S-txn": 27
+   },
+   "statements_per_closeout": {
+    "F-1stmt": 1,
+    "S-txn": 13
+   },
+   "n_per_writer": 400,
+   "F-1stmt": {
+    "writers_1": {
+     "latency_ms": {
+      "n": 400,
+      "p50": 3.4,
+      "p99": 4.694,
+      "max": 5.972,
+      "mean": 3.409
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 169.8,
+     "round_trips_per_closeout": 1
+    },
+    "writers_8": {
+     "latency_ms": {
+      "n": 3200,
+      "p50": 35.42,
+      "p99": 82.681,
+      "max": 102.314,
+      "mean": 37.809
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 112.5,
+     "round_trips_per_closeout": 1
+    }
+   },
+   "S-txn": {
+    "writers_1": {
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.19,
+      "p99": 5.219,
+      "max": 5.847,
+      "mean": 0.324
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 2511.4,
+     "round_trips_per_closeout": 13
+    },
+    "writers_8": {
+     "latency_ms": {
+      "n": 3200,
+      "p50": 0.222,
+      "p99": 6.376,
+      "max": 432.388,
+      "mean": 0.633
+     },
+     "errors": 0,
+     "error_kinds": [],
+     "closeouts_per_s": 2001.8,
+     "round_trips_per_closeout": 13
+    }
+   },
+   "embedded_vs_server": "S-txn: embedded (in-process SQLite, no network); F-1stmt: server (Docker port-forward)",
+   "i1_outcomes": {
+    "F-1stmt": {
+     "started": 3198,
+     "acknowledged": 3055,
+     "acknowledged_rejected": 0,
+     "totals": {
+      "complete": 3196,
+      "partial": 0,
+      "absent": 2
+     },
+     "partial": 0,
+     "lost_acknowledged": 0,
+     "partial_among_acknowledged": 0,
+     "inflight_at_kill": 143,
+     "inflight_complete": 141,
+     "inflight_partial": 0,
+     "inflight_absent": 2,
+     "entities_without_intent": 0,
+     "partial_missing_items": {},
+     "partial_rate_per_acknowledged": 0.0,
+     "arm": "F-1stmt",
+     "kills": 200,
+     "mean_kill_delay_s": 0.208,
+     "run_s": 195.2,
+     "tenant": "l7i_f1first_370554",
+     "partial_rate_per_kill": 0.0,
+     "rule_of_three_95_upper_per_kill": 0.015,
+     "rule_of_three_95_upper_per_acknowledged": 0.000982,
+     "lost_rule_of_three_95_upper_per_acknowledged": 0.000982
+    }
+   },
+   "i2_outcomes": {
+    "S-txn": {
+     "arm": "S-txn",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 0.26,
+      "p99": 5.122,
+      "max": 6.024,
+      "mean": 0.316
+     },
+     "tenant": "l7i_stxn_d87bdd",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "F-1stmt-first": {
+     "arm": "F-1stmt-first",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 3.535,
+      "p99": 6.086,
+      "max": 7.686,
+      "mean": 3.549
+     },
+     "tenant": "l7i_f1first_e0990b",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    },
+    "F-1stmt-last": {
+     "arm": "F-1stmt-last",
+     "closeouts": 400,
+     "stale": 103,
+     "stale_partial": 0,
+     "stale_absent": 103,
+     "stale_complete": 0,
+     "stale_task_mutated": 0,
+     "stale_leftover_items_total": 0,
+     "fresh": 297,
+     "fresh_complete": 297,
+     "fresh_partial": 0,
+     "fresh_absent": 0,
+     "client_reported_rejected": 103,
+     "client_reported_ok_on_fresh": 297,
+     "errors": 0,
+     "latency_ms": {
+      "n": 400,
+      "p50": 3.163,
+      "p99": 4.414,
+      "max": 5.289,
+      "mean": 3.195
+     },
+     "tenant": "l7i_f1last_29cded",
+     "partial_total": 0,
+     "stale_partial_rule_of_three_95_upper": 0.029126
+    }
+   }
+  }
+ },
+ "db_port": 6368,
+ "i4_busy_timeout_ms": 10000,
+ "server_bug_reports_at_start": 1,
+ "server_bug_reports_at_end": 1
+}

@@ -58,6 +58,7 @@ def _assert(client, graph, cap: int, fact_id: str) -> list[dict]:
             "scope_id": "S",
             "agent_id": "a2",
             "source_id": "",
+            "derived_ids": [],  # P9-f
             "step_id": "",
             "episode_id": "",
             "confidence": 1.0,
@@ -65,6 +66,7 @@ def _assert(client, graph, cap: int, fact_id: str) -> list[dict]:
             "now": 5,
             "open_to": OPEN,
             "fact_id": fact_id,
+            "search_text": "",
             "emb": Q,
             "value_emb": Q,
             "dup_threshold": -1.0,  # tiers 1/2 off: nothing is a hard duplicate

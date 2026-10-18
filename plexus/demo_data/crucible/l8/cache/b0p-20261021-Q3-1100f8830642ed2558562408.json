@@ -1,0 +1,41 @@
+{
+ "reply": "Only t16-release-notes qualifies.\n\n- **t16-release-notes:** its summary includes `config.secret_store=AX-83924`, which the record itself marks as \"t15 fact; not in current repo/config.py\". That makes the value suspect at completion. Its other values (`billing.cycle`, `billing.currency`) were re-read from current code, so they were not stale.\n- **t02, t03, t04 and t13:** these used values that were current when each task finished. The v1 API version, `auth.token_ttl=AX-81591` and the t13 billing values were only superseded later.\n- **t07:** I judged it not stale from the order of the \"Done\" lines, which puts it before the v2 switch. The records give no timestamps, so this is an inference. Its `auth.token_ttl=AX-65554` was already the current value.\n- **t05, t06, t08\u2013t12, t14, t15:** these used current values, and the v2 tasks were built on v2.\n\n{\"answer\": [\"t16-release-notes\"]}",
+ "cost": 0.0455075,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 8430,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1173,
+  "output_tokens_details": {
+   "thinking_tokens": 847
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 8430,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1173,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 8430,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 8430
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 13.2,
+ "tag": "b0p-20261021-Q3"
+}

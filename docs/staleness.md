@@ -97,6 +97,14 @@ the current code.)
   falls strictly inside the old fact's window, so `valid_to` never moves before `valid_from`. `as_of` before the change
   returns the old value, after it the new one. `evidence` that is an absolute path or a URL becomes (or reuses) a `Source`
   the new fact derives from, which makes it implicitly anchored to that file; any other text is stored on the edge.
+- **Kill-safe marker (P12-F3).** Before the supersede, `verify_fact(changed)` writes ONE statement
+  (`staleness/mark_unfinished`): `verify_degraded = true` on the old fact, `verify_state='suspect'`, and the Decisions
+  `BASED_ON` it flagged (`fact changed (verification unfinished): <id>`). A process killed anywhere after that leaves a
+  detectable state: before the supersede the fact is still active and marked (a later `verify_fact` changed or
+  `still_true=true` clears the marker; confirming also lifts the provisional flags); between the supersede and the backdate
+  it is superseded, marked and has a successor (call again with the same `new_value`). `staleness/suspect_ids` /
+  `facts_to_verify` list marked facts even when superseded (reason `verification unfinished`). Kill test
+  `tests/crucible/l6/test_verify_crash.py`: old code 20 silent of 92 supersedes in 40 kills, new code 0.
 - **Non-atomic path, made fail-safe (P7-03).** `verify_fact(still_true=false)` is two write statements: the supersede
   (`assert_fact`, shared with the engram, which owns it) and then `staleness/backdate`. FalkorDB has no multi-statement
   transaction, so they stay two, but they are ordered so that a failure leaves a state that is consistent and can be

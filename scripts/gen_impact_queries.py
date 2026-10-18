@@ -15,10 +15,19 @@ MAX_DEPTH = 12
 HEADER = """// name: lineage/impact_{kind}
 // purpose: READ-ONLY blast radius of a {Kind}: {what} through up to $depth DERIVED_FROM hops, the Steps (hence agents) that READ them, the Decisions BASED_ON them (and the Tasks those decisions are FOR) and the Handoffs that CARRY them. Nothing is written.
 // params: id:str, depth:int, limit:int
-// returns: fact_ids, statuses, fact_ats (parallel lists; at most `limit` facts, any status; fact_ats = valid_from), truncated (true when `limit` facts were hit), steps_total, agent_ids (every agent that read one; never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such {Kind}.
+// returns: {corroborated}fact_ids, statuses, fact_ats, fact_created (parallel lists; at most `limit` facts, any status; fact_ats = valid_from, fact_created = created_at: P9-f), truncated (true when `limit` facts were hit), steps_total, agent_ids (every agent that read one; never cut), step_first, step_last (min / max Step.at over the reads), decision_ids, decision_ats, handoff_ids, handoff_ats, task_ids (all distinct, uncut: the caller slices). Zero rows = no such {Kind}.
 // mode: ro
-// Same level-wise expansion as lineage/{twin} (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. The joins are four CALL subqueries, each reading the collected fact list ONCE as one Unwind -> Conditional Traverse from the bound fact (P9-int: the old form carried the 5,000-element list as a grouping key through three UNWINDs, which hashed it once per row and never finished). One statement = one snapshot.
+// Same level-wise expansion as lineage/{twin} (P9-b): up to 12 fixed one-hop OPTIONAL MATCHes over DISTINCT facts, each skipped once $depth is reached, so a diamond lineage costs its edges, not its paths. The joins are four CALL subqueries, each reading the collected fact list ONCE as one Unwind -> Conditional Traverse from the bound fact (P9-int: the old form carried the 5,000-element list as a grouping key through three UNWINDs, which hashed it once per row and never finished). One statement = one snapshot.{note}
 """
+
+CORROBORATED_COL = (
+    "corroborated_ids (P13, source only: the reached facts that have a direct DERIVED_FROM edge to ANOTHER Source that is not quarantined, "
+    "i.e. the ones lineage/quarantine would keep visible; a subset of fact_ids, uncut: the caller slices), "
+)
+CORROBORATED_NOTE = (
+    " P13 (D-015): corroborated_ids is one more CALL subquery in the same shape (UNWIND the collected list, one pattern comprehension of "
+    "the fact's Source edges, one aggregate row out), so it reads the cascade's own Source edges once and nothing else."
+)
 
 
 def build(kind: str) -> str:
@@ -28,7 +37,17 @@ def build(kind: str) -> str:
         "fact": "the Fact itself and every Fact derived from it",
     }[kind]
     label = "Source" if kind == "source" else "Fact"
-    out = [HEADER.format(kind=kind, Kind=label, what=what, twin=twin).rstrip("\n")]
+    is_src = kind == "source"
+    out = [
+        HEADER.format(
+            kind=kind,
+            Kind=label,
+            what=what,
+            twin=twin,
+            corroborated=CORROBORATED_COL if is_src else "",
+            note=CORROBORATED_NOTE if is_src else "",
+        ).rstrip("\n")
+    ]
     out.append(f"MATCH (src:{label} {{id: $id}})")
     out.append("OPTIONAL MATCH (n1:Fact)-[:DERIVED_FROM]->(src)")
     out.append("WITH src, collect(DISTINCT n1) AS l1")
@@ -67,10 +86,23 @@ def build(kind: str) -> str:
         "  OPTIONAL MATCH (dd)-[:FOR]->(t:Task)",
         "  RETURN collect(DISTINCT t) AS tks",
         "}",
-        "RETURN [a IN fs | a.id] AS fact_ids, [a IN fs | a.status] AS statuses, [a IN fs | a.valid_from] AS fact_ats,",
+        *(
+            [
+                "CALL {",
+                "  WITH src, fs",
+                "  UNWIND fs AS cx",
+                "  WITH src, cx, [(cx)-[:DERIVED_FROM]->(co:Source) | {id: co.id, q: co.quarantined_at}] AS oth",
+                "  RETURN collect(CASE WHEN size([o IN oth WHERE o.id <> src.id AND o.q IS NULL]) > 0 THEN cx.id END) AS corroborated_ids",
+                "}",
+            ]
+            if is_src
+            else []
+        ),
+        "RETURN [a IN fs | a.id] AS fact_ids, [a IN fs | a.status] AS statuses, [a IN fs | a.valid_from] AS fact_ats, [a IN fs | a.created_at] AS fact_created,",
         "       size(fs) >= $limit AS truncated, steps_total, agent_ids, step_first, step_last,",
         "       [b IN ds | b.id] AS decision_ids, [b IN ds | b.at] AS decision_ats,",
-        "       [e IN hs | e.id] AS handoff_ids, [e IN hs | e.at] AS handoff_ats, [c IN tks | c.id] AS task_ids",
+        "       [e IN hs | e.id] AS handoff_ids, [e IN hs | e.at] AS handoff_ats, [c IN tks | c.id] AS task_ids"
+        + (", corroborated_ids" if is_src else ""),
     ]
     return "\n".join(out) + "\n"
 

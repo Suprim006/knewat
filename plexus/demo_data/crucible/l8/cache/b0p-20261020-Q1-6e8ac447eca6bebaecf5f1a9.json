@@ -1,0 +1,41 @@
+{
+ "reply": "Twelve decisions relied directly on the v1-family style guide fact, but this rests on an inference. The records don't map fact ids to source documents, so I identified them by role.\n\n- **Sprint pattern:** In every sprint that has an API-version decision, the \"Build against vN\" decision rests on the original (v1-family) style-guide fact. The later \"Adopt style guide vN+1\" decision rests on the newer, superseding fact. In S01, for example, \"Build v1\" relies on fact 2b92\u2026, while \"Adopt v2\" relies on e3d7\u2026, which the spec approval also uses.\n- **S21:** The first `t02-choose-api-version` decision cites `style_guide.api_version = v1`, sourced from `02_api_style_guide_v1.md`, so it counts. The later adopt-v2 decision and t09 rely on the v2 guide, so they don't.\n- **Coverage:** The records contain no API-version decisions for S06, S08, S09, S10, S12\u2013S14, S19 or S20, so nothing from those sprints is counted.\n\nThe 12 decisions are the \"Build\" decisions in S01, S02, S03, S04, S05, S07, S11, S15, S16, S17 and S18, plus the original S21 t02 decision.\n\nProbes:\n1. False: S16 \"Adopt v32\" relies on the newer fact.\n2. True: S02 \"Build v3\".\n3. True: S07 \"Build v13\".\n4. False: S03 \"Adopt v6\".\n5. True: S15 \"Build v29\".\n6. False: S11 \"Adopt v22\".\n7. False: S05 \"Adopt v10\".\n8. True: S11 \"Build v21\".\n9. True: S16 \"Build v31\".\n10. False: S02 \"Adopt v4\".\n\n{\"answer\": {\"count\": 12, \"probes\": [false, true, true, false, true, false, false, true, true, false], \"earliest5\": [\"S01\", \"S02\", \"S03\", \"S04\", \"S05\"]}}",
+ "cost": 0.0868715,
+ "usage": {
+  "input_tokens": 2,
+  "cache_creation_input_tokens": 18301,
+  "cache_read_input_tokens": 535,
+  "output_tokens": 1361,
+  "output_tokens_details": {
+   "thinking_tokens": 720
+  },
+  "server_tool_use": {
+   "web_search_requests": 0,
+   "web_fetch_requests": 0
+  },
+  "service_tier": "standard",
+  "cache_creation": {
+   "ephemeral_1h_input_tokens": 18301,
+   "ephemeral_5m_input_tokens": 0
+  },
+  "inference_geo": "global",
+  "iterations": [
+   {
+    "input_tokens": 2,
+    "output_tokens": 1361,
+    "cache_read_input_tokens": 535,
+    "cache_creation_input_tokens": 18301,
+    "cache_creation": {
+     "ephemeral_5m_input_tokens": 0,
+     "ephemeral_1h_input_tokens": 18301
+    },
+    "type": "message"
+   }
+  ],
+  "speed": "standard",
+  "fallback_credit": null
+ },
+ "is_error": false,
+ "seconds": 12.7,
+ "tag": "b0p-20261020-Q1"
+}

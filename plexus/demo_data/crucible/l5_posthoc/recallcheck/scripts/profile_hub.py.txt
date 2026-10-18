@@ -1,0 +1,104 @@
+"""PROFILE engram/recall on a hub entity (throw-away graph). usage: profile_hub.py <hub_facts> [--query-lib DIR]"""
+
+from __future__ import annotations
+
+import json
+import statistics
+import sys
+import time
+import uuid
+
+sys.path.insert(0, "C:/Change_folder_after_HDD/wt-recall/plexus")
+from plexus.embed import HashEmbedder
+from plexus.engram import Engram
+from plexus.graph.client import GraphClient
+from plexus.graph.queries import QueryLibrary
+from plexus.graph.schema import apply_schema
+
+PORT = 6375
+OPEN = 9_999_999_999_999
+
+
+def build(client, graph, hub_facts, others=40, per_other=5, extra_scope=True):
+    emb = HashEmbedder()
+    g = client.graph(graph)
+    apply_schema(client, graph)
+    g.query("CREATE (:Scope {id: 'G', kind: 'global', name: 'global', created_at: 1}), (:Scope {id: 'S', kind: 'project', name: 'hub', created_at: 1}), (:Agent {id: 'a1'})")
+    g.query("MATCH (s:Scope {id: 'S'}), (gl:Scope {id: 'G'}) CREATE (s)-[:INHERITS]->(gl)")
+    ents = [("H", "Mega Hub")] + [(f"E{i}", f"Other Thing{i}") for i in range(others)]
+    g.query("UNWIND $r AS r CREATE (:Entity {id: r.id, name: r.name})", {"r": [{"id": i, "name": n} for i, n in ents]})
+    facts = []
+    for i in range(hub_facts):
+        facts.append({"id": f"HF{i}", "e": "H", "p": f"attr_{i}", "v": f"value number {i} of the hub", "name": "Mega Hub"})
+    for j in range(others):
+        for k in range(per_other):
+            facts.append({"id": f"OF{j}_{k}", "e": f"E{j}", "p": f"attr_{k}", "v": f"value {k} of thing {j}", "name": f"Other Thing{j}"})
+    t0 = time.time()
+    B = 250
+    for s in range(0, len(facts), B):
+        batch = facts[s : s + B]
+        vecs = emb.embed([f"{f['name']} {f['p']} {f['v']}" for f in batch])
+        rows = [{**f, "emb": v} for f, v in zip(batch, vecs, strict=True)]
+        g.query(
+            """UNWIND $rows AS r
+               MATCH (e:Entity {id: r.e}), (s:Scope {id: 'S'}), (a:Agent {id: 'a1'})
+               CREATE (f:Fact {id: r.id, subject_id: r.e, predicate: r.p, value: r.v, norm_value: r.v, value_tokens: '',
+                               search_text: r.name + ' ' + r.p, valid_from: 1, valid_to: $open, recorded_at: 1, created_at: 1,
+                               status: 'active', confidence: 1.0, embedding: vecf32(r.emb), value_embedding: vecf32(r.emb)})
+               CREATE (f)-[:ABOUT]->(e), (f)-[:IN_SCOPE]->(s), (f)-[:ASSERTED_BY {at: 1}]->(a)""",
+            {"rows": rows, "open": OPEN},
+        )
+    return time.time() - t0
+
+
+def walk(op, out, depth=0):
+    st = getattr(op, "profile_stats", None)
+    out.append((depth, op.name, str(op.args or "")[:110], st.records_produced if st else 0, getattr(st, "execution_time", 0.0) if st else 0.0))
+    for c in op.children:
+        walk(c, out, depth + 1)
+
+
+def main():
+    hub = int(sys.argv[1])
+    libdir = sys.argv[2] if len(sys.argv) > 2 else None
+    lib = QueryLibrary(libdir) if libdir else None
+    client = GraphClient(host="127.0.0.1", port=PORT, library=lib) if lib else GraphClient(host="127.0.0.1", port=PORT)
+    graph = f"test_{uuid.uuid4().hex[:12]}"
+    try:
+        secs = build(client, graph, hub)
+        print(f"built hub of {hub} facts in {secs:.1f}s")
+        eng = Engram(client, graph, HashEmbedder())
+        seen = []
+        real = client.ro
+
+        def spy(g, name, params=None):
+            if name == "engram/recall":
+                seen.append(params)
+            return real(g, name, params)
+
+        client.ro = spy  # type: ignore[method-assign]
+        query = "Mega Hub attr_7 value number 7"
+        rows = eng.recall(query, "S", k=20)
+        client.ro = real  # type: ignore[method-assign]
+        p = seen[-1]
+        print("recall rows:", len(rows), "params lim/over/sibs/damp:", p["lim"], p["over"], p["sibs"], p["damp"], "kw_ids", len(p["kw_ids"]))
+        q = client.library.get("engram/recall")
+        stmt = q.statements[0]
+        plan = client.graph(graph).profile(stmt, p)
+        ops = []
+        walk(plan.structured_plan, ops)
+        for d, n, a, r, t in ops:
+            if r >= 50:
+                print(f"{'  ' * d}{n} | {a} | {r} records | {t} ms")
+        print("MAX records:", max(o[3] for o in ops))
+        res = client.graph(graph).ro_query(stmt, p)
+        times = []
+        for _ in range(5):
+            r = client.graph(graph).ro_query(stmt, p)
+            times.append(r.run_time_ms)
+        print("run_time_ms median of 5:", statistics.median(times), "rows", len(r.result_set))
+    finally:
+        client.delete_graph(graph)
+
+
+main()

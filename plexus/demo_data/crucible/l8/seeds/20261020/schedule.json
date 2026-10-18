@@ -1,0 +1,328 @@
+{
+ "seed": 20261020,
+ "initial_tokens": {
+  "auth.token_ttl": "AX-70256",
+  "auth.hash_rounds": "AX-95437",
+  "auth.session_cookie": "AX-51120",
+  "auth.mfa_window": "AX-37869",
+  "auth.key_header": "AX-73094",
+  "api.base_path": "AX-18174",
+  "api.page_size": "AX-95295",
+  "api.max_body": "AX-74907",
+  "api.cors_origin": "AX-20729",
+  "api.error_format": "AX-29401",
+  "db.engine": "AX-14196",
+  "db.pool_size": "AX-52276",
+  "db.schema_name": "AX-76631",
+  "db.replica_count": "AX-36687",
+  "db.backup_window": "AX-18584",
+  "ratelimit.window": "AX-42266",
+  "ratelimit.burst": "AX-65974",
+  "ratelimit.per_user": "AX-21835",
+  "ratelimit.per_key": "AX-82951",
+  "ratelimit.retry_after": "AX-39153",
+  "notes.max_length": "AX-92553",
+  "notes.tag_limit": "AX-97908",
+  "notes.archive_days": "AX-79153",
+  "notes.share_mode": "AX-38006",
+  "notes.title_max": "AX-30149",
+  "users.id_format": "AX-16616",
+  "users.quota_mb": "AX-15111",
+  "users.invite_ttl": "AX-30737",
+  "users.role_default": "AX-24925",
+  "users.locale_default": "AX-45313",
+  "search.index_name": "AX-71019",
+  "search.analyzer": "AX-63346",
+  "search.max_hits": "AX-46055",
+  "search.fuzzy_level": "AX-37038",
+  "search.refresh_ms": "AX-99875",
+  "export.format": "AX-68281",
+  "export.max_rows": "AX-21878",
+  "export.signed_url_ttl": "AX-51833",
+  "export.compression": "AX-36780",
+  "export.schedule": "AX-22201",
+  "billing.cycle": "AX-86101",
+  "billing.currency": "AX-86464",
+  "billing.grace_days": "AX-16465",
+  "billing.invoice_prefix": "AX-76339",
+  "billing.tax_mode": "AX-37121",
+  "audit.retention_days": "AX-70013",
+  "audit.sink": "AX-38265",
+  "audit.sample_rate": "AX-71017",
+  "audit.pii_mask": "AX-52039",
+  "audit.event_version": "AX-32279",
+  "config.region": "AX-50843",
+  "config.feature_flags": "AX-84563",
+  "config.log_level": "AX-89241",
+  "config.env_name": "AX-28160",
+  "config.secret_store": "AX-22163",
+  "release.channel": "AX-16040",
+  "release.version_tag": "AX-58080",
+  "release.rollout_pct": "AX-22447",
+  "release.freeze_day": "AX-35135",
+  "release.changelog_path": "AX-98942"
+ },
+ "x2_old_token": "AX-37629",
+ "commits": [
+  {
+   "k": 1,
+   "turn": 4,
+   "kind": "whitespace",
+   "module": "search",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "fn": "analyzer"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 2,
+   "turn": 8,
+   "kind": "add",
+   "module": "auth",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "name": "extra_2",
+    "token": "AX-22036"
+   },
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 3,
+   "turn": 9,
+   "kind": "value",
+   "module": "auth",
+   "funcs": [
+    "auth.token_ttl",
+    "ratelimit.per_key"
+   ],
+   "new_tokens": {
+    "auth.token_ttl": "AX-62079",
+    "ratelimit.per_key": "AX-35027"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": "X3: auth.token_ttl in the first value commit after t04's nominal turn"
+  },
+  {
+   "k": 4,
+   "turn": 10,
+   "kind": "module-comment",
+   "module": "search",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 5,
+   "turn": 11,
+   "kind": "value",
+   "module": "api",
+   "funcs": [
+    "api.cors_origin",
+    "config.feature_flags"
+   ],
+   "new_tokens": {
+    "api.cors_origin": "AX-10863",
+    "config.feature_flags": "AX-82288"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 6,
+   "turn": 12,
+   "kind": "delete",
+   "module": "audit",
+   "funcs": [
+    "audit.pii_mask"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 7,
+   "turn": 15,
+   "kind": "sibling",
+   "module": "ratelimit",
+   "funcs": [
+    "ratelimit.burst",
+    "ratelimit.window"
+   ],
+   "new_tokens": {
+    "ratelimit.burst": "AX-62704",
+    "ratelimit.window": "AX-80728"
+   },
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  },
+  {
+   "k": 8,
+   "turn": 16,
+   "kind": "value",
+   "module": "config",
+   "funcs": [
+    "config.log_level",
+    "ratelimit.retry_after",
+    "release.freeze_day"
+   ],
+   "new_tokens": {
+    "config.log_level": "AX-93449",
+    "ratelimit.retry_after": "AX-76091",
+    "release.freeze_day": "AX-62680"
+   },
+   "extra": {},
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 9,
+   "turn": 17,
+   "kind": "reorder",
+   "module": "audit",
+   "funcs": [],
+   "new_tokens": {},
+   "extra": {
+    "a": 1,
+    "b": 0
+   },
+   "biased": false,
+   "forced": ""
+  },
+  {
+   "k": 10,
+   "turn": 18,
+   "kind": "docstring",
+   "module": "ratelimit",
+   "funcs": [
+    "ratelimit.window"
+   ],
+   "new_tokens": {},
+   "extra": {},
+   "biased": true,
+   "forced": ""
+  }
+ ],
+ "v2_turn": 12,
+ "kills": {
+  "K1": {
+   "agent": "builder",
+   "from_turn": 6,
+   "after": "first tool call after the claim"
+  },
+  "K2": {
+   "agent": "researcher",
+   "from_turn": 12,
+   "tasks": [
+    "t14-ratelimit-spec",
+    "t16-release-notes"
+   ],
+   "after": "first Write of an artifact file"
+  },
+  "K3": {
+   "agent": "planner",
+   "from_turn": 9,
+   "after": "first memory write (MCP write or Write)"
+  }
+ },
+ "nominal_order": [
+  [
+   1,
+   "init"
+  ],
+  [
+   2,
+   "t01-gather-requirements"
+  ],
+  [
+   3,
+   "t02-choose-api-version"
+  ],
+  [
+   4,
+   "t03-design-endpoints"
+  ],
+  [
+   5,
+   "t04-survey-infra-security"
+  ],
+  [
+   6,
+   "t05-choose-auth"
+  ],
+  [
+   7,
+   "t13-reuse-billing-cycle"
+  ],
+  [
+   8,
+   "t06-write-db-schema"
+  ],
+  [
+   9,
+   "t14-ratelimit-spec"
+  ],
+  [
+   10,
+   "t07-implement-crud-spec"
+  ],
+  [
+   11,
+   "t15-config-matrix"
+  ],
+  [
+   12,
+   "ingest-v2"
+  ],
+  [
+   13,
+   "adopt-v2"
+  ],
+  [
+   14,
+   "t12-update-endpoints-for-v2"
+  ],
+  [
+   15,
+   "t08-write-test-plan"
+  ],
+  [
+   16,
+   "t09-review-spec"
+  ],
+  [
+   17,
+   "t10-write-docs"
+  ],
+  [
+   18,
+   "t16-release-notes"
+  ],
+  [
+   19,
+   "t11-package-release"
+  ]
+ ],
+ "invalidated": [
+  "api.cors_origin",
+  "audit.pii_mask",
+  "auth.token_ttl",
+  "config.feature_flags",
+  "config.log_level",
+  "ratelimit.burst",
+  "ratelimit.per_key",
+  "ratelimit.retry_after",
+  "ratelimit.window",
+  "release.freeze_day"
+ ]
+}

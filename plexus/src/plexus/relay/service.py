@@ -72,7 +72,7 @@ class Relay:
         return dict(rows[0])
 
     # -- task DAG ---------------------------------------------------------------------------------------
-    def create_tasks(self, tasks: Sequence[dict[str, Any]]) -> list[str]:
+    def create_tasks(self, tasks: Sequence[dict[str, Any]], *, step_id: str | None = None) -> list[str]:
         """Create tasks (+ DEPENDS_ON edges) atomically. Each item: ``{id?, title, priority?, depends_on?}``.
 
         ``depends_on`` may name tasks in the same batch or tasks that already exist. Returns the task ids in
@@ -115,14 +115,23 @@ class Relay:
         res = self.client.rw(
             self.graph,
             "relay/create_tasks",
-            {"tasks": rows, "edges": edges, "ids": ids, "ext_dep_ids": ext, "now": self._clock()},
+            {
+                "tasks": rows,
+                "edges": edges,
+                "ids": ids,
+                "ext_dep_ids": ext,
+                "step_id": step_id or "",
+                "now": self._clock(),
+            },
         )
         if res.stats.get("nodes_created", 0) != len(rows):
             self._explain_rejected_create(ids, ext)
         return ids
 
     # -- claims -----------------------------------------------------------------------------------------
-    def claim_next_task(self, agent_id: str, lease_ms: int, now: int | None = None) -> dict[str, Any] | None:
+    def claim_next_task(
+        self, agent_id: str, lease_ms: int, now: int | None = None, *, step_id: str | None = None
+    ) -> dict[str, Any] | None:
         """Atomically claim the highest-priority ready task, or return None if nothing is claimable.
 
         Ready = open (or lease expired) with every dependency done. The returned dict carries ``version``
@@ -133,7 +142,9 @@ class Relay:
         _check_lease(lease_ms)
         now = self._clock() if now is None else now
         rows = self.client.rw(
-            self.graph, "relay/claim_next_task", {"agent": agent_id, "lease_ms": lease_ms, "now": now}
+            self.graph,
+            "relay/claim_next_task",
+            {"agent": agent_id, "lease_ms": lease_ms, "step_id": step_id or "", "now": now},
         )
         if rows:
             return dict(rows[0])
@@ -163,6 +174,8 @@ class Relay:
         expected_version: int,
         artifacts: Sequence[dict[str, Any]] = (),
         now: int | None = None,
+        *,
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         """Mark the task done if ``agent_id`` still holds it at ``expected_version``; record its artifacts.
 
@@ -170,7 +183,9 @@ class Relay:
         Raises :class:`ClaimConflict` (stale version, wrong owner, not claimed), :class:`UnknownReference`
         (no such task) or :class:`DuplicateArtifact`; nothing is written then.
         """
-        return self._finish("relay/complete_task", agent_id, task_id, expected_version, artifacts, now, {})
+        return self._finish(
+            "relay/complete_task", agent_id, task_id, expected_version, artifacts, now, {}, step_id
+        )
 
     def fail_task(
         self,
@@ -180,13 +195,24 @@ class Relay:
         artifacts: Sequence[dict[str, Any]] = (),
         reason: str = "",
         now: int | None = None,
+        *,
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         """Like :meth:`complete_task` but marks the task failed (downstream tasks stay blocked)."""
         return self._finish(
-            "relay/fail_task", agent_id, task_id, expected_version, artifacts, now, {"reason": reason}
+            "relay/fail_task",
+            agent_id,
+            task_id,
+            expected_version,
+            artifacts,
+            now,
+            {"reason": reason},
+            step_id,
         )
 
-    def reopen_task(self, agent_id: str, task_id: str, now: int | None = None) -> dict[str, Any]:
+    def reopen_task(
+        self, agent_id: str, task_id: str, now: int | None = None, *, step_id: str | None = None
+    ) -> dict[str, Any]:
         """Retry a failed task: CAS ``failed`` -> ``open`` (version+1, lease and ``done_at`` cleared).
 
         Returns ``{id, status, version}``. Raises :class:`UnknownReference` (task or agent) or
@@ -195,7 +221,9 @@ class Relay:
         """
         now = self._clock() if now is None else now
         rows = self.client.rw(
-            self.graph, "relay/reopen_task", {"agent": agent_id, "task": task_id, "now": now}
+            self.graph,
+            "relay/reopen_task",
+            {"agent": agent_id, "task": task_id, "step_id": step_id or "", "now": now},
         )
         if rows:
             return dict(rows[0])
@@ -215,6 +243,7 @@ class Relay:
         artifacts: Sequence[dict[str, Any]],
         now: int | None,
         extra: dict[str, Any],
+        step_id: str | None = None,
     ) -> dict[str, Any]:
         if len(artifacts) > MAX_ARTIFACTS_PER_CALL:
             raise InvalidDag(f"at most {MAX_ARTIFACTS_PER_CALL} artifacts per call, got {len(artifacts)}")
@@ -241,6 +270,7 @@ class Relay:
                 "expected_version": expected_version,
                 "artifacts": rows,
                 "artifact_ids": ids,
+                "step_id": step_id or "",
                 "now": now,
                 **extra,
             },
@@ -382,27 +412,19 @@ class Relay:
     def blocked_by_failure(self, task_id: str, depth: int = MAX_BLOCKED_DEPTH) -> list[str]:
         """Not-done tasks that depend (transitively, up to ``depth`` hops, 1..50) on ``task_id``.
 
-        Nearest first.
-
-        Level-wise BFS over distinct tasks (``relay/dependents_of``): linear in the edges touched, unlike the
-        old path enumeration, which was exponential on layered DAGs. At most 5,000 tasks are returned. Tasks
-        are listed by hop distance, then id; done tasks are walked through but not reported.
+        Nearest first, then by id. Level-wise expansion over distinct tasks (linear in the edges touched,
+        unlike path enumeration, which is exponential on layered DAGs) inside ONE read statement,
+        ``relay/dependents_closure`` (P9-f): the answer is one snapshot even while tasks are being added; the
+        old loop (one ``relay/dependents_of`` statement per level) could mix levels from different moments.
+        At most 5,000 tasks are returned. Done tasks are walked through but not reported.
         """
         check_between("depth", depth, MAX_BLOCKED_DEPTH)
-        seen = {task_id}
-        frontier = [task_id]
-        out: list[str] = []
-        for _ in range(depth):
-            rows = self.client.ro(self.graph, "relay/dependents_of", {"frontier": frontier})
-            level = {r["id"]: r["status"] for r in rows if r["id"] not in seen}
-            if not level:
-                break
-            seen.update(level)
-            out.extend(sorted(i for i, s in level.items() if s != "done"))
-            if len(out) >= MAX_BLOCKED_NODES:
-                return out[:MAX_BLOCKED_NODES]
-            frontier = sorted(level)
-        return out
+        rows = self.client.ro(
+            self.graph,
+            "relay/dependents_closure",
+            {"id": task_id, "depth": depth, "limit": MAX_BLOCKED_NODES},
+        )
+        return [r["id"] for r in rows]
 
     def task_status(self, task_id: str) -> dict[str, Any] | None:
         rows = self.client.ro(self.graph, "relay/task_status", {"id": task_id})

@@ -219,7 +219,7 @@ The recorded real run holds 247 nodes and 708 edges (14 labels, 26 relationship 
 ## The Cypher queries the product depends on
 
 Every statement lives in a named, parameterised file under [`plexus/queries/<area>/<name>.cypher`](plexus/queries/) with a
-header (purpose, params, returns, mode) and is loaded by name; 111 files in all. The complete index with a "why it is a graph
+header (purpose, params, returns, mode) and is loaded by name; 114 files in all. The complete index with a "why it is a graph
 query" for each is [`docs/queries.md`](docs/queries.md). The ones the product cannot work without:
 
 | Query | What it does | Why it is a graph query |
@@ -229,15 +229,15 @@ query" for each is [`docs/queries.md`](docs/queries.md). The ones the product ca
 | [`engram/remember_episode`](plexus/queries/engram/remember_episode.cypher) | Appends an `Episode` to the session's chain | The chain tail is found by traversal and extended atomically, so concurrent appends cannot fork it |
 | [`relay/create_tasks`](plexus/queries/relay/create_tasks.cypher) | Creates a task DAG with `DEPENDS_ON` edges, all or nothing | The dependency graph is stored as edges |
 | [`relay/claim_next_task`](plexus/queries/relay/claim_next_task.cypher) | Claims the best ready task (all `DEPENDS_ON` targets `done`, free or lease-expired), sets lease, `version+1`, `CLAIMED` edge | Readiness is a traversal; the claim is one serialised graph write, so two agents never win the same task (also covers dead-agent reclaim) |
-| [`relay/dependents_of`](plexus/queries/relay/dependents_of.cypher) | One BFS level of tasks that depend on a frontier | Transitive "what is blocked if T fails" (`blocked_by_failure`) |
+| [`relay/dependents_closure`](plexus/queries/relay/dependents_closure.cypher) | Every task that transitively depends on a task, nearest first, in one statement | Transitive "what is blocked if T fails" (`blocked_by_failure`) |
 | [`relay/handoff`](plexus/queries/relay/handoff.cypher) | `Handoff` + `FROM`/`TO`/`FOR` + `CARRIES` artifacts and facts; a bad id writes nothing | A handoff is a node linking agents, a task and its evidence, traversable later |
 | [`relay/record_decision`](plexus/queries/relay/record_decision.cypher) | `Decision` with `DECIDED`, `FOR` and all-or-nothing `BASED_ON` facts | Decisions point at the exact facts they rest on |
 | [`lineage/why_edges`](plexus/queries/lineage/why_edges.cypher) | Provenance subgraph of a decision or fact | Variable-length paths from decision to fact to agent, step and source: this is the "why" answer |
 | [`lineage/knew_at`](plexus/queries/lineage/knew_at.cypher) | Time machine: facts an agent had read at or before step N that were still valid then, plus what it wrote | Step chain + `READ`/`WROTE` edges + the fact's validity window |
 | [`lineage/as_of`](plexus/queries/lineage/as_of.cypher) | The fact valid at time t for (subject, predicate), nearest scope first | Entity → `ABOUT` → Fact with a validity filter and scope traversal |
 | [`lineage/who_knew`](plexus/queries/lineage/who_knew.cypher) | Agents whose steps `READ` a fact, and who asserted it | `READ` edges one hop each way |
-| [`lineage/forget_source`](plexus/queries/lineage/forget_source.cypher) | Marks every fact reaching a `Source` through up to 12 `DERIVED_FROM` hops (default 8, level by level) as forgotten and flags the decisions that rest on them | The cascade follows derivation edges, in one atomic write |
-| [`lineage/quarantine`](plexus/queries/lineage/quarantine.cypher) | Reversible version of the above (stretch feature); returns the blast radius (readers, decisions, handoffs) | Blast radius is a traversal back out through `READ`, `BASED_ON`, `CARRIES` |
+| [`lineage/forget_source`](plexus/queries/lineage/forget_source.cypher) | Marks every fact reaching a `Source` through up to 12 `DERIVED_FROM` hops (default 8, level by level) as forgotten (unless another `Source` still supports it: then only that link is dropped) and flags the decisions that rest on them | The cascade follows derivation edges, in one atomic write |
+| [`lineage/quarantine`](plexus/queries/lineage/quarantine.cypher) | Reversible version of the above (stretch feature); hides a fact only when every one of its sources is quarantined; returns the blast radius (readers, decisions, handoffs) and the facts other sources keep alive | Blast radius is a traversal back out through `READ`, `BASED_ON`, `CARRIES` |
 | [`audit/record_tool_call`](plexus/queries/audit/record_tool_call.cypher) | Writes a `ToolCall` with `IN_STEP` and `CREATED`/`UPDATED` edges to what the tool touched | The Flow page draws these edges |
 | [`view/flow`](plexus/queries/view/flow.cypher) | Tool calls in order with the nodes each created or updated | A traversal of `ToolCall` → `CREATED`/`UPDATED`; also the SSE feed |
 | [`crucible/strip_edges`](plexus/queries/crucible/strip_edges.cypher) | **Ablation only:** deletes `DEPENDS_ON`, `BASED_ON`, `DERIVED_FROM`, `READ` in bounded batches | Measures which features break without the edges |
@@ -451,7 +451,7 @@ bash ../scripts/agent_db.sh rm 10
 
 ```text
 plexus/                  the product (Python 3.12, uv)
-  queries/<area>/*.cypher  every Cypher statement, named and parameterised (111 files)
+  queries/<area>/*.cypher  every Cypher statement, named and parameterised (114 files)
   src/plexus/            graph (client, schema, tenancy), engram, relay, lineage, audit, mcp, api, embed, demo, crucible
   demo_data/             the Acme scenario, recordings (acme-claude-sonnet, acme-scripted, pilot-haiku), Crucible questions and caches
   tests/                 pytest against throw-away graphs

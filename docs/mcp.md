@@ -61,16 +61,33 @@ A blocked tool still exits 0 in `claude -p`: check `permission_denials` and `too
 Every tool takes `agent_id` (required) and `step` (optional int). Results are JSON objects and include `tool_call_id`.
 45 tools: 29 in the three groups below (Engram, Relay, Lineage), 7 staleness tools, 5 memory-strength tools, 2
 soft-duplicate tools, `impact` and `assert_relation` (the sections after this list).
-- **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id`/`episode_id`), `recall` (returns
+- **Engram:** `start_session`, `remember_episode`, `assert_fact` (optional `source_id` / `source_ids` (list, max 20: a fact several documents support; P13) / `episode_id`), `recall` (returns
   `recall_id`), `fact_history`, `log_procedure_run`, `best_procedure`.
+  `recall` hits are **compact** by default (P12): `fact_id`, `entity`, `predicate`, `value`, `valid_from`, `score`, `by`
+  (asserting agent) plus only the flags that differ from their default (`verify_state: suspect` with `suspect_since` /
+  `suspect_reason`, `status`, `valid_to`, `via`, `protected: true`, a non-empty `maybe_duplicate_of`, `hop` /
+  `relation_path`). `detail: "full"` returns the pre-P12 hit (`text`, provenance `path`, `surprise`, `activation` and every
+  flag). Same facts, same order either way.
+
+Published tool schemas are **compact** (P12, `plexus.mcp.server.compact_schema`): no `title`, no length limits, no numeric
+bounds of 10 000 or more, `anyOf [X, null]` written as `X`, no `outputSchema`. Every description, type, enum, `required`,
+small bound and non-null default is kept, and the server still validates arguments against the full model (an
+over-long value still gets the one-line error). Measured with `claude -p` 2.1.296: the 45-tool list costs 19,877 prompt
+tokens per API call instead of 28,873. `PLEXUS_MCP_SCHEMA=full` publishes the verbose schemas.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
   1..50, default 50).
 - **Lineage** (registered when `plexus.lineage` is installed; see `plexus/mcp/lineage_tools.py`): `add_source`, `why`,
   `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine`. `why` takes an
-  optional `depth` (1..12, default 6); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
+  optional `depth` (1..12, default 6) and `max_elements` (2..5000, default 200; nodes + edges, closest to the root first, `truncated` says whether anything was cut; P9-f); `forget_source`, `quarantine_source` and `release_quarantine` take an optional `depth`
   (1..12, default 8; release with at least the depth the quarantine used). A derivation chain longer than `depth` is cut there:
   Crucible L6-B scored 16/24 through the tool because it could not be asked for depth 12.
+  **Multi-source facts (P13, D-015).** `assert_fact(source_ids=[a, b])` links every listed Source (an unknown id rejects the call); a
+  duplicate assert from a new document adds its link and returns `sources_added`. `quarantine_source` hides a fact only when no other
+  live Source supports it: those come back as `corroborated: [{fact_id, other_sources}]` (+ `corroborated_total`), `fact_ids` are the
+  hidden ones. `forget_source` forgets a fact only when the Source was its last: the others are `unlinked: [{fact_id, other_sources}]`
+  (+ `unlinked_total`). Both lists are omitted when empty. `impact(kind=source)` adds `facts.corroborated {total, ids, ids_truncated}`.
+  The manifest grew by 418 characters (core list 30,182 -> 30,600; `python -m plexus.crucible.l8.manifest_size`, $0).
 
 `assert_fact`, `record_decision` and `handoff` write their `(Step)-[:WROTE]->(node)` edge in the same statement as the node
 (P9-int): the runtime opens the agent's `Step` before these three tools and removes it again if the call is rejected, so a
@@ -99,6 +116,39 @@ by `NEXT`, and stores its id on `ToolCall.step_id`.
 or a scope id (max 512 chars). **Writes** (`assert_fact`) create a named scope on first use; **reads** (`recall`, `fact_history`,
 `as_of`) never do: a scope that does not exist gives an empty answer (`recall` returns `count: 0`, `scope_id: null` and records
 no `Recall`), so a typo cannot grow the graph.
+
+## Toolsets: publish only the modules a session needs (P12, `plexus/mcp/toolsets.py`)
+
+The whole tool list is part of every API call's prompt, so a session can ask for a subset. A toolset is a
+comma-separated list of **modules** (the §2.2 module boundaries of `docs/PLEXUS_REPORT.md`) and/or **profiles**:
+
+| Name | Tools |
+|---|---|
+| `engram` | 7: `start_session` … `best_procedure` |
+| `relay` | 13: `register_agent` … `blocked_by_failure` (`register_agent` is how a relay-only agent joins: it has no `start_session`) |
+| `lineage` | 9: `add_source`, `why`, `why_recalled`, `who_knew`, `knew_at`, `as_of`, `forget_source`, `quarantine_source`, `release_quarantine` |
+| `staleness` | 7 (below) |
+| `forgetting` | 5 memory-strength tools (below) |
+| `relations` | 2: `assert_relation`, `impact` |
+| `dedup` | 2: `confirm_duplicate`, `reject_duplicate` |
+| profile `core` | `engram,relay,lineage` (29) |
+| profile `full` | every module (45): **the default, unchanged** |
+
+* stdio: `plexus-mcp --transport stdio --tenant acme --toolset core` (or env `PLEXUS_TOOLSET`); a bad value stops
+  the server at start with the list of valid names.
+* HTTP: `--toolset` / `PLEXUS_TOOLSET` is the default for sessions that pick none; a client picks per session with
+  `/mcp/t/<tenant>?toolset=core` or the header `X-Plexus-Toolset: core`. Unknown or empty name, or URL and header
+  disagreeing: **400** `invalid toolset: unknown toolset 'x'; valid: engram, relay, …, core, full` (never a silent full
+  or empty list). The toolset is pinned to the MCP session at `initialize` like the tenant: a later request naming
+  another toolset gets a 400.
+* A tool outside the session's toolset is neither listed nor callable: `recall: not in this session's toolset 'relay'
+  (it is in module 'engram'); connect with a toolset that includes 'engram' (e.g. toolset=full)`.
+* It is a prompt-size choice, **not access control** (any client can open a `toolset=full` session); read-only demo
+  tenants and audit modes stay the safety controls. Responses, audit and validation are identical under every toolset.
+
+Measured with `claude -p` 2.1.296 (`python -m plexus.crucible.l8.manifest_probe --toolset …`,
+`plexus/demo_data/crucible/l8_p12tok/manifest_probe-toolsets.json`), prompt tokens of the tool list per API call:
+`full` 19,877, `core,staleness` 16,114, `core` 12,880, `relay` 5,111.
 
 ## Argument limits and errors
 
@@ -267,7 +317,7 @@ One read-only tool, registered by `register_impact` (45 tools in total: the 41 a
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|
-| `impact` | `kind='source'\|'fact'\|'task'`, `id`, `depth=8` (1..12 for source/fact, 1..50 for task), `max_items=50` (1..2000) | `{impact: {kind, id, depth, facts: {total, ids, by_status, earliest_at, latest_at, earliest: [{id, at}]}, readers: {steps_total, agents_total, agents, earliest_at, latest_at}, decisions: {total, ids, earliest_at, latest_at}, tasks: {total, ids}, handoffs: {total, ids, earliest_at, latest_at}, truncated}}` for a source (facts reaching it through `DERIVED_FROM`) or a fact (itself plus the facts derived from it); `tasks` are the tasks the affected decisions are `FOR`. For `kind='task'`: `{impact: {kind, id, depth, tasks: {total, ids}, truncated}}`, the unfinished tasks that transitively depend on it (what `blocked_by_failure` returns). Totals are exact up to 5000 facts / 5000 tasks (`truncated` is true only when a further fact exists); lists are cut at `max_items`; `earliest_at` / `latest_at` (epoch ms) cover the whole set, and `facts.earliest` names the 5 earliest affected facts. A 5,000-fact blast answers in about 0.4 s of server time (it did not finish before P9-int: Crucible L6-A). Unknown id -> a tool error naming it. |
+| `impact` | `kind='source'\|'fact'\|'task'`, `id`, `depth=8` (1..12 for source/fact, 1..50 for task), `max_items=50` (1..2000), `order='id'\|'valid_from'\|'created_at'` (P9-f: how the listed facts are sorted; a time order lists the earliest first), `offset=0` (P9-f: page through the facts / tasks), `probe_ids=[]` (P9-f: at most 200 ids to test against the whole affected set) | `{impact: {kind, id, depth, facts: {total, ids, ids_truncated, records: [{id, status, valid_from, created_at}], order, offset, next_offset, by_status, probes?, earliest_at, latest_at, earliest: [{id, at}]}, readers: {steps_total, agents_total, agents, agents_truncated, earliest_at, latest_at}, decisions: {total, ids, ids_truncated, earliest_at, latest_at}, tasks: {total, ids, ids_truncated}, handoffs: {total, ids, ids_truncated, earliest_at, latest_at}, truncated}}` for a source (facts reaching it through `DERIVED_FROM`) or a fact (itself plus the facts derived from it); `tasks` are the tasks the affected decisions are `FOR`. For `kind='task'`: `{impact: {kind, id, depth, tasks: {total, ids, offset, next_offset, ids_truncated, probes?}, truncated}}`, the unfinished tasks that transitively depend on it (what `blocked_by_failure` returns). Totals are exact up to 5000 facts / 5000 tasks (`truncated` is true only when a further fact exists); lists are cut at `max_items` and a cut list always says so (`ids_truncated`; P9-f: before, "not in the first N ids" looked like "not affected" - page with `offset` / `next_offset` or ask `probe_ids`); `earliest_at` / `latest_at` (epoch ms) cover the whole set, and `facts.earliest` names the 5 earliest affected facts. A 5,000-fact blast answers in about 0.4 s of server time (it did not finish before P9-int: Crucible L6-A). Unknown id -> a tool error naming it. |
 
 Nothing is written (no `READ` edges either: looking at the damage must not make the facts look used); the audit `ToolCall` +
 `Step` are the only rows. The expansion is the level-wise, distinct-node one of `lineage/impact_source` / `lineage/impact_fact`
@@ -276,7 +326,7 @@ Nothing is written (no `READ` edges either: looking at the damage must not make 
 `Lineage.forget_source`, `quarantine` and `release_quarantine` gained an optional `depth` (1..12, default 8; was a fixed 5 hops),
 `Lineage.why` an optional `depth` (1..12, default 6; was a fixed 3), and `Relay.blocked_by_failure` an optional `depth`
 (1..50, default 50; was a fixed 10). The MCP tools `why`, `forget_source`, `quarantine_source`, `release_quarantine` and `blocked_by_failure` expose the same
-`depth` since P9-int (same bounds and defaults).
+`depth` since P9-int (same bounds and defaults). P9-f: `why` also takes `max_elements` (the value it used to hard-code), and `why` / `blocked_by_failure` each read ONE statement (`lineage/why_edges`, `relay/dependents_closure`), so the answer is one snapshot under concurrent writes.
 ## Soft-duplicate tools (P9-c, `plexus/mcp/tools_dedup.py`; `plexus/engram/dedup.py`)
 
 `assert_fact` decides whether a new value is the same statement as a current one (same entity, predicate and scope):
@@ -298,7 +348,7 @@ before P9-c have no key and only match by exact text. Thresholds: `PLEXUS_DUP_JA
 
 A merge keeps the raw wording: `ASSERTED_BY.text` on the duplicate's edge, so it is detectable and reversible.
 `assert_fact` returns `possible_duplicates: [{fact_id, value, cos, jaccard}]` (empty when none; at most 5) and every `recall`
-fact carries `maybe_duplicate_of: [fact ids]`.
+fact carries `maybe_duplicate_of: [fact ids]` (a compact hit only when it is non-empty).
 
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|

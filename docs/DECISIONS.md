@@ -422,3 +422,131 @@ records; `tests/integration/test_audit_recall_predicates_plan.py` pins it). What
 predicate in *every* scope plus one `IN_SCOPE` hop each; the scope is an edge, not an indexed Fact property, so no single-property
 index can absorb it and the cost of a common predicate grows with the number of current facts across the tenant's scopes, not with
 its history. Documented in the query header; bounded by `RECALL_PREDICATES` (10 predicates per recall).
+
+**Amendment 2026-10-18 (3) — P12's lexical fusion is off by default; recall's per-entity reads run once per entity (`docs/BASELINE.md`
+"Recall-check", `docs/research/TRIALS_INT_MERGE.md` §6 items 1-3).** The merge of p12 into main left three open questions; this
+records the answers, each measured under a pre-registration written before the first run.
+
+*1. Double counting.* p12's `fuse_scores` (relevance = `(1 - w) · cosine + w · lexical`, `w = 0.5`) and D-013's cues both reward query words that sit
+in the entity name or the predicate (the lexical score counts them as coverage, the cue term adds `w · (S - ln fan)` for the same match). The
+decision was made by the rule fixed before the runs: nine criteria (L5b `sep+mult` recall@1 / recall@5 / critical loss / other-entity rows / noise
+share over N = 5, 15, burst; hub `sep` recall@1; L8 needed facts, canonical, replay >= 28/36); if neither setting passes all nine, the default is the one
+failing fewer. Measured on the merged build with FalkorDB 6.0.2: **lexical OFF fails 2** (noise share 32.3 / 41.6 / 33.3 % against the registered <= 24 %;
+L8 replay 27/36), **ON fails 3** (the same two, noise 42.7 / 60.1 / 41.6 %, and one critical probe lost of 80 at N = 15, where D-012/D-013 had 0). On the
+metrics that were reported but not criteria, OFF is also ahead (L6-C `P-product` `hit_any` at depth 1/2/3: OFF 23/9/0 = main's tip today, ON 13/3/1) or
+level (the two clean L8 runs found the same facts in every replay call). The fusion's clear gains are on flat retrieval: the hub world's no-scoring arms (100 % instead
+of 96.5 %) and L5b `off` recall@1 (85.0 % instead of 79.3 %); D-013's cues already give the same in the arms that ship (`sep` 100 % / 85.7 % in both settings). **Decision: `PLEXUS_RECALL_LEXICAL_WEIGHT` defaults to 0** (main's
+relevance, `1 - rank`); `FUSION_WEIGHT = 0.5` is what the fusion was designed with and is available as an opt-in (`PLEXUS_RECALL_LEXICAL_WEIGHT=0.5`).
+The fusion code, its tests and its env switch stay. Honest limits of the decision: it is a count of two failures against three, one of them the replay
+number, which moves by +-1 between plays of identical code (27, 28 and 29 were all measured: new ids decide the near-ties of the twenty
+`billing_cycle` facts); without that criterion the counts are 1 and 2 and the decision is the same. The L5b / hub harness keeps its pin
+(`PLEXUS_L5_LEXICAL_WEIGHT`, default 0): it now equals the product default, and the variable stays for the ON/OFF comparison.
+
+*2. Published numbers on the merged build.* Recall@1 (85.7 %, the ceiling), recall@5 (100 %), critical loss (0), cross-entity displacers (0) and the hub
+result (100 %) reproduce with the fusion off. **The noise share does not, in either setting, and is reported as a moved number:** `sep+mult` 32.3 % (N = 5),
+41.6 % (N = 15), 33.3 % (burst) on the merged build against 22.1 / 20.0 / 21.6 % measured today on main's tip `1ddeb13` through the same harness (published
+20.6-22.1 %); `sep+mult` no longer removes noise relative to `sep` (31.7 -> 32.3, where it removed 4-9 points on main). The fusion explains part of it
+(ON - OFF: +10.4 / +18.5 / +8.3 points); a remainder of +10.2 / +21.6 / +11.7 points over main is already present on p12's own tip before any D-013 code
+(`off` mode: 40.3 / 57.4 % there, with the fusion on) and **no single switch removes it** (bypass text, pool size, value-only keyword ids: post-hoc X1, X3, X4,
+X5, all within +-2 points; dropping the keyword channel (X2) cuts the noise to 16.7 / 17.7 % but costs recall@1 (72.9 / 68.6 %), because the keyword bypass is
+what shields the cold target facts from the D-012 multiplier). The cause is therefore **not attributed**; the untested differences are the Python sibling boost
+(seeds, order), the fused sort, and the `search_text` full-text ranking. The published noise-share figures of `PLEXUS_REPORT` §7.5 describe main's build, not the merged one. L6-C's product arms
+(the only L6 family that calls `recall`): `hit_any` is 23 / 9 / 0 against the published 11 / 6 / 1, but main's tip gives the same 23 / 9 / 0 today (the published row predates main's predicate cue and
+section 3.3 union), the merged build with the fusion off reproduces it exactly and with the fusion on it is 13 / 3 / 1; strict stays 0/75 in every run, as registered. L6 A/B/D/E/F do not call `recall` and are re-run once for the write-path
+changes of the merge (see BASELINE).
+
+*3. `fan_e` on a hub.* Confirmed as a defect, then fixed: `fan_e` and the sibling scan ran per surviving row (up to `$lim` = 120-300 rows after p12), so a
+hub contributing 60 rows rescanned its `ABOUT` edges 60 times: 61,295 records in one operator for a 1,000-fact hub (289 ms), 305,295 for 5,000 facts (1,478 ms).
+They now run once per distinct entity in a `CALL` subquery (1,060 and 5,060 records, 19.6 and 34.2 ms); rows, ranks, `damp` and `sib_of` are unchanged (576 old-vs-new
+parameter sets, 0 differences) and `tests/integration/test_recall_hub_plan.py` pins the record counts at both sizes.
+
+## D-014 — Integration of p9f-b: one statement per answer, and a write's provenance (integ, P9-f)
+
+**Context.** Branch `p9f-b` fixed what Crucible L6 found (impact timeout and truncation, `why` / `blocked_by_failure` read
+as several statements that tore under concurrent writes, 7.6% of records without Step/WROTE after a hard kill). `main` had
+meanwhile merged `p9int` (impact rewrite, depth args, WROTE folded into the write statements) and the Cypher audit
+(quarantine / forget CALL tails, `why_derived_level` bind-first). Both fixed overlapping problems differently; 31 files
+conflicted, so each p9f-b commit was decided on its own (`docs/research/INTEG_MERGE.md`).
+
+**Decision.**
+1. *Reads that must be one snapshot are one statement:* `lineage/why_edges` (ancestry + display props, replaces
+   `why_derived_level` and the `node_info` round trip) and `relay/dependents_closure` (replaces `dependents_of` + the
+   Python loop). The audit's bind-first rule is kept and pinned on `why_edges`.
+2. *`impact` never hides a cut list:* P9-int's output is kept and extended with `records` (status, valid_from,
+   created_at), `order`, `offset` / `next_offset`, `ids_truncated`, `probe_ids`. The 2,000-id cap of P9-int stays (p9f-b
+   used 200); paging and probes make a cut harmless at any cap.
+3. *A write's provenance:* the Step / WROTE design of P9-int / P12 is kept (the runtime opens the Step first and the
+   statement writes WROTE; `FOLDS_WROTE`), not p9f-b's `StepIntent` (the statement creates the Step). Two ways to do the same
+   thing in one tree would make every tool answer "which one?"; the kill loop shows 0 orphans with the kept design. Only the
+   part with no equivalent moved: `assert_fact(derived_from=...)` writes DERIVED_FROM inside its statement (before it was
+   `Lineage.derive_from`, a second statement, and a hard kill between them lost the link for good: 9 of 1,240, 13 after P9-int).
+
+**Not done, on purpose.** READ edges of a write are still linked after it (a lost READ edge is not an orphan: the memory and
+its WROTE exist). `StepIntent` is not ported. `quarantine` / `forget_source` keep the audit's CALL tails (p9f-b's
+one-pass join is the same idea; their scale test passes unchanged).
+
+## D-015 — Multi-source facts: quarantine and forget respect a fact's other live sources (P13, trial 8)
+
+**Context.** Trial 8 (`trials/FINDINGS.md` section 5): rule C1 was required by two documents (compliance memo and product
+spec). `assert_fact` took one `source_id`; all four Plexus runs linked C1 to the memo and wrote "also product P2" into the value
+text. In session 3 ("the memo is void") C1 was kept only because the agent read that text; `quarantine_source(memo)` would have
+hidden C1 and `forget_source(memo)` would have forgotten it. No run used `quarantine_source` or `why`.
+
+**What was already true.** The model never limited a fact to one source: a `Fact` has one `DERIVED_FROM` edge per Source, `why`,
+`recall(detail=full)`, the View API and `activation` already read them as lists, and the duplicate path of `assert_fact` already
+MERGEd `source_id` / `derived_ids` onto the existing fact. What was single-source was the **write surface** (one `source_id`) and the
+**retraction semantics** (`quarantine` / `forget_source`: "reaches the Source, so it goes"; the `forget_source` header: "forgotten as soon as
+ANY of them is forgotten"). So the fix is in four places, not in the model: no new label, edge type or tool.
+
+**Decision.**
+1. *Write.* `assert_fact(source_ids=[...])` (max 20, unioned with `source_id`; the MCP argument is a list). Every listed Source gets its
+   own `(fact)-[:DERIVED_FROM]->(Source)` edge in the one assert statement. An id that is not a Source rejects the whole call (nothing
+   written, not even the Entity): a silently dropped source would be the trial-8 failure again, and a half-linked fact cannot be
+   told from a complete one. `source_ids` travel in the existing `derived_ids` parameter (one MERGE per origin; the Python layer
+   checks they are Sources first with `engram/existing_origins`), so the statement's shape and plan are unchanged.
+2. *Corroboration.* Asserting an existing value again with sources the fact does not have links them to the existing fact (the
+   `duplicate_of` path, tier 0 / 1 / 2 alike) and the result says so: `duplicate_of` plus `sources_added: [...]` (`[]` when the call
+   added none; absent for a new fact, to keep the response small). `sources_added` is computed in the statement before its writes (one
+   pattern comprehension from the bound duplicate). No `link_source` tool: the duplicate path expresses it, and every extra tool is
+   resent on every model call.
+3. *Quarantine.* `quarantine_source(S)` marks the Source (`Source.quarantined_at`) and hides a reached fact only when it has **no direct
+   `DERIVED_FROM` edge to another Source that is not quarantined**. The others stay as they are and come back as
+   `corroborated: [{fact_id, other_sources}]` (+ `corroborated_total`), next to `fact_ids` (= the hidden ones). Reads, decisions and
+   handoffs describe the hidden facts only. Quarantining the last live Source of a corroborated fact later hides it; the order of
+   the two calls does not matter. `release_quarantine(S)` clears the mark and restores every quarantined fact in S's cascade (it has
+   S, now live), so a fact hidden by two quarantines is back as soon as one is released. Facts with no source are never reached.
+4. *Forget.* `forget_source(S)` forgets a reached fact only if S was its only remaining Source. A fact with another Source keeps its
+   status; only its edge to S is deleted (inside a `CALL`, the one write there) and it is listed as `unlinked: [{fact_id,
+   other_sources}]` (+ `unlinked_total`). If all its remaining Sources are quarantined it becomes `quarantined` (nothing live supports
+   it any more). Forgetting the second Source later forgets it. Idempotent: a second call finds nothing linked. This replaces "any source
+   forgets the fact": the old rule was only right while a fact could name one source.
+5. *Why / recall.* `why` already lists every source (`facts[].sources`, one `DERIVED_FROM` edge each), and `impact(kind=source)` gains
+   `facts.corroborated {total, ids, ids_truncated}` so the preview shows which facts `quarantine` would keep. Compact `recall` hits carry no
+   source information (P12 token cut) and still don't; `detail=full` lists every `DERIVED_FROM`.
+6. *Tool descriptions.* `assert_fact`: "A fact several documents support: pass all of them in source_ids", with the duplicate case.
+   `quarantine_source` / `forget_source`: when to use them (wrong, withdrawn or void source) and that facts another source supports
+   stay. The `source_id` argument text was shortened to pay for part of it: the list grows by 418 characters (core 30,182 -> 30,600,
+   full 47,843 -> 48,261 by `crucible/l8/manifest_size.py`, a $0 count; `manifest_probe` needs paid `claude -p` calls), guarded by a
+   450-character test budget. Empty `corroborated` / `unlinked` are not sent.
+
+**Cost (GRAPH.PROFILE, `demo_data/crucible/t8replay/profile.txt`).** One extra `CALL { WITH src, fs ... }` per query: `UNWIND fs`, one
+pattern comprehension of the fact's Source edges (raw values; the filter is a plain list comprehension), one aggregate row out. Records
++30% on 5,000 facts with two sources each (quarantine 100,064 -> 130,071 records, 358 -> 456 ms; forget 80,061 -> 105,075, 359 -> 452 ms;
+impact_source 95,065 -> 125,069, 354 -> 430 ms; release unchanged). The brief's ">10 s for 5,000 facts" does not reproduce on integ
+(0.36 s: the audit / P9-int `CALL` tails already fixed it). Plan shape pinned: no operation produces more than 3 records per cascade fact
+next to 1,500 unrelated facts (`tests/lineage/test_multisource_plans.py`). `lineage/impact_source` is generated: the generator changed.
+
+**Known limits (reported, not hidden).**
+- Support is judged on a fact's **direct Source edges**. A derived fact (fact -> fact) is rescued only by a Source of its own, never
+  by a corroborated parent: if C1 stays because of the spec, a fact derived only from C1 is still cascaded with the memo (same as before;
+  quarantine is reversible, forget is not). Following parents would need a fixpoint over the 12-hop levels inside one statement.
+- `activation` still counts a quarantined high-trust Source as protecting a fact (any `trust: high` source in the cascade).
+- Unknown tool arguments are silently dropped by the MCP layer (before P13 a client sending `source_ids` got no error and no link);
+  this is the framework's behaviour, not changed here.
+- The agent still has to name both documents. The tool nudge is the whole defence; whether it changes agent behaviour is measured by a
+  paid t8 re-run, which this change does not include (`python -m plexus.crucible.t8_replay` is the $0 check of the engine side).
+- The duplicate path already linked `source_id` onto the existing fact before P13 (it just did not say so); the brief's "re-asserting from a
+  second source drops it" does not hold on integ 1f9a8fa. The trial-8 runs lost the spec because they wrote C1 once, with the memo only.
+
+**Proof.** `tests/integration/test_multisource_assert.py`, `tests/lineage/test_multisource_lineage.py` (+ `_plans`), `tests/mcp/test_multisource_tools.py`,
+`tests/crucible/test_t8_replay.py`; the replay output is `plexus/demo_data/crucible/t8replay/` (`before_integ_1f9a8fa.*` is the same script on the old tree).

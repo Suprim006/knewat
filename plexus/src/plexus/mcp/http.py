@@ -7,6 +7,10 @@ middleware holds no pin for (never issued, evicted, expired) is refused with a 4
 initialize a new session. Pins are evicted least-recently-used. The tenant is a routing identity, not an
 authenticated one (bind to loopback / put a token in front if the port leaves the machine).
 
+A **toolset** (``?toolset=core`` or ``X-Plexus-Toolset``, see :mod:`plexus.mcp.toolsets`) is validated here (400
+with the valid names when unknown), fixed when the session is created (a later request naming another toolset gets
+a 400) and passed on as a trusted canonical ``x-plexus-toolset`` header; no toolset means the server's default.
+
 ``GET /healthz`` is a static liveness answer; ``GET /healthz?deep=1`` also pings the database (503 when it is down).
 """
 
@@ -21,6 +25,7 @@ import anyio
 
 from plexus.graph.tenancy import graph_name
 from plexus.mcp.runtime import TENANT_HEADER
+from plexus.mcp.toolsets import TOOLSET_HEADER, ToolsetError, canonical
 
 PATH_PREFIX = "/mcp/t/"
 MAX_PINS = 10_000
@@ -31,6 +36,7 @@ class TenantPathMiddleware:
         self.app = app
         self.health = health  # called by /healthz?deep=1; raises when the database is unreachable
         self.pins: OrderedDict[str, str] = OrderedDict()  # mcp-session-id -> tenant
+        self.toolsets: dict[str, str] = {}  # mcp-session-id -> canonical toolset (sessions that chose one)
         self.max_pins = max_pins
 
     @staticmethod
@@ -48,10 +54,17 @@ class TenantPathMiddleware:
         )
         await send({"type": "http.response.body", "body": body})
 
-    def _pin(self, sid: str, tenant: str) -> None:
+    def _pin(self, sid: str, tenant: str, toolset: str | None = None) -> None:
         self.pins[sid] = tenant
+        if toolset is not None:
+            self.toolsets[sid] = toolset
         while len(self.pins) > self.max_pins:
-            self.pins.popitem(last=False)
+            old, _ = self.pins.popitem(last=False)
+            self.toolsets.pop(old, None)
+
+    def _unpin(self, sid: str) -> None:
+        self.pins.pop(sid, None)
+        self.toolsets.pop(sid, None)
 
     async def __call__(self, scope, receive, send):
         if scope["type"] != "http":
@@ -86,7 +99,12 @@ class TenantPathMiddleware:
         except ValueError:
             return await self._reply(send, 400, "invalid tenant: must match ^[a-z0-9_]{1,48}$")
 
-        hdrs = [(k, v) for k, v in hdrs if k.lower() != TENANT_HEADER.encode()]
+        try:
+            requested = _requested_toolset(scope, hdrs)
+        except ToolsetError as exc:
+            return await self._reply(send, 400, f"invalid toolset: {exc}")
+        drop = (TENANT_HEADER.encode(), TOOLSET_HEADER.encode())
+        hdrs = [(k, v) for k, v in hdrs if k.lower() not in drop]
         raw_sid = next((v for k, v in hdrs if k.lower() == b"mcp-session-id"), None)
         sid = _text(raw_sid)
         if raw_sid is not None and sid is None:
@@ -99,8 +117,17 @@ class TenantPathMiddleware:
                 )
             if pinned != tenant:
                 return await self._reply(send, 403, "this MCP session is bound to a different tenant")
+            pinned_ts = self.toolsets.get(sid)
+            if requested is not None and requested != pinned_ts:
+                return await self._reply(
+                    send, 400, f"this MCP session uses toolset '{pinned_ts or 'default'}', not '{requested}' "
+                    "(the toolset is fixed when the session is created)"
+                )  # fmt: skip
             self.pins.move_to_end(sid)  # least-recently-used eviction: active sessions keep their pin
+            requested = pinned_ts
         hdrs.append((TENANT_HEADER.encode(), tenant.encode()))
+        if requested is not None:
+            hdrs.append((TOOLSET_HEADER.encode(), requested.encode()))
         scope = {**scope, "path": "/mcp", "raw_path": b"/mcp", "headers": hdrs}
         is_delete = scope["method"] == "DELETE"
 
@@ -109,12 +136,26 @@ class TenantPathMiddleware:
                 if not sid:
                     for k, v in msg.get("headers", []):
                         if k.lower() == b"mcp-session-id" and (new_sid := _text(v)):
-                            self._pin(new_sid, tenant)
+                            self._pin(new_sid, tenant, requested)
                 elif is_delete and 200 <= msg["status"] < 300:
-                    self.pins.pop(sid, None)
+                    self._unpin(sid)
             await send(msg)
 
         await self.app(scope, receive, send_wrap)
+
+
+def _requested_toolset(scope, hdrs) -> str | None:
+    """The canonical toolset the request names (``?toolset=`` and/or ``X-Plexus-Toolset``), ``None`` if neither.
+    Raises :class:`ToolsetError` for an unknown name, a non-UTF-8 header or two different values."""
+    query = parse_qs(scope.get("query_string", b"").decode("latin-1"), keep_blank_values=True).get("toolset")
+    raw = next((v for k, v in hdrs if k.lower() == TOOLSET_HEADER.encode()), None)
+    header = _text(raw)
+    if raw is not None and header is None:
+        raise ToolsetError("X-Plexus-Toolset is not valid UTF-8")
+    picked = {canonical(v) for v in [*(query or []), *([header] if header is not None else [])]}
+    if len(picked) > 1:
+        raise ToolsetError(f"the URL and X-Plexus-Toolset name different toolsets: {sorted(picked)}")
+    return picked.pop() if picked else None
 
 
 def _text(raw: bytes | None) -> str | None:

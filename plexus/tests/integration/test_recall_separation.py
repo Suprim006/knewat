@@ -21,6 +21,7 @@ from plexus.activation import score as S
 from plexus.embed import HashEmbedder
 from plexus.embed.base import DIM
 from plexus.engram import Engram
+from plexus.engram import service as svc
 from plexus.lineage import Lineage
 
 WE, WP = S.W_ENTITY_DEFAULT, S.W_PREDICATE_DEFAULT
@@ -55,6 +56,14 @@ class NamingEmbedder:
 @pytest.fixture
 def eng(client, graph) -> Engram:
     return Engram(client, graph, NamingEmbedder())
+
+
+@pytest.fixture(autouse=True)
+def _no_lexical_fusion(eng) -> None:
+    """These tests pin the D-013 terms against an exact cosine relevance. P12's lexical fusion (a query-word
+    coverage score mixed into the relevance, ``fuse_scores``) is orthogonal and tested in test_p12_recall.py;
+    the one test that runs both together sets the weight back (``test_defaults_*``)."""
+    eng.lexical_weight = 0.0
 
 
 @pytest.fixture
@@ -202,7 +211,7 @@ def test_memory_strength_reports_salience_fan_and_entity_lift(eng, scope, twins,
 
 def test_recall_entities_is_an_index_seek_not_a_scope_scan(client, graph):
     seed_big_scope(client, graph)
-    params = {"q": "e1|entity", "scope_id": "S", "limit": 5, "statuses": ["active"], "t": 5}
+    params = {"q": "e1|entity", "scope_id": "S", "all": False, "limit": 5, "statuses": ["active"], "t": 5}
     ops = profile_ops(client, graph, "engram/recall_entities", params)
     worst = max_records(ops)
     assert worst.records < BIG, f"scope-wide enumeration: {worst}\n" + "\n".join(map(str, ops))
@@ -210,7 +219,7 @@ def test_recall_entities_is_an_index_seek_not_a_scope_scan(client, graph):
 
 def test_recall_predicates_is_an_index_seek_not_a_scope_scan(client, graph):
     seed_big_scope(client, graph)
-    params = {"predicates": ["p", "nothing"], "scope_id": "S", "statuses": ["active"], "t": 5}
+    params = {"predicates": ["p", "nothing"], "scope_id": "S", "all": False, "statuses": ["active"], "t": 5}
     rows = {r["predicate"]: r["fan"] for r in client.ro(graph, "engram/recall_predicates", params)}
     assert rows == {"p": BIG, "nothing": 0}, "one row per input predicate, fan 0 when none"
     assert client.ro(graph, "engram/recall_predicates", {**params, "predicates": []}) == []
@@ -222,10 +231,15 @@ def test_recall_predicates_is_an_index_seek_not_a_scope_scan(client, graph):
 # -- CROSS_CHECK §3.3: the named entity's own facts join the candidates -----------------------------
 
 
-def test_the_named_entitys_facts_join_the_candidates_when_the_vector_fetch_misses_them(eng, scope):
+def test_the_named_entitys_facts_join_the_candidates_when_the_vector_fetch_misses_them(
+    eng, scope, monkeypatch
+):
     """Fifty near facts about other entities crowd the named entity's far fact out of the over-fetch
-    (k = 2: 8 vector seeds, retried up to 512 only while fewer than k rows survive); with separation on
-    the entity read adds it and the two cues rank it first."""
+    (the pool is shrunk to 6 so the vector fetch is 24 nodes; since P12 the default pool of 60 would reach all
+    of them); with separation on the entity read adds it and the two cues rank it first."""
+    monkeypatch.setattr(svc, "MIN_POOL", 2)
+    # P12's keyword channel also matches the entity name and would find the fact: isolate the vector side
+    monkeypatch.setattr(eng, "_keyword_ids", lambda *a, **k: [])
     for i in range(50):
         eng.assert_fact(
             f"Other Thing {i}", "api_version", f"v{i} ~0.{58 + i % 3}", scope, "alice", now=1000 + i
@@ -233,8 +247,50 @@ def test_the_named_entitys_facts_join_the_candidates_when_the_vector_fetch_misse
     target = eng.assert_fact("Lonely Service", "api_version", "v7 ~0.62", scope, "alice", now=2000)["fact_id"]
     q = "Lonely Service api_version QUERY"
     plain = eng.recall(q, scope, k=2, forgetting=False, separation=False)
-    assert target not in ids(plain), "the vector fetch stops at the 8 nearest in-scope facts"
+    assert target not in ids(plain), "the vector fetch stops at the 24 nearest in-scope facts"
     got, meta = eng.recall_with_meta(q, scope, k=2, forgetting=False, separation=True)
     assert meta["entity_facts_added"] == 1 and ids(got)[0] == target
     assert got[0]["entity_match"] is True and got[0]["predicate_match"] is True
     assert got[0]["via"] is None and got[0]["score"] == pytest.approx(0.62, abs=1e-3)
+
+
+# -- merged with P12: the pool, scope 'all' and lexical fusion next to the D-013 terms ----------------------
+
+
+def test_the_python_sibling_boost_keeps_the_fan_damping(eng, scope):
+    """P12 re-applies the sibling boost in Python (``_sibling_boost``); the D-013 fan damping must survive
+    that: the Cypher returns the entity's damp factor per row and the Python boost is scaled by it."""
+    for i in range(60):
+        eng.assert_fact("Hub Service", f"setting_{i}", f"value {i} ~0.90", scope, "alice", now=1000 + i)
+    eng.assert_fact("Hub Service", "api_version", "v1 ~0.30", scope, "alice", now=2000)
+    q = eng._embed_query("Hub Service api_version QUERY")
+    args = (q, scope, 6, 10_000, ["active"], [], False)
+    damped = eng._fetch_candidates(*args, damp=True, smax=math.log(50))
+    plain = eng._fetch_candidates(*args, damp=False, smax=math.log(50))
+    assert all(r["damp"] == 0.0 for r in damped) and all(r["damp"] == 1.0 for r in plain)
+    svc._sibling_boost(damped, 1)
+    svc._sibling_boost(plain, 1)
+    assert all(r["rank"] == pytest.approx(r["score"]) for r in damped), "fan 61 >= 50: no sibling boost"
+    boosted = [r for r in plain if r["rank"] < r["score"]]
+    assert boosted and all(r["rank"] == pytest.approx(r["score"] - svc.EXPAND_BOOST) for r in boosted)
+
+
+def test_opt_in_lexical_fusion_and_separation_together(eng, scope, twins):
+    target, twin, sib, sib8 = twins
+    eng.lexical_weight = svc.FUSION_WEIGHT  # P12's fusion (opt-in since the recall-check), on top of D-013
+    got = eng.recall(Q, scope, k=3)
+    assert ids(got)[0] == target and set(ids(got)) <= {target, twin, sib, sib8}
+
+
+def test_all_scopes_counts_the_fans_over_every_scope(eng, scope):
+    proj = eng.create_scope("project", "p1", inherits=[scope])
+    other = eng.create_scope("project", "p2", inherits=[scope])
+    eng.assert_fact("Acme Notes API S07", "api_version", "v14 ~0.30", scope, "alice", now=1000)
+    eng.assert_fact("Acme Notes API S07", "database", "pg ~0.40", proj, "alice", now=1001)
+    eng.assert_fact("Acme Notes API S07", "cache", "redis ~0.45", other, "alice", now=1002)
+    scoped, meta = eng.recall_with_meta(Q, proj, k=5)
+    assert next(iter(meta["entities"].values()))["fan"] == 2, "global + p1, not p2"
+    everywhere, meta = eng.recall_with_meta(Q, scope, k=5, all_scopes=True)
+    assert next(iter(meta["entities"].values()))["fan"] == 3, "scope 'all': every scope counts"
+    assert meta["entity_facts_added"] >= 0 and len(everywhere) == 3 and len(scoped) == 2
+    assert meta["predicates"] == {"api_version": {"fan": 1}}

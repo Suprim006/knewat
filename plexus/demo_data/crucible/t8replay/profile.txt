@@ -1,0 +1,23 @@
+GRAPH.PROFILE, old (integ 1f9a8fa) vs new (multisource), median wall ms of 5 runs (N=1,000) / 3 runs (N=5,000), a fresh graph per run, Docker Desktop on Windows (2x swings are normal; compare records first).
+Fixture (tests/lineage/audit_util.seed_scale + a second Source SRC2 on every fact, quarantined): Source SRC with N facts, each with one reader Step, one Decision and one Handoff; every fact ALSO derives from SRC2, which is already quarantined, so the retraction has the same work as before (all N facts hidden / forgotten) plus the new corroboration check.
+Run: scratch ms_prof2.py 5 prequar (not committed; fixture above is tests/lineage/test_multisource_plans.py's, scaled).
+
+query                          N      old: records  ms     new: records  ms
+lineage/quarantine             1000   20,064        27     26,071        43
+lineage/quarantine             5000   100,064       358    130,071       456
+lineage/forget_source          1000   16,061        28     21,075        45
+lineage/forget_source          5000   80,061        359    105,075       452
+lineage/release_quarantine     1000   10,052        23     10,054        22
+lineage/release_quarantine     5000   50,052        345    50,054        340
+lineage/impact_source          1000   19,065        22     25,069        38
+lineage/impact_source          5000   95,065        354    125,069       430
+
+Other fixtures, new queries only (single call, PROFILE wall ms): every fact has SRC and a LIVE SRC2 ("both": quarantine/forget find all N corroborated / unlinked, so the reader / decision / handoff joins read nothing):
+lineage/quarantine             5000   70,079 records   446 ms
+lineage/forget_source          5000   100,075 records  538 ms
+lineage/impact_source          5000   125,069 records  466 ms
+Single-source facts (no SRC2; pure overhead of the check):
+lineage/quarantine             5000   125,071 records  487 ms
+lineage/forget_source          5000   105,076 records  504 ms
+Brief said quarantine of 5,000 facts already exceeds 10 s on 6.0.2; on integ 1f9a8fa it is 0.36 s (the audit / P9-int CALL tails fixed that), and stays under 0.6 s here.
+Plan shape: tests/lineage/test_multisource_plans.py (200 cascade facts next to 1,500 unrelated ones: no operation produces more than 3 records per cascade fact).

@@ -1,0 +1,7 @@
+# Release settings (Acme Notes API S21)
+
+release.channel: AX-38240
+release.version_tag: AX-84412
+release.rollout_pct: AX-61963
+release.freeze_day: AX-94005
+release.changelog_path: AX-22467

@@ -1,0 +1,6 @@
+{
+ "note": "Every paid L8 call that is not part of a scored run, with its cost (plan §8: discarded runs count against the budget).",
+ "entries": [
+  {"when": "2026-10-16T21:0x+05:45", "what": "harness shake-down: report --audit on the $0 fake-claude test runs triggered 3 real B0' reader calls (Q1-Q3) on fake data", "calls": 3, "cost_usd": 0.1884, "kept": false}
+ ]
+}

@@ -3,6 +3,8 @@
 // params: source_id:str, limit:int, depth:int
 // returns: fact_ids (facts restored), truncated. Zero rows = no such Source.
 // mode: rw
+// P13 (D-015): also clears Source.quarantined_at, so the Source counts as live again for the facts it shares with other (still quarantined) Sources: a fact hidden because ALL its sources were quarantined is restored as soon as ONE of them
+// is released (it reaches the released Source, so it is in the cascade). Corroborated facts were never touched by quarantine, so there is nothing to undo for them.
 // Facts quarantined through ANOTHER source are restored too if they also reach this one; release the sources you trust again, in the order you like.
 // Plan shape (P5 review Q3, P9-b): the cascade is expanded level by level FROM the Source (up to 12 fixed one-hop OPTIONAL MATCHes, each driven by the
 // DISTINCT facts found at the previous level and skipped once $depth is reached), so the work follows DERIVED_FROM edges and a diamond lineage
@@ -63,4 +65,5 @@ UNWIND CASE WHEN size(cand) = 0 THEN [null] ELSE cand END AS f
 WITH DISTINCT src, f LIMIT $limit
 WITH src, collect(f) AS fs
 FOREACH (z IN fs | SET z.status = coalesce(z.prior_status, 'active') REMOVE z.prior_status, z.quarantined_at)
+FOREACH (sq IN [src] | REMOVE sq.quarantined_at)
 RETURN [a IN fs | a.id] AS fact_ids, size(fs) >= $limit AS truncated

@@ -226,7 +226,7 @@ class Runtime:
         # assert_fact / record_decision / handoff: the Step is opened BEFORE the tool, so the tool's own write
         # statement creates (Step)-[:WROTE]->(node) (crash-consistency, L6-F). Everyone else is linked after.
         pre = (
-            (agent_id, step, started, degraded)
+            (tool, agent_id, step, started, degraded)
             if mode == "full" and tool in lineage_hook.FOLDS_WROTE
             else None
         )
@@ -287,20 +287,20 @@ class Runtime:
         fn: Callable[[TenantState, MeteredClient], Outcome],
         *,
         read_only: bool = False,
-        pre_step: tuple[str, int | None, int, list[str]] | None = None,
+        pre_step: tuple[str, str, int | None, int, list[str]] | None = None,
     ) -> tuple[TenantState, MeteredClient, Outcome]:
         """Run the tool function, once more on a fresh tenant state if the cached one was stale.
 
         ``read_only`` (audit mode ``off``): the tenant must already exist and the client refuses every write.
-        ``pre_step`` = (agent_id, step, at, degraded): open the agent's Step first and expose it as
+        ``pre_step`` = (tool, agent_id, step, at, degraded): open the agent's Step first and expose it as
         ``m.step_id``; if the tool then fails, the still-empty Step is removed again (a rejected call leaves no Step).
         """
         ts = self.state(tenant, create=not read_only)
         for attempt in (0, 1):
             m = MeteredClient(self.client, read_only=read_only)
             if pre_step is not None:
-                pre_step[3].clear()
-                m.step_id = self._open_step(ts, *pre_step)
+                pre_step[4].clear()
+                m.step_id = lineage_hook.open_pre_step(self.client, ts, *pre_step)
             try:
                 return ts, m, fn(ts, m)
             except Exception as exc:

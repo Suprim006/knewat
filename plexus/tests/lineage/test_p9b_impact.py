@@ -27,7 +27,7 @@ def test_impact_source_matches_the_quarantine_blast_radius_and_writes_nothing(wo
     assert got["readers"]["agents"] == q["agents"]
     assert got["readers"]["steps_total"] == len({x["step_id"] for x in q["readers"]})
     assert (got["decisions"]["total"], got["decisions"]["ids"]) == (1, [w.decision])
-    assert got["tasks"] == {"total": 1, "ids": ["t-build"]}
+    assert (got["tasks"]["total"], got["tasks"]["ids"]) == (1, ["t-build"])
     assert (got["handoffs"]["total"], got["handoffs"]["ids"]) == (q["handoffs_total"], q["handoff_ids"])
     assert got["truncated"] is False
 
@@ -95,7 +95,13 @@ def test_impact_carries_timestamps_per_facet(world, lin):
     assert len(facts["earliest"]) == 2 and facts["earliest"][0]["at"] == facts["earliest_at"]
     assert got["readers"]["earliest_at"] is not None and got["decisions"]["earliest_at"] == 4000
     none = lin.impact("fact", w.sessstore)
-    assert none["handoffs"] == {"total": 0, "ids": [], "earliest_at": None, "latest_at": None}
+    assert none["handoffs"] == {
+        "total": 0,
+        "ids": [],
+        "ids_truncated": False,
+        "earliest_at": None,
+        "latest_at": None,
+    }
 
 
 def test_impact_5000_fact_blast_answers_in_under_2_s_with_exact_totals(client, empty_graph, clock):
@@ -115,7 +121,7 @@ def test_impact_5000_fact_blast_answers_in_under_2_s_with_exact_totals(client, e
         got["decisions"]["earliest_at"] == 3000
         and got["handoffs"]["latest_at"] == 4000 + len(d["handoffs"]) - 1
     )
-    assert got["tasks"] == {"total": 1, "ids": ["t-b"]}
+    assert (got["tasks"]["total"], got["tasks"]["ids"]) == (1, ["t-b"])
 
 
 def test_plan_shape_impact_does_not_scan_unrelated_edges(client, empty_graph):

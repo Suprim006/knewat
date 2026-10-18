@@ -1,8 +1,9 @@
 // name: engram/recall_entities
 // purpose: Pattern separation at recall (D-013 P1): the entities a recall query names (full-text on Entity.name, OR of the query words) with each one's fan = its current facts in the searched scopes; bounded to $limit entities.
-// params: q:str (RediSearch syntax: words joined by a pipe = OR), scope_id:str, limit:int, statuses:list[str], t:int
+// params: q:str (RediSearch syntax: words joined by a pipe = OR), scope_id:str, all:bool, limit:int, statuses:list[str], t:int
 // returns: entity_id, name, score (full-text relevance, higher = better), fan (facts ABOUT the entity with status in statuses, valid at t, in the scope or a scope it INHERITS <= 3 hops; 0 when none); best first, then id. No rows when the scope does not exist.
 // mode: ro
+// $all (P12, recall scope 'all'): count the facts of every scope instead of the scope walk; the walk still runs (an unknown scope id leaves sids empty).
 // The Python wrapper (plexus.engram.service.Engram._resolve_entities) keeps only the entities whose every name word appears in the query
 // (the OR query also returns entities that share one word, e.g. every "Acme Notes API Sxx" twin for "Acme Notes API S07 api_version";
 // a twin must not get the entity lift). plexus.activation.rank turns the fan into the lift gamma * max(0, 1 - ln(fan) / S_max).
@@ -21,7 +22,7 @@ OPTIONAL MATCH (e)<-[:ABOUT]-(f:Fact)
   WHERE f.status IN $statuses AND f.valid_from <= $t AND $t < f.valid_to
 WITH sids, e, score, f
 OPTIONAL MATCH (f)-[:IN_SCOPE]->(fs:Scope)
-  WHERE fs.id IN sids
+  WHERE $all OR fs.id IN sids
 WITH e, score, CASE WHEN fs IS NULL THEN null ELSE f END AS g
 RETURN e.id AS entity_id, e.name AS name, score, count(g) AS fan
 ORDER BY score DESC, e.id ASC

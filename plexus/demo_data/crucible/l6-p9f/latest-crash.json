@@ -1,0 +1,153 @@
+{
+ "schema": "crucible-l6/1",
+ "kind": "crash",
+ "run": {
+  "id": "20261016T082545Z-crash",
+  "started_at": "2026-10-16T08:25:45Z",
+  "finished_at": "2026-10-16T08:44:44Z",
+  "command": "python -m plexus.crucible.l6.run crash --port 6363 --out demo_data/crucible/l6-p9f",
+  "llm_calls": 0,
+  "cost_usd": 0.0
+ },
+ "git": {
+  "commit": "740b94eabff7d6aa3bf2ee2af60ecf39b1ca64ef",
+  "short": "740b94e",
+  "dirty": false,
+  "branch": "p9f-b"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "machine": "AMD64",
+  "cpu_count": 12,
+  "in_docker": false,
+  "git_commit": "740b94e",
+  "embedder": "none",
+  "falkordb": {
+   "host": "127.0.0.1",
+   "port": 6363,
+   "reachable": true,
+   "redis_version": "8.10.2",
+   "os": "Linux 5.15.146.1-microsoft-standard-WSL2 x86_64",
+   "falkordb_args_env": "",
+   "modules": [
+    {
+     "name": "graph",
+     "ver": 60002,
+     "path": "/var/lib/falkordb/bin/falkordb.so",
+     "args": [
+      "TIMEOUT_MAX",
+      "10000",
+      "TIMEOUT_DEFAULT",
+      "5000",
+      "MAX_QUEUED_QUERIES",
+      "500",
+      "RESULTSET_SIZE",
+      "100000",
+      "QUERY_MEM_CAPACITY",
+      "268435456"
+     ]
+    },
+    {
+     "name": "vectorset",
+     "ver": 1,
+     "path": "",
+     "args": []
+    }
+   ],
+   "graph_config": {
+    "TIMEOUT_MAX": 10000,
+    "TIMEOUT_DEFAULT": 5000,
+    "MAX_QUEUED_QUERIES": 500,
+    "RESULTSET_SIZE": 100000,
+    "QUERY_MEM_CAPACITY": 268435456,
+    "THREAD_COUNT": 12,
+    "CACHE_SIZE": 25,
+    "OMP_THREAD_COUNT": 12
+   }
+  }
+ },
+ "config": {
+  "kills_per_arm": 200,
+  "delay_ms": [
+   0,
+   400
+  ],
+  "seed": 20261016,
+  "embedder": "hash"
+ },
+ "families": {
+  "F": {
+   "B1h": {
+    "totals": {
+     "facts": 32441,
+     "decisions": 16139,
+     "handoffs": 16103
+    },
+    "orphans": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "orphans_total": 0,
+    "missing_derived_from": 0,
+    "lost_acknowledged": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "lost_acknowledged_total": 0,
+    "rule_of_three_upper_pct": 0.0,
+    "kills": 200,
+    "acknowledged_writes": 64587
+   },
+   "P": {
+    "totals": {
+     "facts": 1430,
+     "decisions": 655,
+     "handoffs": 638
+    },
+    "orphans": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "orphans_total": 0,
+    "missing_derived_from": 0,
+    "lost_acknowledged": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "lost_acknowledged_total": 0,
+    "rule_of_three_upper_pct": 0.11,
+    "kills": 200,
+    "acknowledged_writes": 2653
+   },
+   "B0": {
+    "totals": {
+     "facts": 1208,
+     "decisions": 511,
+     "handoffs": 494
+    },
+    "orphans": {
+     "facts": 3,
+     "decisions": 2,
+     "handoffs": 1
+    },
+    "orphans_total": 6,
+    "missing_derived_from": 0,
+    "lost_acknowledged": {
+     "facts": 0,
+     "decisions": 0,
+     "handoffs": 0
+    },
+    "lost_acknowledged_total": 0,
+    "rule_of_three_upper_pct": null,
+    "corrupt_lines": 0,
+    "kills": 200,
+    "acknowledged_writes": 2204
+   }
+  }
+ }
+}

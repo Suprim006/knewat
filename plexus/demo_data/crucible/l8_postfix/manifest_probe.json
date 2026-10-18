@@ -1,0 +1,22 @@
+{
+ "none": {
+  "prompt_tokens": 5963,
+  "cost_usd": 0.0094853,
+  "tool_list_tokens": 0
+ },
+ "full": {
+  "prompt_tokens": 33403,
+  "cost_usd": 0.0128845,
+  "tool_list_tokens": 27440
+ },
+ "compact": {
+  "prompt_tokens": 25840,
+  "cost_usd": 0.012128199999999999,
+  "tool_list_tokens": 19877
+ },
+ "head": {
+  "prompt_tokens": 34836,
+  "cost_usd": 0.013027799999999999,
+  "tool_list_tokens": 28873
+ }
+}

@@ -98,8 +98,8 @@ def create_tasks(
 ) -> Outcome:
     """Create a batch of tasks with dependencies (a DAG) in one atomic step: all are created or none. A task
     becomes claimable once everything in its depends_on is done. Returns the task ids in input order."""
-    ids = ts.relay(m).create_tasks([t.model_dump(exclude_none=True) for t in tasks])
-    return Outcome({"task_ids": ids}, created=[("Task", i) for i in ids])
+    ids = ts.relay(m).create_tasks([t.model_dump(exclude_none=True) for t in tasks], step_id=m.step_id)
+    return Outcome({"task_ids": ids}, created=[("Task", i) for i in ids], linked=ids if m.step_id else ())
 
 
 @tool
@@ -109,10 +109,10 @@ def claim_next_task(
     """Atomically claim the highest-priority task that is ready (all dependencies done). No two agents can win
     the same task. Returns {task: null} when nothing is ready. Keep the 'version' for complete_task/fail_task and
     call heartbeat while working."""
-    t = ts.relay(m).claim_next_task(agent_id, lease_ms)
+    t = ts.relay(m).claim_next_task(agent_id, lease_ms, step_id=m.step_id)
     if t is None:
         return Outcome({"task": None})
-    return Outcome({"task": t}, updated=[("Task", t["id"])])
+    return Outcome({"task": t}, updated=[("Task", t["id"])], linked=[t["id"]] if m.step_id else ())
 
 
 @tool
@@ -144,8 +144,13 @@ def complete_task(
 ) -> Outcome:
     """Mark a claimed task done and attach the artifacts you produced. Fails with a conflict if you no longer
     hold the task at that version (someone else reclaimed it). Completing unblocks dependent tasks."""
-    r = ts.relay(m).complete_task(agent_id, task_id, expected_version, _dump(artifacts))
-    return Outcome(r, created=[("Artifact", a) for a in r["artifact_ids"]], updated=[("Task", task_id)])
+    r = ts.relay(m).complete_task(agent_id, task_id, expected_version, _dump(artifacts), step_id=m.step_id)
+    return Outcome(
+        r,
+        created=[("Artifact", a) for a in r["artifact_ids"]],
+        updated=[("Task", task_id)],
+        linked=[task_id] if m.step_id else (),
+    )
 
 
 @tool
@@ -162,8 +167,15 @@ def fail_task(
     step: Step = None,
 ) -> Outcome:
     """Mark a claimed task failed. Tasks that depend on it stay blocked (see blocked_by_failure)."""
-    r = ts.relay(m).fail_task(agent_id, task_id, expected_version, _dump(artifacts), reason)
-    return Outcome(r, created=[("Artifact", a) for a in r["artifact_ids"]], updated=[("Task", task_id)])
+    r = ts.relay(m).fail_task(
+        agent_id, task_id, expected_version, _dump(artifacts), reason, step_id=m.step_id
+    )
+    return Outcome(
+        r,
+        created=[("Artifact", a) for a in r["artifact_ids"]],
+        updated=[("Task", task_id)],
+        linked=[task_id] if m.step_id else (),
+    )
 
 
 @tool
@@ -177,8 +189,8 @@ def reopen_task(
     """Retry a failed task: it becomes 'open' again so it can be claimed (by anyone, including you). Fails
     if the task is not failed. Tasks that depend on it stay blocked until it is done again. Returns the new
     status and version."""
-    r = ts.relay(m).reopen_task(agent_id, task_id)
-    return Outcome({"task": r}, updated=[("Task", task_id)])
+    r = ts.relay(m).reopen_task(agent_id, task_id, step_id=m.step_id)
+    return Outcome({"task": r}, updated=[("Task", task_id)], linked=[task_id] if m.step_id else ())
 
 
 # ---------------------------------------------------------------- handoffs, artifacts, decisions

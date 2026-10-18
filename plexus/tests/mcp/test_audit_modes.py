@@ -261,9 +261,9 @@ async def test_off_tenant_reads_write_nothing_and_writes_are_refused(client, ten
 async def test_off_recall_does_not_move_the_ranking(client, tenant):
     await _seed(client, tenant)
     async with Client(build_server(_runtime(client, tenant, mode="off"))) as c:
-        first = await _ok(c, "recall", agent_id="v", query="API version")
+        first = await _ok(c, "recall", agent_id="v", query="API version", detail="full")
         for _ in range(3):
-            again = await _ok(c, "recall", agent_id="v", query="API version")
+            again = await _ok(c, "recall", agent_id="v", query="API version", detail="full")
         assert [f["activation"] for f in first["facts"]] == [f["activation"] for f in again["facts"]]
         assert [f["score"] for f in first["facts"]] == [f["score"] for f in again["facts"]]
 
