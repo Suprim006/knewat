@@ -615,7 +615,7 @@ class Engram:
         The second value is the recall's metadata: for ``why_recalled`` ``entities`` (the entities the query
         named, ``{id: {name, fan}}``), ``predicates`` (the predicates it named, ``{predicate: {fan}}``),
         ``entity_facts_added`` (candidates the named entities contributed, CROSS_CHECK §3.3), ``separation``
-        and ``forgetting`` (what was on), ``mode``; and the page note ``truncated``,
+        and ``forgetting`` (what was on); and the page note ``truncated``,
         ``omitted_by_budget``, ``more_available``, ``candidates``.
 
         **Scope.** ``scope_id`` and every scope it INHERITS (<= 3 hops); ``all_scopes=True`` (the MCP tool's
@@ -640,9 +640,8 @@ class Engram:
         read (``engram/recall_predicates``) counts each one's fan. Each candidate then gets the context term
         ``sep = w_entity * max(0, S - ln fan_entity) + w_predicate * max(0, S - ln fan_predicate)`` over the
         cues it matches (``fan`` = the entity's / predicate's current facts in the searched scopes; ACT-R's
-        ``S - ln fan``; ``PLEXUS_ACT_CUES=entity`` restores the single damped entity term P1 first shipped),
-        the sibling expansion is damped by the entity fan, and each row reports ``lures``: other candidates
-        with the same predicate about another entity at nearly the same relevance. Rows gain
+        ``S - ln fan``), the sibling expansion is damped by the entity fan, and each row reports ``lures``:
+        other candidates with the same predicate about another entity at nearly the same relevance. Rows gain
         ``entity_match``, ``predicate_match``, ``sep`` and ``lures``.
 
         **Forgetting (D-012).** With forgetting on (``forgetting=True``, or ``None`` and ``PLEXUS_FORGETTING``
@@ -683,7 +682,6 @@ class Engram:
             "entity_facts_added": 0,
             "separation": sp,
             "forgetting": fg,
-            "mode": settings.act_mode,
             "truncated": False,
             "omitted_by_budget": 0,
             "more_available": False,

@@ -56,25 +56,14 @@ MODE_TABLE: dict[str, tuple[Settings, bool, bool | None]] = {
     "off": (Settings(), False, False),
     "on": (Settings(), True, None),
     "on+sweep": (Settings(), True, None),
-    "on-mult": (Settings(act_mode="mult", kw_bypass="value"), True, False),
-    "kw-fix": (Settings(act_mode="mult", kw_bypass="fact"), True, False),
-    "sep": (Settings(act_mode="mult"), False, True),  # the context term as shipped (entity + predicate cues)
-    "sep-entity": (
-        Settings(act_mode="mult", cues="entity"),
-        False,
-        True,
-    ),  # P1 as first shipped: entity cue only
-    "sep+add": (Settings(act_mode="add"), True, True),
-    "sep+mult": (
-        Settings(act_mode="mult"),
-        True,
-        True,
-    ),  # the shipped default after D-013 (mult + separation)
+    "kw-fix": (Settings(), True, False),
+    "sep": (Settings(), False, True),  # the context term as shipped (entity + predicate cues)
+    "sep+mult": (Settings(), True, True),  # the shipped default after D-013 (mult + separation)
 }
 
 
 def resolve_mode(name: str) -> tuple[Settings, bool, bool | None]:
-    """A mode name, optionally with setting overrides for post-hoc sensitivity runs: ``sep+add[beta=0.01;delta=0]`` (semicolon-separated, the CLI splits modes on commas).
+    """A mode name, optionally with setting overrides for post-hoc sensitivity runs: ``sep+mult[floor=0.8;decay=0.4]`` (semicolon-separated, the CLI splits modes on commas).
 
     The bracket form is for exploratory runs only (``demo_data/crucible/l5_posthoc``); the pre-registered modes are
     the bare names of ``MODE_TABLE``.
@@ -85,9 +74,7 @@ def resolve_mode(name: str) -> tuple[Settings, bool, bool | None]:
     settings, fg, sep = MODE_TABLE[base]
     if over:
         kv = dict(item.split("=", 1) for item in over.rstrip("]").split(";") if item)
-        settings = dataclasses.replace(
-            settings, **{k: (float(v) if k not in ("act_mode", "kw_bypass") else v) for k, v in kv.items()}
-        )
+        settings = dataclasses.replace(settings, **{k: float(v) for k, v in kv.items()})
     return settings, fg, sep
 
 
@@ -419,7 +406,7 @@ def run_forgetting(
             sql_meta = {"path": path, "export_seconds": round(time.perf_counter() - t_exp, 2), "rows": counts,
                         "sql_lines": sql_arm.sql_lines(), "sqlite_version": sqlite3.sqlite_version}  # fmt: skip
             sqlr = sql_arm.SqlRecall(path, embedder)
-            graph_acts = Activation(client, graph, Settings(act_mode="mult"), clock=lambda: now).compute(
+            graph_acts = Activation(client, graph, Settings(), clock=lambda: now).compute(
                 [r[0] for r in client.graph(graph).ro_query("MATCH (f:Fact) RETURN f.id").result_set], now
             )
             sql_meta["activation_fidelity"] = sql_arm.activation_fidelity(sqlr, graph_acts, now)

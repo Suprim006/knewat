@@ -2,8 +2,8 @@
 that name the entity and the predicate. Pre-registered in docs/BASELINE.md ("Predicate cue pre-registration").
 
 The question the variant decides: can the fan term separate the facts of ONE named entity? A single entity cue
-lifts every fact of the hub equally (and the first-shipped form damps it to zero at fan >= 50), so the answer
-rests on relevance alone; the two-cue context term adds a predicate cue that the asked fact alone matches.
+lifts every fact of the hub equally, so the answer would rest on relevance alone; the two-cue context term adds
+a predicate cue that the asked fact alone matches.
 
 World (seed 20261016): one scope; the hub ``Atlas Core Platform`` with ``HUB_FACTS`` facts whose predicates are
 distinct two-word ``w1_w2`` names; ``N_OTHERS`` ordinary entities (two-word names, disjoint words) with
@@ -11,10 +11,7 @@ distinct two-word ``w1_w2`` names; ``N_OTHERS`` ordinary entities (two-word name
 Values never repeat the predicate's or the entity's words (the full-text keyword path finds nothing; the vector
 seeds, the §3.3 union and the cues do the work). No reads are simulated (forgetting is off in every arm).
 
-Arms (all ``mult``, forgetting off, separation on except ``off``):
-``off`` (relevance only), ``sep-entity`` (the single damped entity cue P1 first shipped, ``S_max = ln 50``: zero
-lift at fan 200), ``sep-flat`` (the plan's "flat entity boost without the fan term": ``S_max`` at the settings
-cap, 20, so every hub fact gets the same ~0.11 lift), ``sep`` (the two-cue term, shipped default).
+Arms (forgetting off): ``off`` (relevance only) and ``sep`` (the two-cue term, shipped default).
 """
 
 from __future__ import annotations
@@ -49,10 +46,8 @@ OTHER_B = ("ledger", "router", "vault", "beacon", "courier")
 VERBS = ("pinned", "moved", "kept", "set", "rotated", "frozen", "raised", "lowered")
 NOUNS = ("tuesday", "quarter", "midnight", "sprint", "friday", "release", "review", "handover")
 ARMS: dict[str, tuple[Settings, bool]] = {  # name -> (settings, separation)
-    "off": (Settings(act_mode="mult"), False),
-    "sep-entity": (Settings(act_mode="mult", cues="entity"), True),
-    "sep-flat": (Settings(act_mode="mult", cues="entity", s_max=20.0), True),
-    "sep": (Settings(act_mode="mult"), True),
+    "off": (Settings(), False),
+    "sep": (Settings(), True),
 }
 
 
@@ -163,9 +158,7 @@ def run_hub(
                 "arms": list(arms),
                 "settings": {
                     a: {
-                        "cues": s.cues,
                         "s_max": s.s_max,
-                        "gamma": s.gamma,
                         "cue_s": s.cue_s,
                         "w_entity": s.w_entity,
                         "w_predicate": s.w_predicate,
@@ -219,45 +212,6 @@ def hub_criteria(res: dict[str, Any]) -> list[dict[str, Any]]:
                 "hard": False,
                 "ok": hb <= 0.10 + tol,
                 "value": [hb],
-            }
-        )
-    if "sep-flat" in a:
-        hb = a["sep-flat"]["hub_fact_above_target"]
-        out.append(
-            {
-                "id": "hub: flat boost puts another hub fact above the target >= 30% (plan §5.3)",
-                "hard": False,
-                "ok": hb >= 0.30 - tol,
-                "value": [hb],
-            }
-        )
-        t5 = a["sep-flat"]["other_hub_fact_in_top5"]
-        out.append(
-            {
-                "id": "hub: flat boost has another hub fact in the top 5 >= 30% (plan §5.3 as written)",
-                "hard": False,
-                "ok": t5 >= 0.30 - tol,
-                "value": [t5],
-            }
-        )
-    if "sep-entity" in a and "sep" in a:
-        gain = a["sep"]["recall@1"] - a["sep-entity"]["recall@1"]
-        out.append(
-            {
-                "id": "hub: sep recall@1 - sep-entity recall@1 >= 0.10 (the predicate cue is what helps)",
-                "hard": False,
-                "ok": gain >= 0.10 - tol,
-                "value": [a["sep-entity"]["recall@1"], a["sep"]["recall@1"]],
-            }
-        )
-    if "sep-entity" in a and "off" in a:
-        d = abs(a["sep-entity"]["recall@1"] - a["off"]["recall@1"])
-        out.append(
-            {
-                "id": "hub: sep-entity recall@1 within 2 probes (0.01) of off (zero lift at fan 200)",
-                "hard": False,
-                "ok": d <= 0.01 + tol,
-                "value": [a["off"]["recall@1"], a["sep-entity"]["recall@1"]],
             }
         )
     return out

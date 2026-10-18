@@ -73,7 +73,7 @@ Published tool schemas are **compact** (P12, `plexus.mcp.server.compact_schema`)
 bounds of 10 000 or more, `anyOf [X, null]` written as `X`, no `outputSchema`. Every description, type, enum, `required`,
 small bound and non-null default is kept, and the server still validates arguments against the full model (an
 over-long value still gets the one-line error). Measured with `claude -p` 2.1.296: the 45-tool list costs 19,877 prompt
-tokens per API call instead of 28,873. `PLEXUS_MCP_SCHEMA=full` publishes the verbose schemas.
+tokens per API call instead of 28,873.
 - **Relay:** `register_agent`, `create_tasks`, `claim_next_task`, `heartbeat`, `complete_task`, `fail_task`, `reopen_task`,
   `handoff`, `verify_artifact`, `record_decision`, `ready_tasks`, `task_status`, `blocked_by_failure` (optional `depth`,
   1..50, default 50).
@@ -300,7 +300,7 @@ lowers a fact's **rank only**; none of these deletes anything.
 | Tool | Arguments (besides `agent_id`, `step`) | Result |
 |---|---|---|
 | `pin_fact` / `unpin_fact` | `fact_id` | `{fact_id, pinned}`. A pinned fact is never ranked below neutral and never swept. |
-| `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, mode, act_term, salience, salience_inputs, decays, fan, entity_lift, suggested_verify_after, …}}` (D-013 fields: `docs/forgetting.md`). Read-only: no `READ` edge, so asking is not using. |
+| `memory_strength` | `fact_id` | `{strength: {activation, a0, multiplier, floor, protected, protect_reasons, pinned, surprise, counts, last_use, last_recall, explanation, salience, salience_inputs, fan, entity_lift, suggested_verify_after, …}}` (D-013 fields: `docs/forgetting.md`). Read-only: no `READ` edge, so asking is not using. |
 | `memory_sweep` | `scope='global'`, `threshold=None` (−50..50), `dry_run=true`, `limit=200` (1..200) | `{sweep: {threshold, dry_run, scanned, candidates:[{fact_id, text, activation}], would_move, moved, skipped, truncated}}`. Moves to `dormant` only with `dry_run=false`; protected and suspect facts are never moved. |
 | `restore_fact` | `fact_id` | `{fact_id, restored, status, was}` (+ `reason: 'already_superseded'`, `superseded_by` when a newer active fact blocks it); a fact that is not dormant is left alone. |
 

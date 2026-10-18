@@ -319,6 +319,7 @@ and ranking and found one required fix (the sweep threshold under the new decay 
    with the same predicate about another entity within 0.02 relevance), `entity_match` and `sep`; `Recall` stores
    `entities` and `separation`, `RETURNED` stores `sep`, so `why_recalled` explains the lift. Nothing is written by a
    recall. The exact-keyword bypass now tests the whole fact text (`PLEXUS_KW_BYPASS=fact`; `value` = the old rule).
+   `PLEXUS_KW_BYPASS=value`: Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
 2. **P2 additive mode, implemented behind `PLEXUS_ACT_MODE=add`, default stays `mult`.** `plexus.activation.score`:
    `ln rel + beta·tanh((A − A0)/2s) + sep + sal`, Pavlik–Anderson activation-dependent decay
    (`activation_spaced`, `c = 0.217, a = 0.177`, testing-effect weight for a recall after the last use), graded
@@ -327,6 +328,7 @@ and ranking and found one required fix (the sweep threshold under the new decay 
    otherwise), salience slows decay (`kappa = 0.4`), the band guard replaces `max(A, A0)` for protected facts,
    `memory_sweep`'s default margin is `A0 − 0.72` under the new scale (CROSS_CHECK §3.1), and salience ≥ 0.5 protects
    from sweeps. `mult` mode is byte-for-byte D-012 (plus the bypass fix and separation).
+   `PLEXUS_ACT_MODE=add` (and its constants `PLEXUS_ACT_BETA`, `_S`, `_C`, `_A`, `_DMAX`, `_KAPPA`, `_DELTA`, `_BAND`): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
 3. **Identity contract:** `PLEXUS_FORGETTING=off` **and** `PLEXUS_RECALL_SEPARATION=off` reproduce the pre-D-012 order
    exactly (`tests/activation/test_recall_off.py`, golden captured on main 4584219). Separation alone changes the
    order only through the damped expansion and when the query names an entity.
@@ -399,7 +401,7 @@ registered number of record for CROSS_CHECK's constants stays the falsified one.
 pair is undefined by any cue (recency, P3 reliability or `resolve_contradiction` are the candidates — a new pre-registration);
 the L5b "same-entity gap" should no longer be cited as a product defect; the §3.3 union's ~5-point noise cost on L5b is the
 price of completeness about the named entity and is recorded, not hidden; the SQL arm of §5.4 was not given the predicate
-feature (tie claim unchanged).
+feature (tie claim unchanged). `PLEXUS_ACT_CUES=entity` (and `PLEXUS_ACT_GAMMA`): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
 
 **Amendment 2026-10-17 (2) — the shipped default matches the text; one additive formula (`docs/research/BRANCH_REVIEW.md`
 findings 1–2, `CYPHER_AUDIT_SUMMARY.md` C1).** Point 2 says `mult` is "byte-for-byte D-012 (plus the bypass fix and separation)"
@@ -528,6 +530,8 @@ ANY of them is forgotten"). So the fix is in four places, not in the model: no n
    stay. The `source_id` argument text was shortened to pay for part of it: the list grows by 418 characters (core 30,182 -> 30,600,
    full 47,843 -> 48,261 by `crucible/l8/manifest_size.py`, a $0 count; `manifest_probe` needs paid `claude -p` calls), guarded by a
    450-character test budget. Empty `corroborated` / `unlinked` are not sent.
+   The tool list is published compact since P12 (`docs/research/L8_TOKEN_COST_P12.md`); `PLEXUS_MCP_SCHEMA=full` (the pre-P12
+   verbose schemas): Removed in the cleanup (2026-10-18); reproduce at tag `pre-cleanup`.
 
 **Cost (GRAPH.PROFILE, `demo_data/crucible/t8replay/profile.txt`).** One extra `CALL { WITH src, fs ... }` per query: `UNWIND fs`, one
 pattern comprehension of the fact's Source edges (raw values; the filter is a plain list comprehension), one aggregate row out. Records
