@@ -20,6 +20,8 @@ the commit was made. 'Envelope' means the commit recorded in the result's own `r
 2. Start a private FalkorDB 6.0.2 with `bash scripts/agent_db.sh <slot>`, make a venv (`cd plexus && UV_PROJECT_ENVIRONMENT=.venv-repro uv sync`) and run the layer with the command in the cited BASELINE section.
 3. Compare with the cited result file under `plexus/demo_data/crucible/` (ids are random UUIDs, so the second digit of ranking numbers varies; latencies vary about 2x between runs).
 
+**Arms removed in the cleanup (2026-10-18):** the L5b / hub arms `sep+add`, `on-mult`, `sep-entity`, `sep-flat` and the post-hoc X1 (`PLEXUS_KW_BYPASS=value`) behind rows E3, E5, E6 and E8 no longer exist in the tree (their switches `PLEXUS_ACT_MODE=add`, `PLEXUS_ACT_CUES=entity`, `PLEXUS_KW_BYPASS=value` were removed). Arm removed; reproduce at `pre-cleanup`. The `off`, `kw-fix`, `sep` and `sep+mult` arms are unchanged.
+
 | Kind | Layers | Cost | Command (from the repo root; DB port as above) |
 |---|---|---|---|
 | Deterministic, no LLM | L1, L4, ablation | $0, about 24 min (`--quick` about 2 min) | `docker compose --profile bench run --rm crucible all` |

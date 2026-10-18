@@ -103,13 +103,9 @@ time the source is registered.
 | `PLEXUS_ACT_A0` | −5.68 (1 day) | neutral activation |
 | `PLEXUS_ACT_FLOOR` | `0.9` | lowest multiplier. At `0.5` popular near-twin facts outranked the relevant one (Crucible L5b); `0.9` is the confirmed default |
 | `PLEXUS_ACT_EVENTS` | `50` | `K`, newest events counted (1..200) |
-| `PLEXUS_ACT_MODE` | `mult` | D-013: `mult` = the formula above; `add` = the additive banded score below (opt-in; its pre-registered L5b test failed, see D-013) |
 | `PLEXUS_RECALL_SEPARATION` | `on` | D-013 P1: entity resolution + fan-damped lift + damped sibling expansion + lures (below). `recall(separation=…)` overrides it |
-| `PLEXUS_KW_BYPASS` | `fact` | the exact-keyword bypass tests `entity predicate: value` (`fact`) or the value alone (`value`, the pre-D-013 rule) |
-| `PLEXUS_ACT_CUES` | `entity+predicate` | the context term: the entity and predicate cues summed (CROSS_CHECK §3.2); `entity` = the single damped entity term P1 first shipped |
 | `PLEXUS_ACT_CUE_S`, `PLEXUS_ACT_W_ENTITY`, `PLEXUS_ACT_W_PREDICATE` | `5`, `0.03`, `0.02` | ACT-R `S` (a cue with fan ≥ e^S ≈ 148 adds nothing) and the cue weights (CROSS_CHECK's 0.6 / 0.4 scaled by 1/20; see below) |
-| `PLEXUS_ACT_GAMMA`, `PLEXUS_ACT_SMAX` | `0.15`, `ln 50` | the single-cue form (`cues=entity`); `S_max` is also the fan at which the sibling expansion is damped to nothing |
-| `PLEXUS_ACT_BETA`, `PLEXUS_ACT_S`, `PLEXUS_ACT_C`, `PLEXUS_ACT_A`, `PLEXUS_ACT_DMAX`, `PLEXUS_ACT_KAPPA`, `PLEXUS_ACT_DELTA`, `PLEXUS_ACT_BAND` | `0.05`, `1.0`, `0.217`, `0.177`, `1.0`, `0.4`, `0.03`, `0.02` | `add` mode constants (below) |
+| `PLEXUS_ACT_SMAX` | `ln 50` | `S_max`: the fan at which the sibling expansion of `engram/recall` is damped to nothing |
 
 Bad values fail loudly (`ValueError`), they are not silently defaulted.
 
@@ -128,7 +124,7 @@ Bad values fail loudly (`ValueError`), they are not silently defaulted.
 identical** (`tests/activation/test_sweep_restore.py` dumps every node and edge before and after). Dormant facts are
 hidden from `recall` unless `include_dormant=true`.
 
-## D-013: pattern separation (on) and the additive mode (opt-in)
+## D-013: pattern separation (on) and salience
 
 Research: `docs/research/NEUROSCIENCE_MEMORY_SURVEY.md`, `MEMORY_FORGETTING_IMPLEMENTATION_PLAN.md`, `neuro-memory/`.
 
@@ -155,10 +151,7 @@ else. CROSS_CHECK §3.2 recommended `0.6 / 0.4`; that scale was run as registere
 4–11 points for no recall gain (every fact about the named entity, noise included, outranked every fact about any
 other entity); the `1/20` scale was chosen post hoc and then confirmed in a pre-registered run (`docs/BASELINE.md`
 "Predicate cue results" and the confirmatory section after it). A cue is floored at 0, so a hub cue (fan ≥ e^5 ≈
-148) adds nothing and never subtracts; a fan of 50 still adds a little (the first form zeroed it).
-`PLEXUS_ACT_CUES=entity` restores the first form, `sep = gamma · max(0, 1 − ln(fan) / S_max)` (`gamma = 0.15`,
-`S_max = ln 50`), the predicate ignored. In
-`mult` mode `final = relevance × multiplier × e^sep`. The sibling expansion of `engram/recall` is damped by the
+148) adds nothing and never subtracts; a fan of 50 still adds a little. `final = relevance × multiplier × e^sep`. The sibling expansion of `engram/recall` is damped by the
 entity fan (`rank = d − boost · damp`, `damp = max(0, 1 − ln fan / S_max)`). Each row reports `entity_match`,
 `predicate_match`, `sep` and `lures` (other candidates with the same predicate about another entity within 0.02
 relevance: "this row has a near-identical competitor, check the entity"); `Recall.entities`/`separation` and
@@ -166,25 +159,12 @@ relevance: "this row has a near-identical competitor, check the entity"); `Recal
 tests the whole fact text. Cost: two more bounded reads per recall when the query names an entity (the entity's
 facts, the predicate fans): 6 round trips with forgetting on.
 
-**Additive mode (P2, `PLEXUS_ACT_MODE=add`).** `plexus.activation.score`:
-
-```
-score = ln(rel) + beta · tanh((A − A0) / 2s) + sep + sal      # beta = 0.05, s = 1 nat
-A     = activation_spaced(events): d_i = min(d_max, c · e^{m_{i−1}} + a), c = 0.217, a = 0.177   (Pavlik & Anderson 2005)
-sal   = +delta · salience inside the relevance band (rel ≥ rel_top − eps), −delta · s_max_band outside it when the
-        band holds something critical (s_max_band ≥ 0.8), else 0                                 # delta = 0.03, eps = 0.02
-```
-
-Every term is bounded, so the relevance order is kept except among near-ties. Activation-dependent decay makes a
-burst of massed reads worth about one read while spaced reads keep their value (`tests/activation/test_score.py`);
-a recall after the fact's last use is a *restudy* worth `0.3 · (1 − σ(m_prev − A0))`. **Salience** `s = 1 − e^{−Σ w·n}`
-is read from the graph in the same `activation/activation` round trip (unflagged decisions 1.0, verifications 1.5,
-distinct independently verified artifacts of the decisions' *done* tasks 1.0, done tasks 0.5, distinct using agents − 1 at 0.5,
-handoffs 0.5, trusted source 1.0, pin 3.0); it slows decay (`d · (1 − kappa · s)`, `kappa = 0.4`), protects from
-sweeps at `s ≥ 0.5` (in `add` mode only: `mult` keeps exactly D-012's boolean rules, D-013 amendment 2), is cached on `Fact.salience` by `pin_fact` and shown by `memory_strength` (`salience`,
-`salience_inputs`, per-event `decays`, `act_term`, `fan`, `entity_lift`, `suggested_verify_after`). Salience never
-feeds `confidence`. Under the new scale `A0 = −2.01` and the sweep's default threshold is `A0 − 0.72` (still "about
-55–60 days unused"; `A0 − 2` would never fire). `max(A, A0)` for protected facts is replaced by the band guard.
+**Salience (P2).** `s = 1 − e^{−Σ w·n}` is read from the graph in the same `activation/activation` round trip
+(unflagged decisions 1.0, verifications 1.5, distinct independently verified artifacts of the decisions' *done* tasks
+1.0, done tasks 0.5, distinct using agents − 1 at 0.5, handoffs 0.5, trusted source 1.0, pin 3.0). It is cached on
+`Fact.salience` by `pin_fact` and shown by `memory_strength` (`salience`, `salience_inputs`, `fan`, `entity_lift`,
+`suggested_verify_after`, a review date for facts at `s ≥ 0.5`). It does not change the ranking or protect from
+sweeps: the D-012 boolean rules alone protect (D-013 amendment 2). Salience never feeds `confidence`.
 
 **What the pre-registered L5b run showed (`docs/BASELINE.md` "L5b-D013", D-013).** P1: recall@1 75.7% → 85.7%,
 recall@5 100%, every cross-entity displacer gone; the 0.90 target was **not reached**. The D-013 reading of the
@@ -200,7 +180,8 @@ confirmatory run (`sep+mult` at 0.03 / 0.02): recall@1 85.7%, recall@5 100%, noi
 loss 0, cross-entity displacers 0.
 P2 at its declared constants: **falsified** (70.0%); the additive term and the in-band salience lift together
 re-created the twin problem, and at the strength where they stop costing recall they also stop reducing noise. So
-`add` stays opt-in and `mult` + separation is the default (85.0% / 100% / noise 22.1%, vs D-012's 65.0% / 95.7% /
+the additive mode (`PLEXUS_ACT_MODE=add`) was never the default and has been removed (reproduce at tag
+`pre-cleanup`); `mult` + separation is the default (85.0% / 100% / noise 22.1%, vs D-012's 65.0% / 95.7% /
 14.9%). The noise share is higher than under D-012 alone because the entity lift also lifts noise *about the named
 entity* over real facts about other entities.
 
